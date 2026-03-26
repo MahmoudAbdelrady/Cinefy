@@ -1,0 +1,23 @@
+<div class="sidebar-container">
+  <div class="header">
+    <div class="site-icon"></div>
+    <div class="site-info">
+      <h3>Cinefy</h3>
+      <p>Management Portal</p>
+    </div>
+  </div>
+  <div class="pages">
+    @for (tab of tabs; track tab.path) {
+      <div class="page-item" [routerLink]="tab.path">
+        <lucide-icon [img]="tab.icon"></lucide-icon>
+        <span>{{ tab.label }}</span>
+      </div>
+    }
+  </div>
+  <div class="footer">
+    <div class="page-item" [routerLink]="settingsTab.path">
+      <lucide-icon [img]="settingsTab.icon"></lucide-icon>
+      <span>{{ settingsTab.label }}</span>
+    </div>
+  </div>
+</div>
