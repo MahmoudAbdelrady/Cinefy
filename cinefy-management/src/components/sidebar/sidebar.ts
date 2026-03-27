@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   ChartColumn,
   CreditCard,
@@ -9,8 +9,10 @@ import {
   LucideIconData,
   Settings,
   Users,
+  X,
 } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
+import { SidebarService } from '../../services/sidebar';
 
 interface SidebarTab {
   label: string;
@@ -25,6 +27,9 @@ interface SidebarTab {
   styleUrl: './sidebar.scss',
 })
 export class SidebarComponent {
+  protected sidebarService = inject(SidebarService);
+  protected XIcon = X;
+
   protected readonly tabs: SidebarTab[] = [
     { label: 'Dashboard', icon: House, path: '/' },
     { label: 'Halls', icon: LayoutDashboard, path: '/halls' },

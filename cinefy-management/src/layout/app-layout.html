@@ -1,4 +1,13 @@
 <div class="app-layout">
-  <span>Layout Works!</span>
-  <router-outlet />
+  <div class="sidebar-container">
+    <sidebar-component />
+  </div>
+  <div class="main-container">
+    <div class="header-container">
+      <header-component />
+    </div>
+    <div class="content-container">
+      <router-outlet />
+    </div>
+  </div>
 </div>

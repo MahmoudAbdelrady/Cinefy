@@ -1,1 +1,56 @@
-<p>header works!</p>
+<div class="header-container">
+  <div class="header-inner">
+    <div class="header-left">
+      <button class="hamburger-btn" (click)="openSidebar()">
+        <lucide-icon [img]="MenuIcon" [size]="22"></lucide-icon>
+      </button>
+      <div class="hl-icon">
+        <lucide-icon [img]="CalendarIcon" [size]="18"></lucide-icon>
+      </div>
+      <div class="hl-info">
+        <h3>{{ currentDate | date: 'EEEE, MMM d, yyyy' }}</h3>
+        <p>Welcome back, Admin</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="quick-add-container">
+        <button [ngpMenuTrigger]="quickAddMenu" ngpMenuTriggerScrollBehavior="reposition" ngpButton>
+          <lucide-icon [img]="PlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+          <span>Quick Add</span>
+          <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
+        </button>
+        <ng-template #quickAddMenu>
+          <div class="quick-add-menu-items" ngpMenu>
+            @for (item of quickAddMenuItems; track item.label) {
+              <div class="qam-item" ngpMenuItem>
+                <lucide-icon [img]="item.icon" [size]="16"></lucide-icon>
+                <span>{{ item.label }}</span>
+              </div>
+            }
+          </div>
+        </ng-template>
+      </div>
+      <div class="header-divider"></div>
+      <div class="user-info-container">
+        <button [ngpMenuTrigger]="userInfoMenu" ngpMenuTriggerScrollBehavior="reposition" ngpButton>
+          <div class="avatar-box"></div>
+          <div class="info-box">
+            <h5>Admin User</h5>
+            <p>Administrator</p>
+          </div>
+          <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
+        </button>
+        <ng-template #userInfoMenu>
+          <div class="user-info-menu-items" ngpMenu>
+            @for (item of userInfoMenuItems; track item.label) {
+              <div class="uim-item" ngpMenuItem>
+                <lucide-icon [img]="item.icon" [size]="16"></lucide-icon>
+                <span>{{ item.label }}</span>
+              </div>
+            }
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
