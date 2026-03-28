@@ -33,6 +33,7 @@
       class="page-item"
       [routerLink]="settingsTab.path"
       routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
       (click)="sidebarService.close()"
     >
       <lucide-icon [img]="settingsTab.icon" [size]="20"></lucide-icon>
