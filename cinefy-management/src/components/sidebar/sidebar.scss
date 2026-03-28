@@ -1,4 +1,5 @@
 @use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
 
 $sidebar-width: 256px;
 
@@ -8,7 +9,7 @@ $sidebar-width: 256px;
   width: $sidebar-width;
   height: 100%;
   background-color: #ffffff;
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid $gray-200;
   transition: transform 200ms ease;
 
   @media (max-width: 1023px) {
@@ -39,41 +40,33 @@ $sidebar-width: 256px;
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  @include flex-between;
   padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid $gray-200;
 
   .header-left {
-    display: flex;
-    align-items: center;
+    @include flex-align;
     gap: 12px;
   }
 
   .site-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #2563eb, #9333ea);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include icon-box(40px);
+    border-radius: $radius-md;
+    background: linear-gradient(135deg, $blue-600, $purple-600);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
   }
 
   .site-info {
     h3 {
       font-size: 18px;
       font-weight: 700;
-      color: #111827;
+      color: $gray-900;
       line-height: 1.2;
     }
 
     p {
       font-size: 12px;
-      color: #6b7280;
+      color: $gray-500;
       line-height: 1.4;
     }
   }
@@ -81,18 +74,16 @@ $sidebar-width: 256px;
   .close-btn {
     display: none;
     padding: 4px;
-    color: #9ca3af;
-    border-radius: 4px;
+    color: $gray-400;
+    border-radius: $radius-sm;
     transition: color 150ms ease;
 
     &:hover {
-      color: #4b5563;
+      color: $gray-600;
     }
 
     @media (max-width: 1023px) {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include flex-center;
     }
   }
 }
@@ -107,23 +98,22 @@ $sidebar-width: 256px;
 }
 
 .page-item {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 12px;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: $radius-md;
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: $gray-700;
   transition: all 150ms ease;
   text-decoration: none;
 
   &:hover {
-    background-color: #f3f4f6;
+    background-color: $gray-100;
   }
 
   &.active {
-    background-color: #2563eb;
+    background-color: $blue-600;
     color: #ffffff;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
@@ -142,7 +132,7 @@ $sidebar-width: 256px;
 
 .footer {
   padding: 16px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid $gray-200;
 
   .page-item {
     margin: 0;

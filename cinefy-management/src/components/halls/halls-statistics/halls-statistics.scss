@@ -1,3 +1,6 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
+
 .statistics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -15,56 +18,45 @@
 
 .stat-card {
   background-color: #ffffff;
-  border-radius: 12px;
-  border: 1px solid rgba(229, 231, 235, 0.8);
+  border-radius: $radius-lg;
+  border: 1px solid $card-border;
   padding: 24px;
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 12px;
 }
 
 .sc-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  lucide-icon {
-    display: flex;
-  }
+  @include icon-box(48px);
 
   &.blue {
-    background-color: #dbeafe;
+    background-color: $blue-100;
 
     lucide-icon {
-      color: #2563eb;
+      color: $blue-600;
     }
   }
 
   &.green {
-    background-color: #dcfce7;
+    background-color: $green-100;
 
     lucide-icon {
-      color: #16a34a;
+      color: $green-600;
     }
   }
 
   &.purple {
-    background-color: #f3e8ff;
+    background-color: $purple-100;
 
     lucide-icon {
-      color: #9333ea;
+      color: $purple-600;
     }
   }
 
   &.orange {
-    background-color: #ffedd5;
+    background-color: $orange-100;
 
     lucide-icon {
-      color: #ea580c;
+      color: $orange-600;
     }
   }
 }
@@ -73,13 +65,13 @@
   h3 {
     font-size: 24px;
     font-weight: 700;
-    color: #111827;
+    color: $gray-900;
     line-height: 1.2;
   }
 
   p {
     font-size: 14px;
-    color: #6b7280;
+    color: $gray-500;
     margin-top: 2px;
   }
 }

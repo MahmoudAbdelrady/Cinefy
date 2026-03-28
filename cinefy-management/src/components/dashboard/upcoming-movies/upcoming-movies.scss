@@ -1,4 +1,5 @@
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
 
 :host {
   align-self: start;
@@ -6,30 +7,23 @@
 
 .upcoming {
   background-color: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border-radius: $radius-lg;
+  border: 1px solid $gray-200;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 
   > .header {
-    display: flex;
-    align-items: center;
+    @include flex-align;
     gap: 12px;
     padding: 20px 24px;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid $gray-100;
 
     .h-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background-color: #fff7ed;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include icon-box(40px);
+      background-color: $orange-50;
 
       lucide-icon {
-        color: #ea580c;
-        display: flex;
+        color: $orange-600;
       }
     }
 
@@ -37,12 +31,12 @@
       h3 {
         font-size: 18px;
         font-weight: 700;
-        color: #111827;
+        color: $gray-900;
       }
 
       p {
         font-size: 12px;
-        color: #9ca3af;
+        color: $gray-400;
         margin-top: 2px;
       }
     }
@@ -51,11 +45,10 @@
 
 .um-list {
   .um-card {
-    display: flex;
-    align-items: center;
+    @include flex-align;
     gap: 16px;
     padding: 16px 24px;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid $gray-100;
     transition: background-color 150ms ease;
     cursor: pointer;
 
@@ -72,7 +65,7 @@
 .umc-poster {
   width: 44px;
   height: 64px;
-  border-radius: 8px;
+  border-radius: $radius-md;
   overflow: hidden;
   flex-shrink: 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -88,9 +81,7 @@
 .umc-info {
   flex: 1;
   min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  @include flex-between;
   gap: 8px;
 }
 
@@ -100,22 +91,19 @@
   h4 {
     font-size: 14px;
     font-weight: 600;
-    color: #111827;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: $gray-900;
+    @include text-truncate;
   }
 
   p {
     font-size: 12px;
-    color: #9ca3af;
+    color: $gray-400;
     margin-top: 2px;
   }
 }
 
 .umc-release {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 6px;
   margin-top: 6px;
 
@@ -127,21 +115,21 @@
   span {
     font-size: 11px;
     font-weight: 500;
-    color: #ea580c;
+    color: $orange-600;
   }
 }
 
 .umc-date {
   font-size: 12px;
   font-weight: 500;
-  color: #6b7280;
+  color: $gray-500;
   flex-shrink: 0;
   text-align: right;
 }
 
 .um-actions {
   padding: 12px 24px;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid $gray-100;
   background-color: rgba(249, 250, 251, 0.5);
 
   a {
@@ -151,11 +139,11 @@
     text-align: center;
     font-size: 14px;
     font-weight: 500;
-    color: #2563eb;
+    color: $blue-600;
     transition: color 150ms ease;
 
     &:hover {
-      color: #1d4ed8;
+      color: $blue-700;
     }
   }
 }
