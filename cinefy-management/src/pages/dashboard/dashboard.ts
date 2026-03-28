@@ -22,7 +22,7 @@ import {
   UpcomingMoviesComponent,
   TodayScheduleComponent,
 } from '../../components';
-import { HeaderActionsService } from '../../services/header-actions';
+import { HeaderActionsService } from '../../services';
 
 interface DropDownMenuItem {
   icon: LucideIconData;

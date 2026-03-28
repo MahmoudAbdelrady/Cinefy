@@ -11,8 +11,7 @@ import {
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
-import { HeaderActionsService } from '../../services/header-actions';
-import { SidebarService } from '../../services/sidebar';
+import { HeaderActionsService, SidebarService } from '../../services';
 
 interface DropDownMenuItem {
   icon: LucideIconData;
