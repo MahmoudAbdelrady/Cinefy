@@ -38,20 +38,6 @@
   }
 }
 
-// ─── Dashboard ──────────────────────────────────────────────────────────────────
-
-.dashboard-container {
-  padding: 24px 32px;
-
-  @media (max-width: 1023px) {
-    padding: 24px;
-  }
-
-  @media (max-width: 639px) {
-    padding: 16px;
-  }
-}
-
 // ─── Today's Performance ────────────────────────────────────────────────────────
 
 .today-stats {
