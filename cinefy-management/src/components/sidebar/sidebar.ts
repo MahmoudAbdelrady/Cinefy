@@ -36,7 +36,7 @@ export class SidebarComponent {
     { label: 'Movies', icon: Film, path: '/movies' },
     { label: 'Payment', icon: CreditCard, path: '/payment' },
     { label: 'Statistics', icon: ChartColumn, path: '/statistics' },
-    { label: 'Users', icon: Users, path: '/users' },
+    { label: 'Staff', icon: Users, path: '/staff' },
   ];
 
   protected readonly settingsTab: SidebarTab = {
