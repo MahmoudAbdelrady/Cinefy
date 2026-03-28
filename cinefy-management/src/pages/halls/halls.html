@@ -1,3 +1,21 @@
+<ng-template #headerActionsTemplate>
+  <div class="action-buttons-container">
+    <button ngpButton>
+      <lucide-icon
+        [img]="SettingsIcon"
+        [size]="16"
+        [strokeWidth]="2.5"
+        class="secondary-btn"
+      ></lucide-icon>
+      <span>Manage Hall Types</span>
+    </button>
+    <button ngpButton>
+      <lucide-icon [img]="PlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+      <span>Add New Hall</span>
+    </button>
+  </div>
+</ng-template>
+
 <div class="halls-container">
-  <h1>Halls</h1>
+  <halls-statistics />
 </div>
