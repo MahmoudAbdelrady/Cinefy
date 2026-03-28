@@ -1,0 +1,31 @@
+@if (sidebarService.isOpen()) {
+  <div class="sidebar-backdrop" (click)="sidebarService.close()"></div>
+}
+<div class="sidebar-container" [class.is-open]="sidebarService.isOpen()">
+  <div class="header">
+    <div class="header-left">
+      <div class="site-icon"></div>
+      <div class="site-info">
+        <h3>Cinefy</h3>
+        <p>Management Portal</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="sidebarService.close()">
+      <lucide-icon [img]="XIcon" [size]="20"></lucide-icon>
+    </button>
+  </div>
+  <div class="pages">
+    @for (tab of tabs; track tab.path) {
+      <a class="page-item" [routerLink]="tab.path" (click)="sidebarService.close()">
+        <lucide-icon [img]="tab.icon" [size]="20"></lucide-icon>
+        <span>{{ tab.label }}</span>
+      </a>
+    }
+  </div>
+  <div class="footer">
+    <a class="page-item" [routerLink]="settingsTab.path" (click)="sidebarService.close()">
+      <lucide-icon [img]="settingsTab.icon" [size]="20"></lucide-icon>
+      <span>{{ settingsTab.label }}</span>
+    </a>
+  </div>
+</div>

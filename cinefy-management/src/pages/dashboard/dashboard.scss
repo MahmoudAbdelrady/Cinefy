@@ -1,0 +1,253 @@
+@use '../../shared/styles/colors' as *;
+
+.dashboard-container {
+  padding: 24px 32px;
+
+  @media (max-width: 1023px) {
+    padding: 24px;
+  }
+
+  @media (max-width: 639px) {
+    padding: 16px;
+  }
+}
+
+// ─── Today's Performance ────────────────────────────────────────────────────────
+
+.today-stats {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  > .header {
+    margin-bottom: 24px;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #4b5563;
+    }
+  }
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sc-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .sc-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    lucide-icon {
+      display: flex;
+    }
+  }
+
+  &:nth-child(1) .sc-icon {
+    background-color: #dbeafe;
+
+    lucide-icon {
+      color: #2563eb;
+    }
+  }
+
+  &:nth-child(2) .sc-icon {
+    background-color: #dcfce7;
+
+    lucide-icon {
+      color: #16a34a;
+    }
+  }
+
+  &:nth-child(3) .sc-icon {
+    background-color: #ffedd5;
+
+    lucide-icon {
+      color: #ea580c;
+    }
+  }
+
+  .sc-info {
+    > span {
+      font-size: 14px;
+      color: #4b5563;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    h3 {
+      font-size: 30px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.2;
+    }
+  }
+}
+
+.percentage-box {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 4px;
+
+  lucide-icon {
+    display: flex;
+  }
+
+  span {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  &.up,
+  .sc-item:nth-child(1) &,
+  .sc-item:nth-child(3) & {
+    lucide-icon {
+      color: #16a34a;
+    }
+
+    span {
+      color: #16a34a;
+    }
+  }
+
+  &.down,
+  .sc-item:nth-child(2) & {
+    lucide-icon {
+      color: #dc2626;
+    }
+
+    span {
+      color: #dc2626;
+    }
+  }
+}
+
+// ─── Quick Overview ─────────────────────────────────────────────────────────────
+
+.quick-overview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.overview-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    lucide-icon {
+      display: flex;
+    }
+  }
+
+  &:nth-child(1) .card-icon {
+    background-color: #dbeafe;
+
+    lucide-icon {
+      color: #2563eb;
+    }
+  }
+
+  &:nth-child(2) .card-icon {
+    background-color: #f3e8ff;
+
+    lucide-icon {
+      color: #9333ea;
+    }
+  }
+
+  .card-info {
+    span {
+      font-size: 14px;
+      color: #6b7280;
+      display: block;
+    }
+
+    h3 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.3;
+    }
+  }
+
+  .card-badge {
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 9999px;
+  }
+
+  &:nth-child(1) .card-badge {
+    color: #16a34a;
+    background-color: #f0fdf4;
+  }
+
+  &:nth-child(2) .card-badge {
+    color: #9333ea;
+    background-color: #faf5ff;
+  }
+}
+
+// ─── Schedule Container ─────────────────────────────────────────────────────────
+
+.schedule-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+
+  upcoming-movies-component,
+  today-schedule-component {
+    display: block;
+  }
+
+  @media (max-width: 1023px) {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}

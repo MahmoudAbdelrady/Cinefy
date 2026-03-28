@@ -1,0 +1,57 @@
+<div class="today">
+  <div class="header">
+    <div class="header-left">
+      <div class="hl-icon">
+        <lucide-icon [img]="ClockIcon" [size]="20"></lucide-icon>
+      </div>
+      <div class="hl-info">
+        <h3>Today's Schedule</h3>
+        <p>5 showtimes remaining</p>
+      </div>
+    </div>
+  </div>
+  <div class="today-schedule-list">
+    @for (movie of todayScheduleMovies; track movie.title) {
+      <div class="ts-card" [class.in-progress]="movie.status === 'In Progress'">
+        <div class="ts-poster">
+          <img [src]="movie.poster" [alt]="movie.title" />
+        </div>
+        <div class="ts-info">
+          <div class="tsi-left">
+            <h4>{{ movie.title }}</h4>
+            <div class="tsil-details">
+              <div class="tsild-item">
+                <lucide-icon [img]="LayoutIcon" [size]="12"></lucide-icon>
+                <span>{{ movie.hall }}</span>
+              </div>
+              <span class="tsild-dot"></span>
+              <div class="tsild-item">
+                <lucide-icon [img]="TicketIcon" [size]="12"></lucide-icon>
+                <span>{{ movie.ticketsSold }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="tsi-right">
+            <div class="tsir-details">
+              <div class="tsir-interval">
+                {{ movie.durationInterval }}
+              </div>
+              <div
+                class="tsir-status"
+                [class.status-in-progress]="movie.status === 'In Progress'"
+                [class.status-upcoming]="movie.status === 'Upcoming'"
+              >
+                <span class="status-dot"></span>
+                <span class="status-text">{{ movie.status }}</span>
+              </div>
+            </div>
+            <lucide-icon [img]="ChevronRightIcon" [size]="16"></lucide-icon>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+  <div class="ts-actions">
+    <a [routerLink]="'/movies'">View Full Schedule</a>
+  </div>
+</div>

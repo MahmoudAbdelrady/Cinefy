@@ -1,0 +1,36 @@
+<div class="upcoming">
+  <div class="header">
+    <div class="h-icon">
+      <lucide-icon [img]="CalendarIcon" [size]="20"></lucide-icon>
+    </div>
+    <div class="h-info">
+      <h3>Upcoming</h3>
+      <p>3 movies scheduled</p>
+    </div>
+  </div>
+  <div class="upcoming-movies-container">
+    <div class="um-list">
+      @for (movie of upcomingMovies; track movie.title) {
+        <div class="um-card">
+          <div class="umc-poster">
+            <img [src]="movie.poster" [alt]="movie.title" />
+          </div>
+          <div class="umc-info">
+            <div class="umc-details">
+              <h4>{{ movie.title }}</h4>
+              <p>{{ movie.genre }}</p>
+              <div class="umc-release">
+                <lucide-icon [img]="ClockIcon" [size]="11"></lucide-icon>
+                <span>{{ movie.releaseDate | date: 'd' }} days left</span>
+              </div>
+            </div>
+            <div class="umc-date">{{ movie.releaseDate.split(',')[0] }}</div>
+          </div>
+        </div>
+      }
+    </div>
+    <div class="um-actions">
+      <a [routerLink]="'/movies'">View All Upcoming</a>
+    </div>
+  </div>
+</div>
