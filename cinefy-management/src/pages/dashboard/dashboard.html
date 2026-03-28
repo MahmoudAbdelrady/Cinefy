@@ -1,1 +1,76 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  <div class="today-stats">
+    <div class="header">
+      <h3>Today's Performance</h3>
+      <p>Real-time metrics for {{ currentDate | date: 'EEEE, MMM d, yyyy' }}</p>
+    </div>
+    <div class="stats-cards">
+      <div class="sc-item">
+        <div class="sc-icon">
+          <lucide-icon [img]="TicketIcon" [size]="28"></lucide-icon>
+        </div>
+        <div class="sc-info">
+          <span>Tickets Sold</span>
+          <h3>342</h3>
+          <div class="percentage-box">
+            <lucide-icon [img]="ArrowUpIcon" [size]="14"></lucide-icon>
+            <span>12% vs yesterday</span>
+          </div>
+        </div>
+      </div>
+      <div class="sc-item">
+        <div class="sc-icon">
+          <lucide-icon [img]="DollarSignIcon" [size]="28"></lucide-icon>
+        </div>
+        <div class="sc-info">
+          <span>Revenue</span>
+          <h3>$8.5K</h3>
+          <div class="percentage-box">
+            <lucide-icon [img]="ArrowDownIcon" [size]="14"></lucide-icon>
+            <span>15% vs yesterday</span>
+          </div>
+        </div>
+      </div>
+      <div class="sc-item">
+        <div class="sc-icon">
+          <lucide-icon [img]="TrendingUpIcon" [size]="28"></lucide-icon>
+        </div>
+        <div class="sc-info">
+          <span>Occupancy Rate</span>
+          <h3>84%</h3>
+          <div class="percentage-box">
+            <lucide-icon [img]="ArrowUpIcon" [size]="14"></lucide-icon>
+            <span>8% vs last week</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="quick-overview">
+    <div class="overview-card">
+      <div class="card-icon">
+        <lucide-icon [img]="LayoutIcon" [size]="24"></lucide-icon>
+      </div>
+      <div class="card-info">
+        <span>Total Halls</span>
+        <h3>8</h3>
+      </div>
+      <span class="card-badge">3 active</span>
+    </div>
+    <div class="overview-card">
+      <div class="card-icon">
+        <lucide-icon [img]="FilmIcon" [size]="24"></lucide-icon>
+      </div>
+      <div class="card-info">
+        <span>Total Movies</span>
+        <h3>12</h3>
+      </div>
+      <span class="card-badge">6 showing</span>
+    </div>
+  </div>
+  <now-showing-component />
+  <div class="schedule-container">
+    <upcoming-movies-component />
+    <today-schedule-component />
+  </div>
+</div>

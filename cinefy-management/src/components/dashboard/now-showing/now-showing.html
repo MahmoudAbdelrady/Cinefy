@@ -1,0 +1,59 @@
+<div class="today-showings">
+  <div class="header">
+    <div class="header-left">
+      <div class="hl-icon">
+        <lucide-icon [img]="FilmIcon" [size]="20"></lucide-icon>
+      </div>
+      <div class="hl-info">
+        <h3>Now Showing</h3>
+        <p>4 movies screening today</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <a [routerLink]="'/movies'"
+        >View All <lucide-icon [img]="ChevronRightIcon" [size]="16"></lucide-icon
+      ></a>
+    </div>
+  </div>
+  <div class="now-showing-movies">
+    @for (movie of nowShowingMovies; track movie.title) {
+      <div class="nsm-card">
+        <div class="nsm-poster">
+          <img [src]="movie.poster" [alt]="movie.title" />
+        </div>
+        <div class="nsm-info">
+          <div class="nsm-details">
+            <h4>{{ movie.title }}</h4>
+            <p>{{ movie.genre }}</p>
+          </div>
+          <div class="nsm-stats">
+            <div class="nsm-stat">
+              <lucide-icon [img]="ClockIcon" [size]="15"></lucide-icon>
+              <span>{{ movie.showtimes }}</span>
+              <span>{{ movie.showtimes > 1 ? 'shows' : 'show' }}</span>
+            </div>
+            <div class="nsm-stat">
+              <lucide-icon [img]="TicketIcon" [size]="15"></lucide-icon>
+              <span>{{ movie.ticketsSold }}</span>
+              <span>sold</span>
+            </div>
+            <div class="nsm-stat">
+              <lucide-icon [img]="DollarSignIcon" [size]="15"></lucide-icon>
+              <span>{{ movie.revenue }}</span>
+              <span>revenue</span>
+            </div>
+            <div class="nsm-stat">
+              <lucide-icon [img]="UsersIcon" [size]="15"></lucide-icon>
+              <span>{{ movie.occupancy }}</span>
+              <span>occupancy</span>
+            </div>
+          </div>
+        </div>
+        <div class="nsm-actions">
+          <button>View Details</button>
+          <button>Edit</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
