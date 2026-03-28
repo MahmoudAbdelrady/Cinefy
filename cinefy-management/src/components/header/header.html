@@ -13,24 +13,12 @@
       </div>
     </div>
     <div class="header-right">
-      <div class="quick-add-container">
-        <button [ngpMenuTrigger]="quickAddMenu" ngpMenuTriggerScrollBehavior="reposition" ngpButton>
-          <lucide-icon [img]="PlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
-          <span>Quick Add</span>
-          <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
-        </button>
-        <ng-template #quickAddMenu>
-          <div class="quick-add-menu-items" ngpMenu>
-            @for (item of quickAddMenuItems; track item.label) {
-              <div class="qam-item" ngpMenuItem>
-                <lucide-icon [img]="item.icon" [size]="16"></lucide-icon>
-                <span>{{ item.label }}</span>
-              </div>
-            }
-          </div>
-        </ng-template>
-      </div>
-      <div class="header-divider"></div>
+      @if (headerActionsTemplate()) {
+        <div class="header-actions">
+          <ng-container *ngTemplateOutlet="headerActionsTemplate()"></ng-container>
+        </div>
+        <div class="header-divider"></div>
+      }
       <div class="user-info-container">
         <button [ngpMenuTrigger]="userInfoMenu" ngpMenuTriggerScrollBehavior="reposition" ngpButton>
           <div class="avatar-box"></div>

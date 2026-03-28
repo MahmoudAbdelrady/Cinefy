@@ -12,7 +12,7 @@ import {
   X,
 } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
-import { SidebarService } from '../../services/sidebar';
+import { SidebarService } from '../../services';
 
 interface SidebarTab {
   label: string;
