@@ -1,5 +1,6 @@
-import { Component, computed, input, model } from '@angular/core';
+import { Component, input, model } from '@angular/core';
 import {
+  CircleAlert,
   Eye,
   Film,
   LayoutDashboard,
@@ -9,7 +10,9 @@ import {
   Users,
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
+import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { PaginationComponent } from '../../pagination/pagination';
+import { ModalComponent } from '../../modal/modal';
 
 export interface HallItem {
   id: string;
@@ -23,7 +26,7 @@ export interface HallItem {
 
 @Component({
   selector: 'halls-list',
-  imports: [LucideAngularModule, NgpButton, PaginationComponent],
+  imports: [LucideAngularModule, NgpButton, NgpDialogTrigger, PaginationComponent, ModalComponent],
   templateUrl: './halls-list.html',
   styleUrl: './halls-list.scss',
 })
@@ -40,6 +43,7 @@ export class HallsListComponent {
   protected readonly FilmIcon = Film;
   protected readonly EyeIcon = Eye;
   protected readonly DeleteIcon = Trash2;
+  protected readonly AlertIcon = CircleAlert;
 
   protected readonly statusLabels: Record<string, string> = {
     now_showing: 'Now Showing',

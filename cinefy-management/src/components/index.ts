@@ -6,6 +6,7 @@ import { TodayScheduleComponent } from './dashboard/today-schedule/today-schedul
 import { HallsStatisticsComponent } from './halls/halls-statistics/halls-statistics';
 import { HallsListComponent } from './halls/halls-list/halls-list';
 import { PaginationComponent } from './pagination/pagination';
+import { ModalComponent } from './modal/modal';
 
 export {
   HeaderComponent,
@@ -16,4 +17,5 @@ export {
   HallsStatisticsComponent,
   HallsListComponent,
   PaginationComponent,
+  ModalComponent,
 };

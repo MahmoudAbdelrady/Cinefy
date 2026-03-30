@@ -44,14 +44,86 @@
           </div>
         </div>
         <div class="ahi-actions">
-          <button ngpButton>
+          <button ngpButton [ngpDialogTrigger]="viewDialog">
             <lucide-icon [img]="EyeIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
             <span>View</span>
           </button>
-          <button ngpButton>
+          <button ngpButton [ngpDialogTrigger]="deleteDialog">
             <lucide-icon [img]="DeleteIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
             <span>Delete</span>
           </button>
+
+          <ng-template #viewDialog let-close="close">
+            <app-modal
+              [title]="hall.name"
+              description="Hall details and seat layout"
+              [close]="close"
+            >
+              <div class="view-modal-content">
+                <div class="vmc-detail">
+                  <span class="vmc-label">Status</span>
+                  @if (hall.status) {
+                    <p class="ahidh-status" [attr.data-status]="hall.status">
+                      {{ statusLabels[hall.status] }}
+                    </p>
+                  } @else {
+                    <span class="vmc-value">—</span>
+                  }
+                </div>
+                <div class="vmc-detail">
+                  <span class="vmc-label">Capacity</span>
+                  <span class="vmc-value">{{ hall.rows * hall.seatsPerRow }} seats</span>
+                </div>
+                <div class="vmc-detail">
+                  <span class="vmc-label">Layout</span>
+                  <span class="vmc-value">{{ hall.rows }} rows × {{ hall.seatsPerRow }} seats</span>
+                </div>
+                @if (hall.currentMovie) {
+                  <div class="vmc-detail">
+                    <span class="vmc-label">Now Showing</span>
+                    <span class="vmc-value">{{ hall.currentMovie }}</span>
+                  </div>
+                }
+                @if (hall.occupancy > 0) {
+                  <div class="vmc-detail">
+                    <span class="vmc-label">Occupancy</span>
+                    <span class="vmc-value">{{ hall.occupancy }}%</span>
+                  </div>
+                }
+              </div>
+            </app-modal>
+          </ng-template>
+
+          <ng-template #deleteDialog let-close="close">
+            <app-modal title="Delete Hall" [close]="close" style="--modal-max-width: 448px">
+              <div class="delete-modal-content">
+                <div class="dmc-icon">
+                  <lucide-icon [img]="AlertIcon" [size]="24" [strokeWidth]="2"></lucide-icon>
+                </div>
+                <p class="dmc-message">
+                  Are you sure you want to delete <strong>{{ hall.name }}</strong
+                  >? This action cannot be undone and will remove all seat configurations and
+                  associated data.
+                </p>
+                <div class="dmc-warning">
+                  <lucide-icon [img]="AlertIcon" [size]="16" [strokeWidth]="2"></lucide-icon>
+                  <div>
+                    <p><strong>Warning:</strong></p>
+                    <ul>
+                      <li>All seat reservations will be cancelled</li>
+                      <li>Scheduled showtimes will be removed</li>
+                      <li>Historical data will be archived</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div modal-footer class="delete-modal-footer">
+                <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+                <button ngpButton class="btn-danger" (click)="close()">Delete Hall</button>
+              </div>
+            </app-modal>
+          </ng-template>
         </div>
       </div>
     }
