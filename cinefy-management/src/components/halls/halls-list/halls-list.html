@@ -1,0 +1,65 @@
+<div class="all-halls">
+  <div class="ah-header">
+    <div class="ah-header-left">
+      <h3>All Halls</h3>
+      <p>Manage your cinema halls and seating arrangements</p>
+    </div>
+    <div class="ah-header-right">
+      <lucide-icon [img]="SearchIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+      <input type="text" placeholder="Search halls..." />
+    </div>
+  </div>
+  <div class="ah-items">
+    @for (hall of items(); track hall.id) {
+      <div class="ah-item">
+        <div class="ahi-info">
+          <div class="ahi-info-icon">
+            <lucide-icon [img]="LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+          </div>
+          <div class="ahi-info-details">
+            <div class="ahid-header">
+              <h4>{{ hall.name }}</h4>
+              @if (hall.status) {
+                <p class="ahidh-status" [attr.data-status]="hall.status">
+                  {{ statusLabels[hall.status] }}
+                </p>
+              }
+            </div>
+            <div class="ahid-content">
+              <div class="ahidc-item">
+                <lucide-icon [img]="PeopleIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <span>{{ hall.rows * hall.seatsPerRow }} seats</span>
+              </div>
+              <div class="ahidc-item">
+                <lucide-icon [img]="LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <span>{{ hall.rows }} rows × {{ hall.seatsPerRow }} seats</span>
+              </div>
+              @if (hall.currentMovie) {
+                <div class="ahidc-item current-movie">
+                  <lucide-icon [img]="FilmIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                  <span>{{ hall.currentMovie }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="ahi-actions">
+          <button ngpButton>
+            <lucide-icon [img]="EyeIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+            <span>View</span>
+          </button>
+          <button ngpButton>
+            <lucide-icon [img]="DeleteIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+            <span>Delete</span>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+  <pagination-component
+    [(page)]="page"
+    [pageCount]="pageCount()"
+    [totalItems]="totalItems()"
+    [pageSize]="pageSize()"
+  />
+</div>

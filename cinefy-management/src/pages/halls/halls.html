@@ -18,4 +18,11 @@
 
 <div class="halls-container">
   <halls-statistics />
+  <halls-list
+    [items]="hallItemsPaginated()"
+    [totalItems]="hallPage().totalItems"
+    [(page)]="currentPage"
+    [pageCount]="pageCount()"
+    [pageSize]="pageSize"
+  />
 </div>
