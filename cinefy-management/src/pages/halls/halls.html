@@ -1,6 +1,6 @@
 <ng-template #headerActionsTemplate>
   <div class="action-buttons-container">
-    <button ngpButton>
+    <button ngpButton [ngpDialogTrigger]="manageTypesDialog">
       <lucide-icon
         [img]="SettingsIcon"
         [size]="16"
@@ -9,10 +9,59 @@
       ></lucide-icon>
       <span>Manage Hall Types</span>
     </button>
-    <button ngpButton>
+    <button ngpButton [ngpDialogTrigger]="addHallDialog">
       <lucide-icon [img]="PlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
       <span>Add New Hall</span>
     </button>
+
+    <ng-template #manageTypesDialog let-close="close">
+      <app-modal
+        title="Manage Hall Types"
+        description="Create and manage hall types for your cinema"
+        [close]="close"
+      >
+        <div class="manage-types-modal-content">
+          <div class="existing-types-container">
+            <h3>Existing Types</h3>
+            <div class="existing-types-list">
+              @for (type of hallTypes(); track type.id) {
+                <div class="existing-type-item">
+                  <span>{{ type.name }}</span>
+                  <div class="action-buttons">
+                    <button ngpButton>
+                      <lucide-icon [img]="EditIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                    </button>
+                    <button ngpButton>
+                      <lucide-icon [img]="DeleteIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="new-type-container">
+            <h3>New Type Name</h3>
+            <div class="new-type-form">
+              <input type="text" placeholder="e.g. ScreenX, Dolby Atmos" />
+            </div>
+          </div>
+        </div>
+        <div modal-footer class="manage-types-modal-footer">
+          <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+          <button ngpButton class="btn-primary" (click)="close()">Add Type</button>
+        </div>
+      </app-modal>
+    </ng-template>
+
+    <ng-template #addHallDialog let-close="close">
+      <app-modal
+        title="Add New Hall"
+        description="Configure hall details and seat layout"
+        [close]="close"
+      >
+        <div class="add-hall-modal-content"></div>
+      </app-modal>
+    </ng-template>
   </div>
 </ng-template>
 

@@ -8,22 +8,38 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { LucideAngularModule, Plus, Settings } from 'lucide-angular';
+import { LucideAngularModule, Plus, Settings, SquarePen, Trash2 } from 'lucide-angular';
 import { HeaderActionsService } from '../../services';
 import { NgpButton } from 'ng-primitives/button';
+import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { HallsStatisticsComponent } from '../../components/halls/halls-statistics/halls-statistics';
 import { HallsListComponent, HallItem } from '../../components/halls/halls-list/halls-list';
+import { ModalComponent } from '../../components/modal/modal';
 import { PaginatedResponse } from '../../shared/types';
+
+interface HallType {
+  id: string;
+  name: string;
+}
 
 @Component({
   selector: 'halls-page',
-  imports: [LucideAngularModule, NgpButton, HallsStatisticsComponent, HallsListComponent],
+  imports: [
+    LucideAngularModule,
+    NgpButton,
+    NgpDialogTrigger,
+    HallsStatisticsComponent,
+    HallsListComponent,
+    ModalComponent,
+  ],
   templateUrl: './halls.html',
   styleUrl: './halls.scss',
 })
 export class HallsPage implements OnInit {
   protected SettingsIcon = Settings;
   protected PlusIcon = Plus;
+  protected EditIcon = SquarePen;
+  protected DeleteIcon = Trash2;
 
   protected readonly currentPage = signal(1);
   protected readonly pageSize = 5;
@@ -116,6 +132,16 @@ export class HallsPage implements OnInit {
       this.currentPage() * this.pageSize,
     ),
   );
+  protected readonly hallTypes = signal<HallType[]>([
+    {
+      id: '1',
+      name: 'Standard',
+    },
+    {
+      id: '2',
+      name: 'IMAX',
+    },
+  ]);
 
   private headerActions = inject(HeaderActionsService);
   private destroyRef = inject(DestroyRef);
