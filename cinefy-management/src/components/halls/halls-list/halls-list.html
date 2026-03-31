@@ -55,7 +55,7 @@
 
           <ng-template #viewDialog let-close="close">
             <app-modal
-              [title]="hall.name"
+              [modalTitle]="hall.name"
               description="Hall details and seat layout"
               [close]="close"
             >
@@ -95,7 +95,7 @@
           </ng-template>
 
           <ng-template #deleteDialog let-close="close">
-            <app-modal title="Delete Hall" [close]="close" style="--modal-max-width: 448px">
+            <app-modal modalTitle="Delete Hall" [close]="close" width="448px">
               <div class="delete-modal-content">
                 <div class="dmc-icon">
                   <lucide-icon [img]="AlertIcon" [size]="24" [strokeWidth]="2"></lucide-icon>

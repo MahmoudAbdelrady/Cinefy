@@ -20,9 +20,10 @@ import { LucideAngularModule, X } from 'lucide-angular';
   styleUrl: './modal.scss',
 })
 export class ModalComponent {
-  readonly title = input.required<string>();
+  readonly modalTitle = input.required<string>();
   readonly description = input<string>();
   readonly close = input.required<() => void>();
+  readonly width = input<string>();
 
   protected readonly XIcon = X;
 }

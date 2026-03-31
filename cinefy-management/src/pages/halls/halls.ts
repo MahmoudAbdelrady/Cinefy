@@ -8,10 +8,21 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { LucideAngularModule, Plus, Settings, SquarePen, Trash2 } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  Plus,
+  Settings,
+  SquarePen,
+  Trash2,
+  Check,
+  X,
+  TriangleAlert,
+} from 'lucide-angular';
+import { FormsModule } from '@angular/forms';
 import { HeaderActionsService } from '../../services';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { HallsStatisticsComponent } from '../../components/halls/halls-statistics/halls-statistics';
 import { HallsListComponent, HallItem } from '../../components/halls/halls-list/halls-list';
 import { ModalComponent } from '../../components/modal/modal';
@@ -28,9 +39,12 @@ interface HallType {
     LucideAngularModule,
     NgpButton,
     NgpDialogTrigger,
+    NgpPopover,
+    NgpPopoverTrigger,
     HallsStatisticsComponent,
     HallsListComponent,
     ModalComponent,
+    FormsModule,
   ],
   templateUrl: './halls.html',
   styleUrl: './halls.scss',
@@ -40,6 +54,12 @@ export class HallsPage implements OnInit {
   protected PlusIcon = Plus;
   protected EditIcon = SquarePen;
   protected DeleteIcon = Trash2;
+  protected CheckIcon = Check;
+  protected XIcon = X;
+  protected WarningIcon = TriangleAlert;
+
+  protected editingTypeId = signal<string | null>(null);
+  protected editingTypeName = signal('');
 
   protected readonly currentPage = signal(1);
   protected readonly pageSize = 5;
@@ -150,5 +170,30 @@ export class HallsPage implements OnInit {
   ngOnInit() {
     this.headerActions.template.set(this.headerActionsTemplate());
     this.destroyRef.onDestroy(() => this.headerActions.template.set(null));
+  }
+
+  protected startEditingType(type: HallType) {
+    this.editingTypeId.set(type.id);
+    this.editingTypeName.set(type.name);
+  }
+
+  protected confirmEditType(type: HallType) {
+    this.editingTypeId.set(null);
+  }
+
+  protected cancelEditType() {
+    this.editingTypeId.set(null);
+  }
+
+  protected deleteType(type: HallType) {
+    this.hallTypes.update((types) => types.filter((t) => t.id !== type.id));
+  }
+
+  protected onEditTypeKeydown(event: KeyboardEvent, type: HallType) {
+    if (event.key === 'Enter') {
+      this.confirmEditType(type);
+    } else if (event.key === 'Escape') {
+      this.cancelEditType();
+    }
   }
 }
