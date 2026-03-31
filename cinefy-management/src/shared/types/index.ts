@@ -5,3 +5,5 @@ export interface PaginatedResponse<T> {
   pageCount: number;
   pageSize: number;
 }
+
+export type { HallType, HallListItem } from './hall';

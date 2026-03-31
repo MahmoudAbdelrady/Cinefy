@@ -25,13 +25,10 @@ import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { HallsStatisticsComponent } from '../../components/halls/halls-statistics/halls-statistics';
 import { HallsListComponent, HallItem } from '../../components/halls/halls-list/halls-list';
+import { HallConfigModalComponent } from '../../components/halls/hall-config-modal/hall-config-modal';
+import { HallType } from '../../shared/types';
 import { ModalComponent } from '../../components/modal/modal';
 import { PaginatedResponse } from '../../shared/types';
-
-interface HallType {
-  id: string;
-  name: string;
-}
 
 @Component({
   selector: 'halls-page',
@@ -43,6 +40,7 @@ interface HallType {
     NgpPopoverTrigger,
     HallsStatisticsComponent,
     HallsListComponent,
+    HallConfigModalComponent,
     ModalComponent,
     FormsModule,
   ],

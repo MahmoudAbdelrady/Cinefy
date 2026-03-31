@@ -120,13 +120,11 @@
     </ng-template>
 
     <ng-template #addHallDialog let-close="close">
-      <app-modal
-        modalTitle="Add New Hall"
-        description="Configure hall details and seat layout"
+      <hall-config-modal
         [close]="close"
-      >
-        <div class="add-hall-modal-content"></div>
-      </app-modal>
+        [hallTypes]="hallTypes()"
+        [existingHalls]="hallItemsPaginated()"
+      />
     </ng-template>
   </div>
 </ng-template>

@@ -5,7 +5,7 @@ alwaysApply: false
 
 ## MVP Extraction Rules
 
-When mapping implementations from the `mvp-version/` folder (React + Tailwind) into the current Angular + SCSS project, follow these rules strictly:
+All MVP source code lives in a single file: `mvp-version/src/app/App.tsx`. When mapping implementations from that file (React + Tailwind) into the current Angular + SCSS project, follow these rules strictly:
 
 ### No Tailwind in Output
 

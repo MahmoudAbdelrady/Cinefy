@@ -1,0 +1,135 @@
+<app-modal
+  modalTitle="Add New Hall"
+  description="Configure hall details and seat layout"
+  [close]="close()"
+>
+  <div class="hall-config-modal-content">
+    <div class="hall-information">
+      <div class="hi-header">
+        <lucide-icon [img]="SettingsIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+        <span>Hall Information</span>
+      </div>
+      <div class="hi-form">
+        <div class="input-group">
+          <span>Hall Name</span>
+          <input ngpInput type="text" placeholder="e.g. Hall 1, VIP Hall, IMAX" />
+        </div>
+        <div class="number-input-group">
+          <div class="input-group">
+            <span>Number of Rows</span>
+            <input ngpInput type="number" placeholder="e.g. 10" />
+          </div>
+          <div class="input-group">
+            <span>Seats per Row</span>
+            <input ngpInput type="number" placeholder="e.g. 12" />
+          </div>
+        </div>
+        <div class="input-group">
+          <span>Status</span>
+          <select ngpInput>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="maintenance">Under Maintenance</option>
+          </select>
+        </div>
+        <div class="input-group type-group">
+          <span>Type</span>
+          <select ngpInput>
+            @for (type of hallTypes(); track type.id) {
+              <option value="{{ type.id }}">{{ type.name }}</option>
+            }
+          </select>
+          <div class="switch-group">
+            <span>Supports 3D</span>
+            <button ngpSwitch class="switch-button">
+              <span ngpSwitchThumb></span>
+            </button>
+          </div>
+        </div>
+        <div class="input-group">
+          <span>Copy Layout From Existing Hall</span>
+          <select ngpInput>
+            @for (hall of existingHalls(); track hall.id) {
+              <option value="{{ hall.id }}">{{ hall.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="seats-configuration">
+          <div class="seat-categories">
+            <div class="sc-header">
+              <lucide-icon [img]="StarIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+              <span>Seat Categories</span>
+            </div>
+            <div class="sc-content">
+              <div class="sc-type-items">
+                @for (item of seatCategoryItems(); track item.type) {
+                  <div class="sti-item" [class.selected]="selectedSeatCategory().type === item.type" (click)="selectSeatCategory(item)">
+                    <div class="sti-item-icon" [ngClass]="item.type"></div>
+                    <span class="sti-item-info">{{ item.name }}</span>
+                    @if (selectedSeatCategory().type === item.type) {
+                      <span class="sti-item-selected">Selected</span>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="reservation-toggle">
+                <span>Reservation</span>
+                <div class="switch-group">
+                  <div class="sg-label">
+                    <span class="sg-label-icon">S</span>
+                    <span class="sg-label-text">On-Site Only</span>
+                  </div>
+                  <button ngpSwitch class="switch-button">
+                    <span ngpSwitchThumb></span>
+                  </button>
+                </div>
+              </div>
+              <div class="tip-container">
+                <p>
+                  <span>Tip:</span> Select a seat type above, then click on seats in the layout to
+                  apply it
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="ticket-pricing">
+            <div class="tp-header">
+              <lucide-icon [img]="DollarSignIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+              <span class="tp-title">Ticket Pricing <span class="tp-vat">(without VAT)</span></span>
+            </div>
+            <div class="tp-content">
+              <div class="tp-input-group">
+                <div class="tpi-label">
+                  <span class="tpi-label-icon normal"></span>
+                  <span class="tpi-label-text">Normal</span>
+                </div>
+                <div class="tpi-input">
+                  <lucide-icon [img]="DollarSignIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                  <input ngpInput type="number" placeholder="e.g. 10" />
+                </div>
+              </div>
+              <div class="tp-input-group">
+                <div class="tpi-label">
+                  <span class="tpi-label-icon vip"></span>
+                  <span class="tpi-label-text">VIP Seat</span>
+                </div>
+                <div class="tpi-input">
+                  <lucide-icon [img]="DollarSignIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                  <input ngpInput type="number" placeholder="e.g. 10" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hall-layout-editor">Layout Editor</div>
+  </div>
+  <div modal-footer class="hall-config-modal-footer">
+    <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
+    <div class="save-btns">
+      <button ngpButton class="btn-secondary draft-btn" (click)="close()()">Save as Draft</button>
+      <button ngpButton class="btn-primary" (click)="close()()">Save Hall</button>
+    </div>
+  </div>
+</app-modal>
