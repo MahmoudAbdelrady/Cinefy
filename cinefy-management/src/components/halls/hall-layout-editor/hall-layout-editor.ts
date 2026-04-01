@@ -1,14 +1,14 @@
 import { Component, computed, effect, input, signal } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 
-export type SeatType = 'normal' | 'vip' | 'aisle';
+type SeatType = 'normal' | 'vip' | 'aisle';
 
-export interface Seat {
+interface Seat {
   type: SeatType;
   onsiteOnly: boolean;
 }
 
-export interface SeatStats {
+interface SeatStats {
   normal: number;
   vip: number;
   onsiteOnly: number;
