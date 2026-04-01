@@ -79,10 +79,7 @@
               </div>
               <div class="reservation-toggle">
                 <span>Reservation</span>
-                <label
-                  class="switch-group"
-                  [class.active]="onSiteOnly()"
-                >
+                <label class="switch-group" [class.active]="onSiteOnly()">
                   <div class="sg-label">
                     <span class="sg-label-icon">S</span>
                     <span class="sg-label-text">On-Site Only</span>
@@ -144,8 +141,8 @@
         <hall-layout-editor
           [selectedSeatType]="selectedSeatCategory().type"
           [selectedOnsiteOnly]="onSiteOnly()"
-          [numRows]="12"
-          [seatsPerRow]="15"
+          [numRows]="100"
+          [seatsPerRow]="12"
         />
       </div>
     </div>
