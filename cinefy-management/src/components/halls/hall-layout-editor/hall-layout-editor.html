@@ -1,0 +1,58 @@
+<div class="hall-layout-editor-container">
+  <div class="screen-container">
+    <span>SCREEN</span>
+  </div>
+  <div class="seats-grid-wrapper">
+    <div class="seats-grid">
+      @for (row of seatLayout(); track $index; let rowIndex = $index) {
+        <div class="seat-row">
+          <span class="row-label">{{ rowLabel(rowIndex) }}</span>
+          @for (seat of row; track $index; let seatIndex = $index) {
+            @if (seat.type === 'aisle') {
+              <div
+                class="seat aisle"
+                [title]="seatTitle(rowIndex, seatIndex, seat)"
+                (click)="handleSeatClick(rowIndex, seatIndex)"
+              ></div>
+            } @else {
+              <div
+                class="seat"
+                [class.normal]="seat.type === 'normal'"
+                [class.vip]="seat.type === 'vip'"
+                [title]="seatTitle(rowIndex, seatIndex, seat)"
+                (click)="handleSeatClick(rowIndex, seatIndex)"
+              >
+                @if (seat.onsiteOnly) {
+                  <span class="onsite-badge"></span>
+                }
+              </div>
+            }
+          }
+        </div>
+      }
+    </div>
+  </div>
+  <div class="seat-legend">
+    <div class="legend-item">
+      <div class="legend-icon normal"></div>
+      <span>Normal ({{ stats().normal }})</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon vip"></div>
+      <span>VIP ({{ stats().vip }})</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon onsite-only">
+        <span class="onsite-dot"></span>
+      </div>
+      <span>On-Site Only ({{ stats().onsiteOnly }})</span>
+    </div>
+  </div>
+  <div class="seats-count-container">
+    <p>
+      <strong>Total Seats:</strong> {{ stats().total }} (Normal: {{ stats().normal }}, VIP:
+      {{ stats().vip }}, On-Site Only: {{ stats().onsiteOnly }})
+    </p>
+  </div>
+  <button class="reset-btn" ngpButton (click)="resetLayout()">Reset Layout</button>
+</div>

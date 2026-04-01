@@ -7,6 +7,7 @@ import { HallsStatisticsComponent } from './halls/halls-statistics/halls-statist
 import { HallsListComponent } from './halls/halls-list/halls-list';
 import { PaginationComponent } from './pagination/pagination';
 import { ModalComponent } from './modal/modal';
+import { HallLayoutEditorComponent } from './halls/hall-layout-editor/hall-layout-editor';
 
 export {
   HeaderComponent,
@@ -18,4 +19,5 @@ export {
   HallsListComponent,
   PaginationComponent,
   ModalComponent,
+  HallLayoutEditorComponent,
 };

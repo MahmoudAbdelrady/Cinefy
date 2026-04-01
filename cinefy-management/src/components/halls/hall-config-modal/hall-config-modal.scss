@@ -7,11 +7,9 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 32px;
-  max-height: 65vh;
 
   @media (max-width: 1023px) {
     grid-template-columns: 1fr;
-    max-height: none;
   }
 }
 
@@ -21,6 +19,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  max-height: 65vh;
   overflow-y: auto;
   padding: 4px 8px 24px 4px;
 
@@ -480,6 +479,22 @@
   position: sticky;
   top: 0;
   align-self: start;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hle-header {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 8px;
+  color: $blue-600;
+  margin-bottom: 16px;
+
+  span {
+    font-size: 18px;
+    font-weight: 600;
+    color: $gray-900;
+  }
 }
 
 // ─── Hall Config Modal Footer ───────────────────────────────────────────────────
