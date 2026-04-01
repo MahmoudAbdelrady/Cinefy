@@ -42,6 +42,8 @@ export class HallConfigModalComponent {
   ]);
 
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems()[0]);
+  protected supports3D = signal(false);
+  protected onSiteOnly = signal(false);
 
   protected selectSeatCategory(category: SeatCategoryItem) {
     this.selectedSeatCategory.set(category);

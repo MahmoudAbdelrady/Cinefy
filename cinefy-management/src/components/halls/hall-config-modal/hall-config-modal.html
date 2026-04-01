@@ -41,7 +41,7 @@
           </select>
           <div class="switch-group">
             <span>Supports 3D</span>
-            <button ngpSwitch class="switch-button">
+            <button ngpSwitch class="switch-button" [(ngpSwitchChecked)]="supports3D">
               <span ngpSwitchThumb></span>
             </button>
           </div>
@@ -63,7 +63,11 @@
             <div class="sc-content">
               <div class="sc-type-items">
                 @for (item of seatCategoryItems(); track item.type) {
-                  <div class="sti-item" [class.selected]="selectedSeatCategory().type === item.type" (click)="selectSeatCategory(item)">
+                  <div
+                    class="sti-item"
+                    [class.selected]="selectedSeatCategory().type === item.type"
+                    (click)="selectSeatCategory(item)"
+                  >
                     <div class="sti-item-icon" [ngClass]="item.type"></div>
                     <span class="sti-item-info">{{ item.name }}</span>
                     @if (selectedSeatCategory().type === item.type) {
@@ -74,12 +78,12 @@
               </div>
               <div class="reservation-toggle">
                 <span>Reservation</span>
-                <div class="switch-group">
+                <div class="switch-group" [class.active]="onSiteOnly()" (click)="onSiteOnly.set(!onSiteOnly())">
                   <div class="sg-label">
                     <span class="sg-label-icon">S</span>
                     <span class="sg-label-text">On-Site Only</span>
                   </div>
-                  <button ngpSwitch class="switch-button">
+                  <button ngpSwitch class="switch-button onsite-switch" [(ngpSwitchChecked)]="onSiteOnly">
                     <span ngpSwitchThumb></span>
                   </button>
                 </div>
