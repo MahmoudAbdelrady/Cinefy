@@ -1,0 +1,143 @@
+<ng-template #headerActionsTemplate>
+  <div class="action-buttons-container">
+    <button ngpButton [ngpDialogTrigger]="manageTypesDialog">
+      <lucide-icon
+        [img]="SettingsIcon"
+        [size]="16"
+        [strokeWidth]="2.5"
+        class="secondary-btn"
+      ></lucide-icon>
+      <span>Manage Hall Types</span>
+    </button>
+    <button ngpButton [ngpDialogTrigger]="addHallDialog">
+      <lucide-icon [img]="PlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+      <span>Add New Hall</span>
+    </button>
+
+    <ng-template #manageTypesDialog let-close="close">
+      <app-modal
+        modalTitle="Manage Hall Types"
+        description="Create and manage hall types for your cinema"
+        [close]="close"
+        width="480px"
+      >
+        <div class="manage-types-modal-content">
+          <div class="existing-types-container">
+            <h3>Existing Types</h3>
+            <div class="existing-types-list">
+              @for (type of hallTypes(); track type.id) {
+                <div class="existing-type-item">
+                  @if (editingTypeId() === type.id) {
+                    <input
+                      type="text"
+                      class="edit-type-input"
+                      [ngModel]="editingTypeName()"
+                      (ngModelChange)="editingTypeName.set($event)"
+                      (keydown)="onEditTypeKeydown($event, type)"
+                      autofocus
+                    />
+                    <div class="action-buttons editing">
+                      <button ngpButton (click)="confirmEditType(type)" title="Save">
+                        <lucide-icon
+                          [img]="CheckIcon"
+                          [size]="14"
+                          [strokeWidth]="2.5"
+                        ></lucide-icon>
+                      </button>
+                      <button ngpButton (click)="cancelEditType()" title="Cancel">
+                        <lucide-icon [img]="XIcon" [size]="14" [strokeWidth]="2.5"></lucide-icon>
+                      </button>
+                    </div>
+                  } @else {
+                    <span>{{ type.name }}</span>
+                    <div class="action-buttons">
+                      <button ngpButton (click)="startEditingType(type)">
+                        <lucide-icon [img]="EditIcon" [size]="14" [strokeWidth]="2.5"></lucide-icon>
+                      </button>
+                      <button
+                        ngpButton
+                        [ngpPopoverTrigger]="deleteConfirm"
+                        ngpPopoverTriggerPlacement="top"
+                        ngpPopoverTriggerOffset="8"
+                        ngpPopoverTriggerContainer=".modal-overlay"
+                        #deleteTrigger="ngpPopoverTrigger"
+                      >
+                        <lucide-icon
+                          [img]="DeleteIcon"
+                          [size]="14"
+                          [strokeWidth]="2.5"
+                        ></lucide-icon>
+                      </button>
+                      <ng-template #deleteConfirm>
+                        <div ngpPopover class="delete-confirm-popover">
+                          <div class="delete-confirm-header">
+                            <lucide-icon
+                              [img]="WarningIcon"
+                              [size]="16"
+                              [strokeWidth]="2.5"
+                            ></lucide-icon>
+                            <span>Delete "{{ type.name }}"?</span>
+                          </div>
+                          <p>This action cannot be undone.</p>
+                          <div class="delete-confirm-actions">
+                            <button
+                              ngpButton
+                              class="btn-cancel"
+                              (click)="$event.stopPropagation(); deleteTrigger.hide()"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              ngpButton
+                              class="btn-delete"
+                              (click)="
+                                $event.stopPropagation(); deleteType(type); deleteTrigger.hide()
+                              "
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </ng-template>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+          <div class="new-type-container">
+            <h3>New Type Name</h3>
+            <div class="new-type-form">
+              <input type="text" placeholder="e.g. ScreenX, Dolby Atmos" />
+            </div>
+          </div>
+        </div>
+        <div modal-footer class="manage-types-modal-footer">
+          <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+          <button ngpButton class="btn-primary" (click)="close()">Add Type</button>
+        </div>
+      </app-modal>
+    </ng-template>
+
+    <ng-template #addHallDialog let-close="close">
+      <hall-config-modal
+        [close]="close"
+        [hallTypes]="hallTypes()"
+        [existingHalls]="hallItemsPaginated()"
+      />
+    </ng-template>
+  </div>
+</ng-template>
+
+<div class="halls-container">
+  <halls-statistics />
+  <halls-list
+    [items]="hallItemsPaginated()"
+    [totalItems]="hallPage().totalItems"
+    [(page)]="currentPage"
+    [pageCount]="pageCount()"
+    [pageSize]="pageSize"
+    [hallTypes]="hallTypes()"
+    [existingHalls]="hallItemsPaginated()"
+  />
+</div>

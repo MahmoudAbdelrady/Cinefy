@@ -1,0 +1,105 @@
+@use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
+
+.pagination {
+  @include flex-align;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pagination-info-group {
+  @include flex-align;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pagination-label {
+  font-size: 14px;
+  color: $gray-500;
+  white-space: nowrap;
+}
+
+.pagination-goto {
+  @include flex-align;
+  gap: 8px;
+
+  label {
+    font-size: 14px;
+    color: $gray-500;
+    white-space: nowrap;
+  }
+
+  input {
+    width: 56px;
+    height: 36px;
+    padding: 0 8px;
+    border: 1px solid $gray-200;
+    border-radius: $radius-md;
+    font-size: 14px;
+    color: $gray-700;
+    background-color: $color-background;
+    text-align: center;
+    transition: border-color 150ms ease;
+    -moz-appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $blue-600;
+    }
+  }
+}
+
+.pagination-nav {
+  @include flex-align;
+  gap: 4px;
+
+  button {
+    @include flex-center;
+    @include lucide-icon-fix;
+    width: 36px;
+    height: 36px;
+    border: 1px solid $gray-200;
+    border-radius: $radius-md;
+    color: $gray-600;
+    background-color: $color-background;
+    transition: all 150ms ease;
+
+    &:hover:not([data-disabled]) {
+      background-color: $gray-50;
+      border-color: $gray-300;
+      color: $gray-900;
+    }
+
+    &:active:not([data-disabled]) {
+      background-color: $gray-100;
+    }
+
+    &[data-focus-visible] {
+      outline: 2px solid $blue-600;
+      outline-offset: 2px;
+    }
+
+    &[data-disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}
+
+:host {
+  display: block;
+}
+
+@media (max-width: 639px) {
+  .pagination-nav {
+    width: 100%;
+    justify-content: center;
+  }
+}

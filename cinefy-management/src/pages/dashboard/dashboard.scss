@@ -1,4 +1,5 @@
 @use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
 
 // ─── Header Actions: Quick Add Menu ─────────────────────────────────────────────
 
@@ -7,48 +8,34 @@
   right: 0;
   width: 192px;
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: $radius-lg;
   box-shadow:
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(229, 231, 235, 0.6);
+  border: 1px solid $card-border-subtle;
   padding: 6px 0;
   overflow: hidden;
   z-index: 30;
 }
 
 .qam-item {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 12px;
   width: 100%;
   padding: 10px 16px;
   font-size: 14px;
-  color: #374151;
+  color: $gray-700;
   transition: background-color 150ms ease;
   cursor: pointer;
 
   &:hover {
-    background-color: #f9fafb;
+    background-color: $gray-50;
   }
+
+  @include lucide-icon-fix;
 
   lucide-icon {
-    display: flex;
-    color: #9ca3af;
-  }
-}
-
-// ─── Dashboard ──────────────────────────────────────────────────────────────────
-
-.dashboard-container {
-  padding: 24px 32px;
-
-  @media (max-width: 1023px) {
-    padding: 24px;
-  }
-
-  @media (max-width: 639px) {
-    padding: 16px;
+    color: $gray-400;
   }
 }
 
@@ -56,8 +43,8 @@
 
 .today-stats {
   background-color: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border-radius: $radius-lg;
+  border: 1px solid $gray-200;
   padding: 24px;
   margin-bottom: 32px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -68,13 +55,13 @@
     h3 {
       font-size: 18px;
       font-weight: 600;
-      color: #111827;
+      color: $gray-900;
       margin-bottom: 4px;
     }
 
     p {
       font-size: 14px;
-      color: #4b5563;
+      color: $gray-600;
     }
   }
 }
@@ -90,52 +77,41 @@
 }
 
 .sc-item {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 16px;
 
   .sc-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    lucide-icon {
-      display: flex;
-    }
+    @include icon-box(56px);
   }
 
   &:nth-child(1) .sc-icon {
-    background-color: #dbeafe;
+    background-color: $blue-100;
 
     lucide-icon {
-      color: #2563eb;
+      color: $blue-600;
     }
   }
 
   &:nth-child(2) .sc-icon {
-    background-color: #dcfce7;
+    background-color: $green-100;
 
     lucide-icon {
-      color: #16a34a;
+      color: $green-600;
     }
   }
 
   &:nth-child(3) .sc-icon {
-    background-color: #ffedd5;
+    background-color: $orange-100;
 
     lucide-icon {
-      color: #ea580c;
+      color: $orange-600;
     }
   }
 
   .sc-info {
     > span {
       font-size: 14px;
-      color: #4b5563;
+      color: $gray-600;
       margin-bottom: 4px;
       display: block;
     }
@@ -143,21 +119,18 @@
     h3 {
       font-size: 30px;
       font-weight: 700;
-      color: #111827;
+      color: $gray-900;
       line-height: 1.2;
     }
   }
 }
 
 .percentage-box {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 2px;
   margin-top: 4px;
 
-  lucide-icon {
-    display: flex;
-  }
+  @include lucide-icon-fix;
 
   span {
     font-size: 12px;
@@ -168,22 +141,22 @@
   .sc-item:nth-child(1) &,
   .sc-item:nth-child(3) & {
     lucide-icon {
-      color: #16a34a;
+      color: $green-600;
     }
 
     span {
-      color: #16a34a;
+      color: $green-600;
     }
   }
 
   &.down,
   .sc-item:nth-child(2) & {
     lucide-icon {
-      color: #dc2626;
+      color: $red-600;
     }
 
     span {
-      color: #dc2626;
+      color: $red-600;
     }
   }
 }
@@ -203,54 +176,43 @@
 
 .overview-card {
   background-color: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border-radius: $radius-lg;
+  border: 1px solid $gray-200;
   padding: 20px;
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 16px;
 
   .card-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    lucide-icon {
-      display: flex;
-    }
+    @include icon-box(48px);
   }
 
   &:nth-child(1) .card-icon {
-    background-color: #dbeafe;
+    background-color: $blue-100;
 
     lucide-icon {
-      color: #2563eb;
+      color: $blue-600;
     }
   }
 
   &:nth-child(2) .card-icon {
-    background-color: #f3e8ff;
+    background-color: $purple-100;
 
     lucide-icon {
-      color: #9333ea;
+      color: $purple-600;
     }
   }
 
   .card-info {
     span {
       font-size: 14px;
-      color: #6b7280;
+      color: $gray-500;
       display: block;
     }
 
     h3 {
       font-size: 24px;
       font-weight: 700;
-      color: #111827;
+      color: $gray-900;
       line-height: 1.3;
     }
   }
@@ -260,17 +222,17 @@
     font-size: 12px;
     font-weight: 500;
     padding: 4px 10px;
-    border-radius: 9999px;
+    border-radius: $radius-full;
   }
 
   &:nth-child(1) .card-badge {
-    color: #16a34a;
-    background-color: #f0fdf4;
+    color: $green-600;
+    background-color: $green-50;
   }
 
   &:nth-child(2) .card-badge {
-    color: #9333ea;
-    background-color: #faf5ff;
+    color: $purple-600;
+    background-color: $purple-50;
   }
 }
 

@@ -1,0 +1,59 @@
+<nav
+  [(ngpPaginationPage)]="page"
+  ngpPagination
+  [ngpPaginationPageCount]="pageCount()"
+  aria-label="Pagination Navigation"
+  class="pagination"
+>
+  <div class="pagination-info-group">
+    <span class="pagination-label">
+      Showing {{ startItem() }}–{{ endItem() }} of {{ totalItems() }} items
+    </span>
+
+    <div class="pagination-goto">
+      <label for="goto-page">Go to page:</label>
+      <input
+        id="goto-page"
+        type="number"
+        [min]="1"
+        [max]="pageCount()"
+        [placeholder]="'#'"
+        (keydown.enter)="goToPage($event)"
+      />
+    </div>
+  </div>
+
+  <div class="pagination-nav">
+    <button ngpPaginationFirst [ngpTooltipTrigger]="firstTooltip" aria-label="First Page">
+      <lucide-icon [img]="FirstIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+    </button>
+
+    <button ngpPaginationPrevious [ngpTooltipTrigger]="prevTooltip" aria-label="Previous Page">
+      <lucide-icon [img]="PrevIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+    </button>
+
+    <button ngpPaginationNext [ngpTooltipTrigger]="nextTooltip" aria-label="Next Page">
+      <lucide-icon [img]="NextIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+    </button>
+
+    <button ngpPaginationLast [ngpTooltipTrigger]="lastTooltip" aria-label="Last Page">
+      <lucide-icon [img]="LastIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+    </button>
+  </div>
+</nav>
+
+<ng-template #firstTooltip>
+  <div ngpTooltip class="pagination-tooltip">First page</div>
+</ng-template>
+
+<ng-template #prevTooltip>
+  <div ngpTooltip class="pagination-tooltip">Previous page</div>
+</ng-template>
+
+<ng-template #nextTooltip>
+  <div ngpTooltip class="pagination-tooltip">Next page</div>
+</ng-template>
+
+<ng-template #lastTooltip>
+  <div ngpTooltip class="pagination-tooltip">Last page</div>
+</ng-template>

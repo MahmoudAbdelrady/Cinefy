@@ -1,31 +1,23 @@
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
 
 .today-showings {
   margin-bottom: 32px;
 
   > .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    @include flex-between;
     margin-bottom: 24px;
 
     .header-left {
-      display: flex;
-      align-items: center;
+      @include flex-align;
       gap: 12px;
 
       .hl-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        background-color: #faf5ff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include icon-box(40px);
+        background-color: $purple-50;
 
         lucide-icon {
-          color: #9333ea;
-          display: flex;
+          color: $purple-600;
         }
       }
 
@@ -33,26 +25,25 @@
         h3 {
           font-size: 18px;
           font-weight: 700;
-          color: #111827;
+          color: $gray-900;
         }
 
         p {
           font-size: 12px;
-          color: #9ca3af;
+          color: $gray-400;
           margin-top: 2px;
         }
       }
     }
 
     .header-right a {
-      display: flex;
-      align-items: center;
+      @include flex-align;
       gap: 4px;
       padding: 8px 16px;
       font-size: 14px;
       font-weight: 500;
-      color: #2563eb;
-      border-radius: 8px;
+      color: $blue-600;
+      border-radius: $radius-md;
       transition: background-color 150ms ease;
 
       lucide-icon {
@@ -60,7 +51,7 @@
       }
 
       &:hover {
-        background-color: #eff6ff;
+        background-color: $blue-50;
       }
     }
   }
@@ -78,8 +69,8 @@
 
 .nsm-card {
   background-color: #ffffff;
-  border-radius: 12px;
-  border: 1px solid rgba(229, 231, 235, 0.8);
+  border-radius: $radius-lg;
+  border: 1px solid $card-border;
   padding: 16px;
   display: flex;
   gap: 16px;
@@ -95,7 +86,7 @@
 .nsm-poster {
   width: 80px;
   height: 112px;
-  border-radius: 8px;
+  border-radius: $radius-md;
   overflow: hidden;
   flex-shrink: 0;
   box-shadow:
@@ -123,36 +114,32 @@
   h4 {
     font-size: 14px;
     font-weight: 600;
-    color: #111827;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: $gray-900;
+    @include text-truncate;
   }
 
   p {
     font-size: 12px;
-    color: #9ca3af;
+    color: $gray-400;
     margin-top: 2px;
   }
 }
 
 .nsm-stats {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   flex-wrap: wrap;
   gap: 4px 20px;
   margin-top: auto;
   font-size: 14px;
-  color: #6b7280;
+  color: $gray-500;
 }
 
 .nsm-stat {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 6px;
 
   lucide-icon {
-    color: #9ca3af;
+    color: $gray-400;
     display: flex;
     flex-shrink: 0;
   }
@@ -162,19 +149,19 @@
   }
 
   &:nth-child(1) span:first-of-type {
-    color: #111827;
+    color: $gray-900;
   }
 
   &:nth-child(2) span:first-of-type {
-    color: #9333ea;
+    color: $purple-600;
   }
 
   &:nth-child(3) span:first-of-type {
-    color: #16a34a;
+    color: $green-600;
   }
 
   &:nth-child(4) span:first-of-type {
-    color: #2563eb;
+    color: $blue-600;
   }
 }
 
@@ -189,25 +176,25 @@
     padding: 6px 14px;
     font-size: 12px;
     font-weight: 600;
-    border-radius: 8px;
+    border-radius: $radius-md;
     transition: background-color 150ms ease;
     white-space: nowrap;
 
     &:first-child {
-      color: #2563eb;
-      background-color: #eff6ff;
+      color: $blue-600;
+      background-color: $blue-50;
 
       &:hover {
-        background-color: #dbeafe;
+        background-color: $blue-100;
       }
     }
 
     &:last-child {
-      color: #4b5563;
-      background-color: #f3f4f6;
+      color: $gray-600;
+      background-color: $gray-100;
 
       &:hover {
-        background-color: #e5e7eb;
+        background-color: $gray-200;
       }
     }
   }

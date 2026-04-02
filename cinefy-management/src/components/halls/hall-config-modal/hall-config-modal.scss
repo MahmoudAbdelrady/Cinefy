@@ -1,0 +1,613 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
+
+// ─── Add / Edit Hall Modal ──────────────────────────────────────────────────────
+
+.hall-config-modal-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+
+  @media (max-width: 1023px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ─── Hall Information ───────────────────────────────────────────────────────────
+
+.hall-information {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 4px 8px 24px 4px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $gray-300;
+    border-radius: $radius-full;
+  }
+}
+
+.hi-header {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 8px;
+  color: $blue-600;
+
+  span {
+    font-size: 18px;
+    font-weight: 600;
+    color: $gray-900;
+  }
+}
+
+.hi-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+
+  > span {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-700;
+    margin-bottom: 8px;
+  }
+
+  input,
+  select {
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: 1px solid $gray-300;
+    border-radius: $radius-md;
+    color: $gray-900;
+    background-color: #ffffff;
+    transition: all 150ms ease;
+
+    &::placeholder {
+      color: $gray-400;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: transparent;
+      box-shadow: 0 0 0 2px $blue-500;
+    }
+  }
+
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+}
+
+.number-input-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.type-group {
+  .switch-group {
+    @include flex-between;
+    padding: 12px;
+    border-radius: $radius-md;
+    border: 1px solid $gray-200;
+    background-color: $gray-50;
+    margin-top: 12px;
+
+    > span {
+      font-size: 14px;
+      font-weight: 500;
+      color: $gray-700;
+    }
+  }
+}
+
+.switch-button {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: $radius-full;
+  background-color: $gray-200;
+  transition: background-color 200ms ease;
+  flex-shrink: 0;
+
+  &[data-checked] {
+    background-color: $blue-600;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px #ffffff,
+      0 0 0 4px $blue-500;
+  }
+
+  [ngpSwitchThumb] {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border-radius: $radius-full;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 200ms ease;
+    transform: translateX(2px);
+  }
+
+  &[data-checked] [ngpSwitchThumb] {
+    transform: translateX(22px);
+  }
+}
+
+// ─── Seat Categories ────────────────────────────────────────────────────────────
+
+.seats-configuration {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.seat-categories {
+  display: flex;
+  flex-direction: column;
+}
+
+.sc-header {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 8px;
+  color: $purple-600;
+  margin-bottom: 16px;
+
+  span {
+    font-size: 18px;
+    font-weight: 600;
+    color: $gray-900;
+  }
+}
+
+.sc-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sc-type-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sti-item {
+  @include flex-align;
+  gap: 12px;
+  padding: 12px;
+  border-radius: $radius-md;
+  border: 2px solid;
+  transition: all 150ms ease;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .sti-item-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: $radius-sm;
+
+    &.normal {
+      background-color: $blue-500;
+    }
+
+    &.vip {
+      background-color: $purple-500;
+    }
+
+    &.aisle {
+      background-color: $gray-300;
+    }
+  }
+
+  .sti-item-info {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-900;
+  }
+
+  .sti-item-selected {
+    font-size: 12px;
+    font-weight: 500;
+    color: #ffffff;
+    padding: 4px 8px;
+    border-radius: $radius-sm;
+    background-color: $blue-600;
+  }
+
+  border-color: $blue-200;
+  background-color: $blue-50;
+
+  &:hover {
+    border-color: $blue-300;
+  }
+
+  &.selected {
+    background-color: $blue-100;
+    border-color: $blue-500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  &:nth-child(2) {
+    border-color: $purple-200;
+    background-color: $purple-50;
+
+    &:hover {
+      border-color: #d8b4fe;
+    }
+
+    &.selected {
+      background-color: $purple-100;
+      border-color: $purple-500;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .sti-item-selected {
+      background-color: $purple-600;
+    }
+  }
+
+  &:nth-child(3) {
+    border-color: $gray-200;
+    background-color: $gray-50;
+
+    &:hover {
+      border-color: $gray-300;
+    }
+
+    &.selected {
+      background-color: $gray-200;
+      border-color: $gray-500;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .sti-item-selected {
+      background-color: $gray-600;
+    }
+  }
+}
+
+.reservation-toggle {
+  > span {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $gray-400;
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
+
+  .switch-group {
+    @include flex-between;
+    padding: 12px;
+    border-radius: $radius-md;
+    border: 2px solid $gray-200;
+    background-color: $gray-50;
+    cursor: pointer;
+    transition: all 150ms ease;
+
+    &:hover {
+      border-color: $gray-300;
+    }
+
+    &.active {
+      background-color: $orange-100;
+      border-color: $orange-400;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+      .sg-label-icon {
+        background-color: $orange-500;
+        color: #ffffff;
+      }
+
+      .onsite-switch {
+        background-color: $orange-500;
+      }
+    }
+  }
+
+  .sg-label {
+    @include flex-align;
+    gap: 12px;
+  }
+
+  .sg-label-icon {
+    @include flex-center;
+    width: 24px;
+    height: 24px;
+    border-radius: $radius-sm;
+    background-color: $gray-300;
+    color: $gray-500;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 150ms ease;
+  }
+
+  .sg-label-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-900;
+  }
+}
+
+.tip-container {
+  margin-top: 4px;
+  padding: 12px;
+  background-color: $blue-50;
+  border-radius: $radius-md;
+  border: 1px solid $blue-200;
+
+  p {
+    font-size: 12px;
+    color: $gray-700;
+    text-align: center;
+
+    span {
+      font-weight: 700;
+    }
+  }
+}
+
+// ─── Ticket Pricing ─────────────────────────────────────────────────────────────
+
+.ticket-pricing {
+  display: flex;
+  flex-direction: column;
+}
+
+.tp-header {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 8px;
+  color: $green-600;
+  margin-bottom: 16px;
+
+  .tp-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: $gray-900;
+  }
+
+  .tp-vat {
+    font-size: 12px;
+    font-weight: 400;
+    color: $orange-400;
+  }
+}
+
+.tp-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tp-input-group {
+  display: flex;
+  flex-direction: column;
+
+  .tpi-label {
+    @include flex-align;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .tpi-label-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: $radius-sm;
+
+    &.normal {
+      background-color: $blue-500;
+    }
+
+    &.vip {
+      background-color: $purple-500;
+    }
+  }
+
+  .tpi-label-text {
+    font-size: 14px;
+    color: $gray-700;
+  }
+
+  .tpi-input {
+    position: relative;
+
+    lucide-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $gray-500;
+      display: flex;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px 16px 8px 32px;
+      font-size: 14px;
+      border: 1px solid $gray-300;
+      border-radius: $radius-md;
+      color: $gray-900;
+      background-color: #ffffff;
+      transition: all 150ms ease;
+
+      &::placeholder {
+        color: $gray-400;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: transparent;
+        box-shadow: 0 0 0 2px $blue-500;
+      }
+    }
+  }
+}
+
+.hall-layout-editor {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hle-header {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 8px;
+  color: $blue-600;
+  margin-bottom: 16px;
+
+  span {
+    font-size: 18px;
+    font-weight: 600;
+    color: $gray-900;
+  }
+}
+
+// ─── Hall Config Modal Footer ───────────────────────────────────────────────────
+
+.hall-config-modal-footer {
+  @include flex-between;
+  width: 100%;
+
+  .cancel-btn {
+    padding: 8px 24px;
+    color: $gray-700;
+    border: 1px solid $gray-300;
+    border-radius: $radius-md;
+    transition: all 150ms ease;
+
+    &:hover {
+      background-color: $gray-200;
+    }
+  }
+
+  .save-btns {
+    @include flex-align;
+    gap: 12px;
+  }
+
+  .draft-btn {
+    padding: 8px 24px;
+    color: $blue-600;
+    border: 1px solid $blue-300;
+    border-radius: $radius-md;
+    transition: all 150ms ease;
+
+    &:hover {
+      background-color: $blue-50;
+    }
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+    gap: 8px;
+
+    .cancel-btn,
+    .draft-btn,
+    .btn-primary {
+      width: 100%;
+    }
+
+    .save-btns {
+      flex-direction: column-reverse;
+      width: 100%;
+      gap: 8px;
+    }
+  }
+}
+
+.mode-toggle-btn {
+  @include flex-center;
+  @include lucide-icon-fix;
+  padding: 8px;
+  border-radius: $radius-lg;
+  transition: all 150ms ease;
+  cursor: pointer;
+
+  &.edit {
+    color: $blue-600;
+    border: 1px solid $blue-200;
+
+    &:hover {
+      background-color: $blue-100;
+    }
+  }
+
+  &.view {
+    color: $gray-500;
+    border: 1px solid $gray-200;
+
+    &:hover {
+      background-color: $gray-100;
+    }
+  }
+}
+
+.btn-secondary {
+  @include flex-center;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: $gray-700;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  transition: all 150ms ease;
+
+  &:hover {
+    background-color: $gray-100;
+  }
+}
+
+.btn-primary {
+  @include flex-center;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: $blue-600;
+  border-radius: $radius-md;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 150ms ease;
+
+  &:hover {
+    background-color: $blue-700;
+  }
+}

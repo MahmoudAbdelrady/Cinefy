@@ -1,41 +1,33 @@
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
 
 .today {
   background-color: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border-radius: $radius-lg;
+  border: 1px solid $gray-200;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 
   > .header {
-    display: flex;
-    align-items: center;
+    @include flex-align;
     gap: 12px;
     padding: 20px 24px;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid $gray-100;
 
     @media (max-width: 639px) {
       padding: 16px;
     }
 
     .header-left {
-      display: flex;
-      align-items: center;
+      @include flex-align;
       gap: 12px;
 
       .hl-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        background-color: #eff6ff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
+        @include icon-box(40px);
+        background-color: $blue-50;
 
         lucide-icon {
-          color: #2563eb;
-          display: flex;
+          color: $blue-600;
         }
       }
 
@@ -43,12 +35,12 @@
         h3 {
           font-size: 18px;
           font-weight: 700;
-          color: #111827;
+          color: $gray-900;
         }
 
         p {
           font-size: 12px;
-          color: #9ca3af;
+          color: $gray-400;
           margin-top: 2px;
         }
       }
@@ -58,11 +50,10 @@
 
 .today-schedule-list {
   .ts-card {
-    display: flex;
-    align-items: center;
+    @include flex-align;
     gap: 20px;
     padding: 16px 24px;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid $gray-100;
     transition: background-color 150ms ease;
     cursor: pointer;
 
@@ -88,7 +79,7 @@
 .ts-poster {
   width: 48px;
   height: 64px;
-  border-radius: 8px;
+  border-radius: $radius-md;
   overflow: hidden;
   flex-shrink: 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -109,9 +100,7 @@
 .ts-info {
   flex: 1;
   min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  @include flex-between;
   gap: 12px;
 }
 
@@ -121,10 +110,8 @@
   h4 {
     font-size: 14px;
     font-weight: 600;
-    color: #111827;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: $gray-900;
+    @include text-truncate;
 
     @media (min-width: 640px) {
       font-size: 16px;
@@ -133,18 +120,16 @@
 }
 
 .tsil-details {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 8px;
   margin-top: 4px;
 }
 
 .tsild-item {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 4px;
   font-size: 12px;
-  color: #6b7280;
+  color: $gray-500;
 
   lucide-icon {
     display: flex;
@@ -156,17 +141,16 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background-color: #d1d5db;
+  background-color: $gray-300;
 }
 
 .tsi-right {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 8px;
   flex-shrink: 0;
 
   > lucide-icon {
-    color: #d1d5db;
+    color: $gray-300;
     display: flex;
 
     @media (max-width: 639px) {
@@ -182,7 +166,7 @@
 .tsir-interval {
   font-size: 14px;
   font-weight: 700;
-  color: #111827;
+  color: $gray-900;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 
@@ -197,7 +181,7 @@
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  border-radius: 9999px;
+  border-radius: $radius-full;
   font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
@@ -214,28 +198,28 @@
   }
 
   &.status-in-progress {
-    background-color: #dcfce7;
-    color: #15803d;
+    background-color: $green-100;
+    color: $green-700;
 
     .status-dot {
-      background-color: #22c55e;
+      background-color: $green-500;
       animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
   }
 
   &.status-upcoming {
-    background-color: #ffedd5;
-    color: #c2410c;
+    background-color: $orange-100;
+    color: $orange-700;
 
     .status-dot {
-      background-color: #fb923c;
+      background-color: $orange-400;
     }
   }
 }
 
 .ts-actions {
   padding: 12px 24px;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid $gray-100;
   background-color: rgba(249, 250, 251, 0.5);
 
   a {
@@ -245,11 +229,11 @@
     text-align: center;
     font-size: 14px;
     font-weight: 500;
-    color: #2563eb;
+    color: $blue-600;
     transition: color 150ms ease;
 
     &:hover {
-      color: #1d4ed8;
+      color: $blue-700;
     }
   }
 }

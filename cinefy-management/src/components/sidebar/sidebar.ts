@@ -11,7 +11,7 @@ import {
   Users,
   X,
 } from 'lucide-angular';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { SidebarService } from '../../services';
 
 interface SidebarTab {
@@ -22,7 +22,7 @@ interface SidebarTab {
 
 @Component({
   selector: 'sidebar-component',
-  imports: [LucideAngularModule, RouterLink],
+  imports: [LucideAngularModule, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })

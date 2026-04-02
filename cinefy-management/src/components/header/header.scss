@@ -1,16 +1,15 @@
 @use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
 
 .header-container {
   background-color: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(229, 231, 235, 0.6);
+  border-bottom: 1px solid $card-border-subtle;
 }
 
 .header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  @include flex-between;
   gap: 24px;
   padding: 12px 32px;
 
@@ -25,24 +24,16 @@
 }
 
 .header-left {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 12px;
   min-width: 0;
 
   .hl-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    background-color: #eff6ff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    @include icon-box(36px);
+    background-color: $blue-50;
 
     lucide-icon {
-      color: #2563eb;
-      display: flex;
+      color: $blue-600;
     }
 
     @media (max-width: 639px) {
@@ -58,13 +49,13 @@
     h3 {
       font-size: 14px;
       font-weight: 600;
-      color: #111827;
+      color: $gray-900;
       line-height: 1.3;
     }
 
     p {
       font-size: 11px;
-      color: #9ca3af;
+      color: $gray-400;
       line-height: 1.3;
     }
   }
@@ -74,13 +65,13 @@
   display: none;
   padding: 8px;
   margin-left: -8px;
-  color: #6b7280;
-  border-radius: 8px;
+  color: $gray-500;
+  border-radius: $radius-md;
   transition: all 150ms ease;
 
   &:hover {
-    color: #374151;
-    background-color: #f3f4f6;
+    color: $gray-700;
+    background-color: $gray-100;
   }
 
   lucide-icon {
@@ -88,64 +79,80 @@
   }
 
   @media (max-width: 1023px) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include flex-center;
   }
 }
 
 .header-right {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 8px;
 }
 
 .header-divider {
   width: 1px;
   height: 32px;
-  background-color: #e5e7eb;
+  background-color: $gray-200;
   margin: 0 4px;
 }
 
 .header-actions {
   position: relative;
 
-  ::ng-deep > button[ngpButton] {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    background: linear-gradient(to right, #2563eb, #1d4ed8);
-    color: #ffffff;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 150ms ease;
-    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
-
-    &:hover {
-      background: linear-gradient(to right, #1d4ed8, #1e40af);
+  ::ng-deep {
+    .action-buttons-container {
+      @include flex-align;
+      gap: 12px;
     }
 
-    &:active {
-      transform: scale(0.97);
-    }
+    button[ngpButton] {
+      @include flex-align;
+      gap: 8px;
+      padding: 10px 16px;
+      background: linear-gradient(to right, $blue-600, $blue-700);
+      color: #ffffff;
+      border-radius: $radius-lg;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 150ms ease;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
+      white-space: nowrap;
 
-    lucide-icon {
-      display: flex;
-    }
+      &:hover {
+        background: linear-gradient(to right, $blue-700, $blue-800);
+      }
 
-    span {
-      @media (max-width: 639px) {
-        display: none;
+      &:active {
+        transform: scale(0.97);
+      }
+
+      lucide-icon {
+        display: flex;
+      }
+
+      span {
+        @media (max-width: 639px) {
+          display: none;
+        }
+      }
+
+      lucide-icon:last-child {
+        transition: transform 200ms ease;
+
+        @media (max-width: 639px) {
+          display: none;
+        }
       }
     }
 
-    lucide-icon:last-child {
-      transition: transform 200ms ease;
+    button[ngpButton].secondary-btn,
+    button[ngpButton]:has(.secondary-btn) {
+      background: #ffffff;
+      color: $blue-600;
+      border: 1px solid $blue-300;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
-      @media (max-width: 639px) {
-        display: none;
+      &:hover {
+        background-color: $blue-50;
       }
     }
   }
@@ -155,27 +162,20 @@
   position: relative;
 
   > button[ngpButton] {
-    display: flex;
-    align-items: center;
+    @include flex-align;
     gap: 12px;
     padding: 6px 12px 6px 6px;
-    border-radius: 12px;
+    border-radius: $radius-lg;
     transition: background-color 150ms ease;
 
     &:hover {
-      background-color: #f3f4f6;
+      background-color: $gray-100;
     }
 
     .avatar-box {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #3b82f6, #2563eb, #9333ea);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include icon-box(36px);
+      background: linear-gradient(135deg, #3b82f6, $blue-600, $purple-600);
       box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
-      flex-shrink: 0;
     }
 
     .info-box {
@@ -188,19 +188,19 @@
       h5 {
         font-size: 14px;
         font-weight: 600;
-        color: #111827;
+        color: $gray-900;
         line-height: 1.3;
       }
 
       p {
         font-size: 11px;
-        color: #9ca3af;
+        color: $gray-400;
         line-height: 1.3;
       }
     }
 
     > lucide-icon:last-child {
-      color: #9ca3af;
+      color: $gray-400;
       transition: all 150ms ease;
       display: flex;
 
@@ -210,7 +210,7 @@
     }
 
     &:hover > lucide-icon:last-child {
-      color: #4b5563;
+      color: $gray-600;
     }
   }
 }
@@ -221,48 +221,47 @@
   margin-top: 8px;
   width: 192px;
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: $radius-lg;
   box-shadow:
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(229, 231, 235, 0.6);
+  border: 1px solid $card-border-subtle;
   padding: 6px 0;
   overflow: hidden;
   z-index: 30;
 }
 
 .uim-item {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 12px;
   width: 100%;
   padding: 10px 16px;
   font-size: 14px;
-  color: #374151;
+  color: $gray-700;
   transition: background-color 150ms ease;
   cursor: pointer;
 
   &:hover {
-    background-color: #f9fafb;
+    background-color: $gray-50;
   }
 
   lucide-icon {
     display: flex;
-    color: #9ca3af;
+    color: $gray-400;
   }
 
   &:last-child {
-    color: #dc2626;
+    color: $red-600;
     margin-top: 6px;
     padding-top: 10px;
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid $gray-100;
 
     &:hover {
-      background-color: #fef2f2;
+      background-color: $red-50;
     }
 
     lucide-icon {
-      color: #f87171;
+      color: $red-400;
     }
   }
 }
