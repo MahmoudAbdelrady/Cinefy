@@ -102,6 +102,10 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .type-group {
@@ -529,6 +533,23 @@
 
     &:hover {
       background-color: $blue-50;
+    }
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+    gap: 8px;
+
+    .cancel-btn,
+    .draft-btn,
+    .btn-primary {
+      width: 100%;
+    }
+
+    .save-btns {
+      flex-direction: column-reverse;
+      width: 100%;
+      gap: 8px;
     }
   }
 }
