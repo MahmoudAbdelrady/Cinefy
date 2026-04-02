@@ -54,44 +54,12 @@
           </button>
 
           <ng-template #viewDialog let-close="close">
-            <app-modal
-              [modalTitle]="hall.name"
-              description="Hall details and seat layout"
+            <hall-config-modal
               [close]="close"
-            >
-              <div class="view-modal-content">
-                <div class="vmc-detail">
-                  <span class="vmc-label">Status</span>
-                  @if (hall.status) {
-                    <p class="ahidh-status" [attr.data-status]="hall.status">
-                      {{ statusLabels[hall.status] }}
-                    </p>
-                  } @else {
-                    <span class="vmc-value">—</span>
-                  }
-                </div>
-                <div class="vmc-detail">
-                  <span class="vmc-label">Capacity</span>
-                  <span class="vmc-value">{{ hall.rows * hall.seatsPerRow }} seats</span>
-                </div>
-                <div class="vmc-detail">
-                  <span class="vmc-label">Layout</span>
-                  <span class="vmc-value">{{ hall.rows }} rows × {{ hall.seatsPerRow }} seats</span>
-                </div>
-                @if (hall.currentMovie) {
-                  <div class="vmc-detail">
-                    <span class="vmc-label">Now Showing</span>
-                    <span class="vmc-value">{{ hall.currentMovie }}</span>
-                  </div>
-                }
-                @if (hall.occupancy > 0) {
-                  <div class="vmc-detail">
-                    <span class="vmc-label">Occupancy</span>
-                    <span class="vmc-value">{{ hall.occupancy }}%</span>
-                  </div>
-                }
-              </div>
-            </app-modal>
+              [hallTypes]="hallTypes()"
+              [existingHalls]="existingHalls()"
+              [selectedHall]="hall"
+            />
           </ng-template>
 
           <ng-template #deleteDialog let-close="close">

@@ -23,12 +23,13 @@ import { HeaderActionsService } from '../../services';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { HallsStatisticsComponent } from '../../components/halls/halls-statistics/halls-statistics';
-import { HallsListComponent, HallItem } from '../../components/halls/halls-list/halls-list';
-import { HallConfigModalComponent } from '../../components/halls/hall-config-modal/hall-config-modal';
-import { HallType } from '../../shared/types';
-import { ModalComponent } from '../../components/modal/modal';
-import { PaginatedResponse } from '../../shared/types';
+import {
+  HallsListComponent,
+  HallConfigModalComponent,
+  ModalComponent,
+  HallsStatisticsComponent,
+} from '../../components';
+import { HallItem, HallType, PaginatedResponse } from '../../shared/types';
 
 @Component({
   selector: 'halls-page',

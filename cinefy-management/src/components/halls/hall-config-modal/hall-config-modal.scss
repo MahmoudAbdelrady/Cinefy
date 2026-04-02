@@ -533,6 +533,33 @@
   }
 }
 
+.mode-toggle-btn {
+  @include flex-center;
+  @include lucide-icon-fix;
+  padding: 8px;
+  border-radius: $radius-lg;
+  transition: all 150ms ease;
+  cursor: pointer;
+
+  &.edit {
+    color: $blue-600;
+    border: 1px solid $blue-200;
+
+    &:hover {
+      background-color: $blue-100;
+    }
+  }
+
+  &.view {
+    color: $gray-500;
+    border: 1px solid $gray-200;
+
+    &:hover {
+      background-color: $gray-100;
+    }
+  }
+}
+
 .btn-secondary {
   @include flex-center;
   padding: 8px 16px;

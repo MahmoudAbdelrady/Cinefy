@@ -4,6 +4,24 @@
   [close]="close()"
   width="1300px"
 >
+  @if (selectedHall()) {
+    <div modal-header-actions>
+      <button
+        ngpButton
+        class="mode-toggle-btn"
+        [class.edit]="!isEditMode()"
+        [class.view]="isEditMode()"
+        (click)="toggleEditMode()"
+        [title]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
+      >
+        <lucide-icon
+          [img]="isEditMode() ? ViewIcon : EditIcon"
+          [size]="20"
+          [strokeWidth]="2"
+        ></lucide-icon>
+      </button>
+    </div>
+  }
   <div class="hall-config-modal-content">
     <div class="hall-information">
       <div class="hi-header">

@@ -13,20 +13,19 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { PaginationComponent } from '../../pagination/pagination';
 import { ModalComponent } from '../../modal/modal';
-
-export interface HallItem {
-  id: string;
-  name: string;
-  status: 'now_showing' | 'scheduled' | 'under_maintenance' | 'inactive' | null;
-  rows: number;
-  seatsPerRow: number;
-  currentMovie: string | null;
-  occupancy: number;
-}
+import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
+import { HallItem, HallListItem, HallType } from '../../../shared/types';
 
 @Component({
   selector: 'halls-list',
-  imports: [LucideAngularModule, NgpButton, NgpDialogTrigger, PaginationComponent, ModalComponent],
+  imports: [
+    LucideAngularModule,
+    NgpButton,
+    NgpDialogTrigger,
+    PaginationComponent,
+    ModalComponent,
+    HallConfigModalComponent,
+  ],
   templateUrl: './halls-list.html',
   styleUrl: './halls-list.scss',
 })
@@ -36,6 +35,8 @@ export class HallsListComponent {
   readonly page = model.required<number>();
   readonly pageCount = input.required<number>();
   readonly pageSize = input.required<number>();
+  readonly hallTypes = input.required<HallType[]>();
+  readonly existingHalls = input.required<HallListItem[]>();
 
   protected readonly SearchIcon = Search;
   protected readonly LayoutIcon = LayoutDashboard;
