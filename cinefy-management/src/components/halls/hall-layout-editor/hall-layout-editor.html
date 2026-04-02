@@ -6,7 +6,7 @@
     <div class="seats-grid">
       @for (row of seatLayout(); track $index; let rowIndex = $index) {
         <div class="seat-row">
-          <span class="row-label">{{ rowLabel(rowIndex) }}</span>
+          <span class="row-label" [style.width.px]="rowLabelWidth()">{{ rowLabel(rowIndex) }}</span>
           @for (seat of row; track $index; let seatIndex = $index) {
             @if (seat.type === 'aisle') {
               <div

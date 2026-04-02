@@ -29,6 +29,12 @@ export class HallLayoutEditorComponent {
 
   protected readonly seatLayout = signal<Seat[][]>([]);
 
+  protected readonly rowLabelWidth = computed(() => {
+    const rows = this.numRows();
+    const maxChars = rows <= 0 ? 1 : this.rowLabel(rows - 1).length;
+    return Math.max(24, maxChars * 10);
+  });
+
   protected readonly stats = computed<SeatStats>(() => {
     let normal = 0;
     let vip = 0;
@@ -58,7 +64,9 @@ export class HallLayoutEditorComponent {
   }
 
   protected rowLabel(index: number): string {
-    return String.fromCharCode(65 + index);
+    const letter = String.fromCharCode(65 + (index % 26));
+    const repeat = Math.floor(index / 26) + 1;
+    return letter.repeat(repeat);
   }
 
   protected seatTitle(rowIndex: number, seatIndex: number, seat: Seat): string {

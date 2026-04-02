@@ -45,17 +45,19 @@
 }
 
 .row-label {
-  @include flex-center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
   font-size: 12px;
   font-weight: 600;
   color: $gray-500;
-  width: 24px;
   height: 24px;
   flex-shrink: 0;
   position: sticky;
   left: 0;
   z-index: 1;
   background-color: #ffffff;
+  white-space: nowrap;
 }
 
 .seats-grid {
