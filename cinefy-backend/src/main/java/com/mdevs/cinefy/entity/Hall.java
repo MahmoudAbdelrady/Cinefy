@@ -2,6 +2,7 @@ package com.mdevs.cinefy.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 public class Hall extends BaseEntity {
 
@@ -38,9 +40,14 @@ public class Hall extends BaseEntity {
     @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HallCategoryPrice> categoryPrices = new ArrayList<>();
 
-    public Hall() {
+    public Hall(String name) {
+        this.name = name;
         if (this.name != null) {
-            this.code = this.name.toLowerCase().replace(" ", "_");
+            this.code = toCode(this.name);
         }
+    }
+
+    public static String toCode(String name) {
+        return name.toLowerCase().replace(" ", "_");
     }
 }
