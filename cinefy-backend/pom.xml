@@ -96,6 +96,11 @@
 			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-envers</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.20.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

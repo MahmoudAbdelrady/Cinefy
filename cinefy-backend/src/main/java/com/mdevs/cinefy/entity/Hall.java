@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
-@Table(name = "halls")
 public class Hall extends BaseEntity {
 
     @Column(nullable = false)
@@ -17,30 +19,28 @@ public class Hall extends BaseEntity {
     private String code;
 
     @Column(nullable = false)
-    private Integer occupancy;
+    private int totalRows = 0;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hall_type_id", nullable = false)
-    private HallType type;
+    @Column(nullable = false)
+    private int totalColumns = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private HallStatus status;
 
-    @Override
-    public void prePersist() {
-        super.prePersist();
-        generateCode();
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    private HallType type;
 
-    @PreUpdate
-    private void preUpdate() {
-        generateCode();
-    }
+    @Column(nullable = false)
+    private boolean supports3D = false;
 
-    private void generateCode() {
-        if (name != null) {
-            this.code = name.toLowerCase().replace(" ", "_");
+    @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HallCategoryPrice> categoryPrices = new ArrayList<>();
+
+    public Hall() {
+        if (this.name != null) {
+            this.code = this.name.toLowerCase().replace(" ", "_");
         }
     }
 }
