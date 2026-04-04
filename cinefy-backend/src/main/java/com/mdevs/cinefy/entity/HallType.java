@@ -2,11 +2,17 @@ package com.mdevs.cinefy.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
+@Table(indexes = {
+        @Index(columnList = "CODE"),
+        @Index(columnList = "UUID")
+})
 public class HallType extends BaseEntity {
 
     @Column(nullable = false)
@@ -15,9 +21,12 @@ public class HallType extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String code;
 
-    public HallType() {
-        if (this.name != null) {
-            this.code = this.name.toLowerCase().replace(" ", "_");
-        }
+    public HallType(String name) {
+        this.name = name;
+        this.code = toCode(name);
+    }
+
+    public static String toCode(String name) {
+        return name.toLowerCase().replace(" ", "_");
     }
 }

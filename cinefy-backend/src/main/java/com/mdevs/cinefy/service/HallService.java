@@ -1,61 +1,351 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.HallDTO;
+import com.mdevs.cinefy.dto.HallDetailDTO;
+import com.mdevs.cinefy.dto.HallSummaryDTO;
+import com.mdevs.cinefy.dto.HallTypeDTO;
 import com.mdevs.cinefy.dto.TicketPricingDTO;
 import com.mdevs.cinefy.entity.*;
 import com.mdevs.cinefy.repository.HallRepository;
 import com.mdevs.cinefy.repository.HallTypeRepository;
+import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class HallService {
 
     private final HallRepository hallRepository;
+
     private final HallTypeRepository hallTypeRepository;
 
-    @Transactional
-    public HallDTO createHall(HallDTO dto) {
-        validateHall(dto);
+    private static final Pattern POSITION_PATTERN = Pattern.compile("^([A-Z]+)([0-9]+)$");
 
-        HallType hallType = hallTypeRepository.findByCode(dto.getType())
-                .orElseThrow(() -> new IllegalArgumentException("Unknown hall type: " + dto.getType()));
+    // ========================= Hall Types =========================
+
+    public List<HallTypeDTO> getHallTypes() {
+        return hallTypeRepository.findAll().stream()
+                .map(ht -> {
+                    HallTypeDTO dto = new HallTypeDTO();
+                    dto.setId(ht.getUuid());
+                    dto.setName(ht.getName());
+                    return dto;
+                })
+                .toList();
+    }
+
+    @Transactional
+    public HallTypeDTO createHallType(HallTypeDTO dto) {
+        validateHallType(dto.getName(), null);
+        HallType hallType = new HallType(dto.getName());
+        hallTypeRepository.save(hallType);
+        dto.setId(hallType.getUuid());
+        return dto;
+    }
+
+    @Transactional
+    public HallTypeDTO updateHallType(String uuid, HallTypeDTO dto) {
+        HallType hallType = hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found: " + uuid));
+        validateHallType(dto.getName(), uuid);
+        hallType.setName(dto.getName());
+        hallType.setCode(HallType.toCode(dto.getName()));
+        hallTypeRepository.save(hallType);
+        dto.setId(hallType.getUuid());
+        return dto;
+    }
+
+    @Transactional
+    public void deleteHallType(String uuid) {
+        HallType hallType = hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found: " + uuid));
+        if (hallRepository.existsByTypeUuid(uuid)) {
+            throw new BusinessException("Cannot delete hall type '" + hallType.getName() + "' because it is assigned to one or more halls");
+        }
+        hallTypeRepository.delete(hallType);
+    }
+
+    // ============================= Halls ===========================
+
+    public Page<HallSummaryDTO> getHalls(String search, Pageable pageable) {
+        Page<Hall> page = (StringUtils.isEmpty(search))
+                ? hallRepository.findAll(pageable)
+                : hallRepository.findByCodeContaining(Hall.toCode(search), pageable);
+        return page.map(this::toSummaryDTO);
+    }
+
+    public HallDetailDTO getHall(String uuid) {
+        Hall hall = hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
+
+        HallTypeDTO type = new HallTypeDTO();
+        type.setId(hall.getType().getUuid());
+        type.setName(hall.getType().getName());
+
+        List<TicketPricingDTO> ticketPricing = hall.getCategoryPrices().stream()
+                .map(cp -> {
+                    TicketPricingDTO pricing = new TicketPricingDTO();
+                    pricing.setSeatCategory(cp.getCategory().getCode());
+                    pricing.setPrice(cp.getTicketPrice());
+                    return pricing;
+                })
+                .toList();
+
+        Map<String, List<String>> layout = hall.getSeats().stream()
+                .filter(seat -> seat.getCategory() != SeatCategory.NORMAL)
+                .collect(Collectors.groupingBy(
+                        seat -> seat.getCategory().getCode(),
+                        Collectors.mapping(
+                                seat -> seat.getRowPosition() + seat.getColumnPosition(),
+                                Collectors.toList()
+                        )
+                ));
+
+        HallDetailDTO dto = new HallDetailDTO();
+        dto.setId(hall.getUuid());
+        dto.setName(hall.getName());
+        dto.setNumberOfRows(hall.getTotalRows());
+        dto.setSeatsPerRow(hall.getTotalColumns());
+        dto.setStatus(hall.getStatus().getCode());
+        dto.setType(type);
+        dto.setSupports3D(hall.isSupports3D());
+        dto.setLayout(layout);
+        dto.setTicketPricing(ticketPricing);
+        return dto;
+    }
+
+    @Transactional
+    public HallSummaryDTO createHall(HallDTO dto) {
+        validateHall(dto, null);
 
         Hall hall = new Hall(dto.getName());
-        hall.setTotalRows(dto.getNumberOfRows());
-        hall.setTotalColumns(dto.getSeatsPerRow());
+        applyDtoToHall(hall, dto);
+
+        hallRepository.save(hall);
+        return toSummaryDTO(hall);
+    }
+
+    @Transactional
+    public HallSummaryDTO updateHall(String uuid, HallDTO dto) {
+        Hall hall = hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
+        validateHall(dto, uuid);
+
+        // @TODO --> Add restriction on modifying the layout in case the hall is occupied
+
+        hall.setName(dto.getName());
+        hall.setCode(Hall.toCode(dto.getName()));
+        applyDtoToHall(hall, dto);
+        hallRepository.save(hall);
+
+        return toSummaryDTO(hall);
+    }
+
+    @Transactional
+    public void deleteHall(String uuid) {
+        Hall hall = hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
+        // @TODO --> Add restriction on deleting the hall in case the hall is occupied
+        hallRepository.delete(hall);
+    }
+
+    // =========================== Helpers ===========================
+
+    private void validateHallType(String name, String excludeUuid) {
+        String code = HallType.toCode(name);
+        boolean exists = excludeUuid == null ? hallTypeRepository.existsByCode(code) : hallTypeRepository.existsByCodeAndUuidNot(code, excludeUuid);
+        if (exists) {
+            throw new BusinessException("A hall type with a similar name to '" + name + "' already exists");
+        }
+    }
+
+    private void validateHall(HallDTO dto, String excludeUuid) {
+        String code = Hall.toCode(dto.getName());
+        boolean exists = excludeUuid == null ? hallRepository.existsByCode(code) : hallRepository.existsByCodeAndUuidNot(code, excludeUuid);
+        if (exists) {
+            throw new BusinessException("A hall with a similar name to '" + dto.getName() + "' already exists");
+        }
+
+        if (dto.getLayout() != null) {
+            int totalSeats = dto.getNumberOfRows() * dto.getSeatsPerRow();
+            int aisleSeats = dto.getLayout().getOrDefault(SeatCategory.AISLE.getCode(), Collections.emptyList()).size();
+            if (aisleSeats == totalSeats) {
+                throw new BusinessException("A hall cannot have all seats designated as aisles");
+            }
+        }
+
+        Set<String> pricedCategories = new HashSet<>();
+        for (TicketPricingDTO pricing : dto.getTicketPricing()) {
+            if (!pricedCategories.add(pricing.getSeatCategory())) {
+                throw new BusinessException("Duplicate seat category entry: " + pricing.getSeatCategory());
+            }
+            if (pricing.getSeatCategory().equals(SeatCategory.AISLE.getCode())) {
+                throw new BusinessException("Aisle seats cannot have a ticket price");
+            }
+        }
+
+        // NORMAL is always used (unassigned seats default to it)
+        Set<String> requiredCategories = new HashSet<>();
+        requiredCategories.add(SeatCategory.NORMAL.getCode());
+        if (dto.getLayout() != null) {
+            dto.getLayout().keySet().stream()
+                    .filter(k -> !k.equals(SeatCategory.AISLE.getCode()))
+                    .forEach(requiredCategories::add);
+        }
+        for (String required : requiredCategories) {
+            if (!pricedCategories.contains(required)) {
+                throw new BusinessException("Missing ticket price for seat category: " + required);
+            }
+        }
+        for (String priced : pricedCategories) {
+            if (!requiredCategories.contains(priced)) {
+                throw new BusinessException("Ticket price provided for category '" + priced + "' which is not used in this hall");
+            }
+        }
+    }
+
+    private HallSummaryDTO toSummaryDTO(Hall hall) {
+        HallSummaryDTO summary = new HallSummaryDTO();
+        summary.setId(hall.getUuid());
+        summary.setName(hall.getName());
+        summary.setStatus(hall.getStatus().getCode());
+        summary.setTypeName(hall.getType().getName());
+        summary.setSupports3D(hall.isSupports3D());
+        summary.setTotalRows(hall.getTotalRows());
+        summary.setTotalColumns(hall.getTotalColumns());
+        return summary;
+    }
+
+    private void applyDtoToHall(Hall hall, HallDTO dto) {
+        HallType hallType = hallTypeRepository.findByUuid(dto.getTypeId()).orElseThrow(() -> new NotFoundException("Unknown hall type: " + dto.getTypeId()));
+
         hall.setStatus(HallStatus.fromCode(dto.getStatus()));
         hall.setType(hallType);
         hall.setSupports3D(dto.isSupports3D());
 
-        for (TicketPricingDTO pricing : dto.getTicketPricing()) {
-            HallCategoryPrice categoryPrice = new HallCategoryPrice();
-            categoryPrice.setCategory(SeatCategory.fromCode(pricing.getSeatCategory()));
-            categoryPrice.setTicketPrice(pricing.getPrice());
-            categoryPrice.setHall(hall);
-            hall.getCategoryPrices().add(categoryPrice);
-        }
-
-        hallRepository.save(hall);
-        dto.setHallId(hall.getUuid());
-        return dto;
+        mergeCategoryPrices(hall, dto.getTicketPricing());
+        mergeSeats(hall, dto.getNumberOfRows(), dto.getSeatsPerRow(), dto.getLayout());
     }
 
-    private void validateHall(HallDTO dto) {
-        if (hallRepository.existsByCode(Hall.toCode(dto.getName()))) {
-            throw new IllegalArgumentException("A hall with a similar name '" + dto.getName() + "' already exists");
+    private void mergeCategoryPrices(Hall hall, List<TicketPricingDTO> pricingList) {
+        Map<SeatCategory, HallCategoryPrice> existing = new EnumMap<>(SeatCategory.class);
+        for (HallCategoryPrice cp : hall.getCategoryPrices()) {
+            existing.put(cp.getCategory(), cp);
         }
 
-        Set<String> categories = new HashSet<>();
-        for (TicketPricingDTO pricing : dto.getTicketPricing()) {
-            if (!categories.add(pricing.getSeatCategory())) {
-                throw new IllegalArgumentException("Duplicate seat category entry: " + pricing.getSeatCategory());
+        Set<SeatCategory> incoming = EnumSet.noneOf(SeatCategory.class);
+        for (TicketPricingDTO pricing : pricingList) {
+            SeatCategory category = SeatCategory.fromCode(pricing.getSeatCategory());
+            incoming.add(category);
+            HallCategoryPrice cp = existing.get(category);
+            if (cp != null) {
+                cp.setTicketPrice(pricing.getPrice());
+            } else {
+                cp = new HallCategoryPrice();
+                cp.setHall(hall);
+                cp.setCategory(category);
+                cp.setTicketPrice(pricing.getPrice());
+                hall.getCategoryPrices().add(cp);
             }
         }
+
+        hall.getCategoryPrices().removeIf(cp -> !incoming.contains(cp.getCategory()));
+    }
+
+    private void mergeSeats(Hall hall, int newRows, int newCols, Map<String, List<String>> layout) {
+        if (layout == null) {
+            layout = Collections.emptyMap();
+        }
+
+        hall.setTotalRows(newRows);
+        hall.setTotalColumns(newCols);
+
+        Map<String, SeatCategory> desired = validateAndMapLayout(hall, layout);
+        for (int row = 1; row <= newRows; row++) {
+            String rowLabel = toRowLabel(row);
+            for (int col = 1; col <= newCols; col++) {
+                desired.putIfAbsent(rowLabel + col, SeatCategory.NORMAL);
+            }
+        }
+
+        Map<String, Seat> existing = new HashMap<>();
+        for (Seat seat : hall.getSeats()) {
+            existing.put(seat.getRowPosition() + seat.getColumnPosition(), seat);
+        }
+
+        for (Map.Entry<String, SeatCategory> entry : desired.entrySet()) {
+            Seat seat = existing.get(entry.getKey());
+            if (seat != null) {
+                seat.setCategory(entry.getValue());
+            } else {
+                Matcher m = POSITION_PATTERN.matcher(entry.getKey());
+                m.matches();
+                seat = new Seat();
+                seat.setHall(hall);
+                seat.setRowPosition(m.group(1));
+                seat.setColumnPosition(m.group(2));
+                seat.setCategory(entry.getValue());
+                hall.getSeats().add(seat);
+            }
+        }
+
+        hall.getSeats().removeIf(seat -> !desired.containsKey(seat.getRowPosition() + seat.getColumnPosition()));
+    }
+
+    private Map<String, SeatCategory> validateAndMapLayout(Hall hall, Map<String, List<String>> layout) {
+        Set<SeatCategory> seenCategories = EnumSet.noneOf(SeatCategory.class);
+        Map<String, SeatCategory> assignedPositions = new HashMap<>();
+
+        for (Map.Entry<String, List<String>> entry : layout.entrySet()) {
+            SeatCategory category = SeatCategory.fromCode(entry.getKey());
+            if (!seenCategories.add(category)) {
+                throw new BusinessException("Duplicate seat category: " + entry.getKey());
+            }
+
+            for (String position : entry.getValue()) {
+                Matcher matcher = POSITION_PATTERN.matcher(position);
+                if (!matcher.matches()) {
+                    throw new BusinessException("Invalid seat position format: " + position);
+                }
+
+                String rowLabel = matcher.group(1);
+                int colNumber = Integer.parseInt(matcher.group(2));
+                int rowIndex = 0;
+                for (int i = 0; i < rowLabel.length(); i++) {
+                    rowIndex = rowIndex * 26 + (rowLabel.charAt(i) - 'A' + 1);
+                }
+
+                if (rowIndex > hall.getTotalRows()) {
+                    throw new BusinessException("Seat position '" + position + "' exceeds the hall's row count (" + hall.getTotalRows() + ")");
+                }
+                if (colNumber < 1 || colNumber > hall.getTotalColumns()) {
+                    throw new BusinessException("Seat position '" + position + "' exceeds the hall's column count (" + hall.getTotalColumns() + ")");
+                }
+                if (assignedPositions.containsKey(position)) {
+                    throw new BusinessException("Seat position '" + position + "' is assigned to multiple categories");
+                }
+
+                assignedPositions.put(position, category);
+            }
+        }
+
+        return assignedPositions;
+    }
+
+    private String toRowLabel(int rowIndex) {
+        StringBuilder label = new StringBuilder();
+        while (rowIndex > 0) {
+            rowIndex--;
+            label.insert(0, (char) ('A' + rowIndex % 26));
+            rowIndex /= 26;
+        }
+        return label.toString();
     }
 }

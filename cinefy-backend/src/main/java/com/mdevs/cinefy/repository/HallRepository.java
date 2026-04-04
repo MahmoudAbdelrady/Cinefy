@@ -1,8 +1,20 @@
 package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.entity.Hall;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-public interface HallRepository extends JpaRepository<Hall, Long> {
+import java.util.Optional;
+
+public interface HallRepository extends BaseRepository<Hall> {
+
+    Optional<Hall> findByUuid(String uuid);
+
+    Page<Hall> findByCodeContaining(String code, Pageable pageable);
+
     boolean existsByCode(String code);
+
+    boolean existsByCodeAndUuidNot(String code, String uuid);
+
+    boolean existsByTypeUuid(String typeUuid);
 }

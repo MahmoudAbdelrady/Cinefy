@@ -17,10 +17,10 @@ public class AppConfig {
     @Getter
     private static ApplicationContext applicationContext;
 
-    @Value("${trackera.mail.username}")
+    @Value("${cinefy.mail.username}")
     private String emailUsername;
 
-    @Value("${trackera.mail.password}")
+    @Value("${cinefy.mail.password}")
     private String emailPassword;
 
     public AppConfig(ApplicationContext applicationContext) {
@@ -47,10 +47,6 @@ public class AppConfig {
 
     public static String getFrontendUrl() {
         return applicationContext.getEnvironment().getProperty("cinefy.frontend.url");
-    }
-
-    public static LocalDate getMinQueryableDate() {
-        return LocalDate.now().minusYears(1).withDayOfYear(1);
     }
 
     public static boolean isProductionEnv() {

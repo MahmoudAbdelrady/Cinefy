@@ -6,8 +6,16 @@ import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.utils.ExceptionResponseMaker;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestControllerAdvice
 public class CinefyExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
@@ -18,6 +26,19 @@ public class CinefyExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<?> handleNotFoundException(NotFoundException ex) {
         return ExceptionResponseMaker.makeResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException exception) {
+        List<Map<String, String>> errorsList = exception.getBindingResult().getAllErrors().stream().map(error -> {
+            Map<String, String> errorMap = new HashMap<>();
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errorMap.put("field", fieldName);
+            errorMap.put("message", errorMessage);
+            return errorMap;
+        }).toList();
+        return ExceptionResponseMaker.makeResponse("Validation Error", errorsList, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

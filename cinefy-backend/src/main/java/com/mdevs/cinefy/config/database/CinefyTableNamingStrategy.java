@@ -11,7 +11,7 @@ public class CinefyTableNamingStrategy extends PhysicalNamingStrategyStandardImp
         if (logicalName == null) {
             return null;
         }
-        return Identifier.toIdentifier(pluralize(logicalName.getText()).toUpperCase());
+        return Identifier.toIdentifier(pluralize(toSnakeCase(logicalName.getText())).toUpperCase());
     }
 
     @Override
@@ -47,6 +47,10 @@ public class CinefyTableNamingStrategy extends PhysicalNamingStrategyStandardImp
         if (identifier == null) {
             return null;
         }
-        return Identifier.toIdentifier(identifier.getText().replaceAll("([a-z])([A-Z])", "$1_$2").toUpperCase());
+        return Identifier.toIdentifier(toSnakeCase(identifier.getText()).toUpperCase());
+    }
+
+    private String toSnakeCase(String text) {
+        return text.replaceAll("([a-z])([A-Z])", "$1_$2");
     }
 }

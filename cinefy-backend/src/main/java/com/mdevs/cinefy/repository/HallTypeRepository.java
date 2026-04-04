@@ -1,10 +1,16 @@
 package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.entity.HallType;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface HallTypeRepository extends JpaRepository<HallType, Long> {
+public interface HallTypeRepository extends BaseRepository<HallType> {
+
+    Optional<HallType> findByUuid(String uuid);
+
     Optional<HallType> findByCode(String code);
+
+    boolean existsByCode(String code);
+
+    boolean existsByCodeAndUuidNot(String code, String uuid);
 }

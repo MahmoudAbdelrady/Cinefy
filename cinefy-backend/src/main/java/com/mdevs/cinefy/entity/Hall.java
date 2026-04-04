@@ -12,6 +12,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(indexes = @Index(columnList = "CODE"))
 public class Hall extends BaseEntity {
 
     @Column(nullable = false)
@@ -39,6 +40,9 @@ public class Hall extends BaseEntity {
 
     @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HallCategoryPrice> categoryPrices = new ArrayList<>();
+
+    @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Seat> seats = new ArrayList<>();
 
     public Hall(String name) {
         this.name = name;
