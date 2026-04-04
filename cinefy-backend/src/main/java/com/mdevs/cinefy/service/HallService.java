@@ -58,7 +58,7 @@ public class HallService {
 
     @Transactional
     public HallTypeDTO updateHallType(String uuid, HallTypeDTO dto) {
-        HallType hallType = hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found: " + uuid));
+        HallType hallType = findHallType(uuid);
         validateHallType(dto.getName(), uuid);
         hallType.setName(dto.getName());
         hallType.setCode(HallType.toCode(dto.getName()));
@@ -69,7 +69,7 @@ public class HallService {
 
     @Transactional
     public void deleteHallType(String uuid) {
-        HallType hallType = hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found: " + uuid));
+        HallType hallType = findHallType(uuid);
         if (hallRepository.existsByTypeUuid(uuid)) {
             throw new BusinessException("Cannot delete hall type '" + hallType.getName() + "' because it is assigned to one or more halls");
         }
@@ -86,7 +86,7 @@ public class HallService {
     }
 
     public HallDetailDTO getHall(String uuid) {
-        Hall hall = hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
+        Hall hall = findHall(uuid);
 
         HallTypeDTO type = new HallTypeDTO();
         type.setId(hall.getType().getUuid());
@@ -106,7 +106,7 @@ public class HallService {
     }
 
     public HallLayoutDTO getHallLayout(String uuid) {
-        Hall hall = hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
+        Hall hall = findHall(uuid);
 
         HallLayoutDTO dto = new HallLayoutDTO();
         dto.setNumberOfRows(hall.getTotalRows());
@@ -129,7 +129,7 @@ public class HallService {
 
     @Transactional
     public HallSummaryDTO updateHall(String uuid, HallDTO dto) {
-        Hall hall = hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
+        Hall hall = findHall(uuid);
         validateHall(dto, uuid);
 
         // @TODO --> Add restriction on modifying the layout in case the hall is occupied
@@ -144,12 +144,20 @@ public class HallService {
 
     @Transactional
     public void deleteHall(String uuid) {
-        Hall hall = hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
+        Hall hall = findHall(uuid);
         // @TODO --> Add restriction on deleting the hall in case the hall is occupied
         hallRepository.delete(hall);
     }
 
     // =========================== Helpers ===========================
+
+    private Hall findHall(String uuid) {
+        return hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
+    }
+
+    private HallType findHallType(String uuid) {
+        return hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found: " + uuid));
+    }
 
     private void validateHallType(String name, String excludeUuid) {
         String code = HallType.toCode(name);
@@ -240,7 +248,7 @@ public class HallService {
     }
 
     private void applyDtoToHall(Hall hall, HallDTO dto) {
-        HallType hallType = hallTypeRepository.findByUuid(dto.getTypeId()).orElseThrow(() -> new NotFoundException("Unknown hall type: " + dto.getTypeId()));
+        HallType hallType = findHallType(dto.getTypeId());
 
         hall.setStatus(HallStatus.fromCode(dto.getStatus()));
         hall.setType(hallType);
