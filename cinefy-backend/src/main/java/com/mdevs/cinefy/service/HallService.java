@@ -2,6 +2,7 @@ package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.HallDTO;
 import com.mdevs.cinefy.dto.HallDetailDTO;
+import com.mdevs.cinefy.dto.HallLayoutDTO;
 import com.mdevs.cinefy.dto.HallSummaryDTO;
 import com.mdevs.cinefy.dto.HallTypeDTO;
 import com.mdevs.cinefy.dto.TicketPricingDTO;
@@ -91,25 +92,6 @@ public class HallService {
         type.setId(hall.getType().getUuid());
         type.setName(hall.getType().getName());
 
-        List<TicketPricingDTO> ticketPricing = hall.getCategoryPrices().stream()
-                .map(cp -> {
-                    TicketPricingDTO pricing = new TicketPricingDTO();
-                    pricing.setSeatCategory(cp.getCategory().getCode());
-                    pricing.setPrice(cp.getTicketPrice());
-                    return pricing;
-                })
-                .toList();
-
-        Map<String, List<String>> layout = hall.getSeats().stream()
-                .filter(seat -> seat.getCategory() != SeatCategory.NORMAL)
-                .collect(Collectors.groupingBy(
-                        seat -> seat.getCategory().getCode(),
-                        Collectors.mapping(
-                                seat -> seat.getRowPosition() + seat.getColumnPosition(),
-                                Collectors.toList()
-                        )
-                ));
-
         HallDetailDTO dto = new HallDetailDTO();
         dto.setId(hall.getUuid());
         dto.setName(hall.getName());
@@ -118,8 +100,19 @@ public class HallService {
         dto.setStatus(hall.getStatus().getCode());
         dto.setType(type);
         dto.setSupports3D(hall.isSupports3D());
-        dto.setLayout(layout);
-        dto.setTicketPricing(ticketPricing);
+        dto.setLayout(toLayoutMap(hall));
+        dto.setTicketPricing(toPricingList(hall));
+        return dto;
+    }
+
+    public HallLayoutDTO getHallLayout(String uuid) {
+        Hall hall = hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
+
+        HallLayoutDTO dto = new HallLayoutDTO();
+        dto.setNumberOfRows(hall.getTotalRows());
+        dto.setSeatsPerRow(hall.getTotalColumns());
+        dto.setLayout(toLayoutMap(hall));
+        dto.setTicketPricing(toPricingList(hall));
         return dto;
     }
 
@@ -209,6 +202,29 @@ public class HallService {
                 throw new BusinessException("Ticket price provided for category '" + priced + "' which is not used in this hall");
             }
         }
+    }
+
+    private List<TicketPricingDTO> toPricingList(Hall hall) {
+        return hall.getCategoryPrices().stream()
+                .map(cp -> {
+                    TicketPricingDTO pricing = new TicketPricingDTO();
+                    pricing.setSeatCategory(cp.getCategory().getCode());
+                    pricing.setPrice(cp.getTicketPrice());
+                    return pricing;
+                })
+                .toList();
+    }
+
+    private Map<String, List<String>> toLayoutMap(Hall hall) {
+        return hall.getSeats().stream()
+                .filter(seat -> seat.getCategory() != SeatCategory.NORMAL)
+                .collect(Collectors.groupingBy(
+                        seat -> seat.getCategory().getCode(),
+                        Collectors.mapping(
+                                seat -> seat.getRowPosition() + seat.getColumnPosition(),
+                                Collectors.toList()
+                        )
+                ));
     }
 
     private HallSummaryDTO toSummaryDTO(Hall hall) {

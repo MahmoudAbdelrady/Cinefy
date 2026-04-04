@@ -2,6 +2,7 @@ package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.HallDTO;
 import com.mdevs.cinefy.dto.HallDetailDTO;
+import com.mdevs.cinefy.dto.HallLayoutDTO;
 import com.mdevs.cinefy.dto.HallSummaryDTO;
 import com.mdevs.cinefy.dto.HallTypeDTO;
 import com.mdevs.cinefy.service.HallService;
@@ -32,6 +33,11 @@ public class HallController {
     @GetMapping("/{uuid}")
     public ResponseEntity<HallDetailDTO> getHall(@PathVariable String uuid) {
         return ResponseEntity.ok(hallService.getHall(uuid));
+    }
+
+    @GetMapping("/{uuid}/layout")
+    public ResponseEntity<HallLayoutDTO> getHallLayout(@PathVariable String uuid) {
+        return ResponseEntity.ok(hallService.getHallLayout(uuid));
     }
 
     @PostMapping
