@@ -182,32 +182,33 @@ public class HallService {
             }
         }
 
-        Set<String> pricedCategories = new HashSet<>();
+        Set<SeatCategory> pricedCategories = EnumSet.noneOf(SeatCategory.class);
         for (TicketPricingDTO pricing : dto.getTicketPricing()) {
-            if (!pricedCategories.add(pricing.getSeatCategory())) {
+            SeatCategory category = SeatCategory.fromString(pricing.getSeatCategory());
+            if (!pricedCategories.add(category)) {
                 throw new BusinessException("Duplicate seat category entry: " + pricing.getSeatCategory());
             }
-            if (pricing.getSeatCategory().equals(SeatCategory.AISLE.name())) {
+            if (category == SeatCategory.AISLE) {
                 throw new BusinessException("Aisle seats cannot have a ticket price");
             }
         }
 
         // NORMAL is always used (unassigned seats default to it)
-        Set<String> requiredCategories = new HashSet<>();
-        requiredCategories.add(SeatCategory.NORMAL.name());
+        Set<SeatCategory> requiredCategories = EnumSet.of(SeatCategory.NORMAL);
         if (dto.getLayout() != null) {
             dto.getLayout().keySet().stream()
-                    .filter(k -> !k.equals(SeatCategory.AISLE.name()))
+                    .map(SeatCategory::fromString)
+                    .filter(c -> !c.equals(SeatCategory.AISLE))
                     .forEach(requiredCategories::add);
         }
-        for (String required : requiredCategories) {
+        for (SeatCategory required : requiredCategories) {
             if (!pricedCategories.contains(required)) {
-                throw new BusinessException("Missing ticket price for seat category: " + required);
+                throw new BusinessException("Missing ticket price for seat category: " + required.name());
             }
         }
-        for (String priced : pricedCategories) {
+        for (SeatCategory priced : pricedCategories) {
             if (!requiredCategories.contains(priced)) {
-                throw new BusinessException("Ticket price provided for category '" + priced + "' which is not used in this hall");
+                throw new BusinessException("Ticket price provided for category '" + priced.name() + "' which is not used in this hall");
             }
         }
     }
