@@ -7,9 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Table(indexes = @Index(columnList = "HALL_ID"))
 public class Seat extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(nullable = false)
     private Hall hall;
 

@@ -1,25 +1,16 @@
 package com.mdevs.cinefy.entity;
 
-import lombok.Getter;
-
 import java.util.Arrays;
 
-@Getter
 public enum SeatCategory {
-    NORMAL("normal"),
-    VIP("vip"),
-    AISLE("aisle");
+    NORMAL,
+    VIP,
+    AISLE;
 
-    private final String code;
-
-    SeatCategory(String code) {
-        this.code = code;
-    }
-
-    public static SeatCategory fromCode(String code) {
+    public static SeatCategory fromString(String name) {
         return Arrays.stream(values())
-                .filter(category -> category.code.equals(code))
+                .filter(category -> category.name().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown SeatCategory code: " + code));
+                .orElseThrow(() -> new IllegalArgumentException("Unknown SeatCategory: " + name));
     }
 }

@@ -5,14 +5,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(indexes = @Index(columnList = "CODE"))
+@Table(indexes = {
+        @Index(columnList = "CODE"),
+        @Index(columnList = "TYPE_ID"),
+        @Index(columnList = "UUID")
+})
 public class Hall extends BaseEntity {
 
     @Column(nullable = false)
@@ -31,7 +35,7 @@ public class Hall extends BaseEntity {
     @Column(nullable = false)
     private HallStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(nullable = false)
     private HallType type;
 
@@ -39,10 +43,10 @@ public class Hall extends BaseEntity {
     private boolean supports3D = false;
 
     @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HallCategoryPrice> categoryPrices = new ArrayList<>();
+    private Set<HallCategoryPrice> categoryPrices = new HashSet<>();
 
     @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Seat> seats = new ArrayList<>();
+    private Set<Seat> seats = new HashSet<>();
 
     public Hall(String name) {
         this.name = name;

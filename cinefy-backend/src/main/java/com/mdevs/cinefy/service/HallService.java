@@ -70,7 +70,7 @@ public class HallService {
     @Transactional
     public void deleteHallType(String uuid) {
         HallType hallType = findHallType(uuid);
-        if (hallRepository.existsByTypeUuid(uuid)) {
+        if (hallRepository.existsByType(hallType)) {
             throw new BusinessException("Cannot delete hall type '" + hallType.getName() + "' because it is assigned to one or more halls");
         }
         hallTypeRepository.delete(hallType);
@@ -97,7 +97,7 @@ public class HallService {
         dto.setName(hall.getName());
         dto.setNumberOfRows(hall.getTotalRows());
         dto.setSeatsPerRow(hall.getTotalColumns());
-        dto.setStatus(hall.getStatus().getCode());
+        dto.setStatus(hall.getStatus().name());
         dto.setType(type);
         dto.setSupports3D(hall.isSupports3D());
         dto.setLayout(toLayoutMap(hall));
@@ -176,7 +176,7 @@ public class HallService {
 
         if (dto.getLayout() != null) {
             int totalSeats = dto.getNumberOfRows() * dto.getSeatsPerRow();
-            int aisleSeats = dto.getLayout().getOrDefault(SeatCategory.AISLE.getCode(), Collections.emptyList()).size();
+            int aisleSeats = dto.getLayout().getOrDefault(SeatCategory.AISLE.name(), Collections.emptyList()).size();
             if (aisleSeats == totalSeats) {
                 throw new BusinessException("A hall cannot have all seats designated as aisles");
             }
@@ -187,17 +187,17 @@ public class HallService {
             if (!pricedCategories.add(pricing.getSeatCategory())) {
                 throw new BusinessException("Duplicate seat category entry: " + pricing.getSeatCategory());
             }
-            if (pricing.getSeatCategory().equals(SeatCategory.AISLE.getCode())) {
+            if (pricing.getSeatCategory().equals(SeatCategory.AISLE.name())) {
                 throw new BusinessException("Aisle seats cannot have a ticket price");
             }
         }
 
         // NORMAL is always used (unassigned seats default to it)
         Set<String> requiredCategories = new HashSet<>();
-        requiredCategories.add(SeatCategory.NORMAL.getCode());
+        requiredCategories.add(SeatCategory.NORMAL.name());
         if (dto.getLayout() != null) {
             dto.getLayout().keySet().stream()
-                    .filter(k -> !k.equals(SeatCategory.AISLE.getCode()))
+                    .filter(k -> !k.equals(SeatCategory.AISLE.name()))
                     .forEach(requiredCategories::add);
         }
         for (String required : requiredCategories) {
@@ -216,7 +216,7 @@ public class HallService {
         return hall.getCategoryPrices().stream()
                 .map(cp -> {
                     TicketPricingDTO pricing = new TicketPricingDTO();
-                    pricing.setSeatCategory(cp.getCategory().getCode());
+                    pricing.setSeatCategory(cp.getCategory().name());
                     pricing.setPrice(cp.getTicketPrice());
                     return pricing;
                 })
@@ -227,7 +227,7 @@ public class HallService {
         return hall.getSeats().stream()
                 .filter(seat -> seat.getCategory() != SeatCategory.NORMAL)
                 .collect(Collectors.groupingBy(
-                        seat -> seat.getCategory().getCode(),
+                        seat -> seat.getCategory().name(),
                         Collectors.mapping(
                                 seat -> seat.getRowPosition() + seat.getColumnPosition(),
                                 Collectors.toList()
@@ -239,7 +239,7 @@ public class HallService {
         HallSummaryDTO summary = new HallSummaryDTO();
         summary.setId(hall.getUuid());
         summary.setName(hall.getName());
-        summary.setStatus(hall.getStatus().getCode());
+        summary.setStatus(hall.getStatus().name());
         summary.setTypeName(hall.getType().getName());
         summary.setSupports3D(hall.isSupports3D());
         summary.setTotalRows(hall.getTotalRows());
@@ -250,7 +250,7 @@ public class HallService {
     private void applyDtoToHall(Hall hall, HallDTO dto) {
         HallType hallType = findHallType(dto.getTypeId());
 
-        hall.setStatus(HallStatus.fromCode(dto.getStatus()));
+        hall.setStatus(HallStatus.fromString(dto.getStatus()));
         hall.setType(hallType);
         hall.setSupports3D(dto.isSupports3D());
 
@@ -266,7 +266,7 @@ public class HallService {
 
         Set<SeatCategory> incoming = EnumSet.noneOf(SeatCategory.class);
         for (TicketPricingDTO pricing : pricingList) {
-            SeatCategory category = SeatCategory.fromCode(pricing.getSeatCategory());
+            SeatCategory category = SeatCategory.fromString(pricing.getSeatCategory());
             incoming.add(category);
             HallCategoryPrice cp = existing.get(category);
             if (cp != null) {
@@ -328,12 +328,17 @@ public class HallService {
         Map<String, SeatCategory> assignedPositions = new HashMap<>();
 
         for (Map.Entry<String, List<String>> entry : layout.entrySet()) {
-            SeatCategory category = SeatCategory.fromCode(entry.getKey());
+            SeatCategory category = SeatCategory.fromString(entry.getKey());
             if (!seenCategories.add(category)) {
                 throw new BusinessException("Duplicate seat category: " + entry.getKey());
             }
 
+            Set<String> seenPositions = new HashSet<>();
             for (String position : entry.getValue()) {
+                if (!seenPositions.add(position)) {
+                    throw new BusinessException("Seat position '" + position + "' is listed more than once in category: " + entry.getKey());
+                }
+
                 Matcher matcher = POSITION_PATTERN.matcher(position);
                 if (!matcher.matches()) {
                     throw new BusinessException("Invalid seat position format: " + position);

@@ -1,27 +1,18 @@
 package com.mdevs.cinefy.entity;
 
-import lombok.Getter;
-
 import java.util.Arrays;
 
-@Getter
 public enum HallStatus {
-    SCHEDULED("scheduled"),
-    NOW_SHOWING("now_showing"),
-    ACTIVE("active"),
-    INACTIVE("inactive"),
-    UNDER_MAINTENANCE("under_maintenance");
+    SCHEDULED,
+    NOW_SHOWING,
+    ACTIVE,
+    INACTIVE,
+    UNDER_MAINTENANCE;
 
-    private final String code;
-
-    HallStatus(String code) {
-        this.code = code;
-    }
-
-    public static HallStatus fromCode(String code) {
+    public static HallStatus fromString(String name) {
         return Arrays.stream(values())
-                .filter(status -> status.code.equals(code))
+                .filter(status -> status.name().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown HallStatus code: " + code));
+                .orElseThrow(() -> new IllegalArgumentException("Unknown HallStatus: " + name));
     }
 }

@@ -8,8 +8,6 @@ public interface HallTypeRepository extends BaseRepository<HallType> {
 
     Optional<HallType> findByUuid(String uuid);
 
-    Optional<HallType> findByCode(String code);
-
     boolean existsByCode(String code);
 
     boolean existsByCodeAndUuidNot(String code, String uuid);
