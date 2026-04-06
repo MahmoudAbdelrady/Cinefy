@@ -23,6 +23,29 @@ public class HallController {
 
     private final HallService hallService;
 
+    // ========================= Hall Types =========================
+
+    @GetMapping("/types")
+    public ResponseEntity<List<HallTypeDTO>> getHallTypes() {
+        return ResponseEntity.ok(hallService.getHallTypes());
+    }
+
+    @PostMapping("/types")
+    public ResponseEntity<HallTypeDTO> createHallType(@Valid @RequestBody HallTypeDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(hallService.createHallType(dto));
+    }
+
+    @PutMapping("/types/{uuid}")
+    public ResponseEntity<HallTypeDTO> updateHallType(@PathVariable String uuid, @Valid @RequestBody HallTypeDTO dto) {
+        return ResponseEntity.ok(hallService.updateHallType(uuid, dto));
+    }
+
+    @DeleteMapping("/types/{uuid}")
+    public ResponseEntity<Void> deleteHallType(@PathVariable String uuid) {
+        hallService.deleteHallType(uuid);
+        return ResponseEntity.noContent().build();
+    }
+
     // ============================= Halls ===========================
 
     @GetMapping
@@ -53,29 +76,6 @@ public class HallController {
     @DeleteMapping("/{uuid}")
     public ResponseEntity<Void> deleteHall(@PathVariable String uuid) {
         hallService.deleteHall(uuid);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ========================= Hall Types =========================
-
-    @GetMapping("/types")
-    public ResponseEntity<List<HallTypeDTO>> getHallTypes() {
-        return ResponseEntity.ok(hallService.getHallTypes());
-    }
-
-    @PostMapping("/types")
-    public ResponseEntity<HallTypeDTO> createHallType(@Valid @RequestBody HallTypeDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(hallService.createHallType(dto));
-    }
-
-    @PutMapping("/types/{uuid}")
-    public ResponseEntity<HallTypeDTO> updateHallType(@PathVariable String uuid, @Valid @RequestBody HallTypeDTO dto) {
-        return ResponseEntity.ok(hallService.updateHallType(uuid, dto));
-    }
-
-    @DeleteMapping("/types/{uuid}")
-    public ResponseEntity<Void> deleteHallType(@PathVariable String uuid) {
-        hallService.deleteHallType(uuid);
         return ResponseEntity.noContent().build();
     }
 }
