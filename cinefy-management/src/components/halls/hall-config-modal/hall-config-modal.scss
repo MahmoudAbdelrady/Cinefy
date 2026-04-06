@@ -504,7 +504,8 @@
 // ─── Hall Config Modal Footer ───────────────────────────────────────────────────
 
 .hall-config-modal-footer {
-  @include flex-between;
+  display: flex;
+  justify-content: flex-end;
   width: 100%;
 
   .cancel-btn {
@@ -524,24 +525,8 @@
     gap: 12px;
   }
 
-  .draft-btn {
-    padding: 8px 24px;
-    color: $blue-600;
-    border: 1px solid $blue-300;
-    border-radius: $radius-md;
-    transition: all 150ms ease;
-
-    &:hover {
-      background-color: $blue-50;
-    }
-  }
-
   @media (max-width: 480px) {
-    flex-direction: column-reverse;
-    gap: 8px;
-
     .cancel-btn,
-    .draft-btn,
     .btn-primary {
       width: 100%;
     }
