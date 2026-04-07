@@ -1,0 +1,10 @@
+<div ngpToast class="toast-inner">
+  <div class="toast-icon">
+    @if (context.variant === 'success') {
+      <lucide-icon [img]="SuccessIcon" [size]="18" [strokeWidth]="2" />
+    } @else {
+      <lucide-icon [img]="ErrorIcon" [size]="18" [strokeWidth]="2" />
+    }
+  </div>
+  <span class="toast-message">{{ context.message }}</span>
+</div>

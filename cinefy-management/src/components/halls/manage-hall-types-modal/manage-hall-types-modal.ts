@@ -11,7 +11,7 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { ModalComponent } from '../../modal/modal';
-import { HallsService } from '../../../services';
+import { HallsService, ToastService } from '../../../services';
 import { HallType } from '../../../shared/types';
 
 @Component({
@@ -29,6 +29,7 @@ import { HallType } from '../../../shared/types';
 })
 export class ManageHallTypesModalComponent implements OnInit {
   private readonly hallsService = inject(HallsService);
+  private readonly toastService = inject(ToastService);
 
   readonly close = input.required<() => void>();
 
@@ -72,8 +73,12 @@ export class ManageHallTypesModalComponent implements OnInit {
         next: (updated) => {
           this.hallTypes.update((types) => types.map((t) => (t.id === updated.id ? updated : t)));
           this.editingTypeId.set(null);
+          this.toastService.success('Hall type updated');
         },
-        error: () => this.loadHallTypes(),
+        error: () => {
+          this.loadHallTypes();
+          this.toastService.error('Failed to update hall type');
+        },
       });
   }
 
@@ -84,8 +89,14 @@ export class ManageHallTypesModalComponent implements OnInit {
 
   protected deleteType(type: HallType) {
     this.hallsService.deleteHallType(type.id!).subscribe({
-      next: () => this.hallTypes.update((types) => types.filter((t) => t.id !== type.id)),
-      error: () => this.loadHallTypes(),
+      next: () => {
+        this.hallTypes.update((types) => types.filter((t) => t.id !== type.id));
+        this.toastService.success('Hall type deleted');
+      },
+      error: () => {
+        this.loadHallTypes();
+        this.toastService.error('Failed to delete hall type');
+      },
     });
   }
 
@@ -95,8 +106,12 @@ export class ManageHallTypesModalComponent implements OnInit {
       next: (created) => {
         this.hallTypes.update((types) => [...types, created]);
         this.newTypeControl.reset();
+        this.toastService.success('Hall type added');
       },
-      error: () => this.loadHallTypes(),
+      error: () => {
+        this.loadHallTypes();
+        this.toastService.error('Failed to add hall type');
+      },
     });
   }
 
