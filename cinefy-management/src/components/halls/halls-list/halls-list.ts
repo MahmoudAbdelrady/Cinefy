@@ -14,7 +14,7 @@ import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { PaginationComponent } from '../../pagination/pagination';
 import { ModalComponent } from '../../modal/modal';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
-import { HallItem, HallListItem, HallType } from '../../../shared/types';
+import { HallItem, HallListItem } from '../../../shared/types';
 
 @Component({
   selector: 'halls-list',
@@ -35,7 +35,6 @@ export class HallsListComponent {
   readonly page = model.required<number>();
   readonly pageCount = input.required<number>();
   readonly pageSize = input.required<number>();
-  readonly hallTypes = input.required<HallType[]>();
   readonly existingHalls = input.required<HallListItem[]>();
 
   protected readonly SearchIcon = Search;

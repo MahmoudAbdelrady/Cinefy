@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import {
   LucideAngularModule,
@@ -15,6 +15,7 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { ModalComponent } from '../../modal/modal';
 import { HallType, HallListItem, HallItem } from '../../../shared/types';
 import { HallLayoutEditorComponent } from '../hall-layout-editor/hall-layout-editor';
+import { HallsService } from '../../../services';
 
 interface SeatCategoryItem {
   name: string;
@@ -36,7 +37,7 @@ interface SeatCategoryItem {
   templateUrl: './hall-config-modal.html',
   styleUrl: './hall-config-modal.scss',
 })
-export class HallConfigModalComponent {
+export class HallConfigModalComponent implements OnInit {
   protected readonly SettingsIcon = Settings;
   protected readonly StarIcon = Star;
   protected readonly DollarSignIcon = DollarSign;
@@ -44,11 +45,18 @@ export class HallConfigModalComponent {
   protected readonly EditIcon = SquarePen;
   protected readonly ViewIcon = Eye;
 
+  private readonly hallsService = inject(HallsService);
+
   readonly close = input.required<() => void>();
-  readonly hallTypes = input.required<HallType[]>();
   readonly existingHalls = input.required<HallListItem[]>();
   readonly selectedHall = input<HallItem | null>(null);
   readonly isEditMode = signal(false);
+
+  readonly hallTypes = signal<HallType[]>([]);
+
+  ngOnInit() {
+    this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
+  }
 
   protected readonly seatCategoryItems = signal<SeatCategoryItem[]>([
     { name: 'Normal', type: 'normal' },

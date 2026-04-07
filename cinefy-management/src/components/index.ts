@@ -9,6 +9,7 @@ import { PaginationComponent } from './pagination/pagination';
 import { ModalComponent } from './modal/modal';
 import { HallLayoutEditorComponent } from './halls/hall-layout-editor/hall-layout-editor';
 import { HallConfigModalComponent } from './halls/hall-config-modal/hall-config-modal';
+import { ManageHallTypesModalComponent } from './halls/manage-hall-types-modal/manage-hall-types-modal';
 
 export {
   HeaderComponent,
@@ -22,4 +23,5 @@ export {
   ModalComponent,
   HallLayoutEditorComponent,
   HallConfigModalComponent,
+  ManageHallTypesModalComponent,
 };

@@ -1,0 +1,92 @@
+<app-modal
+  modalTitle="Manage Hall Types"
+  description="Create and manage hall types for your cinema"
+  [close]="close()"
+  width="480px"
+>
+  <div class="manage-types-modal-content">
+    <div class="existing-types-container">
+      <h3>Existing Types</h3>
+      <div class="existing-types-list">
+        @for (type of hallTypes(); track type.id) {
+          <div class="existing-type-item">
+            @if (editingTypeId() === type.id) {
+              <input
+                type="text"
+                class="edit-type-input"
+                [formControl]="editNameControl"
+                (keydown)="onEditTypeKeydown($event, type)"
+                autofocus
+              />
+              <div class="action-buttons editing">
+                <button ngpButton (click)="confirmEditType(type)" title="Save" [disabled]="editNameControl.invalid">
+                  <lucide-icon [img]="CheckIcon" [size]="14" [strokeWidth]="2.5"></lucide-icon>
+                </button>
+                <button ngpButton (click)="cancelEditType()" title="Cancel">
+                  <lucide-icon [img]="XIcon" [size]="14" [strokeWidth]="2.5"></lucide-icon>
+                </button>
+              </div>
+            } @else {
+              <span>{{ type.name }}</span>
+              <div class="action-buttons">
+                <button ngpButton (click)="startEditingType(type)">
+                  <lucide-icon [img]="EditIcon" [size]="14" [strokeWidth]="2.5"></lucide-icon>
+                </button>
+                <button
+                  ngpButton
+                  [ngpPopoverTrigger]="deleteConfirm"
+                  ngpPopoverTriggerPlacement="top"
+                  ngpPopoverTriggerOffset="8"
+                  ngpPopoverTriggerContainer=".modal-overlay"
+                  #deleteTrigger="ngpPopoverTrigger"
+                >
+                  <lucide-icon [img]="DeleteIcon" [size]="14" [strokeWidth]="2.5"></lucide-icon>
+                </button>
+                <ng-template #deleteConfirm>
+                  <div ngpPopover class="delete-confirm-popover">
+                    <div class="delete-confirm-header">
+                      <lucide-icon [img]="WarningIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                      <span>Delete "{{ type.name }}"?</span>
+                    </div>
+                    <p>This action cannot be undone.</p>
+                    <div class="delete-confirm-actions">
+                      <button
+                        ngpButton
+                        class="btn-cancel"
+                        (click)="$event.stopPropagation(); deleteTrigger.hide()"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        ngpButton
+                        class="btn-delete"
+                        (click)="$event.stopPropagation(); deleteType(type); deleteTrigger.hide()"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </ng-template>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="new-type-container">
+      <h3>New Type Name</h3>
+      <div class="new-type-form">
+        <input
+          type="text"
+          placeholder="e.g. ScreenX, Dolby Atmos"
+          [formControl]="newTypeControl"
+          (keydown.enter)="addType()"
+        />
+      </div>
+    </div>
+  </div>
+  <div modal-footer class="manage-types-modal-footer">
+    <button ngpButton class="btn-secondary" (click)="close()()">Cancel</button>
+    <button ngpButton class="btn-primary" (click)="addType()" [disabled]="newTypeControl.invalid">Add Type</button>
+  </div>
+</app-modal>
