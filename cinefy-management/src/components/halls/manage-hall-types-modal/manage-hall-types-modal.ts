@@ -1,4 +1,5 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   Check,
@@ -75,9 +76,9 @@ export class ManageHallTypesModalComponent implements OnInit {
           this.editingTypeId.set(null);
           this.toastService.success('Hall type updated');
         },
-        error: () => {
+        error: (err: HttpErrorResponse) => {
           this.loadHallTypes();
-          this.toastService.error('Failed to update hall type');
+          this.toastService.error(err.error?.message ?? 'Failed to update hall type');
         },
       });
   }
@@ -93,9 +94,9 @@ export class ManageHallTypesModalComponent implements OnInit {
         this.hallTypes.update((types) => types.filter((t) => t.id !== type.id));
         this.toastService.success('Hall type deleted');
       },
-      error: () => {
+      error: (err: HttpErrorResponse) => {
         this.loadHallTypes();
-        this.toastService.error('Failed to delete hall type');
+        this.toastService.error(err.error?.message ?? 'Failed to delete hall type');
       },
     });
   }
@@ -108,9 +109,9 @@ export class ManageHallTypesModalComponent implements OnInit {
         this.newTypeControl.reset();
         this.toastService.success('Hall type added');
       },
-      error: () => {
+      error: (err: HttpErrorResponse) => {
         this.loadHallTypes();
-        this.toastService.error('Failed to add hall type');
+        this.toastService.error(err.error?.message ?? 'Failed to add hall type');
       },
     });
   }

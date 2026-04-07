@@ -50,7 +50,7 @@
 
 .toast-message {
   flex: 1;
-  @include text-truncate;
+  word-break: break-word;
 }
 
 .toast-inner[data-enter] {
