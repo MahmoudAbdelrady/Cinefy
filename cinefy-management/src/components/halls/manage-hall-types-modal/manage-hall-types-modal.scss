@@ -1,6 +1,15 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
 
+.spin {
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .manage-types-modal-content {
   display: flex;
   flex-direction: column;
@@ -171,6 +180,15 @@
 
         &:hover {
           background-color: $red-600;
+        }
+
+        &:disabled {
+          background-color: $gray-300;
+          cursor: not-allowed;
+
+          &:hover {
+            background-color: $gray-300;
+          }
         }
       }
     }

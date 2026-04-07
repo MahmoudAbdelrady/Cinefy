@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   Check,
+  Loader,
   LucideAngularModule,
   SquarePen,
   Trash2,
@@ -39,9 +40,13 @@ export class ManageHallTypesModalComponent implements OnInit {
   protected readonly CheckIcon = Check;
   protected readonly XIcon = X;
   protected readonly WarningIcon = TriangleAlert;
+  protected readonly LoaderIcon = Loader;
 
   protected readonly hallTypes = signal<HallType[]>([]);
   protected readonly editingTypeId = signal<string | null>(null);
+  protected readonly savingTypeId = signal<string | null>(null);
+  protected readonly deletingTypeId = signal<string | null>(null);
+  protected readonly addingType = signal(false);
 
   protected readonly editNameControl = new FormControl('', {
     nonNullable: true,
@@ -68,15 +73,18 @@ export class ManageHallTypesModalComponent implements OnInit {
 
   protected confirmEditType(type: HallType) {
     if (this.editNameControl.invalid) return;
+    this.savingTypeId.set(type.id!);
     this.hallsService
       .updateHallType(type.id!, { name: this.editNameControl.value.trim() })
       .subscribe({
         next: (updated) => {
           this.hallTypes.update((types) => types.map((t) => (t.id === updated.id ? updated : t)));
           this.editingTypeId.set(null);
+          this.savingTypeId.set(null);
           this.toastService.success('Hall type updated');
         },
         error: (err: HttpErrorResponse) => {
+          this.savingTypeId.set(null);
           this.loadHallTypes();
           this.toastService.error(err.error?.message ?? 'Failed to update hall type');
         },
@@ -89,12 +97,15 @@ export class ManageHallTypesModalComponent implements OnInit {
   }
 
   protected deleteType(type: HallType) {
+    this.deletingTypeId.set(type.id!);
     this.hallsService.deleteHallType(type.id!).subscribe({
       next: () => {
         this.hallTypes.update((types) => types.filter((t) => t.id !== type.id));
+        this.deletingTypeId.set(null);
         this.toastService.success('Hall type deleted');
       },
       error: (err: HttpErrorResponse) => {
+        this.deletingTypeId.set(null);
         this.loadHallTypes();
         this.toastService.error(err.error?.message ?? 'Failed to delete hall type');
       },
@@ -103,13 +114,16 @@ export class ManageHallTypesModalComponent implements OnInit {
 
   protected addType() {
     if (this.newTypeControl.invalid) return;
+    this.addingType.set(true);
     this.hallsService.createHallType({ name: this.newTypeControl.value.trim() }).subscribe({
       next: (created) => {
         this.hallTypes.update((types) => [...types, created]);
         this.newTypeControl.reset();
+        this.addingType.set(false);
         this.toastService.success('Hall type added');
       },
       error: (err: HttpErrorResponse) => {
+        this.addingType.set(false);
         this.loadHallTypes();
         this.toastService.error(err.error?.message ?? 'Failed to add hall type');
       },
