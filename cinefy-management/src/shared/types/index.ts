@@ -6,4 +6,4 @@ export interface PaginatedResponse<T> {
   pageSize: number;
 }
 
-export type { HallType, HallListItem, HallItem } from './hall';
+export type { HallType, HallListItem, HallItem } from './halls';

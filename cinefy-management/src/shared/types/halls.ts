@@ -1,5 +1,5 @@
 interface HallType {
-  id: string;
+  id?: string;
   name: string;
 }
 
