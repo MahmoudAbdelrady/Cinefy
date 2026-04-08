@@ -1,4 +1,4 @@
-import { Component, input, model } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
 import {
   CircleAlert,
   Eye,
@@ -11,10 +11,13 @@ import {
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { combineLatest, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs';
 import { PaginationComponent } from '../../pagination/pagination';
 import { ModalComponent } from '../../modal/modal';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
-import { HallItem, HallListItem } from '../../../shared/types';
+import { HALL_STATUS_LABELS, HallSummary, PaginatedResponse } from '../../../shared/types';
+import { HallsService } from '../../../services';
 
 @Component({
   selector: 'halls-list',
@@ -30,12 +33,19 @@ import { HallItem, HallListItem } from '../../../shared/types';
   styleUrl: './halls-list.scss',
 })
 export class HallsListComponent {
-  readonly items = input.required<HallItem[]>();
-  readonly totalItems = input.required<number>();
-  readonly page = model.required<number>();
-  readonly pageCount = input.required<number>();
-  readonly pageSize = input.required<number>();
-  readonly existingHalls = input.required<HallListItem[]>();
+  private readonly hallsService = inject(HallsService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly page = signal(1);
+  protected readonly search = signal('');
+  protected readonly pageSize = 10;
+  protected readonly loading = signal(true);
+  protected readonly hallPage = signal<PaginatedResponse<HallSummary> | null>(null);
+
+  private readonly halls$ = combineLatest([
+    toObservable(this.search).pipe(debounceTime(300), distinctUntilChanged()),
+    toObservable(this.page),
+  ]);
 
   protected readonly SearchIcon = Search;
   protected readonly LayoutIcon = LayoutDashboard;
@@ -45,10 +55,27 @@ export class HallsListComponent {
   protected readonly DeleteIcon = Trash2;
   protected readonly AlertIcon = CircleAlert;
 
-  protected readonly statusLabels: Record<string, string> = {
-    now_showing: 'Now Showing',
-    scheduled: 'Scheduled',
-    under_maintenance: 'Under Maintenance',
-    inactive: 'Inactive',
-  };
+  protected readonly statusLabels = HALL_STATUS_LABELS;
+
+  constructor() {
+    afterNextRender(() => {
+      this.halls$
+        .pipe(
+          tap(() => this.loading.set(true)),
+          switchMap(([search, page]) =>
+            this.hallsService.getHalls(search || undefined, { page: page - 1, size: this.pageSize }),
+          ),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe((hallPage) => {
+          this.hallPage.set(hallPage);
+          this.loading.set(false);
+        });
+    });
+  }
+
+  protected onSearch(event: Event): void {
+    this.search.set((event.target as HTMLInputElement).value);
+    this.page.set(1);
+  }
 }

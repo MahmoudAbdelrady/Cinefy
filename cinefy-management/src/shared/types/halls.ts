@@ -1,3 +1,13 @@
+const HALL_STATUS_LABELS = {
+  NOW_SHOWING: 'Now Showing',
+  SCHEDULED: 'Scheduled',
+  UNDER_MAINTENANCE: 'Under Maintenance',
+  INACTIVE: 'Inactive',
+  ACTIVE: 'Active',
+} as const;
+
+type HallStatus = keyof typeof HALL_STATUS_LABELS;
+
 interface HallType {
   id?: string;
   name: string;
@@ -11,7 +21,7 @@ interface HallListItem {
 interface HallItem {
   id: string;
   name: string;
-  status: 'NOW_SHOWING' | 'SCHEDULED' | 'UNDER_MAINTENANCE' | 'INACTIVE' | 'ACTIVE' | null;
+  status: HallStatus | null;
   rows: number;
   seatsPerRow: number;
   currentMovie: string | null;
@@ -26,7 +36,7 @@ interface TicketPricing {
 interface HallSummary {
   id: string;
   name: string;
-  status: string;
+  status: HallStatus;
   typeName: string;
   supports3D: boolean;
   totalRows: number;
@@ -38,7 +48,7 @@ interface HallDetail {
   name: string;
   numberOfRows: number;
   seatsPerRow: number;
-  status: string;
+  status: HallStatus;
   type: HallType;
   supports3D: boolean;
   layout: Record<string, string[]>;
@@ -56,14 +66,16 @@ interface Hall {
   name: string;
   numberOfRows: number;
   seatsPerRow: number;
-  status: string;
+  status: HallStatus;
   typeId: string;
   supports3D?: boolean;
   layout?: Record<string, string[]>;
   ticketPricing: TicketPricing[];
 }
 
+export { HALL_STATUS_LABELS };
 export type {
+  HallStatus,
   HallType,
   HallListItem,
   HallItem,

@@ -1,12 +1,18 @@
-export interface PaginatedResponse<T> {
-  content: T[];
+export interface PageFields {
   totalElements: number;
   totalPages: number;
   number: number;
   size: number;
 }
 
+export interface PaginatedResponse<T> {
+  content: T[];
+  page: PageFields;
+}
+
+export { HALL_STATUS_LABELS } from './halls';
 export type {
+  HallStatus,
   HallType,
   HallListItem,
   HallItem,

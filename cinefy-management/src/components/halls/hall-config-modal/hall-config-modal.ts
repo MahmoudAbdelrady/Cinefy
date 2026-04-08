@@ -13,7 +13,7 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { ModalComponent } from '../../modal/modal';
-import { HallType, HallListItem, HallItem } from '../../../shared/types';
+import { HallType, HallListItem, HallSummary } from '../../../shared/types';
 import { HallLayoutEditorComponent } from '../hall-layout-editor/hall-layout-editor';
 import { HallsService } from '../../../services';
 
@@ -49,7 +49,7 @@ export class HallConfigModalComponent implements OnInit {
 
   readonly close = input.required<() => void>();
   readonly existingHalls = input.required<HallListItem[]>();
-  readonly selectedHall = input<HallItem | null>(null);
+  readonly selectedHall = input<HallSummary | null>(null);
   readonly isEditMode = signal(false);
 
   readonly hallTypes = signal<HallType[]>([]);

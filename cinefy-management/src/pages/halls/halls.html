@@ -1,7 +1,12 @@
 <ng-template #headerActionsTemplate>
   <div class="action-buttons-container">
     <button ngpButton [ngpDialogTrigger]="manageTypesDialog">
-      <lucide-icon [img]="SettingsIcon" [size]="16" [strokeWidth]="2.5" class="secondary-btn"></lucide-icon>
+      <lucide-icon
+        [img]="SettingsIcon"
+        [size]="16"
+        [strokeWidth]="2.5"
+        class="secondary-btn"
+      ></lucide-icon>
       <span>Manage Hall Types</span>
     </button>
     <button ngpButton [ngpDialogTrigger]="addHallDialog">
@@ -14,22 +19,12 @@
     </ng-template>
 
     <ng-template #addHallDialog let-close="close">
-      <hall-config-modal
-        [close]="close"
-        [existingHalls]="hallItemsPaginated()"
-      />
+      <hall-config-modal [close]="close" [existingHalls]="[]" />
     </ng-template>
   </div>
 </ng-template>
 
 <div class="halls-container">
   <halls-statistics />
-  <halls-list
-    [items]="hallItemsPaginated()"
-    [totalItems]="hallPage().totalItems"
-    [(page)]="currentPage"
-    [pageCount]="pageCount()"
-    [pageSize]="pageSize"
-    [existingHalls]="hallItemsPaginated()"
-  />
+  <halls-list />
 </div>
