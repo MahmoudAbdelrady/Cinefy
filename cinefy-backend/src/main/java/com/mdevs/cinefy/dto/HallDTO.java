@@ -15,8 +15,6 @@ import java.util.Map;
 @Setter
 public class HallDTO {
 
-    private String hallId;
-
     @NotBlank(message = "Name is required")
     private String name;
 

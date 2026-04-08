@@ -1,7 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { HallType } from '../shared/types';
+import type {
+  PaginatedResponse,
+  Hall,
+  HallDetail,
+  HallLayout,
+  HallSummary,
+  HallType,
+} from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class HallsService {
@@ -26,4 +33,32 @@ export class HallsService {
   }
 
   // ============================= Halls ===========================
+
+  getHalls(
+    search?: string,
+    pageable?: { page?: number; size?: number },
+  ): Observable<PaginatedResponse<HallSummary>> {
+    const params = { ...(search && { search }), ...pageable };
+    return this.http.get<PaginatedResponse<HallSummary>>('/halls', { params });
+  }
+
+  getHall(id: string): Observable<HallDetail> {
+    return this.http.get<HallDetail>(`/halls/${id}`);
+  }
+
+  getHallLayout(id: string): Observable<HallLayout> {
+    return this.http.get<HallLayout>(`/halls/${id}/layout`);
+  }
+
+  createHall(data: Hall): Observable<HallSummary> {
+    return this.http.post<HallSummary>('/halls', data);
+  }
+
+  updateHall(id: string, data: Hall): Observable<HallSummary> {
+    return this.http.put<HallSummary>(`/halls/${id}`, data);
+  }
+
+  deleteHall(id: string): Observable<void> {
+    return this.http.delete<void>(`/halls/${id}`);
+  }
 }

@@ -46,7 +46,7 @@ export class HallsPage implements OnInit {
     {
       id: '1',
       name: 'Hall 1',
-      status: 'now_showing',
+      status: 'NOW_SHOWING',
       rows: 10,
       seatsPerRow: 10,
       currentMovie: 'Spider-Man: No Way Home',
@@ -55,7 +55,7 @@ export class HallsPage implements OnInit {
     {
       id: '2',
       name: 'Hall 2',
-      status: 'scheduled',
+      status: 'SCHEDULED',
       rows: 12,
       seatsPerRow: 12,
       currentMovie: 'Dune: Part Two',
@@ -64,7 +64,7 @@ export class HallsPage implements OnInit {
     {
       id: '3',
       name: 'Hall 3',
-      status: 'under_maintenance',
+      status: 'UNDER_MAINTENANCE',
       rows: 8,
       seatsPerRow: 8,
       currentMovie: 'The Matrix Resurrections',
@@ -73,7 +73,7 @@ export class HallsPage implements OnInit {
     {
       id: '4',
       name: 'Hall 4',
-      status: 'inactive',
+      status: 'INACTIVE',
       rows: 8,
       seatsPerRow: 8,
       currentMovie: null,
@@ -82,7 +82,7 @@ export class HallsPage implements OnInit {
     {
       id: '5',
       name: 'IMAX Hall',
-      status: 'now_showing',
+      status: 'NOW_SHOWING',
       rows: 14,
       seatsPerRow: 14,
       currentMovie: 'Avatar: The Way of Water',
@@ -91,7 +91,7 @@ export class HallsPage implements OnInit {
     {
       id: '6',
       name: 'Hall 5',
-      status: 'scheduled',
+      status: 'SCHEDULED',
       rows: 10,
       seatsPerRow: 10,
       currentMovie: null,
@@ -100,7 +100,7 @@ export class HallsPage implements OnInit {
     {
       id: '7',
       name: '4DX Hall',
-      status: 'under_maintenance',
+      status: 'UNDER_MAINTENANCE',
       rows: 6,
       seatsPerRow: 6,
       currentMovie: null,
@@ -117,14 +117,14 @@ export class HallsPage implements OnInit {
     },
   ];
   protected readonly hallPage = signal<PaginatedResponse<HallItem>>({
-    items: this.hallItems,
-    totalItems: this.hallItems.length,
-    page: this.currentPage(),
-    pageCount: this.pageCount(),
-    pageSize: this.pageSize,
+    content: this.hallItems,
+    totalElements: this.hallItems.length,
+    number: this.currentPage(),
+    totalPages: this.pageCount(),
+    size: this.pageSize,
   });
   protected readonly hallItemsPaginated = computed(() =>
-    this.hallPage().items.slice(
+    this.hallPage().content.slice(
       (this.currentPage() - 1) * this.pageSize,
       this.currentPage() * this.pageSize,
     ),

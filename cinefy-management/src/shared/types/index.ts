@@ -1,9 +1,18 @@
 export interface PaginatedResponse<T> {
-  items: T[];
-  totalItems: number;
-  page: number;
-  pageCount: number;
-  pageSize: number;
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
 }
 
-export type { HallType, HallListItem, HallItem } from './halls';
+export type {
+  HallType,
+  HallListItem,
+  HallItem,
+  TicketPricing,
+  HallSummary,
+  HallDetail,
+  HallLayout,
+  Hall,
+} from './halls';
