@@ -1,4 +1,4 @@
-<div ngpToast class="toast-inner">
+<div ngpToast #toast="ngpToast" class="toast-inner">
   <div class="toast-icon">
     @if (context.variant === 'success') {
       <lucide-icon [img]="SuccessIcon" [size]="18" [strokeWidth]="2" />
@@ -7,4 +7,7 @@
     }
   </div>
   <span class="toast-message">{{ context.message }}</span>
+  <button class="toast-close" (click)="dismiss()" aria-label="Close">
+    <lucide-icon [img]="CloseIcon" [size]="14" [strokeWidth]="2.5" />
+  </button>
 </div>
