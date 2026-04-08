@@ -85,7 +85,6 @@ export class ManageHallTypesModalComponent implements OnInit {
         },
         error: (err: HttpErrorResponse) => {
           this.savingTypeId.set(null);
-          this.loadHallTypes();
           this.toastService.error(err.error?.message ?? 'Failed to update hall type');
         },
       });
@@ -106,7 +105,6 @@ export class ManageHallTypesModalComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.deletingTypeId.set(null);
-        this.loadHallTypes();
         this.toastService.error(err.error?.message ?? 'Failed to delete hall type');
       },
     });
@@ -124,7 +122,6 @@ export class ManageHallTypesModalComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.addingType.set(false);
-        this.loadHallTypes();
         this.toastService.error(err.error?.message ?? 'Failed to add hall type');
       },
     });
