@@ -1,10 +1,9 @@
 import { Component, computed, effect, input, signal } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
+import type { SeatCategory } from '../../../shared/types';
 
-type SeatType = 'normal' | 'vip' | 'aisle';
-
-interface Seat {
-  type: SeatType;
+export interface Seat {
+  type: SeatCategory;
   onsiteOnly: boolean;
 }
 
@@ -24,10 +23,11 @@ interface SeatStats {
 export class HallLayoutEditorComponent {
   readonly numRows = input(10);
   readonly seatsPerRow = input(12);
-  readonly selectedSeatType = input<SeatType>('normal');
+  readonly selectedSeatType = input<SeatCategory>('NORMAL');
   readonly selectedOnsiteOnly = input(false);
 
-  protected readonly seatLayout = signal<Seat[][]>([]);
+  private readonly _seatLayout = signal<Seat[][]>([]);
+  readonly seatLayout = this._seatLayout.asReadonly();
 
   protected readonly rowLabelWidth = computed(() => {
     const rows = this.numRows();
@@ -35,7 +35,7 @@ export class HallLayoutEditorComponent {
     return Math.max(24, maxChars * 10);
   });
 
-  protected readonly stats = computed<SeatStats>(() => {
+  readonly stats = computed<SeatStats>(() => {
     let normal = 0;
     let vip = 0;
     let onsiteOnly = 0;
@@ -43,10 +43,10 @@ export class HallLayoutEditorComponent {
 
     for (const row of this.seatLayout()) {
       for (const seat of row) {
-        if (seat.type !== 'aisle') {
+        if (seat.type !== 'AISLE') {
           total++;
-          if (seat.type === 'normal') normal++;
-          else if (seat.type === 'vip') vip++;
+          if (seat.type === 'NORMAL') normal++;
+          else if (seat.type === 'VIP') vip++;
           if (seat.onsiteOnly) onsiteOnly++;
         }
       }
@@ -63,7 +63,7 @@ export class HallLayoutEditorComponent {
     });
   }
 
-  protected rowLabel(index: number): string {
+  rowLabel(index: number): string {
     const letter = String.fromCharCode(65 + (index % 26));
     const repeat = Math.floor(index / 26) + 1;
     return letter.repeat(repeat);
@@ -71,17 +71,17 @@ export class HallLayoutEditorComponent {
 
   protected seatTitle(rowIndex: number, seatIndex: number, seat: Seat): string {
     const id = `${this.rowLabel(rowIndex)}${seatIndex + 1}`;
-    if (seat.type === 'aisle') return `${id} (Aisle) - Click to change`;
-    const label = seat.type === 'vip' ? 'VIP' : 'Normal';
+    if (seat.type === 'AISLE') return `${id} (Aisle) - Click to change`;
+    const label = seat.type === 'VIP' ? 'VIP' : 'Normal';
     const onsite = seat.onsiteOnly ? ', On-Site Only' : '';
     return `${id} (${label}${onsite}) - Click to change`;
   }
 
   protected handleSeatClick(rowIndex: number, colIndex: number) {
     const type = this.selectedSeatType();
-    const onsiteOnly = type === 'aisle' ? false : this.selectedOnsiteOnly();
+    const onsiteOnly = type === 'AISLE' ? false : this.selectedOnsiteOnly();
 
-    this.seatLayout.update((layout) =>
+    this._seatLayout.update((layout) =>
       layout.map((row, ri) =>
         ri === rowIndex
           ? row.map((seat, ci) => (ci === colIndex ? { type, onsiteOnly } : seat))
@@ -91,13 +91,17 @@ export class HallLayoutEditorComponent {
   }
 
   protected resetLayout() {
-    this.seatLayout.update((layout) =>
-      layout.map((row) => row.map(() => ({ type: 'normal' as SeatType, onsiteOnly: false }))),
+    this._seatLayout.update((layout) =>
+      layout.map((row) => row.map(() => ({ type: 'NORMAL' as SeatCategory, onsiteOnly: false }))),
     );
   }
 
+  setLayout(layout: Seat[][]) {
+    this._seatLayout.set(layout);
+  }
+
   private initializeLayout(rows: number, cols: number) {
-    this.seatLayout.update((prev) => {
+    this._seatLayout.update((prev) => {
       const layout: Seat[][] = [];
       for (let i = 0; i < rows; i++) {
         const row: Seat[] = [];
@@ -105,7 +109,7 @@ export class HallLayoutEditorComponent {
           if (prev.length > 0 && i < prev.length && j < prev[i].length) {
             row.push(prev[i][j]);
           } else {
-            row.push({ type: 'normal', onsiteOnly: false });
+            row.push({ type: 'NORMAL', onsiteOnly: false });
           }
         }
         layout.push(row);

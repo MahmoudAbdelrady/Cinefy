@@ -28,48 +28,60 @@
         <lucide-icon [img]="SettingsIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
         <span>Hall Information</span>
       </div>
-      <div class="hi-form">
+      <form class="hi-form" [formGroup]="hallForm">
         <div class="input-group">
           <span>Hall Name</span>
-          <input ngpInput type="text" placeholder="e.g. Hall 1, VIP Hall, IMAX" />
+          <input
+            ngpInput
+            type="text"
+            placeholder="e.g. Hall 1, VIP Hall, IMAX"
+            formControlName="name"
+          />
         </div>
         <div class="number-input-group">
           <div class="input-group">
             <span>Number of Rows</span>
-            <input ngpInput type="number" placeholder="e.g. 10" />
+            <input ngpInput type="number" placeholder="e.g. 10" formControlName="numberOfRows" />
           </div>
           <div class="input-group">
             <span>Seats per Row</span>
-            <input ngpInput type="number" placeholder="e.g. 12" />
+            <input ngpInput type="number" placeholder="e.g. 12" formControlName="seatsPerRow" />
           </div>
         </div>
         <div class="input-group">
           <span>Status</span>
-          <select ngpInput>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="maintenance">Under Maintenance</option>
+          <select ngpInput formControlName="status">
+            @for (entry of hallStatusEntries; track entry[0]) {
+              <option [value]="entry[0]">{{ entry[1] }}</option>
+            }
           </select>
         </div>
         <div class="input-group type-group">
           <span>Type</span>
-          <select ngpInput>
+          <select ngpInput formControlName="typeId">
+            <option value="" disabled>Select a type</option>
             @for (type of hallTypes(); track type.id) {
-              <option value="{{ type.id }}">{{ type.name }}</option>
+              <option [value]="type.id">{{ type.name }}</option>
             }
           </select>
           <div class="switch-group">
             <span>Supports 3D</span>
-            <button ngpSwitch class="switch-button" [(ngpSwitchChecked)]="supports3D">
+            <button
+              ngpSwitch
+              class="switch-button"
+              [ngpSwitchChecked]="supports3DValue()"
+              (ngpSwitchCheckedChange)="hallForm.controls.supports3D.setValue($event)"
+            >
               <span ngpSwitchThumb></span>
             </button>
           </div>
         </div>
         <div class="input-group">
           <span>Copy Layout From Existing Hall</span>
-          <select ngpInput>
+          <select ngpInput (change)="copyLayoutFrom($any($event.target).value)">
+            <option value="">None</option>
             @for (hall of existingHalls(); track hall.id) {
-              <option value="{{ hall.id }}">{{ hall.name }}</option>
+              <option [value]="hall.id">{{ hall.name }}</option>
             }
           </select>
         </div>
@@ -81,13 +93,13 @@
             </div>
             <div class="sc-content">
               <div class="sc-type-items">
-                @for (item of seatCategoryItems(); track item.type) {
+                @for (item of seatCategoryItems; track item.type) {
                   <div
                     class="sti-item"
                     [class.selected]="selectedSeatCategory().type === item.type"
                     (click)="selectSeatCategory(item)"
                   >
-                    <div class="sti-item-icon" [ngClass]="item.type"></div>
+                    <div class="sti-item-icon" [ngClass]="item.type.toLowerCase()"></div>
                     <span class="sti-item-info">{{ item.name }}</span>
                     @if (selectedSeatCategory().type === item.type) {
                       <span class="sti-item-selected">Selected</span>
@@ -125,30 +137,52 @@
               <span class="tp-title">Ticket Pricing <span class="tp-vat">(without VAT)</span></span>
             </div>
             <div class="tp-content">
-              <div class="tp-input-group">
-                <div class="tpi-label">
-                  <span class="tpi-label-icon normal"></span>
-                  <span class="tpi-label-text">Normal</span>
+              @if (hasNormalSeats()) {
+                <div class="tp-input-group">
+                  <div class="tpi-label">
+                    <span class="tpi-label-icon normal"></span>
+                    <span class="tpi-label-text">Normal</span>
+                  </div>
+                  <div class="tpi-input">
+                    <lucide-icon
+                      [img]="DollarSignIcon"
+                      [size]="16"
+                      [strokeWidth]="2.5"
+                    ></lucide-icon>
+                    <input
+                      ngpInput
+                      type="number"
+                      placeholder="e.g. 10"
+                      formControlName="normalPrice"
+                    />
+                  </div>
                 </div>
-                <div class="tpi-input">
-                  <lucide-icon [img]="DollarSignIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
-                  <input ngpInput type="number" placeholder="e.g. 10" />
+              }
+              @if (hasVipSeats()) {
+                <div class="tp-input-group">
+                  <div class="tpi-label">
+                    <span class="tpi-label-icon vip"></span>
+                    <span class="tpi-label-text">VIP Seat</span>
+                  </div>
+                  <div class="tpi-input">
+                    <lucide-icon
+                      [img]="DollarSignIcon"
+                      [size]="16"
+                      [strokeWidth]="2.5"
+                    ></lucide-icon>
+                    <input
+                      ngpInput
+                      type="number"
+                      placeholder="e.g. 10"
+                      formControlName="vipPrice"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div class="tp-input-group">
-                <div class="tpi-label">
-                  <span class="tpi-label-icon vip"></span>
-                  <span class="tpi-label-text">VIP Seat</span>
-                </div>
-                <div class="tpi-input">
-                  <lucide-icon [img]="DollarSignIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
-                  <input ngpInput type="number" placeholder="e.g. 10" />
-                </div>
-              </div>
+              }
             </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
     <div class="hall-layout-editor">
       <div class="hle-header">
@@ -159,8 +193,8 @@
         <hall-layout-editor
           [selectedSeatType]="selectedSeatCategory().type"
           [selectedOnsiteOnly]="onSiteOnly()"
-          [numRows]="100"
-          [seatsPerRow]="12"
+          [numRows]="numRowsValue() ?? 10"
+          [seatsPerRow]="seatsPerRowValue() ?? 12"
         />
       </div>
     </div>
@@ -168,7 +202,18 @@
   <div modal-footer class="hall-config-modal-footer">
     <div class="save-btns">
       <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
-      <button ngpButton class="btn-primary" (click)="close()()">Save Hall</button>
+      <button
+        ngpButton
+        class="btn-primary"
+        (click)="saveHall()"
+        [disabled]="hallForm.invalid || saving()"
+      >
+        @if (saving()) {
+          <loading-spinner [strokeWidth]="2" />
+        } @else {
+          Save Hall
+        }
+      </button>
     </div>
   </div>
 </app-modal>

@@ -8,7 +8,7 @@
         <div class="seat-row">
           <span class="row-label" [style.width.px]="rowLabelWidth()">{{ rowLabel(rowIndex) }}</span>
           @for (seat of row; track $index; let seatIndex = $index) {
-            @if (seat.type === 'aisle') {
+            @if (seat.type === 'AISLE') {
               <div
                 class="seat aisle"
                 [title]="seatTitle(rowIndex, seatIndex, seat)"
@@ -17,8 +17,8 @@
             } @else {
               <div
                 class="seat"
-                [class.normal]="seat.type === 'normal'"
-                [class.vip]="seat.type === 'vip'"
+                [class.normal]="seat.type === 'NORMAL'"
+                [class.vip]="seat.type === 'VIP'"
                 [title]="seatTitle(rowIndex, seatIndex, seat)"
                 (click)="handleSeatClick(rowIndex, seatIndex)"
               >

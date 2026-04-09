@@ -8,6 +8,19 @@ const HALL_STATUS_LABELS = {
 
 type HallStatus = keyof typeof HALL_STATUS_LABELS;
 
+const SEAT_CATEGORY_LABELS = {
+  NORMAL: 'Normal',
+  VIP: 'VIP',
+  AISLE: 'Space/Aisle',
+} as const;
+
+type SeatCategory = keyof typeof SEAT_CATEGORY_LABELS;
+
+interface SeatCategoryItem {
+  name: string;
+  type: SeatCategory;
+}
+
 interface HallType {
   id?: string;
   name: string;
@@ -29,7 +42,7 @@ interface HallItem {
 }
 
 interface TicketPricing {
-  seatCategory: string;
+  seatCategory: SeatCategory;
   price: number;
 }
 
@@ -51,14 +64,14 @@ interface HallDetail {
   status: HallStatus;
   type: HallType;
   supports3D: boolean;
-  layout: Record<string, string[]>;
+  layout: Partial<Record<SeatCategory, string[]>>;
   ticketPricing: TicketPricing[];
 }
 
 interface HallLayout {
   numberOfRows: number;
   seatsPerRow: number;
-  layout: Record<string, string[]>;
+  layout: Partial<Record<SeatCategory, string[]>>;
   ticketPricing: TicketPricing[];
 }
 
@@ -69,13 +82,15 @@ interface Hall {
   status: HallStatus;
   typeId: string;
   supports3D?: boolean;
-  layout?: Record<string, string[]>;
+  layout?: Partial<Record<SeatCategory, string[]>>;
   ticketPricing: TicketPricing[];
 }
 
-export { HALL_STATUS_LABELS };
+export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS };
 export type {
   HallStatus,
+  SeatCategory,
+  SeatCategoryItem,
   HallType,
   HallListItem,
   HallItem,
