@@ -13,6 +13,7 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { ModalComponent } from '../../modal/modal';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { HallsService, ToastService } from '../../../services';
 import { HallType } from '../../../shared/types';
 
@@ -25,6 +26,7 @@ import { HallType } from '../../../shared/types';
     NgpPopover,
     NgpPopoverTrigger,
     ModalComponent,
+    LoadingSpinnerComponent,
   ],
   templateUrl: './manage-hall-types-modal.html',
   styleUrl: './manage-hall-types-modal.scss',

@@ -11,6 +11,7 @@ import { HallLayoutEditorComponent } from './halls/hall-layout-editor/hall-layou
 import { HallConfigModalComponent } from './halls/hall-config-modal/hall-config-modal';
 import { ManageHallTypesModalComponent } from './halls/manage-hall-types-modal/manage-hall-types-modal';
 import { ToastComponent } from './toast/toast';
+import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner';
 
 export {
   HeaderComponent,
@@ -26,4 +27,5 @@ export {
   HallConfigModalComponent,
   ManageHallTypesModalComponent,
   ToastComponent,
+  LoadingSpinnerComponent,
 };

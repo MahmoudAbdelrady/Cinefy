@@ -87,7 +87,18 @@
 
                 <div modal-footer class="delete-modal-footer">
                   <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
-                  <button ngpButton class="btn-danger" (click)="close()">Delete Hall</button>
+                  <button
+                    ngpButton
+                    class="btn-danger"
+                    [disabled]="deletingHallId() === hall.id"
+                    (click)="deleteHall(hall, close)"
+                  >
+                    @if (deletingHallId() === hall.id) {
+                      <loading-spinner />
+                    } @else {
+                      <span>Delete Hall</span>
+                    }
+                  </button>
                 </div>
               </app-modal>
             </ng-template>

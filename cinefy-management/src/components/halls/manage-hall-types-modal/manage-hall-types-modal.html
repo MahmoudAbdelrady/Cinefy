@@ -19,8 +19,18 @@
                 autofocus
               />
               <div class="action-buttons editing">
-                <button ngpButton (click)="confirmEditType(type)" title="Save" [disabled]="editNameControl.invalid || savingTypeId() === type.id">
-                  <lucide-icon [img]="savingTypeId() === type.id ? LoaderIcon : CheckIcon" [size]="14" [strokeWidth]="2.5" [class.spin]="savingTypeId() === type.id"></lucide-icon>
+                <button
+                  ngpButton
+                  (click)="confirmEditType(type)"
+                  title="Save"
+                  [disabled]="editNameControl.invalid || savingTypeId() === type.id"
+                >
+                  <lucide-icon
+                    [img]="savingTypeId() === type.id ? LoaderIcon : CheckIcon"
+                    [size]="14"
+                    [strokeWidth]="2.5"
+                    [class.spin]="savingTypeId() === type.id"
+                  ></lucide-icon>
                 </button>
                 <button ngpButton (click)="cancelEditType()" title="Cancel">
                   <lucide-icon [img]="XIcon" [size]="14" [strokeWidth]="2.5"></lucide-icon>
@@ -45,7 +55,11 @@
                 <ng-template #deleteConfirm>
                   <div ngpPopover class="delete-confirm-popover">
                     <div class="delete-confirm-header">
-                      <lucide-icon [img]="WarningIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                      <lucide-icon
+                        [img]="WarningIcon"
+                        [size]="16"
+                        [strokeWidth]="2.5"
+                      ></lucide-icon>
                       <span>Delete "{{ type.name }}"?</span>
                     </div>
                     <p>This action cannot be undone.</p>
@@ -64,7 +78,7 @@
                         (click)="$event.stopPropagation(); deleteType(type); deleteTrigger.hide()"
                       >
                         @if (deletingTypeId() === type.id) {
-                          <lucide-icon [img]="LoaderIcon" [size]="14" [strokeWidth]="2.5" class="spin"></lucide-icon>
+                          <loading-spinner [size]="14" />
                         } @else {
                           Delete
                         }
@@ -92,9 +106,14 @@
   </div>
   <div modal-footer class="manage-types-modal-footer">
     <button ngpButton class="btn-secondary" (click)="close()()">Cancel</button>
-    <button ngpButton class="btn-primary" (click)="addType()" [disabled]="newTypeControl.invalid || addingType()">
+    <button
+      ngpButton
+      class="btn-primary"
+      (click)="addType()"
+      [disabled]="newTypeControl.invalid || addingType()"
+    >
       @if (addingType()) {
-        <lucide-icon [img]="LoaderIcon" [size]="16" [strokeWidth]="2" class="spin"></lucide-icon>
+        <loading-spinner [strokeWidth]="2" />
       } @else {
         Add Type
       }

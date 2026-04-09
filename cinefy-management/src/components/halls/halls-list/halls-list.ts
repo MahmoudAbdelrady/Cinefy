@@ -1,4 +1,5 @@
 import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   CircleAlert,
   Eye,
@@ -16,8 +17,9 @@ import { combineLatest, debounceTime, distinctUntilChanged, switchMap, tap } fro
 import { PaginationComponent } from '../../pagination/pagination';
 import { ModalComponent } from '../../modal/modal';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { HALL_STATUS_LABELS, HallSummary, PaginatedResponse } from '../../../shared/types';
-import { HallsService } from '../../../services';
+import { HallsService, ToastService } from '../../../services';
 
 @Component({
   selector: 'halls-list',
@@ -28,18 +30,21 @@ import { HallsService } from '../../../services';
     PaginationComponent,
     ModalComponent,
     HallConfigModalComponent,
+    LoadingSpinnerComponent,
   ],
   templateUrl: './halls-list.html',
   styleUrl: './halls-list.scss',
 })
 export class HallsListComponent {
   private readonly hallsService = inject(HallsService);
+  private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly page = signal(1);
   protected readonly search = signal('');
   protected readonly pageSize = 10;
   protected readonly loading = signal(true);
+  protected readonly deletingHallId = signal<string | null>(null);
   protected readonly hallPage = signal<PaginatedResponse<HallSummary> | null>(null);
 
   private readonly halls$ = combineLatest([
@@ -63,7 +68,10 @@ export class HallsListComponent {
         .pipe(
           tap(() => this.loading.set(true)),
           switchMap(([search, page]) =>
-            this.hallsService.getHalls(search || undefined, { page: page - 1, size: this.pageSize }),
+            this.hallsService.getHalls(search || undefined, {
+              page: page - 1,
+              size: this.pageSize,
+            }),
           ),
           takeUntilDestroyed(this.destroyRef),
         )
@@ -77,5 +85,23 @@ export class HallsListComponent {
   protected onSearch(event: Event): void {
     this.search.set((event.target as HTMLInputElement).value);
     this.page.set(1);
+  }
+
+  protected deleteHall(hall: HallSummary, close: () => void): void {
+    this.deletingHallId.set(hall.id);
+    this.hallsService.deleteHall(hall.id).subscribe({
+      next: () => {
+        this.hallPage.update((page) =>
+          page ? { ...page, content: page.content.filter((h) => h.id !== hall.id) } : page,
+        );
+        this.deletingHallId.set(null);
+        this.toastService.success('Hall deleted');
+        close();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.deletingHallId.set(null);
+        this.toastService.error(err.error?.message ?? 'Failed to delete hall');
+      },
+    });
   }
 }
