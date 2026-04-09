@@ -26,4 +26,8 @@ public class Seat extends BaseEntity {
 
     @Column(nullable = false)
     private boolean onSiteOnly = false;
+
+    public String getPosition() {
+        return rowPosition + columnPosition;
+    }
 }

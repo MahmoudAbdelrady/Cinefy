@@ -5,6 +5,7 @@ import com.mdevs.cinefy.dto.HallDetailDTO;
 import com.mdevs.cinefy.dto.HallLayoutDTO;
 import com.mdevs.cinefy.dto.HallSummaryDTO;
 import com.mdevs.cinefy.dto.HallTypeDTO;
+import com.mdevs.cinefy.dto.SeatLayoutDTO;
 import com.mdevs.cinefy.dto.TicketPricingDTO;
 import com.mdevs.cinefy.entity.*;
 import com.mdevs.cinefy.repository.HallRepository;
@@ -174,9 +175,10 @@ public class HallService {
             throw new BusinessException("A hall with a similar name to '" + dto.getName() + "' already exists");
         }
 
-        if (dto.getLayout() != null) {
+        Map<String, List<String>> categories = dto.getLayout() != null ? dto.getLayout().getCategories() : null;
+        if (categories != null) {
             int totalSeats = dto.getNumberOfRows() * dto.getSeatsPerRow();
-            int aisleSeats = dto.getLayout().getOrDefault(SeatCategory.AISLE.name(), Collections.emptyList()).size();
+            int aisleSeats = categories.getOrDefault(SeatCategory.AISLE.name(), Collections.emptyList()).size();
             if (aisleSeats == totalSeats) {
                 throw new BusinessException("A hall cannot have all seats designated as aisles");
             }
@@ -195,8 +197,8 @@ public class HallService {
 
         // NORMAL is always used (unassigned seats default to it)
         Set<SeatCategory> requiredCategories = EnumSet.of(SeatCategory.NORMAL);
-        if (dto.getLayout() != null) {
-            dto.getLayout().keySet().stream()
+        if (categories != null) {
+            categories.keySet().stream()
                     .map(SeatCategory::fromString)
                     .filter(c -> !c.equals(SeatCategory.AISLE))
                     .forEach(requiredCategories::add);
@@ -224,16 +226,26 @@ public class HallService {
                 .toList();
     }
 
-    private Map<String, List<String>> toLayoutMap(Hall hall) {
-        return hall.getSeats().stream()
+    private SeatLayoutDTO toLayoutMap(Hall hall) {
+        Map<String, List<String>> categories = hall.getSeats().stream()
                 .filter(seat -> seat.getCategory() != SeatCategory.NORMAL)
                 .collect(Collectors.groupingBy(
                         seat -> seat.getCategory().name(),
                         Collectors.mapping(
-                                seat -> seat.getRowPosition() + seat.getColumnPosition(),
+                                Seat::getPosition,
                                 Collectors.toList()
                         )
                 ));
+
+        List<String> onSiteOnly = hall.getSeats().stream()
+                .filter(Seat::isOnSiteOnly)
+                .map(Seat::getPosition)
+                .toList();
+
+        SeatLayoutDTO dto = new SeatLayoutDTO();
+        dto.setCategories(categories);
+        dto.setOnSiteOnly(onSiteOnly);
+        return dto;
     }
 
     private HallSummaryDTO toSummaryDTO(Hall hall) {
@@ -284,15 +296,37 @@ public class HallService {
         hall.getCategoryPrices().removeIf(cp -> !incoming.contains(cp.getCategory()));
     }
 
-    private void mergeSeats(Hall hall, int newRows, int newCols, Map<String, List<String>> layout) {
-        if (layout == null) {
-            layout = Collections.emptyMap();
-        }
+    private void mergeSeats(Hall hall, int newRows, int newCols, SeatLayoutDTO layoutDTO) {
+        Map<String, List<String>> categories = (layoutDTO != null && layoutDTO.getCategories() != null)
+                ? layoutDTO.getCategories()
+                : Collections.emptyMap();
+
+        Set<String> onSiteOnlySet = (layoutDTO != null && layoutDTO.getOnSiteOnly() != null)
+                ? new HashSet<>(layoutDTO.getOnSiteOnly())
+                : Collections.emptySet();
 
         hall.setTotalRows(newRows);
         hall.setTotalColumns(newCols);
 
-        Map<String, SeatCategory> desired = validateAndMapLayout(hall, layout);
+        Map<String, SeatCategory> desired = validateAndMapLayout(hall, categories);
+
+        // Validate onSiteOnly positions
+        for (String position : onSiteOnlySet) {
+            Matcher matcher = POSITION_PATTERN.matcher(position);
+            if (!matcher.matches()) {
+                throw new BusinessException("Invalid seat position format in onSiteOnly: " + position);
+            }
+            int rowIndex = toRowIndex(matcher.group(1));
+            int colNumber = Integer.parseInt(matcher.group(2));
+            if (rowIndex < 1 || rowIndex > newRows || colNumber < 1 || colNumber > newCols) {
+                throw new BusinessException("onSiteOnly position '" + position + "' is outside the hall grid");
+            }
+            SeatCategory category = desired.getOrDefault(position, SeatCategory.NORMAL);
+            if (category.equals(SeatCategory.AISLE)) {
+                throw new BusinessException("AISLE seat '" + position + "' cannot be marked as onSiteOnly");
+            }
+        }
+
         for (int row = 1; row <= newRows; row++) {
             String rowLabel = toRowLabel(row);
             for (int col = 1; col <= newCols; col++) {
@@ -302,13 +336,14 @@ public class HallService {
 
         Map<String, Seat> existing = new HashMap<>();
         for (Seat seat : hall.getSeats()) {
-            existing.put(seat.getRowPosition() + seat.getColumnPosition(), seat);
+            existing.put(seat.getPosition(), seat);
         }
 
         for (Map.Entry<String, SeatCategory> entry : desired.entrySet()) {
             Seat seat = existing.get(entry.getKey());
             if (seat != null) {
                 seat.setCategory(entry.getValue());
+                seat.setOnSiteOnly(onSiteOnlySet.contains(entry.getKey()));
             } else {
                 Matcher m = POSITION_PATTERN.matcher(entry.getKey());
                 m.matches();
@@ -317,11 +352,12 @@ public class HallService {
                 seat.setRowPosition(m.group(1));
                 seat.setColumnPosition(m.group(2));
                 seat.setCategory(entry.getValue());
+                seat.setOnSiteOnly(onSiteOnlySet.contains(entry.getKey()));
                 hall.getSeats().add(seat);
             }
         }
 
-        hall.getSeats().removeIf(seat -> !desired.containsKey(seat.getRowPosition() + seat.getColumnPosition()));
+        hall.getSeats().removeIf(seat -> !desired.containsKey(seat.getPosition()));
     }
 
     private Map<String, SeatCategory> validateAndMapLayout(Hall hall, Map<String, List<String>> layout) {
@@ -345,12 +381,8 @@ public class HallService {
                     throw new BusinessException("Invalid seat position format: " + position);
                 }
 
-                String rowLabel = matcher.group(1);
+                int rowIndex = toRowIndex(matcher.group(1));
                 int colNumber = Integer.parseInt(matcher.group(2));
-                int rowIndex = 0;
-                for (int i = 0; i < rowLabel.length(); i++) {
-                    rowIndex = rowIndex * 26 + (rowLabel.charAt(i) - 'A' + 1);
-                }
 
                 if (rowIndex > hall.getTotalRows()) {
                     throw new BusinessException("Seat position '" + position + "' exceeds the hall's row count (" + hall.getTotalRows() + ")");
@@ -367,6 +399,14 @@ public class HallService {
         }
 
         return assignedPositions;
+    }
+
+    private int toRowIndex(String rowLabel) {
+        int index = 0;
+        for (int i = 0; i < rowLabel.length(); i++) {
+            index = index * 26 + (rowLabel.charAt(i) - 'A' + 1);
+        }
+        return index;
     }
 
     private String toRowLabel(int rowIndex) {
