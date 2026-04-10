@@ -1,0 +1,37 @@
+@use '../../../shared/styles/mixins' as *;
+@use '../select' as *;
+@use '../../../shared/styles/colors' as *;
+
+paginated-select {
+  display: block;
+
+  [ngpSelect] {
+    @include select-trigger;
+  }
+
+  .ps-placeholder {
+    @include select-placeholder;
+  }
+
+  .ps-chevron {
+    @include select-chevron;
+  }
+
+  .ps-clear {
+    @include select-clear;
+  }
+}
+
+.ps-dropdown {
+  @include select-dropdown;
+}
+
+.ps-option {
+  @include select-option;
+}
+
+.ps-loading {
+  @include flex-center;
+  padding: 8px;
+  color: $gray-400;
+}

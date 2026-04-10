@@ -11,9 +11,19 @@
     <span class="ps-placeholder">{{ placeholder() }}</span>
   }
 
-  <div *ngpSelectPortal ngpSelectDropdown class="ps-dropdown" (scroll)="onScroll($event)">
-    <div ngpSelectOption class="ps-option" [ngpSelectOptionValue]="null">None</div>
+  @if (clearable() && selectedItem()) {
+    <lucide-icon
+      class="ps-clear"
+      [img]="XIcon"
+      [size]="16"
+      [strokeWidth]="2"
+      (click)="clear($event)"
+    />
+  } @else {
+    <lucide-icon class="ps-chevron" [img]="ChevronDownIcon" [size]="16" [strokeWidth]="2" />
+  }
 
+  <div *ngpSelectPortal ngpSelectDropdown class="ps-dropdown" (scroll)="onScroll($event)">
     @for (item of items(); track valueFn()(item)) {
       <div ngpSelectOption class="ps-option" [ngpSelectOptionValue]="item">
         {{ displayFn()(item) }}

@@ -37,61 +37,56 @@
             placeholder="e.g. Hall 1, VIP Hall, IMAX"
             formControlName="name"
           />
-          <field-error [control]="hallForm.controls.name" [messages]="{ required: 'Hall name is required' }" />
+          <field-error
+            [control]="hallForm.controls.name"
+            [messages]="{ required: 'Hall name is required' }"
+          />
         </div>
         <div class="number-input-group">
           <div class="input-group">
             <span>Number of Rows</span>
             <input ngpInput type="number" placeholder="e.g. 10" formControlName="numberOfRows" />
-            <field-error [control]="hallForm.controls.numberOfRows" [messages]="{ required: 'Number of rows is required', min: 'Must be at least 1' }" />
+            <field-error
+              [control]="hallForm.controls.numberOfRows"
+              [messages]="{ required: 'Number of rows is required', min: 'Must be at least 1' }"
+            />
           </div>
           <div class="input-group">
             <span>Seats per Row</span>
             <input ngpInput type="number" placeholder="e.g. 12" formControlName="seatsPerRow" />
-            <field-error [control]="hallForm.controls.seatsPerRow" [messages]="{ required: 'Seats per row is required', min: 'Must be at least 1' }" />
+            <field-error
+              [control]="hallForm.controls.seatsPerRow"
+              [messages]="{ required: 'Seats per row is required', min: 'Must be at least 1' }"
+            />
           </div>
         </div>
         <div class="input-group">
           <span>Status</span>
-          <div
-            ngpSelect
-            class="custom-select"
-            [ngpSelectValue]="hallForm.controls.status.value"
-            (ngpSelectValueChange)="onStatusChange($event)"
-          >
-            {{ statusDisplayValue() }}
-            <div *ngpSelectPortal ngpSelectDropdown class="cs-dropdown">
-              @for (entry of hallStatusEntries; track entry[0]) {
-                <div ngpSelectOption class="cs-option" [ngpSelectOptionValue]="entry[0]">
-                  {{ entry[1] }}
-                </div>
-              }
-            </div>
-          </div>
+          <custom-select
+            [items]="hallStatusEntries"
+            [value]="statusEntry()"
+            [displayFn]="statusDisplayFn"
+            [trackBy]="statusTrackBy"
+            (valueChange)="onStatusChange($event)"
+          />
         </div>
         <div class="input-group type-group">
           <span>Type</span>
-          <div
-            ngpSelect
-            class="custom-select"
-            [ngpSelectValue]="selectedHallType()"
-            (ngpSelectValueChange)="onHallTypeChange($event)"
-            [ngpSelectCompareWith]="compareHallTypes"
-          >
-            @if (selectedHallType(); as ht) {
-              {{ ht.name }}
-            } @else {
-              <span class="cs-placeholder">Select a type</span>
-            }
-            <div *ngpSelectPortal ngpSelectDropdown class="cs-dropdown">
-              @for (type of hallTypes(); track type.id) {
-                <div ngpSelectOption class="cs-option" [ngpSelectOptionValue]="type">
-                  {{ type.name }}
-                </div>
-              }
-            </div>
-          </div>
-          <field-error [control]="hallForm.controls.typeId" [messages]="{ required: 'Hall type is required' }" />
+          <custom-select
+            [items]="hallTypes()"
+            [value]="selectedHallType()"
+            [displayFn]="hallTypeDisplayFn"
+            [trackBy]="hallTypeTrackBy"
+            [compareWith]="compareHallTypes"
+            [clearable]="true"
+            placeholder="Select a type"
+            (valueChange)="onHallTypeChange($event)"
+            (cleared)="onHallTypeCleared()"
+          />
+          <field-error
+            [control]="hallForm.controls.typeId"
+            [messages]="{ required: 'Hall type is required' }"
+          />
           <div class="switch-group">
             <span>Supports 3D</span>
             <button
@@ -108,6 +103,7 @@
           <span>Copy Layout From Existing Hall</span>
           <paginated-select
             placeholder="None"
+            [clearable]="true"
             [fetchFn]="fetchHalls"
             [displayFn]="hallDisplayFn"
             [valueFn]="hallValueFn"
@@ -185,7 +181,13 @@
                       formControlName="normalPrice"
                     />
                   </div>
-                  <field-error [control]="hallForm.controls.normalPrice" [messages]="{ required: 'Normal price is required', min: 'Price must be at least 1' }" />
+                  <field-error
+                    [control]="hallForm.controls.normalPrice"
+                    [messages]="{
+                      required: 'Normal price is required',
+                      min: 'Price must be at least 1',
+                    }"
+                  />
                 </div>
               }
               @if (hasVipSeats()) {
@@ -207,7 +209,13 @@
                       formControlName="vipPrice"
                     />
                   </div>
-                  <field-error [control]="hallForm.controls.vipPrice" [messages]="{ required: 'VIP price is required', min: 'Price must be at least 1' }" />
+                  <field-error
+                    [control]="hallForm.controls.vipPrice"
+                    [messages]="{
+                      required: 'VIP price is required',
+                      min: 'Price must be at least 1',
+                    }"
+                  />
                 </div>
               }
             </div>

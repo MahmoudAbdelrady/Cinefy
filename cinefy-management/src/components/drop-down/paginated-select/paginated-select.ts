@@ -1,16 +1,25 @@
-import { Component, DestroyRef, inject, input, output, signal, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  output,
+  signal,
+  ViewEncapsulation,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
+import { LucideAngularModule, ChevronDown, X } from 'lucide-angular';
 import {
   NgpSelect,
   NgpSelectDropdown,
   NgpSelectOption,
   NgpSelectPortal,
 } from 'ng-primitives/select';
-import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner';
-import type { PaginatedResponse } from '../../shared/types';
-import { ToastService } from '../../services';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import type { PaginatedResponse } from '../../../shared/types';
+import { ToastService } from '../../../services';
 
 @Component({
   selector: 'paginated-select',
@@ -19,6 +28,7 @@ import { ToastService } from '../../services';
     NgpSelectDropdown,
     NgpSelectOption,
     NgpSelectPortal,
+    LucideAngularModule,
     LoadingSpinnerComponent,
   ],
   templateUrl: './paginated-select.html',
@@ -31,6 +41,7 @@ export class PaginatedSelectComponent<T> {
 
   readonly placeholder = input('Select an option');
   readonly disabled = input(false);
+  readonly clearable = input(false);
   readonly pageSize = input(20);
   readonly fetchFn =
     input.required<(page: number, size: number) => Observable<PaginatedResponse<T>>>();
@@ -38,6 +49,10 @@ export class PaginatedSelectComponent<T> {
   readonly valueFn = input.required<(item: T) => string>();
 
   readonly selectionChange = output<T>();
+  readonly cleared = output<void>();
+
+  protected readonly ChevronDownIcon = ChevronDown;
+  protected readonly XIcon = X;
 
   protected readonly items = signal<T[]>([]);
   protected readonly loading = signal(false);
@@ -56,12 +71,14 @@ export class PaginatedSelectComponent<T> {
   }
 
   protected onValueChange(value: T) {
-    if (value == null) {
-      this.selectedItem.set(null);
-      return;
-    }
     this.selectedItem.set(value);
     this.selectionChange.emit(value);
+  }
+
+  protected clear(event: MouseEvent) {
+    event.stopPropagation();
+    this.selectedItem.set(null);
+    this.cleared.emit();
   }
 
   protected onScroll(event: Event) {

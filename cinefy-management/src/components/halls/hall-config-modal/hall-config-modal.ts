@@ -23,12 +23,6 @@ import {
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpInput } from 'ng-primitives/input';
-import {
-  NgpSelect,
-  NgpSelectDropdown,
-  NgpSelectOption,
-  NgpSelectPortal,
-} from 'ng-primitives/select';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { ModalComponent } from '../../modal/modal';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
@@ -44,7 +38,8 @@ import {
   SeatCategoryItem,
   TicketPricing,
 } from '../../../shared/types';
-import { PaginatedSelectComponent } from '../../paginated-select/paginated-select';
+import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
+import { PaginatedSelectComponent } from '../../drop-down/paginated-select/paginated-select';
 import { HallLayoutEditorComponent } from '../hall-layout-editor/hall-layout-editor';
 import type { Seat } from '../hall-layout-editor/hall-layout-editor';
 import { HallsService, ToastService } from '../../../services';
@@ -57,15 +52,12 @@ import { HallsService, ToastService } from '../../../services';
     LucideAngularModule,
     NgpButton,
     NgpInput,
-    NgpSelect,
-    NgpSelectDropdown,
-    NgpSelectOption,
-    NgpSelectPortal,
     NgpSwitch,
     NgpSwitchThumb,
     ModalComponent,
     LoadingSpinnerComponent,
     FieldErrorComponent,
+    CustomSelectComponent,
     PaginatedSelectComponent,
     HallLayoutEditorComponent,
   ],
@@ -125,22 +117,29 @@ export class HallConfigModalComponent implements OnInit {
     initialValue: false,
   });
 
+  protected readonly hallStatusEntries = Object.entries(HALL_STATUS_LABELS) as [
+    HallStatus,
+    string,
+  ][];
+  protected readonly statusEntry = computed(
+    () => this.hallStatusEntries.find((e) => e[0] === this.statusValue()) ?? null,
+  );
+  protected readonly statusDisplayFn = (entry: [HallStatus, string]) => entry[1];
+  protected readonly statusTrackBy = (entry: [HallStatus, string]) => entry[0];
+
+  protected readonly selectedHallType = signal<HallType | null>(null);
+  protected readonly hallTypeDisplayFn = (type: HallType) => type.name;
+  protected readonly hallTypeTrackBy = (type: HallType) => type.id;
+  protected readonly compareHallTypes = (a: HallType, b: HallType) => a?.id === b?.id;
+
   private readonly statusValue = toSignal(this.hallForm.controls.status.valueChanges, {
     initialValue: this.hallForm.controls.status.value,
   });
-  protected readonly statusDisplayValue = computed(() => HALL_STATUS_LABELS[this.statusValue()]);
-  protected readonly selectedHallType = signal<HallType | null>(null);
-  protected readonly compareHallTypes = (a: HallType, b: HallType) => a?.id === b?.id;
 
   protected readonly fetchHalls = (page: number, size: number) =>
     this.hallsService.getHalls(undefined, { page, size });
   protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
   protected readonly hallValueFn = (hall: HallSummary) => hall.id;
-
-  protected readonly hallStatusEntries = Object.entries(HALL_STATUS_LABELS) as [
-    HallStatus,
-    string,
-  ][];
   protected readonly seatCategoryItems: SeatCategoryItem[] = Object.entries(
     SEAT_CATEGORY_LABELS,
   ).map(([key, name]) => ({
@@ -180,13 +179,18 @@ export class HallConfigModalComponent implements OnInit {
     this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
   }
 
-  protected onStatusChange(status: HallStatus) {
-    this.hallForm.controls.status.setValue(status);
+  protected onStatusChange(entry: [HallStatus, string]) {
+    this.hallForm.controls.status.setValue(entry[0]);
   }
 
   protected onHallTypeChange(type: HallType) {
     this.selectedHallType.set(type);
     this.hallForm.controls.typeId.setValue(type.id ?? '');
+  }
+
+  protected onHallTypeCleared() {
+    this.selectedHallType.set(null);
+    this.hallForm.controls.typeId.setValue('');
   }
 
   protected selectSeatCategory(category: SeatCategoryItem) {

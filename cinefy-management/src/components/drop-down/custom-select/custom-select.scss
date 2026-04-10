@@ -1,0 +1,29 @@
+@use '../select' as *;
+
+custom-select {
+  display: block;
+
+  [ngpSelect] {
+    @include select-trigger;
+  }
+
+  .cs-placeholder {
+    @include select-placeholder;
+  }
+
+  .cs-chevron {
+    @include select-chevron;
+  }
+
+  .cs-clear {
+    @include select-clear;
+  }
+}
+
+.cs-dropdown {
+  @include select-dropdown;
+}
+
+.cs-option {
+  @include select-option;
+}

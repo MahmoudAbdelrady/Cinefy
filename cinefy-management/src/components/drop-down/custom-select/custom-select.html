@@ -1,0 +1,33 @@
+<div
+  ngpSelect
+  [ngpSelectValue]="currentValue()"
+  (ngpSelectValueChange)="onValueChange($event)"
+  [ngpSelectDisabled]="disabled()"
+  [ngpSelectCompareWith]="compareWith()"
+>
+  @if (displayValue(); as display) {
+    {{ display }}
+  } @else {
+    <span class="cs-placeholder">{{ placeholder() }}</span>
+  }
+
+  @if (clearable() && displayValue()) {
+    <lucide-icon
+      class="cs-clear"
+      [img]="XIcon"
+      [size]="16"
+      [strokeWidth]="2"
+      (click)="clear($event)"
+    />
+  } @else {
+    <lucide-icon class="cs-chevron" [img]="ChevronDownIcon" [size]="16" [strokeWidth]="2" />
+  }
+
+  <div *ngpSelectPortal ngpSelectDropdown class="cs-dropdown">
+    @for (item of items(); track trackBy()(item)) {
+      <div ngpSelectOption class="cs-option" [ngpSelectOptionValue]="item">
+        {{ displayFn()(item) }}
+      </div>
+    }
+  </div>
+</div>
