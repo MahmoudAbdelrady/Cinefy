@@ -87,6 +87,14 @@
       border-color: transparent;
       box-shadow: 0 0 0 2px $blue-500;
     }
+
+    &.ng-invalid.ng-touched {
+      border-color: $red-500;
+
+      &:focus {
+        box-shadow: 0 0 0 2px $red-500;
+      }
+    }
   }
 
   select {
@@ -594,5 +602,15 @@
 
   &:hover {
     background-color: $blue-700;
+  }
+
+  &:disabled {
+    background-color: $gray-300;
+    box-shadow: none;
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: $gray-300;
+    }
   }
 }

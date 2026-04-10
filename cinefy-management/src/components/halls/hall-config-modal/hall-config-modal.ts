@@ -26,6 +26,7 @@ import { NgpInput } from 'ng-primitives/input';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { ModalComponent } from '../../modal/modal';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { FieldErrorComponent } from '../../field-error/field-error';
 import {
   HALL_STATUS_LABELS,
   SEAT_CATEGORY_LABELS,
@@ -54,6 +55,7 @@ import { HallsService, ToastService } from '../../../services';
     NgpSwitchThumb,
     ModalComponent,
     LoadingSpinnerComponent,
+    FieldErrorComponent,
     HallLayoutEditorComponent,
   ],
   templateUrl: './hall-config-modal.html',

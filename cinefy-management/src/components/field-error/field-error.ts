@@ -1,0 +1,31 @@
+import { Component, input } from '@angular/core';
+import { AbstractControl } from '@angular/forms';
+
+@Component({
+  selector: 'field-error',
+  template: `
+    @if (control().touched && control().errors; as errors) {
+      @for (key of messageKeys; track key) {
+        @if (errors[key]) {
+          <span>{{ messages()[key] }}</span>
+        }
+      }
+    }
+  `,
+  styles: `
+    :host {
+      display: block;
+      font-size: 12px;
+      color: #ef4444;
+      margin-top: 4px;
+    }
+  `,
+})
+export class FieldErrorComponent {
+  readonly control = input.required<AbstractControl>();
+  readonly messages = input.required<Record<string, string>>();
+
+  protected get messageKeys() {
+    return Object.keys(this.messages());
+  }
+}

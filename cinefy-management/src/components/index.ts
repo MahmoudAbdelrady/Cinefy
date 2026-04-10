@@ -12,6 +12,7 @@ import { HallConfigModalComponent } from './halls/hall-config-modal/hall-config-
 import { ManageHallTypesModalComponent } from './halls/manage-hall-types-modal/manage-hall-types-modal';
 import { ToastComponent } from './toast/toast';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner';
+import { FieldErrorComponent } from './field-error/field-error';
 
 export {
   HeaderComponent,
@@ -28,4 +29,5 @@ export {
   ManageHallTypesModalComponent,
   ToastComponent,
   LoadingSpinnerComponent,
+  FieldErrorComponent,
 };
