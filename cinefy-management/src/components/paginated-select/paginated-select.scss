@@ -50,6 +50,7 @@ paginated-select {
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  animation: dropdown-enter 150ms ease forwards;
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -91,4 +92,13 @@ paginated-select {
   @include flex-center;
   padding: 8px;
   color: $gray-400;
+}
+
+@keyframes dropdown-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

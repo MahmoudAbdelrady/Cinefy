@@ -135,6 +135,16 @@
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  animation: cs-dropdown-enter 150ms ease forwards;
+}
+
+@keyframes cs-dropdown-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .cs-option {

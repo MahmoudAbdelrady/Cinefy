@@ -1,9 +1,9 @@
 const HALL_STATUS_LABELS = {
-  NOW_SHOWING: 'Now Showing',
+  ACTIVE: 'Active',
   SCHEDULED: 'Scheduled',
+  NOW_SHOWING: 'Now Showing',
   UNDER_MAINTENANCE: 'Under Maintenance',
   INACTIVE: 'Inactive',
-  ACTIVE: 'Active',
 } as const;
 
 type HallStatus = keyof typeof HALL_STATUS_LABELS;
