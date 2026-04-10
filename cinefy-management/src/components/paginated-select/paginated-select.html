@@ -1,0 +1,29 @@
+<div
+  ngpSelect
+  [ngpSelectValue]="selectedItem()"
+  (ngpSelectValueChange)="onValueChange($event)"
+  (ngpSelectOpenChange)="onOpenChange($event)"
+  [ngpSelectDisabled]="disabled()"
+>
+  @if (selectedItem(); as item) {
+    {{ displayFn()(item) }}
+  } @else {
+    <span class="ps-placeholder">{{ placeholder() }}</span>
+  }
+
+  <div *ngpSelectPortal ngpSelectDropdown class="ps-dropdown" (scroll)="onScroll($event)">
+    <div ngpSelectOption class="ps-option" [ngpSelectOptionValue]="null">None</div>
+
+    @for (item of items(); track valueFn()(item)) {
+      <div ngpSelectOption class="ps-option" [ngpSelectOptionValue]="item">
+        {{ displayFn()(item) }}
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="ps-loading">
+        <loading-spinner [size]="16" [strokeWidth]="2" />
+      </div>
+    }
+  </div>
+</div>

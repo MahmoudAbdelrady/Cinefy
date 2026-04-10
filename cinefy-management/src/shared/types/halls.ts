@@ -26,11 +26,6 @@ interface HallType {
   name: string;
 }
 
-interface HallListItem {
-  id: string;
-  name: string;
-}
-
 interface HallItem {
   id: string;
   name: string;
@@ -92,7 +87,6 @@ export type {
   SeatCategory,
   SeatCategoryItem,
   HallType,
-  HallListItem,
   HallItem,
   TicketPricing,
   HallSummary,

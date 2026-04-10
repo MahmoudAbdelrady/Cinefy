@@ -53,20 +53,44 @@
         </div>
         <div class="input-group">
           <span>Status</span>
-          <select ngpInput formControlName="status">
-            @for (entry of hallStatusEntries; track entry[0]) {
-              <option [value]="entry[0]">{{ entry[1] }}</option>
-            }
-          </select>
+          <div
+            ngpSelect
+            class="custom-select"
+            [ngpSelectValue]="hallForm.controls.status.value"
+            (ngpSelectValueChange)="onStatusChange($event)"
+          >
+            {{ statusDisplayValue() }}
+            <div *ngpSelectPortal ngpSelectDropdown class="cs-dropdown">
+              @for (entry of hallStatusEntries; track entry[0]) {
+                <div ngpSelectOption class="cs-option" [ngpSelectOptionValue]="entry[0]">
+                  {{ entry[1] }}
+                </div>
+              }
+            </div>
+          </div>
         </div>
         <div class="input-group type-group">
           <span>Type</span>
-          <select ngpInput formControlName="typeId">
-            <option value="" disabled>Select a type</option>
-            @for (type of hallTypes(); track type.id) {
-              <option [value]="type.id">{{ type.name }}</option>
+          <div
+            ngpSelect
+            class="custom-select"
+            [ngpSelectValue]="selectedHallType()"
+            (ngpSelectValueChange)="onHallTypeChange($event)"
+            [ngpSelectCompareWith]="compareHallTypes"
+          >
+            @if (selectedHallType(); as ht) {
+              {{ ht.name }}
+            } @else {
+              <span class="cs-placeholder">Select a type</span>
             }
-          </select>
+            <div *ngpSelectPortal ngpSelectDropdown class="cs-dropdown">
+              @for (type of hallTypes(); track type.id) {
+                <div ngpSelectOption class="cs-option" [ngpSelectOptionValue]="type">
+                  {{ type.name }}
+                </div>
+              }
+            </div>
+          </div>
           <field-error [control]="hallForm.controls.typeId" [messages]="{ required: 'Hall type is required' }" />
           <div class="switch-group">
             <span>Supports 3D</span>
@@ -82,12 +106,13 @@
         </div>
         <div class="input-group">
           <span>Copy Layout From Existing Hall</span>
-          <select ngpInput (change)="copyLayoutFrom($any($event.target).value)">
-            <option value="">None</option>
-            @for (hall of existingHalls(); track hall.id) {
-              <option [value]="hall.id">{{ hall.name }}</option>
-            }
-          </select>
+          <paginated-select
+            placeholder="None"
+            [fetchFn]="fetchHalls"
+            [displayFn]="hallDisplayFn"
+            [valueFn]="hallValueFn"
+            (selectionChange)="copyLayoutFrom($event)"
+          />
         </div>
         <div class="seats-configuration">
           <div class="seat-categories">

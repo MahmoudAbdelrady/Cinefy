@@ -23,6 +23,12 @@ import {
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpInput } from 'ng-primitives/input';
+import {
+  NgpSelect,
+  NgpSelectDropdown,
+  NgpSelectOption,
+  NgpSelectPortal,
+} from 'ng-primitives/select';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { ModalComponent } from '../../modal/modal';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
@@ -31,7 +37,6 @@ import {
   HALL_STATUS_LABELS,
   SEAT_CATEGORY_LABELS,
   HallType,
-  HallListItem,
   HallSummary,
   HallStatus,
   Hall,
@@ -39,6 +44,7 @@ import {
   SeatCategoryItem,
   TicketPricing,
 } from '../../../shared/types';
+import { PaginatedSelectComponent } from '../../paginated-select/paginated-select';
 import { HallLayoutEditorComponent } from '../hall-layout-editor/hall-layout-editor';
 import type { Seat } from '../hall-layout-editor/hall-layout-editor';
 import { HallsService, ToastService } from '../../../services';
@@ -51,11 +57,16 @@ import { HallsService, ToastService } from '../../../services';
     LucideAngularModule,
     NgpButton,
     NgpInput,
+    NgpSelect,
+    NgpSelectDropdown,
+    NgpSelectOption,
+    NgpSelectPortal,
     NgpSwitch,
     NgpSwitchThumb,
     ModalComponent,
     LoadingSpinnerComponent,
     FieldErrorComponent,
+    PaginatedSelectComponent,
     HallLayoutEditorComponent,
   ],
   templateUrl: './hall-config-modal.html',
@@ -74,7 +85,6 @@ export class HallConfigModalComponent implements OnInit {
   private readonly layoutEditor = viewChild.required(HallLayoutEditorComponent);
 
   readonly close = input.required<() => void>();
-  readonly existingHalls = input.required<HallListItem[]>();
   readonly selectedHall = input<HallSummary | null>(null);
   readonly isEditMode = signal(false);
 
@@ -114,6 +124,18 @@ export class HallConfigModalComponent implements OnInit {
   protected readonly supports3DValue = toSignal(this.hallForm.controls.supports3D.valueChanges, {
     initialValue: false,
   });
+
+  private readonly statusValue = toSignal(this.hallForm.controls.status.valueChanges, {
+    initialValue: this.hallForm.controls.status.value,
+  });
+  protected readonly statusDisplayValue = computed(() => HALL_STATUS_LABELS[this.statusValue()]);
+  protected readonly selectedHallType = signal<HallType | null>(null);
+  protected readonly compareHallTypes = (a: HallType, b: HallType) => a?.id === b?.id;
+
+  protected readonly fetchHalls = (page: number, size: number) =>
+    this.hallsService.getHalls(undefined, { page, size });
+  protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
+  protected readonly hallValueFn = (hall: HallSummary) => hall.id;
 
   protected readonly hallStatusEntries = Object.entries(HALL_STATUS_LABELS) as [
     HallStatus,
@@ -158,6 +180,15 @@ export class HallConfigModalComponent implements OnInit {
     this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
   }
 
+  protected onStatusChange(status: HallStatus) {
+    this.hallForm.controls.status.setValue(status);
+  }
+
+  protected onHallTypeChange(type: HallType) {
+    this.selectedHallType.set(type);
+    this.hallForm.controls.typeId.setValue(type.id ?? '');
+  }
+
   protected selectSeatCategory(category: SeatCategoryItem) {
     this.selectedSeatCategory.set(category);
   }
@@ -166,9 +197,8 @@ export class HallConfigModalComponent implements OnInit {
     this.isEditMode.update((v) => !v);
   }
 
-  protected copyLayoutFrom(hallId: string) {
-    if (!hallId) return;
-    this.hallsService.getHallLayout(hallId).subscribe({
+  protected copyLayoutFrom(hall: HallSummary) {
+    this.hallsService.getHallLayout(hall.id).subscribe({
       next: (hallLayout) => {
         this.hallForm.patchValue({
           numberOfRows: hallLayout.numberOfRows,

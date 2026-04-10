@@ -16,7 +16,6 @@ export type {
   SeatCategory,
   SeatCategoryItem,
   HallType,
-  HallListItem,
   HallItem,
   TicketPricing,
   HallSummary,

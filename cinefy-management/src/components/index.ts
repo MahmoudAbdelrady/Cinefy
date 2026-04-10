@@ -13,6 +13,7 @@ import { ManageHallTypesModalComponent } from './halls/manage-hall-types-modal/m
 import { ToastComponent } from './toast/toast';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner';
 import { FieldErrorComponent } from './field-error/field-error';
+import { PaginatedSelectComponent } from './paginated-select/paginated-select';
 
 export {
   HeaderComponent,
@@ -30,4 +31,5 @@ export {
   ToastComponent,
   LoadingSpinnerComponent,
   FieldErrorComponent,
+  PaginatedSelectComponent,
 };
