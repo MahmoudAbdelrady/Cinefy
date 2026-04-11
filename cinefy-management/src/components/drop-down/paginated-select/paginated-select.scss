@@ -30,6 +30,13 @@ paginated-select {
   @include select-option;
 }
 
+.ps-empty {
+  padding: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: $gray-400;
+}
+
 .ps-loading {
   @include flex-center;
   padding: 8px;

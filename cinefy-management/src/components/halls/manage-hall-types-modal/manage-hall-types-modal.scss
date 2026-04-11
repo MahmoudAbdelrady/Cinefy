@@ -33,6 +33,23 @@
   overflow-y: auto;
 }
 
+.empty-types {
+  text-align: center;
+  padding: 24px 16px;
+
+  span {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-500;
+  }
+
+  p {
+    font-size: 13px;
+    color: $gray-400;
+    margin-top: 4px;
+  }
+}
+
 .existing-type-item {
   @include flex-between;
   padding: 10px;

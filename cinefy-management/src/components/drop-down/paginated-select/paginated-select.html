@@ -28,6 +28,10 @@
       <div ngpSelectOption class="ps-option" [ngpSelectOptionValue]="item">
         {{ displayFn()(item) }}
       </div>
+    } @empty {
+      @if (!loading()) {
+        <div ngpSelectOption class="ps-empty">No items available</div>
+      }
     }
 
     @if (loading()) {

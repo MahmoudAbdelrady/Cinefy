@@ -194,13 +194,19 @@ public class HallService {
             }
         }
 
-        // NORMAL is always used (unassigned seats default to it)
-        Set<SeatCategory> requiredCategories = EnumSet.of(SeatCategory.NORMAL);
+        Set<SeatCategory> requiredCategories = EnumSet.noneOf(SeatCategory.class);
         if (categories != null) {
+            int totalSeats = dto.getNumberOfRows() * dto.getSeatsPerRow();
+            int categorizedSeats = categories.values().stream().mapToInt(List::size).sum();
+            if (categorizedSeats < totalSeats) {
+                requiredCategories.add(SeatCategory.NORMAL);
+            }
             categories.keySet().stream()
                     .map(SeatCategory::fromString)
                     .filter(c -> !c.equals(SeatCategory.AISLE))
                     .forEach(requiredCategories::add);
+        } else {
+            requiredCategories.add(SeatCategory.NORMAL);
         }
         for (SeatCategory required : requiredCategories) {
             if (!pricedCategories.contains(required)) {
