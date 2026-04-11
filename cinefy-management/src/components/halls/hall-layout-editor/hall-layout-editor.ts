@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, signal } from '@angular/core';
+import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import type { SeatCategory } from '../../../shared/types';
 
@@ -25,6 +25,9 @@ export class HallLayoutEditorComponent {
   readonly seatsPerRow = input(12);
   readonly selectedSeatType = input<SeatCategory>('NORMAL');
   readonly selectedOnsiteOnly = input(false);
+  readonly disabled = input(false);
+  readonly seatChanged = output<void>();
+  readonly layoutReset = output<void>();
 
   private readonly _seatLayout = signal<Seat[][]>([]);
   readonly seatLayout = this._seatLayout.asReadonly();
@@ -71,15 +74,20 @@ export class HallLayoutEditorComponent {
 
   protected seatTitle(rowIndex: number, seatIndex: number, seat: Seat): string {
     const id = `${this.rowLabel(rowIndex)}${seatIndex + 1}`;
-    if (seat.type === 'AISLE') return `${id} (Aisle) - Click to change`;
+    const action = this.disabled() ? '' : ' - Click to change';
+    if (seat.type === 'AISLE') return `${id} (Aisle)${action}`;
     const label = seat.type === 'VIP' ? 'VIP' : 'Normal';
     const onsite = seat.onsiteOnly ? ', On-Site Only' : '';
-    return `${id} (${label}${onsite}) - Click to change`;
+    return `${id} (${label}${onsite})${action}`;
   }
 
   protected handleSeatClick(rowIndex: number, colIndex: number) {
+    if (this.disabled()) return;
     const type = this.selectedSeatType();
     const onsiteOnly = type === 'AISLE' ? false : this.selectedOnsiteOnly();
+    const currentSeat = this._seatLayout()[rowIndex]?.[colIndex];
+    const layoutChanged =
+      currentSeat && (currentSeat.type !== type || currentSeat.onsiteOnly !== onsiteOnly);
 
     this._seatLayout.update((layout) =>
       layout.map((row, ri) =>
@@ -88,12 +96,10 @@ export class HallLayoutEditorComponent {
           : row,
       ),
     );
-  }
 
-  protected resetLayout() {
-    this._seatLayout.update((layout) =>
-      layout.map((row) => row.map(() => ({ type: 'NORMAL' as SeatCategory, onsiteOnly: false }))),
-    );
+    if (layoutChanged) {
+      this.seatChanged.emit();
+    }
   }
 
   setLayout(layout: Seat[][]) {

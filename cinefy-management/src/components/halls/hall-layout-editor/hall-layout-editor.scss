@@ -42,6 +42,14 @@
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
   max-height: 480px;
   min-width: 0;
+
+  &.disabled .seat {
+    cursor: default;
+
+    &::after {
+      display: none;
+    }
+  }
 }
 
 .row-label {

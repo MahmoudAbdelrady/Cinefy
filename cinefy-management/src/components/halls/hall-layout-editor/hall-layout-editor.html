@@ -2,7 +2,7 @@
   <div class="screen-container">
     <span>SCREEN</span>
   </div>
-  <div class="seats-grid-wrapper">
+  <div class="seats-grid-wrapper" [class.disabled]="disabled()">
     <div class="seats-grid">
       @for (row of seatLayout(); track $index; let rowIndex = $index) {
         <div class="seat-row">
@@ -54,5 +54,7 @@
       {{ stats().vip }}, On-Site Only: {{ stats().onsiteOnly }})
     </p>
   </div>
-  <button class="reset-btn" ngpButton (click)="resetLayout()">Reset Layout</button>
+  @if (!disabled()) {
+    <button class="reset-btn" ngpButton (click)="layoutReset.emit()">Reset Layout</button>
+  }
 </div>

@@ -1,7 +1,9 @@
 import {
   Component,
   computed,
+  DestroyRef,
   effect,
+  ElementRef,
   inject,
   input,
   OnInit,
@@ -12,7 +14,7 @@ import {
 import { NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   LucideAngularModule,
   Settings,
@@ -23,6 +25,7 @@ import {
   Eye,
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
+import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { ModalComponent } from '../../modal/modal';
@@ -33,6 +36,7 @@ import {
   SEAT_CATEGORY_LABELS,
   HallType,
   HallSummary,
+  HallDetail,
   HallStatus,
   Hall,
   SeatCategory,
@@ -46,6 +50,14 @@ import { HallLayoutEditorComponent } from '../hall-layout-editor/hall-layout-edi
 import type { Seat } from '../hall-layout-editor/hall-layout-editor';
 import { HallsService, ToastService } from '../../../services';
 
+interface LayoutBaseline {
+  numberOfRows: number;
+  seatsPerRow: number;
+  normalPrice: number | null;
+  vipPrice: number | null;
+  grid: Seat[][];
+}
+
 @Component({
   selector: 'hall-config-modal',
   imports: [
@@ -53,6 +65,7 @@ import { HallsService, ToastService } from '../../../services';
     ReactiveFormsModule,
     LucideAngularModule,
     NgpButton,
+    NgpDialogTrigger,
     NgpInput,
     NgpSwitch,
     NgpSwitchThumb,
@@ -76,15 +89,30 @@ export class HallConfigModalComponent implements OnInit {
 
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly layoutEditor = viewChild.required(HallLayoutEditorComponent);
+  private readonly discardTrigger = viewChild<ElementRef>('discardTrigger');
 
   readonly close = input.required<() => void>();
-  readonly selectedHall = input<HallSummary | null>(null);
+  readonly selectedHallId = input<string | null>(null);
   readonly hallCreated = output<HallSummary>();
+  readonly hallUpdated = output<HallSummary>();
   readonly isEditMode = signal(false);
+  private readonly selectedHallData = signal<HallDetail | null>(null);
+
+  protected readonly isViewMode = computed(
+    () => this.selectedHallId() !== null && !this.isEditMode(),
+  );
+  protected readonly modalTitle = computed(() => {
+    if (!this.selectedHallId()) return 'Add New Hall';
+    return this.isEditMode() ? 'Edit Hall' : (this.selectedHallData()?.name ?? 'Loading...');
+  });
 
   readonly hallTypes = signal<HallType[]>([]);
   protected readonly saving = signal(false);
+  private readonly layoutBaseline = signal<LayoutBaseline | null>(null);
+  protected readonly loadingHall = signal(false);
+  protected readonly hasUnsavedChanges = signal(false);
 
   protected readonly hallForm = new FormGroup({
     name: new FormControl('', {
@@ -187,10 +215,78 @@ export class HallConfigModalComponent implements OnInit {
       normalCtrl.updateValueAndValidity();
       vipCtrl.updateValueAndValidity();
     });
+
+    effect(() => {
+      if (this.isViewMode()) {
+        this.hallForm.disable({ emitEvent: false });
+      } else {
+        this.hallForm.enable({ emitEvent: false });
+      }
+    });
+
+    this.hallForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (this.isEditMode()) {
+        this.hasUnsavedChanges.set(true);
+      }
+    });
   }
 
   ngOnInit() {
     this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
+
+    const hallId = this.selectedHallId();
+    if (hallId) {
+      this.loadHallData(hallId);
+    }
+  }
+
+  private loadHallData(id: string) {
+    this.loadingHall.set(true);
+    this.hallsService.getHall(id).subscribe({
+      next: (detail: HallDetail) => {
+        this.selectedHallData.set(detail);
+        this.applyHallDetail(detail);
+        this.loadingHall.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loadingHall.set(false);
+        this.toastService.error(err.error?.message ?? 'Failed to load hall data');
+      },
+    });
+  }
+
+  private applyHallDetail(detail: HallDetail) {
+    this.selectedHallType.set(detail.type);
+
+    const normalPrice =
+      detail.ticketPricing?.find((p) => p.seatCategory === 'NORMAL')?.price ?? null;
+    const vipPrice = detail.ticketPricing?.find((p) => p.seatCategory === 'VIP')?.price ?? null;
+
+    this.hallForm.patchValue({
+      name: detail.name,
+      numberOfRows: detail.numberOfRows,
+      seatsPerRow: detail.seatsPerRow,
+      status: detail.status,
+      typeId: detail.type.id ?? '',
+      supports3D: detail.supports3D,
+      normalPrice,
+      vipPrice,
+    });
+
+    const grid = this.convertApiLayoutToSeatGrid(
+      detail.layout,
+      detail.numberOfRows,
+      detail.seatsPerRow,
+    );
+    this.layoutEditor().setLayout(grid);
+    this.layoutBaseline.set({
+      numberOfRows: detail.numberOfRows,
+      seatsPerRow: detail.seatsPerRow,
+      normalPrice,
+      vipPrice,
+      grid: grid.map((row) => row.map((seat) => ({ ...seat }))), // shallow copy for baseline
+    });
+    this.hasUnsavedChanges.set(false);
   }
 
   protected onStatusChange(entry: [HallStatus, string]) {
@@ -215,8 +311,59 @@ export class HallConfigModalComponent implements OnInit {
     this.onSiteOnlyPreference.set(value);
   }
 
+  protected onLayoutClick() {
+    if (this.isEditMode()) {
+      this.hasUnsavedChanges.set(true);
+    }
+  }
+
   protected toggleEditMode() {
+    if (this.isEditMode() && this.hasUnsavedChanges()) {
+      this.discardTrigger()?.nativeElement.click();
+      return;
+    }
     this.isEditMode.update((v) => !v);
+  }
+
+  protected confirmDiscard(close: () => void) {
+    close();
+    this.isEditMode.set(false);
+    this.applyHallDetail(this.selectedHallData()!);
+  }
+
+  protected restoreOriginalLayout() {
+    const detail = this.selectedHallData();
+    if (detail) {
+      this.applyHallDetail(detail);
+    } else {
+      this.layoutBaseline.set(null);
+      this.hallForm.patchValue({
+        numberOfRows: null,
+        seatsPerRow: null,
+        normalPrice: null,
+        vipPrice: null,
+      });
+    }
+  }
+
+  protected onResetLayout() {
+    const baseline = this.layoutBaseline();
+    if (baseline) {
+      this.hallForm.patchValue({
+        numberOfRows: baseline.numberOfRows,
+        seatsPerRow: baseline.seatsPerRow,
+        normalPrice: baseline.normalPrice,
+        vipPrice: baseline.vipPrice,
+      });
+      this.layoutEditor().setLayout(baseline.grid.map((row) => row.map((seat) => ({ ...seat }))));
+    } else {
+      this.hallForm.patchValue({
+        numberOfRows: null,
+        seatsPerRow: null,
+        normalPrice: null,
+        vipPrice: null,
+      });
+    }
   }
 
   protected copyLayoutFrom(hall: HallSummary) {
@@ -239,6 +386,13 @@ export class HallConfigModalComponent implements OnInit {
           hallLayout.seatsPerRow,
         );
         this.layoutEditor().setLayout(grid);
+        this.layoutBaseline.set({
+          numberOfRows: hallLayout.numberOfRows,
+          seatsPerRow: hallLayout.seatsPerRow,
+          normalPrice,
+          vipPrice,
+          grid: grid.map((row) => row.map((seat) => ({ ...seat }))),
+        });
       },
       error: (err: HttpErrorResponse) => {
         this.toastService.error(err.error?.message ?? 'Failed to copy layout');
@@ -249,11 +403,41 @@ export class HallConfigModalComponent implements OnInit {
   protected saveHall() {
     if (this.hallForm.invalid) return;
 
+    const hall = this.buildHallPayload();
+    const existing = this.selectedHallId();
+
+    this.saving.set(true);
+    const request$ = existing
+      ? this.hallsService.updateHall(existing, hall)
+      : this.hallsService.createHall(hall);
+
+    request$.subscribe({
+      next: (result) => {
+        this.saving.set(false);
+        if (existing) {
+          this.hallUpdated.emit(result);
+          this.toastService.success('Hall updated successfully');
+        } else {
+          this.hallCreated.emit(result);
+          this.toastService.success('Hall created successfully');
+        }
+        this.close()();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.saving.set(false);
+        this.toastService.error(
+          err.error?.message ?? `Failed to ${existing ? 'update' : 'create'} hall`,
+        );
+      },
+    });
+  }
+
+  private buildHallPayload(): Hall {
     const formValue = this.hallForm.getRawValue();
     const layout = this.extractLayout();
     const ticketPricing = this.buildTicketPricing(formValue.normalPrice, formValue.vipPrice);
 
-    const hall: Hall = {
+    return {
       name: formValue.name,
       numberOfRows: formValue.numberOfRows!,
       seatsPerRow: formValue.seatsPerRow!,
@@ -263,20 +447,6 @@ export class HallConfigModalComponent implements OnInit {
       layout,
       ticketPricing,
     };
-
-    this.saving.set(true);
-    this.hallsService.createHall(hall).subscribe({
-      next: (created) => {
-        this.saving.set(false);
-        this.hallCreated.emit(created);
-        this.toastService.success('Hall created successfully');
-        this.close()();
-      },
-      error: (err: HttpErrorResponse) => {
-        this.saving.set(false);
-        this.toastService.error(err.error?.message ?? 'Failed to create hall');
-      },
-    });
   }
 
   private extractLayout(): SeatLayout {

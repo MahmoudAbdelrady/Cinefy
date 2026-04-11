@@ -1,10 +1,10 @@
 <app-modal
-  modalTitle="Add New Hall"
+  [modalTitle]="modalTitle()"
   description="Configure hall details and seat layout"
   [close]="close()"
   width="1300px"
 >
-  @if (selectedHall()) {
+  @if (selectedHallId()) {
     <div modal-header-actions>
       <button
         ngpButton
@@ -20,6 +20,19 @@
           [strokeWidth]="2"
         ></lucide-icon>
       </button>
+      <button #discardTrigger [ngpDialogTrigger]="discardDialog" hidden></button>
+
+      <ng-template #discardDialog let-close="close">
+        <app-modal modalTitle="Discard Changes" [close]="close" width="448px">
+          <p class="discard-message">
+            You have unsaved changes. Switching to view mode will discard them.
+          </p>
+          <div modal-footer class="discard-footer">
+            <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+            <button ngpButton class="btn-danger" (click)="confirmDiscard(close)">Discard</button>
+          </div>
+        </app-modal>
+      </ng-template>
     </div>
   }
   <div class="hall-config-modal-content">
@@ -75,6 +88,7 @@
             [value]="statusEntry()"
             [displayFn]="statusDisplayFn"
             [trackBy]="statusTrackBy"
+            [disabled]="isViewMode()"
             (valueChange)="onStatusChange($event)"
           />
         </div>
@@ -86,7 +100,8 @@
             [displayFn]="hallTypeDisplayFn"
             [trackBy]="hallTypeTrackBy"
             [compareWith]="compareHallTypes"
-            [clearable]="true"
+            [clearable]="!isViewMode()"
+            [disabled]="isViewMode()"
             [isError]="hallForm.controls.typeId.touched && hallForm.controls.typeId.invalid"
             placeholder="Select a type"
             (valueChange)="onHallTypeChange($event)"
@@ -104,74 +119,80 @@
               class="switch-button"
               [ngpSwitchChecked]="supports3DValue()"
               (ngpSwitchCheckedChange)="hallForm.controls.supports3D.setValue($event)"
+              [ngpSwitchDisabled]="isViewMode()"
             >
               <span ngpSwitchThumb></span>
             </button>
           </div>
         </div>
-        <div class="input-group">
-          <span>Copy Layout From Existing Hall</span>
-          <paginated-select
-            placeholder="None"
-            [clearable]="true"
-            [fetchFn]="fetchHalls"
-            [displayFn]="hallDisplayFn"
-            [valueFn]="hallValueFn"
-            (selectionChange)="copyLayoutFrom($event)"
-          />
-        </div>
-        <div class="seats-configuration">
-          <div class="seat-categories">
-            <div class="sc-header">
-              <lucide-icon [img]="StarIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
-              <span>Seat Categories</span>
-            </div>
-            <div class="sc-content">
-              <div class="sc-type-items">
-                @for (item of seatCategoryItems; track item.type) {
-                  <div
-                    class="sti-item"
-                    [class.selected]="selectedSeatCategory().type === item.type"
-                    (click)="selectSeatCategory(item)"
-                  >
-                    <div class="sti-item-icon" [ngClass]="item.type.toLowerCase()"></div>
-                    <span class="sti-item-info">{{ item.name }}</span>
-                    @if (selectedSeatCategory().type === item.type) {
-                      <span class="sti-item-selected">Selected</span>
-                    }
-                  </div>
-                }
-              </div>
-              <div class="reservation-toggle">
-                <span>Reservation</span>
-                <label
-                  class="switch-group"
-                  [class.active]="onSiteOnly()"
-                  [class.disabled]="selectedSeatCategory().type === 'AISLE'"
-                >
-                  <div class="sg-label">
-                    <span class="sg-label-icon">S</span>
-                    <span class="sg-label-text">On-Site Only</span>
-                  </div>
-                  <button
-                    ngpSwitch
-                    class="switch-button onsite-switch"
-                    [ngpSwitchChecked]="onSiteOnly()"
-                    (ngpSwitchCheckedChange)="setOnSiteOnly($event)"
-                    [disabled]="selectedSeatCategory().type === 'AISLE'"
-                  >
-                    <span ngpSwitchThumb></span>
-                  </button>
-                </label>
-              </div>
-              <div class="tip-container">
-                <p>
-                  <span>Tip:</span> Select a seat type above, then click on seats in the layout to
-                  apply it
-                </p>
-              </div>
-            </div>
+        @if (!isViewMode()) {
+          <div class="input-group">
+            <span>Copy Layout From Existing Hall</span>
+            <paginated-select
+              placeholder="None"
+              [clearable]="true"
+              [fetchFn]="fetchHalls"
+              [displayFn]="hallDisplayFn"
+              [valueFn]="hallValueFn"
+              (selectionChange)="copyLayoutFrom($event)"
+              (cleared)="restoreOriginalLayout()"
+            />
           </div>
+        }
+        <div class="seats-configuration">
+          @if (!isViewMode()) {
+            <div class="seat-categories">
+              <div class="sc-header">
+                <lucide-icon [img]="StarIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <span>Seat Categories</span>
+              </div>
+              <div class="sc-content">
+                <div class="sc-type-items">
+                  @for (item of seatCategoryItems; track item.type) {
+                    <div
+                      class="sti-item"
+                      [class.selected]="selectedSeatCategory().type === item.type"
+                      (click)="selectSeatCategory(item)"
+                    >
+                      <div class="sti-item-icon" [ngClass]="item.type.toLowerCase()"></div>
+                      <span class="sti-item-info">{{ item.name }}</span>
+                      @if (selectedSeatCategory().type === item.type) {
+                        <span class="sti-item-selected">Selected</span>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="reservation-toggle">
+                  <span>Reservation</span>
+                  <label
+                    class="switch-group"
+                    [class.active]="onSiteOnly()"
+                    [class.disabled]="selectedSeatCategory().type === 'AISLE'"
+                  >
+                    <div class="sg-label">
+                      <span class="sg-label-icon">S</span>
+                      <span class="sg-label-text">On-Site Only</span>
+                    </div>
+                    <button
+                      ngpSwitch
+                      class="switch-button onsite-switch"
+                      [ngpSwitchChecked]="onSiteOnly()"
+                      (ngpSwitchCheckedChange)="setOnSiteOnly($event)"
+                      [ngpSwitchDisabled]="selectedSeatCategory().type === 'AISLE'"
+                    >
+                      <span ngpSwitchThumb></span>
+                    </button>
+                  </label>
+                </div>
+                <div class="tip-container">
+                  <p>
+                    <span>Tip:</span> Select a seat type above, then click on seats in the layout to
+                    apply it
+                  </p>
+                </div>
+              </div>
+            </div>
+          }
           <div class="ticket-pricing">
             <div class="tp-header">
               <lucide-icon [img]="DollarSignIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
@@ -250,25 +271,30 @@
           [selectedOnsiteOnly]="onSiteOnly()"
           [numRows]="numRowsValue() ?? 10"
           [seatsPerRow]="seatsPerRowValue() ?? 12"
+          [disabled]="isViewMode()"
+          (seatChanged)="onLayoutClick()"
+          (layoutReset)="onResetLayout()"
         />
       </div>
     </div>
   </div>
-  <div modal-footer class="hall-config-modal-footer">
-    <div class="save-btns">
-      <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
-      <button
-        ngpButton
-        class="btn-primary"
-        (click)="saveHall()"
-        [disabled]="hallForm.invalid || saving()"
-      >
-        @if (saving()) {
-          <loading-spinner [strokeWidth]="2" />
-        } @else {
-          Save Hall
-        }
-      </button>
+  @if (!isViewMode()) {
+    <div modal-footer class="hall-config-modal-footer">
+      <div class="save-btns">
+        <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
+        <button
+          ngpButton
+          class="btn-primary"
+          (click)="saveHall()"
+          [disabled]="hallForm.invalid || saving()"
+        >
+          @if (saving()) {
+            <loading-spinner [strokeWidth]="2" />
+          } @else {
+            {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}
+          }
+        </button>
+      </div>
     </div>
-  </div>
+  }
 </app-modal>

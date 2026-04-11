@@ -96,6 +96,17 @@ export class HallsListComponent {
     );
   }
 
+  protected updateHall(updated: HallSummary): void {
+    this.hallPage.update((page) =>
+      page
+        ? {
+            ...page,
+            content: page.content.map((h) => (h.id === updated.id ? updated : h)),
+          }
+        : page,
+    );
+  }
+
   protected onSearch(event: Event): void {
     this.search.set((event.target as HTMLInputElement).value);
     this.page.set(1);

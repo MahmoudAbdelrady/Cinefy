@@ -552,6 +552,37 @@
   }
 }
 
+.discard-message {
+  font-size: 14px;
+  color: $gray-700;
+  line-height: 1.6;
+}
+
+.discard-footer {
+  @include flex-align;
+  gap: 12px;
+  width: 100%;
+
+  button {
+    flex: 1;
+  }
+}
+
+.btn-danger {
+  @include flex-center;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: $red-600;
+  border-radius: $radius-md;
+  transition: all 150ms ease;
+
+  &:hover {
+    background-color: $red-500;
+  }
+}
+
 .mode-toggle-btn {
   @include flex-center;
   @include lucide-icon-fix;
