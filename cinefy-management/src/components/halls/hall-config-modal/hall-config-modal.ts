@@ -5,6 +5,7 @@ import {
   inject,
   input,
   OnInit,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
@@ -36,6 +37,7 @@ import {
   Hall,
   SeatCategory,
   SeatCategoryItem,
+  SeatLayout,
   TicketPricing,
 } from '../../../shared/types';
 import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
@@ -78,6 +80,7 @@ export class HallConfigModalComponent implements OnInit {
 
   readonly close = input.required<() => void>();
   readonly selectedHall = input<HallSummary | null>(null);
+  readonly hallCreated = output<HallSummary>();
   readonly isEditMode = signal(false);
 
   readonly hallTypes = signal<HallType[]>([]);
@@ -89,10 +92,10 @@ export class HallConfigModalComponent implements OnInit {
       validators: [Validators.required],
     }),
     numberOfRows: new FormControl<number | null>(null, {
-      validators: [Validators.required, Validators.min(1)],
+      validators: [Validators.required, Validators.min(1), Validators.max(100)],
     }),
     seatsPerRow: new FormControl<number | null>(null, {
-      validators: [Validators.required, Validators.min(1)],
+      validators: [Validators.required, Validators.min(1), Validators.max(50)],
     }),
     status: new FormControl<HallStatus>('ACTIVE', {
       nonNullable: true,
@@ -107,20 +110,28 @@ export class HallConfigModalComponent implements OnInit {
     vipPrice: new FormControl<number | null>(null),
   });
 
-  protected readonly numRowsValue = toSignal(this.hallForm.controls.numberOfRows.valueChanges, {
+  private readonly rawNumRows = toSignal(this.hallForm.controls.numberOfRows.valueChanges, {
     initialValue: null,
   });
-  protected readonly seatsPerRowValue = toSignal(this.hallForm.controls.seatsPerRow.valueChanges, {
+  private readonly rawSeatsPerRow = toSignal(this.hallForm.controls.seatsPerRow.valueChanges, {
     initialValue: null,
+  });
+  protected readonly numRowsValue = computed(() => {
+    const v = this.rawNumRows();
+    return v != null && v > 100 ? null : v;
+  });
+  protected readonly seatsPerRowValue = computed(() => {
+    const v = this.rawSeatsPerRow();
+    return v != null && v > 50 ? null : v;
   });
   protected readonly supports3DValue = toSignal(this.hallForm.controls.supports3D.valueChanges, {
     initialValue: false,
   });
 
-  protected readonly hallStatusEntries = Object.entries(HALL_STATUS_LABELS) as [
-    HallStatus,
-    string,
-  ][];
+  protected readonly hallStatusEntries = (
+    Object.entries(HALL_STATUS_LABELS) as [HallStatus, string][]
+  ).filter(([key]) => key !== 'SCHEDULED' && key !== 'NOW_SHOWING');
+
   protected readonly statusEntry = computed(
     () => this.hallStatusEntries.find((e) => e[0] === this.statusValue()) ?? null,
   );
@@ -151,7 +162,10 @@ export class HallConfigModalComponent implements OnInit {
   protected readonly hasVipSeats = computed(() => this.layoutEditor().stats().vip > 0);
 
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems[0]);
-  protected onSiteOnly = signal(false);
+  private readonly onSiteOnlyPreference = signal(false);
+  protected readonly onSiteOnly = computed(() =>
+    this.selectedSeatCategory().type === 'AISLE' ? false : this.onSiteOnlyPreference(),
+  );
 
   constructor() {
     effect(() => {
@@ -197,6 +211,10 @@ export class HallConfigModalComponent implements OnInit {
     this.selectedSeatCategory.set(category);
   }
 
+  protected setOnSiteOnly(value: boolean) {
+    this.onSiteOnlyPreference.set(value);
+  }
+
   protected toggleEditMode() {
     this.isEditMode.update((v) => !v);
   }
@@ -204,9 +222,16 @@ export class HallConfigModalComponent implements OnInit {
   protected copyLayoutFrom(hall: HallSummary) {
     this.hallsService.getHallLayout(hall.id).subscribe({
       next: (hallLayout) => {
+        const normalPrice =
+          hallLayout.ticketPricing?.find((p) => p.seatCategory === 'NORMAL')?.price ?? null;
+        const vipPrice =
+          hallLayout.ticketPricing?.find((p) => p.seatCategory === 'VIP')?.price ?? null;
+
         this.hallForm.patchValue({
           numberOfRows: hallLayout.numberOfRows,
           seatsPerRow: hallLayout.seatsPerRow,
+          normalPrice,
+          vipPrice,
         });
         const grid = this.convertApiLayoutToSeatGrid(
           hallLayout.layout,
@@ -241,8 +266,9 @@ export class HallConfigModalComponent implements OnInit {
 
     this.saving.set(true);
     this.hallsService.createHall(hall).subscribe({
-      next: () => {
+      next: (created) => {
         this.saving.set(false);
+        this.hallCreated.emit(created);
         this.toastService.success('Hall created successfully');
         this.close()();
       },
@@ -253,26 +279,26 @@ export class HallConfigModalComponent implements OnInit {
     });
   }
 
-  private extractLayout(): Partial<Record<SeatCategory, string[]>> {
+  private extractLayout(): SeatLayout {
     const editor = this.layoutEditor();
     const seatLayout = editor.seatLayout();
-    const result: Partial<Record<SeatCategory, string[]>> = {};
+    const categories: Partial<Record<SeatCategory, string[]>> = {};
+    const onSiteOnly: string[] = [];
 
     for (let rowIdx = 0; rowIdx < seatLayout.length; rowIdx++) {
       const rowLabel = editor.rowLabel(rowIdx);
       for (let colIdx = 0; colIdx < seatLayout[rowIdx].length; colIdx++) {
         const seat = seatLayout[rowIdx][colIdx];
-        if (seat.type === 'NORMAL') continue;
-        const category = seat.type;
         const seatId = `${rowLabel}${colIdx + 1}`;
-        if (!result[category]) {
-          result[category] = [];
+        if (seat.type !== 'NORMAL') {
+          if (!categories[seat.type]) categories[seat.type] = [];
+          categories[seat.type]!.push(seatId);
         }
-        result[category]!.push(seatId);
+        if (seat.onsiteOnly) onSiteOnly.push(seatId);
       }
     }
 
-    return result;
+    return { categories, onSiteOnly };
   }
 
   private buildTicketPricing(normalPrice: number | null, vipPrice: number | null): TicketPricing[] {
@@ -286,25 +312,31 @@ export class HallConfigModalComponent implements OnInit {
     return pricing;
   }
 
-  private convertApiLayoutToSeatGrid(
-    layout: Partial<Record<SeatCategory, string[]>>,
-    rows: number,
-    cols: number,
-  ): Seat[][] {
+  private convertApiLayoutToSeatGrid(layout: SeatLayout, rows: number, cols: number): Seat[][] {
     const grid: Seat[][] = Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => ({ type: 'NORMAL' as SeatCategory, onsiteOnly: false })),
     );
 
-    for (const [category, positions] of Object.entries(layout)) {
+    const onSiteOnlySet = new Set(layout.onSiteOnly ?? []);
+
+    for (const [category, positions] of Object.entries(layout.categories ?? {})) {
       const seatType = category as SeatCategory;
       for (const pos of positions!) {
         const match = pos.match(/^([A-Z]+)(\d+)$/);
-        if (!match) continue;
-        const rowIdx = this.rowLabelToIndex(match[1]);
-        const colIdx = parseInt(match[2]) - 1;
+        const rowIdx = this.rowLabelToIndex(match![1]);
+        const colIdx = parseInt(match![2]) - 1;
         if (rowIdx < rows && colIdx < cols) {
-          grid[rowIdx][colIdx] = { type: seatType, onsiteOnly: false };
+          grid[rowIdx][colIdx] = { type: seatType, onsiteOnly: onSiteOnlySet.has(pos) };
         }
+      }
+    }
+
+    for (const pos of onSiteOnlySet) {
+      const match = pos.match(/^([A-Z]+)(\d+)$/);
+      const rowIdx = this.rowLabelToIndex(match![1]);
+      const colIdx = parseInt(match![2]) - 1;
+      if (rowIdx < rows && colIdx < cols) {
+        grid[rowIdx][colIdx].onsiteOnly = true;
       }
     }
 

@@ -158,6 +158,11 @@
   &[data-checked] [ngpSwitchThumb] {
     transform: translateX(22px);
   }
+
+  &[data-disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 // ─── Seat Categories ────────────────────────────────────────────────────────────
@@ -335,6 +340,15 @@
 
       .onsite-switch {
         background-color: $orange-500;
+      }
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      &:hover {
+        border-color: $gray-200;
       }
     }
   }

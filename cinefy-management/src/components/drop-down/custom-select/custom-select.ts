@@ -22,10 +22,12 @@ export class CustomSelectComponent<T> {
   readonly placeholder = input('Select an option');
   readonly disabled = input(false);
   readonly clearable = input(false);
+  readonly isError = input(false);
   readonly compareWith = input<(a: T, b: T) => boolean>(Object.is);
 
   readonly valueChange = output<T>();
   readonly cleared = output<void>();
+  readonly touched = output<void>();
 
   protected readonly ChevronDownIcon = ChevronDown;
   protected readonly XIcon = X;
@@ -43,6 +45,12 @@ export class CustomSelectComponent<T> {
     if (this.wasCleared()) return null;
     return this.value() ?? this.selectedItem();
   });
+
+  protected onOpenChange(open: boolean) {
+    if (!open) {
+      this.touched.emit();
+    }
+  }
 
   protected onValueChange(value: T) {
     this.wasCleared.set(false);

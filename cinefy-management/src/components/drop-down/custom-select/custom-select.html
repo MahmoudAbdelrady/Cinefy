@@ -4,6 +4,8 @@
   (ngpSelectValueChange)="onValueChange($event)"
   [ngpSelectDisabled]="disabled()"
   [ngpSelectCompareWith]="compareWith()"
+  (ngpSelectOpenChange)="onOpenChange($event)"
+  [class.cs-error]="isError()"
 >
   @if (displayValue(); as display) {
     {{ display }}

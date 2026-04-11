@@ -48,7 +48,11 @@
             <input ngpInput type="number" placeholder="e.g. 10" formControlName="numberOfRows" />
             <field-error
               [control]="hallForm.controls.numberOfRows"
-              [messages]="{ required: 'Number of rows is required', min: 'Must be at least 1' }"
+              [messages]="{
+                required: 'Number of rows is required',
+                min: 'Must be at least 1',
+                max: 'Must be at most 100',
+              }"
             />
           </div>
           <div class="input-group">
@@ -56,7 +60,11 @@
             <input ngpInput type="number" placeholder="e.g. 12" formControlName="seatsPerRow" />
             <field-error
               [control]="hallForm.controls.seatsPerRow"
-              [messages]="{ required: 'Seats per row is required', min: 'Must be at least 1' }"
+              [messages]="{
+                required: 'Seats per row is required',
+                min: 'Must be at least 1',
+                max: 'Must be at most 50',
+              }"
             />
           </div>
         </div>
@@ -79,9 +87,11 @@
             [trackBy]="hallTypeTrackBy"
             [compareWith]="compareHallTypes"
             [clearable]="true"
+            [isError]="hallForm.controls.typeId.touched && hallForm.controls.typeId.invalid"
             placeholder="Select a type"
             (valueChange)="onHallTypeChange($event)"
             (cleared)="onHallTypeCleared()"
+            (touched)="hallForm.controls.typeId.markAsTouched()"
           />
           <field-error
             [control]="hallForm.controls.typeId"
@@ -134,7 +144,11 @@
               </div>
               <div class="reservation-toggle">
                 <span>Reservation</span>
-                <label class="switch-group" [class.active]="onSiteOnly()">
+                <label
+                  class="switch-group"
+                  [class.active]="onSiteOnly()"
+                  [class.disabled]="selectedSeatCategory().type === 'AISLE'"
+                >
                   <div class="sg-label">
                     <span class="sg-label-icon">S</span>
                     <span class="sg-label-text">On-Site Only</span>
@@ -142,7 +156,9 @@
                   <button
                     ngpSwitch
                     class="switch-button onsite-switch"
-                    [(ngpSwitchChecked)]="onSiteOnly"
+                    [ngpSwitchChecked]="onSiteOnly()"
+                    (ngpSwitchCheckedChange)="setOnSiteOnly($event)"
+                    [disabled]="selectedSeatCategory().type === 'AISLE'"
                   >
                     <span ngpSwitchThumb></span>
                   </button>

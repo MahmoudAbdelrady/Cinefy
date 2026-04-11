@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LucideAngularModule,
   Search,
+  Tag,
   Trash2,
   Users,
 } from 'lucide-angular';
@@ -59,6 +60,7 @@ export class HallsListComponent {
   protected readonly EyeIcon = Eye;
   protected readonly DeleteIcon = Trash2;
   protected readonly AlertIcon = CircleAlert;
+  protected readonly TagIcon = Tag;
 
   protected readonly statusLabels = HALL_STATUS_LABELS;
 
@@ -82,6 +84,18 @@ export class HallsListComponent {
     });
   }
 
+  addHall(hall: HallSummary): void {
+    this.hallPage.update((page) =>
+      page
+        ? {
+            ...page,
+            content: [...page.content, hall],
+            page: { ...page.page, totalElements: page.page.totalElements + 1 },
+          }
+        : page,
+    );
+  }
+
   protected onSearch(event: Event): void {
     this.search.set((event.target as HTMLInputElement).value);
     this.page.set(1);
@@ -92,7 +106,13 @@ export class HallsListComponent {
     this.hallsService.deleteHall(hall.id).subscribe({
       next: () => {
         this.hallPage.update((page) =>
-          page ? { ...page, content: page.content.filter((h) => h.id !== hall.id) } : page,
+          page
+            ? {
+                ...page,
+                content: page.content.filter((h) => h.id !== hall.id),
+                page: { ...page.page, totalElements: page.page.totalElements - 1 },
+              }
+            : page,
         );
         this.deletingHallId.set(null);
         this.toastService.success('Hall deleted');

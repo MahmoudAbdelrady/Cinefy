@@ -21,6 +21,11 @@ interface SeatCategoryItem {
   type: SeatCategory;
 }
 
+interface SeatLayout {
+  categories: Partial<Record<SeatCategory, string[]>>;
+  onSiteOnly: string[];
+}
+
 interface HallType {
   id?: string;
   name: string;
@@ -59,14 +64,14 @@ interface HallDetail {
   status: HallStatus;
   type: HallType;
   supports3D: boolean;
-  layout: Partial<Record<SeatCategory, string[]>>;
+  layout: SeatLayout;
   ticketPricing: TicketPricing[];
 }
 
 interface HallLayout {
   numberOfRows: number;
   seatsPerRow: number;
-  layout: Partial<Record<SeatCategory, string[]>>;
+  layout: SeatLayout;
   ticketPricing: TicketPricing[];
 }
 
@@ -77,7 +82,7 @@ interface Hall {
   status: HallStatus;
   typeId: string;
   supports3D?: boolean;
-  layout?: Partial<Record<SeatCategory, string[]>>;
+  layout?: SeatLayout;
   ticketPricing: TicketPricing[];
 }
 
@@ -86,6 +91,7 @@ export type {
   HallStatus,
   SeatCategory,
   SeatCategoryItem,
+  SeatLayout,
   HallType,
   HallItem,
   TicketPricing,
