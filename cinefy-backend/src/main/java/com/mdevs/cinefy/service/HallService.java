@@ -79,10 +79,9 @@ public class HallService {
 
     // ============================= Halls ===========================
 
-    public Page<HallSummaryDTO> getHalls(String search, Pageable pageable) {
-        Page<Hall> page = (StringUtils.isEmpty(search))
-                ? hallRepository.findAll(pageable)
-                : hallRepository.findByCodeContaining(Hall.toCode(search), pageable);
+    public Page<HallSummaryDTO> getHalls(String search, String excludeHallId, Pageable pageable) {
+        String code = StringUtils.isEmpty(search) ? null : Hall.toCode(search);
+        Page<Hall> page = hallRepository.findAllFiltered(code, excludeHallId, pageable);
         return page.map(this::toSummaryDTO);
     }
 
