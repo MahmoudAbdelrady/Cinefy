@@ -1,11 +1,6 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
-import type { SeatCategory } from '../../../shared/types';
-
-export interface Seat {
-  type: SeatCategory;
-  onsiteOnly: boolean;
-}
+import type { Seat, SeatCategory } from '../../../shared/types';
 
 interface SeatStats {
   normal: number;
@@ -60,9 +55,7 @@ export class HallLayoutEditorComponent {
 
   constructor() {
     effect(() => {
-      const rows = this.numRows();
-      const cols = this.seatsPerRow();
-      this.initializeLayout(rows, cols);
+      this.initializeLayout(this.numRows(), this.seatsPerRow());
     });
   }
 

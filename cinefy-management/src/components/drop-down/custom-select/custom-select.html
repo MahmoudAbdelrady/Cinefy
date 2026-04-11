@@ -26,7 +26,7 @@
   }
 
   <div *ngpSelectPortal ngpSelectDropdown class="cs-dropdown">
-    @for (item of items(); track trackBy()(item)) {
+    @for (item of items(); track valueFn()(item)) {
       <div ngpSelectOption class="cs-option" [ngpSelectOptionValue]="item">
         {{ displayFn()(item) }}
       </div>

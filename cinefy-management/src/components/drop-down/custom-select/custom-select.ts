@@ -17,7 +17,7 @@ import {
 export class CustomSelectComponent<T> {
   readonly items = input.required<T[]>();
   readonly displayFn = input.required<(item: T) => string>();
-  readonly trackBy = input.required<(item: T) => unknown>();
+  readonly valueFn = input.required<(item: T) => unknown>();
   readonly value = input<T | null>(null);
   readonly placeholder = input('Select an option');
   readonly disabled = input(false);
@@ -25,7 +25,7 @@ export class CustomSelectComponent<T> {
   readonly isError = input(false);
   readonly compareWith = input<(a: T, b: T) => boolean>(Object.is);
 
-  readonly valueChange = output<T>();
+  readonly selectionChange = output<T>();
   readonly cleared = output<void>();
   readonly touched = output<void>();
 
@@ -55,7 +55,7 @@ export class CustomSelectComponent<T> {
   protected onValueChange(value: T) {
     this.wasCleared.set(false);
     this.selectedItem.set(value);
-    this.valueChange.emit(value);
+    this.selectionChange.emit(value);
   }
 
   protected clear(event: MouseEvent) {

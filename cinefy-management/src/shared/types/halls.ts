@@ -16,6 +16,11 @@ const SEAT_CATEGORY_LABELS = {
 
 type SeatCategory = keyof typeof SEAT_CATEGORY_LABELS;
 
+interface Seat {
+  type: SeatCategory;
+  onsiteOnly: boolean;
+}
+
 interface SeatCategoryItem {
   name: string;
   type: SeatCategory;
@@ -90,6 +95,7 @@ export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS };
 export type {
   HallStatus,
   SeatCategory,
+  Seat,
   SeatCategoryItem,
   SeatLayout,
   HallType,

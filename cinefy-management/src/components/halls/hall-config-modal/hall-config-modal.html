@@ -87,9 +87,9 @@
             [items]="hallStatusEntries"
             [value]="statusEntry()"
             [displayFn]="statusDisplayFn"
-            [trackBy]="statusTrackBy"
+            [valueFn]="statusValueFn"
             [disabled]="isViewMode()"
-            (valueChange)="onStatusChange($event)"
+            (selectionChange)="onStatusChange($event)"
           />
         </div>
         <div class="input-group type-group">
@@ -98,13 +98,13 @@
             [items]="hallTypes()"
             [value]="selectedHallType()"
             [displayFn]="hallTypeDisplayFn"
-            [trackBy]="hallTypeTrackBy"
+            [valueFn]="hallTypeValueFn"
             [compareWith]="compareHallTypes"
             [clearable]="!isViewMode()"
             [disabled]="isViewMode()"
             [isError]="hallForm.controls.typeId.touched && hallForm.controls.typeId.invalid"
             placeholder="Select a type"
-            (valueChange)="onHallTypeChange($event)"
+            (selectionChange)="onHallTypeChange($event)"
             (cleared)="onHallTypeCleared()"
             (touched)="hallForm.controls.typeId.markAsTouched()"
           />
@@ -272,7 +272,7 @@
           [numRows]="numRowsValue() ?? 10"
           [seatsPerRow]="seatsPerRowValue() ?? 12"
           [disabled]="isViewMode()"
-          (seatChanged)="onLayoutClick()"
+          (seatChanged)="onLayoutChange()"
           (layoutReset)="onResetLayout()"
         />
       </div>

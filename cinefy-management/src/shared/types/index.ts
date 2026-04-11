@@ -14,6 +14,7 @@ export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS } from './halls';
 export type {
   HallStatus,
   SeatCategory,
+  Seat,
   SeatCategoryItem,
   SeatLayout,
   HallType,
