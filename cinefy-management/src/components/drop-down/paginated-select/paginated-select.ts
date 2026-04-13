@@ -9,14 +9,16 @@ import {
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
+import { Observable, Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { LucideAngularModule, ChevronDown, X } from 'lucide-angular';
 import {
-  NgpSelect,
-  NgpSelectDropdown,
-  NgpSelectOption,
-  NgpSelectPortal,
-} from 'ng-primitives/select';
+  NgpCombobox,
+  NgpComboboxButton,
+  NgpComboboxDropdown,
+  NgpComboboxInput,
+  NgpComboboxOption,
+  NgpComboboxPortal,
+} from 'ng-primitives/combobox';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import type { PaginatedResponse } from '../../../shared/types';
 import { ToastService } from '../../../services';
@@ -24,10 +26,12 @@ import { ToastService } from '../../../services';
 @Component({
   selector: 'paginated-select',
   imports: [
-    NgpSelect,
-    NgpSelectDropdown,
-    NgpSelectOption,
-    NgpSelectPortal,
+    NgpCombobox,
+    NgpComboboxButton,
+    NgpComboboxDropdown,
+    NgpComboboxInput,
+    NgpComboboxOption,
+    NgpComboboxPortal,
     LucideAngularModule,
     LoadingSpinnerComponent,
   ],
@@ -42,9 +46,13 @@ export class PaginatedSelectComponent<T> {
   readonly placeholder = input('Select an option');
   readonly disabled = input(false);
   readonly clearable = input(false);
+  readonly searchable = input(false);
   readonly pageSize = input(20);
+  readonly container = input<string | HTMLElement | null>(null);
   readonly fetchFn =
-    input.required<(page: number, size: number) => Observable<PaginatedResponse<T>>>();
+    input.required<
+      (page: number, size: number, search?: string) => Observable<PaginatedResponse<T>>
+    >();
   readonly displayFn = input.required<(item: T) => string>();
   readonly valueFn = input.required<(item: T) => string>();
 
@@ -57,22 +65,35 @@ export class PaginatedSelectComponent<T> {
   protected readonly items = signal<T[]>([]);
   protected readonly loading = signal(false);
   protected readonly selectedItem = signal<T | null>(null);
+  protected readonly searchTerm = signal('');
 
   private currentPage = 0;
   private totalPages = 1;
+  private readonly search$ = new Subject<string>();
+
+  constructor() {
+    this.search$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe((term) => {
+        this.searchTerm.set(term);
+        this.resetAndFetch();
+      });
+  }
 
   protected onOpenChange(open: boolean) {
     if (open) {
-      this.items.set([]);
-      this.currentPage = 0;
-      this.totalPages = 1;
-      this.fetchPage(0);
+      this.searchTerm.set('');
+      this.resetAndFetch();
     }
   }
 
   protected onValueChange(value: T) {
     this.selectedItem.set(value);
     this.selectionChange.emit(value);
+  }
+
+  protected onSearchInput(event: Event) {
+    this.search$.next((event.target as HTMLInputElement).value);
   }
 
   protected clear(event: MouseEvent) {
@@ -89,11 +110,18 @@ export class PaginatedSelectComponent<T> {
     }
   }
 
+  private resetAndFetch() {
+    this.items.set([]);
+    this.currentPage = 0;
+    this.totalPages = 1;
+    this.fetchPage(0);
+  }
+
   private fetchPage(page: number) {
     if (this.loading() || page >= this.totalPages) return;
 
     this.loading.set(true);
-    this.fetchFn()(page, this.pageSize())
+    this.fetchFn()(page, this.pageSize(), this.searchTerm())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

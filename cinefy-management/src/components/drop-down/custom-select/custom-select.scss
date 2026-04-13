@@ -3,7 +3,7 @@
 custom-select {
   display: block;
 
-  [ngpSelect] {
+  .cs-trigger {
     @include select-trigger;
   }
 
@@ -26,4 +26,12 @@ custom-select {
 
 .cs-option {
   @include select-option;
+}
+
+.cs-search {
+  @include select-search;
+}
+
+.cs-empty {
+  @include select-empty;
 }

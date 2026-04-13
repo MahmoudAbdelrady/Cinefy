@@ -195,8 +195,8 @@ export class HallConfigModalComponent implements OnInit {
   protected readonly hallTypeDisplayFn = (type: HallType) => type.name;
   protected readonly hallTypeValueFn = (type: HallType) => type.id;
   protected readonly compareHallTypes = (a: HallType, b: HallType) => a?.id === b?.id;
-  protected readonly fetchHalls = (page: number, size: number) =>
-    this.hallsService.getHalls(undefined, { page, size }, this.selectedHallId() ?? undefined);
+  protected readonly fetchHalls = (page: number, size: number, search?: string) =>
+    this.hallsService.getHalls(search, { page, size }, this.selectedHallId() ?? undefined);
   protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
   protected readonly hallValueFn = (hall: HallSummary) => hall.id;
 

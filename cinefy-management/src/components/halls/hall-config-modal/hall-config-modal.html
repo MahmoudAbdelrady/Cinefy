@@ -89,6 +89,7 @@
             [displayFn]="statusDisplayFn"
             [valueFn]="statusValueFn"
             [disabled]="isViewMode()"
+            container=".modal-panel"
             (selectionChange)="onStatusChange($event)"
           />
         </div>
@@ -104,6 +105,7 @@
             [disabled]="isViewMode()"
             [isError]="hallForm.controls.typeId.touched && hallForm.controls.typeId.invalid"
             placeholder="Select a type"
+            container=".modal-panel"
             (selectionChange)="onHallTypeChange($event)"
             (cleared)="onHallTypeCleared()"
             (touched)="hallForm.controls.typeId.markAsTouched()"
@@ -131,9 +133,11 @@
             <paginated-select
               placeholder="None"
               [clearable]="true"
+              [searchable]="true"
               [fetchFn]="fetchHalls"
               [displayFn]="hallDisplayFn"
               [valueFn]="hallValueFn"
+              container=".modal-panel"
               (selectionChange)="copyLayoutFrom($event)"
               (cleared)="restoreOriginalLayout()"
             />

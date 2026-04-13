@@ -1,5 +1,6 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   Check,
@@ -65,7 +66,12 @@ export class ManageHallTypesModalComponent implements OnInit {
   }
 
   private loadHallTypes() {
-    this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
+    this.hallsService.getHallTypes().subscribe({
+      next: (types) => this.hallTypes.set(types),
+      error: (err: HttpErrorResponse) => {
+        this.toastService.error(err.error?.message ?? 'Failed to load hall types');
+      },
+    });
   }
 
   protected startEditingType(type: HallType) {

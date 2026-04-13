@@ -1,15 +1,25 @@
 import { Component, computed, input, output, signal, ViewEncapsulation } from '@angular/core';
 import { LucideAngularModule, ChevronDown, X } from 'lucide-angular';
 import {
-  NgpSelect,
-  NgpSelectDropdown,
-  NgpSelectOption,
-  NgpSelectPortal,
-} from 'ng-primitives/select';
+  NgpCombobox,
+  NgpComboboxButton,
+  NgpComboboxDropdown,
+  NgpComboboxInput,
+  NgpComboboxOption,
+  NgpComboboxPortal,
+} from 'ng-primitives/combobox';
 
 @Component({
   selector: 'custom-select',
-  imports: [LucideAngularModule, NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+  imports: [
+    LucideAngularModule,
+    NgpCombobox,
+    NgpComboboxButton,
+    NgpComboboxDropdown,
+    NgpComboboxInput,
+    NgpComboboxOption,
+    NgpComboboxPortal,
+  ],
   templateUrl: './custom-select.html',
   styleUrl: './custom-select.scss',
   encapsulation: ViewEncapsulation.None,
@@ -22,8 +32,10 @@ export class CustomSelectComponent<T> {
   readonly placeholder = input('Select an option');
   readonly disabled = input(false);
   readonly clearable = input(false);
+  readonly searchable = input(false);
   readonly isError = input(false);
   readonly compareWith = input<(a: T, b: T) => boolean>(Object.is);
+  readonly container = input<string | HTMLElement | null>(null);
 
   readonly selectionChange = output<T>();
   readonly cleared = output<void>();
@@ -33,6 +45,7 @@ export class CustomSelectComponent<T> {
   protected readonly XIcon = X;
 
   protected readonly selectedItem = signal<T | null>(null);
+  protected readonly searchTerm = signal('');
   private readonly wasCleared = signal(false);
 
   protected readonly displayValue = computed(() => {
@@ -46,8 +59,16 @@ export class CustomSelectComponent<T> {
     return this.value() ?? this.selectedItem();
   });
 
+  protected readonly filteredItems = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    if (!term) return this.items();
+    const displayFn = this.displayFn();
+    return this.items().filter((item) => displayFn(item).toLowerCase().includes(term));
+  });
+
   protected onOpenChange(open: boolean) {
     if (!open) {
+      this.searchTerm.set('');
       this.touched.emit();
     }
   }
@@ -56,6 +77,10 @@ export class CustomSelectComponent<T> {
     this.wasCleared.set(false);
     this.selectedItem.set(value);
     this.selectionChange.emit(value);
+  }
+
+  protected onSearchInput(event: Event) {
+    this.searchTerm.set((event.target as HTMLInputElement).value);
   }
 
   protected clear(event: MouseEvent) {

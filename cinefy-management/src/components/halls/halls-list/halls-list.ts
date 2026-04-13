@@ -77,9 +77,15 @@ export class HallsListComponent {
           ),
           takeUntilDestroyed(this.destroyRef),
         )
-        .subscribe((hallPage) => {
-          this.hallPage.set(hallPage);
-          this.loading.set(false);
+        .subscribe({
+          next: (hallPage) => {
+            this.hallPage.set(hallPage);
+            this.loading.set(false);
+          },
+          error: (err: HttpErrorResponse) => {
+            this.loading.set(false);
+            this.toastService.error(err.error?.message ?? 'Failed to load halls');
+          },
         });
     });
   }

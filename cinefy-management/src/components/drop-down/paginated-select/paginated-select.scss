@@ -5,7 +5,7 @@
 paginated-select {
   display: block;
 
-  [ngpSelect] {
+  .ps-trigger {
     @include select-trigger;
   }
 
@@ -30,11 +30,12 @@ paginated-select {
   @include select-option;
 }
 
+.ps-search {
+  @include select-search;
+}
+
 .ps-empty {
-  padding: 12px;
-  text-align: center;
-  font-size: 13px;
-  color: $gray-400;
+  @include select-empty;
 }
 
 .ps-loading {
