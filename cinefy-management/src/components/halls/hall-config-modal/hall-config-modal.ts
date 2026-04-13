@@ -326,6 +326,7 @@ export class HallConfigModalComponent implements OnInit {
         normalPrice: null,
         vipPrice: null,
       });
+      this.layoutEditor().setLayout(this.createDefaultGrid());
     }
   }
 
@@ -341,6 +342,7 @@ export class HallConfigModalComponent implements OnInit {
         normalPrice: null,
         vipPrice: null,
       });
+      this.layoutEditor().setLayout(this.createDefaultGrid());
     }
   }
 
@@ -449,6 +451,12 @@ export class HallConfigModalComponent implements OnInit {
     return grid.map((row) => row.map((seat) => ({ ...seat })));
   }
 
+  private createDefaultGrid(rows = 10, cols = 12): Seat[][] {
+    return Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => ({ type: 'NORMAL' as SeatCategory, onsiteOnly: false })),
+    );
+  }
+
   private applyLayoutData(source: HallLayout): void {
     const { normalPrice, vipPrice } = this.extractPrices(source.ticketPricing);
 
@@ -475,9 +483,7 @@ export class HallConfigModalComponent implements OnInit {
   }
 
   private convertApiLayoutToSeatGrid(layout: SeatLayout, rows: number, cols: number): Seat[][] {
-    const grid: Seat[][] = Array.from({ length: rows }, () =>
-      Array.from({ length: cols }, () => ({ type: 'NORMAL' as SeatCategory, onsiteOnly: false })),
-    );
+    const grid: Seat[][] = this.createDefaultGrid(rows, cols);
 
     const onSiteOnlySet = new Set(layout.onSiteOnly ?? []);
 
