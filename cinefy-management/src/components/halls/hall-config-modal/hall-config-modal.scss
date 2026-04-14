@@ -1,6 +1,31 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
 
+@mixin disabled-input {
+  &:disabled,
+  &[disabled] {
+    background-color: $gray-50;
+    border-color: $gray-200;
+    color: $gray-900;
+    cursor: default;
+    -webkit-text-fill-color: $gray-900;
+
+    &:focus {
+      outline: none;
+      border-color: $gray-200;
+      box-shadow: none;
+    }
+
+    &.ng-invalid.ng-touched {
+      border-color: $gray-200;
+
+      &:focus {
+        box-shadow: none;
+      }
+    }
+  }
+}
+
 // ─── Add / Edit Hall Modal ──────────────────────────────────────────────────────
 
 .hall-config-modal-content {
@@ -11,6 +36,12 @@
   @media (max-width: 1023px) {
     grid-template-columns: 1fr;
   }
+}
+
+.hall-config-loading {
+  @include flex-center;
+  min-height: 65vh;
+  color: $blue-600;
 }
 
 // ─── Hall Information ───────────────────────────────────────────────────────────
@@ -94,6 +125,8 @@
         box-shadow: 0 0 0 2px $red-500;
       }
     }
+
+    @include disabled-input;
   }
 }
 
@@ -488,6 +521,8 @@
         border-color: transparent;
         box-shadow: 0 0 0 2px $blue-500;
       }
+
+      @include disabled-input;
     }
   }
 }

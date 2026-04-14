@@ -35,7 +35,12 @@
       </ng-template>
     </div>
   }
-  <div class="hall-config-modal-content">
+  @if (loadingHall()) {
+    <div class="hall-config-loading">
+      <loading-spinner [size]="32" [strokeWidth]="2.5" />
+    </div>
+  }
+  <div class="hall-config-modal-content" [hidden]="loadingHall()">
     <div class="hall-information">
       <div class="hi-header">
         <lucide-icon [img]="SettingsIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>

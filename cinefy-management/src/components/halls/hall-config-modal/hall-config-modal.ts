@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   Component,
   computed,
   DestroyRef,
@@ -6,7 +7,6 @@ import {
   ElementRef,
   inject,
   input,
-  OnInit,
   output,
   signal,
   viewChild,
@@ -80,7 +80,7 @@ interface LayoutBaseline {
   templateUrl: './hall-config-modal.html',
   styleUrl: './hall-config-modal.scss',
 })
-export class HallConfigModalComponent implements OnInit {
+export class HallConfigModalComponent {
   // Icons
   protected readonly SettingsIcon = Settings;
   protected readonly StarIcon = Star;
@@ -234,15 +234,15 @@ export class HallConfigModalComponent implements OnInit {
         this.hasUnsavedChanges.set(true);
       }
     });
-  }
 
-  ngOnInit() {
-    this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
+    afterNextRender(() => {
+      this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
 
-    const hallId = this.selectedHallId();
-    if (hallId) {
-      this.loadHallData(hallId);
-    }
+      const hallId = this.selectedHallId();
+      if (hallId) {
+        this.loadHallData(hallId);
+      }
+    });
   }
 
   private loadHallData(id: string) {
