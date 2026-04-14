@@ -46,6 +46,7 @@ export class ManageHallTypesModalComponent implements OnInit {
   protected readonly LoaderIcon = Loader;
 
   protected readonly hallTypes = signal<HallType[]>([]);
+  protected readonly loadingTypes = signal(true);
   protected readonly editingTypeId = signal<string | null>(null);
   protected readonly savingTypeId = signal<string | null>(null);
   protected readonly deletingTypeId = signal<string | null>(null);
@@ -66,9 +67,14 @@ export class ManageHallTypesModalComponent implements OnInit {
   }
 
   private loadHallTypes() {
+    this.loadingTypes.set(true);
     this.hallsService.getHallTypes().subscribe({
-      next: (types) => this.hallTypes.set(types),
+      next: (types) => {
+        this.hallTypes.set(types);
+        this.loadingTypes.set(false);
+      },
       error: (err: HttpErrorResponse) => {
+        this.loadingTypes.set(false);
         this.toastService.error(err.error?.message ?? 'Failed to load hall types');
       },
     });

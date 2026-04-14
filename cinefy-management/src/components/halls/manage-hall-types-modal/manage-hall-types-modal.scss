@@ -6,8 +6,12 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .manage-types-modal-content {
@@ -31,6 +35,12 @@
   gap: 8px;
   max-height: 300px;
   overflow-y: auto;
+}
+
+.loading-types {
+  @include flex-center;
+  padding: 24px 16px;
+  color: $blue-600;
 }
 
 .empty-types {
