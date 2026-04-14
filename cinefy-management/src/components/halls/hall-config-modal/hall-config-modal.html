@@ -108,6 +108,7 @@
             [compareWith]="compareHallTypes"
             [clearable]="!isViewMode()"
             [disabled]="isViewMode()"
+            [searchable]="true"
             [isError]="hallForm.controls.typeId.touched && hallForm.controls.typeId.invalid"
             placeholder="Select a type"
             container=".modal-panel"

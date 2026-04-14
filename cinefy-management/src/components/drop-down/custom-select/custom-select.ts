@@ -67,8 +67,9 @@ export class CustomSelectComponent<T> {
   });
 
   protected onOpenChange(open: boolean) {
-    if (!open) {
+    if (open) {
       this.searchTerm.set('');
+    } else {
       this.touched.emit();
     }
   }
