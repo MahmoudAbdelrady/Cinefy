@@ -15,7 +15,9 @@ import java.util.Set;
 @Table(indexes = {
         @Index(columnList = "CODE"),
         @Index(columnList = "TYPE_ID"),
-        @Index(columnList = "_UUID")
+        @Index(columnList = "_UUID"),
+        @Index(columnList = "STATUS"),
+        @Index(columnList = "CREATED_AT")
 })
 public class Hall extends BaseEntity {
 

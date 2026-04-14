@@ -6,6 +6,7 @@ import type {
   Hall,
   HallDetail,
   HallLayout,
+  HallStatistics,
   HallSummary,
   HallType,
 } from '../shared/types';
@@ -45,6 +46,10 @@ export class HallsService {
       ...(excludeHallId && { excludeHallId }),
     };
     return this.http.get<PaginatedResponse<HallSummary>>('/halls', { params });
+  }
+
+  getHallsStatistics(): Observable<HallStatistics> {
+    return this.http.get<HallStatistics>('/halls/statistics');
   }
 
   getHall(id: string): Observable<HallDetail> {

@@ -16,6 +16,13 @@
   }
 }
 
+.statistics-loading {
+  @include flex-center;
+  min-height: 96px;
+  margin-bottom: 32px;
+  color: $gray-500;
+}
+
 .stat-card {
   background-color: #ffffff;
   border-radius: $radius-lg;

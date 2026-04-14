@@ -23,5 +23,6 @@ export type {
   HallSummary,
   HallDetail,
   HallLayout,
+  HallStatistics,
   Hall,
 } from './halls';

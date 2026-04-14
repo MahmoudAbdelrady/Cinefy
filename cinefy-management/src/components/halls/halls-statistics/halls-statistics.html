@@ -1,38 +1,44 @@
-<div class="statistics">
-  <div class="stat-card">
-    <div class="sc-icon blue">
-      <lucide-icon [img]="LayoutIcon" [size]="24"></lucide-icon>
+@if (loading()) {
+  <div class="statistics-loading">
+    <loading-spinner [size]="28" [strokeWidth]="2.5" />
+  </div>
+} @else {
+  <div class="statistics">
+    <div class="stat-card">
+      <div class="sc-icon blue">
+        <lucide-icon [img]="LayoutIcon" [size]="24"></lucide-icon>
+      </div>
+      <div class="sc-info">
+        <h3>{{ statistics()?.totalHalls ?? '—' }}</h3>
+        <p>Total Halls</p>
+      </div>
     </div>
-    <div class="sc-info">
-      <h3>8</h3>
-      <p>Total Halls</p>
+    <div class="stat-card">
+      <div class="sc-icon green">
+        <lucide-icon [img]="EyeIcon" [size]="24"></lucide-icon>
+      </div>
+      <div class="sc-info">
+        <h3>{{ statistics()?.activeHalls ?? '—' }}</h3>
+        <p>Active Halls</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-icon purple">
+        <lucide-icon [img]="UsersIcon" [size]="24"></lucide-icon>
+      </div>
+      <div class="sc-info">
+        <h3>{{ statistics()?.totalCapacity ?? '—' }}</h3>
+        <p>Total Capacity</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-icon orange">
+        <lucide-icon [img]="TrendingUpIcon" [size]="24"></lucide-icon>
+      </div>
+      <div class="sc-info">
+        <h3>44%</h3>
+        <p>Occupancy Rate</p>
+      </div>
     </div>
   </div>
-  <div class="stat-card">
-    <div class="sc-icon green">
-      <lucide-icon [img]="EyeIcon" [size]="24"></lucide-icon>
-    </div>
-    <div class="sc-info">
-      <h3>6</h3>
-      <p>Active Halls</p>
-    </div>
-  </div>
-  <div class="stat-card">
-    <div class="sc-icon purple">
-      <lucide-icon [img]="UsersIcon" [size]="24"></lucide-icon>
-    </div>
-    <div class="sc-info">
-      <h3>910</h3>
-      <p>Total Capacity</p>
-    </div>
-  </div>
-  <div class="stat-card">
-    <div class="sc-icon orange">
-      <lucide-icon [img]="TrendingUpIcon" [size]="24"></lucide-icon>
-    </div>
-    <div class="sc-info">
-      <h3>44%</h3>
-      <p>Occupancy Rate</p>
-    </div>
-  </div>
-</div>
+}

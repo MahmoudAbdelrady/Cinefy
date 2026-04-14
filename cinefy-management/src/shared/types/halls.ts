@@ -80,6 +80,12 @@ interface HallLayout {
   ticketPricing: TicketPricing[];
 }
 
+interface HallStatistics {
+  totalHalls: number;
+  activeHalls: number;
+  totalCapacity: number;
+}
+
 interface Hall {
   name: string;
   numberOfRows: number;
@@ -104,5 +110,6 @@ export type {
   HallSummary,
   HallDetail,
   HallLayout,
+  HallStatistics,
   Hall,
 };
