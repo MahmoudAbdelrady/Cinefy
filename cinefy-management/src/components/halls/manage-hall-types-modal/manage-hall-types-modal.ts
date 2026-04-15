@@ -1,11 +1,18 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import {
   Check,
   Loader,
   LucideAngularModule,
+  Plus,
   SquarePen,
   Trash2,
   TriangleAlert,
@@ -15,8 +22,17 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { ModalComponent } from '../../modal/modal';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { FieldErrorComponent } from '../../field-error/field-error';
 import { HallsService, ToastService } from '../../../services';
 import { HallType } from '../../../shared/types';
+
+function notBlankValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (typeof value === 'string' && value.length > 0 && value.trim().length === 0) {
+    return { notBlank: true };
+  }
+  return null;
+}
 
 @Component({
   selector: 'manage-hall-types-modal',
@@ -28,6 +44,7 @@ import { HallType } from '../../../shared/types';
     NgpPopoverTrigger,
     ModalComponent,
     LoadingSpinnerComponent,
+    FieldErrorComponent,
   ],
   templateUrl: './manage-hall-types-modal.html',
   styleUrl: './manage-hall-types-modal.scss',
@@ -44,6 +61,7 @@ export class ManageHallTypesModalComponent implements OnInit {
   protected readonly XIcon = X;
   protected readonly WarningIcon = TriangleAlert;
   protected readonly LoaderIcon = Loader;
+  protected readonly PlusIcon = Plus;
 
   protected readonly hallTypes = signal<HallType[]>([]);
   protected readonly loadingTypes = signal(true);
@@ -51,16 +69,22 @@ export class ManageHallTypesModalComponent implements OnInit {
   protected readonly savingTypeId = signal<string | null>(null);
   protected readonly deletingTypeId = signal<string | null>(null);
   protected readonly addingType = signal(false);
+  protected readonly showNewTypeForm = signal(false);
 
   protected readonly editNameControl = new FormControl('', {
     nonNullable: true,
-    validators: [Validators.required, Validators.minLength(1)],
+    validators: [Validators.required, notBlankValidator],
   });
 
   protected readonly newTypeControl = new FormControl('', {
     nonNullable: true,
-    validators: [Validators.required, Validators.minLength(1)],
+    validators: [Validators.required, notBlankValidator],
   });
+
+  protected readonly nameErrorMessages: Record<string, string> = {
+    required: 'Hall Type name is required',
+    notBlank: "Hall Type name can't be empty",
+  };
 
   ngOnInit() {
     this.loadHallTypes();
@@ -124,6 +148,24 @@ export class ManageHallTypesModalComponent implements OnInit {
     });
   }
 
+  protected startAddingType() {
+    this.showNewTypeForm.set(true);
+    this.newTypeControl.reset();
+  }
+
+  protected cancelAddType() {
+    this.showNewTypeForm.set(false);
+    this.newTypeControl.reset();
+  }
+
+  protected onNewTypeKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      this.addType();
+    } else if (event.key === 'Escape') {
+      this.cancelAddType();
+    }
+  }
+
   protected addType() {
     if (this.newTypeControl.invalid) return;
     this.addingType.set(true);
@@ -132,6 +174,7 @@ export class ManageHallTypesModalComponent implements OnInit {
         this.hallTypes.update((types) => [...types, created]);
         this.newTypeControl.reset();
         this.addingType.set(false);
+        this.showNewTypeForm.set(false);
         this.toastService.success('Hall type added');
       },
       error: (err: HttpErrorResponse) => {

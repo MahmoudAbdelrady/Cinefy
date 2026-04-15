@@ -16,13 +16,17 @@
           @for (type of hallTypes(); track type.id) {
             <div class="existing-type-item">
               @if (editingTypeId() === type.id) {
-                <input
-                  type="text"
-                  class="edit-type-input"
-                  [formControl]="editNameControl"
-                  (keydown)="onEditTypeKeydown($event, type)"
-                  autofocus
-                />
+                <div class="edit-type-field">
+                  <input
+                    type="text"
+                    class="edit-type-input"
+                    [formControl]="editNameControl"
+                    (keydown)="onEditTypeKeydown($event, type)"
+                    (blur)="editNameControl.markAsTouched()"
+                    autofocus
+                  />
+                  <field-error [control]="editNameControl" [messages]="nameErrorMessages" />
+                </div>
                 <div class="action-buttons editing">
                   <button
                     ngpButton
@@ -104,30 +108,44 @@
       }
     </div>
     <div class="new-type-container">
-      <h3>New Type Name</h3>
-      <div class="new-type-form">
-        <input
-          type="text"
-          placeholder="e.g. ScreenX, Dolby Atmos"
-          [formControl]="newTypeControl"
-          (keydown.enter)="addType()"
-        />
-      </div>
-    </div>
-  </div>
-  <div modal-footer class="manage-types-modal-footer">
-    <button ngpButton class="btn-secondary" (click)="close()()">Cancel</button>
-    <button
-      ngpButton
-      class="btn-primary"
-      (click)="addType()"
-      [disabled]="newTypeControl.invalid || addingType()"
-    >
-      @if (addingType()) {
-        <loading-spinner [strokeWidth]="2" />
+      @if (showNewTypeForm()) {
+        <div class="new-type-form">
+          <div class="new-type-field">
+            <input
+              type="text"
+              placeholder="e.g. ScreenX, Dolby Atmos"
+              [formControl]="newTypeControl"
+              (keydown)="onNewTypeKeydown($event)"
+              (blur)="newTypeControl.markAsTouched()"
+              autofocus
+            />
+            <field-error [control]="newTypeControl" [messages]="nameErrorMessages" />
+          </div>
+          <div class="action-buttons editing">
+            <button
+              ngpButton
+              (click)="addType()"
+              title="Save"
+              [disabled]="newTypeControl.invalid || addingType()"
+            >
+              <lucide-icon
+                [img]="addingType() ? LoaderIcon : CheckIcon"
+                [size]="14"
+                [strokeWidth]="2.5"
+                [class.spin]="addingType()"
+              ></lucide-icon>
+            </button>
+            <button ngpButton (click)="cancelAddType()" title="Cancel">
+              <lucide-icon [img]="XIcon" [size]="14" [strokeWidth]="2.5"></lucide-icon>
+            </button>
+          </div>
+        </div>
       } @else {
-        Add Type
+        <button ngpButton class="btn-add-new-type" (click)="startAddingType()">
+          <lucide-icon [img]="PlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+          Add new type
+        </button>
       }
-    </button>
+    </div>
   </div>
 </app-modal>
