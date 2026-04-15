@@ -1,5 +1,6 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   Check,
@@ -45,6 +46,7 @@ export class ManageHallTypesModalComponent implements OnInit {
   protected readonly LoaderIcon = Loader;
 
   protected readonly hallTypes = signal<HallType[]>([]);
+  protected readonly loadingTypes = signal(true);
   protected readonly editingTypeId = signal<string | null>(null);
   protected readonly savingTypeId = signal<string | null>(null);
   protected readonly deletingTypeId = signal<string | null>(null);
@@ -65,7 +67,17 @@ export class ManageHallTypesModalComponent implements OnInit {
   }
 
   private loadHallTypes() {
-    this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
+    this.loadingTypes.set(true);
+    this.hallsService.getHallTypes().subscribe({
+      next: (types) => {
+        this.hallTypes.set(types);
+        this.loadingTypes.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loadingTypes.set(false);
+        this.toastService.error(err.error?.message ?? 'Failed to load hall types');
+      },
+    });
   }
 
   protected startEditingType(type: HallType) {

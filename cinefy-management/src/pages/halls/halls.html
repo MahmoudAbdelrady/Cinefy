@@ -19,7 +19,7 @@
     </ng-template>
 
     <ng-template #addHallDialog let-close="close">
-      <hall-config-modal [close]="close" [existingHalls]="[]" />
+      <hall-config-modal [close]="close" (hallCreated)="hallsList().addHall($event)" />
     </ng-template>
   </div>
 </ng-template>

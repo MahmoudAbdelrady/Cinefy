@@ -1,0 +1,54 @@
+<div
+  ngpCombobox
+  [ngpComboboxValue]="currentValue()"
+  (ngpComboboxValueChange)="onValueChange($event)"
+  [ngpComboboxDisabled]="disabled()"
+  [ngpComboboxCompareWith]="compareWith()"
+  (ngpComboboxOpenChange)="onOpenChange($event)"
+  [ngpComboboxDropdownContainer]="container()"
+>
+  <button
+    type="button"
+    ngpComboboxButton
+    class="cs-trigger"
+    [class.cs-error]="isError()"
+    [disabled]="disabled()"
+  >
+    @if (displayValue(); as display) {
+      {{ display }}
+    } @else {
+      <span class="cs-placeholder">{{ placeholder() }}</span>
+    }
+
+    @if (clearable() && displayValue()) {
+      <lucide-icon
+        class="cs-clear"
+        [img]="XIcon"
+        [size]="16"
+        [strokeWidth]="2"
+        (click)="clear($event)"
+      />
+    } @else {
+      <lucide-icon class="cs-chevron" [img]="ChevronDownIcon" [size]="16" [strokeWidth]="2" />
+    }
+  </button>
+
+  <div *ngpComboboxPortal ngpComboboxDropdown class="cs-dropdown">
+    @if (searchable()) {
+      <input
+        ngpComboboxInput
+        type="text"
+        class="cs-search"
+        placeholder="Search..."
+        (input)="onSearchInput($event)"
+      />
+    }
+    @for (item of filteredItems(); track valueFn()(item)) {
+      <div ngpComboboxOption class="cs-option" [ngpComboboxOptionValue]="item">
+        {{ displayFn()(item) }}
+      </div>
+    } @empty {
+      <div class="cs-empty">No results</div>
+    }
+  </div>
+</div>

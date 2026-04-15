@@ -38,6 +38,7 @@ export class HallsPage implements OnInit {
   private headerActions = inject(HeaderActionsService);
   private destroyRef = inject(DestroyRef);
   private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
+  protected readonly hallsList = viewChild.required(HallsListComponent);
 
   ngOnInit() {
     this.headerActions.template.set(this.headerActionsTemplate());

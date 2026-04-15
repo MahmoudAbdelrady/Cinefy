@@ -10,15 +10,19 @@ export interface PaginatedResponse<T> {
   page: PageFields;
 }
 
-export { HALL_STATUS_LABELS } from './halls';
+export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS } from './halls';
 export type {
   HallStatus,
+  SeatCategory,
+  Seat,
+  SeatCategoryItem,
+  SeatLayout,
   HallType,
-  HallListItem,
   HallItem,
   TicketPricing,
   HallSummary,
   HallDetail,
   HallLayout,
+  HallStatistics,
   Hall,
 } from './halls';

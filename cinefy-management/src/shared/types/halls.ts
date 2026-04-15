@@ -1,20 +1,38 @@
 const HALL_STATUS_LABELS = {
-  NOW_SHOWING: 'Now Showing',
+  ACTIVE: 'Active',
   SCHEDULED: 'Scheduled',
+  NOW_SHOWING: 'Now Showing',
   UNDER_MAINTENANCE: 'Under Maintenance',
   INACTIVE: 'Inactive',
-  ACTIVE: 'Active',
 } as const;
 
 type HallStatus = keyof typeof HALL_STATUS_LABELS;
 
-interface HallType {
-  id?: string;
-  name: string;
+const SEAT_CATEGORY_LABELS = {
+  NORMAL: 'Normal',
+  VIP: 'VIP',
+  AISLE: 'Space/Aisle',
+} as const;
+
+type SeatCategory = keyof typeof SEAT_CATEGORY_LABELS;
+
+interface Seat {
+  type: SeatCategory;
+  onsiteOnly: boolean;
 }
 
-interface HallListItem {
-  id: string;
+interface SeatCategoryItem {
+  name: string;
+  type: SeatCategory;
+}
+
+interface SeatLayout {
+  categories: Partial<Record<SeatCategory, string[]>>;
+  onSiteOnly: string[];
+}
+
+interface HallType {
+  id?: string;
   name: string;
 }
 
@@ -29,7 +47,7 @@ interface HallItem {
 }
 
 interface TicketPricing {
-  seatCategory: string;
+  seatCategory: SeatCategory;
   price: number;
 }
 
@@ -51,15 +69,21 @@ interface HallDetail {
   status: HallStatus;
   type: HallType;
   supports3D: boolean;
-  layout: Record<string, string[]>;
+  layout: SeatLayout;
   ticketPricing: TicketPricing[];
 }
 
 interface HallLayout {
   numberOfRows: number;
   seatsPerRow: number;
-  layout: Record<string, string[]>;
+  layout: SeatLayout;
   ticketPricing: TicketPricing[];
+}
+
+interface HallStatistics {
+  totalHalls: number;
+  activeHalls: number;
+  totalCapacity: number;
 }
 
 interface Hall {
@@ -69,19 +93,23 @@ interface Hall {
   status: HallStatus;
   typeId: string;
   supports3D?: boolean;
-  layout?: Record<string, string[]>;
+  layout?: SeatLayout;
   ticketPricing: TicketPricing[];
 }
 
-export { HALL_STATUS_LABELS };
+export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS };
 export type {
   HallStatus,
+  SeatCategory,
+  Seat,
+  SeatCategoryItem,
+  SeatLayout,
   HallType,
-  HallListItem,
   HallItem,
   TicketPricing,
   HallSummary,
   HallDetail,
   HallLayout,
+  HallStatistics,
   Hall,
 };

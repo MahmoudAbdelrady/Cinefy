@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LucideAngularModule,
   Search,
+  Tag,
   Trash2,
   Users,
 } from 'lucide-angular';
@@ -59,6 +60,7 @@ export class HallsListComponent {
   protected readonly EyeIcon = Eye;
   protected readonly DeleteIcon = Trash2;
   protected readonly AlertIcon = CircleAlert;
+  protected readonly TagIcon = Tag;
 
   protected readonly statusLabels = HALL_STATUS_LABELS;
 
@@ -75,11 +77,40 @@ export class HallsListComponent {
           ),
           takeUntilDestroyed(this.destroyRef),
         )
-        .subscribe((hallPage) => {
-          this.hallPage.set(hallPage);
-          this.loading.set(false);
+        .subscribe({
+          next: (hallPage) => {
+            this.hallPage.set(hallPage);
+            this.loading.set(false);
+          },
+          error: (err: HttpErrorResponse) => {
+            this.loading.set(false);
+            this.toastService.error(err.error?.message ?? 'Failed to load halls');
+          },
         });
     });
+  }
+
+  addHall(hall: HallSummary): void {
+    this.hallPage.update((page) =>
+      page
+        ? {
+            ...page,
+            content: [...page.content, hall],
+            page: { ...page.page, totalElements: page.page.totalElements + 1 },
+          }
+        : page,
+    );
+  }
+
+  protected updateHall(updated: HallSummary): void {
+    this.hallPage.update((page) =>
+      page
+        ? {
+            ...page,
+            content: page.content.map((h) => (h.id === updated.id ? updated : h)),
+          }
+        : page,
+    );
   }
 
   protected onSearch(event: Event): void {
@@ -92,7 +123,13 @@ export class HallsListComponent {
     this.hallsService.deleteHall(hall.id).subscribe({
       next: () => {
         this.hallPage.update((page) =>
-          page ? { ...page, content: page.content.filter((h) => h.id !== hall.id) } : page,
+          page
+            ? {
+                ...page,
+                content: page.content.filter((h) => h.id !== hall.id),
+                page: { ...page.page, totalElements: page.page.totalElements - 1 },
+              }
+            : page,
         );
         this.deletingHallId.set(null);
         this.toastService.success('Hall deleted');

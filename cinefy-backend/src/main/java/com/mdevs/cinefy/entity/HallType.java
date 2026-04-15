@@ -11,7 +11,7 @@ import lombok.Setter;
 @Entity
 @Table(indexes = {
         @Index(columnList = "CODE"),
-        @Index(columnList = "UUID")
+        @Index(columnList = "_UUID")
 })
 public class HallType extends BaseEntity {
 

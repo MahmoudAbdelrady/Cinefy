@@ -40,6 +40,10 @@
                   <lucide-icon [img]="LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
                   <span>{{ hall.totalRows }} rows × {{ hall.totalColumns }} seats</span>
                 </div>
+                <div class="ahidc-item">
+                  <lucide-icon [img]="TagIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                  <span>{{ hall.typeName }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -56,8 +60,8 @@
             <ng-template #viewDialog let-close="close">
               <hall-config-modal
                 [close]="close"
-                [existingHalls]="hallPage()?.content ?? []"
-                [selectedHall]="hall"
+                [selectedHallId]="hall.id"
+                (hallUpdated)="updateHall($event)"
               />
             </ng-template>
 
