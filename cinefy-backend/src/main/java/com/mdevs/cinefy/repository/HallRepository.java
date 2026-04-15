@@ -16,8 +16,7 @@ public interface HallRepository extends BaseRepository<Hall> {
     @EntityGraph(attributePaths = {"type", "categoryPrices", "seats"})
     Optional<Hall> findByUuid(String uuid);
 
-    @EntityGraph(attributePaths = "type")
-    @Query("SELECT h FROM Hall h " +
+    @Query("SELECT h FROM Hall h JOIN FETCH h.type " +
             "WHERE (:search IS NULL OR h.code LIKE CONCAT('%', CAST(:search AS string), '%')) " +
             "AND (:excludeHallId IS NULL OR h.uuid != :excludeHallId) ORDER BY h.createdAt")
     Page<Hall> findAllFiltered(@Param("search") String search, @Param("excludeHallId") String excludeHallId, Pageable pageable);

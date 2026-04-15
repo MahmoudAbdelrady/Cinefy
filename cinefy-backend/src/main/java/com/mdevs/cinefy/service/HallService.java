@@ -166,7 +166,7 @@ public class HallService {
 
     private void validateHallType(String name, String excludeUuid) {
         String code = HallType.toCode(name);
-        boolean exists = excludeUuid == null ? hallTypeRepository.existsByCode(code) : hallTypeRepository.existsByCodeAndUuidNot(code, excludeUuid);
+        boolean exists = StringUtils.isEmpty(excludeUuid) ? hallTypeRepository.existsByCode(code) : hallTypeRepository.existsByCodeAndUuidNot(code, excludeUuid);
         if (exists) {
             throw new BusinessException("A hall type with a similar name to '" + name + "' already exists");
         }
@@ -174,7 +174,7 @@ public class HallService {
 
     private void validateHall(HallDTO dto, String excludeUuid) {
         String code = Hall.toCode(dto.getName());
-        boolean exists = excludeUuid == null ? hallRepository.existsByCode(code) : hallRepository.existsByCodeAndUuidNot(code, excludeUuid);
+        boolean exists = StringUtils.isEmpty(excludeUuid) ? hallRepository.existsByCode(code) : hallRepository.existsByCodeAndUuidNot(code, excludeUuid);
         if (exists) {
             throw new BusinessException("A hall with a similar name to '" + dto.getName() + "' already exists");
         }
@@ -194,7 +194,7 @@ public class HallService {
             if (!pricedCategories.add(category)) {
                 throw new BusinessException("Duplicate seat category entry: " + pricing.getSeatCategory());
             }
-            if (category == SeatCategory.AISLE) {
+            if (category.equals(SeatCategory.AISLE)) {
                 throw new BusinessException("Aisle seats cannot have a ticket price");
             }
         }
@@ -238,7 +238,7 @@ public class HallService {
 
     private SeatLayoutDTO toLayoutMap(Hall hall) {
         Map<String, List<String>> categories = hall.getSeats().stream()
-                .filter(seat -> seat.getCategory() != SeatCategory.NORMAL)
+                .filter(seat -> !seat.getCategory().equals(SeatCategory.NORMAL))
                 .collect(Collectors.groupingBy(
                         seat -> seat.getCategory().name(),
                         Collectors.mapping(
@@ -328,7 +328,7 @@ public class HallService {
             }
             int rowIndex = toRowIndex(matcher.group(1));
             int colNumber = Integer.parseInt(matcher.group(2));
-            if (rowIndex < 1 || rowIndex > newRows || colNumber < 1 || colNumber > newCols) {
+            if (rowIndex > newRows || colNumber < 1 || colNumber > newCols) {
                 throw new BusinessException("onSiteOnly position '" + position + "' is outside the hall grid");
             }
             SeatCategory category = desired.getOrDefault(position, SeatCategory.NORMAL);
@@ -377,13 +377,13 @@ public class HallService {
         for (Map.Entry<String, List<String>> entry : layout.entrySet()) {
             SeatCategory category = SeatCategory.fromString(entry.getKey());
             if (!seenCategories.add(category)) {
-                throw new BusinessException("Duplicate seat category: " + entry.getKey());
+                throw new BusinessException("Duplicate seat category: " + category.name());
             }
 
             Set<String> seenPositions = new HashSet<>();
             for (String position : entry.getValue()) {
                 if (!seenPositions.add(position)) {
-                    throw new BusinessException("Seat position '" + position + "' is listed more than once in category: " + entry.getKey());
+                    throw new BusinessException("Seat position '" + position + "' is listed more than once in category: " + category.name());
                 }
 
                 Matcher matcher = POSITION_PATTERN.matcher(position);
