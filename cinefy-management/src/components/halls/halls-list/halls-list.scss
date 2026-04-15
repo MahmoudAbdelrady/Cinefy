@@ -188,24 +188,80 @@
 // ─── Status Badges ──────────────────────────────────────────────────────────────
 
 .ahidh-status {
-  &[data-status='now_showing'] {
+  &[data-status='NOW_SHOWING'] {
     background-color: $green-100;
     color: $green-700;
   }
 
-  &[data-status='scheduled'] {
+  &[data-status='SCHEDULED'] {
     background-color: $blue-100;
     color: $blue-700;
   }
 
-  &[data-status='under_maintenance'] {
+  &[data-status='UNDER_MAINTENANCE'] {
     background-color: #fef3c7;
     color: #b45309;
   }
 
-  &[data-status='inactive'] {
+  &[data-status='INACTIVE'] {
     background-color: $gray-100;
     color: $gray-700;
+  }
+}
+
+// ─── Loading State ──────────────────────────────────────────────────────────────
+
+.ah-loading {
+  @include flex-center;
+  flex-direction: column;
+  gap: 12px;
+  padding: 64px 24px;
+  color: $gray-400;
+
+  p {
+    font-size: 14px;
+    color: $gray-400;
+  }
+}
+
+.ah-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $gray-200;
+  border-top-color: $blue-600;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ─── Empty State ────────────────────────────────────────────────────────────────
+
+.ah-empty {
+  @include flex-center;
+  flex-direction: column;
+  gap: 8px;
+  padding: 64px 24px;
+  color: $gray-400;
+
+  lucide-icon {
+    display: flex;
+    margin-bottom: 4px;
+  }
+
+  p {
+    font-size: 16px;
+    font-weight: 500;
+    color: $gray-500;
+  }
+
+  span {
+    font-size: 14px;
+    color: $gray-400;
   }
 }
 
@@ -295,6 +351,15 @@ pagination-component {
 
   &:hover {
     background-color: #b91c1c;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: $red-600;
+    }
   }
 }
 

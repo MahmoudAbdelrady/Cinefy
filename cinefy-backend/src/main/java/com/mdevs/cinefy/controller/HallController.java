@@ -3,6 +3,7 @@ package com.mdevs.cinefy.controller;
 import com.mdevs.cinefy.dto.HallDTO;
 import com.mdevs.cinefy.dto.HallDetailDTO;
 import com.mdevs.cinefy.dto.HallLayoutDTO;
+import com.mdevs.cinefy.dto.HallStatisticsDTO;
 import com.mdevs.cinefy.dto.HallSummaryDTO;
 import com.mdevs.cinefy.dto.HallTypeDTO;
 import com.mdevs.cinefy.service.HallService;
@@ -49,8 +50,15 @@ public class HallController {
     // ============================= Halls ===========================
 
     @GetMapping
-    public ResponseEntity<Page<HallSummaryDTO>> getHalls(@RequestParam(required = false) String search, Pageable pageable) {
-        return ResponseEntity.ok(hallService.getHalls(search, pageable));
+    public ResponseEntity<Page<HallSummaryDTO>> getHalls(@RequestParam(required = false) String search,
+                                                         @RequestParam(required = false) String excludeHallId,
+                                                         Pageable pageable) {
+        return ResponseEntity.ok(hallService.getHalls(search, excludeHallId, pageable));
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<HallStatisticsDTO> getHallsStatistics() {
+        return ResponseEntity.ok(hallService.getHallsStatistics());
     }
 
     @GetMapping("/{uuid}")

@@ -2,13 +2,13 @@
   <div class="screen-container">
     <span>SCREEN</span>
   </div>
-  <div class="seats-grid-wrapper">
+  <div class="seats-grid-wrapper" [class.disabled]="disabled()">
     <div class="seats-grid">
       @for (row of seatLayout(); track $index; let rowIndex = $index) {
         <div class="seat-row">
           <span class="row-label" [style.width.px]="rowLabelWidth()">{{ rowLabel(rowIndex) }}</span>
           @for (seat of row; track $index; let seatIndex = $index) {
-            @if (seat.type === 'aisle') {
+            @if (seat.type === 'AISLE') {
               <div
                 class="seat aisle"
                 [title]="seatTitle(rowIndex, seatIndex, seat)"
@@ -17,8 +17,8 @@
             } @else {
               <div
                 class="seat"
-                [class.normal]="seat.type === 'normal'"
-                [class.vip]="seat.type === 'vip'"
+                [class.normal]="seat.type === 'NORMAL'"
+                [class.vip]="seat.type === 'VIP'"
                 [title]="seatTitle(rowIndex, seatIndex, seat)"
                 (click)="handleSeatClick(rowIndex, seatIndex)"
               >
@@ -54,5 +54,7 @@
       {{ stats().vip }}, On-Site Only: {{ stats().onsiteOnly }})
     </p>
   </div>
-  <button class="reset-btn" ngpButton (click)="resetLayout()">Reset Layout</button>
+  @if (!disabled()) {
+    <button class="reset-btn" ngpButton (click)="layoutReset.emit()">Reset Layout</button>
+  }
 </div>

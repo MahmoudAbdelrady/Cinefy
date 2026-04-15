@@ -1,10 +1,10 @@
 <app-modal
-  modalTitle="Add New Hall"
+  [modalTitle]="modalTitle()"
   description="Configure hall details and seat layout"
   [close]="close()"
   width="1300px"
 >
-  @if (selectedHall()) {
+  @if (selectedHallId()) {
     <div modal-header-actions>
       <button
         ngpButton
@@ -20,135 +20,255 @@
           [strokeWidth]="2"
         ></lucide-icon>
       </button>
+      <button #discardTrigger [ngpDialogTrigger]="discardDialog" hidden></button>
+
+      <ng-template #discardDialog let-close="close">
+        <app-modal modalTitle="Discard Changes" [close]="close" width="448px">
+          <p class="discard-message">
+            You have unsaved changes. Switching to view mode will discard them.
+          </p>
+          <div modal-footer class="discard-footer">
+            <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+            <button ngpButton class="btn-danger" (click)="confirmDiscard(close)">Discard</button>
+          </div>
+        </app-modal>
+      </ng-template>
     </div>
   }
-  <div class="hall-config-modal-content">
+  @if (loadingHall()) {
+    <div class="hall-config-loading">
+      <loading-spinner [size]="32" [strokeWidth]="2.5" />
+    </div>
+  }
+  <div class="hall-config-modal-content" [hidden]="loadingHall()">
     <div class="hall-information">
       <div class="hi-header">
         <lucide-icon [img]="SettingsIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
         <span>Hall Information</span>
       </div>
-      <div class="hi-form">
+      <form class="hi-form" [formGroup]="hallForm">
         <div class="input-group">
           <span>Hall Name</span>
-          <input ngpInput type="text" placeholder="e.g. Hall 1, VIP Hall, IMAX" />
+          <input
+            ngpInput
+            type="text"
+            placeholder="e.g. Hall 1, VIP Hall, IMAX"
+            formControlName="name"
+          />
+          <field-error
+            [control]="hallForm.controls.name"
+            [messages]="{ required: 'Hall name is required' }"
+          />
         </div>
         <div class="number-input-group">
           <div class="input-group">
             <span>Number of Rows</span>
-            <input ngpInput type="number" placeholder="e.g. 10" />
+            <input ngpInput type="number" placeholder="e.g. 10" formControlName="numberOfRows" />
+            <field-error
+              [control]="hallForm.controls.numberOfRows"
+              [messages]="{
+                required: 'Number of rows is required',
+                min: 'Must be at least 1',
+                max: 'Must be at most 100',
+              }"
+            />
           </div>
           <div class="input-group">
             <span>Seats per Row</span>
-            <input ngpInput type="number" placeholder="e.g. 12" />
+            <input ngpInput type="number" placeholder="e.g. 12" formControlName="seatsPerRow" />
+            <field-error
+              [control]="hallForm.controls.seatsPerRow"
+              [messages]="{
+                required: 'Seats per row is required',
+                min: 'Must be at least 1',
+                max: 'Must be at most 50',
+              }"
+            />
           </div>
         </div>
         <div class="input-group">
           <span>Status</span>
-          <select ngpInput>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="maintenance">Under Maintenance</option>
-          </select>
+          <custom-select
+            [items]="hallStatusEntries"
+            [value]="statusEntry()"
+            [displayFn]="statusDisplayFn"
+            [valueFn]="statusValueFn"
+            [disabled]="isViewMode()"
+            container=".modal-panel"
+            (selectionChange)="onStatusChange($event)"
+          />
         </div>
         <div class="input-group type-group">
           <span>Type</span>
-          <select ngpInput>
-            @for (type of hallTypes(); track type.id) {
-              <option value="{{ type.id }}">{{ type.name }}</option>
-            }
-          </select>
+          <custom-select
+            [items]="hallTypes()"
+            [value]="selectedHallType()"
+            [displayFn]="hallTypeDisplayFn"
+            [valueFn]="hallTypeValueFn"
+            [compareWith]="compareHallTypes"
+            [clearable]="!isViewMode()"
+            [disabled]="isViewMode()"
+            [searchable]="true"
+            [isError]="hallForm.controls.typeId.touched && hallForm.controls.typeId.invalid"
+            placeholder="Select a type"
+            container=".modal-panel"
+            (selectionChange)="onHallTypeChange($event)"
+            (cleared)="onHallTypeCleared()"
+            (touched)="hallForm.controls.typeId.markAsTouched()"
+          />
+          <field-error
+            [control]="hallForm.controls.typeId"
+            [messages]="{ required: 'Hall type is required' }"
+          />
           <div class="switch-group">
             <span>Supports 3D</span>
-            <button ngpSwitch class="switch-button" [(ngpSwitchChecked)]="supports3D">
+            <button
+              ngpSwitch
+              class="switch-button"
+              [ngpSwitchChecked]="supports3DValue()"
+              (ngpSwitchCheckedChange)="hallForm.controls.supports3D.setValue($event)"
+              [ngpSwitchDisabled]="isViewMode()"
+            >
               <span ngpSwitchThumb></span>
             </button>
           </div>
         </div>
-        <div class="input-group">
-          <span>Copy Layout From Existing Hall</span>
-          <select ngpInput>
-            @for (hall of existingHalls(); track hall.id) {
-              <option value="{{ hall.id }}">{{ hall.name }}</option>
-            }
-          </select>
-        </div>
-        <div class="seats-configuration">
-          <div class="seat-categories">
-            <div class="sc-header">
-              <lucide-icon [img]="StarIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
-              <span>Seat Categories</span>
-            </div>
-            <div class="sc-content">
-              <div class="sc-type-items">
-                @for (item of seatCategoryItems(); track item.type) {
-                  <div
-                    class="sti-item"
-                    [class.selected]="selectedSeatCategory().type === item.type"
-                    (click)="selectSeatCategory(item)"
-                  >
-                    <div class="sti-item-icon" [ngClass]="item.type"></div>
-                    <span class="sti-item-info">{{ item.name }}</span>
-                    @if (selectedSeatCategory().type === item.type) {
-                      <span class="sti-item-selected">Selected</span>
-                    }
-                  </div>
-                }
-              </div>
-              <div class="reservation-toggle">
-                <span>Reservation</span>
-                <label class="switch-group" [class.active]="onSiteOnly()">
-                  <div class="sg-label">
-                    <span class="sg-label-icon">S</span>
-                    <span class="sg-label-text">On-Site Only</span>
-                  </div>
-                  <button
-                    ngpSwitch
-                    class="switch-button onsite-switch"
-                    [(ngpSwitchChecked)]="onSiteOnly"
-                  >
-                    <span ngpSwitchThumb></span>
-                  </button>
-                </label>
-              </div>
-              <div class="tip-container">
-                <p>
-                  <span>Tip:</span> Select a seat type above, then click on seats in the layout to
-                  apply it
-                </p>
-              </div>
-            </div>
+        @if (!isViewMode()) {
+          <div class="input-group">
+            <span>Copy Layout From Existing Hall</span>
+            <paginated-select
+              placeholder="None"
+              [clearable]="true"
+              [searchable]="true"
+              [fetchFn]="fetchHalls"
+              [displayFn]="hallDisplayFn"
+              [valueFn]="hallValueFn"
+              container=".modal-panel"
+              (selectionChange)="copyLayoutFrom($event)"
+              (cleared)="restoreOriginalLayout()"
+            />
           </div>
+        }
+        <div class="seats-configuration">
+          @if (!isViewMode()) {
+            <div class="seat-categories">
+              <div class="sc-header">
+                <lucide-icon [img]="StarIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <span>Seat Categories</span>
+              </div>
+              <div class="sc-content">
+                <div class="sc-type-items">
+                  @for (item of seatCategoryItems; track item.type) {
+                    <div
+                      class="sti-item"
+                      [class.selected]="selectedSeatCategory().type === item.type"
+                      (click)="selectSeatCategory(item)"
+                    >
+                      <div class="sti-item-icon" [ngClass]="item.type.toLowerCase()"></div>
+                      <span class="sti-item-info">{{ item.name }}</span>
+                      @if (selectedSeatCategory().type === item.type) {
+                        <span class="sti-item-selected">Selected</span>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="reservation-toggle">
+                  <span>Reservation</span>
+                  <label
+                    class="switch-group"
+                    [class.active]="onSiteOnly()"
+                    [class.disabled]="selectedSeatCategory().type === 'AISLE'"
+                  >
+                    <div class="sg-label">
+                      <span class="sg-label-icon">S</span>
+                      <span class="sg-label-text">On-Site Only</span>
+                    </div>
+                    <button
+                      ngpSwitch
+                      class="switch-button onsite-switch"
+                      [ngpSwitchChecked]="onSiteOnly()"
+                      (ngpSwitchCheckedChange)="setOnSiteOnly($event)"
+                      [ngpSwitchDisabled]="selectedSeatCategory().type === 'AISLE'"
+                    >
+                      <span ngpSwitchThumb></span>
+                    </button>
+                  </label>
+                </div>
+                <div class="tip-container">
+                  <p>
+                    <span>Tip:</span> Select a seat type above, then click on seats in the layout to
+                    apply it
+                  </p>
+                </div>
+              </div>
+            </div>
+          }
           <div class="ticket-pricing">
             <div class="tp-header">
               <lucide-icon [img]="DollarSignIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
               <span class="tp-title">Ticket Pricing <span class="tp-vat">(without VAT)</span></span>
             </div>
             <div class="tp-content">
-              <div class="tp-input-group">
-                <div class="tpi-label">
-                  <span class="tpi-label-icon normal"></span>
-                  <span class="tpi-label-text">Normal</span>
+              @if (hasNormalSeats()) {
+                <div class="tp-input-group">
+                  <div class="tpi-label">
+                    <span class="tpi-label-icon normal"></span>
+                    <span class="tpi-label-text">Normal</span>
+                  </div>
+                  <div class="tpi-input">
+                    <lucide-icon
+                      [img]="DollarSignIcon"
+                      [size]="16"
+                      [strokeWidth]="2.5"
+                    ></lucide-icon>
+                    <input
+                      ngpInput
+                      type="number"
+                      placeholder="e.g. 10"
+                      formControlName="normalPrice"
+                    />
+                  </div>
+                  <field-error
+                    [control]="hallForm.controls.normalPrice"
+                    [messages]="{
+                      required: 'Normal price is required',
+                      min: 'Price must be at least 1',
+                    }"
+                  />
                 </div>
-                <div class="tpi-input">
-                  <lucide-icon [img]="DollarSignIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
-                  <input ngpInput type="number" placeholder="e.g. 10" />
+              }
+              @if (hasVipSeats()) {
+                <div class="tp-input-group">
+                  <div class="tpi-label">
+                    <span class="tpi-label-icon vip"></span>
+                    <span class="tpi-label-text">VIP Seat</span>
+                  </div>
+                  <div class="tpi-input">
+                    <lucide-icon
+                      [img]="DollarSignIcon"
+                      [size]="16"
+                      [strokeWidth]="2.5"
+                    ></lucide-icon>
+                    <input
+                      ngpInput
+                      type="number"
+                      placeholder="e.g. 10"
+                      formControlName="vipPrice"
+                    />
+                  </div>
+                  <field-error
+                    [control]="hallForm.controls.vipPrice"
+                    [messages]="{
+                      required: 'VIP price is required',
+                      min: 'Price must be at least 1',
+                    }"
+                  />
                 </div>
-              </div>
-              <div class="tp-input-group">
-                <div class="tpi-label">
-                  <span class="tpi-label-icon vip"></span>
-                  <span class="tpi-label-text">VIP Seat</span>
-                </div>
-                <div class="tpi-input">
-                  <lucide-icon [img]="DollarSignIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
-                  <input ngpInput type="number" placeholder="e.g. 10" />
-                </div>
-              </div>
+              }
             </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
     <div class="hall-layout-editor">
       <div class="hle-header">
@@ -159,16 +279,32 @@
         <hall-layout-editor
           [selectedSeatType]="selectedSeatCategory().type"
           [selectedOnsiteOnly]="onSiteOnly()"
-          [numRows]="100"
-          [seatsPerRow]="12"
+          [numRows]="numRowsValue() ?? 10"
+          [seatsPerRow]="seatsPerRowValue() ?? 12"
+          [disabled]="isViewMode()"
+          (seatChanged)="onLayoutChange()"
+          (layoutReset)="onResetLayout()"
         />
       </div>
     </div>
   </div>
-  <div modal-footer class="hall-config-modal-footer">
-    <div class="save-btns">
-      <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
-      <button ngpButton class="btn-primary" (click)="close()()">Save Hall</button>
+  @if (!isViewMode()) {
+    <div modal-footer class="hall-config-modal-footer">
+      <div class="save-btns">
+        <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
+        <button
+          ngpButton
+          class="btn-primary"
+          (click)="saveHall()"
+          [disabled]="hallForm.invalid || saving()"
+        >
+          @if (saving()) {
+            <loading-spinner [strokeWidth]="2" />
+          } @else {
+            {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}
+          }
+        </button>
+      </div>
     </div>
-  </div>
+  }
 </app-modal>

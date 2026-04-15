@@ -1,0 +1,55 @@
+<div
+  ngpCombobox
+  [ngpComboboxValue]="selectedItem()"
+  (ngpComboboxValueChange)="onValueChange($event)"
+  (ngpComboboxOpenChange)="onOpenChange($event)"
+  [ngpComboboxDisabled]="disabled()"
+  [ngpComboboxDropdownContainer]="container()"
+>
+  <button type="button" ngpComboboxButton class="ps-trigger" [disabled]="disabled()">
+    @if (selectedItem(); as item) {
+      {{ displayFn()(item) }}
+    } @else {
+      <span class="ps-placeholder">{{ placeholder() }}</span>
+    }
+
+    @if (clearable() && selectedItem()) {
+      <lucide-icon
+        class="ps-clear"
+        [img]="XIcon"
+        [size]="16"
+        [strokeWidth]="2"
+        (click)="clear($event)"
+      />
+    } @else {
+      <lucide-icon class="ps-chevron" [img]="ChevronDownIcon" [size]="16" [strokeWidth]="2" />
+    }
+  </button>
+
+  <div *ngpComboboxPortal ngpComboboxDropdown class="ps-dropdown" (scroll)="onScroll($event)">
+    @if (searchable()) {
+      <input
+        ngpComboboxInput
+        type="text"
+        class="ps-search"
+        placeholder="Search..."
+        (input)="onSearchInput($event)"
+      />
+    }
+    @for (item of items(); track valueFn()(item)) {
+      <div ngpComboboxOption class="ps-option" [ngpComboboxOptionValue]="item">
+        {{ displayFn()(item) }}
+      </div>
+    } @empty {
+      @if (!loading()) {
+        <div class="ps-empty">No items available</div>
+      }
+    }
+
+    @if (loading()) {
+      <div class="ps-loading">
+        <loading-spinner [size]="16" [strokeWidth]="2" />
+      </div>
+    }
+  </div>
+</div>

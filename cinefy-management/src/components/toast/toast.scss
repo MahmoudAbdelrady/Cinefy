@@ -1,0 +1,106 @@
+@use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
+
+:host {
+  display: block;
+  width: 320px;
+}
+
+.toast-inner {
+  @include flex-align;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: $radius-md;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  transition:
+    transform 300ms ease,
+    opacity 300ms ease;
+
+  @include lucide-icon-fix;
+}
+
+:host.toast--success .toast-inner {
+  background-color: $green-50;
+  border-color: $green-100;
+  color: $green-700;
+
+  .toast-icon {
+    color: $green-500;
+  }
+}
+
+:host.toast--error .toast-inner {
+  background-color: $red-50;
+  border-color: rgba($red-500, 0.2);
+  color: $red-600;
+
+  .toast-icon {
+    color: $red-500;
+  }
+}
+
+.toast-icon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  word-break: break-word;
+}
+
+.toast-close {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 2px;
+  margin-left: 4px;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  opacity: 0.5;
+  color: inherit;
+  transition: opacity 150ms ease;
+
+  @include lucide-icon-fix;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.toast-inner[data-enter] {
+  animation: toast-in 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toast-inner[data-exit] {
+  animation: toast-out 200ms ease-in;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(20px) scale(0.96);
+  }
+}

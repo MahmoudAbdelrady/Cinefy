@@ -9,13 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
 public class HallDTO {
-
-    private String hallId;
 
     @NotBlank(message = "Name is required")
     private String name;
@@ -36,7 +33,7 @@ public class HallDTO {
 
     private boolean supports3D = false;
 
-    private Map<String, List<String>> layout;
+    private SeatLayoutDTO layout;
 
     @NotEmpty(message = "At least one ticket pricing entry is required")
     @Valid

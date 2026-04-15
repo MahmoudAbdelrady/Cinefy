@@ -1,35 +1,21 @@
 import {
   Component,
-  computed,
   DestroyRef,
   inject,
   OnInit,
-  signal,
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import {
-  LucideAngularModule,
-  Plus,
-  Settings,
-  SquarePen,
-  Trash2,
-  Check,
-  X,
-  TriangleAlert,
-} from 'lucide-angular';
-import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Plus, Settings } from 'lucide-angular';
 import { HeaderActionsService } from '../../services';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import {
   HallsListComponent,
   HallConfigModalComponent,
-  ModalComponent,
+  ManageHallTypesModalComponent,
   HallsStatisticsComponent,
 } from '../../components';
-import { HallItem, HallType, PaginatedResponse } from '../../shared/types';
 
 @Component({
   selector: 'halls-page',
@@ -37,13 +23,10 @@ import { HallItem, HallType, PaginatedResponse } from '../../shared/types';
     LucideAngularModule,
     NgpButton,
     NgpDialogTrigger,
-    NgpPopover,
-    NgpPopoverTrigger,
     HallsStatisticsComponent,
     HallsListComponent,
     HallConfigModalComponent,
-    ModalComponent,
-    FormsModule,
+    ManageHallTypesModalComponent,
   ],
   templateUrl: './halls.html',
   styleUrl: './halls.scss',
@@ -51,148 +34,14 @@ import { HallItem, HallType, PaginatedResponse } from '../../shared/types';
 export class HallsPage implements OnInit {
   protected SettingsIcon = Settings;
   protected PlusIcon = Plus;
-  protected EditIcon = SquarePen;
-  protected DeleteIcon = Trash2;
-  protected CheckIcon = Check;
-  protected XIcon = X;
-  protected WarningIcon = TriangleAlert;
-
-  protected editingTypeId = signal<string | null>(null);
-  protected editingTypeName = signal('');
-
-  protected readonly currentPage = signal(1);
-  protected readonly pageSize = 5;
-  protected readonly pageCount = computed(() => Math.ceil(this.hallItems.length / this.pageSize));
-
-  private readonly hallItems: HallItem[] = [
-    {
-      id: '1',
-      name: 'Hall 1',
-      status: 'now_showing',
-      rows: 10,
-      seatsPerRow: 10,
-      currentMovie: 'Spider-Man: No Way Home',
-      occupancy: 85,
-    },
-    {
-      id: '2',
-      name: 'Hall 2',
-      status: 'scheduled',
-      rows: 12,
-      seatsPerRow: 12,
-      currentMovie: 'Dune: Part Two',
-      occupancy: 92,
-    },
-    {
-      id: '3',
-      name: 'Hall 3',
-      status: 'under_maintenance',
-      rows: 8,
-      seatsPerRow: 8,
-      currentMovie: 'The Matrix Resurrections',
-      occupancy: 78,
-    },
-    {
-      id: '4',
-      name: 'Hall 4',
-      status: 'inactive',
-      rows: 8,
-      seatsPerRow: 8,
-      currentMovie: null,
-      occupancy: 0,
-    },
-    {
-      id: '5',
-      name: 'IMAX Hall',
-      status: 'now_showing',
-      rows: 14,
-      seatsPerRow: 14,
-      currentMovie: 'Avatar: The Way of Water',
-      occupancy: 95,
-    },
-    {
-      id: '6',
-      name: 'Hall 5',
-      status: 'scheduled',
-      rows: 10,
-      seatsPerRow: 10,
-      currentMovie: null,
-      occupancy: 0,
-    },
-    {
-      id: '7',
-      name: '4DX Hall',
-      status: 'under_maintenance',
-      rows: 6,
-      seatsPerRow: 6,
-      currentMovie: null,
-      occupancy: 0,
-    },
-    {
-      id: '8',
-      name: 'Hall 6',
-      status: null,
-      rows: 10,
-      seatsPerRow: 10,
-      currentMovie: null,
-      occupancy: 0,
-    },
-  ];
-  protected readonly hallPage = signal<PaginatedResponse<HallItem>>({
-    items: this.hallItems,
-    totalItems: this.hallItems.length,
-    page: this.currentPage(),
-    pageCount: this.pageCount(),
-    pageSize: this.pageSize,
-  });
-  protected readonly hallItemsPaginated = computed(() =>
-    this.hallPage().items.slice(
-      (this.currentPage() - 1) * this.pageSize,
-      this.currentPage() * this.pageSize,
-    ),
-  );
-  protected readonly hallTypes = signal<HallType[]>([
-    {
-      id: '1',
-      name: 'Standard',
-    },
-    {
-      id: '2',
-      name: 'IMAX',
-    },
-  ]);
 
   private headerActions = inject(HeaderActionsService);
   private destroyRef = inject(DestroyRef);
   private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
+  protected readonly hallsList = viewChild.required(HallsListComponent);
 
   ngOnInit() {
     this.headerActions.template.set(this.headerActionsTemplate());
     this.destroyRef.onDestroy(() => this.headerActions.template.set(null));
-  }
-
-  protected startEditingType(type: HallType) {
-    this.editingTypeId.set(type.id);
-    this.editingTypeName.set(type.name);
-  }
-
-  protected confirmEditType(type: HallType) {
-    this.editingTypeId.set(null);
-  }
-
-  protected cancelEditType() {
-    this.editingTypeId.set(null);
-  }
-
-  protected deleteType(type: HallType) {
-    this.hallTypes.update((types) => types.filter((t) => t.id !== type.id));
-  }
-
-  protected onEditTypeKeydown(event: KeyboardEvent, type: HallType) {
-    if (event.key === 'Enter') {
-      this.confirmEditType(type);
-    } else if (event.key === 'Escape') {
-      this.cancelEditType();
-    }
   }
 }

@@ -46,7 +46,7 @@ public class AppConfig {
     }
 
     public static String getFrontendUrl() {
-        return applicationContext.getEnvironment().getProperty("cinefy.frontend.url");
+        return applicationContext.getEnvironment().getProperty("app.frontend.url");
     }
 
     public static boolean isProductionEnv() {

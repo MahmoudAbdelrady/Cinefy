@@ -1,0 +1,316 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
+
+.spin {
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.manage-types-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.existing-types-container {
+  h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-700;
+    margin-bottom: 8px;
+  }
+}
+
+.existing-types-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.loading-types {
+  @include flex-center;
+  padding: 24px 16px;
+  color: $blue-600;
+}
+
+.empty-types {
+  text-align: center;
+  padding: 24px 16px;
+
+  span {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-500;
+  }
+
+  p {
+    font-size: 13px;
+    color: $gray-400;
+    margin-top: 4px;
+  }
+}
+
+.existing-type-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: $gray-50;
+  border-radius: $radius-md;
+  border: 1px solid $gray-200;
+
+  > span {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-800;
+    padding: 5px 0;
+  }
+
+  .edit-type-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .edit-type-input {
+    width: 100%;
+    padding: 4px 8px;
+    font-size: 14px;
+    border: 1px solid $blue-300;
+    border-radius: $radius-sm;
+    color: $gray-800;
+    background-color: #ffffff;
+    transition: all 150ms ease;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      border-color: $blue-600;
+    }
+  }
+}
+
+.action-buttons {
+  @include flex-align;
+  gap: 4px;
+  margin-left: 8px;
+
+  button {
+    @include flex-center;
+    @include lucide-icon-fix;
+    padding: 6px;
+    border-radius: $radius-sm;
+    transition: all 150ms ease;
+
+    &:first-child {
+      color: $blue-600;
+
+      &:hover {
+        background-color: $blue-50;
+      }
+    }
+
+    &:last-child {
+      color: $red-500;
+
+      &:hover {
+        background-color: $red-50;
+      }
+    }
+  }
+
+  &.editing {
+    button:first-child {
+      color: $green-600;
+
+      &:hover {
+        background-color: $green-50;
+      }
+
+      &:disabled {
+        color: $gray-300;
+        cursor: not-allowed;
+
+        &:hover {
+          background-color: transparent;
+        }
+      }
+    }
+  }
+}
+
+// ─── Delete Confirmation Popover ─────────────────────────────────────────────
+
+.delete-confirm-popover {
+  position: absolute;
+  background-color: #ffffff;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  width: 240px;
+  z-index: 100;
+
+  .delete-confirm-header {
+    @include flex-align;
+    @include lucide-icon-fix;
+    gap: 8px;
+    margin-bottom: 4px;
+    color: $red-500;
+
+    span {
+      font-size: 14px;
+      font-weight: 600;
+      color: $gray-900;
+    }
+  }
+
+  > p {
+    font-size: 13px;
+    color: $gray-500;
+    margin-bottom: 12px;
+  }
+
+  .delete-confirm-actions {
+    @include flex-align;
+    gap: 8px;
+
+    button {
+      flex: 1;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: $radius-sm;
+      transition: all 150ms ease;
+
+      &.btn-cancel {
+        color: $gray-700;
+        border: 1px solid $gray-300;
+
+        &:hover {
+          background-color: $gray-100;
+        }
+      }
+
+      &.btn-delete {
+        color: #ffffff;
+        background-color: $red-500;
+
+        &:hover {
+          background-color: $red-600;
+        }
+
+        &:disabled {
+          background-color: $gray-300;
+          cursor: not-allowed;
+
+          &:hover {
+            background-color: $gray-300;
+          }
+        }
+      }
+    }
+  }
+
+  &[data-enter] {
+    animation: popover-in 150ms ease-out;
+  }
+
+  &[data-exit] {
+    animation: popover-out 100ms ease-in;
+  }
+}
+
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes popover-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+.new-type-container {
+  margin-top: 4px;
+}
+
+.new-type-form {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px;
+  background-color: $gray-50;
+  border-radius: $radius-md;
+  border: 1px solid $gray-200;
+
+  .new-type-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  input {
+    width: 100%;
+    padding: 4px 8px;
+    font-size: 14px;
+    border: 1px solid $blue-300;
+    border-radius: $radius-sm;
+    color: $gray-800;
+    background-color: #ffffff;
+    transition: all 150ms ease;
+
+    &::placeholder {
+      color: $gray-400;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $blue-600;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+  }
+}
+
+.btn-add-new-type {
+  @include flex-center;
+  @include lucide-icon-fix;
+  gap: 6px;
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: $blue-600;
+  background-color: $gray-50;
+  border: 1px dashed $gray-300;
+  border-radius: $radius-md;
+  transition: all 150ms ease;
+
+  &:hover {
+    background-color: $blue-50;
+    border-color: $blue-300;
+  }
+}

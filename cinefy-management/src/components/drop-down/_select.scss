@@ -1,0 +1,162 @@
+@use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
+
+@mixin select-trigger {
+  position: relative;
+  width: 100%;
+  padding: 8px 36px 8px 16px;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  color: $gray-900;
+  background-color: #ffffff;
+  cursor: pointer;
+  appearance: none;
+  transition: all 150ms ease;
+
+  &:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px $blue-500;
+  }
+
+  &:disabled,
+  &[data-disabled] {
+    background-color: $gray-50;
+    border-color: $gray-200;
+    color: $gray-900;
+    cursor: default;
+    pointer-events: none;
+
+    .cs-chevron,
+    .ps-chevron {
+      color: $gray-400;
+    }
+  }
+
+  &.cs-error {
+    border-color: $red-500;
+
+    &:focus {
+      box-shadow: 0 0 0 2px $red-500;
+    }
+  }
+}
+
+@mixin select-dropdown {
+  position: fixed;
+  z-index: 1001;
+  width: var(--ngp-combobox-width);
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 4px;
+  background-color: #ffffff;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  animation: select-dropdown-enter 150ms ease forwards;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $gray-300;
+    border-radius: $radius-full;
+  }
+}
+
+@mixin select-option {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: $gray-700;
+  text-align: left;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: background-color 100ms ease;
+
+  &[data-active] {
+    background-color: $gray-50;
+  }
+
+  &[data-selected] {
+    background-color: $blue-50;
+    color: $blue-600;
+    font-weight: 500;
+  }
+}
+
+@mixin select-chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $gray-400;
+  pointer-events: none;
+  display: flex;
+}
+
+@mixin select-clear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $gray-400;
+  display: flex;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: $radius-sm;
+  transition: color 150ms ease;
+
+  &:hover {
+    color: $gray-600;
+  }
+}
+
+@mixin select-placeholder {
+  color: $gray-400;
+}
+
+@mixin select-search {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  font: inherit;
+  font-size: 14px;
+  color: $gray-900;
+  background-color: #ffffff;
+  border: none;
+  border-bottom: 1px solid $gray-200;
+  border-radius: 0;
+  outline: none;
+
+  &::placeholder {
+    color: $gray-400;
+  }
+}
+
+@mixin select-empty {
+  @include flex-center;
+  padding: 12px;
+  font-size: 13px;
+  color: $gray-400;
+}
+
+@keyframes select-dropdown-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,37 @@
+@use '../select' as *;
+
+custom-select {
+  display: block;
+
+  .cs-trigger {
+    @include select-trigger;
+  }
+
+  .cs-placeholder {
+    @include select-placeholder;
+  }
+
+  .cs-chevron {
+    @include select-chevron;
+  }
+
+  .cs-clear {
+    @include select-clear;
+  }
+}
+
+.cs-dropdown {
+  @include select-dropdown;
+}
+
+.cs-option {
+  @include select-option;
+}
+
+.cs-search {
+  @include select-search;
+}
+
+.cs-empty {
+  @include select-empty;
+}
