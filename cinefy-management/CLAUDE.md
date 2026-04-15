@@ -123,6 +123,7 @@ Always use `inject()` — never constructor injection.
 
 ```
 GET    /halls                  # Paginated list (search, page, size)
+GET    /halls/statistics       # Aggregate stats for halls-statistics cards
 GET    /halls/:id              # Hall detail
 GET    /halls/:id/layout       # Hall layout (seats + pricing)
 POST   /halls                  # Create hall
@@ -140,7 +141,7 @@ DELETE /halls/types/:id        # Delete hall type
 ### Approach
 
 - **Custom SCSS** — no Tailwind, no CSS framework.
-- **ng-primitives** provides unstyled, accessible component primitives (dialog, select, menu, toast, switch, popover, tooltip, pagination, button, input).
+- **ng-primitives** provides unstyled, accessible component primitives (dialog, combobox, menu, toast, switch, popover, tooltip, pagination, button, input).
 - **lucide-angular** for SVG icons.
 - Component styles are scoped via Angular encapsulation.
 

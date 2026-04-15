@@ -5,9 +5,11 @@
 - **Spring Boot 4.0.5**, Java 25, Maven
 - **PostgreSQL** (runtime), Hibernate with `hibernate.ddl-auto=update`
 - **Lombok** for boilerplate (`@Getter`, `@Setter`, `@RequiredArgsConstructor`)
-- **Hibernate Envers** for entity auditing (all entities via `BaseEntity`)
+- **Hibernate Envers** for entity auditing (all entities via `BaseEntity`); configured with `store_data_at_delete=true` and `global_with_modified_flag=true`
 - **Jakarta Validation** for request DTOs
 - **commons-lang3** for string utilities (`StringUtils`)
+- **Spring Mail + Thymeleaf** starters present (mail bean wired in `AppConfig`, no email flows yet)
+- `@EnableJpaAuditing` and `@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)` on `CinefyApplication`
 
 ## Package Structure
 
@@ -39,7 +41,9 @@ All entities extend `BaseEntity` which provides:
 
 ### BaseRepository
 
-All repositories extend `BaseRepository<T extends BaseEntity>` which extends `JpaRepository<T, Long>`.
+All repositories extend `BaseRepository<T extends BaseEntity>` which extends `JpaRepository<T, Long>`. Adds a `default T findOne(Long id)` convenience.
+
+`HallRepository` uses `@EntityGraph(attributePaths = {"type", "categoryPrices", "seats"})` on `findByUuid` and `JOIN FETCH` in its custom paged query to avoid N+1 on hall loads. Apply the same pattern when adding new finders that need associations.
 
 ### Entity Code Pattern
 
@@ -122,13 +126,20 @@ Enums:
   SeatCategory: NORMAL | VIP | AISLE
 ```
 
+Both enums expose a static `fromString(String)` for parsing from API input — use it instead of `valueOf` so bad values raise `BusinessException` consistently.
+
+### Seat Layout Conventions
+
+Seat positions are strings matching `^([A-Z]+)([0-9]+)$` (e.g. `A1`, `AA15`). `HallService` defines `POSITION_PATTERN`, `toRowIndex(label)`, and `toRowLabel(index)` for converting between Excel-style row labels and 1-based indices. `mergeSeats` and `mergeCategoryPrices` perform in-place upserts (mutate matching rows, add new ones, `removeIf` the leftovers) so Envers doesn't record delete+insert churn on every update.
+
 ## API Endpoints
 
 All under `/halls`:
 
 | Method | Path                | Input          | Output          |
 |--------|---------------------|----------------|-----------------|
-| GET    | `/halls`            | ?search, page  | Page<HallSummaryDTO> |
+| GET    | `/halls`            | ?search, ?excludeHallId, page | Page<HallSummaryDTO> |
+| GET    | `/halls/statistics` |                | HallStatisticsDTO (totalHalls, activeHalls, totalCapacity) |
 | GET    | `/halls/{uuid}`     |                | HallDetailDTO   |
 | GET    | `/halls/{uuid}/layout` |             | HallLayoutDTO   |
 | POST   | `/halls`            | HallDTO        | HallSummaryDTO  |
