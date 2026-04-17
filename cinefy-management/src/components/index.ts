@@ -15,6 +15,7 @@ import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner';
 import { FieldErrorComponent } from './field-error/field-error';
 import { CustomSelectComponent } from './drop-down/custom-select/custom-select';
 import { PaginatedSelectComponent } from './drop-down/paginated-select/paginated-select';
+import { ScheduleMovieModalComponent } from './movies/schedule-movie-modal/schedule-movie-modal';
 
 export {
   HeaderComponent,
@@ -34,4 +35,5 @@ export {
   FieldErrorComponent,
   CustomSelectComponent,
   PaginatedSelectComponent,
+  ScheduleMovieModalComponent,
 };
