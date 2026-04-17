@@ -19,6 +19,8 @@ import { ScheduleMovieModalComponent } from './movies/schedule-movie-modal/sched
 import { ManageShowtimeModalComponent } from './movies/manage-showtime-modal/manage-showtime-modal';
 import { DatePicker } from './date-time/date-picker/date-picker';
 import { TimePicker } from './date-time/time-picker/time-picker';
+import { StatsComponent } from './stats/stats';
+import { MoviesStatisticsComponent } from './movies/movies-statistics/movies-statistics';
 
 export {
   HeaderComponent,
@@ -42,4 +44,6 @@ export {
   ManageShowtimeModalComponent,
   DatePicker,
   TimePicker,
+  StatsComponent,
+  MoviesStatisticsComponent,
 };

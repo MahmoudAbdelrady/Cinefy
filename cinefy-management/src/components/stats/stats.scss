@@ -1,0 +1,76 @@
+@use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
+
+.statistics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+
+  @media (max-width: 1023px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 639px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-card {
+  @include flex-align;
+  gap: 12px;
+  background-color: #ffffff;
+  border: 1px solid $card-border;
+  border-radius: $radius-lg;
+  padding: 24px;
+}
+
+.sc-icon {
+  @include icon-box(48px);
+
+  &.blue {
+    background-color: $blue-100;
+
+    lucide-icon {
+      color: $blue-600;
+    }
+  }
+
+  &.green {
+    background-color: $green-100;
+
+    lucide-icon {
+      color: $green-600;
+    }
+  }
+
+  &.purple {
+    background-color: $purple-100;
+
+    lucide-icon {
+      color: $purple-600;
+    }
+  }
+
+  &.orange {
+    background-color: $orange-100;
+
+    lucide-icon {
+      color: $orange-600;
+    }
+  }
+}
+
+.sc-info {
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: $gray-900;
+    line-height: 1.2;
+  }
+
+  p {
+    font-size: 14px;
+    color: $gray-500;
+    margin-top: 2px;
+  }
+}
