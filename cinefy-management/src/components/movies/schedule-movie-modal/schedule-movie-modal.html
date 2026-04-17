@@ -1,18 +1,18 @@
 <app-modal modalTitle="Schedule a Movie" [close]="close()" width="640px">
-  <div ngpFormField class="search-bar">
-    <div ngpSearch>
-      <lucide-icon [img]="SearchIcon"></lucide-icon>
-      <input
-        [value]="movieSearchQuery()"
-        (input)="movieSearchQuery.set($event.target.value)"
-        ngpInput
-        type="search"
-        placeholder="Search for a movie..."
-      />
-      <button ngpSearchClear ngpButton aria-label="Clear search">Clear</button>
-    </div>
-  </div>
   @if (!selectedMovie()) {
+    <div ngpFormField class="search-bar">
+      <div ngpSearch>
+        <lucide-icon [img]="SearchIcon"></lucide-icon>
+        <input
+          [value]="movieSearchQuery()"
+          (input)="movieSearchQuery.set($event.target.value)"
+          ngpInput
+          type="search"
+          placeholder="Search for a movie..."
+        />
+        <button ngpSearchClear ngpButton aria-label="Clear search">Clear</button>
+      </div>
+    </div>
     @if (movieSearchQuery().length === 0) {
       <div class="search-placeholder">
         <div class="sp-icon" data-variant="empty">
