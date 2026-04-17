@@ -4,8 +4,8 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   CurrentShowtimesComponent,
+  ManageShowtimeModalComponent,
   MoviesStatisticsComponent,
-  ScheduleMovieModalComponent,
 } from '../../components';
 import { HeaderActionsService } from '../../services';
 
@@ -15,7 +15,7 @@ import { HeaderActionsService } from '../../services';
     LucideAngularModule,
     NgpButton,
     NgpDialogTrigger,
-    ScheduleMovieModalComponent,
+    ManageShowtimeModalComponent,
     MoviesStatisticsComponent,
     CurrentShowtimesComponent,
   ],

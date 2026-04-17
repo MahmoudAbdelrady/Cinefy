@@ -1,19 +1,32 @@
-import { Component } from '@angular/core';
-import { ShowtimeSummary } from '../../../shared/types';
-import { Plus, Trash2, LucideAngularModule } from 'lucide-angular';
+import { Component, signal } from '@angular/core';
+import { ShowtimeDraft, ShowtimeSummary } from '../../../shared/types';
+import { Plus, Trash2, TriangleAlert, LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
+import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { ModalComponent } from '../../modal/modal';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 
 @Component({
   selector: 'current-showtimes',
-  imports: [NgpButton, LucideAngularModule],
+  imports: [
+    NgpButton,
+    NgpDialogTrigger,
+    ModalComponent,
+    LoadingSpinnerComponent,
+    ManageShowtimeModalComponent,
+    LucideAngularModule,
+  ],
   templateUrl: './current-showtimes.html',
   styleUrl: './current-showtimes.scss',
 })
 export class CurrentShowtimesComponent {
   protected readonly PlusIcon = Plus;
   protected readonly DeleteIcon = Trash2;
+  protected readonly AlertIcon = TriangleAlert;
 
-  protected readonly showtimesSummaries: ShowtimeSummary[] = [
+  protected readonly deletingShowtimeId = signal<string | null>(null);
+  protected readonly showtimesSummaries = signal<ShowtimeSummary[]>([
     {
       id: '1',
       movie: {
@@ -79,5 +92,18 @@ export class CurrentShowtimesComponent {
       totalShowtimes: 5,
       totalDraftShowtimes: 0,
     },
-  ];
+  ]);
+
+  protected onShowtimeCreated(draft: ShowtimeDraft): void {
+    console.log('Showtime created', draft);
+  }
+
+  protected deleteShowtime(id: string, close: () => void): void {
+    this.deletingShowtimeId.set(id);
+    setTimeout(() => {
+      this.showtimesSummaries.update((list) => list.filter((s) => s.id !== id));
+      this.deletingShowtimeId.set(null);
+      close();
+    }, 500);
+  }
 }

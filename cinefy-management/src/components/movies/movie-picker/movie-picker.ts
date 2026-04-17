@@ -1,50 +1,36 @@
-import { Component, computed, input, signal, viewChild } from '@angular/core';
+import { Component, computed, output, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ModalComponent } from '../../modal/modal';
+import { FormsModule } from '@angular/forms';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpFormField } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
 import { ChevronRight, Film, LucideAngularModule, Search } from 'lucide-angular';
-import { FormsModule } from '@angular/forms';
 import { Movie } from '../../../shared/types';
-import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 
 @Component({
-  selector: 'schedule-movie-modal',
+  selector: 'movie-picker',
   imports: [
-    ModalComponent,
+    FormsModule,
     NgpButton,
     NgpSearch,
     NgpSearchClear,
     NgpInput,
-    LucideAngularModule,
     NgpFormField,
-    FormsModule,
-    ManageShowtimeModalComponent,
+    LucideAngularModule,
     DatePipe,
   ],
-  templateUrl: './schedule-movie-modal.html',
-  styleUrl: './schedule-movie-modal.scss',
+  templateUrl: './movie-picker.html',
+  styleUrl: './movie-picker.scss',
 })
-export class ScheduleMovieModalComponent {
-  protected readonly showtimeForm = viewChild(ManageShowtimeModalComponent);
-
-  protected onCreateShowtime() {
-    const draft = this.showtimeForm()?.submit();
-    if (!draft) return;
-    console.log('Showtime submitted', draft);
-    this.close()();
-  }
+export class MoviePickerComponent {
+  readonly movieSelected = output<Movie>();
 
   protected readonly SearchIcon = Search;
   protected readonly MovieIcon = Film;
   protected readonly ChevronRightIcon = ChevronRight;
 
-  readonly close = input.required<() => void>();
-
   protected movieSearchQuery = signal('');
-  protected selectedMovie = signal<Movie | null>(null);
 
   protected readonly movies: Movie[] = [
     {
@@ -113,9 +99,13 @@ export class ScheduleMovieModalComponent {
     },
   ];
 
-  protected filteredMovies = computed(() =>
+  protected readonly filteredMovies = computed(() =>
     this.movies.filter((movie) =>
       movie.title.toLocaleLowerCase().includes(this.movieSearchQuery().toLocaleLowerCase()),
     ),
   );
+
+  protected onPick(movie: Movie) {
+    this.movieSelected.emit(movie);
+  }
 }

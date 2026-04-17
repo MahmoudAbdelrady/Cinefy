@@ -15,7 +15,7 @@ import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner';
 import { FieldErrorComponent } from './field-error/field-error';
 import { CustomSelectComponent } from './drop-down/custom-select/custom-select';
 import { PaginatedSelectComponent } from './drop-down/paginated-select/paginated-select';
-import { ScheduleMovieModalComponent } from './movies/schedule-movie-modal/schedule-movie-modal';
+import { MoviePickerComponent } from './movies/movie-picker/movie-picker';
 import { ManageShowtimeModalComponent } from './movies/manage-showtime-modal/manage-showtime-modal';
 import { DatePicker } from './date-time/date-picker/date-picker';
 import { TimePicker } from './date-time/time-picker/time-picker';
@@ -42,7 +42,7 @@ export {
   FieldErrorComponent,
   CustomSelectComponent,
   PaginatedSelectComponent,
-  ScheduleMovieModalComponent,
+  MoviePickerComponent,
   ManageShowtimeModalComponent,
   DatePicker,
   TimePicker,
