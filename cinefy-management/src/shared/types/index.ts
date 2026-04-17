@@ -26,3 +26,5 @@ export type {
   HallStatistics,
   Hall,
 } from './halls';
+
+export type { Movie } from './movies';
