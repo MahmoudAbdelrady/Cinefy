@@ -2,7 +2,6 @@
   [(ngpPaginationPage)]="page"
   ngpPagination
   [ngpPaginationPageCount]="pageCount()"
-  aria-label="Pagination Navigation"
   class="pagination"
 >
   <div class="pagination-info-group">
@@ -24,19 +23,19 @@
   </div>
 
   <div class="pagination-nav">
-    <button ngpPaginationFirst [ngpTooltipTrigger]="firstTooltip" aria-label="First Page">
+    <button ngpPaginationFirst [ngpTooltipTrigger]="firstTooltip">
       <lucide-icon [img]="FirstIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
     </button>
 
-    <button ngpPaginationPrevious [ngpTooltipTrigger]="prevTooltip" aria-label="Previous Page">
+    <button ngpPaginationPrevious [ngpTooltipTrigger]="prevTooltip">
       <lucide-icon [img]="PrevIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
     </button>
 
-    <button ngpPaginationNext [ngpTooltipTrigger]="nextTooltip" aria-label="Next Page">
+    <button ngpPaginationNext [ngpTooltipTrigger]="nextTooltip">
       <lucide-icon [img]="NextIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
     </button>
 
-    <button ngpPaginationLast [ngpTooltipTrigger]="lastTooltip" aria-label="Last Page">
+    <button ngpPaginationLast [ngpTooltipTrigger]="lastTooltip">
       <lucide-icon [img]="LastIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
     </button>
   </div>

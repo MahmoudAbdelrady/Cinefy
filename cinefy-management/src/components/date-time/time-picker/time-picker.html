@@ -27,23 +27,11 @@
         [ngpNumberFieldStep]="1"
         (ngpNumberFieldValueChange)="onHour12Change($event)"
       >
-        <button
-          type="button"
-          ngpButton
-          ngpNumberFieldIncrement
-          class="tp-step"
-          aria-label="Increase hour"
-        >
+        <button type="button" ngpButton ngpNumberFieldIncrement class="tp-step">
           <lucide-icon [img]="ChevronUpIcon" [size]="14"></lucide-icon>
         </button>
-        <input ngpNumberFieldInput class="tp-field-input" aria-label="Hour" inputmode="numeric" />
-        <button
-          type="button"
-          ngpButton
-          ngpNumberFieldDecrement
-          class="tp-step"
-          aria-label="Decrease hour"
-        >
+        <input ngpNumberFieldInput class="tp-field-input" inputmode="numeric" />
+        <button type="button" ngpButton ngpNumberFieldDecrement class="tp-step">
           <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
         </button>
       </div>
@@ -59,28 +47,16 @@
         [ngpNumberFieldStep]="minuteStep()"
         (ngpNumberFieldValueChange)="onMinuteChange($event)"
       >
-        <button
-          type="button"
-          ngpButton
-          ngpNumberFieldIncrement
-          class="tp-step"
-          aria-label="Increase minute"
-        >
+        <button type="button" ngpButton ngpNumberFieldIncrement class="tp-step">
           <lucide-icon [img]="ChevronUpIcon" [size]="14"></lucide-icon>
         </button>
-        <input ngpNumberFieldInput class="tp-field-input" aria-label="Minute" inputmode="numeric" />
-        <button
-          type="button"
-          ngpButton
-          ngpNumberFieldDecrement
-          class="tp-step"
-          aria-label="Decrease minute"
-        >
+        <input ngpNumberFieldInput class="tp-field-input" inputmode="numeric" />
+        <button type="button" ngpButton ngpNumberFieldDecrement class="tp-step">
           <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
         </button>
       </div>
 
-      <div class="tp-period" role="group" aria-label="AM or PM">
+      <div class="tp-period">
         <button
           type="button"
           ngpButton
