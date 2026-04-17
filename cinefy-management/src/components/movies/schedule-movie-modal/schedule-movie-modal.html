@@ -60,7 +60,6 @@
     <manage-showtime-modal
       [selectedMovie]="selectedMovie()!"
       (changeMovie)="selectedMovie.set(null)"
-      (submitted)="onShowtimeSubmitted($event)"
     />
   }
 
@@ -71,7 +70,7 @@
         ngpButton
         class="btn-primary"
         [disabled]="!showtimeForm()?.canSubmit()"
-        (click)="showtimeForm()?.submit()"
+        (click)="onCreateShowtime()"
       >
         Create Showtime
       </button>

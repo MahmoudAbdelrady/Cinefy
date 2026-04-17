@@ -16,7 +16,6 @@ import { NgpTextarea } from 'ng-primitives/textarea';
 export class ManageShowtimeModalComponent {
   readonly selectedMovie = input.required<Movie>();
   readonly changeMovie = output<void>();
-  readonly submitted = output<ShowtimeDraft>();
 
   protected hallsService = inject(HallsService);
 
@@ -43,14 +42,14 @@ export class ManageShowtimeModalComponent {
     this.selectedHall.set(hall);
   }
 
-  submit() {
-    if (!this.canSubmit()) return;
-    this.submitted.emit({
+  submit(): ShowtimeDraft | null {
+    if (!this.canSubmit()) return null;
+    return {
       movieId: this.selectedMovie().id,
       date: this.showtimeDate()!,
       time: this.showtimeTime()!,
       hallId: this.selectedHall()!.id,
       specialNotes: this.showtimeSpecialNotes(),
-    });
+    };
   }
 }
