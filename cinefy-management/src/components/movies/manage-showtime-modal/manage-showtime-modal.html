@@ -1,0 +1,60 @@
+<div class="manage-showtime-container">
+  <div class="selected-movie-container">
+    <div class="sm-info">
+      <div class="sm-img">
+        <img [src]="selectedMovie().posterUrl" [alt]="selectedMovie().title + ' Poster'" />
+      </div>
+      <div class="sm-details">
+        <h4>{{ selectedMovie().title }}</h4>
+        <div class="smd-box">
+          <span class="smdb-item">{{ selectedMovie().genre }}</span>
+          <span class="smdb-item">{{ selectedMovie().releaseYear }}</span>
+          <span class="smdb-item">{{ selectedMovie().duration }} min</span>
+        </div>
+      </div>
+    </div>
+    <div class="sm-actions">
+      <button type="button" (click)="onMovieChange()">Change</button>
+    </div>
+  </div>
+  <div class="manager-showtime-form">
+    <div class="time-input-group">
+      <div class="input-group">
+        <label>Date</label>
+        <date-picker
+          [ngModel]="showtimeDate()"
+          (ngModelChange)="showtimeDate.set($event)"
+          placeholder="Select a date"
+          container=".modal-panel"
+        />
+      </div>
+      <div class="input-group">
+        <label>Time</label>
+        <time-picker
+          [ngModel]="showtimeTime()"
+          (ngModelChange)="showtimeTime.set($event)"
+          placeholder="Select a time"
+          container=".modal-panel"
+        />
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Hall</label>
+      <paginated-select
+        placeholder="None"
+        [clearable]="true"
+        [searchable]="true"
+        [fetchFn]="fetchHalls"
+        [displayFn]="hallDisplayFn"
+        [valueFn]="hallValueFn"
+        container=".modal-panel"
+        (selectionChange)="onHallChange($event)"
+        (cleared)="onHallChange(null)"
+      />
+    </div>
+    <div class="input-group">
+      <label>Special Notes (Optional)</label>
+      <textarea ngpTextarea placeholder="Add any special notes about this showtime..."></textarea>
+    </div>
+  </div>
+</div>

@@ -16,6 +16,9 @@ import { FieldErrorComponent } from './field-error/field-error';
 import { CustomSelectComponent } from './drop-down/custom-select/custom-select';
 import { PaginatedSelectComponent } from './drop-down/paginated-select/paginated-select';
 import { ScheduleMovieModalComponent } from './movies/schedule-movie-modal/schedule-movie-modal';
+import { ManageShowtimeModalComponent } from './movies/manage-showtime-modal/manage-showtime-modal';
+import { DatePicker } from './date-time/date-picker/date-picker';
+import { TimePicker } from './date-time/time-picker/time-picker';
 
 export {
   HeaderComponent,
@@ -36,4 +39,7 @@ export {
   CustomSelectComponent,
   PaginatedSelectComponent,
   ScheduleMovieModalComponent,
+  ManageShowtimeModalComponent,
+  DatePicker,
+  TimePicker,
 };

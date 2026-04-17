@@ -1,27 +1,37 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input, signal, viewChild } from '@angular/core';
 import { ModalComponent } from '../../modal/modal';
+import { NgpButton } from 'ng-primitives/button';
 import { NgpFormField } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
 import { ChevronRight, Film, LucideAngularModule, Search } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
-import { Movie } from '../../../shared/types';
+import { Movie, ShowtimeDraft } from '../../../shared/types';
+import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 
 @Component({
   selector: 'schedule-movie-modal',
   imports: [
     ModalComponent,
+    NgpButton,
     NgpSearch,
     NgpSearchClear,
     NgpInput,
     LucideAngularModule,
     NgpFormField,
     FormsModule,
+    ManageShowtimeModalComponent,
   ],
   templateUrl: './schedule-movie-modal.html',
   styleUrl: './schedule-movie-modal.scss',
 })
 export class ScheduleMovieModalComponent {
+  protected readonly showtimeForm = viewChild(ManageShowtimeModalComponent);
+
+  protected onShowtimeSubmitted(draft: ShowtimeDraft) {
+    console.log('Showtime submitted', draft);
+    this.close()();
+  }
   protected readonly SearchIcon = Search;
   protected readonly MovieIcon = Film;
   protected readonly ChevronRightIcon = ChevronRight;

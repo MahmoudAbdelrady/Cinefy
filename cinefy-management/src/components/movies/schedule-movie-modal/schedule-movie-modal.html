@@ -25,7 +25,7 @@
       <div class="search-count">{{ filteredMovies().length }} movies found</div>
       <div class="movie-items">
         @for (movie of filteredMovies(); track movie.id) {
-          <div class="movie-item">
+          <div class="movie-item" (click)="this.selectedMovie.set(movie)">
             <div class="mi-info">
               <div class="mi-img">
                 <img [src]="movie.posterUrl" [alt]="movie.title + ' Poster'" />
@@ -56,5 +56,25 @@
         <p>Try a different title</p>
       </div>
     }
-  } @else {}
+  } @else {
+    <manage-showtime-modal
+      [selectedMovie]="selectedMovie()!"
+      (changeMovie)="selectedMovie.set(null)"
+      (submitted)="onShowtimeSubmitted($event)"
+    />
+  }
+
+  @if (selectedMovie()) {
+    <div modal-footer class="schedule-footer">
+      <button ngpButton class="btn-secondary" (click)="close()()">Cancel</button>
+      <button
+        ngpButton
+        class="btn-primary"
+        [disabled]="!showtimeForm()?.canSubmit()"
+        (click)="showtimeForm()?.submit()"
+      >
+        Create Showtime
+      </button>
+    </div>
+  }
 </app-modal>

@@ -1,0 +1,105 @@
+<button
+  type="button"
+  ngpButton
+  class="tp-trigger"
+  [ngpPopoverTrigger]="timePopover"
+  [ngpPopoverTriggerContainer]="container()"
+  ngpPopoverTriggerPlacement="bottom-start"
+  [ngpPopoverTriggerOffset]="6"
+  [disabled]="isDisabled() || disabled()"
+  [attr.data-empty]="displayLabel() ? null : ''"
+>
+  <lucide-icon [img]="ClockIcon" [size]="16"></lucide-icon>
+  <span class="tp-trigger-label">
+    {{ displayLabel() || placeholder() }}
+  </span>
+</button>
+
+<ng-template #timePopover>
+  <div ngpPopover class="tp-popover">
+    <div class="tp-fields">
+      <div
+        ngpNumberField
+        class="tp-field"
+        [ngpNumberFieldValue]="hour12()"
+        [ngpNumberFieldMin]="1"
+        [ngpNumberFieldMax]="12"
+        [ngpNumberFieldStep]="1"
+        (ngpNumberFieldValueChange)="onHour12Change($event)"
+      >
+        <button
+          type="button"
+          ngpButton
+          ngpNumberFieldIncrement
+          class="tp-step"
+          aria-label="Increase hour"
+        >
+          <lucide-icon [img]="ChevronUpIcon" [size]="14"></lucide-icon>
+        </button>
+        <input ngpNumberFieldInput class="tp-field-input" aria-label="Hour" inputmode="numeric" />
+        <button
+          type="button"
+          ngpButton
+          ngpNumberFieldDecrement
+          class="tp-step"
+          aria-label="Decrease hour"
+        >
+          <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
+        </button>
+      </div>
+
+      <span class="tp-colon">:</span>
+
+      <div
+        ngpNumberField
+        class="tp-field"
+        [ngpNumberFieldValue]="minute() ?? 0"
+        [ngpNumberFieldMin]="0"
+        [ngpNumberFieldMax]="59"
+        [ngpNumberFieldStep]="minuteStep()"
+        (ngpNumberFieldValueChange)="onMinuteChange($event)"
+      >
+        <button
+          type="button"
+          ngpButton
+          ngpNumberFieldIncrement
+          class="tp-step"
+          aria-label="Increase minute"
+        >
+          <lucide-icon [img]="ChevronUpIcon" [size]="14"></lucide-icon>
+        </button>
+        <input ngpNumberFieldInput class="tp-field-input" aria-label="Minute" inputmode="numeric" />
+        <button
+          type="button"
+          ngpButton
+          ngpNumberFieldDecrement
+          class="tp-step"
+          aria-label="Decrease minute"
+        >
+          <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="tp-period" role="group" aria-label="AM or PM">
+        <button
+          type="button"
+          ngpButton
+          class="tp-period-btn"
+          [attr.data-active]="period() === 'AM' ? '' : null"
+          (click)="setPeriod('AM')"
+        >
+          AM
+        </button>
+        <button
+          type="button"
+          ngpButton
+          class="tp-period-btn"
+          [attr.data-active]="period() === 'PM' ? '' : null"
+          (click)="setPeriod('PM')"
+        >
+          PM
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>

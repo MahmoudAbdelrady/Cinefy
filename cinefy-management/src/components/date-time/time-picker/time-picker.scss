@@ -1,0 +1,204 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
+
+:host {
+  display: inline-block;
+  width: 100%;
+}
+
+.tp-trigger {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 16px;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  background: #ffffff;
+  font-size: 14px;
+  color: $gray-900;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+
+  lucide-icon {
+    color: $gray-500;
+    flex-shrink: 0;
+  }
+
+  .tp-trigger-label {
+    @include text-truncate;
+    flex: 1;
+    text-align: left;
+  }
+
+  &[data-empty] .tp-trigger-label {
+    color: $gray-400;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: $gray-400;
+  }
+
+  &:focus-visible,
+  &[data-focus-visible] {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px $blue-500;
+  }
+
+  &:disabled {
+    background: $gray-50;
+    color: $gray-400;
+    cursor: not-allowed;
+  }
+}
+
+.tp-popover {
+  position: fixed;
+  z-index: 1001;
+  width: 220px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+  &[data-enter] {
+    animation: tp-fade-in 150ms ease-out;
+  }
+
+  &[data-exit] {
+    animation: tp-fade-out 100ms ease-in;
+  }
+}
+
+.tp-fields {
+  @include flex-center;
+  gap: 8px;
+}
+
+.tp-field {
+  @include flex-center;
+  flex-direction: column;
+  gap: 2px;
+  width: 48px;
+}
+
+.tp-step {
+  @include flex-center;
+  @include lucide-icon-fix;
+  width: 100%;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: $gray-500;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+
+  &:hover:not(:disabled) {
+    background: $gray-100;
+    color: $gray-900;
+  }
+
+  &:disabled {
+    color: $gray-300;
+    cursor: not-allowed;
+  }
+}
+
+.tp-field-input {
+  width: 100%;
+  height: 40px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: $gray-900;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  background: #ffffff;
+  appearance: textfield;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px $blue-500;
+  }
+}
+
+.tp-colon {
+  font-size: 18px;
+  font-weight: 700;
+  color: $gray-700;
+  margin-top: 4px;
+}
+
+.tp-period {
+  @include flex-center;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.tp-period-btn {
+  width: 44px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: $gray-500;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+
+  &:hover:not([data-active]) {
+    background: $gray-100;
+    color: $gray-900;
+  }
+
+  &[data-active] {
+    background: $blue-50;
+    color: $blue-600;
+    font-weight: 600;
+  }
+}
+
+@keyframes tp-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tp-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

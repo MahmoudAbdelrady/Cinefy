@@ -7,4 +7,12 @@ interface Movie {
   posterUrl: string;
 }
 
-export type { Movie };
+interface ShowtimeDraft {
+  movieId: number;
+  date: Date;
+  time: string;
+  hallId: string;
+  specialNotes: string;
+}
+
+export type { Movie, ShowtimeDraft };

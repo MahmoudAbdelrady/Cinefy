@@ -27,4 +27,4 @@ export type {
   Hall,
 } from './halls';
 
-export type { Movie } from './movies';
+export type { Movie, ShowtimeDraft } from './movies';
