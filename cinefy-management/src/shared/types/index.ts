@@ -27,5 +27,5 @@ export type {
   Hall,
 } from './halls';
 
-export type { Movie, ShowtimeDraft } from './movies';
+export type { Movie, ShowtimeDraft, ShowtimeSummary } from './movies';
 export type { StatsCard } from './stats';

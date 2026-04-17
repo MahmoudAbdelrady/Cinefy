@@ -2,7 +2,11 @@ import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@
 import { LucideAngularModule, Plus } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { MoviesStatisticsComponent, ScheduleMovieModalComponent } from '../../components';
+import {
+  CurrentShowtimesComponent,
+  MoviesStatisticsComponent,
+  ScheduleMovieModalComponent,
+} from '../../components';
 import { HeaderActionsService } from '../../services';
 
 @Component({
@@ -13,6 +17,7 @@ import { HeaderActionsService } from '../../services';
     NgpDialogTrigger,
     ScheduleMovieModalComponent,
     MoviesStatisticsComponent,
+    CurrentShowtimesComponent,
   ],
   templateUrl: './movies.html',
   styleUrl: './movies.scss',

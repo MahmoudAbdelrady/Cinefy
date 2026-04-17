@@ -15,4 +15,11 @@ interface ShowtimeDraft {
   specialNotes: string;
 }
 
-export type { Movie, ShowtimeDraft };
+interface ShowtimeSummary {
+  id: string;
+  movie: Movie;
+  totalShowtimes: number;
+  totalDraftShowtimes: number;
+}
+
+export type { Movie, ShowtimeDraft, ShowtimeSummary };

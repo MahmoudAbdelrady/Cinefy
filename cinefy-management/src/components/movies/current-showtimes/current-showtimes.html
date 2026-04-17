@@ -1,1 +1,54 @@
-<p>current-showtimes works!</p>
+<div class="current-showtimes-container">
+  <div class="header">
+    <h4>Current Movies & Showtimes</h4>
+    <p>Manage movies currently showing in your cinema</p>
+  </div>
+  <div class="content">
+    @for (showtime of showtimesSummaries; track showtime.id) {
+      @let shMovie = showtime.movie;
+      <div class="showtime-item">
+        <div class="shi-info">
+          <div class="shi-img">
+            <img [src]="shMovie.posterUrl" [alt]="shMovie.title + ' Poster'" />
+          </div>
+          <div class="shi-details">
+            <div class="shid-title">
+              <h4>{{ shMovie.title }}</h4>
+              <span class="shid-tag">{{ shMovie.genre }}</span>
+            </div>
+            <div class="shid-items">
+              <div class="shid-item">{{ shMovie.duration }} min</div>
+              <div class="shid-item">{{ shMovie.releaseDate }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="shi-actions">
+          <div class="shia-stats">
+            <div class="shias-total">
+              <h5>{{ showtime.totalDraftShowtimes }}</h5>
+              <span>Showtimes</span>
+            </div>
+            <div class="shias-drafts">
+              {{ showtime.totalDraftShowtimes }}
+              {{
+                showtime.totalDraftShowtimes > 1 || showtime.totalDraftShowtimes === 0
+                  ? 'Drafts'
+                  : 'Draft'
+              }}
+            </div>
+          </div>
+          <div class="shia-buttons">
+            <button ngpButton>View Showtimes</button>
+            <button ngpButton>
+              <lucide-icon [img]="PlusIcon"></lucide-icon>
+              <span>Add Showtime</span>
+            </button>
+            <button ngpButton>
+              <lucide-icon [img]="DeleteIcon" [size]="18"></lucide-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    } @empty {}
+  </div>
+</div>
