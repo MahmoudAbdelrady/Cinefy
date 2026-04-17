@@ -153,13 +153,12 @@
     }
 
     .smd-box {
-      flex-wrap: nowrap;
-      gap: 6px;
+      gap: 4px 6px;
       font-size: 13px;
+    }
 
-      &:not(:last-child)::after {
-        margin-left: 6px;
-      }
+    .smdb-item:not(:last-child)::after {
+      margin-left: 6px;
     }
 
     .sm-actions {
