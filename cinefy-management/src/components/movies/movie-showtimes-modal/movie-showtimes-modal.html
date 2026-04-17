@@ -1,0 +1,102 @@
+<app-modal
+  modalTitle="Showtimes for {{ selectedMovie().title }}"
+  description="View and manage all scheduled showtimes"
+  [close]="close()"
+  width="900px"
+>
+  <div class="movie-showtimes-container">
+    <div [(ngpTabsetValue)]="selectedTab" ngpTabset class="date-tabs">
+      <div ngpTabList>
+        @for (date of movieShowtimes.dates; track $index) {
+          <button
+            ngpTabButton
+            [ngpTabButtonValue]="date"
+            (ngpTabButtonValueChange)="selectedTab.set(date)"
+          >
+            <span class="dt-weekday">{{ date | date: 'EEE' }}</span>
+            <span class="dt-day">{{ date | date: 'd' }}</span>
+            <span class="dt-month">{{ date | date: 'MMM' }}</span>
+          </button>
+        }
+      </div>
+      <div ngpTabPanel [ngpTabPanelValue]="selectedTab()" class="date-showtimes">
+        <div class="ds-total">
+          {{ movieShowtimeDetails.length }} showtime{{ movieShowtimeDetails.length > 1 ? 's' : '' }}
+          scheduled
+        </div>
+        <div class="ds-items">
+          @for (showtimeDetail of movieShowtimeDetails; track showtimeDetail.id) {
+            <div class="ds-item">
+              <div class="ds-info">
+                <div class="dsi-details">
+                  <span class="dsid-time">{{ showtimeDetail.time }}</span>
+                  <div class="dsid-location">
+                    <lucide-icon [img]="LocationIcon" [size]="14"></lucide-icon>
+                    <span>{{ showtimeDetail.hallName }}</span>
+                  </div>
+                  <span class="dsid-status" [attr.data-status]="showtimeDetail.status">
+                    {{ showtimeDetail.status }}
+                  </span>
+                </div>
+                <div class="dsi-actions">
+                  <div class="dsi-action">
+                    <lucide-icon [img]="EditIcon" [size]="14"></lucide-icon>
+                  </div>
+                  <div class="dsi-action">
+                    <lucide-icon [img]="DeleteIcon" [size]="14"></lucide-icon>
+                  </div>
+                </div>
+              </div>
+              <div class="ds-occupancy">
+                <div class="dso-bar">
+                  <div
+                    class="dso-bar-fill"
+                    [style.width.%]="
+                      (showtimeDetail.occupiedSeats / showtimeDetail.totalSeats) * 100
+                    "
+                  ></div>
+                </div>
+                <div class="dso-percentage">
+                  {{ showtimeDetail.occupiedSeats }}/{{ showtimeDetail.totalSeats }} ({{
+                    (showtimeDetail.occupiedSeats / showtimeDetail.totalSeats) * 100
+                      | number: '1.0-0'
+                  }}%)
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    modal-footer
+    class="movie-showtimes-footer"
+    [class.has-drafts]="hasDayDrafts() || hasOtherDrafts()"
+  >
+    <button
+      ngpButton
+      [class]="hasDayDrafts() || hasOtherDrafts() ? 'btn-add-outlined' : 'btn-add-solid'"
+    >
+      <lucide-icon [img]="PlusIcon" [size]="16"></lucide-icon>
+      <span>Add Showtime</span>
+    </button>
+
+    <div class="publish-cluster">
+      @if (hasOtherDrafts()) {
+        <button ngpButton [class]="hasDayDrafts() ? 'btn-publish-link' : 'btn-publish-solid'">
+          @if (!hasDayDrafts()) {
+            <lucide-icon [img]="EyeIcon" [size]="16"></lucide-icon>
+          }
+          <span>Publish all ({{ movieShowtimes.totalDraftShowtimes }})</span>
+        </button>
+      }
+      @if (hasDayDrafts()) {
+        <button ngpButton class="btn-publish-solid">
+          <lucide-icon [img]="EyeIcon" [size]="16"></lucide-icon>
+          <span>Publish Drafts ({{ dayDrafts() }})</span>
+        </button>
+      }
+    </div>
+  </div>
+</app-modal>

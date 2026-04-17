@@ -22,4 +22,19 @@ interface ShowtimeSummary {
   totalDraftShowtimes: number;
 }
 
-export type { Movie, ShowtimeDraft, ShowtimeSummary };
+interface MovieShowtimes {
+  dates: string[]; // e.g. ['2026-03-30', '2026-03-31']
+  totalDraftShowtimes: number;
+}
+
+interface MovieShowtimeDetail {
+  id: string;
+  hallName: string;
+  status: 'Published' | 'Draft';
+  time: string; // e.g. '19:30'
+  specialNotes: string;
+  occupiedSeats: number;
+  totalSeats: number;
+}
+
+export type { Movie, ShowtimeDraft, ShowtimeSummary, MovieShowtimes, MovieShowtimeDetail };

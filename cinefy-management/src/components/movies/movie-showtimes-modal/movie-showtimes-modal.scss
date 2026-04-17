@@ -1,0 +1,289 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
+
+.movie-showtimes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.date-tabs {
+  margin-top: -12px;
+
+  [ngpTabList] {
+    display: flex;
+    overflow-x: auto;
+    border-bottom: 1px solid $color-border;
+    position: sticky;
+    top: -24px;
+    z-index: 1;
+    background: #ffffff;
+
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  button[ngpTabButton] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    padding: 10px 20px;
+    color: $gray-600;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      color 150ms ease,
+      border-color 150ms ease,
+      background-color 150ms ease;
+
+    .dt-weekday {
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .dt-day {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .dt-month {
+      font-size: 12px;
+    }
+
+    &:hover {
+      color: $gray-900;
+      border-bottom-color: $gray-300;
+    }
+
+    &[data-active] {
+      color: $blue-600;
+      border-bottom-color: $blue-600;
+    }
+  }
+}
+
+.date-showtimes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.ds-total {
+  font-size: 14px;
+  color: $gray-500;
+}
+
+.ds-items {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ds-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+
+  &:hover {
+    border-color: $blue-300;
+    background-color: rgba($blue-50, 0.5);
+  }
+}
+
+.ds-info {
+  @include flex-between;
+  gap: 12px;
+}
+
+.dsi-details {
+  @include flex-align;
+  gap: 12px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.dsid-time {
+  font-size: 20px;
+  font-weight: 700;
+  color: $gray-900;
+}
+
+.dsid-location {
+  @include flex-align;
+  gap: 6px;
+  font-size: 14px;
+  color: $gray-600;
+
+  lucide-icon {
+    @include lucide-icon-fix;
+  }
+}
+
+.dsid-status {
+  padding: 2px 10px;
+  border-radius: $radius-full;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: $green-100;
+  color: $green-700;
+
+  &[data-status='Draft'] {
+    background-color: $orange-100;
+    color: $orange-700;
+  }
+}
+
+.dsi-actions {
+  @include flex-align;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.dsi-action {
+  @include flex-center;
+  padding: 6px;
+  border-radius: $radius-md;
+  color: $gray-400;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+
+  lucide-icon {
+    @include lucide-icon-fix;
+  }
+
+  &:nth-child(1):hover {
+    color: $blue-600;
+    background-color: $blue-100;
+  }
+
+  &:nth-child(2):hover {
+    color: $red-600;
+    background-color: rgba($red-400, 0.2);
+  }
+}
+
+.ds-occupancy {
+  @include flex-align;
+  gap: 12px;
+}
+
+.dso-bar {
+  flex: 1;
+  height: 8px;
+  background-color: $gray-200;
+  border-radius: $radius-full;
+  overflow: hidden;
+}
+
+.dso-bar-fill {
+  height: 100%;
+  border-radius: $radius-full;
+  background: linear-gradient(to right, $blue-500, $purple-500);
+  transition: width 300ms ease;
+}
+
+.dso-percentage {
+  font-size: 12px;
+  color: $gray-500;
+  white-space: nowrap;
+  min-width: 96px;
+  text-align: right;
+}
+
+.movie-showtimes-footer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: flex-end;
+
+  &.has-drafts {
+    justify-content: space-between;
+  }
+
+  .publish-cluster {
+    @include flex-align;
+    gap: 12px;
+  }
+
+  button {
+    @include flex-align;
+    gap: 8px;
+    border-radius: $radius-md;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease,
+      border-color 150ms ease;
+
+    lucide-icon {
+      @include lucide-icon-fix;
+    }
+  }
+
+  .btn-add-solid {
+    padding: 10px 20px;
+    background: $blue-600;
+    color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background: $blue-700;
+    }
+  }
+
+  .btn-add-outlined {
+    padding: 10px 20px;
+    color: $blue-600;
+    background: transparent;
+    border: 1px solid $blue-200;
+
+    &:hover {
+      background: $blue-50;
+    }
+  }
+
+  .btn-publish-solid {
+    padding: 10px 20px;
+    background: $green-600;
+    color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background: $green-700;
+    }
+  }
+
+  .btn-publish-link {
+    padding: 0;
+    background: transparent;
+    color: $green-600;
+
+    &:hover {
+      color: $green-700;
+    }
+  }
+}

@@ -27,7 +27,7 @@
         <div class="movie-item" (click)="onPick(movie)">
           <div class="mi-info">
             <div class="mi-img">
-              <img [src]="movie.posterUrl" [alt]="movie.title + ' Poster'" />
+              <img [src]="movie.posterUrl" alt="{{ movie.title }} Poster" />
             </div>
             <div class="mi-details">
               <h4>{{ movie.title }}</h4>

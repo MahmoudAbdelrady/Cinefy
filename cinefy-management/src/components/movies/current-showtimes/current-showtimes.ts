@@ -6,6 +6,7 @@ import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ModalComponent } from '../../modal/modal';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
+import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
 
 @Component({
   selector: 'current-showtimes',
@@ -15,6 +16,7 @@ import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-sh
     ModalComponent,
     LoadingSpinnerComponent,
     ManageShowtimeModalComponent,
+    MovieShowtimesModal,
     LucideAngularModule,
   ],
   templateUrl: './current-showtimes.html',

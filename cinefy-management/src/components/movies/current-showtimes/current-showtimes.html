@@ -9,7 +9,7 @@
       <div class="showtime-item">
         <div class="shi-info">
           <div class="shi-img">
-            <img [src]="shMovie.posterUrl" [alt]="shMovie.title + ' Poster'" />
+            <img [src]="shMovie.posterUrl" alt="{{ shMovie.title }} Poster" />
           </div>
           <div class="shi-details">
             <div class="shid-title">
@@ -38,7 +38,7 @@
             </div>
           </div>
           <div class="shia-buttons">
-            <button ngpButton>View Showtimes</button>
+            <button ngpButton [ngpDialogTrigger]="viewShowtimesDialog">View Showtimes</button>
             <button ngpButton [ngpDialogTrigger]="addShowtimeDialog">
               <lucide-icon [img]="PlusIcon"></lucide-icon>
               <span>Add Showtime</span>
@@ -48,6 +48,10 @@
             </button>
           </div>
         </div>
+
+        <ng-template #viewShowtimesDialog let-close="close">
+          <movie-showtimes-modal [close]="close" [selectedMovie]="shMovie" />
+        </ng-template>
 
         <ng-template #addShowtimeDialog let-close="close">
           <manage-showtime-modal

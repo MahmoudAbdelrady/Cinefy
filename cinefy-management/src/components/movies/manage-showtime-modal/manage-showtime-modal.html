@@ -12,7 +12,7 @@
         <div class="selected-movie-container">
           <div class="sm-info">
             <div class="sm-img">
-              <img [src]="activeMovie()!.posterUrl" [alt]="activeMovie()!.title + ' Poster'" />
+              <img [src]="activeMovie()!.posterUrl" alt="{{ activeMovie()!.title }} Poster" />
             </div>
             <div class="sm-details">
               <h4>{{ activeMovie()!.title }}</h4>
