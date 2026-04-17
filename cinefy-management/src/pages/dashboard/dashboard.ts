@@ -19,7 +19,7 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import {
   NowShowingComponent,
-  UpcomingMoviesComponent,
+  UpcomingMoviesWidgetComponent,
   TodayScheduleComponent,
 } from '../../components';
 import { HeaderActionsService } from '../../services';
@@ -36,7 +36,7 @@ interface DropDownMenuItem {
     DatePipe,
     LucideAngularModule,
     NowShowingComponent,
-    UpcomingMoviesComponent,
+    UpcomingMoviesWidgetComponent,
     TodayScheduleComponent,
     NgpButton,
     NgpMenu,

@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HallSummary, Movie, ShowtimeDraft } from '../../../shared/types';
 import { DatePicker } from '../../date-time/date-picker/date-picker';
@@ -9,7 +10,7 @@ import { NgpTextarea } from 'ng-primitives/textarea';
 
 @Component({
   selector: 'manage-showtime-modal',
-  imports: [FormsModule, DatePicker, TimePicker, PaginatedSelectComponent, NgpTextarea],
+  imports: [FormsModule, DatePicker, TimePicker, PaginatedSelectComponent, NgpTextarea, DatePipe],
   templateUrl: './manage-showtime-modal.html',
   styleUrl: './manage-showtime-modal.scss',
 })
