@@ -18,7 +18,7 @@
           <div class="umc-info">
             <div class="umc-details">
               <h4>{{ movie.title }}</h4>
-              <p>{{ movie.genre }}</p>
+              <p>{{ movie.genre }} · {{ movie.rating }}</p>
               <div class="umc-release">
                 <lucide-icon [img]="ClockIcon" [size]="11"></lucide-icon>
                 <span>{{ daysUntil(movie.releaseDate) }} days left</span>
