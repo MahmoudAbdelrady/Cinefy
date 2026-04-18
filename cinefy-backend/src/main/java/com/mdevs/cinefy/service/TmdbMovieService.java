@@ -19,6 +19,7 @@ import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
@@ -51,7 +52,11 @@ public class TmdbMovieService {
     // ========================= Public API =========================
 
     public Page<MovieSearchResultDTO> searchMovies(String query, Pageable pageable) {
-        return fetchMoviePage("/search/movie?query={query}&page={page}", pageable, query, pageable.getPageNumber() + 1);
+        Page<MovieSearchResultDTO> page = fetchMoviePage("/search/movie?query={query}&page={page}", pageable, query, pageable.getPageNumber() + 1);
+        List<MovieSearchResultDTO> sorted = page.getContent().stream()
+                .sorted(Comparator.comparing(dto -> dto.getReleaseDate() != null ? dto.getReleaseDate() : "", Comparator.reverseOrder()))
+                .toList();
+        return new PageImpl<>(sorted, pageable, page.getTotalElements());
     }
 
     public MovieSearchResultDTO getMovieDetails(long tmdbId) {
