@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ModalComponent } from '../../modal/modal';
 import { Movie, MovieShowtimeDetail, MovieShowtimes } from '../../../shared/types';
@@ -31,6 +31,11 @@ export class MovieShowtimesModal {
 
   readonly close = input.required<() => void>();
   readonly selectedMovie = input.required<Movie>();
+  readonly addShowtimeRequested = output<void>();
+
+  protected onAddShowtime() {
+    this.addShowtimeRequested.emit();
+  }
 
   protected readonly movieShowtimes: MovieShowtimes = {
     dates: ['2026-04-15', '2026-04-16', '2026-04-17', '2026-04-18'],

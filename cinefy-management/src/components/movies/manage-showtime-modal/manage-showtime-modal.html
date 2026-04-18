@@ -1,4 +1,5 @@
 <app-modal
+  #modal
   [modalTitle]="modalTitle()"
   [description]="modalDescription()"
   [close]="close()"
@@ -38,7 +39,7 @@
               [ngModel]="showtimeDate()"
               (ngModelChange)="showtimeDate.set($event)"
               placeholder="Select a date"
-              container=".modal-panel"
+              [container]="modal.panelEl()"
             />
           </div>
           <div class="input-group">
@@ -47,7 +48,7 @@
               [ngModel]="showtimeTime()"
               (ngModelChange)="showtimeTime.set($event)"
               placeholder="Select a time"
-              container=".modal-panel"
+              [container]="modal.panelEl()"
             />
           </div>
         </div>
@@ -60,7 +61,7 @@
             [fetchFn]="fetchHalls"
             [displayFn]="hallDisplayFn"
             [valueFn]="hallValueFn"
-            container=".modal-panel"
+            [container]="modal.panelEl()"
             (selectionChange)="onHallChange($event)"
             (cleared)="onHallChange(null)"
           />

@@ -50,8 +50,19 @@
         </div>
 
         <ng-template #viewShowtimesDialog let-close="close">
-          <movie-showtimes-modal [close]="close" [selectedMovie]="shMovie" />
+          <movie-showtimes-modal
+            [close]="close"
+            [selectedMovie]="shMovie"
+            (addShowtimeRequested)="openAddTrigger.click()"
+          />
         </ng-template>
+
+        <button
+          #openAddTrigger
+          type="button"
+          [ngpDialogTrigger]="addShowtimeDialog"
+          hidden
+        ></button>
 
         <ng-template #addShowtimeDialog let-close="close">
           <manage-showtime-modal

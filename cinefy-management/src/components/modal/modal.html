@@ -1,5 +1,5 @@
 <div ngpDialogOverlay class="modal-overlay">
-  <div ngpDialog class="modal-panel" [style.--modal-max-width]="width()">
+  <div #panel ngpDialog class="modal-panel" [style.--modal-max-width]="width()">
     <div class="modal-header">
       <div class="modal-header-text">
         <h2 ngpDialogTitle>{{ modalTitle() }}</h2>
