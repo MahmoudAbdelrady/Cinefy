@@ -13,6 +13,8 @@ public class MovieSearchResultDTO {
 
     private String title;
 
+    private String synopsis;
+
     private String genre;
 
     private String rating;

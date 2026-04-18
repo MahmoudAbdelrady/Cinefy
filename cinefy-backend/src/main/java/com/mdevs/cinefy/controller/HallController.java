@@ -52,8 +52,9 @@ public class HallController {
     @GetMapping
     public ResponseEntity<Page<HallSummaryDTO>> getHalls(@RequestParam(required = false) String search,
                                                          @RequestParam(required = false) String excludeHallId,
+                                                         @RequestParam(required = false) String status,
                                                          Pageable pageable) {
-        return ResponseEntity.ok(hallService.getHalls(search, excludeHallId, pageable));
+        return ResponseEntity.ok(hallService.getHalls(search, excludeHallId, status, pageable));
     }
 
     @GetMapping("/statistics")

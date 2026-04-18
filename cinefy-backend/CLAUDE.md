@@ -1,5 +1,10 @@
 # CLAUDE.md — cinefy-backend
 
+## Code Style
+
+- Always declare explicit access modifiers (`public`, `protected`, `private`) on every class, field, method, and constructor. Do not leave anything package-private.
+- In DTO classes, separate each field with a blank line — never stack fields without spacing.
+
 ## Stack
 
 - **Spring Boot 4.0.5**, Java 25, Maven

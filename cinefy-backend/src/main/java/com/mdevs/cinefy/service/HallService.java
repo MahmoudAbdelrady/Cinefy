@@ -80,9 +80,10 @@ public class HallService {
 
     // ============================= Halls ===========================
 
-    public Page<HallSummaryDTO> getHalls(String search, String excludeHallId, Pageable pageable) {
+    public Page<HallSummaryDTO> getHalls(String search, String excludeHallId, String status, Pageable pageable) {
         String code = StringUtils.isEmpty(search) ? null : Hall.toCode(search);
-        Page<Hall> page = hallRepository.findAllFiltered(code, excludeHallId, pageable);
+        HallStatus hallStatus = StringUtils.isEmpty(status) ? null : HallStatus.fromString(status);
+        Page<Hall> page = hallRepository.findAllFiltered(code, excludeHallId, hallStatus, pageable);
         return page.map(this::toSummaryDTO);
     }
 
@@ -148,6 +149,12 @@ public class HallService {
     }
 
     @Transactional
+    public void updateHallStatus(Hall hall, HallStatus status) {
+        hall.setStatus(status);
+        hallRepository.save(hall);
+    }
+
+    @Transactional
     public void deleteHall(String uuid) {
         Hall hall = findHall(uuid);
         // @TODO --> Add restriction on deleting the hall in case the hall is occupied
@@ -156,7 +163,7 @@ public class HallService {
 
     // =========================== Helpers ===========================
 
-    private Hall findHall(String uuid) {
+    public Hall findHall(String uuid) {
         return hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
     }
 

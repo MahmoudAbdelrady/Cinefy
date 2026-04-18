@@ -3,6 +3,7 @@ package com.mdevs.cinefy.service;
 import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.JsonNode;
 import com.mdevs.cinefy.dto.MovieSearchResultDTO;
+import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.utils.TmdbGenres;
 import jakarta.annotation.PostConstruct;
@@ -18,6 +19,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -87,6 +89,23 @@ public class TmdbMovieService {
                 .toList();
     }
 
+    public TmdbMovie fetchAndCache(long tmdbId) {
+        return tmdbMovieRepository.findById(tmdbId).orElseGet(() -> {
+            MovieSearchResultDTO details = getMovieDetails(tmdbId);
+            TmdbMovie movie = new TmdbMovie();
+            movie.setId(details.getId());
+            movie.setTitle(details.getTitle());
+            movie.setSynopsis(details.getSynopsis());
+            movie.setGenres(details.getGenre());
+            movie.setContentRating(details.getRating());
+            movie.setReleaseDate(details.getReleaseDate() != null ? LocalDate.parse(details.getReleaseDate()) : null);
+            movie.setDurationMinutes(details.getDuration());
+            movie.setPosterUrl(details.getPosterUrl());
+            movie.setLastSyncedAt(LocalDateTime.now());
+            return tmdbMovieRepository.save(movie);
+        });
+    }
+
     // =========================== Helpers ===========================
 
     private Page<MovieSearchResultDTO> fetchMoviePage(String uriTemplate, Pageable pageable, Object... uriVars) {
@@ -125,10 +144,24 @@ public class TmdbMovieService {
         return dto;
     }
 
+    public MovieSearchResultDTO toMovieDTO(TmdbMovie m) {
+        MovieSearchResultDTO dto = new MovieSearchResultDTO();
+        dto.setId(m.getId());
+        dto.setTitle(m.getTitle());
+        dto.setSynopsis(m.getSynopsis());
+        dto.setGenre(m.getGenres());
+        dto.setRating(m.getContentRating());
+        dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
+        dto.setDuration(m.getDurationMinutes());
+        dto.setPosterUrl(m.getPosterUrl());
+        return dto;
+    }
+
     private MovieSearchResultDTO toMovieDetail(JsonNode node) {
         MovieSearchResultDTO dto = new MovieSearchResultDTO();
         dto.setId(node.get("id").longValue());
         dto.setTitle(node.get("title").stringValue());
+        dto.setSynopsis(node.path("overview").stringValue());
         dto.setReleaseDate(node.path("release_date").stringValue());
         dto.setDuration(node.path("runtime").intValue());
 

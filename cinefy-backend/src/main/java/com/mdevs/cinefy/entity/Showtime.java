@@ -16,14 +16,15 @@ import java.time.LocalDateTime;
         @Index(columnList = "STATUS"),
         @Index(columnList = "CREATED_AT"),
         @Index(columnList = "HALL_ID"),
-        @Index(columnList = "START_DATE_TIME")
+        @Index(columnList = "START_DATE_TIME"),
+        @Index(columnList = "END_DATE_TIME")
 })
 public class Showtime extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime startDateTime;
 
-    @Column(columnDefinition = "TIMESTAMP(0)")
+    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime endDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -41,5 +42,5 @@ public class Showtime extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ShowtimeStatus status;
+    private ShowtimeStatus status = ShowtimeStatus.DRAFT;
 }
