@@ -6,6 +6,7 @@ import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.utils.TmdbGenres;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TmdbMovieService {
@@ -66,19 +68,22 @@ public class TmdbMovieService {
                 .retrieve()
                 .body(JsonNode.class);
 
-        if (root == null) throw new RuntimeException("Empty response from TMDB");
+        if (root == null) {
+            log.error("Empty response from TMDB for URI template: {}", uriTemplate);
+            throw new RuntimeException("Error while retrieving movies");
+        }
 
         long totalResults = root.get("total_results").asLong();
 
         List<MovieSearchResultDTO> results = new ArrayList<>();
         for (JsonNode node : root.get("results")) {
-            results.add(toSearchResultDTO(node));
+            results.add(toMovieSearchResult(node));
         }
 
         return new PageImpl<>(results, pageable, totalResults);
     }
 
-    private MovieSearchResultDTO toSearchResultDTO(JsonNode node) {
+    private MovieSearchResultDTO toMovieSearchResult(JsonNode node) {
         MovieSearchResultDTO dto = new MovieSearchResultDTO();
         dto.setId(node.get("id").longValue());
         dto.setTitle(node.get("title").stringValue());
@@ -92,10 +97,6 @@ public class TmdbMovieService {
                 .reduce((a, b) -> a + ", " + b)
                 .orElse(null);
         dto.setGenre(genre);
-
-        // rating and duration are not available in search results
-        dto.setRating(null);
-        dto.setDuration(null);
 
         return dto;
     }
