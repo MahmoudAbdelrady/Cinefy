@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, ElementRef, computed, input, viewChild } from '@angular/core';
 import {
   NgpDialog,
   NgpDialogDescription,
@@ -9,13 +9,7 @@ import { LucideAngularModule, X } from 'lucide-angular';
 
 @Component({
   selector: 'app-modal',
-  imports: [
-    NgpDialog,
-    NgpDialogOverlay,
-    NgpDialogTitle,
-    NgpDialogDescription,
-    LucideAngularModule,
-  ],
+  imports: [NgpDialog, NgpDialogOverlay, NgpDialogTitle, NgpDialogDescription, LucideAngularModule],
   templateUrl: './modal.html',
   styleUrl: './modal.scss',
 })
@@ -24,6 +18,9 @@ export class ModalComponent {
   readonly description = input<string>();
   readonly close = input.required<() => void>();
   readonly width = input<string>();
+
+  private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
+  readonly panelEl = computed(() => this.panel()?.nativeElement ?? null);
 
   protected readonly XIcon = X;
 }

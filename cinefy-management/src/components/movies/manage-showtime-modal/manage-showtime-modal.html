@@ -1,0 +1,92 @@
+<app-modal
+  #modal
+  [modalTitle]="modalTitle()"
+  [description]="modalDescription()"
+  [close]="close()"
+  width="640px"
+>
+  @if (!activeMovie()) {
+    <movie-picker (movieSelected)="pickedMovie.set($event)" />
+  } @else {
+    <div class="manage-showtime-container">
+      @if (showSelectedMovie()) {
+        <div class="selected-movie-container">
+          <div class="sm-info">
+            <div class="sm-img">
+              <img [src]="activeMovie()!.posterUrl" alt="{{ activeMovie()!.title }} Poster" />
+            </div>
+            <div class="sm-details">
+              <h4>{{ activeMovie()!.title }}</h4>
+              <div class="smd-box">
+                <span class="smdb-item">{{ activeMovie()!.genre }}</span>
+                <span class="smdb-item">{{ activeMovie()!.rating }}</span>
+                <span class="smdb-item">{{ activeMovie()!.releaseDate | date: 'MMM d, y' }}</span>
+                <span class="smdb-item">{{ activeMovie()!.duration }} min</span>
+              </div>
+            </div>
+          </div>
+          @if (!selectedMovie()) {
+            <div class="sm-actions">
+              <button type="button" (click)="pickedMovie.set(null)">Change</button>
+            </div>
+          }
+        </div>
+      }
+      <div class="manager-showtime-form">
+        <div class="time-input-group">
+          <div class="input-group">
+            <label>Date</label>
+            <date-picker
+              [ngModel]="showtimeDate()"
+              (ngModelChange)="showtimeDate.set($event)"
+              placeholder="Select a date"
+              [container]="modal.panelEl()"
+            />
+          </div>
+          <div class="input-group">
+            <label>Time</label>
+            <time-picker
+              [ngModel]="showtimeTime()"
+              (ngModelChange)="showtimeTime.set($event)"
+              placeholder="Select a time"
+              [container]="modal.panelEl()"
+            />
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Hall</label>
+          <paginated-select
+            placeholder="Select a hall"
+            [clearable]="true"
+            [searchable]="true"
+            [fetchFn]="fetchHalls"
+            [displayFn]="hallDisplayFn"
+            [valueFn]="hallValueFn"
+            [initialValue]="initialHall()"
+            [container]="modal.panelEl()"
+            (selectionChange)="onHallChange($event)"
+            (cleared)="onHallChange(null)"
+          />
+        </div>
+        <div class="input-group">
+          <label>Special Notes (Optional)</label>
+          <textarea
+            ngpTextarea
+            placeholder="Add any special notes about this showtime..."
+            [ngModel]="showtimeSpecialNotes()"
+            (ngModelChange)="showtimeSpecialNotes.set($event)"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (activeMovie()) {
+    <div modal-footer class="manage-footer">
+      <button ngpButton class="btn-secondary" (click)="close()()">Cancel</button>
+      <button ngpButton class="btn-primary" [disabled]="!canSubmit()" (click)="onSubmit()">
+        {{ submitLabel() }}
+      </button>
+    </div>
+  }
+</app-modal>

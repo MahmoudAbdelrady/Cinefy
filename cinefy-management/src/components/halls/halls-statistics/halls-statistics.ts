@@ -1,14 +1,15 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Eye, LayoutDashboard, LucideAngularModule, TrendingUp, Users } from 'lucide-angular';
+import { Eye, LayoutDashboard, TrendingUp, Users } from 'lucide-angular';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { StatsComponent } from '../../stats/stats';
 import { HallsService, ToastService } from '../../../services';
-import type { HallStatistics } from '../../../shared/types';
+import type { HallStatistics, StatsCard } from '../../../shared/types';
 
 @Component({
   selector: 'halls-statistics',
-  imports: [LucideAngularModule, LoadingSpinnerComponent],
+  imports: [LoadingSpinnerComponent, StatsComponent],
   templateUrl: './halls-statistics.html',
   styleUrl: './halls-statistics.scss',
 })
@@ -20,10 +21,15 @@ export class HallsStatisticsComponent {
   protected statistics = signal<HallStatistics | null>(null);
   protected loading = signal(true);
 
-  protected LayoutIcon = LayoutDashboard;
-  protected EyeIcon = Eye;
-  protected UsersIcon = Users;
-  protected TrendingUpIcon = TrendingUp;
+  protected readonly cards = computed<StatsCard[]>(() => {
+    const s = this.statistics();
+    return [
+      { label: 'Total Halls', value: s?.totalHalls?.toString() ?? '—', icon: LayoutDashboard },
+      { label: 'Active Halls', value: s?.activeHalls?.toString() ?? '—', icon: Eye },
+      { label: 'Total Capacity', value: s?.totalCapacity?.toString() ?? '—', icon: Users },
+      { label: 'Occupancy Rate', value: '44%', icon: TrendingUp },
+    ];
+  });
 
   constructor() {
     this.hallsService

@@ -13,18 +13,18 @@
       @for (movie of upcomingMovies; track movie.title) {
         <div class="um-card">
           <div class="umc-poster">
-            <img [src]="movie.poster" [alt]="movie.title" />
+            <img [src]="movie.posterUrl" [alt]="movie.title" />
           </div>
           <div class="umc-info">
             <div class="umc-details">
               <h4>{{ movie.title }}</h4>
-              <p>{{ movie.genre }}</p>
+              <p>{{ movie.genre }} · {{ movie.rating }}</p>
               <div class="umc-release">
                 <lucide-icon [img]="ClockIcon" [size]="11"></lucide-icon>
-                <span>{{ movie.releaseDate | date: 'd' }} days left</span>
+                <span>{{ daysUntil(movie.releaseDate) }} days left</span>
               </div>
             </div>
-            <div class="umc-date">{{ movie.releaseDate.split(',')[0] }}</div>
+            <div class="umc-date">{{ movie.releaseDate | date: 'MMM d' }}</div>
           </div>
         </div>
       }

@@ -1,0 +1,18 @@
+<ng-template #headerActionsTemplate>
+  <div class="action-buttons-container">
+    <button ngpButton [ngpDialogTrigger]="scheduleMovieDialog">
+      <lucide-icon [img]="PlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+      <span>Schedule Movie</span>
+    </button>
+
+    <ng-template #scheduleMovieDialog let-close="close">
+      <manage-showtime-modal [close]="close" />
+    </ng-template>
+  </div>
+</ng-template>
+
+<div class="movies-container">
+  <movies-statistics />
+  <current-showtimes />
+  <upcoming-movies />
+</div>

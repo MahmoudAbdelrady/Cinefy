@@ -1,4 +1,5 @@
 <app-modal
+  #modal
   [modalTitle]="modalTitle()"
   description="Configure hall details and seat layout"
   [close]="close()"
@@ -94,7 +95,7 @@
             [displayFn]="statusDisplayFn"
             [valueFn]="statusValueFn"
             [disabled]="isViewMode()"
-            container=".modal-panel"
+            [container]="modal.panelEl()"
             (selectionChange)="onStatusChange($event)"
           />
         </div>
@@ -111,7 +112,7 @@
             [searchable]="true"
             [isError]="hallForm.controls.typeId.touched && hallForm.controls.typeId.invalid"
             placeholder="Select a type"
-            container=".modal-panel"
+            [container]="modal.panelEl()"
             (selectionChange)="onHallTypeChange($event)"
             (cleared)="onHallTypeCleared()"
             (touched)="hallForm.controls.typeId.markAsTouched()"
@@ -143,7 +144,7 @@
               [fetchFn]="fetchHalls"
               [displayFn]="hallDisplayFn"
               [valueFn]="hallValueFn"
-              container=".modal-panel"
+              [container]="modal.panelEl()"
               (selectionChange)="copyLayoutFrom($event)"
               (cleared)="restoreOriginalLayout()"
             />

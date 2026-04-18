@@ -31,6 +31,11 @@ interface SeatLayout {
   onSiteOnly: string[];
 }
 
+interface HallRef {
+  id: string;
+  name: string;
+}
+
 interface HallType {
   id?: string;
   name: string;
@@ -104,6 +109,7 @@ export type {
   Seat,
   SeatCategoryItem,
   SeatLayout,
+  HallRef,
   HallType,
   HallItem,
   TicketPricing,
