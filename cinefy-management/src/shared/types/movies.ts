@@ -27,9 +27,11 @@ interface MovieShowtimes {
   totalDraftShowtimes: number;
 }
 
+import type { HallRef } from './halls';
+
 interface MovieShowtimeDetail {
   id: string;
-  hallName: string;
+  hall: HallRef;
   status: 'Published' | 'Draft';
   time: string; // e.g. '19:30'
   specialNotes: string;
@@ -37,4 +39,19 @@ interface MovieShowtimeDetail {
   totalSeats: number;
 }
 
-export type { Movie, ShowtimeDraft, ShowtimeSummary, MovieShowtimes, MovieShowtimeDetail };
+interface EditableShowtime {
+  id: string;
+  date: Date;
+  time: string;
+  hall: HallRef;
+  specialNotes: string;
+}
+
+export type {
+  Movie,
+  ShowtimeDraft,
+  ShowtimeSummary,
+  MovieShowtimes,
+  MovieShowtimeDetail,
+  EditableShowtime,
+};

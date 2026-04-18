@@ -1,6 +1,7 @@
 import {
   Component,
   DestroyRef,
+  effect,
   inject,
   input,
   output,
@@ -49,6 +50,7 @@ export class PaginatedSelectComponent<T> {
   readonly searchable = input(false);
   readonly pageSize = input(20);
   readonly container = input<string | HTMLElement | null>(null);
+  readonly initialValue = input<T | null>(null);
   readonly fetchFn =
     input.required<
       (page: number, size: number, search?: string) => Observable<PaginatedResponse<T>>
@@ -78,6 +80,11 @@ export class PaginatedSelectComponent<T> {
         this.searchTerm.set(term);
         this.resetAndFetch();
       });
+
+    effect(() => {
+      const initial = this.initialValue();
+      if (initial !== null) this.selectedItem.set(initial);
+    });
   }
 
   protected onOpenChange(open: boolean) {

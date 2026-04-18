@@ -54,6 +54,7 @@
             [close]="close"
             [selectedMovie]="shMovie"
             (addShowtimeRequested)="openAddTrigger.click()"
+            (editShowtimeRequested)="editingShowtime.set($event); openEditTrigger.click()"
           />
         </ng-template>
 
@@ -70,6 +71,23 @@
             [selectedMovie]="shMovie"
             [showSelectedMovie]="false"
             (showtimeCreated)="onShowtimeCreated($event)"
+          />
+        </ng-template>
+
+        <button
+          #openEditTrigger
+          type="button"
+          [ngpDialogTrigger]="editShowtimeDialog"
+          hidden
+        ></button>
+
+        <ng-template #editShowtimeDialog let-close="close">
+          <manage-showtime-modal
+            [close]="close"
+            [selectedMovie]="shMovie"
+            [showSelectedMovie]="false"
+            [editingShowtime]="editingShowtime()"
+            (showtimeUpdated)="onShowtimeUpdated($event)"
           />
         </ng-template>
 

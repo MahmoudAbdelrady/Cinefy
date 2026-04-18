@@ -17,6 +17,7 @@ export type {
   Seat,
   SeatCategoryItem,
   SeatLayout,
+  HallRef,
   HallType,
   HallItem,
   TicketPricing,
@@ -33,5 +34,6 @@ export type {
   ShowtimeSummary,
   MovieShowtimes,
   MovieShowtimeDetail,
+  EditableShowtime,
 } from './movies';
 export type { StatsCard } from './stats';

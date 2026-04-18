@@ -32,20 +32,58 @@
                   <span class="dsid-time">{{ showtimeDetail.time }}</span>
                   <div class="dsid-location">
                     <lucide-icon [img]="LocationIcon" [size]="14"></lucide-icon>
-                    <span>{{ showtimeDetail.hallName }}</span>
+                    <span>{{ showtimeDetail.hall.name }}</span>
                   </div>
                   <span class="dsid-status" [attr.data-status]="showtimeDetail.status">
                     {{ showtimeDetail.status }}
                   </span>
                 </div>
                 <div class="dsi-actions">
-                  <button ngpButton class="dsi-action" title="Edit showtime">
+                  <button ngpButton class="dsi-action" (click)="onEditShowtime(showtimeDetail)">
                     <lucide-icon [img]="EditIcon" [size]="14"></lucide-icon>
                   </button>
-                  <button ngpButton class="dsi-action" title="Delete showtime">
+                  <button ngpButton class="dsi-action" [ngpDialogTrigger]="deleteDialog">
                     <lucide-icon [img]="DeleteIcon" [size]="14"></lucide-icon>
                   </button>
                 </div>
+
+                <ng-template #deleteDialog let-close="close">
+                  <app-modal modalTitle="Delete Showtime" [close]="close" width="448px">
+                    <div class="delete-modal-content">
+                      <div class="dmc-icon">
+                        <lucide-icon [img]="AlertIcon" [size]="24" [strokeWidth]="2"></lucide-icon>
+                      </div>
+                      <p class="dmc-message">
+                        Are you sure you want to delete this showtime for
+                        <strong>{{ selectedMovie().title }}</strong> on
+                        <strong>{{ selectedTab() | date: 'mediumDate' }}</strong> at
+                        <strong>{{ showtimeDetail.time }}</strong
+                        >?
+                      </p>
+                      <div class="dmc-warning">
+                        <lucide-icon [img]="AlertIcon" [size]="16" [strokeWidth]="2"></lucide-icon>
+                        <div>
+                          <p><strong>Warning:</strong></p>
+                          <ul>
+                            <li>This action cannot be undone</li>
+                            <li>Historical showtime data will be permanently removed</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div modal-footer class="delete-modal-footer">
+                      <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+                      <button
+                        ngpButton
+                        class="btn-danger"
+                        (click)="onDeleteShowtime(showtimeDetail.id, close)"
+                      >
+                        <span>Delete Showtime</span>
+                      </button>
+                    </div>
+                  </app-modal>
+                </ng-template>
               </div>
               <div class="ds-occupancy">
                 <div class="dso-bar">

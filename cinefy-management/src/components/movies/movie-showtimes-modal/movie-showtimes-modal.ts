@@ -1,10 +1,24 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ModalComponent } from '../../modal/modal';
-import { Movie, MovieShowtimeDetail, MovieShowtimes } from '../../../shared/types';
+import {
+  EditableShowtime,
+  Movie,
+  MovieShowtimeDetail,
+  MovieShowtimes,
+} from '../../../shared/types';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
-import { MapPin, LucideAngularModule, SquarePen, Trash2, Plus, Eye } from 'lucide-angular';
+import {
+  MapPin,
+  LucideAngularModule,
+  SquarePen,
+  Trash2,
+  Plus,
+  Eye,
+  TriangleAlert,
+} from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
+import { NgpDialogTrigger } from 'ng-primitives/dialog';
 
 @Component({
   selector: 'movie-showtimes-modal',
@@ -18,6 +32,7 @@ import { NgpButton } from 'ng-primitives/button';
     DecimalPipe,
     LucideAngularModule,
     NgpButton,
+    NgpDialogTrigger,
   ],
   templateUrl: './movie-showtimes-modal.html',
   styleUrl: './movie-showtimes-modal.scss',
@@ -28,13 +43,29 @@ export class MovieShowtimesModal {
   protected readonly DeleteIcon = Trash2;
   protected readonly PlusIcon = Plus;
   protected readonly EyeIcon = Eye;
+  protected readonly AlertIcon = TriangleAlert;
 
   readonly close = input.required<() => void>();
   readonly selectedMovie = input.required<Movie>();
   readonly addShowtimeRequested = output<void>();
+  readonly editShowtimeRequested = output<EditableShowtime>();
 
   protected onAddShowtime() {
     this.addShowtimeRequested.emit();
+  }
+
+  protected onEditShowtime(showtime: MovieShowtimeDetail) {
+    this.editShowtimeRequested.emit({
+      id: showtime.id,
+      date: new Date(this.selectedTab()),
+      time: showtime.time,
+      hall: showtime.hall,
+      specialNotes: showtime.specialNotes,
+    });
+  }
+
+  protected onDeleteShowtime(_id: string, close: () => void) {
+    close();
   }
 
   protected readonly movieShowtimes: MovieShowtimes = {
@@ -45,7 +76,7 @@ export class MovieShowtimesModal {
   protected readonly movieShowtimeDetails: MovieShowtimeDetail[] = [
     {
       id: '1',
-      hallName: 'Hall A',
+      hall: { id: 'h1', name: 'Hall A' },
       status: 'Published',
       time: '14:00',
       specialNotes: '',
@@ -54,7 +85,7 @@ export class MovieShowtimesModal {
     },
     {
       id: '2',
-      hallName: 'IMAX Hall',
+      hall: { id: 'h2', name: 'IMAX Hall' },
       status: 'Published',
       time: '17:30',
       specialNotes: 'Premium seating',
@@ -63,7 +94,7 @@ export class MovieShowtimesModal {
     },
     {
       id: '3',
-      hallName: 'Hall B',
+      hall: { id: 'h3', name: 'Hall B' },
       status: 'Draft',
       time: '20:00',
       specialNotes: '',
@@ -72,7 +103,7 @@ export class MovieShowtimesModal {
     },
     {
       id: '4',
-      hallName: 'Hall C',
+      hall: { id: 'h4', name: 'Hall C' },
       status: 'Published',
       time: '22:30',
       specialNotes: 'Late-night show',
@@ -81,7 +112,7 @@ export class MovieShowtimesModal {
     },
     {
       id: '5',
-      hallName: 'Hall A',
+      hall: { id: 'h1', name: 'Hall A' },
       status: 'Draft',
       time: '23:45',
       specialNotes: '',

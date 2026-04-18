@@ -61,6 +61,7 @@
             [fetchFn]="fetchHalls"
             [displayFn]="hallDisplayFn"
             [valueFn]="hallValueFn"
+            [initialValue]="initialHall()"
             [container]="modal.panelEl()"
             (selectionChange)="onHallChange($event)"
             (cleared)="onHallChange(null)"
@@ -71,6 +72,8 @@
           <textarea
             ngpTextarea
             placeholder="Add any special notes about this showtime..."
+            [ngModel]="showtimeSpecialNotes()"
+            (ngModelChange)="showtimeSpecialNotes.set($event)"
           ></textarea>
         </div>
       </div>
@@ -80,8 +83,8 @@
   @if (activeMovie()) {
     <div modal-footer class="manage-footer">
       <button ngpButton class="btn-secondary" (click)="close()()">Cancel</button>
-      <button ngpButton class="btn-primary" [disabled]="!canSubmit()" (click)="onCreate()">
-        Create Showtime
+      <button ngpButton class="btn-primary" [disabled]="!canSubmit()" (click)="onSubmit()">
+        {{ submitLabel() }}
       </button>
     </div>
   }

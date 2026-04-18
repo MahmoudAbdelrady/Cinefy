@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { ShowtimeDraft, ShowtimeSummary } from '../../../shared/types';
+import { EditableShowtime, ShowtimeDraft, ShowtimeSummary } from '../../../shared/types';
 import { Plus, Trash2, TriangleAlert, LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
@@ -28,6 +28,7 @@ export class CurrentShowtimesComponent {
   protected readonly AlertIcon = TriangleAlert;
 
   protected readonly deletingShowtimeId = signal<string | null>(null);
+  protected readonly editingShowtime = signal<EditableShowtime | null>(null);
   protected readonly showtimesSummaries = signal<ShowtimeSummary[]>([
     {
       id: '1',
@@ -98,6 +99,11 @@ export class CurrentShowtimesComponent {
 
   protected onShowtimeCreated(draft: ShowtimeDraft): void {
     console.log('Showtime created', draft);
+  }
+
+  protected onShowtimeUpdated(update: ShowtimeDraft & { id: string }): void {
+    console.log('Showtime updated', update);
+    this.editingShowtime.set(null);
   }
 
   protected deleteShowtime(id: string, close: () => void): void {
