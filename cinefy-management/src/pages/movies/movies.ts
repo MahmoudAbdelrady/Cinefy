@@ -6,6 +6,7 @@ import {
   CurrentShowtimesComponent,
   ManageShowtimeModalComponent,
   MoviesStatisticsComponent,
+  UpcomingMoviesComponent,
 } from '../../components';
 import { HeaderActionsService } from '../../services';
 
@@ -18,6 +19,7 @@ import { HeaderActionsService } from '../../services';
     ManageShowtimeModalComponent,
     MoviesStatisticsComponent,
     CurrentShowtimesComponent,
+    UpcomingMoviesComponent,
   ],
   templateUrl: './movies.html',
   styleUrl: './movies.scss',

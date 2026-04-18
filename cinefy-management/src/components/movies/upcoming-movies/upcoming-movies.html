@@ -1,1 +1,67 @@
-<p>upcoming-movies works!</p>
+<div class="upcoming-movies-container">
+  <div class="header">
+    <div class="h-info">
+      <div class="hi-details">
+        <lucide-icon [img]="CalendarIcon" [size]="20"></lucide-icon>
+        <h3>Upcoming Movies</h3>
+      </div>
+      <p>Movies releasing soon that you can schedule</p>
+    </div>
+    <div class="h-actions">
+      <div class="h-tabs">
+        <div
+          ngpToggleGroup
+          ngpToggleGroupAllowDeselection="false"
+          [ngpToggleGroupValue]="[selectedWindow()]"
+          (ngpToggleGroupValueChange)="onWindowChange($event)"
+        >
+          <button ngpToggleGroupItem ngpToggleGroupItemValue="two_weeks">2 Weeks</button>
+          <button ngpToggleGroupItem ngpToggleGroupItemValue="one_month">1 Month</button>
+          <button ngpToggleGroupItem ngpToggleGroupItemValue="three_months">3 Months</button>
+        </div>
+      </div>
+      <div class="h-tab-count">{{ movies.length }}</div>
+    </div>
+  </div>
+  <div class="content">
+    @for (upcomingMovie of movies; track upcomingMovie.id) {
+      <div class="movie-card">
+        <div class="mc-img">
+          <img [src]="upcomingMovie.posterUrl" [alt]="upcomingMovie.title" />
+        </div>
+        <div class="mc-info">
+          <h4>{{ upcomingMovie.title }}</h4>
+          <div class="mci-items">
+            <span class="mci-item">{{ upcomingMovie.genre }}</span>
+            <span class="mci-item">{{ upcomingMovie.rating }}</span>
+            <span class="mci-item">{{ upcomingMovie.duration }} min</span>
+          </div>
+        </div>
+        <div class="mc-date" [class.soon]="isComingSoon(upcomingMovie.releaseDate)">
+          <lucide-icon [img]="CalendarIcon" [size]="14"></lucide-icon>
+          <p>
+            @if (isComingSoon(upcomingMovie.releaseDate)) {
+              <strong>Coming Soon</strong>
+              <span class="mcd-sep">·</span>
+            }
+            <span>{{ upcomingMovie.releaseDate }}</span>
+          </p>
+        </div>
+        <div class="mc-actions">
+          <button ngpButton [ngpDialogTrigger]="scheduleDialog">Schedule Showtimes</button>
+        </div>
+
+        <ng-template #scheduleDialog let-close="close">
+          <manage-showtime-modal
+            [close]="close"
+            [selectedMovie]="upcomingMovie"
+            [showSelectedMovie]="false"
+            (showtimeCreated)="onShowtimeCreated($event)"
+          />
+        </ng-template>
+      </div>
+    } @empty {
+      <p>No upcoming movies available.</p>
+    }
+  </div>
+</div>

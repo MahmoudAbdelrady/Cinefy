@@ -1,6 +1,11 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
 
+:host {
+  display: block;
+  margin-bottom: 32px;
+}
+
 .current-showtimes-container {
   background-color: #ffffff;
   border-radius: $radius-xl;
