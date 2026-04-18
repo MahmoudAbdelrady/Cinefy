@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,5 +29,10 @@ public class TmdbMovieController {
     @GetMapping("/upcoming")
     public ResponseEntity<List<MovieSearchResultDTO>> getUpcomingMovies(@RequestParam(required = false, defaultValue = "20") int limit) {
         return ResponseEntity.ok(tmdbMovieService.getUpcomingMovies(limit));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MovieSearchResultDTO> getMovieDetails(@PathVariable long id) {
+        return ResponseEntity.ok(tmdbMovieService.getMovieDetails(id));
     }
 }

@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.service;
 
+import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.JsonNode;
 import com.mdevs.cinefy.dto.MovieSearchResultDTO;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
@@ -49,6 +52,25 @@ public class TmdbMovieService {
 
     public Page<MovieSearchResultDTO> searchMovies(String query, Pageable pageable) {
         return fetchMoviePage("/search/movie?query={query}&page={page}", pageable, query, pageable.getPageNumber() + 1);
+    }
+
+    public MovieSearchResultDTO getMovieDetails(long tmdbId) {
+        JsonNode root;
+        try {
+            root = restClient.get()
+                    .uri("/movie/{id}?append_to_response=release_dates", tmdbId)
+                    .retrieve()
+                    .body(JsonNode.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new NotFoundException("Movie not found: " + tmdbId);
+        }
+
+        if (root == null) {
+            log.error("Empty response from TMDB for movie id: {}", tmdbId);
+            throw new RuntimeException("Error while retrieving movie details");
+        }
+
+        return toMovieDetail(root);
     }
 
     public List<MovieSearchResultDTO> getUpcomingMovies(int limit) {
@@ -92,11 +114,33 @@ public class TmdbMovieService {
         String posterPath = node.path("poster_path").stringValue();
         dto.setPosterUrl(posterPath != null ? imageBaseUrl + posterPath : null);
 
-        String genre = StreamSupport.stream(node.path("genre_ids").spliterator(), false)
-                .map(g -> TmdbGenres.resolve(g.asInt()))
-                .reduce((a, b) -> a + ", " + b)
+        List<String> genreNames = StreamSupport.stream(node.path("genre_ids").spliterator(), false).map(g -> TmdbGenres.resolve(g.asInt())).toList();
+        dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
+
+        return dto;
+    }
+
+    private MovieSearchResultDTO toMovieDetail(JsonNode node) {
+        MovieSearchResultDTO dto = new MovieSearchResultDTO();
+        dto.setId(node.get("id").longValue());
+        dto.setTitle(node.get("title").stringValue());
+        dto.setReleaseDate(node.path("release_date").stringValue());
+        dto.setDuration(node.path("runtime").intValue());
+
+        String posterPath = node.path("poster_path").stringValue();
+        dto.setPosterUrl(posterPath != null ? imageBaseUrl + posterPath : null);
+
+        List<String> genreNames = StreamSupport.stream(node.path("genres").spliterator(), false).map(g -> g.path("name").stringValue()).toList();
+        dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
+
+        String rating = StreamSupport.stream(node.path("release_dates").path("results").spliterator(), false)
+                .filter(r -> "US".equals(r.path("iso_3166_1").stringValue()))
+                .flatMap(r -> StreamSupport.stream(r.path("release_dates").spliterator(), false))
+                .map(r -> r.path("certification").stringValue())
+                .filter(StringUtils::isNotEmpty)
+                .findFirst()
                 .orElse(null);
-        dto.setGenre(genre);
+        dto.setRating(rating);
 
         return dto;
     }
