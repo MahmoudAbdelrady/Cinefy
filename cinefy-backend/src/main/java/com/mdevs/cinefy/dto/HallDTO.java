@@ -31,7 +31,7 @@ public class HallDTO {
     @NotBlank(message = "Type is required")
     private String typeId;
 
-    private boolean supports3D = false;
+    private boolean supports3D;
 
     private SeatLayoutDTO layout;
 

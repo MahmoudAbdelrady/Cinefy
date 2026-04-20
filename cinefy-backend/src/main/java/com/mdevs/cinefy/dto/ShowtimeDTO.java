@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -11,7 +12,6 @@ import java.time.LocalDateTime;
 @Setter
 public class ShowtimeDTO {
 
-    @NotNull(message = "Movie is required")
     private Long movieId;
 
     @NotNull(message = "Date and time are required")
@@ -20,6 +20,7 @@ public class ShowtimeDTO {
     @NotBlank(message = "Hall is required")
     private String hallId;
 
+    @JsonProperty("is3D")
     private boolean is3D;
 
     private String specialNotes;
