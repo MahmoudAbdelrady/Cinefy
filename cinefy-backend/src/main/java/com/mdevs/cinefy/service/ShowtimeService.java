@@ -55,13 +55,13 @@ public class ShowtimeService {
         Hall previousHall = showtime.getHall();
         Hall hall = hallService.findHall(dto.getHallId());
         TmdbMovie movie = dto.getMovieId() != null ? tmdbMovieService.fetchAndCache(dto.getMovieId()) : showtime.getTmdbMovie();
-        validateShowtime(hall, movie, dto, uuid);
+        validateShowtime(hall, movie, dto, showtime.getId());
 
         applyDtoToShowtime(showtime, hall, movie, dto);
         showtimeRepository.save(showtime);
 
-        if (!previousHall.getUuid().equals(hall.getUuid())) {
-            flipHallIfNoActiveShowtimes(previousHall, uuid);
+        if (!previousHall.getId().equals(hall.getId())) {
+            flipHallIfNoActiveShowtimes(previousHall, showtime.getId());
             hallService.updateHallStatus(hall, HallStatus.SCHEDULED);
         }
 
@@ -77,7 +77,7 @@ public class ShowtimeService {
         }
         Hall hall = showtime.getHall();
         showtimeRepository.delete(showtime);
-        flipHallIfNoActiveShowtimes(hall, uuid);
+        flipHallIfNoActiveShowtimes(hall, showtime.getId());
     }
 
     // =========================== Helpers ===========================
@@ -86,8 +86,8 @@ public class ShowtimeService {
         return showtimeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Showtime not found: " + uuid));
     }
 
-    private void validateShowtime(Hall hall, TmdbMovie movie, ShowtimeDTO dto, String showtimeUuid) {
-        if (showtimeUuid == null && dto.getMovieId() == null) {
+    private void validateShowtime(Hall hall, TmdbMovie movie, ShowtimeDTO dto, Long showtimeId) {
+        if (showtimeId == null && dto.getMovieId() == null) {
             throw new BusinessException("Movie is required");
         }
 
@@ -103,22 +103,20 @@ public class ShowtimeService {
             throw new BusinessException("Hall '" + hall.getName() + "' does not support 3D screenings");
         }
 
-        if (movie != null) {
-            if (movie.getDurationMinutes() == null || movie.getDurationMinutes() <= 0) {
-                throw new BusinessException("Movie '" + movie.getTitle() + "' does not have a runtime yet and cannot be scheduled");
-            }
+        if (movie.getDurationMinutes() == null || movie.getDurationMinutes() <= 0) {
+            throw new BusinessException("Movie '" + movie.getTitle() + "' does not have a runtime yet and cannot be scheduled");
+        }
 
-            // Pad the new showtime's end with a cleanup buffer so back-to-back showtimes leave time to reset the hall
-            LocalDateTime end = dto.getDateTime().plusMinutes(movie.getDurationMinutes()).plusMinutes(CLEANUP_BUFFER_MINUTES);
-            boolean overlaps = showtimeRepository.existsOverlapping(hall, dto.getDateTime(), end, showtimeUuid);
-            if (overlaps) {
-                throw new BusinessException("Another showtime is already scheduled in this hall at the selected time");
-            }
+        // Pad the new showtime's end with a cleanup buffer, so back-to-back showtimes leave time to reset the hall
+        LocalDateTime end = dto.getDateTime().plusMinutes(movie.getDurationMinutes()).plusMinutes(CLEANUP_BUFFER_MINUTES);
+        boolean overlaps = showtimeRepository.existsOverlapping(hall, dto.getDateTime(), end, showtimeId);
+        if (overlaps) {
+            throw new BusinessException("Another showtime is already scheduled in this hall at the selected time");
         }
     }
 
-    private void flipHallIfNoActiveShowtimes(Hall hall, String excludeShowtimeUuid) {
-        boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndUuidNot(hall, List.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED), excludeShowtimeUuid);
+    private void flipHallIfNoActiveShowtimes(Hall hall, Long excludeId) {
+        boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndIdNot(hall, List.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED), excludeId);
         if (!stillHasShowtimes) {
             hallService.updateHallStatus(hall, HallStatus.ACTIVE);
         }

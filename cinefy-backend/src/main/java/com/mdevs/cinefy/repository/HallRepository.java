@@ -32,7 +32,7 @@ public interface HallRepository extends BaseRepository<Hall> {
 
     boolean existsByCode(String code);
 
-    boolean existsByCodeAndUuidNot(String code, String uuid);
+    boolean existsByCodeAndIdNot(String code, Long id);
 
     boolean existsByType(HallType hallType);
 }

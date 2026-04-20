@@ -17,7 +17,7 @@ public class MovieSearchResultDTO {
 
     private String genre;
 
-    private String rating;
+    private String contentRating;
 
     private String releaseDate;
 

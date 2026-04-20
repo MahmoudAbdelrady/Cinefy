@@ -65,7 +65,7 @@ public class HallService {
     @Transactional
     public HallTypeDTO updateHallType(String uuid, HallTypeDTO dto) {
         HallType hallType = findHallType(uuid);
-        validateHallType(dto.getName(), uuid);
+        validateHallType(dto.getName(), hallType.getId());
         hallType.setName(dto.getName());
         hallType.setCode(HallType.toCode(dto.getName()));
         hallTypeRepository.save(hallType);
@@ -140,7 +140,7 @@ public class HallService {
     @Transactional
     public HallSummaryDTO updateHall(String uuid, HallDTO dto) {
         Hall hall = findHall(uuid);
-        validateHall(dto, uuid);
+        validateHall(dto, hall.getId());
         validateHallMutability(hall, dto);
 
         hall.setName(dto.getName());
@@ -176,17 +176,17 @@ public class HallService {
         return hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found: " + uuid));
     }
 
-    private void validateHallType(String name, String excludeUuid) {
+    private void validateHallType(String name, Long excludeId) {
         String code = HallType.toCode(name);
-        boolean exists = StringUtils.isEmpty(excludeUuid) ? hallTypeRepository.existsByCode(code) : hallTypeRepository.existsByCodeAndUuidNot(code, excludeUuid);
+        boolean exists = excludeId == null ? hallTypeRepository.existsByCode(code) : hallTypeRepository.existsByCodeAndIdNot(code, excludeId);
         if (exists) {
             throw new BusinessException("A hall type with a similar name to '" + name + "' already exists");
         }
     }
 
-    private void validateHall(HallDTO dto, String excludeUuid) {
+    private void validateHall(HallDTO dto, Long excludeId) {
         String code = Hall.toCode(dto.getName());
-        boolean exists = StringUtils.isEmpty(excludeUuid) ? hallRepository.existsByCode(code) : hallRepository.existsByCodeAndUuidNot(code, excludeUuid);
+        boolean exists = excludeId == null ? hallRepository.existsByCode(code) : hallRepository.existsByCodeAndIdNot(code, excludeId);
         if (exists) {
             throw new BusinessException("A hall with a similar name to '" + dto.getName() + "' already exists");
         }
@@ -266,13 +266,11 @@ public class HallService {
     private boolean isLayoutChanged(Hall hall, SeatLayoutDTO incoming) {
         SeatLayoutDTO currentLayout = toLayoutMap(hall);
         Map<String, List<String>> currentCategories = currentLayout.getCategories();
-        Map<String, List<String>> incomingCategories = incoming != null && incoming.getCategories() != null
-                ? incoming.getCategories() : Collections.emptyMap();
+        Map<String, List<String>> incomingCategories = incoming != null && incoming.getCategories() != null ? incoming.getCategories() : Collections.emptyMap();
         if (!categoryMapsEqual(currentCategories, incomingCategories)) return true;
 
         Set<String> currentOnSiteOnly = new HashSet<>(currentLayout.getOnSiteOnly());
-        Set<String> incomingOnSiteOnly = incoming != null && incoming.getOnSiteOnly() != null
-                ? new HashSet<>(incoming.getOnSiteOnly()) : Collections.emptySet();
+        Set<String> incomingOnSiteOnly = incoming != null && incoming.getOnSiteOnly() != null ? new HashSet<>(incoming.getOnSiteOnly()) : Collections.emptySet();
         return !currentOnSiteOnly.equals(incomingOnSiteOnly);
     }
 

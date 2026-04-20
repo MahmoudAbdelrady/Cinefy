@@ -19,13 +19,13 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
             AND s.status != 'CANCELLED'
             AND s.startDateTime < :end
             AND s.endDateTime > :start
-            AND (:excludeUuid IS NULL OR s.uuid != :excludeUuid)
+            AND (:excludeId IS NULL OR s.id != :excludeId)
             """)
-    boolean existsOverlapping(@Param("hall") Hall hall, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end, @Param("excludeUuid") String excludeUuid);
+    boolean existsOverlapping(@Param("hall") Hall hall, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end, @Param("excludeId") Long excludeId);
 
     boolean existsByHallAndStatusIn(Hall hall, Collection<ShowtimeStatus> statuses);
 
-    boolean existsByHallAndStatusInAndUuidNot(Hall hall, Collection<ShowtimeStatus> statuses, String uuid);
+    boolean existsByHallAndStatusInAndIdNot(Hall hall, Collection<ShowtimeStatus> statuses, Long id);
 
     Optional<Showtime> findByUuid(String uuid);
 }

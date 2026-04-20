@@ -97,7 +97,7 @@ public class TmdbMovieService {
             movie.setTitle(details.getTitle());
             movie.setSynopsis(details.getSynopsis());
             movie.setGenres(details.getGenre());
-            movie.setContentRating(details.getRating());
+            movie.setContentRating(details.getContentRating());
             movie.setReleaseDate(details.getReleaseDate() != null ? LocalDate.parse(details.getReleaseDate()) : null);
             movie.setDurationMinutes(details.getDuration());
             movie.setPosterUrl(details.getPosterUrl());
@@ -119,14 +119,12 @@ public class TmdbMovieService {
             throw new RuntimeException("Error while retrieving movies");
         }
 
-        long totalResults = root.get("total_results").asLong();
-
         List<MovieSearchResultDTO> results = new ArrayList<>();
         for (JsonNode node : root.get("results")) {
             results.add(toMovieSearchResult(node));
         }
 
-        return new PageImpl<>(results, pageable, totalResults);
+        return new PageImpl<>(results, pageable, root.get("total_results").asLong());
     }
 
     private MovieSearchResultDTO toMovieSearchResult(JsonNode node) {
@@ -145,12 +143,13 @@ public class TmdbMovieService {
     }
 
     public MovieSearchResultDTO toMovieDTO(TmdbMovie m) {
+        // @TODO Morning: Use a new DTO instead
         MovieSearchResultDTO dto = new MovieSearchResultDTO();
         dto.setId(m.getId());
         dto.setTitle(m.getTitle());
         dto.setSynopsis(m.getSynopsis());
         dto.setGenre(m.getGenres());
-        dto.setRating(m.getContentRating());
+        dto.setContentRating(m.getContentRating());
         dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
         dto.setDuration(m.getDurationMinutes());
         dto.setPosterUrl(m.getPosterUrl());
@@ -158,6 +157,7 @@ public class TmdbMovieService {
     }
 
     private MovieSearchResultDTO toMovieDetail(JsonNode node) {
+        // @TODO Morning: Use the same new DTO instead
         MovieSearchResultDTO dto = new MovieSearchResultDTO();
         dto.setId(node.get("id").longValue());
         dto.setTitle(node.get("title").stringValue());
@@ -171,14 +171,14 @@ public class TmdbMovieService {
         List<String> genreNames = StreamSupport.stream(node.path("genres").spliterator(), false).map(g -> g.path("name").stringValue()).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
 
-        String rating = StreamSupport.stream(node.path("release_dates").path("results").spliterator(), false)
+        String contentRating = StreamSupport.stream(node.path("release_dates").path("results").spliterator(), false)
                 .filter(r -> "US".equals(r.path("iso_3166_1").stringValue()))
                 .flatMap(r -> StreamSupport.stream(r.path("release_dates").spliterator(), false))
                 .map(r -> r.path("certification").stringValue())
                 .filter(StringUtils::isNotEmpty)
                 .findFirst()
                 .orElse(null);
-        dto.setRating(rating);
+        dto.setContentRating(contentRating);
 
         return dto;
     }
