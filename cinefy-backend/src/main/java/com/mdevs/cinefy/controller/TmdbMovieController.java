@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.dto.MovieDetailDTO;
 import com.mdevs.cinefy.dto.MovieSearchResultDTO;
 import com.mdevs.cinefy.service.TmdbMovieService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class TmdbMovieController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MovieSearchResultDTO> getMovieDetails(@PathVariable long id) {
+    public ResponseEntity<MovieDetailDTO> getMovieDetails(@PathVariable long id) {
         return ResponseEntity.ok(tmdbMovieService.getMovieDetails(id));
     }
 }

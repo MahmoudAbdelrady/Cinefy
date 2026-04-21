@@ -13,7 +13,7 @@ public class ShowtimeSummaryDTO {
 
     private String id;
 
-    private MovieSearchResultDTO movie;
+    private MovieDetailDTO movie;
 
     private String hallId;
 

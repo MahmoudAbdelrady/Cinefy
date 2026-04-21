@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface ShowtimeRepository extends BaseRepository<Showtime> {
@@ -28,4 +29,10 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
     boolean existsByHallAndStatusInAndIdNot(Hall hall, Collection<ShowtimeStatus> statuses, Long id);
 
     Optional<Showtime> findByUuid(String uuid);
+
+    @Query("SELECT s FROM Showtime s WHERE s.tmdbMovie.id = :movieId AND s.status = :status AND (:startDateTime IS NULL OR s.startDateTime >= :startDateTime) AND (:endDateTime IS NULL OR s.startDateTime < :endDateTime)")
+    List<Showtime> findByTmdbMovieAndStatusAndStartDateTimeInRange(@Param("movieId") Long movieId,
+                                                                   @Param("status") ShowtimeStatus status,
+                                                                   @Param("startDateTime") LocalDateTime startDateTime,
+                                                                   @Param("endDateTime") LocalDateTime endDateTime);
 }

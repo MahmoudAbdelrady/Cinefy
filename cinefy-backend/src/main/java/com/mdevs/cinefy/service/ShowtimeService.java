@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -80,6 +81,21 @@ public class ShowtimeService {
         flipHallIfNoActiveShowtimes(hall, showtime.getId());
     }
 
+    @Transactional
+    public void publishDraftShowtimesForMovie(Long movieId, LocalDate date) {
+        LocalDateTime startDateTime = date != null ? date.atStartOfDay() : null;
+        LocalDateTime endDateTime = date != null ? date.plusDays(1).atStartOfDay() : null;
+        List<Showtime> draftShowtimes = showtimeRepository.findByTmdbMovieAndStatusAndStartDateTimeInRange(movieId, ShowtimeStatus.DRAFT, startDateTime, endDateTime);
+        if (draftShowtimes.isEmpty()) {
+            throw new BusinessException("No draft showtimes found for movie with id: " + movieId + (date != null ? " on " + date : ""));
+        }
+
+        for (Showtime showtime: draftShowtimes) {
+            showtime.setStatus(ShowtimeStatus.PUBLISHED);
+            showtimeRepository.save(showtime);
+        }
+    }
+
     // =========================== Helpers ===========================
 
     private Showtime findShowtime(String uuid) {
@@ -135,7 +151,7 @@ public class ShowtimeService {
     private ShowtimeSummaryDTO toSummaryDTO(Showtime showtime) {
         ShowtimeSummaryDTO dto = new ShowtimeSummaryDTO();
         dto.setId(showtime.getUuid());
-        dto.setMovie(tmdbMovieService.toMovieDTO(showtime.getTmdbMovie()));
+        dto.setMovie(tmdbMovieService.toMovieDetail(showtime.getTmdbMovie()));
         dto.setHallId(showtime.getHall().getUuid());
         dto.setHallName(showtime.getHall().getName());
         dto.setStartDateTime(showtime.getStartDateTime());

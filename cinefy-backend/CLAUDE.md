@@ -44,6 +44,8 @@ All entities extend `BaseEntity` which provides:
 - `createdAt`, `updatedAt` — JPA auditing timestamps
 - `@Audited` — Hibernate Envers on all entities
 
+**`id` vs `uuid` for lookups:** use `uuid` only when the identifier comes from outside the server (e.g., path variables, request bodies, any API input) — that's the only place the caller can't know the DB id. Once you already have an entity in hand, pass its `id` to repository/service helpers, not its `uuid`. Using `uuid` internally adds a pointless string-indexed lookup when the entity (and its `id`) are already loaded.
+
 ### BaseRepository
 
 All repositories extend `BaseRepository<T extends BaseEntity>` which extends `JpaRepository<T, Long>`. Adds a `default T findOne(Long id)` convenience.

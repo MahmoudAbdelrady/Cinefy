@@ -2,6 +2,7 @@ package com.mdevs.cinefy.service;
 
 import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.JsonNode;
+import com.mdevs.cinefy.dto.MovieDetailDTO;
 import com.mdevs.cinefy.dto.MovieSearchResultDTO;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
@@ -61,7 +62,7 @@ public class TmdbMovieService {
         return new PageImpl<>(sorted, pageable, page.getTotalElements());
     }
 
-    public MovieSearchResultDTO getMovieDetails(long tmdbId) {
+    public MovieDetailDTO getMovieDetails(long tmdbId) {
         JsonNode root;
         try {
             root = restClient.get()
@@ -91,7 +92,7 @@ public class TmdbMovieService {
 
     public TmdbMovie fetchAndCache(long tmdbId) {
         return tmdbMovieRepository.findById(tmdbId).orElseGet(() -> {
-            MovieSearchResultDTO details = getMovieDetails(tmdbId);
+            MovieDetailDTO details = getMovieDetails(tmdbId);
             TmdbMovie movie = new TmdbMovie();
             movie.setId(details.getId());
             movie.setTitle(details.getTitle());
@@ -142,9 +143,8 @@ public class TmdbMovieService {
         return dto;
     }
 
-    public MovieSearchResultDTO toMovieDTO(TmdbMovie m) {
-        // @TODO Morning: Use a new DTO instead
-        MovieSearchResultDTO dto = new MovieSearchResultDTO();
+    public MovieDetailDTO toMovieDetail(TmdbMovie m) {
+        MovieDetailDTO dto = new MovieDetailDTO();
         dto.setId(m.getId());
         dto.setTitle(m.getTitle());
         dto.setSynopsis(m.getSynopsis());
@@ -156,9 +156,8 @@ public class TmdbMovieService {
         return dto;
     }
 
-    private MovieSearchResultDTO toMovieDetail(JsonNode node) {
-        // @TODO Morning: Use the same new DTO instead
-        MovieSearchResultDTO dto = new MovieSearchResultDTO();
+    private MovieDetailDTO toMovieDetail(JsonNode node) {
+        MovieDetailDTO dto = new MovieDetailDTO();
         dto.setId(node.get("id").longValue());
         dto.setTitle(node.get("title").stringValue());
         dto.setSynopsis(node.path("overview").stringValue());
