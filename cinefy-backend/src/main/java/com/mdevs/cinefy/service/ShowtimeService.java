@@ -1,5 +1,7 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.MovieShowtimeRowDTO;
+import com.mdevs.cinefy.dto.MovieShowtimesDTO;
 import com.mdevs.cinefy.dto.ShowtimeDTO;
 import com.mdevs.cinefy.dto.ShowtimeSummaryDTO;
 import com.mdevs.cinefy.entity.Hall;
@@ -16,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +34,35 @@ public class ShowtimeService {
 
     private static final int CLEANUP_BUFFER_MINUTES = 15;
 
+    private static final Set<ShowtimeStatus> ACTIVE_STATUSES = Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED);
+
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
     // ========================= Public API =========================
+
+    public List<String> getMovieShowtimeDates(Long movieId) {
+        List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ACTIVE_STATUSES);
+        if (dates.isEmpty()) {
+            throw new NotFoundException("No showtimes found for movie with id: " + movieId);
+        }
+        return dates.stream().map(LocalDate::toString).toList();
+    }
+
+    public MovieShowtimesDTO getMovieShowtimesForDate(Long movieId, LocalDate date) {
+        List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ACTIVE_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+        if (showtimes.isEmpty()) {
+            throw new NotFoundException("No showtimes found for movie with id: " + movieId + " on " + date);
+        }
+
+        long totalDrafts = showtimeRepository.countByTmdbMovieIdAndStatus(movieId, ShowtimeStatus.DRAFT);
+        long currentDateDrafts = showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count();
+
+        MovieShowtimesDTO dto = new MovieShowtimesDTO();
+        dto.setNumberOfAllDrafts(totalDrafts);
+        dto.setNumberOfCurrentDateDrafts(currentDateDrafts);
+        dto.setShowtimes(showtimes.stream().map(this::toMovieShowtimeRow).toList());
+        return dto;
+    }
 
     @Transactional
     public ShowtimeSummaryDTO createShowtime(ShowtimeDTO dto) {
@@ -87,7 +119,7 @@ public class ShowtimeService {
         LocalDateTime endDateTime = date != null ? date.plusDays(1).atStartOfDay() : null;
         List<Showtime> draftShowtimes = showtimeRepository.findByTmdbMovieAndStatusAndStartDateTimeInRange(movieId, ShowtimeStatus.DRAFT, startDateTime, endDateTime);
         if (draftShowtimes.isEmpty()) {
-            throw new BusinessException("No draft showtimes found for movie with id: " + movieId + (date != null ? " on " + date : ""));
+            throw new NotFoundException("No draft showtimes found for movie with id: " + movieId + (date != null ? " on " + date : ""));
         }
 
         for (Showtime showtime: draftShowtimes) {
@@ -136,6 +168,17 @@ public class ShowtimeService {
         if (!stillHasShowtimes) {
             hallService.updateHallStatus(hall, HallStatus.ACTIVE);
         }
+    }
+
+    private MovieShowtimeRowDTO toMovieShowtimeRow(Showtime showtime) {
+        Hall hall = showtime.getHall();
+        MovieShowtimeRowDTO dto = new MovieShowtimeRowDTO();
+        dto.setTime(showtime.getStartDateTime().toLocalTime().format(TIME_FORMATTER));
+        dto.setHallName(hall.getName());
+        dto.setStatus(showtime.getStatus().name());
+        dto.setReservedSeats(0);
+        dto.setTotalSeats(hall.getTotalRows() * hall.getTotalColumns());
+        return dto;
     }
 
     private Showtime applyDtoToShowtime(Showtime showtime, Hall hall, TmdbMovie movie, ShowtimeDTO dto) {

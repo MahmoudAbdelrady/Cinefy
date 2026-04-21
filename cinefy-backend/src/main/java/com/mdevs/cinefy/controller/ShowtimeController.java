@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.dto.MovieShowtimesDTO;
 import com.mdevs.cinefy.dto.ShowtimeDTO;
 import com.mdevs.cinefy.dto.ShowtimeSummaryDTO;
 import com.mdevs.cinefy.service.ShowtimeService;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/showtimes")
@@ -17,6 +19,16 @@ import java.time.LocalDate;
 public class ShowtimeController {
 
     private final ShowtimeService showtimeService;
+
+    @GetMapping("/movie-dates")
+    public ResponseEntity<List<String>> getMovieShowtimeDates(@RequestParam Long movieId) {
+        return ResponseEntity.ok(showtimeService.getMovieShowtimeDates(movieId));
+    }
+
+    @GetMapping("/movie-day")
+    public ResponseEntity<MovieShowtimesDTO> getMovieShowtimesForDate(@RequestParam Long movieId, @RequestParam LocalDate date) {
+        return ResponseEntity.ok(showtimeService.getMovieShowtimesForDate(movieId, date));
+    }
 
     @PostMapping
     public ResponseEntity<ShowtimeSummaryDTO> createShowtime(@Valid @RequestBody ShowtimeDTO dto) {
