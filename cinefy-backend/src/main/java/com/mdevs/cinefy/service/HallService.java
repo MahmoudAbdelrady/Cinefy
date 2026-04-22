@@ -282,51 +282,6 @@ public class HallService {
         return true;
     }
 
-    private List<TicketPricingDTO> toPricingList(Hall hall) {
-        return hall.getCategoryPrices().stream()
-                .map(cp -> {
-                    TicketPricingDTO pricing = new TicketPricingDTO();
-                    pricing.setSeatCategory(cp.getCategory().name());
-                    pricing.setPrice(cp.getTicketPrice());
-                    return pricing;
-                })
-                .toList();
-    }
-
-    private SeatLayoutDTO toLayoutMap(Hall hall) {
-        Map<String, List<String>> categories = hall.getSeats().stream()
-                .filter(seat -> !seat.getCategory().equals(SeatCategory.NORMAL))
-                .collect(Collectors.groupingBy(
-                        seat -> seat.getCategory().name(),
-                        Collectors.mapping(
-                                Seat::getPosition,
-                                Collectors.toList()
-                        )
-                ));
-
-        List<String> onSiteOnly = hall.getSeats().stream()
-                .filter(Seat::isOnSiteOnly)
-                .map(Seat::getPosition)
-                .toList();
-
-        SeatLayoutDTO dto = new SeatLayoutDTO();
-        dto.setCategories(categories);
-        dto.setOnSiteOnly(onSiteOnly);
-        return dto;
-    }
-
-    private HallSummaryDTO toSummaryDTO(Hall hall) {
-        HallSummaryDTO summary = new HallSummaryDTO();
-        summary.setId(hall.getUuid());
-        summary.setName(hall.getName());
-        summary.setStatus(hall.getStatus().name());
-        summary.setTypeName(hall.getType().getName());
-        summary.setSupports3D(hall.isSupports3D());
-        summary.setTotalRows(hall.getTotalRows());
-        summary.setTotalColumns(hall.getTotalColumns());
-        return summary;
-    }
-
     private void applyDtoToHall(Hall hall, HallDTO dto) {
         HallType hallType = findHallType(dto.getTypeId());
 
@@ -466,6 +421,51 @@ public class HallService {
         }
 
         return assignedPositions;
+    }
+
+    private List<TicketPricingDTO> toPricingList(Hall hall) {
+        return hall.getCategoryPrices().stream()
+                .map(cp -> {
+                    TicketPricingDTO pricing = new TicketPricingDTO();
+                    pricing.setSeatCategory(cp.getCategory().name());
+                    pricing.setPrice(cp.getTicketPrice());
+                    return pricing;
+                })
+                .toList();
+    }
+
+    private SeatLayoutDTO toLayoutMap(Hall hall) {
+        Map<String, List<String>> categories = hall.getSeats().stream()
+                .filter(seat -> !seat.getCategory().equals(SeatCategory.NORMAL))
+                .collect(Collectors.groupingBy(
+                        seat -> seat.getCategory().name(),
+                        Collectors.mapping(
+                                Seat::getPosition,
+                                Collectors.toList()
+                        )
+                ));
+
+        List<String> onSiteOnly = hall.getSeats().stream()
+                .filter(Seat::isOnSiteOnly)
+                .map(Seat::getPosition)
+                .toList();
+
+        SeatLayoutDTO dto = new SeatLayoutDTO();
+        dto.setCategories(categories);
+        dto.setOnSiteOnly(onSiteOnly);
+        return dto;
+    }
+
+    private HallSummaryDTO toSummaryDTO(Hall hall) {
+        HallSummaryDTO summary = new HallSummaryDTO();
+        summary.setId(hall.getUuid());
+        summary.setName(hall.getName());
+        summary.setStatus(hall.getStatus().name());
+        summary.setTypeName(hall.getType().getName());
+        summary.setSupports3D(hall.isSupports3D());
+        summary.setTotalRows(hall.getTotalRows());
+        summary.setTotalColumns(hall.getTotalColumns());
+        return summary;
     }
 
     private int toRowIndex(String rowLabel) {

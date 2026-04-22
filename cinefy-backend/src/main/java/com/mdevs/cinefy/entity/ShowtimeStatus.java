@@ -5,6 +5,7 @@ import java.util.Arrays;
 public enum ShowtimeStatus {
     DRAFT,
     PUBLISHED,
+    RUNNING,
     FINISHED,
     CANCELLED;
 
