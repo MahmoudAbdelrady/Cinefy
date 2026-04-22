@@ -1,11 +1,11 @@
 package com.mdevs.cinefy.controller;
 
-import com.mdevs.cinefy.dto.MovieShowtimeDatesDTO;
-import com.mdevs.cinefy.dto.MovieShowtimesDTO;
-import com.mdevs.cinefy.dto.MovieWithShowtimesDTO;
-import com.mdevs.cinefy.dto.ShowtimeDTO;
-import com.mdevs.cinefy.dto.ShowtimeSummaryDTO;
-import com.mdevs.cinefy.dto.ShowtimesStatisticsDTO;
+import com.mdevs.cinefy.dto.showtime.MovieShowtimeDatesDTO;
+import com.mdevs.cinefy.dto.showtime.MovieShowtimesDTO;
+import com.mdevs.cinefy.dto.showtime.MovieWithShowtimesDTO;
+import com.mdevs.cinefy.dto.showtime.ShowtimeDTO;
+import com.mdevs.cinefy.dto.showtime.ShowtimeSummaryDTO;
+import com.mdevs.cinefy.dto.showtime.ShowtimesStatisticsDTO;
 import com.mdevs.cinefy.service.ShowtimeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

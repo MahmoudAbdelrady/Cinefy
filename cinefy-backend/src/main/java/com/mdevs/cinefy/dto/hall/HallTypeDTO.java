@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.dto;
+package com.mdevs.cinefy.dto.hall;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

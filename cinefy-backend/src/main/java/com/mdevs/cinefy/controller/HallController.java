@@ -1,11 +1,11 @@
 package com.mdevs.cinefy.controller;
 
-import com.mdevs.cinefy.dto.HallDTO;
-import com.mdevs.cinefy.dto.HallDetailDTO;
-import com.mdevs.cinefy.dto.HallLayoutDTO;
-import com.mdevs.cinefy.dto.HallStatisticsDTO;
-import com.mdevs.cinefy.dto.HallSummaryDTO;
-import com.mdevs.cinefy.dto.HallTypeDTO;
+import com.mdevs.cinefy.dto.hall.HallDTO;
+import com.mdevs.cinefy.dto.hall.HallDetailDTO;
+import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
+import com.mdevs.cinefy.dto.hall.HallStatisticsDTO;
+import com.mdevs.cinefy.dto.hall.HallSummaryDTO;
+import com.mdevs.cinefy.dto.hall.HallTypeDTO;
 import com.mdevs.cinefy.service.HallService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

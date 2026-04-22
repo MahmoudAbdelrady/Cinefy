@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.dto;
+package com.mdevs.cinefy.dto.movie;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;

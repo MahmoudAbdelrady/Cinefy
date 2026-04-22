@@ -1,7 +1,7 @@
 package com.mdevs.cinefy.controller;
 
-import com.mdevs.cinefy.dto.MovieDetailDTO;
-import com.mdevs.cinefy.dto.MovieSearchResultDTO;
+import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
+import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 import com.mdevs.cinefy.service.TmdbMovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

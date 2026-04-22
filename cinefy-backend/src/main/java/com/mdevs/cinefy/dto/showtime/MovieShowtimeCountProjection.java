@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.dto;
+package com.mdevs.cinefy.dto.showtime;
 
 public interface MovieShowtimeCountProjection {
 

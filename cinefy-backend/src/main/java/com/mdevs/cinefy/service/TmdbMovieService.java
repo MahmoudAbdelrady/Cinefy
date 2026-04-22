@@ -2,8 +2,8 @@ package com.mdevs.cinefy.service;
 
 import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.JsonNode;
-import com.mdevs.cinefy.dto.MovieDetailDTO;
-import com.mdevs.cinefy.dto.MovieSearchResultDTO;
+import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
+import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.utils.TmdbGenres;

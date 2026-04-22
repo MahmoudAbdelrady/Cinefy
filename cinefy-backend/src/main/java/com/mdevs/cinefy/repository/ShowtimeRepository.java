@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.repository;
 
-import com.mdevs.cinefy.dto.MovieShowtimeCountProjection;
+import com.mdevs.cinefy.dto.showtime.MovieShowtimeCountProjection;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.ShowtimeStatus;
