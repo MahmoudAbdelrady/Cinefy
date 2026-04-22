@@ -14,6 +14,7 @@ import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.ShowtimeStatus;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeCountProjection;
+import com.mdevs.cinefy.dto.showtime.PublishShowtimesDTO;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
@@ -131,18 +132,15 @@ public class ShowtimeService {
     }
 
     @Transactional
-    public void publishDraftShowtimesForMovie(Long movieId, LocalDate date) {
-        LocalDateTime startDateTime = date != null ? date.atStartOfDay() : null;
-        LocalDateTime endDateTime = date != null ? date.plusDays(1).atStartOfDay() : null;
-        List<Showtime> draftShowtimes = showtimeRepository.findByTmdbMovieAndStatusAndStartDateTimeInRange(movieId, ShowtimeStatus.DRAFT, startDateTime, endDateTime);
-        if (draftShowtimes.isEmpty()) {
-            throw new NotFoundException("No draft showtimes found for movie with id: " + movieId + (date != null ? " on " + date : ""));
+    public void publishShowtimes(PublishShowtimesDTO dto) {
+        if (dto.getShowtimeId() != null) {
+            publishOneShowtime(dto.getShowtimeId());
+            return;
         }
-
-        for (Showtime showtime: draftShowtimes) {
-            showtime.setStatus(ShowtimeStatus.PUBLISHED);
-            showtimeRepository.save(showtime);
+        if (dto.getMovieId() == null) {
+            throw new BusinessException("Either showtimeId or movieId is required");
         }
+        publishDraftsForMovie(dto.getMovieId(), dto.getDate());
     }
 
     public ShowtimesStatisticsDTO getShowtimesStatistics() {
@@ -182,6 +180,28 @@ public class ShowtimeService {
 
     private Showtime findShowtime(String uuid) {
         return showtimeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Showtime not found: " + uuid));
+    }
+
+    private void publishOneShowtime(String uuid) {
+        Showtime showtime = findShowtime(uuid);
+        if (!showtime.getStatus().equals(ShowtimeStatus.DRAFT)) {
+            throw new BusinessException("Only draft showtimes can be published; showtime with id: '" + uuid + "' is " + showtime.getStatus());
+        }
+        showtime.setStatus(ShowtimeStatus.PUBLISHED);
+        showtimeRepository.save(showtime);
+    }
+
+    private void publishDraftsForMovie(Long movieId, LocalDate date) {
+        LocalDateTime startDateTime = date != null ? date.atStartOfDay() : null;
+        LocalDateTime endDateTime = date != null ? date.plusDays(1).atStartOfDay() : null;
+        List<Showtime> drafts = showtimeRepository.findByTmdbMovieAndStatusAndStartDateTimeInRange(movieId, ShowtimeStatus.DRAFT, startDateTime, endDateTime);
+        if (drafts.isEmpty()) {
+            throw new NotFoundException("No draft showtimes found for movie with id: " + movieId + (date != null ? " on " + date : ""));
+        }
+        for (Showtime showtime : drafts) {
+            showtime.setStatus(ShowtimeStatus.PUBLISHED);
+            showtimeRepository.save(showtime);
+        }
     }
 
     private void validateShowtime(Hall hall, TmdbMovie movie, ShowtimeDTO dto, Long showtimeId) {
