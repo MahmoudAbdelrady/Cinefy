@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.repository;
 
+import com.mdevs.cinefy.dto.MovieShowtimeCountProjection;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.ShowtimeStatus;
@@ -8,9 +9,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ShowtimeRepository extends BaseRepository<Showtime> {
 
@@ -25,9 +26,9 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
             """)
     boolean existsOverlapping(@Param("hall") Hall hall, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end, @Param("excludeId") Long excludeId);
 
-    boolean existsByHallAndStatusIn(Hall hall, Collection<ShowtimeStatus> statuses);
+    boolean existsByHallAndStatusIn(Hall hall, Set<ShowtimeStatus> statuses);
 
-    boolean existsByHallAndStatusInAndIdNot(Hall hall, Collection<ShowtimeStatus> statuses, Long id);
+    boolean existsByHallAndStatusInAndIdNot(Hall hall, Set<ShowtimeStatus> statuses, Long id);
 
     Optional<Showtime> findByUuid(String uuid);
 
@@ -44,7 +45,7 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
             AND s.status IN :statuses
             ORDER BY CAST(s.startDateTime AS LocalDate) ASC
             """)
-    List<LocalDate> findDistinctShowtimeDatesByMovieAndStatuses(@Param("movieId") Long movieId, @Param("statuses") Collection<ShowtimeStatus> statuses);
+    List<LocalDate> findDistinctShowtimeDatesByMovieAndStatuses(@Param("movieId") Long movieId, @Param("statuses") Set<ShowtimeStatus> statuses);
 
     long countByTmdbMovieIdAndStatus(Long tmdbMovieId, ShowtimeStatus status);
 
@@ -58,7 +59,27 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
             ORDER BY s.startDateTime ASC
             """)
     List<Showtime> findByMovieStatusesAndDateRangeWithHall(@Param("movieId") Long movieId,
-                                                           @Param("statuses") Collection<ShowtimeStatus> statuses,
+                                                           @Param("statuses") Set<ShowtimeStatus> statuses,
                                                            @Param("startDateTime") LocalDateTime startDateTime,
                                                            @Param("endDateTime") LocalDateTime endDateTime);
+
+    long countByStatusIn(Set<ShowtimeStatus> statuses);
+
+    @Query("SELECT COUNT(DISTINCT s.tmdbMovie.id) FROM Showtime s WHERE s.status IN :statuses")
+    long countDistinctMoviesByStatusIn(@Param("statuses") Set<ShowtimeStatus> statuses);
+
+    long countByStatusInAndStartDateTimeGreaterThanEqualAndStartDateTimeLessThan(Set<ShowtimeStatus> statuses,
+                                                                                 LocalDateTime startInclusive,
+                                                                                 LocalDateTime endExclusive);
+
+    @Query("""
+            SELECT s.tmdbMovie.id AS movieId,
+                   COUNT(s) AS totalShowtimes,
+                   SUM(CASE WHEN s.status = 'DRAFT' THEN 1 ELSE 0 END) AS totalDraftShowtimes
+            FROM Showtime s
+            WHERE s.status IN :statuses
+            GROUP BY s.tmdbMovie.id
+            ORDER BY COUNT(s) DESC
+            """)
+    List<MovieShowtimeCountProjection> findMovieShowtimeCounts(@Param("statuses") Set<ShowtimeStatus> statuses);
 }

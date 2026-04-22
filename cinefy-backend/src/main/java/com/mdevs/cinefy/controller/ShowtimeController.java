@@ -1,8 +1,11 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.dto.MovieShowtimeDatesDTO;
 import com.mdevs.cinefy.dto.MovieShowtimesDTO;
+import com.mdevs.cinefy.dto.MovieWithShowtimesDTO;
 import com.mdevs.cinefy.dto.ShowtimeDTO;
 import com.mdevs.cinefy.dto.ShowtimeSummaryDTO;
+import com.mdevs.cinefy.dto.ShowtimesStatisticsDTO;
 import com.mdevs.cinefy.service.ShowtimeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +24,23 @@ public class ShowtimeController {
     private final ShowtimeService showtimeService;
 
     @GetMapping("/movie-dates")
-    public ResponseEntity<List<String>> getMovieShowtimeDates(@RequestParam Long movieId) {
+    public ResponseEntity<MovieShowtimeDatesDTO> getMovieShowtimeDates(@RequestParam Long movieId) {
         return ResponseEntity.ok(showtimeService.getMovieShowtimeDates(movieId));
     }
 
     @GetMapping("/movie-day")
     public ResponseEntity<MovieShowtimesDTO> getMovieShowtimesForDate(@RequestParam Long movieId, @RequestParam LocalDate date) {
         return ResponseEntity.ok(showtimeService.getMovieShowtimesForDate(movieId, date));
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<ShowtimesStatisticsDTO> getShowtimesStatistics() {
+        return ResponseEntity.ok(showtimeService.getShowtimesStatistics());
+    }
+
+    @GetMapping("/movies")
+    public ResponseEntity<List<MovieWithShowtimesDTO>> getMovies() {
+        return ResponseEntity.ok(showtimeService.getMoviesWithShowtimes());
     }
 
     @PostMapping

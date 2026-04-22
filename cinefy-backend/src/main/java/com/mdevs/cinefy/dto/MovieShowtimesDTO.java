@@ -9,9 +9,7 @@ import java.util.List;
 @Setter
 public class MovieShowtimesDTO {
 
-    private long numberOfAllDrafts;
-
-    private long numberOfCurrentDateDrafts;
+    private long numberOfDrafts;
 
     private List<MovieShowtimeRowDTO> showtimes;
 }

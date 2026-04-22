@@ -160,7 +160,7 @@ public class HallService {
     @Transactional
     public void deleteHall(String uuid) {
         Hall hall = findHall(uuid);
-        if (showtimeRepository.existsByHallAndStatusIn(hall, List.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED))) {
+        if (showtimeRepository.existsByHallAndStatusIn(hall, Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED))) {
             throw new BusinessException("Cannot delete hall '" + hall.getName() + "' while it has active showtimes");
         }
         hallRepository.delete(hall);
@@ -239,7 +239,7 @@ public class HallService {
 
     private void validateHallMutability(Hall hall, HallDTO dto) {
         // @TODO --> This could be changed to depend on the number of reserved seats instead
-        if (!showtimeRepository.existsByHallAndStatusIn(hall, List.of(ShowtimeStatus.PUBLISHED))) {
+        if (!showtimeRepository.existsByHallAndStatusIn(hall, Set.of(ShowtimeStatus.PUBLISHED))) {
             return;
         }
         if (hasCriticalChange(hall, dto)) {

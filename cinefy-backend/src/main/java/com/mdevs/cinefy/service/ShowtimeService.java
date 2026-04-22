@@ -1,15 +1,21 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.MovieDetailDTO;
+import com.mdevs.cinefy.dto.MovieShowtimeDatesDTO;
 import com.mdevs.cinefy.dto.MovieShowtimeRowDTO;
 import com.mdevs.cinefy.dto.MovieShowtimesDTO;
+import com.mdevs.cinefy.dto.MovieWithShowtimesDTO;
 import com.mdevs.cinefy.dto.ShowtimeDTO;
 import com.mdevs.cinefy.dto.ShowtimeSummaryDTO;
+import com.mdevs.cinefy.dto.ShowtimesStatisticsDTO;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.HallStatus;
 import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.ShowtimeStatus;
 import com.mdevs.cinefy.entity.TmdbMovie;
+import com.mdevs.cinefy.dto.MovieShowtimeCountProjection;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
+import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +25,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ShowtimeService {
 
     private final ShowtimeRepository showtimeRepository;
+
+    private final TmdbMovieRepository tmdbMovieRepository;
 
     private final HallService hallService;
 
@@ -40,12 +53,18 @@ public class ShowtimeService {
 
     // ========================= Public API =========================
 
-    public List<String> getMovieShowtimeDates(Long movieId) {
+    public MovieShowtimeDatesDTO getMovieShowtimeDates(Long movieId) {
         List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ACTIVE_STATUSES);
         if (dates.isEmpty()) {
             throw new NotFoundException("No showtimes found for movie with id: " + movieId);
         }
-        return dates.stream().map(LocalDate::toString).toList();
+
+        long numberOfDrafts = showtimeRepository.countByTmdbMovieIdAndStatus(movieId, ShowtimeStatus.DRAFT);
+
+        MovieShowtimeDatesDTO dto = new MovieShowtimeDatesDTO();
+        dto.setNumberOfDrafts(numberOfDrafts);
+        dto.setDates(dates.stream().map(LocalDate::toString).toList());
+        return dto;
     }
 
     public MovieShowtimesDTO getMovieShowtimesForDate(Long movieId, LocalDate date) {
@@ -54,12 +73,10 @@ public class ShowtimeService {
             throw new NotFoundException("No showtimes found for movie with id: " + movieId + " on " + date);
         }
 
-        long totalDrafts = showtimeRepository.countByTmdbMovieIdAndStatus(movieId, ShowtimeStatus.DRAFT);
-        long currentDateDrafts = showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count();
+        long numberOfDrafts = showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count();
 
         MovieShowtimesDTO dto = new MovieShowtimesDTO();
-        dto.setNumberOfAllDrafts(totalDrafts);
-        dto.setNumberOfCurrentDateDrafts(currentDateDrafts);
+        dto.setNumberOfDrafts(numberOfDrafts);
         dto.setShowtimes(showtimes.stream().map(this::toMovieShowtimeRow).toList());
         return dto;
     }
@@ -128,6 +145,39 @@ public class ShowtimeService {
         }
     }
 
+    public ShowtimesStatisticsDTO getShowtimesStatistics() {
+        long totalMovies = showtimeRepository.countDistinctMoviesByStatusIn(ACTIVE_STATUSES);
+        long totalShowtimes = showtimeRepository.countByStatusIn(ACTIVE_STATUSES);
+        LocalDate today = LocalDate.now();
+        long todayShowtimes = showtimeRepository.countByStatusInAndStartDateTimeGreaterThanEqualAndStartDateTimeLessThan(
+                ACTIVE_STATUSES, today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+
+        ShowtimesStatisticsDTO dto = new ShowtimesStatisticsDTO();
+        dto.setTotalMovies(totalMovies);
+        dto.setTotalShowtimes(totalShowtimes);
+        dto.setTodayShowtimes(todayShowtimes);
+        return dto;
+    }
+
+    public List<MovieWithShowtimesDTO> getMoviesWithShowtimes() {
+        List<MovieShowtimeCountProjection> counts = showtimeRepository.findMovieShowtimeCounts(ACTIVE_STATUSES);
+        if (counts.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> movieIds = counts.stream().map(MovieShowtimeCountProjection::getMovieId).toList();
+        Map<Long, TmdbMovie> moviesById = tmdbMovieRepository.findAllById(movieIds).stream()
+                .collect(Collectors.toMap(TmdbMovie::getId, Function.identity()));
+
+        return counts.stream()
+                .map(c -> toMovieWithShowtimes(c, moviesById.get(c.getMovieId())))
+                .filter(Objects::nonNull)
+                .sorted(Comparator
+                        .comparingLong(MovieWithShowtimesDTO::getTotalShowtimes).reversed()
+                        .thenComparing(dto -> dto.getMovieDetails().getTitle(), Comparator.nullsLast(String::compareTo)))
+                .toList();
+    }
+
     // =========================== Helpers ===========================
 
     private Showtime findShowtime(String uuid) {
@@ -164,10 +214,22 @@ public class ShowtimeService {
     }
 
     private void flipHallIfNoActiveShowtimes(Hall hall, Long excludeId) {
-        boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndIdNot(hall, List.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED), excludeId);
+        boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndIdNot(hall, Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED), excludeId);
         if (!stillHasShowtimes) {
             hallService.updateHallStatus(hall, HallStatus.ACTIVE);
         }
+    }
+
+    private MovieWithShowtimesDTO toMovieWithShowtimes(MovieShowtimeCountProjection counts, TmdbMovie movie) {
+        if (movie == null) return null;
+        MovieDetailDTO details = tmdbMovieService.toMovieDetail(movie);
+        details.setSynopsis(null);
+
+        MovieWithShowtimesDTO dto = new MovieWithShowtimesDTO();
+        dto.setTotalShowtimes(counts.getTotalShowtimes());
+        dto.setTotalDraftShowtimes(counts.getTotalDraftShowtimes());
+        dto.setMovieDetails(details);
+        return dto;
     }
 
     private MovieShowtimeRowDTO toMovieShowtimeRow(Showtime showtime) {
