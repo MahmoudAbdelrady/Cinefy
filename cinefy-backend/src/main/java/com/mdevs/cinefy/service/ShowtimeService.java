@@ -1,8 +1,9 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.hall.HallReferenceDTO;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeDatesDTO;
-import com.mdevs.cinefy.dto.showtime.MovieShowtimeRowDTO;
+import com.mdevs.cinefy.dto.showtime.MovieShowtimeListItemDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieWithShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimeDTO;
@@ -78,7 +79,7 @@ public class ShowtimeService {
 
         MovieShowtimesDTO dto = new MovieShowtimesDTO();
         dto.setNumberOfDrafts(numberOfDrafts);
-        dto.setShowtimes(showtimes.stream().map(this::toMovieShowtimeRow).toList());
+        dto.setShowtimes(showtimes.stream().map(this::toMovieShowtimeListItem).toList());
         return dto;
     }
 
@@ -258,12 +259,15 @@ public class ShowtimeService {
         return showtime;
     }
 
-    private MovieShowtimeRowDTO toMovieShowtimeRow(Showtime showtime) {
+    private MovieShowtimeListItemDTO toMovieShowtimeListItem(Showtime showtime) {
         Hall hall = showtime.getHall();
-        MovieShowtimeRowDTO dto = new MovieShowtimeRowDTO();
+        MovieShowtimeListItemDTO dto = new MovieShowtimeListItemDTO();
+        dto.setId(showtime.getUuid());
         dto.setTime(showtime.getStartDateTime().toLocalTime().format(TIME_FORMATTER));
-        dto.setHallName(hall.getName());
+        dto.setHall(toHallReference(hall));
         dto.setStatus(showtime.getStatus().name());
+        dto.setSpecialNotes(showtime.getSpecialNotes());
+        dto.set3D(showtime.is3D());
         dto.setReservedSeats(0);
         dto.setTotalSeats(hall.getTotalRows() * hall.getTotalColumns());
         return dto;
@@ -285,10 +289,16 @@ public class ShowtimeService {
         ShowtimeSummaryDTO dto = new ShowtimeSummaryDTO();
         dto.setId(showtime.getUuid());
         dto.setMovie(tmdbMovieService.toMovieDetail(showtime.getTmdbMovie()));
-        dto.setHallId(showtime.getHall().getUuid());
-        dto.setHallName(showtime.getHall().getName());
+        dto.setHall(toHallReference(showtime.getHall()));
         dto.setStartDateTime(showtime.getStartDateTime());
         dto.setStatus(showtime.getStatus().name());
+        return dto;
+    }
+
+    private HallReferenceDTO toHallReference(Hall hall) {
+        HallReferenceDTO dto = new HallReferenceDTO();
+        dto.setId(hall.getUuid());
+        dto.setName(hall.getName());
         return dto;
     }
 }

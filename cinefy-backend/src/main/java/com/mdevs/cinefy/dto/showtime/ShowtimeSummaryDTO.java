@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.dto.showtime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.mdevs.cinefy.dto.hall.HallReferenceDTO;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,9 +17,7 @@ public class ShowtimeSummaryDTO {
 
     private MovieDetailDTO movie;
 
-    private String hallId;
-
-    private String hallName;
+    private HallReferenceDTO hall;
 
     private LocalDateTime startDateTime;
 

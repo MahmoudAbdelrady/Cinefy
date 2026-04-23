@@ -11,5 +11,5 @@ public class MovieShowtimesDTO {
 
     private long numberOfDrafts;
 
-    private List<MovieShowtimeRowDTO> showtimes;
+    private List<MovieShowtimeListItemDTO> showtimes;
 }
