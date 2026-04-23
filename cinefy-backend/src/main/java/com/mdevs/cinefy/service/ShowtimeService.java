@@ -210,6 +210,12 @@ public class ShowtimeService {
         }
     }
 
+    private void validateShowtimeNotInPast(Showtime showtime) {
+        if (showtime.getStartDateTime().isBefore(LocalDateTime.now())) {
+            throw new BusinessException("Cannot publish a showtime scheduled in the past; showtime with id: '" + showtime.getUuid() + "' was scheduled for " + showtime.getStartDateTime());
+        }
+    }
+
     private void flipHallIfNoActiveShowtimes(Hall hall, Long excludeId) {
         boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndIdNot(hall, Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED), excludeId);
         if (!stillHasShowtimes) {
@@ -222,6 +228,7 @@ public class ShowtimeService {
         if (!showtime.getStatus().equals(ShowtimeStatus.DRAFT)) {
             throw new BusinessException("Only draft showtimes can be published; showtime with id: '" + uuid + "' is " + showtime.getStatus());
         }
+        validateShowtimeNotInPast(showtime);
         showtime.setStatus(ShowtimeStatus.PUBLISHED);
         showtimeRepository.save(showtime);
     }
@@ -233,6 +240,7 @@ public class ShowtimeService {
         if (drafts.isEmpty()) {
             throw new NotFoundException("No draft showtimes found for movie with id: " + movieId + (date != null ? " on " + date : ""));
         }
+        drafts.forEach(this::validateShowtimeNotInPast);
         for (Showtime showtime : drafts) {
             showtime.setStatus(ShowtimeStatus.PUBLISHED);
             showtimeRepository.save(showtime);
