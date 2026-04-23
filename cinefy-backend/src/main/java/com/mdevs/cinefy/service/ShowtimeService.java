@@ -132,6 +132,7 @@ public class ShowtimeService {
     @Transactional
     public ShowtimeSummaryDTO updateShowtime(String uuid, ShowtimeDTO dto) {
         Showtime showtime = findShowtime(uuid);
+        // @TODO --> This should be changed to depend on the number of reserved seats instead for the published status
         if (!showtime.getStatus().equals(ShowtimeStatus.DRAFT) && !showtime.getStatus().equals(ShowtimeStatus.PUBLISHED)) {
             throw new BusinessException("Only draft or published showtimes can be updated");
         }
