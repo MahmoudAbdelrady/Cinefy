@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
@@ -95,16 +96,16 @@ public class TmdbMovieService {
             MovieDetailDTO details = getMovieDetails(tmdbId);
             TmdbMovie movie = new TmdbMovie();
             movie.setId(details.getId());
-            movie.setTitle(details.getTitle());
-            movie.setSynopsis(details.getSynopsis());
-            movie.setGenres(details.getGenre());
-            movie.setContentRating(details.getContentRating());
-            movie.setReleaseDate(details.getReleaseDate() != null ? LocalDate.parse(details.getReleaseDate()) : null);
-            movie.setDurationMinutes(details.getDuration());
-            movie.setPosterUrl(details.getPosterUrl());
-            movie.setLastSyncedAt(LocalDateTime.now());
+            applyDetailsToMovie(movie, details);
             return tmdbMovieRepository.save(movie);
         });
+    }
+
+    @Transactional
+    public void refreshFromTmdb(TmdbMovie movie) {
+        MovieDetailDTO details = getMovieDetails(movie.getId());
+        applyDetailsToMovie(movie, details);
+        tmdbMovieRepository.save(movie);
     }
 
     // =========================== Helpers ===========================
@@ -128,6 +129,17 @@ public class TmdbMovieService {
         return new PageImpl<>(results, pageable, root.get("total_results").asLong());
     }
 
+    private void applyDetailsToMovie(TmdbMovie movie, MovieDetailDTO details) {
+        movie.setTitle(details.getTitle());
+        movie.setSynopsis(details.getSynopsis());
+        movie.setGenres(details.getGenre());
+        movie.setContentRating(details.getContentRating());
+        movie.setReleaseDate(details.getReleaseDate() != null ? LocalDate.parse(details.getReleaseDate()) : null);
+        movie.setDurationMinutes(details.getDuration());
+        movie.setPosterUrl(details.getPosterUrl());
+        movie.setLastSyncedAt(LocalDateTime.now());
+    }
+
     private MovieSearchResultDTO toMovieSearchResult(JsonNode node) {
         MovieSearchResultDTO dto = new MovieSearchResultDTO();
         dto.setId(node.get("id").longValue());
@@ -140,19 +152,6 @@ public class TmdbMovieService {
         List<String> genreNames = StreamSupport.stream(node.path("genre_ids").spliterator(), false).map(g -> TmdbGenres.resolve(g.asInt())).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
 
-        return dto;
-    }
-
-    public MovieDetailDTO toMovieDetail(TmdbMovie m) {
-        MovieDetailDTO dto = new MovieDetailDTO();
-        dto.setId(m.getId());
-        dto.setTitle(m.getTitle());
-        dto.setSynopsis(m.getSynopsis());
-        dto.setGenre(m.getGenres());
-        dto.setContentRating(m.getContentRating());
-        dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
-        dto.setDuration(m.getDurationMinutes());
-        dto.setPosterUrl(m.getPosterUrl());
         return dto;
     }
 
@@ -179,6 +178,19 @@ public class TmdbMovieService {
                 .orElse(null);
         dto.setContentRating(contentRating);
 
+        return dto;
+    }
+
+    public MovieDetailDTO toMovieDetail(TmdbMovie m) {
+        MovieDetailDTO dto = new MovieDetailDTO();
+        dto.setId(m.getId());
+        dto.setTitle(m.getTitle());
+        dto.setSynopsis(m.getSynopsis());
+        dto.setGenre(m.getGenres());
+        dto.setContentRating(m.getContentRating());
+        dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
+        dto.setDuration(m.getDurationMinutes());
+        dto.setPosterUrl(m.getPosterUrl());
         return dto;
     }
 }

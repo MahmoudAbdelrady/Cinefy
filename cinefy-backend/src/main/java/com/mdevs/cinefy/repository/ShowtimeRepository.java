@@ -4,6 +4,7 @@ import com.mdevs.cinefy.dto.showtime.MovieShowtimeCountProjection;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.ShowtimeStatus;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -82,4 +83,21 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
             ORDER BY COUNT(s) DESC
             """)
     List<MovieShowtimeCountProjection> findMovieShowtimeCounts(@Param("statuses") Set<ShowtimeStatus> statuses);
+
+    @Modifying
+    @Query("""
+            UPDATE Showtime s SET s.status = 'RUNNING'
+            WHERE s.status = 'PUBLISHED'
+            AND s.startDateTime <= :now
+            AND s.endDateTime > :now
+            """)
+    int markRunningAsOf(@Param("now") LocalDateTime now);
+
+    @Modifying
+    @Query("""
+            UPDATE Showtime s SET s.status = 'FINISHED'
+            WHERE s.status IN ('PUBLISHED', 'RUNNING')
+            AND s.endDateTime <= :now
+            """)
+    int markFinishedAsOf(@Param("now") LocalDateTime now);
 }

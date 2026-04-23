@@ -34,7 +34,7 @@ Role groups, top-to-bottom:
 3. **Side-effect helpers** — helpers that perform mutations or cascading state changes (e.g., `flipHallIfNoActiveShowtimes`, `publishOneShowtime`, `publishDraftsForMovie`). These contain the actual "do the thing" logic. If a helper mixes validation with mutation (e.g. `publishOneShowtime` checks status _and_ writes), it belongs in this group — the dominant role is the mutation.
 4. **Mappers** — entity/DTO transformations. Placed after side-effect helpers because they're reference material: a reader skimming top-to-bottom sees control flow first, schema-shaped code next-to-last.
    - Within mappers: put **DTO → entity** mappers (e.g. `applyDtoToShowtime`) before **entity → DTO** mappers. The former is used during create/update; the latter during response shaping.
-   - Within entity → DTO mappers, order by first use.
+   - **Within each direction, order by first use from the public methods above.** If mapper A is called before mapper B in the file's public API section, A goes above B. Applies to both DTO→entity and entity→DTO groups independently.
 5. **Utilities** — pure stateless helpers with no domain role (math, parsing, string manipulation, format conversions). Examples: `toRowIndex`, `toRowLabel`, regex-matching predicates used by multiple role groups. Placed last because they're the leaves of the call graph — referenced by everything above, depending on nothing.
 
 ## Why this order

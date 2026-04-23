@@ -155,9 +155,9 @@ public class ShowtimeService {
     @Transactional
     public void deleteShowtime(String uuid) {
         Showtime showtime = findShowtime(uuid);
-        // @TODO --> This could be changed to depend on the number of reserved seats instead
-        if (showtime.getStatus().equals(ShowtimeStatus.PUBLISHED)) {
-            throw new BusinessException("Cannot delete a published showtime");
+        // @TODO --> This should be changed to depend on the number of reserved seats instead
+        if (!showtime.getStatus().equals(ShowtimeStatus.DRAFT)) {
+            throw new BusinessException("Only draft showtimes can be deleted");
         }
         Hall hall = showtime.getHall();
         showtimeRepository.delete(showtime);
@@ -203,7 +203,6 @@ public class ShowtimeService {
             throw new BusinessException("Movie '" + movie.getTitle() + "' does not have a runtime yet and cannot be scheduled");
         }
 
-        // Pad the new showtime's end with a cleanup buffer, so back-to-back showtimes leave time to reset the hall
         LocalDateTime end = dto.getDateTime().plusMinutes(movie.getDurationMinutes()).plusMinutes(CLEANUP_BUFFER_MINUTES);
         boolean overlaps = showtimeRepository.existsOverlapping(hall, dto.getDateTime(), end, showtimeId);
         if (overlaps) {
@@ -244,7 +243,7 @@ public class ShowtimeService {
         showtime.setTmdbMovie(movie);
         showtime.setHall(hall);
         showtime.setStartDateTime(dto.getDateTime());
-        showtime.setEndDateTime(dto.getDateTime().plusMinutes(movie.getDurationMinutes()));
+        showtime.setEndDateTime(dto.getDateTime().plusMinutes(movie.getDurationMinutes()).plusMinutes(CLEANUP_BUFFER_MINUTES));
         showtime.set3D(dto.is3D());
         showtime.setSpecialNotes(dto.getSpecialNotes());
         return showtime;
