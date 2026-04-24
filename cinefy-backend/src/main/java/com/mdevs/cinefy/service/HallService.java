@@ -153,6 +153,7 @@ public class HallService {
 
     @Transactional
     public void updateHallStatus(Hall hall, HallStatus status) {
+        if (hall.getStatus().equals(status)) return;
         hall.setStatus(status);
         hallRepository.save(hall);
     }
@@ -160,7 +161,7 @@ public class HallService {
     @Transactional
     public void deleteHall(String uuid) {
         Hall hall = findHall(uuid);
-        if (showtimeRepository.existsByHallAndStatusIn(hall, Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED))) {
+        if (showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.ACTIVE_STATUSES)) {
             throw new BusinessException("Cannot delete hall '" + hall.getName() + "' while it has active showtimes");
         }
         hallRepository.delete(hall);

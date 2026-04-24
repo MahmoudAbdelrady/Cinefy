@@ -19,7 +19,8 @@ import java.time.LocalDateTime;
         @Index(columnList = "START_DATE_TIME"),
         @Index(columnList = "END_DATE_TIME"),
         @Index(columnList = "TMDB_MOVIE_ID, STATUS, START_DATE_TIME"),
-        @Index(columnList = "START_DATE_TIME, END_DATE_TIME")
+        @Index(columnList = "START_DATE_TIME, END_DATE_TIME"),
+        @Index(columnList = "HALL_ID, STATUS")
 })
 public class Showtime extends BaseEntity {
 

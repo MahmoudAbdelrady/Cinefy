@@ -30,8 +30,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -49,14 +47,12 @@ public class ShowtimeService {
 
     private static final int CLEANUP_BUFFER_MINUTES = 15;
 
-    private static final Set<ShowtimeStatus> ACTIVE_STATUSES = Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED);
-
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     // ========================= Public API =========================
 
     public MovieShowtimeDatesDTO getMovieShowtimeDates(Long movieId) {
-        List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ACTIVE_STATUSES);
+        List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ShowtimeStatus.ACTIVE_STATUSES);
         if (dates.isEmpty()) {
             throw new NotFoundException("No showtimes found for movie with id: " + movieId);
         }
@@ -70,7 +66,7 @@ public class ShowtimeService {
     }
 
     public MovieShowtimesDTO getMovieShowtimesForDate(Long movieId, LocalDate date) {
-        List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ACTIVE_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+        List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ShowtimeStatus.ACTIVE_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
         if (showtimes.isEmpty()) {
             throw new NotFoundException("No showtimes found for movie with id: " + movieId + " on " + date);
         }
@@ -84,11 +80,11 @@ public class ShowtimeService {
     }
 
     public ShowtimesStatisticsDTO getShowtimesStatistics() {
-        long totalMovies = showtimeRepository.countDistinctMoviesByStatusIn(ACTIVE_STATUSES);
-        long totalShowtimes = showtimeRepository.countByStatusIn(ACTIVE_STATUSES);
+        long totalMovies = showtimeRepository.countDistinctMoviesByStatusIn(ShowtimeStatus.ACTIVE_STATUSES);
+        long totalShowtimes = showtimeRepository.countByStatusIn(ShowtimeStatus.ACTIVE_STATUSES);
         LocalDate today = LocalDate.now();
         long todayShowtimes = showtimeRepository.countByStatusInAndStartDateTimeGreaterThanEqualAndStartDateTimeLessThan(
-                ACTIVE_STATUSES, today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+                ShowtimeStatus.ACTIVE_STATUSES, today.atStartOfDay(), today.plusDays(1).atStartOfDay());
 
         ShowtimesStatisticsDTO dto = new ShowtimesStatisticsDTO();
         dto.setTotalMovies(totalMovies);
@@ -98,7 +94,7 @@ public class ShowtimeService {
     }
 
     public List<MovieWithShowtimesDTO> getMoviesWithShowtimes() {
-        List<MovieShowtimeCountProjection> counts = showtimeRepository.findMovieShowtimeCounts(ACTIVE_STATUSES);
+        List<MovieShowtimeCountProjection> counts = showtimeRepository.findMovieShowtimeCounts(ShowtimeStatus.ACTIVE_STATUSES);
         if (counts.isEmpty()) {
             return List.of();
         }
@@ -109,10 +105,9 @@ public class ShowtimeService {
 
         return counts.stream()
                 .map(c -> toMovieWithShowtimes(c, moviesById.get(c.getMovieId())))
-                .filter(Objects::nonNull)
                 .sorted(Comparator
                         .comparingLong(MovieWithShowtimesDTO::getTotalShowtimes).reversed()
-                        .thenComparing(dto -> dto.getMovieDetails().getTitle(), Comparator.nullsLast(String::compareTo)))
+                        .thenComparing(dto -> dto.getMovieDetails().getReleaseDate(), Comparator.nullsLast(Comparator.reverseOrder())))
                 .toList();
     }
 
@@ -134,7 +129,7 @@ public class ShowtimeService {
     public ShowtimeSummaryDTO updateShowtime(String uuid, ShowtimeDTO dto) {
         Showtime showtime = findShowtime(uuid);
         // @TODO --> This should be changed to depend on the number of reserved seats instead for the published status
-        if (!showtime.getStatus().equals(ShowtimeStatus.DRAFT) && !showtime.getStatus().equals(ShowtimeStatus.PUBLISHED)) {
+        if (!ShowtimeStatus.ACTIVE_STATUSES.contains(showtime.getStatus())) {
             throw new BusinessException("Only draft or published showtimes can be updated");
         }
 
@@ -157,9 +152,9 @@ public class ShowtimeService {
     @Transactional
     public void deleteShowtime(String uuid) {
         Showtime showtime = findShowtime(uuid);
-        // @TODO --> This should be changed to depend on the number of reserved seats instead
-        if (!showtime.getStatus().equals(ShowtimeStatus.DRAFT)) {
-            throw new BusinessException("Only draft showtimes can be deleted");
+        // @TODO --> This should be changed to depend on the number of reserved seats instead for the published status
+        if (!ShowtimeStatus.ACTIVE_STATUSES.contains(showtime.getStatus())) {
+            throw new BusinessException("Only draft or published showtimes can be deleted");
         }
         Hall hall = showtime.getHall();
         showtimeRepository.delete(showtime);
@@ -219,7 +214,7 @@ public class ShowtimeService {
     }
 
     private void flipHallIfNoActiveShowtimes(Hall hall, Long excludeId) {
-        boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndIdNot(hall, Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED), excludeId);
+        boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndIdNot(hall, ShowtimeStatus.ACTIVE_STATUSES, excludeId);
         if (!stillHasShowtimes) {
             hallService.updateHallStatus(hall, HallStatus.ACTIVE);
         }
@@ -274,7 +269,6 @@ public class ShowtimeService {
     }
 
     private MovieWithShowtimesDTO toMovieWithShowtimes(MovieShowtimeCountProjection counts, TmdbMovie movie) {
-        if (movie == null) return null;
         MovieDetailDTO details = tmdbMovieService.toMovieDetail(movie);
         details.setSynopsis(null);
 

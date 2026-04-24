@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.entity;
 
 import java.util.Arrays;
+import java.util.Set;
 
 public enum ShowtimeStatus {
     DRAFT,
@@ -8,6 +9,8 @@ public enum ShowtimeStatus {
     RUNNING,
     FINISHED,
     CANCELLED;
+
+    public static final Set<ShowtimeStatus> ACTIVE_STATUSES = Set.of(DRAFT, PUBLISHED);
 
     public static ShowtimeStatus fromString(String name) {
         return Arrays.stream(values())
