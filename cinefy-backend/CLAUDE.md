@@ -1,5 +1,11 @@
 # CLAUDE.md — cinefy-backend
 
+## Code Style
+
+- Always declare explicit access modifiers (`public`, `protected`, `private`) on every class, field, method, and constructor. Do not leave anything package-private.
+- In DTO classes, separate each field with a blank line — never stack fields without spacing.
+- For method ordering within a class (public API layout, helper grouping by role, mapper placement), follow [.claude/rules/file-methods-order.md](.claude/rules/file-methods-order.md) — check it at the start of each session.
+
 ## Stack
 
 - **Spring Boot 4.0.5**, Java 25, Maven
@@ -33,11 +39,14 @@ com.mdevs.cinefy
 ### BaseEntity
 
 All entities extend `BaseEntity` which provides:
+
 - `id` (Long) — DB primary key, `@GeneratedValue(IDENTITY)`
 - `uuid` (String) — API-facing identifier, auto-generated in `@PrePersist`
 - `version` (long) — optimistic locking via `@Version`
 - `createdAt`, `updatedAt` — JPA auditing timestamps
 - `@Audited` — Hibernate Envers on all entities
+
+**`id` vs `uuid` for lookups:** use `uuid` only when the identifier comes from outside the server (e.g., path variables, request bodies, any API input) — that's the only place the caller can't know the DB id. Once you already have an entity in hand, pass its `id` to repository/service helpers, not its `uuid`. Using `uuid` internally adds a pointless string-indexed lookup when the entity (and its `id`) are already loaded.
 
 ### BaseRepository
 
@@ -78,6 +87,7 @@ Entities with user-facing names (Hall, HallType) derive a `code` field via a sta
 ### Exception Handling
 
 Global `@RestControllerAdvice` in `CinefyExceptionHandler`:
+
 - `BusinessException` → 400
 - `NotFoundException` → 404
 - `MethodArgumentNotValidException` → 400 with field-level errors
@@ -86,6 +96,7 @@ Global `@RestControllerAdvice` in `CinefyExceptionHandler`:
 ### Naming Strategy
 
 `CinefyTableNamingStrategy` maps:
+
 - Entity names → `UPPER_PLURAL` table names
 - camelCase fields → `UPPER_SNAKE_CASE` columns
 - Audit tables use `_REVISIONS` suffix
@@ -136,16 +147,16 @@ Seat positions are strings matching `^([A-Z]+)([0-9]+)$` (e.g. `A1`, `AA15`). `H
 
 All under `/halls`:
 
-| Method | Path                | Input          | Output          |
-|--------|---------------------|----------------|-----------------|
-| GET    | `/halls`            | ?search, ?excludeHallId, page | Page<HallSummaryDTO> |
-| GET    | `/halls/statistics` |                | HallStatisticsDTO (totalHalls, activeHalls, totalCapacity) |
-| GET    | `/halls/{uuid}`     |                | HallDetailDTO   |
-| GET    | `/halls/{uuid}/layout` |             | HallLayoutDTO   |
-| POST   | `/halls`            | HallDTO        | HallSummaryDTO  |
-| PUT    | `/halls/{uuid}`     | HallDTO        | HallSummaryDTO  |
-| DELETE | `/halls/{uuid}`     |                | 204             |
-| GET    | `/halls/types`      |                | List<HallTypeDTO> |
-| POST   | `/halls/types`      | HallTypeDTO    | HallTypeDTO     |
-| PUT    | `/halls/types/{uuid}` | HallTypeDTO  | HallTypeDTO     |
-| DELETE | `/halls/types/{uuid}` |              | 204             |
+| Method | Path                   | Input                         | Output                                                     |
+| ------ | ---------------------- | ----------------------------- | ---------------------------------------------------------- |
+| GET    | `/halls`               | ?search, ?excludeHallId, page | Page<HallSummaryDTO>                                       |
+| GET    | `/halls/statistics`    |                               | HallStatisticsDTO (totalHalls, activeHalls, totalCapacity) |
+| GET    | `/halls/{uuid}`        |                               | HallDetailDTO                                              |
+| GET    | `/halls/{uuid}/layout` |                               | HallLayoutDTO                                              |
+| POST   | `/halls`               | HallDTO                       | HallSummaryDTO                                             |
+| PUT    | `/halls/{uuid}`        | HallDTO                       | HallSummaryDTO                                             |
+| DELETE | `/halls/{uuid}`        |                               | 204                                                        |
+| GET    | `/halls/types`         |                               | List<HallTypeDTO>                                          |
+| POST   | `/halls/types`         | HallTypeDTO                   | HallTypeDTO                                                |
+| PUT    | `/halls/types/{uuid}`  | HallTypeDTO                   | HallTypeDTO                                                |
+| DELETE | `/halls/types/{uuid}`  |                               | 204                                                        |

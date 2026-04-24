@@ -10,5 +10,5 @@ public interface HallTypeRepository extends BaseRepository<HallType> {
 
     boolean existsByCode(String code);
 
-    boolean existsByCodeAndUuidNot(String code, String uuid);
+    boolean existsByCodeAndIdNot(String code, Long id);
 }

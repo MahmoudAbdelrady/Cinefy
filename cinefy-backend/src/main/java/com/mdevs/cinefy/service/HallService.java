@@ -1,16 +1,17 @@
 package com.mdevs.cinefy.service;
 
-import com.mdevs.cinefy.dto.HallDTO;
-import com.mdevs.cinefy.dto.HallDetailDTO;
-import com.mdevs.cinefy.dto.HallLayoutDTO;
-import com.mdevs.cinefy.dto.HallStatisticsDTO;
-import com.mdevs.cinefy.dto.HallSummaryDTO;
-import com.mdevs.cinefy.dto.HallTypeDTO;
-import com.mdevs.cinefy.dto.SeatLayoutDTO;
-import com.mdevs.cinefy.dto.TicketPricingDTO;
+import com.mdevs.cinefy.dto.hall.HallDTO;
+import com.mdevs.cinefy.dto.hall.HallDetailDTO;
+import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
+import com.mdevs.cinefy.dto.hall.HallStatisticsDTO;
+import com.mdevs.cinefy.dto.hall.HallSummaryDTO;
+import com.mdevs.cinefy.dto.hall.HallTypeDTO;
+import com.mdevs.cinefy.dto.hall.SeatLayoutDTO;
+import com.mdevs.cinefy.dto.hall.TicketPricingDTO;
 import com.mdevs.cinefy.entity.*;
 import com.mdevs.cinefy.repository.HallRepository;
 import com.mdevs.cinefy.repository.HallTypeRepository;
+import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +35,8 @@ public class HallService {
     private final HallRepository hallRepository;
 
     private final HallTypeRepository hallTypeRepository;
+
+    private final ShowtimeRepository showtimeRepository;
 
     private static final Pattern POSITION_PATTERN = Pattern.compile("^([A-Z]+)([0-9]+)$");
 
@@ -61,7 +65,7 @@ public class HallService {
     @Transactional
     public HallTypeDTO updateHallType(String uuid, HallTypeDTO dto) {
         HallType hallType = findHallType(uuid);
-        validateHallType(dto.getName(), uuid);
+        validateHallType(dto.getName(), hallType.getId());
         hallType.setName(dto.getName());
         hallType.setCode(HallType.toCode(dto.getName()));
         hallTypeRepository.save(hallType);
@@ -80,9 +84,10 @@ public class HallService {
 
     // ============================= Halls ===========================
 
-    public Page<HallSummaryDTO> getHalls(String search, String excludeHallId, Pageable pageable) {
+    public Page<HallSummaryDTO> getHalls(String search, String excludeHallId, String status, Pageable pageable) {
         String code = StringUtils.isEmpty(search) ? null : Hall.toCode(search);
-        Page<Hall> page = hallRepository.findAllFiltered(code, excludeHallId, pageable);
+        HallStatus hallStatus = StringUtils.isEmpty(status) ? null : HallStatus.fromString(status);
+        Page<Hall> page = hallRepository.findAllFiltered(code, excludeHallId, hallStatus, pageable);
         return page.map(this::toSummaryDTO);
     }
 
@@ -135,9 +140,8 @@ public class HallService {
     @Transactional
     public HallSummaryDTO updateHall(String uuid, HallDTO dto) {
         Hall hall = findHall(uuid);
-        validateHall(dto, uuid);
-
-        // @TODO --> Add restriction on modifying the layout in case the hall is occupied
+        validateHall(dto, hall.getId());
+        validateHallMutability(hall, dto);
 
         hall.setName(dto.getName());
         hall.setCode(Hall.toCode(dto.getName()));
@@ -148,15 +152,24 @@ public class HallService {
     }
 
     @Transactional
+    public void updateHallStatus(Hall hall, HallStatus status) {
+        if (hall.getStatus().equals(status)) return;
+        hall.setStatus(status);
+        hallRepository.save(hall);
+    }
+
+    @Transactional
     public void deleteHall(String uuid) {
         Hall hall = findHall(uuid);
-        // @TODO --> Add restriction on deleting the hall in case the hall is occupied
+        if (showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.ACTIVE_STATUSES)) {
+            throw new BusinessException("Cannot delete hall '" + hall.getName() + "' while it has active showtimes");
+        }
         hallRepository.delete(hall);
     }
 
     // =========================== Helpers ===========================
 
-    private Hall findHall(String uuid) {
+    public Hall findHall(String uuid) {
         return hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
     }
 
@@ -164,17 +177,17 @@ public class HallService {
         return hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found: " + uuid));
     }
 
-    private void validateHallType(String name, String excludeUuid) {
+    private void validateHallType(String name, Long excludeId) {
         String code = HallType.toCode(name);
-        boolean exists = StringUtils.isEmpty(excludeUuid) ? hallTypeRepository.existsByCode(code) : hallTypeRepository.existsByCodeAndUuidNot(code, excludeUuid);
+        boolean exists = excludeId == null ? hallTypeRepository.existsByCode(code) : hallTypeRepository.existsByCodeAndIdNot(code, excludeId);
         if (exists) {
             throw new BusinessException("A hall type with a similar name to '" + name + "' already exists");
         }
     }
 
-    private void validateHall(HallDTO dto, String excludeUuid) {
+    private void validateHall(HallDTO dto, Long excludeId) {
         String code = Hall.toCode(dto.getName());
-        boolean exists = StringUtils.isEmpty(excludeUuid) ? hallRepository.existsByCode(code) : hallRepository.existsByCodeAndUuidNot(code, excludeUuid);
+        boolean exists = excludeId == null ? hallRepository.existsByCode(code) : hallRepository.existsByCodeAndIdNot(code, excludeId);
         if (exists) {
             throw new BusinessException("A hall with a similar name to '" + dto.getName() + "' already exists");
         }
@@ -225,49 +238,49 @@ public class HallService {
         }
     }
 
-    private List<TicketPricingDTO> toPricingList(Hall hall) {
-        return hall.getCategoryPrices().stream()
-                .map(cp -> {
-                    TicketPricingDTO pricing = new TicketPricingDTO();
-                    pricing.setSeatCategory(cp.getCategory().name());
-                    pricing.setPrice(cp.getTicketPrice());
-                    return pricing;
-                })
-                .toList();
+    private void validateHallMutability(Hall hall, HallDTO dto) {
+        // @TODO --> This could be changed to depend on the number of reserved seats instead
+        if (!showtimeRepository.existsByHallAndStatusIn(hall, Set.of(ShowtimeStatus.PUBLISHED))) {
+            return;
+        }
+        if (hasCriticalChange(hall, dto)) {
+            throw new BusinessException("Cannot modify layout, pricing, or status of hall '" + hall.getName() + "' while it has active showtimes");
+        }
     }
 
-    private SeatLayoutDTO toLayoutMap(Hall hall) {
-        Map<String, List<String>> categories = hall.getSeats().stream()
-                .filter(seat -> !seat.getCategory().equals(SeatCategory.NORMAL))
-                .collect(Collectors.groupingBy(
-                        seat -> seat.getCategory().name(),
-                        Collectors.mapping(
-                                Seat::getPosition,
-                                Collectors.toList()
-                        )
-                ));
-
-        List<String> onSiteOnly = hall.getSeats().stream()
-                .filter(Seat::isOnSiteOnly)
-                .map(Seat::getPosition)
-                .toList();
-
-        SeatLayoutDTO dto = new SeatLayoutDTO();
-        dto.setCategories(categories);
-        dto.setOnSiteOnly(onSiteOnly);
-        return dto;
+    private boolean hasCriticalChange(Hall hall, HallDTO dto) {
+        return !hall.getStatus().equals(HallStatus.fromString(dto.getStatus()))
+                || hall.getTotalRows() != dto.getNumberOfRows()
+                || hall.getTotalColumns() != dto.getSeatsPerRow()
+                || isPricingChanged(hall, dto.getTicketPricing())
+                || isLayoutChanged(hall, dto.getLayout());
     }
 
-    private HallSummaryDTO toSummaryDTO(Hall hall) {
-        HallSummaryDTO summary = new HallSummaryDTO();
-        summary.setId(hall.getUuid());
-        summary.setName(hall.getName());
-        summary.setStatus(hall.getStatus().name());
-        summary.setTypeName(hall.getType().getName());
-        summary.setSupports3D(hall.isSupports3D());
-        summary.setTotalRows(hall.getTotalRows());
-        summary.setTotalColumns(hall.getTotalColumns());
-        return summary;
+    private boolean isPricingChanged(Hall hall, List<TicketPricingDTO> incoming) {
+        Map<SeatCategory, BigDecimal> current = hall.getCategoryPrices().stream()
+                .collect(Collectors.toMap(HallCategoryPrice::getCategory, HallCategoryPrice::getTicketPrice));
+        Map<SeatCategory, BigDecimal> next = incoming.stream()
+                .collect(Collectors.toMap(p -> SeatCategory.fromString(p.getSeatCategory()), TicketPricingDTO::getPrice));
+        return !current.equals(next);
+    }
+
+    private boolean isLayoutChanged(Hall hall, SeatLayoutDTO incoming) {
+        SeatLayoutDTO currentLayout = toLayoutMap(hall);
+        Map<String, List<String>> currentCategories = currentLayout.getCategories();
+        Map<String, List<String>> incomingCategories = incoming != null && incoming.getCategories() != null ? incoming.getCategories() : Collections.emptyMap();
+        if (!categoryMapsEqual(currentCategories, incomingCategories)) return true;
+
+        Set<String> currentOnSiteOnly = new HashSet<>(currentLayout.getOnSiteOnly());
+        Set<String> incomingOnSiteOnly = incoming != null && incoming.getOnSiteOnly() != null ? new HashSet<>(incoming.getOnSiteOnly()) : Collections.emptySet();
+        return !currentOnSiteOnly.equals(incomingOnSiteOnly);
+    }
+
+    private boolean categoryMapsEqual(Map<String, List<String>> a, Map<String, List<String>> b) {
+        if (!a.keySet().equals(b.keySet())) return false;
+        for (var entry : a.entrySet()) {
+            if (!new HashSet<>(entry.getValue()).equals(new HashSet<>(b.get(entry.getKey())))) return false;
+        }
+        return true;
     }
 
     private void applyDtoToHall(Hall hall, HallDTO dto) {
@@ -409,6 +422,51 @@ public class HallService {
         }
 
         return assignedPositions;
+    }
+
+    private List<TicketPricingDTO> toPricingList(Hall hall) {
+        return hall.getCategoryPrices().stream()
+                .map(cp -> {
+                    TicketPricingDTO pricing = new TicketPricingDTO();
+                    pricing.setSeatCategory(cp.getCategory().name());
+                    pricing.setPrice(cp.getTicketPrice());
+                    return pricing;
+                })
+                .toList();
+    }
+
+    private SeatLayoutDTO toLayoutMap(Hall hall) {
+        Map<String, List<String>> categories = hall.getSeats().stream()
+                .filter(seat -> !seat.getCategory().equals(SeatCategory.NORMAL))
+                .collect(Collectors.groupingBy(
+                        seat -> seat.getCategory().name(),
+                        Collectors.mapping(
+                                Seat::getPosition,
+                                Collectors.toList()
+                        )
+                ));
+
+        List<String> onSiteOnly = hall.getSeats().stream()
+                .filter(Seat::isOnSiteOnly)
+                .map(Seat::getPosition)
+                .toList();
+
+        SeatLayoutDTO dto = new SeatLayoutDTO();
+        dto.setCategories(categories);
+        dto.setOnSiteOnly(onSiteOnly);
+        return dto;
+    }
+
+    private HallSummaryDTO toSummaryDTO(Hall hall) {
+        HallSummaryDTO summary = new HallSummaryDTO();
+        summary.setId(hall.getUuid());
+        summary.setName(hall.getName());
+        summary.setStatus(hall.getStatus().name());
+        summary.setTypeName(hall.getType().getName());
+        summary.setSupports3D(hall.isSupports3D());
+        summary.setTotalRows(hall.getTotalRows());
+        summary.setTotalColumns(hall.getTotalColumns());
+        return summary;
     }
 
     private int toRowIndex(String rowLabel) {

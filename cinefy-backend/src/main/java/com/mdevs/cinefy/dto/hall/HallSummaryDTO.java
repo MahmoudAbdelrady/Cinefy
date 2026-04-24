@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.dto;
+package com.mdevs.cinefy.dto.hall;
 
 import lombok.Getter;
 import lombok.Setter;

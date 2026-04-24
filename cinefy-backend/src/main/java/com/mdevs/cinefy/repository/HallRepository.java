@@ -1,7 +1,8 @@
 package com.mdevs.cinefy.repository;
 
-import com.mdevs.cinefy.dto.HallStatisticsDTO;
+import com.mdevs.cinefy.dto.hall.HallStatisticsDTO;
 import com.mdevs.cinefy.entity.Hall;
+import com.mdevs.cinefy.entity.HallStatus;
 import com.mdevs.cinefy.entity.HallType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,10 +19,11 @@ public interface HallRepository extends BaseRepository<Hall> {
 
     @Query("SELECT h FROM Hall h JOIN FETCH h.type " +
             "WHERE (:search IS NULL OR h.code LIKE CONCAT('%', CAST(:search AS string), '%')) " +
-            "AND (:excludeHallId IS NULL OR h.uuid != :excludeHallId) ORDER BY h.createdAt")
-    Page<Hall> findAllFiltered(@Param("search") String search, @Param("excludeHallId") String excludeHallId, Pageable pageable);
+            "AND (:excludeHallId IS NULL OR h.uuid != :excludeHallId) " +
+            "AND (:status IS NULL OR h.status = :status) ORDER BY h.createdAt")
+    Page<Hall> findAllFiltered(@Param("search") String search, @Param("excludeHallId") String excludeHallId, @Param("status") HallStatus status, Pageable pageable);
 
-    @Query("SELECT new com.mdevs.cinefy.dto.HallStatisticsDTO(" +
+    @Query("SELECT new com.mdevs.cinefy.dto.hall.HallStatisticsDTO(" +
             "COUNT(h), " +
             "SUM(CASE WHEN h.status = 'ACTIVE' THEN 1 ELSE 0 END), " +
             "COALESCE(SUM(h.totalRows * h.totalColumns), 0)) " +
@@ -30,7 +32,7 @@ public interface HallRepository extends BaseRepository<Hall> {
 
     boolean existsByCode(String code);
 
-    boolean existsByCodeAndUuidNot(String code, String uuid);
+    boolean existsByCodeAndIdNot(String code, Long id);
 
     boolean existsByType(HallType hallType);
 }
