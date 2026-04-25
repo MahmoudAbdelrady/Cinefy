@@ -3,7 +3,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ModalComponent } from '../../modal/modal';
 import {
   EditableShowtime,
-  Movie,
+  MovieDetail,
   MovieShowtimeDetail,
   MovieShowtimes,
 } from '../../../shared/types';
@@ -46,7 +46,7 @@ export class MovieShowtimesModal {
   protected readonly AlertIcon = TriangleAlert;
 
   readonly close = input.required<() => void>();
-  readonly selectedMovie = input.required<Movie>();
+  readonly selectedMovie = input.required<MovieDetail>();
   readonly addShowtimeRequested = output<void>();
   readonly editShowtimeRequested = output<EditableShowtime>();
 

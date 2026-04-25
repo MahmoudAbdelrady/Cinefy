@@ -1,11 +1,25 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { PublishShowtimesInput, Showtime, ShowtimeDraft } from '../shared/types';
+import type {
+  MovieWithShowtimes,
+  PublishShowtimesInput,
+  Showtime,
+  ShowtimeDraft,
+  ShowtimesStatistics,
+} from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class ShowtimesService {
   private readonly http = inject(HttpClient);
+
+  getMoviesWithShowtimes(): Observable<MovieWithShowtimes[]> {
+    return this.http.get<MovieWithShowtimes[]>('/showtimes/movies');
+  }
+
+  getShowtimesStatistics(): Observable<ShowtimesStatistics> {
+    return this.http.get<ShowtimesStatistics>('/showtimes/statistics');
+  }
 
   createShowtime(data: ShowtimeDraft): Observable<Showtime> {
     return this.http.post<Showtime>('/showtimes', data);

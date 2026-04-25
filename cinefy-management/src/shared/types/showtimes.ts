@@ -1,5 +1,5 @@
 import type { HallRef } from './halls';
-import type { Movie, MovieDetail } from './movies';
+import type { MovieDetail } from './movies';
 
 interface ShowtimeDraft {
   movieId: number | null;
@@ -23,11 +23,16 @@ interface PublishShowtimesInput {
   date?: string; // ISO 8601 LocalDate, e.g. '2026-04-25'
 }
 
-interface ShowtimeSummary {
-  id: string;
-  movie: Movie;
+interface MovieWithShowtimes {
   totalShowtimes: number;
   totalDraftShowtimes: number;
+  movieDetails: MovieDetail;
+}
+
+interface ShowtimesStatistics {
+  totalMovies: number;
+  totalShowtimes: number;
+  todayShowtimes: number;
 }
 
 interface MovieShowtimes {
@@ -57,7 +62,8 @@ export type {
   ShowtimeDraft,
   Showtime,
   PublishShowtimesInput,
-  ShowtimeSummary,
+  MovieWithShowtimes,
+  ShowtimesStatistics,
   MovieShowtimes,
   MovieShowtimeDetail,
   EditableShowtime,

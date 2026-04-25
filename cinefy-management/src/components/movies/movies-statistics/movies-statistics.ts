@@ -1,19 +1,48 @@
-import { Component } from '@angular/core';
-import { Calendar, Clock, Film, TrendingUp } from 'lucide-angular';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Calendar, Clock, Film } from 'lucide-angular';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { StatsComponent } from '../../stats/stats';
-import type { StatsCard } from '../../../shared/types';
+import { ShowtimesService, ToastService } from '../../../services';
+import type { ShowtimesStatistics, StatsCard } from '../../../shared/types';
 
 @Component({
   selector: 'movies-statistics',
-  imports: [StatsComponent],
+  imports: [LoadingSpinnerComponent, StatsComponent],
   templateUrl: './movies-statistics.html',
   styleUrl: './movies-statistics.scss',
 })
 export class MoviesStatisticsComponent {
-  protected readonly cards: StatsCard[] = [
-    { label: 'Total Movies', value: '10', icon: Film },
-    { label: 'Total Showtimes', value: '15', icon: Calendar },
-    { label: "Today's Showtimes", value: '7', icon: Clock },
-    { label: 'Upcoming This Month', value: '3', icon: TrendingUp },
-  ];
+  private readonly showtimesService = inject(ShowtimesService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected statistics = signal<ShowtimesStatistics | null>(null);
+  protected loading = signal(true);
+
+  protected readonly cards = computed<StatsCard[]>(() => {
+    const s = this.statistics();
+    return [
+      { label: 'Total Movies', value: s?.totalMovies?.toString() ?? '—', icon: Film },
+      { label: 'Total Showtimes', value: s?.totalShowtimes?.toString() ?? '—', icon: Calendar },
+      { label: "Today's Showtimes", value: s?.todayShowtimes?.toString() ?? '—', icon: Clock },
+    ];
+  });
+
+  constructor() {
+    this.showtimesService
+      .getShowtimesStatistics()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (stats) => {
+          this.statistics.set(stats);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load statistics');
+        },
+      });
+  }
 }
