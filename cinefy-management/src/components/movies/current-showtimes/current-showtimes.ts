@@ -36,7 +36,7 @@ export class CurrentShowtimesComponent {
 
   protected readonly loading = signal(true);
   protected readonly editingShowtime = signal<EditableShowtime | null>(null);
-  protected readonly deletingShowtimeId = signal<number | null>(null);
+  protected readonly deletingShowtimeIds = signal<Set<number>>(new Set());
   protected readonly moviesWithShowtimes = signal<MovieWithShowtimes[]>([]);
 
   constructor() {
@@ -65,10 +65,36 @@ export class CurrentShowtimesComponent {
   }
 
   protected deleteShowtime(id: number, close: () => void): void {
-    this.deletingShowtimeId.set(id);
-    setTimeout(() => {
-      this.deletingShowtimeId.set(null);
-      close();
-    }, 500);
+    if (this.deletingShowtimeIds().has(id)) return;
+    this.markDeleting(id, true);
+    this.showtimesService
+      .deleteMovieShowtimes(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.moviesWithShowtimes.update((list) =>
+            list.filter((item) => item.movieDetails.id !== id),
+          );
+          this.markDeleting(id, false);
+          this.toastService.success('Showtimes deleted');
+          close();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.markDeleting(id, false);
+          this.toastService.error(err.error?.message ?? 'Failed to delete showtimes');
+        },
+      });
+  }
+
+  private markDeleting(id: number, isDeleting: boolean): void {
+    this.deletingShowtimeIds.update((current) => {
+      const next = new Set(current);
+      if (isDeleting) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
   }
 }

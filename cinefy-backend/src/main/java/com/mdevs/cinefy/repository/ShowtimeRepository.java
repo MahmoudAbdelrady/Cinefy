@@ -50,6 +50,8 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
 
     long countByTmdbMovieIdAndStatus(Long tmdbMovieId, ShowtimeStatus status);
 
+    List<Showtime> findByTmdbMovieIdAndStatusIn(Long tmdbMovieId, Set<ShowtimeStatus> statuses);
+
     @Query("""
             SELECT s FROM Showtime s
             JOIN FETCH s.hall

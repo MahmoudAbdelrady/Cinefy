@@ -28,8 +28,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -152,13 +154,35 @@ public class ShowtimeService {
     @Transactional
     public void deleteShowtime(String uuid) {
         Showtime showtime = findShowtime(uuid);
-        // @TODO --> This should be changed to depend on the number of reserved seats instead for the published status
+        // @TODO --> This should be changed to depend on the number of reserved seats instead of the published status
         if (!ShowtimeStatus.ACTIVE_STATUSES.contains(showtime.getStatus())) {
             throw new BusinessException("Only draft or published showtimes can be deleted");
         }
         Hall hall = showtime.getHall();
         showtimeRepository.delete(showtime);
         flipHallIfNoActiveShowtimes(hall, showtime.getId());
+    }
+
+    @Transactional
+    public void deleteMovieShowtimes(Long movieId) {
+        TmdbMovie movie = findTmdbMovie(movieId);
+
+        List<Showtime> showtimes = showtimeRepository.findByTmdbMovieIdAndStatusIn(movie.getId(), Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED, ShowtimeStatus.RUNNING));
+
+        if (showtimes.isEmpty()) {
+            throw new NotFoundException("No showtimes found for movie with id: " + movieId);
+        }
+
+        // @TODO --> This should be changed to depend on the number of reserved seats instead of the published status
+        if (showtimes.stream().anyMatch(s -> !ShowtimeStatus.ACTIVE_STATUSES.contains(s.getStatus()))) {
+            throw new BusinessException("Only draft or published showtimes can be deleted");
+        }
+
+        Set<Hall> affectedHalls = showtimes.stream().map(Showtime::getHall).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        showtimeRepository.deleteAll(showtimes);
+
+        affectedHalls.forEach(hall -> flipHallIfNoActiveShowtimes(hall, null));
     }
 
     @Transactional
@@ -177,6 +201,10 @@ public class ShowtimeService {
 
     private Showtime findShowtime(String uuid) {
         return showtimeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Showtime not found: " + uuid));
+    }
+
+    private TmdbMovie findTmdbMovie(Long id) {
+        return tmdbMovieRepository.findById(id).orElseThrow(() -> new NotFoundException("Movie not found: " + id));
     }
 
     private void validateShowtime(Hall hall, TmdbMovie movie, ShowtimeDTO dto, Long showtimeId) {

@@ -49,8 +49,16 @@
                 <lucide-icon [img]="PlusIcon"></lucide-icon>
                 <span>Add Showtime</span>
               </button>
-              <button ngpButton [ngpDialogTrigger]="deleteDialog">
-                <lucide-icon [img]="DeleteIcon" [size]="18"></lucide-icon>
+              <button
+                ngpButton
+                [ngpDialogTrigger]="deleteDialog"
+                [disabled]="deletingShowtimeIds().has(shMovie.id)"
+              >
+                @if (deletingShowtimeIds().has(shMovie.id)) {
+                  <loading-spinner [size]="18" [strokeWidth]="2.5" />
+                } @else {
+                  <lucide-icon [img]="DeleteIcon" [size]="18"></lucide-icon>
+                }
               </button>
             </div>
           </div>
@@ -126,10 +134,10 @@
                 <button
                   ngpButton
                   class="btn-danger"
-                  [disabled]="deletingShowtimeId() === shMovie.id"
+                  [disabled]="deletingShowtimeIds().has(shMovie.id)"
                   (click)="deleteShowtime(shMovie.id, close)"
                 >
-                  @if (deletingShowtimeId() === shMovie.id) {
+                  @if (deletingShowtimeIds().has(shMovie.id)) {
                     <loading-spinner />
                   } @else {
                     <span>Delete All</span>

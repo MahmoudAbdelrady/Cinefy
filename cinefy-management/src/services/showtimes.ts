@@ -33,6 +33,10 @@ export class ShowtimesService {
     return this.http.delete<void>(`/showtimes/${id}`);
   }
 
+  deleteMovieShowtimes(movieId: number): Observable<void> {
+    return this.http.delete<void>(`/showtimes/movies/${movieId}`);
+  }
+
   publishShowtimes(data: PublishShowtimesInput): Observable<void> {
     return this.http.post<void>('/showtimes/publish', data);
   }
