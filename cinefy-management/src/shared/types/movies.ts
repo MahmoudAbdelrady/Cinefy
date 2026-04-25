@@ -1,3 +1,22 @@
+interface MovieSearchResult {
+  id: number;
+  title: string;
+  genre?: string;
+  releaseDate?: string;
+  posterUrl?: string;
+}
+
+interface MovieDetail {
+  id: number;
+  title: string;
+  synopsis?: string;
+  genre?: string;
+  contentRating?: string;
+  releaseDate?: string;
+  duration?: number;
+  posterUrl?: string;
+}
+
 interface Movie {
   id: number;
   title: string;
@@ -55,4 +74,6 @@ export type {
   MovieShowtimes,
   MovieShowtimeDetail,
   EditableShowtime,
+  MovieSearchResult,
+  MovieDetail,
 };

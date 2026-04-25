@@ -1,13 +1,31 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { EditableShowtime, HallSummary, Movie, ShowtimeDraft } from '../../../shared/types';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  EditableShowtime,
+  HallSummary,
+  MovieDetail,
+  MovieSearchResult,
+  ShowtimeDraft,
+} from '../../../shared/types';
 import { DatePicker } from '../../date-time/date-picker/date-picker';
 import { TimePicker } from '../../date-time/time-picker/time-picker';
 import { PaginatedSelectComponent } from '../../drop-down/paginated-select/paginated-select';
-import { HallsService } from '../../../services';
+import { HallsService, MoviesService, ToastService } from '../../../services';
 import { NgpTextarea } from 'ng-primitives/textarea';
 import { NgpButton } from 'ng-primitives/button';
+import { Film, LucideAngularModule } from 'lucide-angular';
 import { ModalComponent } from '../../modal/modal';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
 
@@ -20,6 +38,7 @@ import { MoviePickerComponent } from '../movie-picker/movie-picker';
     PaginatedSelectComponent,
     NgpTextarea,
     NgpButton,
+    LucideAngularModule,
     ModalComponent,
     MoviePickerComponent,
     DatePipe,
@@ -28,14 +47,19 @@ import { MoviePickerComponent } from '../movie-picker/movie-picker';
   styleUrl: './manage-showtime-modal.scss',
 })
 export class ManageShowtimeModalComponent {
+  protected readonly MovieIcon = Film;
+
   readonly close = input.required<() => void>();
-  readonly selectedMovie = input<Movie | null>(null);
+  readonly selectedMovie = input<MovieSearchResult | null>(null);
   readonly showSelectedMovie = input(true);
   readonly editingShowtime = input<EditableShowtime | null>(null);
   readonly showtimeCreated = output<ShowtimeDraft>();
   readonly showtimeUpdated = output<ShowtimeDraft & { id: string }>();
 
   protected hallsService = inject(HallsService);
+  private readonly moviesService = inject(MoviesService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly fetchHalls = (page: number, size: number, search?: string) =>
     this.hallsService.getHalls(search, { page, size });
@@ -52,9 +76,12 @@ export class ManageShowtimeModalComponent {
   protected showtimeTime = signal<string | null>(null);
   protected showtimeSpecialNotes = signal('');
   protected selectedHall = signal<HallSummary | null>(null);
-  protected pickedMovie = signal<Movie | null>(null);
+  protected pickedMovie = signal<MovieSearchResult | null>(null);
+  protected readonly activeMovieDetail = signal<MovieDetail | null>(null);
 
-  protected readonly activeMovie = computed(() => this.selectedMovie() ?? this.pickedMovie());
+  protected readonly activeMovie = computed<MovieSearchResult | null>(
+    () => this.selectedMovie() ?? this.pickedMovie(),
+  );
   // TODO: once save is async (loading signal + API call), the spinner will cover
   // the label transition during close, so this computed can stay simple.
   protected readonly isEditMode = computed(() => this.editingShowtime() !== null);
@@ -85,6 +112,25 @@ export class ManageShowtimeModalComponent {
       this.showtimeTime.set(editing.time);
       this.showtimeSpecialNotes.set(editing.specialNotes);
       this.selectedHall.set(editing.hall as HallSummary);
+    });
+
+    effect(() => {
+      const base = this.activeMovie();
+      this.activeMovieDetail.set(null);
+      if (!base) return;
+      const targetId = base.id;
+      this.moviesService
+        .getMovieDetails(targetId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (detail) => {
+            if (this.activeMovie()?.id !== targetId) return;
+            this.activeMovieDetail.set(detail);
+          },
+          error: (err: HttpErrorResponse) => {
+            this.toastService.error(err.error?.message ?? 'Failed to load movie details');
+          },
+        });
     });
   }
 

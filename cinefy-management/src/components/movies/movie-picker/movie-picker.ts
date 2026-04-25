@@ -1,12 +1,25 @@
-import { Component, computed, output, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  output,
+  signal,
+} from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, EMPTY, switchMap, tap } from 'rxjs';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpFormField } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
 import { ChevronRight, Film, LucideAngularModule, Search } from 'lucide-angular';
-import { Movie } from '../../../shared/types';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { MovieSearchResult } from '../../../shared/types';
+import { MoviesService, ToastService } from '../../../services';
 
 @Component({
   selector: 'movie-picker',
@@ -18,102 +31,101 @@ import { Movie } from '../../../shared/types';
     NgpInput,
     NgpFormField,
     LucideAngularModule,
+    LoadingSpinnerComponent,
     DatePipe,
   ],
   templateUrl: './movie-picker.html',
   styleUrl: './movie-picker.scss',
 })
 export class MoviePickerComponent {
-  readonly movieSelected = output<Movie>();
-
   protected readonly SearchIcon = Search;
   protected readonly MovieIcon = Film;
   protected readonly ChevronRightIcon = ChevronRight;
 
-  protected movieSearchQuery = signal('');
+  private readonly moviesService = inject(MoviesService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly movies: Movie[] = [
-    {
-      id: 1,
-      title: 'Dune: Part Two',
-      genre: 'Sci-Fi',
-      rating: 'PG-13',
-      releaseDate: '2024-03-01',
-      duration: 166,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/czembW0Rk1Ke7lCJGahbOhdCuhV.jpg',
-    },
-    {
-      id: 2,
-      title: 'Oppenheimer',
-      genre: 'Drama',
-      rating: 'R',
-      releaseDate: '2023-07-21',
-      duration: 180,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
-    },
-    {
-      id: 3,
-      title: 'The Batman',
-      genre: 'Action',
-      rating: 'PG-13',
-      releaseDate: '2022-03-04',
-      duration: 176,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/74xTEgt7R36Fpooo50r9T25onhq.jpg',
-    },
-    {
-      id: 4,
-      title: 'Everything Everywhere All at Once',
-      genre: 'Adventure',
-      rating: 'R',
-      releaseDate: '2022-03-25',
-      duration: 139,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/w3LxiVYdWWRvEVdn5RYq6jIqkb1.jpg',
-    },
-    {
-      id: 5,
-      title: 'Poor Things',
-      genre: 'Comedy',
-      rating: 'R',
-      releaseDate: '2023-12-08',
-      duration: 141,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/kCGlIMHnOm8JPXq3rXM6c5wMxcT.jpg',
-    },
-    {
-      id: 6,
-      title: 'Interstellar',
-      genre: 'Sci-Fi',
-      rating: 'PG-13',
-      releaseDate: '2014-11-07',
-      duration: 169,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
-    },
-    {
-      id: 7,
-      title: 'Parasite',
-      genre: 'Thriller',
-      rating: 'R',
-      releaseDate: '2019-05-30',
-      duration: 132,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
-    },
-    {
-      id: 8,
-      title: 'La La Land',
-      genre: 'Musical',
-      rating: 'PG-13',
-      releaseDate: '2016-12-09',
-      duration: 128,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg',
-    },
-  ];
+  readonly movieSelected = output<MovieSearchResult>();
 
-  protected readonly filteredMovies = computed(() =>
-    this.movies.filter((movie) =>
-      movie.title.toLocaleLowerCase().includes(this.movieSearchQuery().toLocaleLowerCase()),
-    ),
-  );
+  private static readonly PAGE_SIZE = 20;
 
-  protected onPick(movie: Movie) {
+  protected readonly movieSearchQuery = signal('');
+  protected readonly loading = signal(false);
+  protected readonly loadingMore = signal(false);
+  protected readonly movies = signal<MovieSearchResult[]>([]);
+  protected readonly currentPage = signal(0);
+  protected readonly totalPages = signal(0);
+
+  protected readonly hasMore = computed(() => this.currentPage() < this.totalPages() - 1);
+
+  private readonly movieSearchQuery$ = toObservable(this.movieSearchQuery);
+
+  constructor() {
+    afterNextRender(() => {
+      this.movieSearchQuery$
+        .pipe(
+          debounceTime(300),
+          distinctUntilChanged(),
+          tap((query) => {
+            this.currentPage.set(0);
+            this.totalPages.set(0);
+            if (query.length === 0) {
+              this.movies.set([]);
+              this.loading.set(false);
+            } else {
+              this.loading.set(true);
+            }
+          }),
+          switchMap((query) => {
+            if (query.length === 0) return EMPTY;
+            return this.moviesService.searchMovies(query, {
+              page: 0,
+              size: MoviePickerComponent.PAGE_SIZE,
+            });
+          }),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe({
+          next: (response) => {
+            this.movies.set(response.content);
+            this.currentPage.set(response.page.number);
+            this.totalPages.set(response.page.totalPages);
+            this.loading.set(false);
+          },
+          error: (err: HttpErrorResponse) => {
+            this.loading.set(false);
+            this.toastService.error(err.error?.message ?? 'Failed to search movies');
+          },
+        });
+    });
+  }
+
+  protected loadMore() {
+    if (this.loadingMore() || !this.hasMore()) return;
+    this.loadingMore.set(true);
+    const nextPage = this.currentPage() + 1;
+    this.moviesService
+      .searchMovies(this.movieSearchQuery(), {
+        page: nextPage,
+        size: MoviePickerComponent.PAGE_SIZE,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.movies.update((prev) => [...prev, ...response.content]);
+          this.currentPage.set(response.page.number);
+          this.totalPages.set(response.page.totalPages);
+          this.loadingMore.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loadingMore.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load more movies');
+        },
+      });
+  }
+
+  protected onPick(movie: MovieSearchResult) {
     this.movieSelected.emit(movie);
   }
 }

@@ -35,5 +35,7 @@ export type {
   MovieShowtimes,
   MovieShowtimeDetail,
   EditableShowtime,
+  MovieSearchResult,
+  MovieDetail,
 } from './movies';
 export type { StatsCard } from './stats';

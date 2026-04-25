@@ -20,22 +20,32 @@
       <h4>Search for a movie</h4>
       <p>Type a movie title to find it in the catalog</p>
     </div>
-  } @else if (filteredMovies().length > 0) {
-    <div class="search-count">{{ filteredMovies().length }} movies found</div>
+  } @else if (loading()) {
+    <div class="search-loading">
+      <loading-spinner [size]="24" [strokeWidth]="2" />
+    </div>
+  } @else if (movies().length > 0) {
+    <div class="search-count">{{ movies().length }} movies found</div>
     <div class="movie-items">
-      @for (movie of filteredMovies(); track movie.id) {
+      @for (movie of movies(); track movie.id) {
         <div class="movie-item" (click)="onPick(movie)">
           <div class="mi-info">
-            <div class="mi-img">
-              <img [src]="movie.posterUrl" alt="{{ movie.title }} Poster" />
+            <div class="mi-img" [class.mi-img-fallback]="!movie.posterUrl">
+              @if (movie.posterUrl) {
+                <img [src]="movie.posterUrl" alt="{{ movie.title }} Poster" />
+              } @else {
+                <lucide-icon [img]="MovieIcon"></lucide-icon>
+              }
             </div>
             <div class="mi-details">
               <h4>{{ movie.title }}</h4>
               <div class="mid-box">
-                <span class="midb-item">{{ movie.genre }}</span>
-                <span class="midb-item">{{ movie.rating }}</span>
-                <span class="midb-item">{{ movie.releaseDate | date: 'MMM d, y' }}</span>
-                <span class="midb-item">{{ movie.duration }} min</span>
+                @if (movie.genre) {
+                  <span class="midb-item">{{ movie.genre }}</span>
+                }
+                @if (movie.releaseDate) {
+                  <span class="midb-item">{{ movie.releaseDate | date: 'MMM d, y' }}</span>
+                }
               </div>
             </div>
           </div>
@@ -47,6 +57,22 @@
         </div>
       }
     </div>
+    @if (hasMore()) {
+      <button
+        type="button"
+        ngpButton
+        class="load-more"
+        [disabled]="loadingMore()"
+        (click)="loadMore()"
+      >
+        @if (loadingMore()) {
+          <loading-spinner [size]="16" [strokeWidth]="2" />
+          <span>Loading...</span>
+        } @else {
+          <span>Load more</span>
+        }
+      </button>
+    }
   } @else {
     <div class="search-placeholder">
       <div class="sp-icon" data-variant="no-results">

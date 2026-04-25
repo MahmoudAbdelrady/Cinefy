@@ -12,16 +12,28 @@
       @if (showSelectedMovie()) {
         <div class="selected-movie-container">
           <div class="sm-info">
-            <div class="sm-img">
-              <img [src]="activeMovie()!.posterUrl" alt="{{ activeMovie()!.title }} Poster" />
+            <div class="sm-img" [class.sm-img-fallback]="!activeMovie()!.posterUrl">
+              @if (activeMovie()!.posterUrl; as posterUrl) {
+                <img [src]="posterUrl" alt="{{ activeMovie()!.title }} Poster" />
+              } @else {
+                <lucide-icon [img]="MovieIcon"></lucide-icon>
+              }
             </div>
             <div class="sm-details">
               <h4>{{ activeMovie()!.title }}</h4>
               <div class="smd-box">
-                <span class="smdb-item">{{ activeMovie()!.genre }}</span>
-                <span class="smdb-item">{{ activeMovie()!.rating }}</span>
-                <span class="smdb-item">{{ activeMovie()!.releaseDate | date: 'MMM d, y' }}</span>
-                <span class="smdb-item">{{ activeMovie()!.duration }} min</span>
+                @if (activeMovie()!.genre; as genre) {
+                  <span class="smdb-item">{{ genre }}</span>
+                }
+                @if (activeMovie()!.releaseDate; as releaseDate) {
+                  <span class="smdb-item">{{ releaseDate | date: 'MMM d, y' }}</span>
+                }
+                @if (activeMovieDetail()?.contentRating; as contentRating) {
+                  <span class="smdb-item">{{ contentRating }}</span>
+                }
+                @if (activeMovieDetail()?.duration; as duration) {
+                  <span class="smdb-item">{{ duration }} min</span>
+                }
               </div>
             </div>
           </div>

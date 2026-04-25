@@ -86,6 +86,17 @@
     }
   }
 
+  .sm-img-fallback {
+    @include flex-center;
+    @include lucide-icon-fix;
+    color: $gray-400;
+
+    lucide-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
   .sm-details {
     flex: 1;
     min-width: 0;
