@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { EditableShowtime, MovieWithShowtimes, Showtime } from '../../../shared/types';
@@ -9,7 +9,7 @@ import { ModalComponent } from '../../modal/modal';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
-import { ShowtimesService, ToastService } from '../../../services';
+import { ShowtimeEventsService, ShowtimesService, ToastService } from '../../../services';
 
 @Component({
   selector: 'current-showtimes',
@@ -31,6 +31,7 @@ export class CurrentShowtimesComponent {
   protected readonly AlertIcon = TriangleAlert;
 
   private readonly showtimesService = inject(ShowtimesService);
+  private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -53,15 +54,37 @@ export class CurrentShowtimesComponent {
           this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
         },
       });
+
+    effect(() => {
+      const showtime = this.showtimeEvents.created();
+      if (!showtime) return;
+      this.applyCreatedShowtime(showtime);
+    });
   }
 
-  protected onShowtimeCreated(showtime: Showtime): void {
-    console.log('Showtime created', showtime);
-  }
-
-  protected onShowtimeUpdated(showtime: Showtime): void {
-    console.log('Showtime updated', showtime);
-    this.editingShowtime.set(null);
+  private applyCreatedShowtime(showtime: Showtime): void {
+    const movieId = showtime.movie.id;
+    const isDraft = showtime.status === 'DRAFT';
+    this.moviesWithShowtimes.update((list) => {
+      const existing = list.find((item) => item.movieDetails.id === movieId);
+      if (existing) {
+        return list.map((item) =>
+          item.movieDetails.id === movieId
+            ? {
+                ...item,
+                totalShowtimes: item.totalShowtimes + 1,
+                totalDraftShowtimes: item.totalDraftShowtimes + (isDraft ? 1 : 0),
+              }
+            : item,
+        );
+      }
+      const newRow: MovieWithShowtimes = {
+        movieDetails: showtime.movie,
+        totalShowtimes: 1,
+        totalDraftShowtimes: isDraft ? 1 : 0,
+      };
+      return [newRow, ...list];
+    });
   }
 
   protected deleteShowtime(id: number, close: () => void): void {
@@ -77,6 +100,7 @@ export class CurrentShowtimesComponent {
           );
           this.markDeleting(id, false);
           this.toastService.success('Showtimes deleted');
+          this.showtimeEvents.notifyDeleted(id);
           close();
         },
         error: (err: HttpErrorResponse) => {

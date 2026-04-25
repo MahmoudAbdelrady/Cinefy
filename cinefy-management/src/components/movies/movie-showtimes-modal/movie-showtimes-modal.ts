@@ -77,7 +77,7 @@ export class MovieShowtimesModal {
     {
       id: '1',
       hall: { id: 'h1', name: 'Hall A' },
-      status: 'Published',
+      status: 'PUBLISHED',
       time: '14:00',
       specialNotes: '',
       occupiedSeats: 72,
@@ -86,7 +86,7 @@ export class MovieShowtimesModal {
     {
       id: '2',
       hall: { id: 'h2', name: 'IMAX Hall' },
-      status: 'Published',
+      status: 'PUBLISHED',
       time: '17:30',
       specialNotes: 'Premium seating',
       occupiedSeats: 148,
@@ -95,7 +95,7 @@ export class MovieShowtimesModal {
     {
       id: '3',
       hall: { id: 'h3', name: 'Hall B' },
-      status: 'Draft',
+      status: 'DRAFT',
       time: '20:00',
       specialNotes: '',
       occupiedSeats: 0,
@@ -104,7 +104,7 @@ export class MovieShowtimesModal {
     {
       id: '4',
       hall: { id: 'h4', name: 'Hall C' },
-      status: 'Published',
+      status: 'PUBLISHED',
       time: '22:30',
       specialNotes: 'Late-night show',
       occupiedSeats: 34,
@@ -113,7 +113,7 @@ export class MovieShowtimesModal {
     {
       id: '5',
       hall: { id: 'h1', name: 'Hall A' },
-      status: 'Draft',
+      status: 'DRAFT',
       time: '23:45',
       specialNotes: '',
       occupiedSeats: 0,
@@ -124,7 +124,7 @@ export class MovieShowtimesModal {
   protected selectedTab = signal<string>(this.movieShowtimes.dates[0]);
 
   protected readonly dayDrafts = computed(
-    () => this.movieShowtimeDetails.filter((showtime) => showtime.status === 'Draft').length,
+    () => this.movieShowtimeDetails.filter((showtime) => showtime.status === 'DRAFT').length,
   );
   protected readonly otherDrafts = computed(
     () => this.movieShowtimes.totalDraftShowtimes - this.dayDrafts(),

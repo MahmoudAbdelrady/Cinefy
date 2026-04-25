@@ -1,13 +1,4 @@
-import {
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  inject,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -18,13 +9,18 @@ import {
   HallSummary,
   MovieDetail,
   MovieSearchResult,
-  Showtime,
   ShowtimeDraft,
 } from '../../../shared/types';
 import { DatePicker } from '../../date-time/date-picker/date-picker';
 import { TimePicker } from '../../date-time/time-picker/time-picker';
 import { PaginatedSelectComponent } from '../../drop-down/paginated-select/paginated-select';
-import { HallsService, MoviesService, ShowtimesService, ToastService } from '../../../services';
+import {
+  HallsService,
+  MoviesService,
+  ShowtimeEventsService,
+  ShowtimesService,
+  ToastService,
+} from '../../../services';
 import { NgpTextarea } from 'ng-primitives/textarea';
 import { NgpButton } from 'ng-primitives/button';
 import { Film, LucideAngularModule } from 'lucide-angular';
@@ -62,12 +58,11 @@ export class ManageShowtimeModalComponent {
   readonly selectedMovie = input<MovieSearchResult | null>(null);
   readonly showSelectedMovie = input(true);
   readonly editingShowtime = input<EditableShowtime | null>(null);
-  readonly showtimeCreated = output<Showtime>();
-  readonly showtimeUpdated = output<Showtime>();
 
   protected hallsService = inject(HallsService);
   private readonly moviesService = inject(MoviesService);
   private readonly showtimesService = inject(ShowtimesService);
+  private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -193,10 +188,10 @@ export class ManageShowtimeModalComponent {
       next: (showtime) => {
         this.submitting.set(false);
         if (editing) {
-          this.showtimeUpdated.emit(showtime);
+          // @TODO --> Add notify updated
           this.toastService.success('Showtime updated');
         } else {
-          this.showtimeCreated.emit(showtime);
+          this.showtimeEvents.notifyCreated(showtime);
           this.toastService.success('Showtime created');
         }
         this.close()();

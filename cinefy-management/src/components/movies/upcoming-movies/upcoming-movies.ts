@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Calendar, LucideAngularModule } from 'lucide-angular';
-import type { MovieSearchResult, Showtime } from '../../../shared/types';
+import type { MovieSearchResult } from '../../../shared/types';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
@@ -45,10 +45,6 @@ export class UpcomingMoviesComponent {
           this.toastService.error(err.error?.message ?? 'Failed to load upcoming movies');
         },
       });
-  }
-
-  protected onShowtimeCreated(showtime: Showtime): void {
-    console.log('Showtime created', showtime);
   }
 
   protected isComingSoon(releaseDate: string | undefined): boolean {

@@ -1,6 +1,16 @@
 import type { HallRef } from './halls';
 import type { MovieDetail } from './movies';
 
+const SHOWTIME_STATUS_LABELS = {
+  DRAFT: 'Draft',
+  PUBLISHED: 'Published',
+  RUNNING: 'Running',
+  FINISHED: 'Finished',
+  CANCELLED: 'Cancelled',
+} as const;
+
+type ShowtimeStatus = keyof typeof SHOWTIME_STATUS_LABELS;
+
 interface ShowtimeDraft {
   movieId: number | null;
   dateTime: string; // ISO 8601 LocalDateTime, e.g. '2026-04-25T19:30:00'
@@ -14,7 +24,7 @@ interface Showtime {
   movie: MovieDetail;
   hall: HallRef;
   startDateTime: string;
-  status: 'Published' | 'Draft';
+  status: ShowtimeStatus;
 }
 
 interface PublishShowtimesInput {
@@ -43,7 +53,7 @@ interface MovieShowtimes {
 interface MovieShowtimeDetail {
   id: string;
   hall: HallRef;
-  status: 'Published' | 'Draft';
+  status: ShowtimeStatus;
   time: string; // e.g. '19:30'
   specialNotes: string;
   occupiedSeats: number;
@@ -58,7 +68,9 @@ interface EditableShowtime {
   specialNotes: string;
 }
 
+export { SHOWTIME_STATUS_LABELS };
 export type {
+  ShowtimeStatus,
   ShowtimeDraft,
   Showtime,
   PublishShowtimesInput,

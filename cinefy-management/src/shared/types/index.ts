@@ -30,7 +30,9 @@ export type {
 
 export type { Movie, MovieSearchResult, MovieDetail } from './movies';
 
+export { SHOWTIME_STATUS_LABELS } from './showtimes';
 export type {
+  ShowtimeStatus,
   ShowtimeDraft,
   Showtime,
   PublishShowtimesInput,
