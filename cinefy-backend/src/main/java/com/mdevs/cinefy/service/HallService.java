@@ -84,10 +84,10 @@ public class HallService {
 
     // ============================= Halls ===========================
 
-    public Page<HallSummaryDTO> getHalls(String search, String excludeHallId, String status, Pageable pageable) {
+    public Page<HallSummaryDTO> getHalls(String search, String excludeHallId, List<String> statuses, Pageable pageable) {
         String code = StringUtils.isEmpty(search) ? null : Hall.toCode(search);
-        HallStatus hallStatus = StringUtils.isEmpty(status) ? null : HallStatus.fromString(status);
-        Page<Hall> page = hallRepository.findAllFiltered(code, excludeHallId, hallStatus, pageable);
+        List<HallStatus> hallStatuses = statuses != null && !statuses.isEmpty() ? statuses.stream().map(HallStatus::fromString).toList() : null;
+        Page<Hall> page = hallRepository.findAllFiltered(code, excludeHallId, hallStatuses, pageable);
         return page.map(this::toSummaryDTO);
     }
 

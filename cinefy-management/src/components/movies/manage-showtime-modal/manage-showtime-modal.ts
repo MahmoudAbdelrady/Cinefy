@@ -13,6 +13,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  ACTIVE_HALL_STATUSES,
   EditableShowtime,
   HallSummary,
   MovieDetail,
@@ -71,7 +72,7 @@ export class ManageShowtimeModalComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly fetchHalls = (page: number, size: number, search?: string) =>
-    this.hallsService.getHalls(search, { page, size });
+    this.hallsService.getHalls(search, { page, size }, undefined, ACTIVE_HALL_STATUSES);
 
   protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
   protected readonly hallValueFn = (hall: HallSummary) => hall.id;

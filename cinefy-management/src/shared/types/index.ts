@@ -10,7 +10,7 @@ export interface PaginatedResponse<T> {
   page: PageFields;
 }
 
-export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS } from './halls';
+export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS, ACTIVE_HALL_STATUSES } from './halls';
 export type {
   HallStatus,
   SeatCategory,
