@@ -140,6 +140,19 @@ export class ManageShowtimeModalComponent {
     });
 
     effect(() => {
+      this.activeMovie();
+      if (this.editingShowtime()) return;
+      this.showtimeForm.reset({
+        date: null,
+        time: null,
+        hallId: null,
+        is3D: false,
+        specialNotes: '',
+      });
+      this.selectedHall.set(null);
+    });
+
+    effect(() => {
       const base = this.activeMovie();
       this.activeMovieDetail.set(null);
       if (!base) return;
