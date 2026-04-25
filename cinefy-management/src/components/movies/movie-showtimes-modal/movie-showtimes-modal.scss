@@ -1,6 +1,11 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
 
+.msm-loading {
+  @include flex-center;
+  min-height: 240px;
+}
+
 .movie-showtimes-container {
   display: flex;
   flex-direction: column;
@@ -85,11 +90,11 @@
 
 .ds-items {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
 
   @media (min-width: 768px) {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
@@ -144,7 +149,7 @@
   background-color: $green-100;
   color: $green-700;
 
-  &[data-status='Draft'] {
+  &[data-status='DRAFT'] {
     background-color: $orange-100;
     color: $orange-700;
   }
@@ -175,6 +180,61 @@
   &:nth-child(2):hover {
     color: $red-600;
     background-color: rgba($red-400, 0.2);
+  }
+}
+
+.ds-notes {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: $radius-md;
+  background-color: $gray-50;
+  color: $gray-600;
+  font-size: 12px;
+  font-style: italic;
+  width: 100%;
+  min-width: 0;
+
+  > lucide-icon {
+    flex-shrink: 0;
+    color: $gray-400;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+
+  .dsn-text {
+    @include text-truncate;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dsn-toggle {
+    flex-shrink: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: $blue-600;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover {
+      color: $blue-700;
+      text-decoration: underline;
+    }
+  }
+
+  &.expanded {
+    align-items: flex-start;
+
+    .dsn-text {
+      overflow: visible;
+      white-space: pre-wrap;
+      text-overflow: clip;
+      word-break: break-word;
+    }
   }
 }
 

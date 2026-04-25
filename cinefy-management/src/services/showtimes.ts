@@ -2,6 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
+  MovieShowtimeDatesResponse,
+  MovieShowtimesResponse,
   MovieWithShowtimes,
   PublishShowtimesInput,
   Showtime,
@@ -19,6 +21,18 @@ export class ShowtimesService {
 
   getShowtimesStatistics(): Observable<ShowtimesStatistics> {
     return this.http.get<ShowtimesStatistics>('/showtimes/statistics');
+  }
+
+  getMovieShowtimeDates(movieId: number): Observable<MovieShowtimeDatesResponse> {
+    return this.http.get<MovieShowtimeDatesResponse>('/showtimes/movie-dates', {
+      params: { movieId },
+    });
+  }
+
+  getMovieShowtimesForDate(movieId: number, date: string): Observable<MovieShowtimesResponse> {
+    return this.http.get<MovieShowtimesResponse>('/showtimes/movie-day', {
+      params: { movieId, date },
+    });
   }
 
   createShowtime(data: ShowtimeDraft): Observable<Showtime> {

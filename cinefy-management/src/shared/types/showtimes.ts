@@ -45,19 +45,25 @@ interface ShowtimesStatistics {
   todayShowtimes: number;
 }
 
-interface MovieShowtimes {
-  dates: string[];
-  totalDraftShowtimes: number;
-}
-
-interface MovieShowtimeDetail {
+interface MovieShowtimeListItem {
   id: string;
+  time: string; // e.g. '19:30'
   hall: HallRef;
   status: ShowtimeStatus;
-  time: string; // e.g. '19:30'
   specialNotes: string;
-  occupiedSeats: number;
+  is3D: boolean;
+  reservedSeats: number;
   totalSeats: number;
+}
+
+interface MovieShowtimeDatesResponse {
+  numberOfDrafts: number;
+  dates: string[];
+}
+
+interface MovieShowtimesResponse {
+  numberOfDrafts: number;
+  showtimes: MovieShowtimeListItem[];
 }
 
 interface EditableShowtime {
@@ -76,7 +82,8 @@ export type {
   PublishShowtimesInput,
   MovieWithShowtimes,
   ShowtimesStatistics,
-  MovieShowtimes,
-  MovieShowtimeDetail,
+  MovieShowtimeListItem,
+  MovieShowtimeDatesResponse,
+  MovieShowtimesResponse,
   EditableShowtime,
 };

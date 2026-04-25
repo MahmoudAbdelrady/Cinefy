@@ -38,8 +38,9 @@ export type {
   PublishShowtimesInput,
   MovieWithShowtimes,
   ShowtimesStatistics,
-  MovieShowtimes,
-  MovieShowtimeDetail,
+  MovieShowtimeListItem,
+  MovieShowtimeDatesResponse,
+  MovieShowtimesResponse,
   EditableShowtime,
 } from './showtimes';
 
