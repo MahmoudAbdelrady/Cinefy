@@ -23,6 +23,7 @@ import org.springframework.web.client.RestClient;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
@@ -84,6 +85,7 @@ public class TmdbMovieService {
         return page.getContent().stream()
                 .filter(dto -> dto.getReleaseDate() != null && !LocalDate.parse(dto.getReleaseDate()).isBefore(today))
                 .limit(Math.min(limit, 20))
+                .sorted(Comparator.comparing(MovieSearchResultDTO::getReleaseDate))
                 .toList();
     }
 

@@ -1,6 +1,21 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
 
+.um-loading {
+  @include flex-center;
+  grid-column: 1 / -1;
+  padding: 48px 0;
+  color: $gray-400;
+}
+
+.um-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 16px;
+  color: $gray-500;
+  font-size: 14px;
+}
+
 .upcoming-movies-container {
   background-color: #ffffff;
   border: 1px solid $gray-200;
