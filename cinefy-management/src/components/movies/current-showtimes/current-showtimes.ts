@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { EditableShowtime, ShowtimeDraft, ShowtimeSummary } from '../../../shared/types';
+import { EditableShowtime, Showtime, ShowtimeSummary } from '../../../shared/types';
 import { Plus, Trash2, TriangleAlert, LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
@@ -102,12 +102,12 @@ export class CurrentShowtimesComponent {
     },
   ]);
 
-  protected onShowtimeCreated(draft: ShowtimeDraft): void {
-    console.log('Showtime created', draft);
+  protected onShowtimeCreated(showtime: Showtime): void {
+    console.log('Showtime created', showtime);
   }
 
-  protected onShowtimeUpdated(update: ShowtimeDraft & { id: string }): void {
-    console.log('Showtime updated', update);
+  protected onShowtimeUpdated(showtime: Showtime): void {
+    console.log('Showtime updated', showtime);
     this.editingShowtime.set(null);
   }
 

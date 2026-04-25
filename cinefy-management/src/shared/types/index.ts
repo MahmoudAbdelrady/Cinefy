@@ -28,14 +28,16 @@ export type {
   Hall,
 } from './halls';
 
+export type { Movie, MovieSearchResult, MovieDetail } from './movies';
+
 export type {
-  Movie,
   ShowtimeDraft,
+  Showtime,
+  PublishShowtimesInput,
   ShowtimeSummary,
   MovieShowtimes,
   MovieShowtimeDetail,
   EditableShowtime,
-  MovieSearchResult,
-  MovieDetail,
-} from './movies';
+} from './showtimes';
+
 export type { StatsCard } from './stats';

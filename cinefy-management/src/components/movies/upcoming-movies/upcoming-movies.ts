@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { Calendar, LucideAngularModule } from 'lucide-angular';
-import type { Movie, ShowtimeDraft } from '../../../shared/types';
+import type { Movie, Showtime } from '../../../shared/types';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
@@ -30,8 +30,8 @@ export class UpcomingMoviesComponent {
     this.selectedWindow.set(next as UpcomingWindow);
   }
 
-  protected onShowtimeCreated(draft: ShowtimeDraft): void {
-    console.log('Showtime created', draft);
+  protected onShowtimeCreated(showtime: Showtime): void {
+    console.log('Showtime created', showtime);
   }
 
   private readonly today = (() => {

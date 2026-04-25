@@ -10,30 +10,33 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   EditableShowtime,
   HallSummary,
   MovieDetail,
   MovieSearchResult,
+  Showtime,
   ShowtimeDraft,
 } from '../../../shared/types';
 import { DatePicker } from '../../date-time/date-picker/date-picker';
 import { TimePicker } from '../../date-time/time-picker/time-picker';
 import { PaginatedSelectComponent } from '../../drop-down/paginated-select/paginated-select';
-import { HallsService, MoviesService, ToastService } from '../../../services';
+import { HallsService, MoviesService, ShowtimesService, ToastService } from '../../../services';
 import { NgpTextarea } from 'ng-primitives/textarea';
 import { NgpButton } from 'ng-primitives/button';
 import { Film, LucideAngularModule } from 'lucide-angular';
 import { ModalComponent } from '../../modal/modal';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
+import { FieldErrorComponent } from '../../field-error/field-error';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 
 @Component({
   selector: 'manage-showtime-modal',
   imports: [
-    FormsModule,
+    ReactiveFormsModule,
     DatePicker,
     TimePicker,
     PaginatedSelectComponent,
@@ -45,6 +48,8 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
     DatePipe,
     NgpSwitch,
     NgpSwitchThumb,
+    FieldErrorComponent,
+    LoadingSpinnerComponent,
   ],
   templateUrl: './manage-showtime-modal.html',
   styleUrl: './manage-showtime-modal.scss',
@@ -56,11 +61,12 @@ export class ManageShowtimeModalComponent {
   readonly selectedMovie = input<MovieSearchResult | null>(null);
   readonly showSelectedMovie = input(true);
   readonly editingShowtime = input<EditableShowtime | null>(null);
-  readonly showtimeCreated = output<ShowtimeDraft>();
-  readonly showtimeUpdated = output<ShowtimeDraft & { id: string }>();
+  readonly showtimeCreated = output<Showtime>();
+  readonly showtimeUpdated = output<Showtime>();
 
   protected hallsService = inject(HallsService);
   private readonly moviesService = inject(MoviesService);
+  private readonly showtimesService = inject(ShowtimesService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -75,11 +81,22 @@ export class ManageShowtimeModalComponent {
     return editing ? (editing.hall as HallSummary) : null;
   });
 
-  protected showtimeDate = signal<Date | undefined>(undefined);
-  protected showtimeTime = signal<string | null>(null);
-  protected showtimeSpecialNotes = signal('');
-  protected selectedHall = signal<HallSummary | null>(null);
-  protected is3D = signal(false);
+  protected readonly showtimeForm = new FormGroup({
+    date: new FormControl<Date | null>(null, {
+      validators: [Validators.required],
+    }),
+    time: new FormControl<string | null>(null, {
+      validators: [Validators.required],
+    }),
+    hallId: new FormControl<string | null>(null, {
+      validators: [Validators.required],
+    }),
+    is3D: new FormControl(false, { nonNullable: true }),
+    specialNotes: new FormControl('', { nonNullable: true }),
+  });
+
+  protected readonly submitting = signal(false);
+  protected readonly selectedHall = signal<HallSummary | null>(null);
   protected pickedMovie = signal<MovieSearchResult | null>(null);
   protected readonly activeMovieDetail = signal<MovieDetail | null>(null);
 
@@ -112,10 +129,13 @@ export class ManageShowtimeModalComponent {
     effect(() => {
       const editing = this.editingShowtime();
       if (!editing) return;
-      this.showtimeDate.set(editing.date);
-      this.showtimeTime.set(editing.time);
-      this.showtimeSpecialNotes.set(editing.specialNotes);
       this.selectedHall.set(editing.hall as HallSummary);
+      this.showtimeForm.patchValue({
+        date: editing.date,
+        time: editing.time,
+        hallId: editing.hall.id,
+        specialNotes: editing.specialNotes,
+      });
     });
 
     effect(() => {
@@ -138,35 +158,66 @@ export class ManageShowtimeModalComponent {
     });
   }
 
-  protected readonly canSubmit = computed(
-    () => !!this.showtimeDate() && !!this.showtimeTime() && !!this.selectedHall(),
-  );
-
   protected onHallChange(hall: HallSummary | null) {
     this.selectedHall.set(hall);
+    const hallIdCtrl = this.showtimeForm.controls.hallId;
+    hallIdCtrl.setValue(hall?.id ?? null);
+    hallIdCtrl.markAsTouched();
   }
 
   protected onSubmit() {
+    if (this.submitting()) return;
     const draft = this.submit();
     if (!draft) return;
     const editing = this.editingShowtime();
-    if (editing) {
-      this.showtimeUpdated.emit({ ...draft, id: editing.id });
-    } else {
-      this.showtimeCreated.emit(draft);
-    }
-    this.close()();
+    const request$ = editing
+      ? this.showtimesService.updateShowtime(editing.id, draft)
+      : this.showtimesService.createShowtime(draft);
+
+    this.submitting.set(true);
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (showtime) => {
+        this.submitting.set(false);
+        if (editing) {
+          this.showtimeUpdated.emit(showtime);
+          this.toastService.success('Showtime updated');
+        } else {
+          this.showtimeCreated.emit(showtime);
+          this.toastService.success('Showtime created');
+        }
+        this.close()();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.submitting.set(false);
+        this.toastService.error(
+          err.error?.message ??
+            (editing ? 'Failed to update showtime' : 'Failed to create showtime'),
+        );
+      },
+    });
   }
 
   private submit(): ShowtimeDraft | null {
+    if (this.showtimeForm.invalid) {
+      this.showtimeForm.markAllAsTouched();
+      return null;
+    }
     const movie = this.activeMovie();
-    if (!movie || !this.canSubmit()) return null;
+    if (!movie) return null;
+    const value = this.showtimeForm.getRawValue();
     return {
       movieId: movie.id,
-      date: this.showtimeDate()!,
-      time: this.showtimeTime()!,
-      hallId: this.selectedHall()!.id,
-      specialNotes: this.showtimeSpecialNotes(),
+      dateTime: this.combineDateAndTime(value.date!, value.time!),
+      hallId: value.hallId!,
+      is3D: value.is3D,
+      specialNotes: value.specialNotes,
     };
+  }
+
+  private combineDateAndTime(date: Date, time: string): string {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}T${time}:00`;
   }
 }
