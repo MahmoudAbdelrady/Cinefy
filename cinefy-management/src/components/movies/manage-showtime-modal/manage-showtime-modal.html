@@ -80,11 +80,23 @@
             (cleared)="onHallChange(null)"
           />
         </div>
+        <div class="switch-group">
+          <span>Show in 3D</span>
+          <button
+            ngpSwitch
+            class="switch-button"
+            [ngpSwitchChecked]="is3D()"
+            (ngpSwitchCheckedChange)="is3D.set($event)"
+          >
+            <span ngpSwitchThumb></span>
+          </button>
+        </div>
         <div class="input-group">
           <label>Special Notes (Optional)</label>
           <textarea
             ngpTextarea
             placeholder="Add any special notes about this showtime..."
+            maxlength="280"
             [ngModel]="showtimeSpecialNotes()"
             (ngModelChange)="showtimeSpecialNotes.set($event)"
           ></textarea>

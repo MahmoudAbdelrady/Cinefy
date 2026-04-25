@@ -190,6 +190,64 @@
   gap: 24px;
 }
 
+.switch-group {
+  @include flex-between;
+  padding: 12px;
+  border-radius: $radius-md;
+  border: 1px solid $gray-200;
+  background-color: $gray-50;
+
+  > span {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-700;
+  }
+}
+
+.switch-button {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border: none;
+  padding: 0;
+  border-radius: $radius-full;
+  background-color: $gray-200;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+  flex-shrink: 0;
+
+  &[data-checked] {
+    background-color: $blue-600;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px #ffffff,
+      0 0 0 4px $blue-500;
+  }
+
+  [ngpSwitchThumb] {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border-radius: $radius-full;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 200ms ease;
+    transform: translateX(2px);
+  }
+
+  &[data-checked] [ngpSwitchThumb] {
+    transform: translateX(22px);
+  }
+
+  &[data-disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .time-input-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -225,8 +283,8 @@
     background: #ffffff;
     border: 1px solid $gray-300;
     border-radius: $radius-md;
-    min-height: 80px;
-    resize: vertical;
+    height: 88px;
+    resize: none;
     font-family: inherit;
     transition:
       border-color 150ms ease,

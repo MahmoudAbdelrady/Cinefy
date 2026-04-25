@@ -28,6 +28,7 @@ import { NgpButton } from 'ng-primitives/button';
 import { Film, LucideAngularModule } from 'lucide-angular';
 import { ModalComponent } from '../../modal/modal';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
+import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 
 @Component({
   selector: 'manage-showtime-modal',
@@ -42,6 +43,8 @@ import { MoviePickerComponent } from '../movie-picker/movie-picker';
     ModalComponent,
     MoviePickerComponent,
     DatePipe,
+    NgpSwitch,
+    NgpSwitchThumb,
   ],
   templateUrl: './manage-showtime-modal.html',
   styleUrl: './manage-showtime-modal.scss',
@@ -76,6 +79,7 @@ export class ManageShowtimeModalComponent {
   protected showtimeTime = signal<string | null>(null);
   protected showtimeSpecialNotes = signal('');
   protected selectedHall = signal<HallSummary | null>(null);
+  protected is3D = signal(false);
   protected pickedMovie = signal<MovieSearchResult | null>(null);
   protected readonly activeMovieDetail = signal<MovieDetail | null>(null);
 
