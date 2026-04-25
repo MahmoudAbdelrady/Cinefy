@@ -239,18 +239,18 @@ public class HallService {
     }
 
     private void validateHallMutability(Hall hall, HallDTO dto) {
-        // @TODO --> This could be changed to depend on the number of reserved seats instead
-        if (!showtimeRepository.existsByHallAndStatusIn(hall, Set.of(ShowtimeStatus.PUBLISHED))) {
-            return;
+        if (!hall.getStatus().equals(HallStatus.fromString(dto.getStatus())) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.ACTIVE_STATUSES)) {
+            throw new BusinessException("Cannot modify status of hall '" + hall.getName() + "' while it has active showtimes");
         }
-        if (hasCriticalChange(hall, dto)) {
-            throw new BusinessException("Cannot modify layout, pricing, or status of hall '" + hall.getName() + "' while it has active showtimes");
+
+        // @TODO --> This could be changed to depend on the number of reserved seats instead
+        if (hasCriticalConfigChange(hall, dto) && showtimeRepository.existsByHallAndStatusIn(hall, Set.of(ShowtimeStatus.PUBLISHED))) {
+            throw new BusinessException("Cannot modify layout or pricing of hall '" + hall.getName() + "' while it has published showtimes");
         }
     }
 
-    private boolean hasCriticalChange(Hall hall, HallDTO dto) {
-        return !hall.getStatus().equals(HallStatus.fromString(dto.getStatus()))
-                || hall.getTotalRows() != dto.getNumberOfRows()
+    private boolean hasCriticalConfigChange(Hall hall, HallDTO dto) {
+        return hall.getTotalRows() != dto.getNumberOfRows()
                 || hall.getTotalColumns() != dto.getSeatsPerRow()
                 || isPricingChanged(hall, dto.getTicketPricing())
                 || isLayoutChanged(hall, dto.getLayout());

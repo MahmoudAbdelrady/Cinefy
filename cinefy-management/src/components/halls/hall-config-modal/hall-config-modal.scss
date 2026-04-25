@@ -98,6 +98,14 @@
     margin-bottom: 8px;
   }
 
+  .status-caption {
+    display: block;
+    font-size: 12px;
+    color: $gray-500;
+    margin-top: 4px;
+    font-weight: 400;
+  }
+
   input {
     width: 100%;
     padding: 8px 16px;
