@@ -61,22 +61,9 @@ public class TmdbMovieService {
     }
 
     public MovieDetailDTO getMovieDetails(long tmdbId) {
-        JsonNode root;
-        try {
-            root = restClient.get()
-                    .uri("/movie/{id}?append_to_response=release_dates", tmdbId)
-                    .retrieve()
-                    .body(JsonNode.class);
-        } catch (HttpClientErrorException.NotFound e) {
-            throw new NotFoundException("Movie not found: " + tmdbId);
-        }
-
-        if (root == null) {
-            log.error("Empty response from TMDB for movie id: {}", tmdbId);
-            throw new RuntimeException("Error while retrieving movie details");
-        }
-
-        return toMovieDetail(root);
+        return tmdbMovieRepository.findById(tmdbId)
+                .map(this::toMovieDetail)
+                .orElseGet(() -> fetchMovieDetailsFromTmdb(tmdbId));
     }
 
     public List<MovieSearchResultDTO> getUpcomingMovies(int limit) {
@@ -91,7 +78,7 @@ public class TmdbMovieService {
 
     public TmdbMovie fetchAndCache(long tmdbId) {
         return tmdbMovieRepository.findById(tmdbId).orElseGet(() -> {
-            MovieDetailDTO details = getMovieDetails(tmdbId);
+            MovieDetailDTO details = fetchMovieDetailsFromTmdb(tmdbId);
             TmdbMovie movie = new TmdbMovie();
             movie.setId(details.getId());
             applyDetailsToMovie(movie, details);
@@ -101,7 +88,7 @@ public class TmdbMovieService {
 
     @Transactional
     public void refreshFromTmdb(TmdbMovie movie) {
-        MovieDetailDTO details = getMovieDetails(movie.getId());
+        MovieDetailDTO details = fetchMovieDetailsFromTmdb(movie.getId());
         applyDetailsToMovie(movie, details);
         tmdbMovieRepository.save(movie);
     }
@@ -125,6 +112,25 @@ public class TmdbMovieService {
         }
 
         return new PageImpl<>(results, pageable, root.get("total_results").asLong());
+    }
+
+    private MovieDetailDTO fetchMovieDetailsFromTmdb(long tmdbId) {
+        JsonNode root;
+        try {
+            root = restClient.get()
+                    .uri("/movie/{id}?append_to_response=release_dates", tmdbId)
+                    .retrieve()
+                    .body(JsonNode.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new NotFoundException("Movie not found: " + tmdbId);
+        }
+
+        if (root == null) {
+            log.error("Empty response from TMDB for movie id: {}", tmdbId);
+            throw new RuntimeException("Error while retrieving movie details");
+        }
+
+        return toMovieDetail(root);
     }
 
     private void applyDetailsToMovie(TmdbMovie movie, MovieDetailDTO details) {
