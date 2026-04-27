@@ -87,10 +87,22 @@ public class TmdbMovieService {
     }
 
     @Transactional
-    public void refreshFromTmdb(TmdbMovie movie) {
-        MovieDetailDTO details = fetchMovieDetailsFromTmdb(movie.getId());
+    public void refreshOrDelete(TmdbMovie movie) {
+        MovieDetailDTO details;
+        try {
+            details = fetchMovieDetailsFromTmdb(movie.getId());
+        } catch (NotFoundException e) {
+            log.warn("TMDB sync: movie id={} not found upstream, deleting", movie.getId());
+            tmdbMovieRepository.delete(movie);
+            return;
+        }
         applyDetailsToMovie(movie, details);
         tmdbMovieRepository.save(movie);
+    }
+
+    @Transactional
+    public int deleteOrphans() {
+        return tmdbMovieRepository.deleteOrphans();
     }
 
     // =========================== Helpers ===========================

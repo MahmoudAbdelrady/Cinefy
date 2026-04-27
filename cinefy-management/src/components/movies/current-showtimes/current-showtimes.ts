@@ -60,6 +60,14 @@ export class CurrentShowtimesComponent {
       if (!showtime) return;
       this.applyCreatedShowtime(showtime);
     });
+
+    effect(() => {
+      const movieId = this.showtimeEvents.deleted();
+      if (movieId == null) return;
+      this.moviesWithShowtimes.update((list) =>
+        list.filter((item) => item.movieDetails.id !== movieId),
+      );
+    });
   }
 
   private applyCreatedShowtime(showtime: Showtime): void {
@@ -95,9 +103,6 @@ export class CurrentShowtimesComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.moviesWithShowtimes.update((list) =>
-            list.filter((item) => item.movieDetails.id !== id),
-          );
           this.markDeleting(id, false);
           this.toastService.success('Showtimes deleted');
           this.showtimeEvents.notifyDeleted(id);

@@ -1,4 +1,14 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ModalComponent } from '../../modal/modal';
@@ -22,7 +32,7 @@ import {
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { ShowtimesService, ToastService } from '../../../services';
+import { ShowtimeEventsService, ShowtimesService, ToastService } from '../../../services';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 
 @Component({
@@ -59,7 +69,9 @@ export class MovieShowtimesModal {
   readonly editShowtimeRequested = output<EditableShowtime>();
 
   private readonly showtimesService = inject(ShowtimesService);
+  private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly movieShowtimes = signal<MovieShowtimeDatesResponse | null>(null);
   protected readonly movieShowtimeDetails = signal<MovieShowtimeListItem[]>([]);
@@ -68,6 +80,7 @@ export class MovieShowtimesModal {
   protected readonly dayDrafts = signal(0);
   protected readonly expandedNotes = signal<Set<string>>(new Set());
   protected readonly selectedTab = signal<string | undefined>(undefined);
+  protected readonly deletingShowtimeIds = signal<Set<string>>(new Set());
 
   protected readonly otherDrafts = computed(
     () => (this.movieShowtimes()?.numberOfDrafts ?? 0) - this.dayDrafts(),
@@ -138,8 +151,68 @@ export class MovieShowtimesModal {
     });
   }
 
-  protected onDeleteShowtime(_id: string, close: () => void) {
-    close();
+  protected onDeleteShowtime(id: string, close: () => void) {
+    if (this.deletingShowtimeIds().has(id)) return;
+    this.markDeleting(id, true);
+
+    this.showtimesService
+      .deleteShowtime(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.markDeleting(id, false);
+          this.applyLocalDeletion(id);
+          this.toastService.success('Showtime deleted');
+          close();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.markDeleting(id, false);
+          this.toastService.error(err.error?.message ?? 'Failed to delete showtime');
+        },
+      });
+  }
+
+  private applyLocalDeletion(id: string): void {
+    const removed = this.movieShowtimeDetails().find((s) => s.id === id);
+    if (!removed) return;
+    const wasDraft = removed.status === 'DRAFT';
+
+    this.movieShowtimeDetails.update((list) => list.filter((s) => s.id !== id));
+
+    if (wasDraft) {
+      this.dayDrafts.update((n) => n - 1);
+      this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: m.numberOfDrafts - 1 } : m));
+    }
+
+    if (this.movieShowtimeDetails().length > 0) return;
+
+    const currentDate = this.selectedTab();
+    const currentDates = this.movieShowtimes()?.dates ?? [];
+    const removedIndex = currentDates.indexOf(currentDate ?? '');
+    const remainingDates = currentDates.filter((d) => d !== currentDate);
+
+    this.movieShowtimes.update((m) => (m ? { ...m, dates: remainingDates } : m));
+
+    if (remainingDates.length === 0) {
+      this.showtimeEvents.notifyDeleted(this.selectedMovie().id);
+      this.close()();
+      return;
+    }
+
+    const nextIndex = Math.min(removedIndex, remainingDates.length - 1);
+    this.selectedTab.set(remainingDates[nextIndex]);
+  }
+
+  private markDeleting(id: string, isDeleting: boolean): void {
+    this.deletingShowtimeIds.update((current) => {
+      const next = new Set(current);
+      if (isDeleting) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
   }
 
   protected toggleNote(id: string) {

@@ -97,8 +97,12 @@
                         <button
                           ngpButton
                           class="btn-danger"
+                          [disabled]="deletingShowtimeIds().has(showtimeDetail.id)"
                           (click)="onDeleteShowtime(showtimeDetail.id, close)"
                         >
+                          @if (deletingShowtimeIds().has(showtimeDetail.id)) {
+                            <loading-spinner [size]="16" [strokeWidth]="2.5" />
+                          }
                           <span>Delete Showtime</span>
                         </button>
                       </div>
