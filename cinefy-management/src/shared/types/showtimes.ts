@@ -25,6 +25,10 @@ interface Showtime {
   hall: HallRef;
   startDateTime: string;
   status: ShowtimeStatus;
+  specialNotes: string;
+  is3D: boolean;
+  reservedSeats: number;
+  totalSeats: number;
 }
 
 interface PublishShowtimesInput {

@@ -18,6 +18,7 @@ import {
   MovieShowtimeDatesResponse,
   MovieShowtimeListItem,
   SHOWTIME_STATUS_LABELS,
+  Showtime,
 } from '../../../shared/types';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
 import {
@@ -133,6 +134,12 @@ export class MovieShowtimesModal {
       });
       onCleanup(() => sub.unsubscribe());
     });
+
+    effect(() => {
+      const created = this.showtimeEvents.created();
+      if (!created) return;
+      this.applyCreatedShowtime(created);
+    });
   }
 
   protected onAddShowtime() {
@@ -170,6 +177,40 @@ export class MovieShowtimesModal {
           this.toastService.error(err.error?.message ?? 'Failed to delete showtime');
         },
       });
+  }
+
+  private applyCreatedShowtime(showtime: Showtime): void {
+    const [createdDate, fullTime] = showtime.startDateTime.split('T');
+    const createdTime = fullTime.slice(0, 5);
+    const isDraft = showtime.status === 'DRAFT';
+
+    this.movieShowtimes.update((m) => {
+      if (!m) return m;
+      const dates = m.dates.includes(createdDate) ? m.dates : [...m.dates, createdDate].sort();
+      return {
+        ...m,
+        dates,
+        numberOfDrafts: m.numberOfDrafts + (isDraft ? 1 : 0),
+      };
+    });
+
+    if (createdDate !== this.selectedTab()) return;
+
+    if (isDraft) this.dayDrafts.update((n) => n + 1);
+
+    const item: MovieShowtimeListItem = {
+      id: showtime.id,
+      time: createdTime,
+      hall: showtime.hall,
+      status: showtime.status,
+      specialNotes: showtime.specialNotes,
+      is3D: showtime.is3D,
+      reservedSeats: showtime.reservedSeats,
+      totalSeats: showtime.totalSeats,
+    };
+    this.movieShowtimeDetails.update((list) =>
+      [...list, item].sort((a, b) => a.time.localeCompare(b.time)),
+    );
   }
 
   private applyLocalDeletion(id: string): void {

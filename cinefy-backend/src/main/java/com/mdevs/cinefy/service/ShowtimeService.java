@@ -308,12 +308,17 @@ public class ShowtimeService {
     }
 
     private ShowtimeSummaryDTO toSummaryDTO(Showtime showtime) {
+        Hall hall = showtime.getHall();
         ShowtimeSummaryDTO dto = new ShowtimeSummaryDTO();
         dto.setId(showtime.getUuid());
         dto.setMovie(tmdbMovieService.toMovieDetail(showtime.getTmdbMovie()));
-        dto.setHall(toHallReference(showtime.getHall()));
+        dto.setHall(toHallReference(hall));
         dto.setStartDateTime(showtime.getStartDateTime());
         dto.setStatus(showtime.getStatus().name());
+        dto.setSpecialNotes(showtime.getSpecialNotes());
+        dto.set3D(showtime.is3D());
+        dto.setReservedSeats(0);
+        dto.setTotalSeats(hall.getTotalRows() * hall.getTotalColumns());
         return dto;
     }
 

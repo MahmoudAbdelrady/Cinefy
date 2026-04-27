@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.dto.showtime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mdevs.cinefy.dto.hall.HallReferenceDTO;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import lombok.Getter;
@@ -22,4 +23,13 @@ public class ShowtimeSummaryDTO {
     private LocalDateTime startDateTime;
 
     private String status;
+
+    private String specialNotes;
+
+    @JsonProperty("is3D")
+    private boolean is3D;
+
+    private int reservedSeats;
+
+    private int totalSeats;
 }
