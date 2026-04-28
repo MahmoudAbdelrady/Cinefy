@@ -7,6 +7,7 @@ import {
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
@@ -138,7 +139,13 @@ export class MovieShowtimesModal {
     effect(() => {
       const created = this.showtimeEvents.created();
       if (!created) return;
-      this.applyCreatedShowtime(created);
+      untracked(() => this.applyCreatedShowtime(created));
+    });
+
+    effect(() => {
+      const updated = this.showtimeEvents.updated();
+      if (!updated) return;
+      untracked(() => this.applyUpdatedShowtime(updated));
     });
   }
 
@@ -180,8 +187,9 @@ export class MovieShowtimesModal {
   }
 
   private applyCreatedShowtime(showtime: Showtime): void {
-    const [createdDate, fullTime] = showtime.startDateTime.split('T');
-    const createdTime = fullTime.slice(0, 5);
+    const { date: createdDate, time: createdTime } = this.splitStartDateTime(
+      showtime.startDateTime,
+    );
     const isDraft = showtime.status === 'DRAFT';
 
     this.movieShowtimes.update((m) => {
@@ -198,19 +206,56 @@ export class MovieShowtimesModal {
 
     if (isDraft) this.dayDrafts.update((n) => n + 1);
 
-    const item: MovieShowtimeListItem = {
-      id: showtime.id,
-      time: createdTime,
-      hall: showtime.hall,
-      status: showtime.status,
-      specialNotes: showtime.specialNotes,
-      is3D: showtime.is3D,
-      reservedSeats: showtime.reservedSeats,
-      totalSeats: showtime.totalSeats,
-    };
+    const item = this.toListItem(showtime, createdTime);
     this.movieShowtimeDetails.update((list) =>
       [...list, item].sort((a, b) => a.time.localeCompare(b.time)),
     );
+  }
+
+  private applyUpdatedShowtime(showtime: Showtime): void {
+    const { date: updatedDate, time: updatedTime } = this.splitStartDateTime(
+      showtime.startDateTime,
+    );
+    const isDraft = showtime.status === 'DRAFT';
+
+    const previous = this.movieShowtimeDetails().find((s) => s.id === showtime.id);
+    if (!previous) return;
+    const prevWasDraft = previous.status === 'DRAFT';
+    const draftDelta = (isDraft ? 1 : 0) - (prevWasDraft ? 1 : 0);
+
+    const updatedItem = this.toListItem(showtime, updatedTime);
+
+    if (updatedDate === this.selectedTab()) {
+      this.movieShowtimeDetails.update((list) =>
+        list
+          .map((s) => (s.id === showtime.id ? updatedItem : s))
+          .sort((a, b) => a.time.localeCompare(b.time)),
+      );
+      if (draftDelta !== 0) {
+        this.dayDrafts.update((n) => n + draftDelta);
+        this.movieShowtimes.update((m) =>
+          m ? { ...m, numberOfDrafts: m.numberOfDrafts + draftDelta } : m,
+        );
+      }
+      return;
+    }
+
+    this.movieShowtimeDetails.update((list) => list.filter((s) => s.id !== showtime.id));
+    if (prevWasDraft) this.dayDrafts.update((n) => n - 1);
+    if (draftDelta !== 0) {
+      this.movieShowtimes.update((m) =>
+        m ? { ...m, numberOfDrafts: m.numberOfDrafts + draftDelta } : m,
+      );
+    }
+
+    this.movieShowtimes.update((m) => {
+      if (!m || m.dates.includes(updatedDate)) return m;
+      return { ...m, dates: [...m.dates, updatedDate].sort() };
+    });
+
+    if (this.movieShowtimeDetails().length === 0) {
+      this.dropDateAndPickNeighbour(this.selectedTab());
+    }
   }
 
   private applyLocalDeletion(id: string): void {
@@ -225,12 +270,15 @@ export class MovieShowtimesModal {
       this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: m.numberOfDrafts - 1 } : m));
     }
 
-    if (this.movieShowtimeDetails().length > 0) return;
+    if (this.movieShowtimeDetails().length === 0) {
+      this.dropDateAndPickNeighbour(this.selectedTab());
+    }
+  }
 
-    const currentDate = this.selectedTab();
+  private dropDateAndPickNeighbour(date: string | undefined): void {
     const currentDates = this.movieShowtimes()?.dates ?? [];
-    const removedIndex = currentDates.indexOf(currentDate ?? '');
-    const remainingDates = currentDates.filter((d) => d !== currentDate);
+    const removedIndex = currentDates.indexOf(date ?? '');
+    const remainingDates = currentDates.filter((d) => d !== date);
 
     this.movieShowtimes.update((m) => (m ? { ...m, dates: remainingDates } : m));
 
@@ -242,6 +290,24 @@ export class MovieShowtimesModal {
 
     const nextIndex = Math.min(removedIndex, remainingDates.length - 1);
     this.selectedTab.set(remainingDates[nextIndex]);
+  }
+
+  private toListItem(showtime: Showtime, time: string): MovieShowtimeListItem {
+    return {
+      id: showtime.id,
+      time,
+      hall: showtime.hall,
+      status: showtime.status,
+      specialNotes: showtime.specialNotes,
+      is3D: showtime.is3D,
+      reservedSeats: showtime.reservedSeats,
+      totalSeats: showtime.totalSeats,
+    };
+  }
+
+  private splitStartDateTime(startDateTime: string): { date: string; time: string } {
+    const [date, full] = startDateTime.split('T');
+    return { date, time: full.slice(0, 5) };
   }
 
   private markDeleting(id: string, isDeleting: boolean): void {

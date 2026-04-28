@@ -72,11 +72,6 @@ export class ManageShowtimeModalComponent {
   protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
   protected readonly hallValueFn = (hall: HallSummary) => hall.id;
 
-  protected readonly initialHall = computed<HallSummary | null>(() => {
-    const editing = this.editingShowtime();
-    return editing ? (editing.hall as HallSummary) : null;
-  });
-
   protected readonly showtimeForm = new FormGroup({
     date: new FormControl<Date | null>(null, {
       validators: [Validators.required],
@@ -99,8 +94,6 @@ export class ManageShowtimeModalComponent {
   protected readonly activeMovie = computed<MovieSearchResult | null>(
     () => this.selectedMovie() ?? this.pickedMovie(),
   );
-  // TODO: once save is async (loading signal + API call), the spinner will cover
-  // the label transition during close, so this computed can stay simple.
   protected readonly isEditMode = computed(() => this.editingShowtime() !== null);
 
   protected readonly modalTitle = computed(() => {
@@ -188,7 +181,7 @@ export class ManageShowtimeModalComponent {
       next: (showtime) => {
         this.submitting.set(false);
         if (editing) {
-          // @TODO --> Add notify updated
+          this.showtimeEvents.notifyUpdated(showtime);
           this.toastService.success('Showtime updated');
         } else {
           this.showtimeEvents.notifyCreated(showtime);

@@ -80,7 +80,7 @@
             [fetchFn]="fetchHalls"
             [displayFn]="hallDisplayFn"
             [valueFn]="hallValueFn"
-            [initialValue]="initialHall()"
+            [initialValue]="selectedHall()"
             [container]="modal.panelEl()"
             (selectionChange)="onHallChange($event)"
             (cleared)="onHallChange(null)"
