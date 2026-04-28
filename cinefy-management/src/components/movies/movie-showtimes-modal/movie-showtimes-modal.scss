@@ -172,12 +172,17 @@
     color 150ms ease,
     background-color 150ms ease;
 
-  &:nth-child(1):hover {
+  &.dsi-action-publish:hover {
+    color: $green-600;
+    background-color: $green-100;
+  }
+
+  &.dsi-action-edit:hover {
     color: $blue-600;
     background-color: $blue-100;
   }
 
-  &:nth-child(2):hover {
+  &.dsi-action-delete:hover {
     color: $red-600;
     background-color: rgba($red-400, 0.2);
   }

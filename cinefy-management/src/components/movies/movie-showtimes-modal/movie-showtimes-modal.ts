@@ -28,7 +28,7 @@ import {
   SquarePen,
   Trash2,
   Plus,
-  Eye,
+  Send,
   TriangleAlert,
   StickyNote,
 } from 'lucide-angular';
@@ -61,7 +61,7 @@ export class MovieShowtimesModal {
   protected readonly EditIcon = SquarePen;
   protected readonly DeleteIcon = Trash2;
   protected readonly PlusIcon = Plus;
-  protected readonly EyeIcon = Eye;
+  protected readonly PublishIcon = Send;
   protected readonly AlertIcon = TriangleAlert;
   protected readonly NotesIcon = StickyNote;
 

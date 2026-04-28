@@ -49,10 +49,25 @@
                     </span>
                   </div>
                   <div class="dsi-actions">
-                    <button ngpButton class="dsi-action" (click)="onEditShowtime(showtimeDetail)">
+                    @if (showtimeDetail.status === 'DRAFT') {
+                      <button ngpButton class="dsi-action dsi-action-publish" title="Publish">
+                        <lucide-icon [img]="PublishIcon" [size]="14"></lucide-icon>
+                      </button>
+                    }
+                    <button
+                      ngpButton
+                      class="dsi-action dsi-action-edit"
+                      title="Edit"
+                      (click)="onEditShowtime(showtimeDetail)"
+                    >
                       <lucide-icon [img]="EditIcon" [size]="14"></lucide-icon>
                     </button>
-                    <button ngpButton class="dsi-action" [ngpDialogTrigger]="deleteDialog">
+                    <button
+                      ngpButton
+                      class="dsi-action dsi-action-delete"
+                      title="Delete"
+                      [ngpDialogTrigger]="deleteDialog"
+                    >
                       <lucide-icon [img]="DeleteIcon" [size]="14"></lucide-icon>
                     </button>
                   </div>
@@ -165,14 +180,14 @@
         @if (hasOtherDrafts()) {
           <button ngpButton [class]="hasDayDrafts() ? 'btn-publish-link' : 'btn-publish-solid'">
             @if (!hasDayDrafts()) {
-              <lucide-icon [img]="EyeIcon" [size]="16"></lucide-icon>
+              <lucide-icon [img]="PublishIcon" [size]="16"></lucide-icon>
             }
             <span>Publish all ({{ data.numberOfDrafts }})</span>
           </button>
         }
         @if (hasDayDrafts()) {
           <button ngpButton class="btn-publish-solid">
-            <lucide-icon [img]="EyeIcon" [size]="16"></lucide-icon>
+            <lucide-icon [img]="PublishIcon" [size]="16"></lucide-icon>
             <span>Publish Drafts ({{ dayDrafts() }})</span>
           </button>
         }
