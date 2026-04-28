@@ -50,8 +50,18 @@
                   </div>
                   <div class="dsi-actions">
                     @if (showtimeDetail.status === 'DRAFT') {
-                      <button ngpButton class="dsi-action dsi-action-publish" title="Publish">
-                        <lucide-icon [img]="PublishIcon" [size]="14"></lucide-icon>
+                      <button
+                        ngpButton
+                        class="dsi-action dsi-action-publish"
+                        title="Publish"
+                        [disabled]="publishingShowtimeIds().has(showtimeDetail.id)"
+                        (click)="onPublishShowtime(showtimeDetail.id)"
+                      >
+                        @if (publishingShowtimeIds().has(showtimeDetail.id)) {
+                          <loading-spinner [size]="14" [strokeWidth]="2.5" />
+                        } @else {
+                          <lucide-icon [img]="PublishIcon" [size]="14"></lucide-icon>
+                        }
                       </button>
                     }
                     <button

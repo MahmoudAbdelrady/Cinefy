@@ -253,6 +253,9 @@ public class ShowtimeService {
         if (!showtime.getStatus().equals(ShowtimeStatus.DRAFT)) {
             throw new BusinessException("Only draft showtimes can be published; showtime with id: '" + uuid + "' is " + showtime.getStatus());
         }
+        if (showtime.getStartDateTime().isBefore(LocalDateTime.now())) {
+            throw new BusinessException("Cannot publish a showtime scheduled in the past; showtime with id: '" + uuid + "' is scheduled for " + showtime.getStartDateTime());
+        }
         validateShowtimeNotInPast(showtime);
         showtime.setStatus(ShowtimeStatus.PUBLISHED);
         showtimeRepository.save(showtime);

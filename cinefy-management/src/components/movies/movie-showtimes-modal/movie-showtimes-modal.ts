@@ -83,6 +83,7 @@ export class MovieShowtimesModal {
   protected readonly expandedNotes = signal<Set<string>>(new Set());
   protected readonly selectedTab = signal<string | undefined>(undefined);
   protected readonly deletingShowtimeIds = signal<Set<string>>(new Set());
+  protected readonly publishingShowtimeIds = signal<Set<string>>(new Set());
 
   protected readonly otherDrafts = computed(
     () => (this.movieShowtimes()?.numberOfDrafts ?? 0) - this.dayDrafts(),
@@ -186,6 +187,27 @@ export class MovieShowtimesModal {
       });
   }
 
+  protected onPublishShowtime(id: string): void {
+    if (this.publishingShowtimeIds().has(id)) return;
+    this.markPublishing(id, true);
+
+    this.showtimesService
+      .publishShowtimes({ showtimeId: id })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.markPublishing(id, false);
+          this.applyLocalPublish(id);
+          this.showtimeEvents.notifyPublished(this.selectedMovie().id);
+          this.toastService.success('Showtime published');
+        },
+        error: (err: HttpErrorResponse) => {
+          this.markPublishing(id, false);
+          this.toastService.error(err.error?.message ?? 'Failed to publish showtime');
+        },
+      });
+  }
+
   private applyCreatedShowtime(showtime: Showtime): void {
     const { date: createdDate, time: createdTime } = this.splitStartDateTime(
       showtime.startDateTime,
@@ -275,6 +297,14 @@ export class MovieShowtimesModal {
     }
   }
 
+  private applyLocalPublish(id: string): void {
+    this.movieShowtimeDetails.update((list) =>
+      list.map((s) => (s.id === id ? { ...s, status: 'PUBLISHED' } : s)),
+    );
+    this.dayDrafts.update((n) => n - 1);
+    this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: m.numberOfDrafts - 1 } : m));
+  }
+
   private dropDateAndPickNeighbour(date: string | undefined): void {
     const currentDates = this.movieShowtimes()?.dates ?? [];
     const removedIndex = currentDates.indexOf(date ?? '');
@@ -314,6 +344,18 @@ export class MovieShowtimesModal {
     this.deletingShowtimeIds.update((current) => {
       const next = new Set(current);
       if (isDeleting) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  private markPublishing(id: string, isPublishing: boolean): void {
+    this.publishingShowtimeIds.update((current) => {
+      const next = new Set(current);
+      if (isPublishing) {
         next.add(id);
       } else {
         next.delete(id);

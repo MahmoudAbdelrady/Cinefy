@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { EditableShowtime, MovieWithShowtimes, Showtime } from '../../../shared/types';
@@ -58,15 +58,31 @@ export class CurrentShowtimesComponent {
     effect(() => {
       const showtime = this.showtimeEvents.created();
       if (!showtime) return;
-      this.applyCreatedShowtime(showtime);
+      untracked(() => this.applyCreatedShowtime(showtime));
     });
 
     effect(() => {
       const movieId = this.showtimeEvents.deleted();
       if (movieId == null) return;
-      this.moviesWithShowtimes.update((list) =>
-        list.filter((item) => item.movieDetails.id !== movieId),
-      );
+      untracked(() => {
+        this.moviesWithShowtimes.update((list) =>
+          list.filter((item) => item.movieDetails.id !== movieId),
+        );
+      });
+    });
+
+    effect(() => {
+      const movieId = this.showtimeEvents.published();
+      if (movieId == null) return;
+      untracked(() => {
+        this.moviesWithShowtimes.update((list) =>
+          list.map((item) =>
+            item.movieDetails.id === movieId
+              ? { ...item, totalDraftShowtimes: item.totalDraftShowtimes - 1 }
+              : item,
+          ),
+        );
+      });
     });
   }
 
