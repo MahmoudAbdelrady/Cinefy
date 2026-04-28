@@ -5,7 +5,7 @@ import type { Showtime } from '../shared/types';
 export class ShowtimeEventsService {
   private readonly _created = signal<Showtime | null>(null);
   private readonly _updated = signal<Showtime | null>(null);
-  private readonly _published = signal<number | null>(null);
+  private readonly _published = signal<{ movieId: number; count: number } | null>(null);
   private readonly _deleted = signal<number | null>(null);
 
   readonly created = this._created.asReadonly();
@@ -21,8 +21,8 @@ export class ShowtimeEventsService {
     this._updated.set(showtime);
   }
 
-  notifyPublished(movieId: number): void {
-    this._published.set(movieId);
+  notifyPublished(movieId: number, count: number): void {
+    this._published.set({ movieId, count });
   }
 
   notifyDeleted(movieId: number): void {

@@ -188,16 +188,32 @@
 
       <div class="publish-cluster">
         @if (hasOtherDrafts()) {
-          <button ngpButton [class]="hasDayDrafts() ? 'btn-publish-link' : 'btn-publish-solid'">
-            @if (!hasDayDrafts()) {
+          <button
+            ngpButton
+            [class]="hasDayDrafts() ? 'btn-publish-link' : 'btn-publish-solid'"
+            [disabled]="publishingAll()"
+            (click)="onPublishAllDrafts()"
+          >
+            @if (publishingAll()) {
+              <loading-spinner [size]="16" [strokeWidth]="2.5" />
+            } @else if (!hasDayDrafts()) {
               <lucide-icon [img]="PublishIcon" [size]="16"></lucide-icon>
             }
             <span>Publish all ({{ data.numberOfDrafts }})</span>
           </button>
         }
         @if (hasDayDrafts()) {
-          <button ngpButton class="btn-publish-solid">
-            <lucide-icon [img]="PublishIcon" [size]="16"></lucide-icon>
+          <button
+            ngpButton
+            class="btn-publish-solid"
+            [disabled]="publishingDay()"
+            (click)="onPublishDayDrafts()"
+          >
+            @if (publishingDay()) {
+              <loading-spinner [size]="16" [strokeWidth]="2.5" />
+            } @else {
+              <lucide-icon [img]="PublishIcon" [size]="16"></lucide-icon>
+            }
             <span>Publish Drafts ({{ dayDrafts() }})</span>
           </button>
         }

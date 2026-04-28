@@ -84,6 +84,8 @@ export class MovieShowtimesModal {
   protected readonly selectedTab = signal<string | undefined>(undefined);
   protected readonly deletingShowtimeIds = signal<Set<string>>(new Set());
   protected readonly publishingShowtimeIds = signal<Set<string>>(new Set());
+  protected readonly publishingDay = signal(false);
+  protected readonly publishingAll = signal(false);
 
   protected readonly otherDrafts = computed(
     () => (this.movieShowtimes()?.numberOfDrafts ?? 0) - this.dayDrafts(),
@@ -198,12 +200,61 @@ export class MovieShowtimesModal {
         next: () => {
           this.markPublishing(id, false);
           this.applyLocalPublish(id);
-          this.showtimeEvents.notifyPublished(this.selectedMovie().id);
+          this.showtimeEvents.notifyPublished(this.selectedMovie().id, 1);
           this.toastService.success('Showtime published');
         },
         error: (err: HttpErrorResponse) => {
           this.markPublishing(id, false);
           this.toastService.error(err.error?.message ?? 'Failed to publish showtime');
+        },
+      });
+  }
+
+  protected onPublishDayDrafts(): void {
+    if (this.publishingDay()) return;
+    const date = this.selectedTab();
+    if (!date) return;
+    const movieId = this.selectedMovie().id;
+    const count = this.dayDrafts();
+
+    this.publishingDay.set(true);
+    this.showtimesService
+      .publishShowtimes({ movieId, date })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.publishingDay.set(false);
+          const remaining = (this.movieShowtimes()?.numberOfDrafts ?? 0) - count;
+          this.applyLocalBulkPublish(remaining);
+          this.showtimeEvents.notifyPublished(movieId, count);
+          this.toastService.success('Drafts published');
+        },
+        error: (err: HttpErrorResponse) => {
+          this.publishingDay.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to publish drafts');
+        },
+      });
+  }
+
+  protected onPublishAllDrafts(): void {
+    if (this.publishingAll()) return;
+    const movieId = this.selectedMovie().id;
+    const count = this.movieShowtimes()?.numberOfDrafts ?? 0;
+
+    this.publishingAll.set(true);
+    this.showtimesService
+      .publishShowtimes({ movieId })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.publishingAll.set(false);
+          this.applyLocalBulkPublish(0);
+          this.showtimeEvents.notifyPublished(movieId, count);
+          this.toastService.success('Drafts published');
+        },
+        error: (err: HttpErrorResponse) => {
+          this.publishingAll.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to publish drafts');
         },
       });
   }
@@ -303,6 +354,14 @@ export class MovieShowtimesModal {
     );
     this.dayDrafts.update((n) => n - 1);
     this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: m.numberOfDrafts - 1 } : m));
+  }
+
+  private applyLocalBulkPublish(remainingDrafts: number): void {
+    this.movieShowtimeDetails.update((list) =>
+      list.map((s) => (s.status === 'DRAFT' ? { ...s, status: 'PUBLISHED' } : s)),
+    );
+    this.dayDrafts.set(0);
+    this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: remainingDrafts } : m));
   }
 
   private dropDateAndPickNeighbour(date: string | undefined): void {

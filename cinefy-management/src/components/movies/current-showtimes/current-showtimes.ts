@@ -72,13 +72,13 @@ export class CurrentShowtimesComponent {
     });
 
     effect(() => {
-      const movieId = this.showtimeEvents.published();
-      if (movieId == null) return;
+      const event = this.showtimeEvents.published();
+      if (!event) return;
       untracked(() => {
         this.moviesWithShowtimes.update((list) =>
           list.map((item) =>
-            item.movieDetails.id === movieId
-              ? { ...item, totalDraftShowtimes: item.totalDraftShowtimes - 1 }
+            item.movieDetails.id === event.movieId
+              ? { ...item, totalDraftShowtimes: item.totalDraftShowtimes - event.count }
               : item,
           ),
         );
