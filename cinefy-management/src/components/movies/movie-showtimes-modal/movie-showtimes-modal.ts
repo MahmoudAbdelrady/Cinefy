@@ -8,6 +8,7 @@ import {
   output,
   signal,
   untracked,
+  WritableSignal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
@@ -18,6 +19,7 @@ import {
   MovieDetail,
   MovieShowtimeDatesResponse,
   MovieShowtimeListItem,
+  PublishShowtimesInput,
   SHOWTIME_STATUS_LABELS,
   Showtime,
 } from '../../../shared/types';
@@ -211,49 +213,47 @@ export class MovieShowtimesModal {
   }
 
   protected onPublishDayDrafts(): void {
-    if (this.publishingDay()) return;
     const date = this.selectedTab();
     if (!date) return;
     const movieId = this.selectedMovie().id;
     const count = this.dayDrafts();
 
-    this.publishingDay.set(true);
-    this.showtimesService
-      .publishShowtimes({ movieId, date })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.publishingDay.set(false);
-          const remaining = (this.movieShowtimes()?.numberOfDrafts ?? 0) - count;
-          this.applyLocalBulkPublish(remaining);
-          this.showtimeEvents.notifyPublished(movieId, count);
-          this.toastService.success('Drafts published');
-        },
-        error: (err: HttpErrorResponse) => {
-          this.publishingDay.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to publish drafts');
-        },
-      });
+    this.runBulkPublish({ movieId, date }, this.publishingDay, () => {
+      const remaining = (this.movieShowtimes()?.numberOfDrafts ?? 0) - count;
+      this.applyLocalBulkPublish(remaining);
+      this.showtimeEvents.notifyPublished(movieId, count);
+    });
   }
 
   protected onPublishAllDrafts(): void {
-    if (this.publishingAll()) return;
     const movieId = this.selectedMovie().id;
     const count = this.movieShowtimes()?.numberOfDrafts ?? 0;
 
-    this.publishingAll.set(true);
+    this.runBulkPublish({ movieId }, this.publishingAll, () => {
+      this.applyLocalBulkPublish(0);
+      this.showtimeEvents.notifyPublished(movieId, count);
+    });
+  }
+
+  private runBulkPublish(
+    payload: PublishShowtimesInput,
+    inFlight: WritableSignal<boolean>,
+    onSuccess: () => void,
+  ): void {
+    if (inFlight()) return;
+    inFlight.set(true);
+
     this.showtimesService
-      .publishShowtimes({ movieId })
+      .publishShowtimes(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.publishingAll.set(false);
-          this.applyLocalBulkPublish(0);
-          this.showtimeEvents.notifyPublished(movieId, count);
+          inFlight.set(false);
+          onSuccess();
           this.toastService.success('Drafts published');
         },
         error: (err: HttpErrorResponse) => {
-          this.publishingAll.set(false);
+          inFlight.set(false);
           this.toastService.error(err.error?.message ?? 'Failed to publish drafts');
         },
       });
