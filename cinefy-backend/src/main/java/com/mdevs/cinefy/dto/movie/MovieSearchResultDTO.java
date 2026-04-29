@@ -18,4 +18,6 @@ public class MovieSearchResultDTO {
     private String releaseDate;
 
     private String posterUrl;
+
+    private String backdropUrl;
 }

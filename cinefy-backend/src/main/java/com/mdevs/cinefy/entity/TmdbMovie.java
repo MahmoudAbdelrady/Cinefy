@@ -33,6 +33,8 @@ public class TmdbMovie {
 
     private String posterUrl;
 
+    private String backdropUrl;
+
     @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime lastSyncedAt;
 }

@@ -153,6 +153,7 @@ public class TmdbMovieService {
         movie.setReleaseDate(details.getReleaseDate() != null ? LocalDate.parse(details.getReleaseDate()) : null);
         movie.setDurationMinutes(details.getDuration());
         movie.setPosterUrl(details.getPosterUrl());
+        movie.setBackdropUrl(details.getBackdropUrl());
         movie.setLastSyncedAt(LocalDateTime.now());
     }
 
@@ -164,6 +165,9 @@ public class TmdbMovieService {
 
         String posterPath = node.path("poster_path").stringValue();
         dto.setPosterUrl(posterPath != null ? imageBaseUrl + posterPath : null);
+
+        String backdropPath = node.path("backdrop_path").stringValue();
+        dto.setBackdropUrl(backdropPath != null ? imageBaseUrl + backdropPath : null);
 
         List<String> genreNames = StreamSupport.stream(node.path("genre_ids").spliterator(), false).map(g -> TmdbGenres.resolve(g.asInt())).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
@@ -181,6 +185,9 @@ public class TmdbMovieService {
 
         String posterPath = node.path("poster_path").stringValue();
         dto.setPosterUrl(posterPath != null ? imageBaseUrl + posterPath : null);
+
+        String backdropPath = node.path("backdrop_path").stringValue();
+        dto.setBackdropUrl(backdropPath != null ? imageBaseUrl + backdropPath : null);
 
         List<String> genreNames = StreamSupport.stream(node.path("genres").spliterator(), false).map(g -> g.path("name").stringValue()).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
@@ -207,6 +214,7 @@ public class TmdbMovieService {
         dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
         dto.setDuration(m.getDurationMinutes());
         dto.setPosterUrl(m.getPosterUrl());
+        dto.setBackdropUrl(m.getBackdropUrl());
         return dto;
     }
 }

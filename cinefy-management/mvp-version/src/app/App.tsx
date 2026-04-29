@@ -66,7 +66,6 @@ export default function App() {
     };
   }, [searchQuery]);
 
-
   // Seat layout editor state
   const [numRows, setNumRows] = useState(10);
   const [seatsPerRow, setSeatsPerRow] = useState(12);
@@ -342,138 +341,320 @@ export default function App() {
   const [showtimes, setShowtimes] = useState([
     // Apr 15 — all published (past)
     {
-      id: 1, movieId: 3, movieTitle: 'Spider-Man: No Way Home',
-      hallId: 1, hallName: 'Hall 1', date: '2026-04-15', time: '14:30',
-      bookedSeats: 89, totalSeats: 120, status: 'published' as const,
+      id: 1,
+      movieId: 3,
+      movieTitle: 'Spider-Man: No Way Home',
+      hallId: 1,
+      hallName: 'Hall 1',
+      date: '2026-04-15',
+      time: '14:30',
+      bookedSeats: 89,
+      totalSeats: 120,
+      status: 'published' as const,
     },
     {
-      id: 2, movieId: 3, movieTitle: 'Spider-Man: No Way Home',
-      hallId: 2, hallName: 'Hall 2', date: '2026-04-15', time: '18:00',
-      bookedSeats: 112, totalSeats: 150, status: 'published' as const,
+      id: 2,
+      movieId: 3,
+      movieTitle: 'Spider-Man: No Way Home',
+      hallId: 2,
+      hallName: 'Hall 2',
+      date: '2026-04-15',
+      time: '18:00',
+      bookedSeats: 112,
+      totalSeats: 150,
+      status: 'published' as const,
     },
     {
-      id: 3, movieId: 2, movieTitle: 'Dune: Part Two',
-      hallId: 3, hallName: 'Hall 3', date: '2026-04-15', time: '15:00',
-      bookedSeats: 32, totalSeats: 100, status: 'published' as const,
+      id: 3,
+      movieId: 2,
+      movieTitle: 'Dune: Part Two',
+      hallId: 3,
+      hallName: 'Hall 3',
+      date: '2026-04-15',
+      time: '15:00',
+      bookedSeats: 32,
+      totalSeats: 100,
+      status: 'published' as const,
     },
     {
-      id: 4, movieId: 2, movieTitle: 'Dune: Part Two',
-      hallId: 2, hallName: 'Hall 2', date: '2026-04-15', time: '19:00',
-      bookedSeats: 78, totalSeats: 150, status: 'published' as const,
+      id: 4,
+      movieId: 2,
+      movieTitle: 'Dune: Part Two',
+      hallId: 2,
+      hallName: 'Hall 2',
+      date: '2026-04-15',
+      time: '19:00',
+      bookedSeats: 78,
+      totalSeats: 150,
+      status: 'published' as const,
     },
     {
-      id: 5, movieId: 1, movieTitle: 'The Matrix Resurrections',
-      hallId: 1, hallName: 'Hall 1', date: '2026-04-15', time: '16:00',
-      bookedSeats: 45, totalSeats: 120, status: 'published' as const,
+      id: 5,
+      movieId: 1,
+      movieTitle: 'The Matrix Resurrections',
+      hallId: 1,
+      hallName: 'Hall 1',
+      date: '2026-04-15',
+      time: '16:00',
+      bookedSeats: 45,
+      totalSeats: 120,
+      status: 'published' as const,
     },
     {
-      id: 6, movieId: 4, movieTitle: 'Avatar: The Way of Water',
-      hallId: 1, hallName: 'Hall 1', date: '2026-04-15', time: '18:30',
-      bookedSeats: 67, totalSeats: 120, status: 'published' as const,
+      id: 6,
+      movieId: 4,
+      movieTitle: 'Avatar: The Way of Water',
+      hallId: 1,
+      hallName: 'Hall 1',
+      date: '2026-04-15',
+      time: '18:30',
+      bookedSeats: 67,
+      totalSeats: 120,
+      status: 'published' as const,
     },
     // Apr 16 — today, mix of published and draft
     {
-      id: 7, movieId: 1, movieTitle: 'The Matrix Resurrections',
-      hallId: 3, hallName: 'Hall 3', date: '2026-04-16', time: '13:00',
-      bookedSeats: 21, totalSeats: 100, status: 'published' as const,
+      id: 7,
+      movieId: 1,
+      movieTitle: 'The Matrix Resurrections',
+      hallId: 3,
+      hallName: 'Hall 3',
+      date: '2026-04-16',
+      time: '13:00',
+      bookedSeats: 21,
+      totalSeats: 100,
+      status: 'published' as const,
     },
     {
-      id: 8, movieId: 2, movieTitle: 'Dune: Part Two',
-      hallId: 1, hallName: 'Hall 1', date: '2026-04-16', time: '20:00',
-      bookedSeats: 93, totalSeats: 120, status: 'published' as const,
+      id: 8,
+      movieId: 2,
+      movieTitle: 'Dune: Part Two',
+      hallId: 1,
+      hallName: 'Hall 1',
+      date: '2026-04-16',
+      time: '20:00',
+      bookedSeats: 93,
+      totalSeats: 120,
+      status: 'published' as const,
     },
     {
-      id: 9, movieId: 3, movieTitle: 'Spider-Man: No Way Home',
-      hallId: 2, hallName: 'Hall 2', date: '2026-04-16', time: '15:30',
-      bookedSeats: 134, totalSeats: 150, status: 'published' as const,
+      id: 9,
+      movieId: 3,
+      movieTitle: 'Spider-Man: No Way Home',
+      hallId: 2,
+      hallName: 'Hall 2',
+      date: '2026-04-16',
+      time: '15:30',
+      bookedSeats: 134,
+      totalSeats: 150,
+      status: 'published' as const,
     },
     {
-      id: 10, movieId: 3, movieTitle: 'Spider-Man: No Way Home',
-      hallId: 1, hallName: 'Hall 1', date: '2026-04-16', time: '19:00',
-      bookedSeats: 98, totalSeats: 120, status: 'published' as const,
+      id: 10,
+      movieId: 3,
+      movieTitle: 'Spider-Man: No Way Home',
+      hallId: 1,
+      hallName: 'Hall 1',
+      date: '2026-04-16',
+      time: '19:00',
+      bookedSeats: 98,
+      totalSeats: 120,
+      status: 'published' as const,
     },
     {
-      id: 11, movieId: 4, movieTitle: 'Avatar: The Way of Water',
-      hallId: 3, hallName: 'Hall 3', date: '2026-04-16', time: '16:00',
-      bookedSeats: 55, totalSeats: 100, status: 'draft' as const,
+      id: 11,
+      movieId: 4,
+      movieTitle: 'Avatar: The Way of Water',
+      hallId: 3,
+      hallName: 'Hall 3',
+      date: '2026-04-16',
+      time: '16:00',
+      bookedSeats: 55,
+      totalSeats: 100,
+      status: 'draft' as const,
     },
     {
-      id: 12, movieId: 1, movieTitle: 'The Matrix Resurrections',
-      hallId: 2, hallName: 'Hall 2', date: '2026-04-16', time: '21:00',
-      bookedSeats: 0, totalSeats: 150, status: 'draft' as const,
+      id: 12,
+      movieId: 1,
+      movieTitle: 'The Matrix Resurrections',
+      hallId: 2,
+      hallName: 'Hall 2',
+      date: '2026-04-16',
+      time: '21:00',
+      bookedSeats: 0,
+      totalSeats: 150,
+      status: 'draft' as const,
     },
     // Apr 17 — mostly drafts (future planning)
     {
-      id: 13, movieId: 2, movieTitle: 'Dune: Part Two',
-      hallId: 2, hallName: 'Hall 2', date: '2026-04-17', time: '14:00',
-      bookedSeats: 0, totalSeats: 150, status: 'draft' as const,
+      id: 13,
+      movieId: 2,
+      movieTitle: 'Dune: Part Two',
+      hallId: 2,
+      hallName: 'Hall 2',
+      date: '2026-04-17',
+      time: '14:00',
+      bookedSeats: 0,
+      totalSeats: 150,
+      status: 'draft' as const,
     },
     {
-      id: 14, movieId: 2, movieTitle: 'Dune: Part Two',
-      hallId: 3, hallName: 'Hall 3', date: '2026-04-17', time: '17:30',
-      bookedSeats: 0, totalSeats: 100, status: 'draft' as const,
+      id: 14,
+      movieId: 2,
+      movieTitle: 'Dune: Part Two',
+      hallId: 3,
+      hallName: 'Hall 3',
+      date: '2026-04-17',
+      time: '17:30',
+      bookedSeats: 0,
+      totalSeats: 100,
+      status: 'draft' as const,
     },
     {
-      id: 15, movieId: 3, movieTitle: 'Spider-Man: No Way Home',
-      hallId: 1, hallName: 'Hall 1', date: '2026-04-17', time: '15:00',
-      bookedSeats: 0, totalSeats: 120, status: 'draft' as const,
+      id: 15,
+      movieId: 3,
+      movieTitle: 'Spider-Man: No Way Home',
+      hallId: 1,
+      hallName: 'Hall 1',
+      date: '2026-04-17',
+      time: '15:00',
+      bookedSeats: 0,
+      totalSeats: 120,
+      status: 'draft' as const,
     },
     {
-      id: 16, movieId: 3, movieTitle: 'Spider-Man: No Way Home',
-      hallId: 2, hallName: 'Hall 2', date: '2026-04-17', time: '20:00',
-      bookedSeats: 0, totalSeats: 150, status: 'published' as const,
+      id: 16,
+      movieId: 3,
+      movieTitle: 'Spider-Man: No Way Home',
+      hallId: 2,
+      hallName: 'Hall 2',
+      date: '2026-04-17',
+      time: '20:00',
+      bookedSeats: 0,
+      totalSeats: 150,
+      status: 'published' as const,
     },
     {
-      id: 17, movieId: 4, movieTitle: 'Avatar: The Way of Water',
-      hallId: 1, hallName: 'Hall 1', date: '2026-04-17', time: '13:00',
-      bookedSeats: 0, totalSeats: 120, status: 'draft' as const,
+      id: 17,
+      movieId: 4,
+      movieTitle: 'Avatar: The Way of Water',
+      hallId: 1,
+      hallName: 'Hall 1',
+      date: '2026-04-17',
+      time: '13:00',
+      bookedSeats: 0,
+      totalSeats: 120,
+      status: 'draft' as const,
     },
     {
-      id: 18, movieId: 1, movieTitle: 'The Matrix Resurrections',
-      hallId: 1, hallName: 'Hall 1', date: '2026-04-17', time: '18:00',
-      bookedSeats: 0, totalSeats: 120, status: 'published' as const,
+      id: 18,
+      movieId: 1,
+      movieTitle: 'The Matrix Resurrections',
+      hallId: 1,
+      hallName: 'Hall 1',
+      date: '2026-04-17',
+      time: '18:00',
+      bookedSeats: 0,
+      totalSeats: 120,
+      status: 'published' as const,
     },
     {
-      id: 19, movieId: 4, movieTitle: 'Avatar: The Way of Water',
-      hallId: 2, hallName: 'Hall 2', date: '2026-04-17', time: '21:30',
-      bookedSeats: 0, totalSeats: 150, status: 'draft' as const,
+      id: 19,
+      movieId: 4,
+      movieTitle: 'Avatar: The Way of Water',
+      hallId: 2,
+      hallName: 'Hall 2',
+      date: '2026-04-17',
+      time: '21:30',
+      bookedSeats: 0,
+      totalSeats: 150,
+      status: 'draft' as const,
     },
     // Apr 18 — all drafts (not yet published)
     {
-      id: 20, movieId: 2, movieTitle: 'Dune: Part Two',
-      hallId: 1, hallName: 'Hall 1', date: '2026-04-18', time: '14:00',
-      bookedSeats: 0, totalSeats: 120, status: 'draft' as const,
+      id: 20,
+      movieId: 2,
+      movieTitle: 'Dune: Part Two',
+      hallId: 1,
+      hallName: 'Hall 1',
+      date: '2026-04-18',
+      time: '14:00',
+      bookedSeats: 0,
+      totalSeats: 120,
+      status: 'draft' as const,
     },
     {
-      id: 21, movieId: 3, movieTitle: 'Spider-Man: No Way Home',
-      hallId: 3, hallName: 'Hall 3', date: '2026-04-18', time: '16:30',
-      bookedSeats: 0, totalSeats: 100, status: 'draft' as const,
+      id: 21,
+      movieId: 3,
+      movieTitle: 'Spider-Man: No Way Home',
+      hallId: 3,
+      hallName: 'Hall 3',
+      date: '2026-04-18',
+      time: '16:30',
+      bookedSeats: 0,
+      totalSeats: 100,
+      status: 'draft' as const,
     },
     {
-      id: 22, movieId: 1, movieTitle: 'The Matrix Resurrections',
-      hallId: 2, hallName: 'Hall 2', date: '2026-04-18', time: '19:00',
-      bookedSeats: 0, totalSeats: 150, status: 'draft' as const,
+      id: 22,
+      movieId: 1,
+      movieTitle: 'The Matrix Resurrections',
+      hallId: 2,
+      hallName: 'Hall 2',
+      date: '2026-04-18',
+      time: '19:00',
+      bookedSeats: 0,
+      totalSeats: 150,
+      status: 'draft' as const,
     },
     {
-      id: 23, movieId: 4, movieTitle: 'Avatar: The Way of Water',
-      hallId: 1, hallName: 'Hall 1', date: '2026-04-18', time: '21:00',
-      bookedSeats: 0, totalSeats: 120, status: 'draft' as const,
+      id: 23,
+      movieId: 4,
+      movieTitle: 'Avatar: The Way of Water',
+      hallId: 1,
+      hallName: 'Hall 1',
+      date: '2026-04-18',
+      time: '21:00',
+      bookedSeats: 0,
+      totalSeats: 120,
+      status: 'draft' as const,
     },
     // Inception — all published, no drafts
     {
-      id: 24, movieId: 5, movieTitle: 'Inception',
-      hallId: 2, hallName: 'Hall 2', date: '2026-04-16', time: '14:00',
-      bookedSeats: 72, totalSeats: 150, status: 'published' as const,
+      id: 24,
+      movieId: 5,
+      movieTitle: 'Inception',
+      hallId: 2,
+      hallName: 'Hall 2',
+      date: '2026-04-16',
+      time: '14:00',
+      bookedSeats: 72,
+      totalSeats: 150,
+      status: 'published' as const,
     },
     {
-      id: 25, movieId: 5, movieTitle: 'Inception',
-      hallId: 1, hallName: 'Hall 1', date: '2026-04-16', time: '18:00',
-      bookedSeats: 105, totalSeats: 120, status: 'published' as const,
+      id: 25,
+      movieId: 5,
+      movieTitle: 'Inception',
+      hallId: 1,
+      hallName: 'Hall 1',
+      date: '2026-04-16',
+      time: '18:00',
+      bookedSeats: 105,
+      totalSeats: 120,
+      status: 'published' as const,
     },
     {
-      id: 26, movieId: 5, movieTitle: 'Inception',
-      hallId: 3, hallName: 'Hall 3', date: '2026-04-17', time: '16:00',
-      bookedSeats: 44, totalSeats: 100, status: 'published' as const,
+      id: 26,
+      movieId: 5,
+      movieTitle: 'Inception',
+      hallId: 3,
+      hallName: 'Hall 3',
+      date: '2026-04-17',
+      time: '16:00',
+      bookedSeats: 44,
+      totalSeats: 100,
+      status: 'published' as const,
     },
   ]);
 
@@ -510,9 +691,7 @@ export default function App() {
   };
 
   // Upcoming movies data
-  const [upcomingInterval, setUpcomingInterval] = useState<'2weeks' | 'month' | '3months'>(
-    'month',
-  );
+  const [upcomingInterval, setUpcomingInterval] = useState<'2weeks' | 'month' | '3months'>('month');
 
   const allUpcomingMovies = [
     // Next 2 weeks (Apr 17–30)
@@ -1419,7 +1598,9 @@ export default function App() {
                   <div className="divide-y divide-gray-200">
                     {moviesWithShowtimes.map((movie) => {
                       const movieShowtimes = getMovieShowtimes(movie.id);
-                      const draftCount = movieShowtimes.filter((st: any) => st.status === 'draft').length;
+                      const draftCount = movieShowtimes.filter(
+                        (st: any) => st.status === 'draft',
+                      ).length;
                       return (
                         <div key={movie.id} className="p-6 hover:bg-gray-50 transition-colors">
                           <div className="flex items-center gap-5">
@@ -1528,11 +1709,11 @@ export default function App() {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="flex bg-gray-100 rounded-lg p-1">
-                          {([
+                          {[
                             { key: '2weeks' as const, label: '2 Weeks' },
                             { key: 'month' as const, label: '1 Month' },
                             { key: '3months' as const, label: '3 Months' },
-                          ]).map((option) => (
+                          ].map((option) => (
                             <button
                               key={option.key}
                               onClick={() => setUpcomingInterval(option.key)}
@@ -1553,58 +1734,74 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-                    {filteredUpcomingMovies.map((movie) => (
-                      <div
-                        key={movie.id}
-                        className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all hover:-translate-y-0.5"
-                      >
-                        <div className="relative">
-                          <ImageWithFallback
-                            src={movie.poster}
-                            alt={movie.title}
-                            className="w-full h-64 object-cover"
-                          />
-                          <div className="absolute top-3 left-3 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold uppercase flex items-center gap-1">
-                            <Calendar size={12} />
-                            Coming Soon
-                          </div>
-                        </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+                    {filteredUpcomingMovies.map((movie) => {
+                      const release = new Date(movie.releaseDate);
+                      const daysUntil = Math.max(
+                        0,
+                        Math.ceil(
+                          (release.getTime() - new Date('2026-04-16').getTime()) /
+                            (1000 * 60 * 60 * 24),
+                        ),
+                      );
+                      const releaseLabel = release.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      });
 
-                        <div className="p-4">
-                          <h4 className="font-semibold text-gray-900 mb-1 truncate">
-                            {movie.title}
-                          </h4>
-                          <p className="text-sm text-gray-500 mb-3">
-                            {movie.genre} · {movie.director}
-                          </p>
-
-                          <div className="flex items-center gap-2 text-sm text-orange-600 mb-4">
-                            <Calendar size={14} />
-                            <span className="font-medium">{movie.releaseDate}</span>
+                      return (
+                        <div
+                          key={movie.id}
+                          className="flex gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-orange-200 hover:shadow-md transition-all"
+                        >
+                          <div className="relative shrink-0 w-24 aspect-[2/3] rounded-lg overflow-hidden bg-gray-100 ring-1 ring-gray-200">
+                            <ImageWithFallback
+                              src={movie.poster}
+                              alt={movie.title}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
 
-                          <button
-                            onClick={() => {
-                              setScheduleSelectedMovie({
-                                id: movie.id,
-                                title: movie.title,
-                                poster: movie.poster,
-                                genre: movie.genre,
-                                director: movie.director,
-                                releaseYear: new Date(movie.releaseDate).getFullYear(),
-                                duration: 'TBA',
-                              });
-                              setShowScheduleMovieModal(true);
-                              setSearchQuery('');
-                            }}
-                            className="w-full py-2 bg-orange-50 text-orange-600 rounded-lg font-medium hover:bg-orange-100 transition-colors text-sm"
-                          >
-                            Schedule Showtimes
-                          </button>
+                          <div className="flex-1 min-w-0 flex flex-col">
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <h4 className="font-semibold text-gray-900 truncate">
+                                {movie.title}
+                              </h4>
+                              <span className="shrink-0 px-2 py-0.5 bg-orange-50 text-orange-700 rounded-full text-xs font-semibold whitespace-nowrap">
+                                {daysUntil === 0 ? 'Today' : `in ${daysUntil}d`}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-500 mb-2 truncate">
+                              {movie.genre} · {movie.director}
+                            </p>
+                            <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-3">
+                              <Calendar size={14} className="text-orange-500" />
+                              <span className="font-medium">{releaseLabel}</span>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                setScheduleSelectedMovie({
+                                  id: movie.id,
+                                  title: movie.title,
+                                  poster: movie.poster,
+                                  genre: movie.genre,
+                                  director: movie.director,
+                                  releaseYear: release.getFullYear(),
+                                  duration: 'TBA',
+                                });
+                                setShowScheduleMovieModal(true);
+                                setSearchQuery('');
+                              }}
+                              className="mt-auto self-start px-4 py-1.5 bg-orange-50 text-orange-600 rounded-lg font-medium hover:bg-orange-100 transition-colors text-sm"
+                            >
+                              Schedule Showtimes
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -2466,7 +2663,11 @@ export default function App() {
               {selectedShowtimeDate && (
                 <div>
                   <p className="text-sm text-gray-500 mb-4">
-                    {getShowtimesByDate(selectedMovie.id, selectedShowtimeDate).length} showtime{getShowtimesByDate(selectedMovie.id, selectedShowtimeDate).length !== 1 ? 's' : ''} scheduled
+                    {getShowtimesByDate(selectedMovie.id, selectedShowtimeDate).length} showtime
+                    {getShowtimesByDate(selectedMovie.id, selectedShowtimeDate).length !== 1
+                      ? 's'
+                      : ''}{' '}
+                    scheduled
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -2583,7 +2784,9 @@ export default function App() {
                 const hasOtherDrafts = allDrafts.length > dayDrafts.length;
 
                 return (
-                  <div className={`flex items-center ${hasDayDrafts || hasOtherDrafts ? 'justify-between' : 'justify-end'}`}>
+                  <div
+                    className={`flex items-center ${hasDayDrafts || hasOtherDrafts ? 'justify-between' : 'justify-end'}`}
+                  >
                     {(hasDayDrafts || hasOtherDrafts) && (
                       <button
                         onClick={() => {
@@ -2597,7 +2800,7 @@ export default function App() {
                       </button>
                     )}
 
-                    {(hasDayDrafts || hasOtherDrafts) ? (
+                    {hasDayDrafts || hasOtherDrafts ? (
                       <div className="flex items-center gap-3">
                         {hasOtherDrafts && (
                           <button
@@ -2779,7 +2982,8 @@ export default function App() {
                     filteredMovies.length > 0 ? (
                       <div>
                         <p className="text-sm text-gray-500 mb-3">
-                          {filteredMovies.length} result{filteredMovies.length !== 1 ? 's' : ''} found
+                          {filteredMovies.length} result{filteredMovies.length !== 1 ? 's' : ''}{' '}
+                          found
                         </p>
                         <div className="space-y-2">
                           {filteredMovies.map((movie: any) => (

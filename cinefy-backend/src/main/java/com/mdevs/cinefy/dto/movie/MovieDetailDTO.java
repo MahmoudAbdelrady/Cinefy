@@ -24,4 +24,6 @@ public class MovieDetailDTO {
     private Integer duration;
 
     private String posterUrl;
+
+    private String backdropUrl;
 }
