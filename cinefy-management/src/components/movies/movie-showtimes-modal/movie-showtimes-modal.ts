@@ -188,12 +188,6 @@ export class MovieShowtimesModal {
     });
   }
 
-  private setsEqual(a: Set<string>, b: Set<string>): boolean {
-    if (a.size !== b.size) return false;
-    for (const v of a) if (!b.has(v)) return false;
-    return true;
-  }
-
   protected onAddShowtime() {
     this.addShowtimeRequested.emit();
   }
@@ -487,5 +481,11 @@ export class MovieShowtimesModal {
       }
       return next;
     });
+  }
+
+  private setsEqual(a: Set<string>, b: Set<string>): boolean {
+    if (a.size !== b.size) return false;
+    for (const v of a) if (!b.has(v)) return false;
+    return true;
   }
 }
