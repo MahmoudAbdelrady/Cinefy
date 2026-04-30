@@ -1,5 +1,6 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
+@use '../../../shared/styles/breakpoints' as *;
 
 .today {
   background-color: #ffffff;
@@ -14,7 +15,7 @@
     padding: 20px 24px;
     border-bottom: 1px solid $gray-100;
 
-    @media (max-width: 639px) {
+    @include below-mobile {
       padding: 16px;
     }
 
@@ -69,7 +70,7 @@
       background-color: rgba(240, 253, 244, 0.3);
     }
 
-    @media (max-width: 639px) {
+    @include below-mobile {
       gap: 12px;
       padding: 16px;
     }
@@ -84,7 +85,7 @@
   flex-shrink: 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
-  @media (max-width: 639px) {
+  @include below-mobile {
     width: 40px;
     height: 56px;
   }
@@ -113,7 +114,7 @@
     color: $gray-900;
     @include text-truncate;
 
-    @media (min-width: 640px) {
+    @include from-mobile {
       font-size: 16px;
     }
   }
@@ -153,7 +154,7 @@
     color: $gray-300;
     display: flex;
 
-    @media (max-width: 639px) {
+    @include below-mobile {
       display: none;
     }
   }
@@ -170,7 +171,7 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 
-  @media (max-width: 639px) {
+  @include below-mobile {
     font-size: 12px;
   }
 }

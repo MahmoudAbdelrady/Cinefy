@@ -1,5 +1,6 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
+@use '../../../shared/styles/breakpoints' as *;
 
 .today-showings {
   margin-bottom: 32px;
@@ -62,7 +63,7 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 
-  @media (max-width: 767px) {
+  @include below-tablet {
     grid-template-columns: 1fr;
   }
 }
@@ -199,7 +200,7 @@
     }
   }
 
-  @media (max-width: 639px) {
+  @include below-mobile {
     flex-direction: column;
     align-self: stretch;
     width: 100%;
@@ -211,7 +212,7 @@
   }
 }
 
-@media (max-width: 639px) {
+@include below-mobile {
   .nsm-card {
     flex-wrap: wrap;
   }

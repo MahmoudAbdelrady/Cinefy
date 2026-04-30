@@ -1,5 +1,6 @@
 @use '../../shared/styles/colors' as *;
 @use '../../shared/styles/mixins' as *;
+@use '../../shared/styles/breakpoints' as *;
 
 .header-container {
   background-color: rgba(255, 255, 255, 0.8);
@@ -13,11 +14,11 @@
   gap: 24px;
   padding: 12px 32px;
 
-  @media (max-width: 1023px) {
+  @include below-desktop {
     padding: 12px 24px;
   }
 
-  @media (max-width: 639px) {
+  @include below-mobile {
     padding: 12px 16px;
     gap: 12px;
   }
@@ -36,13 +37,13 @@
       color: $blue-600;
     }
 
-    @media (max-width: 639px) {
+    @include below-mobile {
       display: none;
     }
   }
 
   .hl-info {
-    @media (max-width: 639px) {
+    @include below-mobile {
       display: none;
     }
 
@@ -78,7 +79,7 @@
     display: flex;
   }
 
-  @media (max-width: 1023px) {
+  @include below-desktop {
     @include flex-center;
   }
 }
@@ -130,7 +131,7 @@
       }
 
       span {
-        @media (max-width: 639px) {
+        @include below-mobile {
           display: none;
         }
       }
@@ -138,7 +139,7 @@
       lucide-icon:last-child {
         transition: transform 200ms ease;
 
-        @media (max-width: 639px) {
+        @include below-mobile {
           display: none;
         }
       }
@@ -181,7 +182,7 @@
     .info-box {
       text-align: left;
 
-      @media (max-width: 1023px) {
+      @include below-desktop {
         display: none;
       }
 
@@ -204,7 +205,7 @@
       transition: all 150ms ease;
       display: flex;
 
-      @media (max-width: 1023px) {
+      @include below-desktop {
         display: none;
       }
     }

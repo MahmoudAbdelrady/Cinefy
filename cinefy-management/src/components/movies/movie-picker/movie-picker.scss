@@ -1,5 +1,6 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
+@use '../../../shared/styles/breakpoints' as *;
 
 .search-bar {
   margin-bottom: 16px;
@@ -280,7 +281,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@include below-phone {
   .search-bar input[ngpInput] {
     padding: 10px 72px 10px 44px;
     font-size: 15px;

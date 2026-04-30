@@ -1,5 +1,6 @@
 @use '../../shared/styles/colors' as *;
 @use '../../shared/styles/mixins' as *;
+@use '../../shared/styles/breakpoints' as *;
 
 .pagination {
   @include flex-align;
@@ -97,7 +98,7 @@
   display: block;
 }
 
-@media (max-width: 639px) {
+@include below-mobile {
   .pagination-nav {
     width: 100%;
     justify-content: center;

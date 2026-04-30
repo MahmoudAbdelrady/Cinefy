@@ -1,0 +1,59 @@
+// Semantic responsive breakpoints. Mobile-first by default;
+// `from-*` mixins reserved for desktop-only enhancements.
+
+$bp-phone: 480px;
+$bp-mobile: 640px;
+$bp-tablet: 768px;
+$bp-desktop: 1024px;
+
+// ─── Mobile-first (max-width — apply as the screen shrinks) ─────────────────
+
+@mixin below-phone {
+  @media (max-width: #{$bp-phone - 1px}) {
+    @content;
+  }
+}
+
+@mixin below-mobile {
+  @media (max-width: #{$bp-mobile - 1px}) {
+    @content;
+  }
+}
+
+@mixin below-tablet {
+  @media (max-width: #{$bp-tablet - 1px}) {
+    @content;
+  }
+}
+
+@mixin below-desktop {
+  @media (max-width: #{$bp-desktop - 1px}) {
+    @content;
+  }
+}
+
+// ─── Desktop-first (min-width — apply as the screen grows). Use sparingly. ──
+
+@mixin from-phone {
+  @media (min-width: $bp-phone) {
+    @content;
+  }
+}
+
+@mixin from-mobile {
+  @media (min-width: $bp-mobile) {
+    @content;
+  }
+}
+
+@mixin from-tablet {
+  @media (min-width: $bp-tablet) {
+    @content;
+  }
+}
+
+@mixin from-desktop {
+  @media (min-width: $bp-desktop) {
+    @content;
+  }
+}

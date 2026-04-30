@@ -1,5 +1,6 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
+@use '../../../shared/styles/breakpoints' as *;
 
 .msm-loading {
   @include flex-center;
@@ -93,7 +94,7 @@
   grid-template-columns: minmax(0, 1fr);
   gap: 12px;
 
-  @media (min-width: 768px) {
+  @include from-tablet {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
@@ -301,7 +302,7 @@
       border-color 150ms ease;
   }
 
-  @media (max-width: 639px) {
+  @include below-mobile {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
