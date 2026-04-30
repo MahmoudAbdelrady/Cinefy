@@ -154,14 +154,18 @@
                   @let expanded = expandedNotes().has(showtimeDetail.id);
                   <div class="ds-notes" [class.expanded]="expanded">
                     <lucide-icon [img]="NotesIcon" [size]="12"></lucide-icon>
-                    <span class="dsn-text">{{ showtimeDetail.specialNotes }}</span>
-                    <button
-                      type="button"
-                      class="dsn-toggle"
-                      (click)="toggleNote(showtimeDetail.id)"
-                    >
-                      {{ expanded ? 'View less' : 'View more...' }}
-                    </button>
+                    <span #noteText class="dsn-text" [attr.data-note-id]="showtimeDetail.id">{{
+                      showtimeDetail.specialNotes
+                    }}</span>
+                    @if (overflowingNotes().has(showtimeDetail.id) || expanded) {
+                      <button
+                        type="button"
+                        class="dsn-toggle"
+                        (click)="toggleNote(showtimeDetail.id)"
+                      >
+                        {{ expanded ? 'View less' : 'View more...' }}
+                      </button>
+                    }
                   </div>
                 }
               </div>
@@ -190,7 +194,7 @@
         @if (hasOtherDrafts()) {
           <button
             ngpButton
-            [class]="hasDayDrafts() ? 'btn-publish-link' : 'btn-publish-solid'"
+            [class]="hasDayDrafts() ? 'btn-publish-outlined' : 'btn-publish-solid'"
             [disabled]="publishingAll()"
             (click)="onPublishAllDrafts()"
           >

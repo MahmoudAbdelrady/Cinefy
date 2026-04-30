@@ -1,13 +1,16 @@
 import {
+  afterRenderEffect,
   Component,
   computed,
   DestroyRef,
   effect,
+  ElementRef,
   inject,
   input,
   output,
   signal,
   untracked,
+  viewChildren,
   WritableSignal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -83,12 +86,14 @@ export class MovieShowtimesModal {
   protected readonly loadingDates = signal(true);
   protected readonly loadingDay = signal(false);
   protected readonly dayDrafts = signal(0);
-  protected readonly expandedNotes = signal<Set<string>>(new Set());
   protected readonly selectedTab = signal<string | undefined>(undefined);
   protected readonly deletingShowtimeIds = signal<Set<string>>(new Set());
   protected readonly publishingShowtimeIds = signal<Set<string>>(new Set());
   protected readonly publishingDay = signal(false);
   protected readonly publishingAll = signal(false);
+  protected readonly expandedNotes = signal<Set<string>>(new Set());
+  protected readonly overflowingNotes = signal<Set<string>>(new Set());
+  private readonly noteEls = viewChildren<ElementRef<HTMLElement>>('noteText');
 
   private readonly dayCache = new Map<string, MovieShowtimesResponse>();
 
@@ -166,6 +171,27 @@ export class MovieShowtimesModal {
       if (!updated) return;
       untracked(() => this.applyUpdatedShowtime(updated));
     });
+
+    afterRenderEffect(() => {
+      const els = this.noteEls();
+      const next = new Set<string>();
+      for (const ref of els) {
+        const el = ref.nativeElement;
+        const id = el.dataset['noteId'];
+        if (id && el.scrollWidth > el.clientWidth) {
+          next.add(id);
+        }
+      }
+      const current = untracked(() => this.overflowingNotes());
+      if (this.setsEqual(current, next)) return;
+      this.overflowingNotes.set(next);
+    });
+  }
+
+  private setsEqual(a: Set<string>, b: Set<string>): boolean {
+    if (a.size !== b.size) return false;
+    for (const v of a) if (!b.has(v)) return false;
+    return true;
   }
 
   protected onAddShowtime() {

@@ -288,6 +288,7 @@
 
   button {
     @include flex-align;
+    justify-content: center;
     @include lucide-icon-fix;
     gap: 8px;
     border-radius: $radius-md;
@@ -298,6 +299,22 @@
       background-color 150ms ease,
       color 150ms ease,
       border-color 150ms ease;
+  }
+
+  @media (max-width: 639px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+
+    &.has-drafts {
+      justify-content: flex-start;
+    }
+
+    .publish-cluster {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
   }
 
   .btn-add-solid {
@@ -333,13 +350,14 @@
     }
   }
 
-  .btn-publish-link {
-    padding: 0;
-    background: transparent;
+  .btn-publish-outlined {
+    padding: 10px 20px;
     color: $green-600;
+    background: transparent;
+    border: 1px solid $green-300;
 
     &:hover {
-      color: $green-700;
+      background: $green-50;
     }
   }
 }

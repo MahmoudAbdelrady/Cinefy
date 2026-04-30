@@ -1,7 +1,14 @@
 import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ACTIVE_HALL_STATUSES,
@@ -29,6 +36,27 @@ import { MoviePickerComponent } from '../movie-picker/movie-picker';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { FieldErrorComponent } from '../../field-error/field-error';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+
+function notInPastValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value as Date | null;
+  if (!value) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const candidate = new Date(value);
+  candidate.setHours(0, 0, 0, 0);
+  return candidate.getTime() < today.getTime() ? { pastDate: true } : null;
+}
+
+function timeNotInPastValidator(control: AbstractControl): ValidationErrors | null {
+  const time = control.value as string | null;
+  const date = control.parent?.get('date')?.value as Date | null;
+  if (!time || !date) return null;
+
+  const [hours, minutes] = time.split(':').map(Number);
+  const candidate = new Date(date);
+  candidate.setHours(hours, minutes, 0, 0);
+  return candidate.getTime() < Date.now() ? { pastTime: true } : null;
+}
 
 @Component({
   selector: 'manage-showtime-modal',
@@ -74,16 +102,19 @@ export class ManageShowtimeModalComponent {
 
   protected readonly showtimeForm = new FormGroup({
     date: new FormControl<Date | null>(null, {
-      validators: [Validators.required],
+      validators: [Validators.required, notInPastValidator],
     }),
     time: new FormControl<string | null>(null, {
-      validators: [Validators.required],
+      validators: [Validators.required, timeNotInPastValidator],
     }),
     hallId: new FormControl<string | null>(null, {
       validators: [Validators.required],
     }),
     is3D: new FormControl(false, { nonNullable: true }),
-    specialNotes: new FormControl('', { nonNullable: true }),
+    specialNotes: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(255)],
+    }),
   });
 
   protected readonly submitting = signal(false);
@@ -115,6 +146,12 @@ export class ManageShowtimeModalComponent {
   );
 
   constructor() {
+    this.showtimeForm.controls.date.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.showtimeForm.controls.time.updateValueAndValidity();
+      });
+
     effect(() => {
       const editing = this.editingShowtime();
       if (!editing) return;

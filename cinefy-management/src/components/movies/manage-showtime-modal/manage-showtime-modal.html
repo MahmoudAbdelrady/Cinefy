@@ -55,7 +55,10 @@
             />
             <field-error
               [control]="showtimeForm.controls.date"
-              [messages]="{ required: 'Date is required' }"
+              [messages]="{
+                required: 'Date is required',
+                pastDate: 'Date cannot be in the past',
+              }"
             />
           </div>
           <div class="input-group">
@@ -67,7 +70,10 @@
             />
             <field-error
               [control]="showtimeForm.controls.time"
-              [messages]="{ required: 'Time is required' }"
+              [messages]="{
+                required: 'Time is required',
+                pastTime: 'Time cannot be in the past',
+              }"
             />
           </div>
         </div>
@@ -106,9 +112,13 @@
           <textarea
             ngpTextarea
             placeholder="Add any special notes about this showtime..."
-            maxlength="280"
+            maxlength="255"
             formControlName="specialNotes"
           ></textarea>
+          <field-error
+            [control]="showtimeForm.controls.specialNotes"
+            [messages]="{ maxlength: 'Special notes cannot exceed 255 characters' }"
+          />
         </div>
       </form>
     </div>
