@@ -34,8 +34,8 @@ export class SidebarComponent {
     { label: 'Dashboard', icon: House, path: '/' },
     { label: 'Halls', icon: LayoutDashboard, path: '/halls' },
     { label: 'Movies', icon: Film, path: '/movies' },
-    { label: 'Payment', icon: CreditCard, path: '/payment' },
     { label: 'Statistics', icon: ChartColumn, path: '/statistics' },
+    { label: 'Payment', icon: CreditCard, path: '/payment' },
     { label: 'Staff', icon: Users, path: '/staff' },
   ];
 
