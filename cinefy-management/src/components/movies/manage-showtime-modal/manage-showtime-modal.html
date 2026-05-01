@@ -12,16 +12,28 @@
       @if (showSelectedMovie()) {
         <div class="selected-movie-container">
           <div class="sm-info">
-            <div class="sm-img">
-              <img [src]="activeMovie()!.posterUrl" alt="{{ activeMovie()!.title }} Poster" />
+            <div class="sm-img" [class.sm-img-fallback]="!activeMovie()!.posterUrl">
+              @if (activeMovie()!.posterUrl; as posterUrl) {
+                <img [src]="posterUrl" alt="{{ activeMovie()!.title }} Poster" />
+              } @else {
+                <lucide-icon [img]="MovieIcon"></lucide-icon>
+              }
             </div>
             <div class="sm-details">
               <h4>{{ activeMovie()!.title }}</h4>
               <div class="smd-box">
-                <span class="smdb-item">{{ activeMovie()!.genre }}</span>
-                <span class="smdb-item">{{ activeMovie()!.rating }}</span>
-                <span class="smdb-item">{{ activeMovie()!.releaseDate | date: 'MMM d, y' }}</span>
-                <span class="smdb-item">{{ activeMovie()!.duration }} min</span>
+                @if (activeMovie()!.genre; as genre) {
+                  <span class="smdb-item">{{ genre }}</span>
+                }
+                @if (activeMovie()!.releaseDate; as releaseDate) {
+                  <span class="smdb-item">{{ releaseDate | date: 'MMM d, y' }}</span>
+                }
+                @if (activeMovieDetail()?.contentRating; as contentRating) {
+                  <span class="smdb-item">{{ contentRating }}</span>
+                }
+                @if (activeMovieDetail()?.duration; as duration) {
+                  <span class="smdb-item">{{ duration }} min</span>
+                }
               </div>
             </div>
           </div>
@@ -32,24 +44,36 @@
           }
         </div>
       }
-      <div class="manager-showtime-form">
+      <form [formGroup]="showtimeForm" class="manager-showtime-form">
         <div class="time-input-group">
           <div class="input-group">
             <label>Date</label>
             <date-picker
-              [ngModel]="showtimeDate()"
-              (ngModelChange)="showtimeDate.set($event)"
+              formControlName="date"
               placeholder="Select a date"
               [container]="modal.panelEl()"
+            />
+            <field-error
+              [control]="showtimeForm.controls.date"
+              [messages]="{
+                required: 'Date is required',
+                pastDate: 'Date cannot be in the past',
+              }"
             />
           </div>
           <div class="input-group">
             <label>Time</label>
             <time-picker
-              [ngModel]="showtimeTime()"
-              (ngModelChange)="showtimeTime.set($event)"
+              formControlName="time"
               placeholder="Select a time"
               [container]="modal.panelEl()"
+            />
+            <field-error
+              [control]="showtimeForm.controls.time"
+              [messages]="{
+                required: 'Time is required',
+                pastTime: 'Time cannot be in the past',
+              }"
             />
           </div>
         </div>
@@ -62,30 +86,58 @@
             [fetchFn]="fetchHalls"
             [displayFn]="hallDisplayFn"
             [valueFn]="hallValueFn"
-            [initialValue]="initialHall()"
+            [initialValue]="selectedHall()"
             [container]="modal.panelEl()"
             (selectionChange)="onHallChange($event)"
             (cleared)="onHallChange(null)"
           />
+          <field-error
+            [control]="showtimeForm.controls.hallId"
+            [messages]="{ required: 'Hall is required' }"
+          />
+        </div>
+        <div class="switch-group">
+          <span>Show in 3D</span>
+          <button
+            ngpSwitch
+            class="switch-button"
+            [ngpSwitchChecked]="showtimeForm.controls.is3D.value"
+            (ngpSwitchCheckedChange)="showtimeForm.controls.is3D.setValue($event)"
+          >
+            <span ngpSwitchThumb></span>
+          </button>
         </div>
         <div class="input-group">
           <label>Special Notes (Optional)</label>
           <textarea
             ngpTextarea
             placeholder="Add any special notes about this showtime..."
-            [ngModel]="showtimeSpecialNotes()"
-            (ngModelChange)="showtimeSpecialNotes.set($event)"
+            maxlength="255"
+            formControlName="specialNotes"
           ></textarea>
+          <field-error
+            [control]="showtimeForm.controls.specialNotes"
+            [messages]="{ maxlength: 'Special notes cannot exceed 255 characters' }"
+          />
         </div>
-      </div>
+      </form>
     </div>
   }
 
   @if (activeMovie()) {
     <div modal-footer class="manage-footer">
       <button ngpButton class="btn-secondary" (click)="close()()">Cancel</button>
-      <button ngpButton class="btn-primary" [disabled]="!canSubmit()" (click)="onSubmit()">
-        {{ submitLabel() }}
+      <button
+        ngpButton
+        class="btn-primary"
+        [disabled]="showtimeForm.invalid || submitting()"
+        (click)="onSubmit()"
+      >
+        @if (submitting()) {
+          <loading-spinner [size]="16" [strokeWidth]="2.5" />
+        } @else {
+          {{ submitLabel() }}
+        }
       </button>
     </div>
   }

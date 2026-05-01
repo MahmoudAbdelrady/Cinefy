@@ -28,8 +28,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -54,7 +56,7 @@ public class ShowtimeService {
     public MovieShowtimeDatesDTO getMovieShowtimeDates(Long movieId) {
         List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ShowtimeStatus.ACTIVE_STATUSES);
         if (dates.isEmpty()) {
-            throw new NotFoundException("No showtimes found for movie with id: " + movieId);
+            throw new NotFoundException("No showtimes found for the provided movie");
         }
 
         long numberOfDrafts = showtimeRepository.countByTmdbMovieIdAndStatus(movieId, ShowtimeStatus.DRAFT);
@@ -68,7 +70,7 @@ public class ShowtimeService {
     public MovieShowtimesDTO getMovieShowtimesForDate(Long movieId, LocalDate date) {
         List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ShowtimeStatus.ACTIVE_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
         if (showtimes.isEmpty()) {
-            throw new NotFoundException("No showtimes found for movie with id: " + movieId + " on " + date);
+            throw new NotFoundException("No showtimes found for the provided movie on " + date);
         }
 
         long numberOfDrafts = showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count();
@@ -130,7 +132,7 @@ public class ShowtimeService {
         Showtime showtime = findShowtime(uuid);
         // @TODO --> This should be changed to depend on the number of reserved seats instead for the published status
         if (!ShowtimeStatus.ACTIVE_STATUSES.contains(showtime.getStatus())) {
-            throw new BusinessException("Only draft or published showtimes can be updated");
+            throw new BusinessException("Cannot update a showtime that's not draft or published");
         }
 
         Hall previousHall = showtime.getHall();
@@ -152,13 +154,35 @@ public class ShowtimeService {
     @Transactional
     public void deleteShowtime(String uuid) {
         Showtime showtime = findShowtime(uuid);
-        // @TODO --> This should be changed to depend on the number of reserved seats instead for the published status
+        // @TODO --> This should be changed to depend on the number of reserved seats instead of the published status
         if (!ShowtimeStatus.ACTIVE_STATUSES.contains(showtime.getStatus())) {
-            throw new BusinessException("Only draft or published showtimes can be deleted");
+            throw new BusinessException("Cannot delete a showtime that's not draft or published");
         }
         Hall hall = showtime.getHall();
         showtimeRepository.delete(showtime);
         flipHallIfNoActiveShowtimes(hall, showtime.getId());
+    }
+
+    @Transactional
+    public void deleteMovieShowtimes(Long movieId) {
+        TmdbMovie movie = findTmdbMovie(movieId);
+
+        List<Showtime> showtimes = showtimeRepository.findByTmdbMovieIdAndStatusIn(movie.getId(), Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED, ShowtimeStatus.RUNNING));
+
+        if (showtimes.isEmpty()) {
+            throw new NotFoundException("No showtimes found for the provided movie");
+        }
+
+        // @TODO --> This should be changed to depend on the number of reserved seats instead of the published status
+        if (showtimes.stream().anyMatch(s -> !ShowtimeStatus.ACTIVE_STATUSES.contains(s.getStatus()))) {
+            throw new BusinessException("Cannot delete a showtime that's not draft or published");
+        }
+
+        Set<Hall> affectedHalls = showtimes.stream().map(Showtime::getHall).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        showtimeRepository.deleteAll(showtimes);
+
+        affectedHalls.forEach(hall -> flipHallIfNoActiveShowtimes(hall, null));
     }
 
     @Transactional
@@ -177,6 +201,10 @@ public class ShowtimeService {
 
     private Showtime findShowtime(String uuid) {
         return showtimeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Showtime not found: " + uuid));
+    }
+
+    private TmdbMovie findTmdbMovie(Long id) {
+        return tmdbMovieRepository.findById(id).orElseThrow(() -> new NotFoundException("Movie not found: " + id));
     }
 
     private void validateShowtime(Hall hall, TmdbMovie movie, ShowtimeDTO dto, Long showtimeId) {
@@ -209,7 +237,7 @@ public class ShowtimeService {
 
     private void validateShowtimeNotInPast(Showtime showtime) {
         if (showtime.getStartDateTime().isBefore(LocalDateTime.now())) {
-            throw new BusinessException("Cannot publish a showtime scheduled in the past; showtime with id: '" + showtime.getUuid() + "' was scheduled for " + showtime.getStartDateTime());
+            throw new BusinessException("Cannot publish a showtime scheduled in the past");
         }
     }
 
@@ -223,7 +251,10 @@ public class ShowtimeService {
     private void publishOneShowtime(String uuid) {
         Showtime showtime = findShowtime(uuid);
         if (!showtime.getStatus().equals(ShowtimeStatus.DRAFT)) {
-            throw new BusinessException("Only draft showtimes can be published; showtime with id: '" + uuid + "' is " + showtime.getStatus());
+            throw new BusinessException("Cannot publish a showtime that's not draft");
+        }
+        if (showtime.getStartDateTime().isBefore(LocalDateTime.now())) {
+            throw new BusinessException("Cannot publish a showtime scheduled in the past");
         }
         validateShowtimeNotInPast(showtime);
         showtime.setStatus(ShowtimeStatus.PUBLISHED);
@@ -235,7 +266,7 @@ public class ShowtimeService {
         LocalDateTime endDateTime = date != null ? date.plusDays(1).atStartOfDay() : null;
         List<Showtime> drafts = showtimeRepository.findByTmdbMovieAndStatusAndStartDateTimeInRange(movieId, ShowtimeStatus.DRAFT, startDateTime, endDateTime);
         if (drafts.isEmpty()) {
-            throw new NotFoundException("No draft showtimes found for movie with id: " + movieId + (date != null ? " on " + date : ""));
+            throw new NotFoundException("No draft showtimes found for the provided movie" + (date != null ? " on " + date : ""));
         }
         drafts.forEach(this::validateShowtimeNotInPast);
         for (Showtime showtime : drafts) {
@@ -280,12 +311,17 @@ public class ShowtimeService {
     }
 
     private ShowtimeSummaryDTO toSummaryDTO(Showtime showtime) {
+        Hall hall = showtime.getHall();
         ShowtimeSummaryDTO dto = new ShowtimeSummaryDTO();
         dto.setId(showtime.getUuid());
         dto.setMovie(tmdbMovieService.toMovieDetail(showtime.getTmdbMovie()));
-        dto.setHall(toHallReference(showtime.getHall()));
+        dto.setHall(toHallReference(hall));
         dto.setStartDateTime(showtime.getStartDateTime());
         dto.setStatus(showtime.getStatus().name());
+        dto.setSpecialNotes(showtime.getSpecialNotes());
+        dto.set3D(showtime.is3D());
+        dto.setReservedSeats(0);
+        dto.setTotalSeats(hall.getTotalRows() * hall.getTotalColumns());
         return dto;
     }
 

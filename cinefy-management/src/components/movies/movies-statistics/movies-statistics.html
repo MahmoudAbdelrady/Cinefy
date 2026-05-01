@@ -1,1 +1,7 @@
-<app-stats [cards]="cards" />
+@if (loading()) {
+  <div class="statistics-loading">
+    <loading-spinner [size]="28" [strokeWidth]="2.5" />
+  </div>
+} @else {
+  <app-stats [cards]="cards()" />
+}

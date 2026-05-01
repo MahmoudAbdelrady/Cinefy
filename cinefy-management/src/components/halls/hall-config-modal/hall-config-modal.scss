@@ -1,5 +1,6 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
+@use '../../../shared/styles/breakpoints' as *;
 
 @mixin disabled-input {
   &:disabled,
@@ -33,7 +34,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 32px;
 
-  @media (max-width: 1023px) {
+  @include below-desktop {
     grid-template-columns: 1fr;
   }
 }
@@ -98,6 +99,14 @@
     margin-bottom: 8px;
   }
 
+  .status-caption {
+    display: block;
+    font-size: 12px;
+    color: $gray-500;
+    margin-top: 4px;
+    font-weight: 400;
+  }
+
   input {
     width: 100%;
     padding: 8px 16px;
@@ -135,7 +144,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 
-  @media (max-width: 480px) {
+  @include below-phone {
     grid-template-columns: 1fr;
   }
 }
@@ -573,7 +582,7 @@
     gap: 12px;
   }
 
-  @media (max-width: 480px) {
+  @include below-phone {
     .cancel-btn,
     .btn-primary {
       width: 100%;

@@ -1,11 +1,31 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import {
+  afterRenderEffect,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+  viewChildren,
+  WritableSignal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ModalComponent } from '../../modal/modal';
 import {
   EditableShowtime,
-  Movie,
-  MovieShowtimeDetail,
-  MovieShowtimes,
+  MovieDetail,
+  MovieShowtimeDatesResponse,
+  MovieShowtimeListItem,
+  MovieShowtimesResponse,
+  PublishShowtimesInput,
+  SHOWTIME_STATUS_LABELS,
+  Showtime,
 } from '../../../shared/types';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
 import {
@@ -14,11 +34,14 @@ import {
   SquarePen,
   Trash2,
   Plus,
-  Eye,
+  Send,
   TriangleAlert,
+  StickyNote,
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { ShowtimeEventsService, ShowtimesService, ToastService } from '../../../services';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 
 @Component({
   selector: 'movie-showtimes-modal',
@@ -33,102 +56,436 @@ import { NgpDialogTrigger } from 'ng-primitives/dialog';
     LucideAngularModule,
     NgpButton,
     NgpDialogTrigger,
+    LoadingSpinnerComponent,
   ],
   templateUrl: './movie-showtimes-modal.html',
   styleUrl: './movie-showtimes-modal.scss',
 })
 export class MovieShowtimesModal {
+  protected readonly statusLabels = SHOWTIME_STATUS_LABELS;
   protected readonly LocationIcon = MapPin;
   protected readonly EditIcon = SquarePen;
   protected readonly DeleteIcon = Trash2;
   protected readonly PlusIcon = Plus;
-  protected readonly EyeIcon = Eye;
+  protected readonly PublishIcon = Send;
   protected readonly AlertIcon = TriangleAlert;
+  protected readonly NotesIcon = StickyNote;
+
+  private readonly showtimesService = inject(ShowtimesService);
+  private readonly showtimeEvents = inject(ShowtimeEventsService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly close = input.required<() => void>();
-  readonly selectedMovie = input.required<Movie>();
+  readonly selectedMovie = input.required<MovieDetail>();
   readonly addShowtimeRequested = output<void>();
   readonly editShowtimeRequested = output<EditableShowtime>();
+
+  protected readonly movieShowtimes = signal<MovieShowtimeDatesResponse | null>(null);
+  protected readonly movieShowtimeDetails = signal<MovieShowtimeListItem[]>([]);
+  protected readonly loadingDates = signal(true);
+  protected readonly loadingDay = signal(false);
+  protected readonly dayDrafts = signal(0);
+  protected readonly selectedTab = signal<string | undefined>(undefined);
+  protected readonly deletingShowtimeIds = signal<Set<string>>(new Set());
+  protected readonly publishingShowtimeIds = signal<Set<string>>(new Set());
+  protected readonly publishingDay = signal(false);
+  protected readonly publishingAll = signal(false);
+  protected readonly expandedNotes = signal<Set<string>>(new Set());
+  protected readonly overflowingNotes = signal<Set<string>>(new Set());
+  private readonly noteEls = viewChildren<ElementRef<HTMLElement>>('noteText');
+
+  private readonly dayCache = new Map<string, MovieShowtimesResponse>();
+
+  protected readonly otherDrafts = computed(
+    () => (this.movieShowtimes()?.numberOfDrafts ?? 0) - this.dayDrafts(),
+  );
+  protected readonly hasDayDrafts = computed(() => this.dayDrafts() > 0);
+  protected readonly hasOtherDrafts = computed(() => this.otherDrafts() > 0);
+
+  constructor() {
+    effect((onCleanup) => {
+      const movieId = this.selectedMovie().id;
+      this.loadingDates.set(true);
+      this.movieShowtimes.set(null);
+      this.movieShowtimeDetails.set([]);
+      this.dayDrafts.set(0);
+      this.selectedTab.set(undefined);
+      this.dayCache.clear();
+
+      const sub = this.showtimesService.getMovieShowtimeDates(movieId).subscribe({
+        next: (data) => {
+          this.movieShowtimes.set(data);
+          this.loadingDates.set(false);
+          if (data.dates.length > 0) {
+            this.selectedTab.set(data.dates[0]);
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loadingDates.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load showtime dates');
+        },
+      });
+      onCleanup(() => sub.unsubscribe());
+    });
+
+    effect((onCleanup) => {
+      const targetDate = this.selectedTab();
+      if (!targetDate) return;
+
+      const cached = this.dayCache.get(targetDate);
+      if (cached) {
+        this.movieShowtimeDetails.set(cached.showtimes);
+        this.dayDrafts.set(cached.numberOfDrafts);
+        this.loadingDay.set(false);
+        return;
+      }
+
+      const movieId = this.selectedMovie().id;
+      this.loadingDay.set(true);
+      const sub = this.showtimesService.getMovieShowtimesForDate(movieId, targetDate).subscribe({
+        next: (data) => {
+          if (this.selectedTab() !== targetDate) return;
+          this.dayCache.set(targetDate, data);
+          this.movieShowtimeDetails.set(data.showtimes);
+          this.dayDrafts.set(data.numberOfDrafts);
+          this.loadingDay.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          if (this.selectedTab() !== targetDate) return;
+          this.loadingDay.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
+        },
+      });
+      onCleanup(() => sub.unsubscribe());
+    });
+
+    effect(() => {
+      const created = this.showtimeEvents.created();
+      if (!created) return;
+      untracked(() => this.applyCreatedShowtime(created));
+    });
+
+    effect(() => {
+      const updated = this.showtimeEvents.updated();
+      if (!updated) return;
+      untracked(() => this.applyUpdatedShowtime(updated));
+    });
+
+    afterRenderEffect(() => {
+      const els = this.noteEls();
+      const next = new Set<string>();
+      for (const ref of els) {
+        const el = ref.nativeElement;
+        const id = el.dataset['noteId'];
+        if (id && el.scrollWidth > el.clientWidth) {
+          next.add(id);
+        }
+      }
+      const current = untracked(() => this.overflowingNotes());
+      if (this.setsEqual(current, next)) return;
+      this.overflowingNotes.set(next);
+    });
+  }
 
   protected onAddShowtime() {
     this.addShowtimeRequested.emit();
   }
 
-  protected onEditShowtime(showtime: MovieShowtimeDetail) {
+  protected onEditShowtime(showtime: MovieShowtimeListItem) {
+    const tab = this.selectedTab();
+    if (!tab) return;
     this.editShowtimeRequested.emit({
       id: showtime.id,
-      date: new Date(this.selectedTab()),
+      date: new Date(tab),
       time: showtime.time,
       hall: showtime.hall,
       specialNotes: showtime.specialNotes,
     });
   }
 
-  protected onDeleteShowtime(_id: string, close: () => void) {
-    close();
+  protected onDeleteShowtime(id: string, close: () => void) {
+    if (this.deletingShowtimeIds().has(id)) return;
+    this.markDeleting(id, true);
+
+    this.showtimesService
+      .deleteShowtime(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.markDeleting(id, false);
+          this.applyLocalDeletion(id);
+          this.toastService.success('Showtime deleted');
+          close();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.markDeleting(id, false);
+          this.toastService.error(err.error?.message ?? 'Failed to delete showtime');
+        },
+      });
   }
 
-  protected readonly movieShowtimes: MovieShowtimes = {
-    dates: ['2026-04-15', '2026-04-16', '2026-04-17', '2026-04-18'],
-    totalDraftShowtimes: 5,
-  };
+  protected onPublishShowtime(id: string): void {
+    if (this.publishingShowtimeIds().has(id)) return;
+    this.markPublishing(id, true);
 
-  protected readonly movieShowtimeDetails: MovieShowtimeDetail[] = [
-    {
-      id: '1',
-      hall: { id: 'h1', name: 'Hall A' },
-      status: 'Published',
-      time: '14:00',
-      specialNotes: '',
-      occupiedSeats: 72,
-      totalSeats: 120,
-    },
-    {
-      id: '2',
-      hall: { id: 'h2', name: 'IMAX Hall' },
-      status: 'Published',
-      time: '17:30',
-      specialNotes: 'Premium seating',
-      occupiedSeats: 148,
-      totalSeats: 180,
-    },
-    {
-      id: '3',
-      hall: { id: 'h3', name: 'Hall B' },
-      status: 'Draft',
-      time: '20:00',
-      specialNotes: '',
-      occupiedSeats: 0,
-      totalSeats: 100,
-    },
-    {
-      id: '4',
-      hall: { id: 'h4', name: 'Hall C' },
-      status: 'Published',
-      time: '22:30',
-      specialNotes: 'Late-night show',
-      occupiedSeats: 34,
-      totalSeats: 90,
-    },
-    {
-      id: '5',
-      hall: { id: 'h1', name: 'Hall A' },
-      status: 'Draft',
-      time: '23:45',
-      specialNotes: '',
-      occupiedSeats: 0,
-      totalSeats: 120,
-    },
-  ];
+    this.showtimesService
+      .publishShowtimes({ showtimeId: id })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.markPublishing(id, false);
+          this.applyLocalPublish(id);
+          this.showtimeEvents.notifyPublished(this.selectedMovie().id, 1);
+          this.toastService.success('Showtime published');
+        },
+        error: (err: HttpErrorResponse) => {
+          this.markPublishing(id, false);
+          this.toastService.error(err.error?.message ?? 'Failed to publish showtime');
+        },
+      });
+  }
 
-  protected selectedTab = signal<string>(this.movieShowtimes.dates[0]);
+  protected onPublishDayDrafts(): void {
+    const date = this.selectedTab();
+    if (!date) return;
+    const movieId = this.selectedMovie().id;
+    const count = this.dayDrafts();
 
-  protected readonly dayDrafts = computed(
-    () => this.movieShowtimeDetails.filter((showtime) => showtime.status === 'Draft').length,
-  );
-  protected readonly otherDrafts = computed(
-    () => this.movieShowtimes.totalDraftShowtimes - this.dayDrafts(),
-  );
-  protected readonly hasDayDrafts = computed(() => this.dayDrafts() > 0);
-  protected readonly hasOtherDrafts = computed(() => this.otherDrafts() > 0);
+    this.runBulkPublish({ movieId, date }, this.publishingDay, () => {
+      const remaining = (this.movieShowtimes()?.numberOfDrafts ?? 0) - count;
+      this.applyLocalBulkPublish(remaining);
+      this.dayCache.delete(date);
+      this.showtimeEvents.notifyPublished(movieId, count);
+    });
+  }
+
+  protected onPublishAllDrafts(): void {
+    const movieId = this.selectedMovie().id;
+    const count = this.movieShowtimes()?.numberOfDrafts ?? 0;
+
+    this.runBulkPublish({ movieId }, this.publishingAll, () => {
+      this.applyLocalBulkPublish(0);
+      this.dayCache.clear();
+      this.showtimeEvents.notifyPublished(movieId, count);
+    });
+  }
+
+  private runBulkPublish(
+    payload: PublishShowtimesInput,
+    inFlight: WritableSignal<boolean>,
+    onSuccess: () => void,
+  ): void {
+    if (inFlight()) return;
+    inFlight.set(true);
+
+    this.showtimesService
+      .publishShowtimes(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          inFlight.set(false);
+          onSuccess();
+          this.toastService.success('Drafts published');
+        },
+        error: (err: HttpErrorResponse) => {
+          inFlight.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to publish drafts');
+        },
+      });
+  }
+
+  private applyCreatedShowtime(showtime: Showtime): void {
+    const { date: createdDate, time: createdTime } = this.splitStartDateTime(
+      showtime.startDateTime,
+    );
+    const isDraft = showtime.status === 'DRAFT';
+
+    this.dayCache.delete(createdDate);
+
+    this.movieShowtimes.update((m) => {
+      if (!m) return m;
+      const dates = m.dates.includes(createdDate) ? m.dates : [...m.dates, createdDate].sort();
+      return {
+        ...m,
+        dates,
+        numberOfDrafts: m.numberOfDrafts + (isDraft ? 1 : 0),
+      };
+    });
+
+    if (createdDate !== this.selectedTab()) return;
+
+    if (isDraft) this.dayDrafts.update((n) => n + 1);
+
+    const item = this.toListItem(showtime, createdTime);
+    this.movieShowtimeDetails.update((list) =>
+      [...list, item].sort((a, b) => a.time.localeCompare(b.time)),
+    );
+  }
+
+  private applyUpdatedShowtime(showtime: Showtime): void {
+    const { date: updatedDate, time: updatedTime } = this.splitStartDateTime(
+      showtime.startDateTime,
+    );
+    const isDraft = showtime.status === 'DRAFT';
+
+    const previous = this.movieShowtimeDetails().find((s) => s.id === showtime.id);
+    if (!previous) return;
+    const prevWasDraft = previous.status === 'DRAFT';
+    const draftDelta = (isDraft ? 1 : 0) - (prevWasDraft ? 1 : 0);
+
+    const previousDate = this.selectedTab();
+    if (previousDate) this.dayCache.delete(previousDate);
+    this.dayCache.delete(updatedDate);
+
+    const updatedItem = this.toListItem(showtime, updatedTime);
+
+    if (updatedDate === this.selectedTab()) {
+      this.movieShowtimeDetails.update((list) =>
+        list
+          .map((s) => (s.id === showtime.id ? updatedItem : s))
+          .sort((a, b) => a.time.localeCompare(b.time)),
+      );
+      if (draftDelta !== 0) {
+        this.dayDrafts.update((n) => n + draftDelta);
+        this.movieShowtimes.update((m) =>
+          m ? { ...m, numberOfDrafts: m.numberOfDrafts + draftDelta } : m,
+        );
+      }
+      return;
+    }
+
+    this.movieShowtimeDetails.update((list) => list.filter((s) => s.id !== showtime.id));
+    if (prevWasDraft) this.dayDrafts.update((n) => n - 1);
+    if (draftDelta !== 0) {
+      this.movieShowtimes.update((m) =>
+        m ? { ...m, numberOfDrafts: m.numberOfDrafts + draftDelta } : m,
+      );
+    }
+
+    this.movieShowtimes.update((m) => {
+      if (!m || m.dates.includes(updatedDate)) return m;
+      return { ...m, dates: [...m.dates, updatedDate].sort() };
+    });
+
+    if (this.movieShowtimeDetails().length === 0) {
+      this.dropDateAndPickNeighbour(this.selectedTab());
+    }
+  }
+
+  private applyLocalDeletion(id: string): void {
+    const removed = this.movieShowtimeDetails().find((s) => s.id === id);
+    if (!removed) return;
+    const wasDraft = removed.status === 'DRAFT';
+
+    const currentDate = this.selectedTab();
+    if (currentDate) this.dayCache.delete(currentDate);
+
+    this.movieShowtimeDetails.update((list) => list.filter((s) => s.id !== id));
+
+    if (wasDraft) {
+      this.dayDrafts.update((n) => n - 1);
+      this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: m.numberOfDrafts - 1 } : m));
+    }
+
+    if (this.movieShowtimeDetails().length === 0) {
+      this.dropDateAndPickNeighbour(this.selectedTab());
+    }
+  }
+
+  private applyLocalPublish(id: string): void {
+    const currentDate = this.selectedTab();
+    if (currentDate) this.dayCache.delete(currentDate);
+
+    this.movieShowtimeDetails.update((list) =>
+      list.map((s) => (s.id === id ? { ...s, status: 'PUBLISHED' } : s)),
+    );
+    this.dayDrafts.update((n) => n - 1);
+    this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: m.numberOfDrafts - 1 } : m));
+  }
+
+  private applyLocalBulkPublish(remainingDrafts: number): void {
+    this.movieShowtimeDetails.update((list) =>
+      list.map((s) => (s.status === 'DRAFT' ? { ...s, status: 'PUBLISHED' } : s)),
+    );
+    this.dayDrafts.set(0);
+    this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: remainingDrafts } : m));
+  }
+
+  private dropDateAndPickNeighbour(date: string | undefined): void {
+    const currentDates = this.movieShowtimes()?.dates ?? [];
+    const removedIndex = currentDates.indexOf(date ?? '');
+    const remainingDates = currentDates.filter((d) => d !== date);
+
+    this.movieShowtimes.update((m) => (m ? { ...m, dates: remainingDates } : m));
+
+    if (remainingDates.length === 0) {
+      this.showtimeEvents.notifyDeleted(this.selectedMovie().id);
+      this.close()();
+      return;
+    }
+
+    const nextIndex = Math.min(removedIndex, remainingDates.length - 1);
+    this.selectedTab.set(remainingDates[nextIndex]);
+  }
+
+  private toListItem(showtime: Showtime, time: string): MovieShowtimeListItem {
+    return {
+      id: showtime.id,
+      time,
+      hall: showtime.hall,
+      status: showtime.status,
+      specialNotes: showtime.specialNotes,
+      is3D: showtime.is3D,
+      reservedSeats: showtime.reservedSeats,
+      totalSeats: showtime.totalSeats,
+    };
+  }
+
+  private splitStartDateTime(startDateTime: string): { date: string; time: string } {
+    const [date, full] = startDateTime.split('T');
+    return { date, time: full.slice(0, 5) };
+  }
+
+  private markDeleting(id: string, isDeleting: boolean): void {
+    this.deletingShowtimeIds.update((current) => {
+      const next = new Set(current);
+      if (isDeleting) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  private markPublishing(id: string, isPublishing: boolean): void {
+    this.publishingShowtimeIds.update((current) => {
+      const next = new Set(current);
+      if (isPublishing) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  protected toggleNote(id: string) {
+    this.expandedNotes.update((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  private setsEqual(a: Set<string>, b: Set<string>): boolean {
+    if (a.size !== b.size) return false;
+    for (const v of a) if (!b.has(v)) return false;
+    return true;
+  }
 }

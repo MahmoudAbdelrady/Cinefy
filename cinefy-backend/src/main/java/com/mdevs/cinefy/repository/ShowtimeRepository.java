@@ -33,7 +33,7 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
 
     Optional<Showtime> findByUuid(String uuid);
 
-    @Query("SELECT s FROM Showtime s WHERE s.tmdbMovie.id = :movieId AND s.status = :status AND (:startDateTime IS NULL OR s.startDateTime >= :startDateTime) AND (:endDateTime IS NULL OR s.startDateTime < :endDateTime)")
+    @Query("SELECT s FROM Showtime s WHERE s.tmdbMovie.id = :movieId AND s.status = :status AND (CAST(:startDateTime AS LocalDateTime) IS NULL OR s.startDateTime >= :startDateTime) AND (CAST(:endDateTime AS LocalDateTime) IS NULL OR s.startDateTime < :endDateTime)")
     List<Showtime> findByTmdbMovieAndStatusAndStartDateTimeInRange(@Param("movieId") Long movieId,
                                                                    @Param("status") ShowtimeStatus status,
                                                                    @Param("startDateTime") LocalDateTime startDateTime,
@@ -49,6 +49,8 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
     List<LocalDate> findDistinctShowtimeDatesByMovieAndStatuses(@Param("movieId") Long movieId, @Param("statuses") Set<ShowtimeStatus> statuses);
 
     long countByTmdbMovieIdAndStatus(Long tmdbMovieId, ShowtimeStatus status);
+
+    List<Showtime> findByTmdbMovieIdAndStatusIn(Long tmdbMovieId, Set<ShowtimeStatus> statuses);
 
     @Query("""
             SELECT s FROM Showtime s

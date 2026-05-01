@@ -57,29 +57,13 @@ public class TmdbMovieService {
 
     public Page<MovieSearchResultDTO> searchMovies(String query, Pageable pageable) {
         Page<MovieSearchResultDTO> page = fetchMoviePage("/search/movie?query={query}&page={page}", pageable, query, pageable.getPageNumber() + 1);
-        List<MovieSearchResultDTO> sorted = page.getContent().stream()
-                .sorted(Comparator.comparing(dto -> dto.getReleaseDate() != null ? dto.getReleaseDate() : "", Comparator.reverseOrder()))
-                .toList();
-        return new PageImpl<>(sorted, pageable, page.getTotalElements());
+        return new PageImpl<>(page.getContent(), pageable, page.getTotalElements());
     }
 
     public MovieDetailDTO getMovieDetails(long tmdbId) {
-        JsonNode root;
-        try {
-            root = restClient.get()
-                    .uri("/movie/{id}?append_to_response=release_dates", tmdbId)
-                    .retrieve()
-                    .body(JsonNode.class);
-        } catch (HttpClientErrorException.NotFound e) {
-            throw new NotFoundException("Movie not found: " + tmdbId);
-        }
-
-        if (root == null) {
-            log.error("Empty response from TMDB for movie id: {}", tmdbId);
-            throw new RuntimeException("Error while retrieving movie details");
-        }
-
-        return toMovieDetail(root);
+        return tmdbMovieRepository.findById(tmdbId)
+                .map(this::toMovieDetail)
+                .orElseGet(() -> fetchMovieDetailsFromTmdb(tmdbId));
     }
 
     public List<MovieSearchResultDTO> getUpcomingMovies(int limit) {
@@ -88,12 +72,13 @@ public class TmdbMovieService {
         return page.getContent().stream()
                 .filter(dto -> dto.getReleaseDate() != null && !LocalDate.parse(dto.getReleaseDate()).isBefore(today))
                 .limit(Math.min(limit, 20))
+                .sorted(Comparator.comparing(MovieSearchResultDTO::getReleaseDate))
                 .toList();
     }
 
     public TmdbMovie fetchAndCache(long tmdbId) {
         return tmdbMovieRepository.findById(tmdbId).orElseGet(() -> {
-            MovieDetailDTO details = getMovieDetails(tmdbId);
+            MovieDetailDTO details = fetchMovieDetailsFromTmdb(tmdbId);
             TmdbMovie movie = new TmdbMovie();
             movie.setId(details.getId());
             applyDetailsToMovie(movie, details);
@@ -102,10 +87,22 @@ public class TmdbMovieService {
     }
 
     @Transactional
-    public void refreshFromTmdb(TmdbMovie movie) {
-        MovieDetailDTO details = getMovieDetails(movie.getId());
+    public void refreshOrDelete(TmdbMovie movie) {
+        MovieDetailDTO details;
+        try {
+            details = fetchMovieDetailsFromTmdb(movie.getId());
+        } catch (NotFoundException e) {
+            log.warn("TMDB sync: movie id={} not found upstream, deleting", movie.getId());
+            tmdbMovieRepository.delete(movie);
+            return;
+        }
         applyDetailsToMovie(movie, details);
         tmdbMovieRepository.save(movie);
+    }
+
+    @Transactional
+    public int deleteOrphans() {
+        return tmdbMovieRepository.deleteOrphans();
     }
 
     // =========================== Helpers ===========================
@@ -129,6 +126,25 @@ public class TmdbMovieService {
         return new PageImpl<>(results, pageable, root.get("total_results").asLong());
     }
 
+    private MovieDetailDTO fetchMovieDetailsFromTmdb(long tmdbId) {
+        JsonNode root;
+        try {
+            root = restClient.get()
+                    .uri("/movie/{id}?append_to_response=release_dates", tmdbId)
+                    .retrieve()
+                    .body(JsonNode.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new NotFoundException("Movie not found: " + tmdbId);
+        }
+
+        if (root == null) {
+            log.error("Empty response from TMDB for movie id: {}", tmdbId);
+            throw new RuntimeException("Error while retrieving movie details");
+        }
+
+        return toMovieDetail(root);
+    }
+
     private void applyDetailsToMovie(TmdbMovie movie, MovieDetailDTO details) {
         movie.setTitle(details.getTitle());
         movie.setSynopsis(details.getSynopsis());
@@ -137,6 +153,7 @@ public class TmdbMovieService {
         movie.setReleaseDate(details.getReleaseDate() != null ? LocalDate.parse(details.getReleaseDate()) : null);
         movie.setDurationMinutes(details.getDuration());
         movie.setPosterUrl(details.getPosterUrl());
+        movie.setBackdropUrl(details.getBackdropUrl());
         movie.setLastSyncedAt(LocalDateTime.now());
     }
 
@@ -148,6 +165,9 @@ public class TmdbMovieService {
 
         String posterPath = node.path("poster_path").stringValue();
         dto.setPosterUrl(posterPath != null ? imageBaseUrl + posterPath : null);
+
+        String backdropPath = node.path("backdrop_path").stringValue();
+        dto.setBackdropUrl(backdropPath != null ? imageBaseUrl + backdropPath : null);
 
         List<String> genreNames = StreamSupport.stream(node.path("genre_ids").spliterator(), false).map(g -> TmdbGenres.resolve(g.asInt())).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
@@ -165,6 +185,9 @@ public class TmdbMovieService {
 
         String posterPath = node.path("poster_path").stringValue();
         dto.setPosterUrl(posterPath != null ? imageBaseUrl + posterPath : null);
+
+        String backdropPath = node.path("backdrop_path").stringValue();
+        dto.setBackdropUrl(backdropPath != null ? imageBaseUrl + backdropPath : null);
 
         List<String> genreNames = StreamSupport.stream(node.path("genres").spliterator(), false).map(g -> g.path("name").stringValue()).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
@@ -191,6 +214,7 @@ public class TmdbMovieService {
         dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
         dto.setDuration(m.getDurationMinutes());
         dto.setPosterUrl(m.getPosterUrl());
+        dto.setBackdropUrl(m.getBackdropUrl());
         return dto;
     }
 }

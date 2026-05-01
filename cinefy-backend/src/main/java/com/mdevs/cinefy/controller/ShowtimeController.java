@@ -60,6 +60,12 @@ public class ShowtimeController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/movies/{movieId}")
+    public ResponseEntity<Void> deleteMovieShowtimes(@PathVariable Long movieId) {
+        showtimeService.deleteMovieShowtimes(movieId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/publish")
     public ResponseEntity<Void> publishShowtimes(@RequestBody PublishShowtimesDTO dto) {
         showtimeService.publishShowtimes(dto);

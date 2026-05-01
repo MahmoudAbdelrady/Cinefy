@@ -1,5 +1,6 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
+@use '../../../shared/styles/breakpoints' as *;
 
 .manage-footer {
   @include flex-align;
@@ -86,6 +87,17 @@
     }
   }
 
+  .sm-img-fallback {
+    @include flex-center;
+    @include lucide-icon-fix;
+    color: $gray-400;
+
+    lucide-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
   .sm-details {
     flex: 1;
     min-width: 0;
@@ -143,7 +155,7 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @include below-phone {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
@@ -179,12 +191,70 @@
   gap: 24px;
 }
 
+.switch-group {
+  @include flex-between;
+  padding: 12px;
+  border-radius: $radius-md;
+  border: 1px solid $gray-200;
+  background-color: $gray-50;
+
+  > span {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-700;
+  }
+}
+
+.switch-button {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border: none;
+  padding: 0;
+  border-radius: $radius-full;
+  background-color: $gray-200;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+  flex-shrink: 0;
+
+  &[data-checked] {
+    background-color: $blue-600;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px #ffffff,
+      0 0 0 4px $blue-500;
+  }
+
+  [ngpSwitchThumb] {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border-radius: $radius-full;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 200ms ease;
+    transform: translateX(2px);
+  }
+
+  &[data-checked] [ngpSwitchThumb] {
+    transform: translateX(22px);
+  }
+
+  &[data-disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .time-input-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 
-  @media (max-width: 480px) {
+  @include below-phone {
     grid-template-columns: 1fr;
   }
 }
@@ -214,8 +284,8 @@
     background: #ffffff;
     border: 1px solid $gray-300;
     border-radius: $radius-md;
-    min-height: 80px;
-    resize: vertical;
+    height: 88px;
+    resize: none;
     font-family: inherit;
     transition:
       border-color 150ms ease,

@@ -10,7 +10,7 @@ export interface PaginatedResponse<T> {
   page: PageFields;
 }
 
-export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS } from './halls';
+export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS, ACTIVE_HALL_STATUSES } from './halls';
 export type {
   HallStatus,
   SeatCategory,
@@ -28,12 +28,20 @@ export type {
   Hall,
 } from './halls';
 
+export type { Movie, MovieSearchResult, MovieDetail } from './movies';
+
+export { SHOWTIME_STATUS_LABELS } from './showtimes';
 export type {
-  Movie,
+  ShowtimeStatus,
   ShowtimeDraft,
-  ShowtimeSummary,
-  MovieShowtimes,
-  MovieShowtimeDetail,
+  Showtime,
+  PublishShowtimesInput,
+  MovieWithShowtimes,
+  ShowtimesStatistics,
+  MovieShowtimeListItem,
+  MovieShowtimeDatesResponse,
+  MovieShowtimesResponse,
   EditableShowtime,
-} from './movies';
+} from './showtimes';
+
 export type { StatsCard } from './stats';

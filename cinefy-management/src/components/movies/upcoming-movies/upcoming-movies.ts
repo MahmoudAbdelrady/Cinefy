@@ -1,12 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Calendar, LucideAngularModule } from 'lucide-angular';
-import type { Movie, ShowtimeDraft } from '../../../shared/types';
+import type { MovieSearchResult } from '../../../shared/types';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
-
-type UpcomingWindow = 'two_weeks' | 'one_month' | 'three_months';
+import { MoviesService, ToastService } from '../../../services';
 
 @Component({
   selector: 'upcoming-movies',
@@ -14,8 +15,7 @@ type UpcomingWindow = 'two_weeks' | 'one_month' | 'three_months';
     LucideAngularModule,
     NgpButton,
     NgpDialogTrigger,
-    NgpToggleGroup,
-    NgpToggleGroupItem,
+    LoadingSpinnerComponent,
     ManageShowtimeModalComponent,
   ],
   templateUrl: './upcoming-movies.html',
@@ -24,92 +24,37 @@ type UpcomingWindow = 'two_weeks' | 'one_month' | 'three_months';
 export class UpcomingMoviesComponent {
   protected readonly CalendarIcon = Calendar;
 
-  protected readonly selectedWindow = signal<UpcomingWindow>('two_weeks');
+  private readonly moviesService = inject(MoviesService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected onWindowChange([next]: string[]): void {
-    this.selectedWindow.set(next as UpcomingWindow);
+  protected readonly loading = signal(true);
+  protected readonly movies = signal<MovieSearchResult[]>([]);
+
+  constructor() {
+    this.moviesService
+      .getUpcomingMovies()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (list) => {
+          this.movies.set(list);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load upcoming movies');
+        },
+      });
   }
 
-  protected onShowtimeCreated(draft: ShowtimeDraft): void {
-    console.log('Showtime created', draft);
-  }
-
-  private readonly today = (() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  })();
-
-  protected isComingSoon(releaseDate: string): boolean {
+  protected isComingSoon(releaseDate: string | undefined): boolean {
+    if (!releaseDate) return false;
     const release = new Date(releaseDate);
+    if (Number.isNaN(release.getTime())) return false;
     release.setHours(0, 0, 0, 0);
-    const diffDays = Math.round((release.getTime() - this.today.getTime()) / 86_400_000);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((release.getTime() - today.getTime()) / 86_400_000);
     return diffDays >= 0 && diffDays <= 10;
   }
-
-  protected readonly movies: Movie[] = [
-    {
-      id: 201,
-      title: 'The Dark Knight Returns',
-      genre: 'Action',
-      rating: 'PG-13',
-      releaseDate: '2026-04-24',
-      duration: 135,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/74xTEgt7R36Fpooo50r9T25onhq.jpg',
-    },
-    {
-      id: 202,
-      title: 'Interstellar Journey',
-      genre: 'Sci-Fi',
-      rating: 'PG-13',
-      releaseDate: '2026-04-30',
-      duration: 150,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
-    },
-    {
-      id: 203,
-      title: 'Eternal Horizon',
-      genre: 'Drama',
-      rating: 'PG-13',
-      releaseDate: '2026-05-08',
-      duration: 125,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
-    },
-    {
-      id: 204,
-      title: 'Whispers of the Sea',
-      genre: 'Fantasy',
-      rating: 'PG',
-      releaseDate: '2026-05-15',
-      duration: 118,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/czembW0Rk1Ke7lCJGahbOhdCuhV.jpg',
-    },
-    {
-      id: 205,
-      title: 'Midnight Protocol',
-      genre: 'Thriller',
-      rating: 'R',
-      releaseDate: '2026-05-29',
-      duration: 142,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
-    },
-    {
-      id: 206,
-      title: 'The Last Symphony',
-      genre: 'Musical',
-      rating: 'PG-13',
-      releaseDate: '2026-06-12',
-      duration: 128,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg',
-    },
-    {
-      id: 207,
-      title: 'Paper Cities',
-      genre: 'Comedy',
-      rating: 'PG-13',
-      releaseDate: '2026-07-03',
-      duration: 112,
-      posterUrl: 'https://image.tmdb.org/t/p/w342/kCGlIMHnOm8JPXq3rXM6c5wMxcT.jpg',
-    },
-  ];
 }

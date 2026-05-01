@@ -90,14 +90,17 @@
         <div class="input-group">
           <span>Status</span>
           <custom-select
-            [items]="hallStatusEntries"
+            [items]="hallStatusEntries()"
             [value]="statusEntry()"
             [displayFn]="statusDisplayFn"
             [valueFn]="statusValueFn"
-            [disabled]="isViewMode()"
+            [disabled]="isViewMode() || isStatusLocked()"
             [container]="modal.panelEl()"
             (selectionChange)="onStatusChange($event)"
           />
+          @if (!isViewMode() && isStatusLocked()) {
+            <span class="status-caption">Locked while showtimes are scheduled.</span>
+          }
         </div>
         <div class="input-group type-group">
           <span>Type</span>

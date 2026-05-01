@@ -3,7 +3,6 @@ package com.mdevs.cinefy.job;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.service.TmdbMovieService;
-import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +26,7 @@ public class TmdbSyncJob {
     public void syncTmdbMovies() {
         log.info("TMDB sync job: starting");
 
-        int deleted = tmdbMovieRepository.deleteOrphans();
+        int deleted = tmdbMovieService.deleteOrphans();
         log.info("TMDB sync job: deleted {} orphan movies", deleted);
 
         long maxId = 0L;
@@ -40,11 +39,8 @@ public class TmdbSyncJob {
 
             for (TmdbMovie movie : batch) {
                 try {
-                    tmdbMovieService.refreshFromTmdb(movie);
+                    tmdbMovieService.refreshOrDelete(movie);
                     refreshed++;
-                } catch (NotFoundException e) {
-                    log.warn("TMDB sync: movie id={} not found upstream, deleting", movie.getId());
-                    tmdbMovieRepository.delete(movie);
                 } catch (Exception e) {
                     log.error("TMDB sync: failed for movie id={}", movie.getId(), e);
                     failed++;

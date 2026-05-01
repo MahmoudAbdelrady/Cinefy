@@ -7,6 +7,7 @@ import type {
   HallDetail,
   HallLayout,
   HallStatistics,
+  HallStatus,
   HallSummary,
   HallType,
 } from '../shared/types';
@@ -39,11 +40,13 @@ export class HallsService {
     search?: string,
     pageable?: { page?: number; size?: number },
     excludeHallId?: string,
+    statuses?: HallStatus[],
   ): Observable<PaginatedResponse<HallSummary>> {
     const params = {
       ...(search && { search }),
       ...pageable,
       ...(excludeHallId && { excludeHallId }),
+      ...(statuses && statuses.length > 0 && { statuses: statuses.join(',') }),
     };
     return this.http.get<PaginatedResponse<HallSummary>>('/halls', { params });
   }

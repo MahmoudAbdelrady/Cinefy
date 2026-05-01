@@ -77,17 +77,17 @@ public class HallService {
     public void deleteHallType(String uuid) {
         HallType hallType = findHallType(uuid);
         if (hallRepository.existsByType(hallType)) {
-            throw new BusinessException("Cannot delete hall type '" + hallType.getName() + "' because it is assigned to one or more halls");
+            throw new BusinessException("Cannot delete this hall type because it is assigned to one or more halls");
         }
         hallTypeRepository.delete(hallType);
     }
 
     // ============================= Halls ===========================
 
-    public Page<HallSummaryDTO> getHalls(String search, String excludeHallId, String status, Pageable pageable) {
+    public Page<HallSummaryDTO> getHalls(String search, String excludeHallId, List<String> statuses, Pageable pageable) {
         String code = StringUtils.isEmpty(search) ? null : Hall.toCode(search);
-        HallStatus hallStatus = StringUtils.isEmpty(status) ? null : HallStatus.fromString(status);
-        Page<Hall> page = hallRepository.findAllFiltered(code, excludeHallId, hallStatus, pageable);
+        List<HallStatus> hallStatuses = statuses != null && !statuses.isEmpty() ? statuses.stream().map(HallStatus::fromString).toList() : null;
+        Page<Hall> page = hallRepository.findAllFiltered(code, excludeHallId, hallStatuses, pageable);
         return page.map(this::toSummaryDTO);
     }
 
@@ -162,7 +162,7 @@ public class HallService {
     public void deleteHall(String uuid) {
         Hall hall = findHall(uuid);
         if (showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.ACTIVE_STATUSES)) {
-            throw new BusinessException("Cannot delete hall '" + hall.getName() + "' while it has active showtimes");
+            throw new BusinessException("Cannot delete this hall while it has active showtimes");
         }
         hallRepository.delete(hall);
     }
@@ -170,11 +170,11 @@ public class HallService {
     // =========================== Helpers ===========================
 
     public Hall findHall(String uuid) {
-        return hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
+        return hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found with id: " + uuid));
     }
 
     private HallType findHallType(String uuid) {
-        return hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found: " + uuid));
+        return hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found with id: " + uuid));
     }
 
     private void validateHallType(String name, Long excludeId) {
@@ -239,18 +239,18 @@ public class HallService {
     }
 
     private void validateHallMutability(Hall hall, HallDTO dto) {
-        // @TODO --> This could be changed to depend on the number of reserved seats instead
-        if (!showtimeRepository.existsByHallAndStatusIn(hall, Set.of(ShowtimeStatus.PUBLISHED))) {
-            return;
+        if (!hall.getStatus().equals(HallStatus.fromString(dto.getStatus())) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.ACTIVE_STATUSES)) {
+            throw new BusinessException("Cannot modify status of this hall while it has active showtimes");
         }
-        if (hasCriticalChange(hall, dto)) {
-            throw new BusinessException("Cannot modify layout, pricing, or status of hall '" + hall.getName() + "' while it has active showtimes");
+
+        // @TODO --> This could be changed to depend on the number of reserved seats instead
+        if (hasCriticalConfigChange(hall, dto) && showtimeRepository.existsByHallAndStatusIn(hall, Set.of(ShowtimeStatus.PUBLISHED))) {
+            throw new BusinessException("Cannot modify layout or pricing of this hall while it has published showtimes");
         }
     }
 
-    private boolean hasCriticalChange(Hall hall, HallDTO dto) {
-        return !hall.getStatus().equals(HallStatus.fromString(dto.getStatus()))
-                || hall.getTotalRows() != dto.getNumberOfRows()
+    private boolean hasCriticalConfigChange(Hall hall, HallDTO dto) {
+        return hall.getTotalRows() != dto.getNumberOfRows()
                 || hall.getTotalColumns() != dto.getSeatsPerRow()
                 || isPricingChanged(hall, dto.getTicketPricing())
                 || isLayoutChanged(hall, dto.getLayout());
@@ -337,16 +337,16 @@ public class HallService {
         for (String position : onSiteOnlySet) {
             Matcher matcher = POSITION_PATTERN.matcher(position);
             if (!matcher.matches()) {
-                throw new BusinessException("Invalid seat position format in onSiteOnly: " + position);
+                throw new BusinessException("Invalid seat position format in (On site only): " + position);
             }
             int rowIndex = toRowIndex(matcher.group(1));
             int colNumber = Integer.parseInt(matcher.group(2));
             if (rowIndex > newRows || colNumber < 1 || colNumber > newCols) {
-                throw new BusinessException("onSiteOnly position '" + position + "' is outside the hall grid");
+                throw new BusinessException("(On site only) position '" + position + "' is outside the hall grid");
             }
             SeatCategory category = desired.getOrDefault(position, SeatCategory.NORMAL);
             if (category.equals(SeatCategory.AISLE)) {
-                throw new BusinessException("AISLE seat '" + position + "' cannot be marked as onSiteOnly");
+                throw new BusinessException("Aisle seat '" + position + "' cannot be marked as (On site only)");
             }
         }
 

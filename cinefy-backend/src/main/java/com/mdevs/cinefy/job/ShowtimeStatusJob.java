@@ -22,6 +22,7 @@ public class ShowtimeStatusJob {
         LocalDateTime now = LocalDateTime.now();
         int running = showtimeRepository.markRunningAsOf(now);
         int finished = showtimeRepository.markFinishedAsOf(now);
+        // @TODO --> query for deleting finished or cancelled showtimes from a long time
         if (running > 0 || finished > 0) {
             log.info("Showtime status tick: running={}, finished={}", running, finished);
         }

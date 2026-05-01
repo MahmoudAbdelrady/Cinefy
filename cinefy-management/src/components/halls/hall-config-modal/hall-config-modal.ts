@@ -97,9 +97,26 @@ export class HallConfigModalComponent {
   private readonly discardTrigger = viewChild<ElementRef>('discardTrigger');
 
   // Static data
-  protected readonly hallStatusEntries = (
+  private static readonly AUTO_HALL_STATUSES: HallStatus[] = ['SCHEDULED', 'NOW_SHOWING'];
+
+  private static readonly SELECTABLE_HALL_STATUS_ENTRIES = (
     Object.entries(HALL_STATUS_LABELS) as [HallStatus, string][]
-  ).filter(([key]) => key !== 'SCHEDULED' && key !== 'NOW_SHOWING');
+  ).filter(([key]) => !HallConfigModalComponent.AUTO_HALL_STATUSES.includes(key));
+
+  protected readonly hallStatusEntries = computed<[HallStatus, string][]>(() => {
+    const current = this.selectedHallData()?.status;
+    const base = HallConfigModalComponent.SELECTABLE_HALL_STATUS_ENTRIES;
+    if (current && HallConfigModalComponent.AUTO_HALL_STATUSES.includes(current)) {
+      return [...base, [current, HALL_STATUS_LABELS[current]]];
+    }
+    return base;
+  });
+
+  protected readonly isStatusLocked = computed(() => {
+    const current = this.selectedHallData()?.status;
+    return current ? HallConfigModalComponent.AUTO_HALL_STATUSES.includes(current) : false;
+  });
+
   protected readonly seatCategoryItems: SeatCategoryItem[] = Object.entries(
     SEAT_CATEGORY_LABELS,
   ).map(([key, name]) => ({
@@ -186,7 +203,7 @@ export class HallConfigModalComponent {
     this.selectedSeatCategory().type === 'AISLE' ? false : this.onSiteOnlyPreference(),
   );
   protected readonly statusEntry = computed(
-    () => this.hallStatusEntries.find((e) => e[0] === this.statusValue()) ?? null,
+    () => this.hallStatusEntries().find((e) => e[0] === this.statusValue()) ?? null,
   );
 
   // Select config functions

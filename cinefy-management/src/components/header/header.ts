@@ -34,14 +34,15 @@ interface DropDownMenuItem {
   styleUrl: './header.scss',
 })
 export class HeaderComponent {
+  protected ChevronDownIcon = ChevronDown;
+  protected CalendarIcon = Calendar;
+  protected MenuIcon = Menu;
+
   private sidebarService = inject(SidebarService);
   private headerActionsService = inject(HeaderActionsService);
 
   protected headerActionsTemplate = this.headerActionsService.template;
   protected currentDate = new Date();
-  protected ChevronDownIcon = ChevronDown;
-  protected CalendarIcon = Calendar;
-  protected MenuIcon = Menu;
 
   protected readonly userInfoMenuItems: DropDownMenuItem[] = [
     { icon: User, label: 'Profile', code: 'profile' },
