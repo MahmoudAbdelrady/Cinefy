@@ -71,15 +71,15 @@ export class MovieShowtimesModal {
   protected readonly AlertIcon = TriangleAlert;
   protected readonly NotesIcon = StickyNote;
 
-  readonly close = input.required<() => void>();
-  readonly selectedMovie = input.required<MovieDetail>();
-  readonly addShowtimeRequested = output<void>();
-  readonly editShowtimeRequested = output<EditableShowtime>();
-
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly close = input.required<() => void>();
+  readonly selectedMovie = input.required<MovieDetail>();
+  readonly addShowtimeRequested = output<void>();
+  readonly editShowtimeRequested = output<EditableShowtime>();
 
   protected readonly movieShowtimes = signal<MovieShowtimeDatesResponse | null>(null);
   protected readonly movieShowtimeDetails = signal<MovieShowtimeListItem[]>([]);

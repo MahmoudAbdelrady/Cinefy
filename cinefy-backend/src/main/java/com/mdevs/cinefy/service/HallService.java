@@ -77,7 +77,7 @@ public class HallService {
     public void deleteHallType(String uuid) {
         HallType hallType = findHallType(uuid);
         if (hallRepository.existsByType(hallType)) {
-            throw new BusinessException("Cannot delete hall type '" + hallType.getName() + "' because it is assigned to one or more halls");
+            throw new BusinessException("Cannot delete this hall type because it is assigned to one or more halls");
         }
         hallTypeRepository.delete(hallType);
     }
@@ -162,7 +162,7 @@ public class HallService {
     public void deleteHall(String uuid) {
         Hall hall = findHall(uuid);
         if (showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.ACTIVE_STATUSES)) {
-            throw new BusinessException("Cannot delete hall '" + hall.getName() + "' while it has active showtimes");
+            throw new BusinessException("Cannot delete this hall while it has active showtimes");
         }
         hallRepository.delete(hall);
     }
@@ -170,11 +170,11 @@ public class HallService {
     // =========================== Helpers ===========================
 
     public Hall findHall(String uuid) {
-        return hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found: " + uuid));
+        return hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found with id: " + uuid));
     }
 
     private HallType findHallType(String uuid) {
-        return hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found: " + uuid));
+        return hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found with id: " + uuid));
     }
 
     private void validateHallType(String name, Long excludeId) {
@@ -240,12 +240,12 @@ public class HallService {
 
     private void validateHallMutability(Hall hall, HallDTO dto) {
         if (!hall.getStatus().equals(HallStatus.fromString(dto.getStatus())) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.ACTIVE_STATUSES)) {
-            throw new BusinessException("Cannot modify status of hall '" + hall.getName() + "' while it has active showtimes");
+            throw new BusinessException("Cannot modify status of this hall while it has active showtimes");
         }
 
         // @TODO --> This could be changed to depend on the number of reserved seats instead
         if (hasCriticalConfigChange(hall, dto) && showtimeRepository.existsByHallAndStatusIn(hall, Set.of(ShowtimeStatus.PUBLISHED))) {
-            throw new BusinessException("Cannot modify layout or pricing of hall '" + hall.getName() + "' while it has published showtimes");
+            throw new BusinessException("Cannot modify layout or pricing of this hall while it has published showtimes");
         }
     }
 
@@ -337,16 +337,16 @@ public class HallService {
         for (String position : onSiteOnlySet) {
             Matcher matcher = POSITION_PATTERN.matcher(position);
             if (!matcher.matches()) {
-                throw new BusinessException("Invalid seat position format in onSiteOnly: " + position);
+                throw new BusinessException("Invalid seat position format in (On site only): " + position);
             }
             int rowIndex = toRowIndex(matcher.group(1));
             int colNumber = Integer.parseInt(matcher.group(2));
             if (rowIndex > newRows || colNumber < 1 || colNumber > newCols) {
-                throw new BusinessException("onSiteOnly position '" + position + "' is outside the hall grid");
+                throw new BusinessException("(On site only) position '" + position + "' is outside the hall grid");
             }
             SeatCategory category = desired.getOrDefault(position, SeatCategory.NORMAL);
             if (category.equals(SeatCategory.AISLE)) {
-                throw new BusinessException("AISLE seat '" + position + "' cannot be marked as onSiteOnly");
+                throw new BusinessException("Aisle seat '" + position + "' cannot be marked as (On site only)");
             }
         }
 

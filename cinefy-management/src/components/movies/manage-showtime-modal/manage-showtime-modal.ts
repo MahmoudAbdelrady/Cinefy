@@ -82,17 +82,17 @@ function timeNotInPastValidator(control: AbstractControl): ValidationErrors | nu
 export class ManageShowtimeModalComponent {
   protected readonly MovieIcon = Film;
 
-  readonly close = input.required<() => void>();
-  readonly selectedMovie = input<MovieSearchResult | null>(null);
-  readonly showSelectedMovie = input(true);
-  readonly editingShowtime = input<EditableShowtime | null>(null);
-
   protected hallsService = inject(HallsService);
   private readonly moviesService = inject(MoviesService);
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly close = input.required<() => void>();
+  readonly selectedMovie = input<MovieSearchResult | null>(null);
+  readonly showSelectedMovie = input(true);
+  readonly editingShowtime = input<EditableShowtime | null>(null);
 
   protected readonly fetchHalls = (page: number, size: number, search?: string) =>
     this.hallsService.getHalls(search, { page, size }, undefined, ACTIVE_HALL_STATUSES);

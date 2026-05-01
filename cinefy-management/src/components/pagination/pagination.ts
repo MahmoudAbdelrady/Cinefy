@@ -31,15 +31,15 @@ import {
   styleUrl: './pagination.scss',
 })
 export class PaginationComponent {
-  readonly page = model.required<number>();
-  readonly pageCount = input.required<number>();
-  readonly totalItems = input.required<number>();
-  readonly pageSize = input.required<number>();
-
   protected readonly FirstIcon = ChevronsLeft;
   protected readonly PrevIcon = ChevronLeft;
   protected readonly NextIcon = ChevronRight;
   protected readonly LastIcon = ChevronsRight;
+
+  readonly page = model.required<number>();
+  readonly pageCount = input.required<number>();
+  readonly totalItems = input.required<number>();
+  readonly pageSize = input.required<number>();
 
   protected readonly startItem = computed(() => {
     if (this.totalItems() === 0) return 0;

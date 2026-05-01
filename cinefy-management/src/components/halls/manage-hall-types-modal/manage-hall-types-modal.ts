@@ -50,11 +50,6 @@ function notBlankValidator(control: AbstractControl): ValidationErrors | null {
   styleUrl: './manage-hall-types-modal.scss',
 })
 export class ManageHallTypesModalComponent implements OnInit {
-  private readonly hallsService = inject(HallsService);
-  private readonly toastService = inject(ToastService);
-
-  readonly close = input.required<() => void>();
-
   protected readonly EditIcon = SquarePen;
   protected readonly DeleteIcon = Trash2;
   protected readonly CheckIcon = Check;
@@ -62,6 +57,11 @@ export class ManageHallTypesModalComponent implements OnInit {
   protected readonly WarningIcon = TriangleAlert;
   protected readonly LoaderIcon = Loader;
   protected readonly PlusIcon = Plus;
+
+  private readonly hallsService = inject(HallsService);
+  private readonly toastService = inject(ToastService);
+
+  readonly close = input.required<() => void>();
 
   protected readonly hallTypes = signal<HallType[]>([]);
   protected readonly loadingTypes = signal(true);
