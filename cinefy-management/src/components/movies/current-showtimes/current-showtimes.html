@@ -119,7 +119,10 @@
                   <div>
                     <p><strong>Critical Warning:</strong></p>
                     <ul>
-                      <li>{{ item.totalShowtimes }} showtimes will be deleted</li>
+                      <li>
+                        {{ item.totalShowtimes }}
+                        {{ item.totalShowtimes === 1 ? 'showtime' : 'showtimes' }} will be deleted
+                      </li>
                       <li>Showtimes with active reservations cannot be deleted</li>
                       <li>Historical showtime data will be permanently removed</li>
                     </ul>
