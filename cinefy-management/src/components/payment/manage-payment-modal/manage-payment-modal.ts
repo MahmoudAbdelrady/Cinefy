@@ -10,6 +10,7 @@ import {
   VerificationStep,
   buildIdentityForm,
   buildCredentialsForm,
+  buildIntegrationForm,
 } from '../steps';
 
 @Component({
@@ -84,6 +85,7 @@ export class ManagePaymentModalComponent {
   protected readonly form = new FormGroup({
     identity: buildIdentityForm(),
     credentials: buildCredentialsForm(),
+    integration: buildIntegrationForm(),
   });
 
   protected readonly currentStep = signal(0);

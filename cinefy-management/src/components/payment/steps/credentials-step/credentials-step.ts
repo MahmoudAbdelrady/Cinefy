@@ -1,7 +1,8 @@
 import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Info, KeyRound, Lock, LucideAngularModule } from 'lucide-angular';
+import { KeyRound, Lock, LucideAngularModule } from 'lucide-angular';
 import { InputField } from '../../../input-field/input-field';
+import { HelpHint } from '../../help-hint/help-hint';
 
 export function buildCredentialsForm() {
   return new FormGroup({
@@ -20,14 +21,13 @@ export type CredentialsForm = ReturnType<typeof buildCredentialsForm>;
 
 @Component({
   selector: 'credentials-step',
-  imports: [ReactiveFormsModule, LucideAngularModule, InputField],
+  imports: [ReactiveFormsModule, LucideAngularModule, InputField, HelpHint],
   templateUrl: './credentials-step.html',
   styleUrl: './credentials-step.scss',
 })
 export class CredentialsStep {
-  readonly form = input.required<CredentialsForm>();
-
   protected readonly LockIcon = Lock;
   protected readonly KeyIcon = KeyRound;
-  protected readonly InfoIcon = Info;
+
+  readonly form = input.required<CredentialsForm>();
 }
