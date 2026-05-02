@@ -24,6 +24,7 @@ import { MoviesStatisticsComponent } from './movies/movies-statistics/movies-sta
 import { CurrentShowtimesComponent } from './movies/current-showtimes/current-showtimes';
 import { UpcomingMoviesComponent } from './movies/upcoming-movies/upcoming-movies';
 import { MovieShowtimesModal } from './movies/movie-showtimes-modal/movie-showtimes-modal';
+import { ManagePaymentModalComponent } from './payment/manage-payment-modal/manage-payment-modal';
 
 export {
   HeaderComponent,
@@ -52,4 +53,5 @@ export {
   CurrentShowtimesComponent,
   UpcomingMoviesComponent,
   MovieShowtimesModal,
+  ManagePaymentModalComponent,
 };

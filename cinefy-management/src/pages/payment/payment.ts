@@ -2,10 +2,11 @@ import { Component, DestroyRef, inject, TemplateRef, viewChild } from '@angular/
 import { LucideAngularModule, Plus } from 'lucide-angular';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { HeaderActionsService } from '../../services';
+import { ManagePaymentModalComponent } from '../../components';
 
 @Component({
   selector: 'payment-page',
-  imports: [NgpDialogTrigger, LucideAngularModule],
+  imports: [NgpDialogTrigger, LucideAngularModule, ManagePaymentModalComponent],
   templateUrl: './payment.html',
   styleUrl: './payment.scss',
 })
