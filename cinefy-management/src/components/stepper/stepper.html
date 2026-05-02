@@ -33,7 +33,11 @@
           <lucide-icon [img]="CircleQuestionMark" [size]="16" />
           <p>{{ tip.title }}</p>
         </div>
-        <p class="scn-body">{{ tip.content }}</p>
+        @if (noteTipTpl(); as tpl) {
+          <div class="scn-body"><ng-container [ngTemplateOutlet]="tpl" /></div>
+        } @else {
+          <p class="scn-body">{{ noteTipText() }}</p>
+        }
       </div>
     }
   </div>

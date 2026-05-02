@@ -1,4 +1,4 @@
-import { Component, input, model, TemplateRef } from '@angular/core';
+import { Component, computed, input, model, TemplateRef } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Check, CircleQuestionMark, LucideAngularModule } from 'lucide-angular';
 
@@ -10,7 +10,7 @@ export interface StepperStep {
 
 export interface StepperNoteTip {
   title: string;
-  content: string;
+  content: string | TemplateRef<unknown>;
 }
 
 @Component({
@@ -26,4 +26,14 @@ export class Stepper {
   readonly steps = input.required<StepperStep[]>();
   readonly noteTip = input<StepperNoteTip | null>(null);
   readonly currentStep = model(0);
+
+  protected readonly noteTipText = computed(() => {
+    const c = this.noteTip()?.content;
+    return typeof c === 'string' ? c : null;
+  });
+
+  protected readonly noteTipTpl = computed(() => {
+    const c = this.noteTip()?.content;
+    return c instanceof TemplateRef ? c : null;
+  });
 }

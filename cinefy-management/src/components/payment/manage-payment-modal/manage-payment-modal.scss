@@ -1,3 +1,4 @@
+@use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
 
 .manage-footer {
@@ -5,4 +6,10 @@
   gap: 12px;
   width: 100%;
   justify-content: flex-end;
+}
+
+.help-link {
+  color: $blue-700;
+  font-weight: 500;
+  text-decoration: underline;
 }

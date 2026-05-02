@@ -1,6 +1,6 @@
 import { Component, computed, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { ModalComponent } from '../../modal/modal';
-import { Stepper, StepperStep } from '../../stepper/stepper';
+import { Stepper, StepperNoteTip, StepperStep } from '../../stepper/stepper';
 import {
   IdentityStep,
   CredentialsStep,
@@ -29,13 +29,13 @@ export class ManagePaymentModalComponent {
   protected readonly isEditMode = false;
 
   protected readonly modalTitle = computed(() =>
-    this.isEditMode ? 'Edit Payment Method' : 'Add Payment Method',
+    this.isEditMode ? 'Edit payment method' : 'Add payment method',
   );
 
   protected readonly modalDescription = computed(() =>
     this.isEditMode
-      ? 'Update the details of your payment method.'
-      : 'Provide the necessary information to add a new payment method.',
+      ? 'Update the configuration for this payment method.'
+      : 'Connect a new gateway so customers can pay through Cinefy.',
   );
 
   private readonly identityTpl = viewChild.required<TemplateRef<unknown>>('identity');
@@ -43,34 +43,40 @@ export class ManagePaymentModalComponent {
   private readonly integrationTpl = viewChild.required<TemplateRef<unknown>>('integration');
   private readonly verifyTpl = viewChild.required<TemplateRef<unknown>>('verify');
   private readonly reviewTpl = viewChild.required<TemplateRef<unknown>>('review');
+  private readonly paymobHelpTpl = viewChild.required<TemplateRef<unknown>>('paymobHelp');
 
   protected readonly steps = computed<StepperStep[]>(() => [
     {
-      label: 'Identity',
-      description: 'Name & environment',
+      label: 'Identify method',
+      description: 'Set a name and environment',
       content: this.identityTpl(),
     },
     {
-      label: 'Credentials',
-      description: 'API key & HMAC',
+      label: 'Add credentials',
+      description: 'Provide your API key and HMAC',
       content: this.credentialsTpl(),
     },
     {
-      label: 'Integration',
-      description: 'IDs & iframe',
+      label: 'Link integration',
+      description: 'Connect integration and iframe IDs',
       content: this.integrationTpl(),
     },
     {
-      label: 'Verify',
-      description: 'Test the connection',
+      label: 'Test connection',
+      description: 'Run read-only checks',
       content: this.verifyTpl(),
     },
     {
-      label: 'Review',
-      description: 'Save as draft',
+      label: 'Review and save',
+      description: 'Confirm and save as draft',
       content: this.reviewTpl(),
     },
   ]);
+
+  protected readonly stepperNoteTip = computed<StepperNoteTip>(() => ({
+    title: 'Need help?',
+    content: this.paymobHelpTpl(),
+  }));
 
   protected readonly currentStep = signal(0);
 

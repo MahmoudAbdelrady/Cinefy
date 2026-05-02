@@ -3,10 +3,16 @@
   [modalTitle]="modalTitle()"
   [description]="modalDescription()"
   [close]="close()"
-  width="640px"
+  width="1000px"
   bodyPadding="0"
 >
-  <stepper [steps]="steps()" [(currentStep)]="currentStep" />
+  <stepper [steps]="steps()" [noteTip]="stepperNoteTip()" [(currentStep)]="currentStep" />
+  <ng-template #paymobHelp>
+    Most fields can be found in your
+    <a class="help-link" href="https://accept.paymob.com/portal2/" target="_blank" rel="noreferrer">
+      Paymob dashboard</a
+    >. If a field is missing, ask your account manager — every Paymob account has these.
+  </ng-template>
   <ng-template #identity>
     <identity-step />
   </ng-template>
