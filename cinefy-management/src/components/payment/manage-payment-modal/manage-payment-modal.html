@@ -30,13 +30,19 @@
   </ng-template>
 
   <div modal-footer class="manage-footer">
-    @if (currentStep() > 0) {
-      <button ngpButton class="btn-secondary" (click)="goToPreviousStep()">Back</button>
-    }
+    <div class="mf-info">
+      <lucide-icon [img]="LockIcon" [size]="16"></lucide-icon>
+      <span>Credentials are encrypted at rest and never exposed to the browser after saving.</span>
+    </div>
+    <div class="action-btns">
+      @if (currentStep() > 0) {
+        <button ngpButton class="btn-secondary" (click)="goToPreviousStep()">Back</button>
+      }
 
-    @let isLastStep = currentStep() === steps().length - 1;
-    <button ngpButton class="btn-primary" (click)="isLastStep ? saveAsDraft() : goToNextStep()">
-      {{ isLastStep ? 'Save as Draft' : 'Continue' }}
-    </button>
+      @let isLastStep = currentStep() === steps().length - 1;
+      <button ngpButton class="btn-primary" (click)="isLastStep ? saveAsDraft() : goToNextStep()">
+        {{ isLastStep ? 'Save as Draft' : 'Continue' }}
+      </button>
+    </div>
   </div>
 </app-modal>
