@@ -1,10 +1,25 @@
 import { Component, computed, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { ModalComponent } from '../../modal/modal';
 import { Stepper, StepperStep } from '../../stepper/stepper';
+import {
+  IdentityStep,
+  CredentialsStep,
+  IntegrationStep,
+  ReviewStep,
+  VerificationStep,
+} from '../steps';
 
 @Component({
   selector: 'manage-payment-modal',
-  imports: [ModalComponent, Stepper],
+  imports: [
+    ModalComponent,
+    Stepper,
+    IdentityStep,
+    CredentialsStep,
+    IntegrationStep,
+    VerificationStep,
+    ReviewStep,
+  ],
   templateUrl: './manage-payment-modal.html',
   styleUrl: './manage-payment-modal.scss',
 })

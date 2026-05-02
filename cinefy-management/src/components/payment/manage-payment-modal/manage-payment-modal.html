@@ -8,19 +8,19 @@
 >
   <stepper [steps]="steps()" [(currentStep)]="currentStep" />
   <ng-template #identity>
-    <div>Identity Content</div>
+    <identity-step />
   </ng-template>
   <ng-template #credentials>
-    <div>Credentials Content</div>
+    <credentials-step />
   </ng-template>
   <ng-template #integration>
-    <div>Integration Content</div>
+    <integration-step />
   </ng-template>
   <ng-template #verify>
-    <div>Verify Content</div>
+    <verification-step />
   </ng-template>
   <ng-template #review>
-    <div>Review Content</div>
+    <review-step />
   </ng-template>
 
   <div modal-footer class="manage-footer">
