@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputField } from '../../../input-field/input-field';
 import { LucideAngularModule, PanelsTopLeft, Webhook } from 'lucide-angular';
-import { HelpHint } from '../../help-hint/help-hint';
+import { HelpHint } from '../../../help-hint/help-hint';
 
 export function buildIntegrationForm() {
   return new FormGroup({

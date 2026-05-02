@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { KeyRound, Lock, LucideAngularModule } from 'lucide-angular';
 import { InputField } from '../../../input-field/input-field';
-import { HelpHint } from '../../help-hint/help-hint';
+import { HelpHint } from '../../../help-hint/help-hint';
 
 export function buildCredentialsForm() {
   return new FormGroup({
