@@ -1,4 +1,4 @@
-import { Component, computed, input, model, TemplateRef } from '@angular/core';
+import { Component, computed, input, TemplateRef } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Check, CircleQuestionMark, LucideAngularModule } from 'lucide-angular';
 
@@ -25,7 +25,7 @@ export class Stepper {
 
   readonly steps = input.required<StepperStep[]>();
   readonly noteTip = input<StepperNoteTip | null>(null);
-  readonly currentStep = model(0);
+  readonly currentStep = input.required<number>();
 
   protected readonly noteTipText = computed(() => {
     const c = this.noteTip()?.content;

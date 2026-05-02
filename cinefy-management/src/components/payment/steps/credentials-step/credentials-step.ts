@@ -1,29 +1,33 @@
-import { Component, signal } from '@angular/core';
-import { Eye, EyeOff, Info, KeyRound, Lock, LucideAngularModule } from 'lucide-angular';
-import { NgpInput } from 'ng-primitives/input';
-import { NgpButton } from 'ng-primitives/button';
+import { Component, input } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Info, KeyRound, Lock, LucideAngularModule } from 'lucide-angular';
+import { InputField } from '../../../input-field/input-field';
+
+export function buildCredentialsForm() {
+  return new FormGroup({
+    apiKey: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    hmac: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+  });
+}
+
+export type CredentialsForm = ReturnType<typeof buildCredentialsForm>;
 
 @Component({
   selector: 'credentials-step',
-  imports: [NgpInput, NgpButton, LucideAngularModule],
+  imports: [ReactiveFormsModule, LucideAngularModule, InputField],
   templateUrl: './credentials-step.html',
   styleUrl: './credentials-step.scss',
 })
 export class CredentialsStep {
+  readonly form = input.required<CredentialsForm>();
+
   protected readonly LockIcon = Lock;
   protected readonly KeyIcon = KeyRound;
   protected readonly InfoIcon = Info;
-  protected readonly EyeIcon = Eye;
-  protected readonly EyeOffIcon = EyeOff;
-
-  protected readonly showApiKey = signal(false);
-  protected readonly showHmac = signal(false);
-
-  protected toggleApiKey() {
-    this.showApiKey.update((v) => !v);
-  }
-
-  protected toggleHmac() {
-    this.showHmac.update((v) => !v);
-  }
 }

@@ -1,4 +1,5 @@
 import { Component, computed, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { ModalComponent } from '../../modal/modal';
 import { Stepper, StepperNoteTip, StepperStep } from '../../stepper/stepper';
 import {
@@ -7,6 +8,8 @@ import {
   IntegrationStep,
   ReviewStep,
   VerificationStep,
+  buildIdentityForm,
+  buildCredentialsForm,
 } from '../steps';
 
 @Component({
@@ -77,6 +80,11 @@ export class ManagePaymentModalComponent {
     title: 'Need help?',
     content: this.paymobHelpTpl(),
   }));
+
+  protected readonly form = new FormGroup({
+    identity: buildIdentityForm(),
+    credentials: buildCredentialsForm(),
+  });
 
   protected readonly currentStep = signal(0);
 

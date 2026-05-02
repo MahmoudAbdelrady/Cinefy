@@ -6,18 +6,22 @@
       stays private.
     </p>
   </div>
-  <form class="hic-form">
-    <div class="input-group">
-      <label>Display Name<span class="required">*</span></label>
-      <input type="text" ngpInput placeholder="e.g. Paymob Credit Cards" />
-      <p>
-        Choose a name that tells configurations apart at a glance — gateway, type, or environment
-        usually works well.
-      </p>
-    </div>
+  <form class="hic-form" [formGroup]="form()">
+    <input-field
+      label="Display Name"
+      placeholder="e.g. Paymob Credit Cards"
+      hint="Choose a name that tells configurations apart at a glance — gateway, type, or environment usually works well."
+      [control]="form().controls.displayName"
+      [errorMessages]="{ required: 'Display name is required' }"
+    />
     <div class="input-group">
       <label>Environment<span class="required">*</span></label>
-      <div ngpRadioGroup class="radio-group">
+      <div
+        ngpRadioGroup
+        class="radio-group"
+        [ngpRadioGroupValue]="form().controls.environment.value"
+        (ngpRadioGroupValueChange)="form().controls.environment.setValue($event!)"
+      >
         <div ngpRadioItem ngpRadioItemValue="sandbox" class="radio-item">
           <div class="env-row">
             <div class="env-badge">Sandbox</div>
