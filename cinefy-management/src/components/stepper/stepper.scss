@@ -1,0 +1,173 @@
+@use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
+
+.stepper-container {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.sc-sidebar {
+  width: 288px;
+  flex-shrink: 0;
+  border-right: 1px solid $gray-200;
+  background: linear-gradient(to bottom, $gray-50, #ffffff);
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+
+  @media (max-width: 1023px) {
+    display: none;
+  }
+}
+
+.sc-steps {
+  .scs-header {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: $gray-400;
+    margin-bottom: 16px;
+  }
+}
+
+.scs-items {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.scs-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 42px;
+    bottom: -10px;
+    width: 1px;
+    background: $gray-200;
+    pointer-events: none;
+  }
+
+  .sci-num {
+    position: relative;
+    z-index: 1;
+    width: 32px;
+    height: 32px;
+    border-radius: $radius-full;
+    @include flex-center;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 600;
+    background: #ffffff;
+    border: 2px solid $gray-200;
+    color: $gray-400;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+    @include lucide-icon-fix;
+  }
+
+  .sci-info {
+    padding-top: 4px;
+    min-width: 0;
+
+    h5 {
+      font-size: 14px;
+      font-weight: 600;
+      color: $gray-500;
+      margin: 0;
+      line-height: 1.3;
+      transition: color 0.2s ease;
+    }
+
+    p {
+      font-size: 12px;
+      color: $gray-500;
+      margin: 2px 0 0;
+      line-height: 1.4;
+    }
+  }
+
+  &.active {
+    .sci-num {
+      background: $blue-600;
+      border-color: $blue-600;
+      color: #ffffff;
+      box-shadow: 0 0 0 4px $blue-100;
+    }
+
+    .sci-info h5 {
+      color: $gray-900;
+    }
+  }
+
+  &.done {
+    .sci-num {
+      background: #10b981;
+      border-color: #10b981;
+      color: #ffffff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .sci-info h5 {
+      color: $gray-700;
+    }
+  }
+}
+
+.sc-note {
+  border-radius: $radius-xl;
+  background: rgba($blue-50, 0.6);
+  border: 1px solid $blue-100;
+  padding: 16px;
+
+  .scn-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+    @include lucide-icon-fix;
+
+    lucide-icon {
+      color: $blue-700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    p {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1e3a8a;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  .scn-body {
+    font-size: 12px;
+    color: rgba(#1e3a8a, 0.8);
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+.sc-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+}

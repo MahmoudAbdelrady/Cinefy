@@ -25,6 +25,7 @@ import { CurrentShowtimesComponent } from './movies/current-showtimes/current-sh
 import { UpcomingMoviesComponent } from './movies/upcoming-movies/upcoming-movies';
 import { MovieShowtimesModal } from './movies/movie-showtimes-modal/movie-showtimes-modal';
 import { ManagePaymentModalComponent } from './payment/manage-payment-modal/manage-payment-modal';
+import { Stepper } from './stepper/stepper';
 
 export {
   HeaderComponent,
@@ -54,4 +55,5 @@ export {
   UpcomingMoviesComponent,
   MovieShowtimesModal,
   ManagePaymentModalComponent,
+  Stepper,
 };

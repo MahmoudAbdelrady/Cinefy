@@ -1,1 +1,29 @@
-<app-modal #modal [modalTitle]="modalTitle()" [close]="close()" width="640px"></app-modal>
+<app-modal
+  #modal
+  [modalTitle]="modalTitle()"
+  [description]="modalDescription()"
+  [close]="close()"
+  width="640px"
+>
+  <stepper [steps]="steps()" />
+  <ng-template #identity>
+    <div>Identity Content</div>
+  </ng-template>
+  <ng-template #credentials>
+    <div>Credentials Content</div>
+  </ng-template>
+  <ng-template #integration>
+    <div>Integration Content</div>
+  </ng-template>
+  <ng-template #verify>
+    <div>Verify Content</div>
+  </ng-template>
+  <ng-template #review>
+    <div>Review Content</div>
+  </ng-template>
+
+  <div modal-footer class="manage-footer">
+    <button ngpButton class="btn-secondary" (click)="close()()">Cancel</button>
+    <button ngpButton class="btn-primary" [disabled]="false">Continue</button>
+  </div>
+</app-modal>

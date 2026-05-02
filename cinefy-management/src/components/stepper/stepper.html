@@ -1,0 +1,46 @@
+<div class="stepper-container">
+  <div class="sc-sidebar">
+    <div class="sc-steps">
+      <div class="scs-header">Setup Checklist</div>
+      <ol class="scs-items">
+        @for (step of steps(); track $index) {
+          <li
+            class="scs-item"
+            [class.active]="currentStep() === $index"
+            [class.done]="$index < currentStep()"
+          >
+            <div class="sci-num">
+              @if ($index < currentStep()) {
+                <lucide-icon [img]="Check" [size]="15" />
+              } @else {
+                {{ $index + 1 }}
+              }
+            </div>
+            <div class="sci-info">
+              <h5>{{ step.label }}</h5>
+              @if (step.description) {
+                <p>{{ step.description }}</p>
+              }
+            </div>
+          </li>
+        }
+      </ol>
+    </div>
+    @let tip = noteTip();
+    @if (tip) {
+      <div class="sc-note">
+        <div class="scn-header">
+          <lucide-icon [img]="CircleQuestionMark" [size]="16" />
+          <p>{{ tip.title }}</p>
+        </div>
+        <p class="scn-body">{{ tip.content }}</p>
+      </div>
+    }
+  </div>
+  <div class="sc-content">
+    <ng-container
+      [ngTemplateOutlet]="steps()[currentStep()].content"
+      [ngTemplateOutletContext]="{ $implicit: currentStep(), goNext: goNext }"
+    ></ng-container>
+  </div>
+</div>
