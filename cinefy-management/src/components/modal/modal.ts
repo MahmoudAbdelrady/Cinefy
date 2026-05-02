@@ -18,6 +18,7 @@ export class ModalComponent {
   readonly description = input<string>();
   readonly close = input.required<() => void>();
   readonly width = input<string>();
+  readonly bodyPadding = input<string>('24px');
 
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
   readonly panelEl = computed(() => this.panel()?.nativeElement ?? null);
