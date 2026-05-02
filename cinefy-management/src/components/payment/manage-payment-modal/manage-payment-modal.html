@@ -5,7 +5,7 @@
   [close]="close()"
   width="640px"
 >
-  <stepper [steps]="steps()" />
+  <stepper [steps]="steps()" [(currentStep)]="currentStep" />
   <ng-template #identity>
     <div>Identity Content</div>
   </ng-template>
@@ -23,7 +23,20 @@
   </ng-template>
 
   <div modal-footer class="manage-footer">
-    <button ngpButton class="btn-secondary" (click)="close()()">Cancel</button>
-    <button ngpButton class="btn-primary" [disabled]="false">Continue</button>
+    @if (currentStep() > 0) {
+      <button ngpButton class="btn-secondary" (click)="goToPreviousStep()">Back</button>
+    }
+    @if (currentStep() === steps().length - 1) {
+      <button ngpButton class="btn-primary">Save as Draft</button>
+    } @else {
+      <button
+        ngpButton
+        class="btn-primary"
+        [disabled]="currentStep() === steps().length - 1"
+        (click)="goToNextStep()"
+      >
+        Continue
+      </button>
+    }
   </div>
 </app-modal>

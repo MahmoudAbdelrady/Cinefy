@@ -38,9 +38,6 @@
     }
   </div>
   <div class="sc-content">
-    <ng-container
-      [ngTemplateOutlet]="steps()[currentStep()].content"
-      [ngTemplateOutletContext]="{ $implicit: currentStep(), goNext: goNext }"
-    ></ng-container>
+    <ng-container [ngTemplateOutlet]="steps()[currentStep()].content"></ng-container>
   </div>
 </div>

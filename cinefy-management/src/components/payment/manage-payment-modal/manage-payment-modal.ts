@@ -1,6 +1,6 @@
-import { Component, computed, input, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { ModalComponent } from '../../modal/modal';
-import { Stepper, StepperStep, StepperStepContext } from '../../stepper/stepper';
+import { Stepper, StepperStep } from '../../stepper/stepper';
 
 @Component({
   selector: 'manage-payment-modal',
@@ -23,13 +23,11 @@ export class ManagePaymentModalComponent {
       : 'Provide the necessary information to add a new payment method.',
   );
 
-  private readonly identityTpl = viewChild.required<TemplateRef<StepperStepContext>>('identity');
-  private readonly credentialsTpl =
-    viewChild.required<TemplateRef<StepperStepContext>>('credentials');
-  private readonly integrationTpl =
-    viewChild.required<TemplateRef<StepperStepContext>>('integration');
-  private readonly verifyTpl = viewChild.required<TemplateRef<StepperStepContext>>('verify');
-  private readonly reviewTpl = viewChild.required<TemplateRef<StepperStepContext>>('review');
+  private readonly identityTpl = viewChild.required<TemplateRef<unknown>>('identity');
+  private readonly credentialsTpl = viewChild.required<TemplateRef<unknown>>('credentials');
+  private readonly integrationTpl = viewChild.required<TemplateRef<unknown>>('integration');
+  private readonly verifyTpl = viewChild.required<TemplateRef<unknown>>('verify');
+  private readonly reviewTpl = viewChild.required<TemplateRef<unknown>>('review');
 
   protected readonly steps = computed<StepperStep[]>(() => [
     {
@@ -58,4 +56,18 @@ export class ManagePaymentModalComponent {
       content: this.reviewTpl(),
     },
   ]);
+
+  protected readonly currentStep = signal(0);
+
+  protected goToNextStep() {
+    if (this.currentStep() < this.steps().length - 1) {
+      this.currentStep.update((step) => step + 1);
+    }
+  }
+
+  protected goToPreviousStep() {
+    if (this.currentStep() > 0) {
+      this.currentStep.update((step) => step - 1);
+    }
+  }
 }

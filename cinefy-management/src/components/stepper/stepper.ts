@@ -1,16 +1,11 @@
-import { Component, input, signal, TemplateRef } from '@angular/core';
+import { Component, input, model, TemplateRef } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Check, CircleQuestionMark, LucideAngularModule } from 'lucide-angular';
-
-export interface StepperStepContext {
-  $implicit: number;
-  goNext: () => void;
-}
 
 export interface StepperStep {
   label: string;
   description?: string;
-  content: TemplateRef<StepperStepContext>;
+  content: TemplateRef<unknown>;
 }
 
 export interface StepperNoteTip {
@@ -30,9 +25,5 @@ export class Stepper {
 
   readonly steps = input.required<StepperStep[]>();
   readonly noteTip = input<StepperNoteTip | null>(null);
-  protected readonly currentStep = signal(0);
-
-  protected goNext = () => {
-    this.currentStep.update((i) => Math.min(i + 1, this.steps().length - 1));
-  };
+  readonly currentStep = model(0);
 }
