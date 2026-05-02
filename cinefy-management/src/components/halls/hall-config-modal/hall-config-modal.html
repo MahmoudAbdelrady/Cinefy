@@ -48,44 +48,38 @@
         <span>Hall Information</span>
       </div>
       <form class="hi-form" [formGroup]="hallForm">
-        <div class="input-group">
-          <span>Hall Name</span>
-          <input
-            ngpInput
-            type="text"
-            placeholder="e.g. Hall 1, VIP Hall, IMAX"
-            formControlName="name"
-          />
-          <field-error
-            [control]="hallForm.controls.name"
-            [messages]="{ required: 'Hall name is required' }"
-          />
-        </div>
+        <input-field
+          label="Hall Name"
+          placeholder="e.g. Hall 1, VIP Hall, IMAX"
+          size="sm"
+          [control]="hallForm.controls.name"
+          [errorMessages]="{ required: 'Hall name is required' }"
+        />
         <div class="number-input-group">
-          <div class="input-group">
-            <span>Number of Rows</span>
-            <input ngpInput type="number" placeholder="e.g. 10" formControlName="numberOfRows" />
-            <field-error
-              [control]="hallForm.controls.numberOfRows"
-              [messages]="{
-                required: 'Number of rows is required',
-                min: 'Must be at least 1',
-                max: 'Must be at most 100',
-              }"
-            />
-          </div>
-          <div class="input-group">
-            <span>Seats per Row</span>
-            <input ngpInput type="number" placeholder="e.g. 12" formControlName="seatsPerRow" />
-            <field-error
-              [control]="hallForm.controls.seatsPerRow"
-              [messages]="{
-                required: 'Seats per row is required',
-                min: 'Must be at least 1',
-                max: 'Must be at most 50',
-              }"
-            />
-          </div>
+          <input-field
+            label="Number of Rows"
+            type="number"
+            placeholder="e.g. 10"
+            size="sm"
+            [control]="hallForm.controls.numberOfRows"
+            [errorMessages]="{
+              required: 'Number of rows is required',
+              min: 'Must be at least 1',
+              max: 'Must be at most 100',
+            }"
+          />
+          <input-field
+            label="Seats per Row"
+            type="number"
+            placeholder="e.g. 12"
+            size="sm"
+            [control]="hallForm.controls.seatsPerRow"
+            [errorMessages]="{
+              required: 'Seats per row is required',
+              min: 'Must be at least 1',
+              max: 'Must be at most 50',
+            }"
+          />
         </div>
         <div class="input-group">
           <span>Status</span>
@@ -219,22 +213,13 @@
                     <span class="tpi-label-icon normal"></span>
                     <span class="tpi-label-text">Normal</span>
                   </div>
-                  <div class="tpi-input">
-                    <lucide-icon
-                      [img]="DollarSignIcon"
-                      [size]="16"
-                      [strokeWidth]="2.5"
-                    ></lucide-icon>
-                    <input
-                      ngpInput
-                      type="number"
-                      placeholder="e.g. 10"
-                      formControlName="normalPrice"
-                    />
-                  </div>
-                  <field-error
+                  <input-field
+                    type="number"
+                    placeholder="e.g. 10"
+                    size="sm"
                     [control]="hallForm.controls.normalPrice"
-                    [messages]="{
+                    [leadingIcon]="DollarSignIcon"
+                    [errorMessages]="{
                       required: 'Normal price is required',
                       min: 'Price must be at least 1',
                     }"
@@ -247,22 +232,13 @@
                     <span class="tpi-label-icon vip"></span>
                     <span class="tpi-label-text">VIP Seat</span>
                   </div>
-                  <div class="tpi-input">
-                    <lucide-icon
-                      [img]="DollarSignIcon"
-                      [size]="16"
-                      [strokeWidth]="2.5"
-                    ></lucide-icon>
-                    <input
-                      ngpInput
-                      type="number"
-                      placeholder="e.g. 10"
-                      formControlName="vipPrice"
-                    />
-                  </div>
-                  <field-error
+                  <input-field
+                    type="number"
+                    placeholder="e.g. 10"
+                    size="sm"
                     [control]="hallForm.controls.vipPrice"
-                    [messages]="{
+                    [leadingIcon]="DollarSignIcon"
+                    [errorMessages]="{
                       required: 'VIP price is required',
                       min: 'Price must be at least 1',
                     }"

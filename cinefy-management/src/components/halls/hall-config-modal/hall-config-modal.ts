@@ -26,11 +26,11 @@ import {
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { NgpInput } from 'ng-primitives/input';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { ModalComponent } from '../../modal/modal';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { FieldErrorComponent } from '../../field-error/field-error';
+import { InputField } from '../../input-field/input-field';
 import {
   HALL_STATUS_LABELS,
   SEAT_CATEGORY_LABELS,
@@ -67,12 +67,12 @@ interface LayoutBaseline {
     LucideAngularModule,
     NgpButton,
     NgpDialogTrigger,
-    NgpInput,
     NgpSwitch,
     NgpSwitchThumb,
     ModalComponent,
     LoadingSpinnerComponent,
     FieldErrorComponent,
+    InputField,
     CustomSelectComponent,
     PaginatedSelectComponent,
     HallLayoutEditorComponent,
