@@ -24,20 +24,17 @@
   </ng-template>
 
   <div modal-footer class="manage-footer">
-    @if (currentStep() > 0) {
-      <button ngpButton class="btn-secondary" (click)="goToPreviousStep()">Back</button>
-    }
-    @if (currentStep() === steps().length - 1) {
-      <button ngpButton class="btn-primary">Save as Draft</button>
-    } @else {
-      <button
-        ngpButton
-        class="btn-primary"
-        [disabled]="currentStep() === steps().length - 1"
-        (click)="goToNextStep()"
-      >
-        Continue
-      </button>
-    }
+    <button
+      ngpButton
+      class="btn-secondary"
+      [style.visibility]="currentStep() > 0 ? 'visible' : 'hidden'"
+      (click)="goToPreviousStep()"
+    >
+      Back
+    </button>
+    @let isLastStep = currentStep() === steps().length - 1;
+    <button ngpButton class="btn-primary" (click)="isLastStep ? saveAsDraft() : goToNextStep()">
+      {{ isLastStep ? 'Save as Draft' : 'Continue' }}
+    </button>
   </div>
 </app-modal>

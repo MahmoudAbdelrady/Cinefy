@@ -70,4 +70,8 @@ export class ManagePaymentModalComponent {
       this.currentStep.update((step) => step - 1);
     }
   }
+
+  protected saveAsDraft() {
+    // TODO: implement save logic
+  }
 }
