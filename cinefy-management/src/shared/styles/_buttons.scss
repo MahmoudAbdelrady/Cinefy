@@ -60,3 +60,20 @@
     cursor: not-allowed;
   }
 }
+
+.btn-success {
+  @extend %btn-base;
+  color: #ffffff;
+  background-color: $green-600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  &:hover:not(:disabled) {
+    background-color: $green-700;
+  }
+
+  &:disabled {
+    background-color: $gray-300;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+}

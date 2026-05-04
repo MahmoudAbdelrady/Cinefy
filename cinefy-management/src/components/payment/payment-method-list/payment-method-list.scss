@@ -1,0 +1,523 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
+@use '../../../shared/styles/breakpoints' as *;
+
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.payment-method-list-container {
+  width: 100%;
+  min-width: 0;
+}
+
+.payment-method-items {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+
+  @include from-desktop {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.method-item {
+  position: relative;
+  background-color: #ffffff;
+  border: 1px solid $gray-200;
+  border-radius: $radius-xl;
+  padding: 24px;
+  transition:
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+
+  &:hover {
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  &[data-status='draft'] {
+    border-color: rgba($amber-200, 0.8);
+    box-shadow: 0 0 0 1px rgba($amber-100, 0.6);
+  }
+
+  &[data-status='disabled'] {
+    border-color: $gray-200;
+    opacity: 0.9;
+  }
+
+  &[data-status='active']:hover {
+    border-color: $blue-200;
+  }
+}
+
+// ─── Header ──────────────────────────────────────────────────────────────────
+
+.mi-header {
+  @include flex-between;
+  gap: 8px;
+  margin-bottom: 16px;
+  min-width: 0;
+}
+
+.mih-info {
+  @include flex-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.mihi-details {
+  @include flex-align;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mihi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: $radius-lg;
+  @include flex-center;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, $blue-600 0%, #4338ca 100%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  color: #ffffff;
+  @include lucide-icon-fix;
+}
+
+.method-item[data-status='disabled'] .mihi-icon {
+  background: $gray-100;
+  color: $gray-400;
+}
+
+.mihi-name {
+  min-width: 0;
+  flex: 1;
+}
+
+.mihi-name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+
+  h3 {
+    @include text-truncate;
+    margin: 0;
+    color: $gray-900;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    min-width: 0;
+  }
+}
+
+.mihi-name-badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: $radius-sm;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid;
+
+  &[data-type='production'] {
+    background-color: $blue-50;
+    color: $blue-700;
+    border-color: $blue-200;
+  }
+
+  &[data-type='sandbox'] {
+    background-color: $purple-50;
+    color: $purple-600;
+    border-color: $purple-200;
+  }
+}
+
+.mihi-status {
+  @include flex-align;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: $radius-full;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+
+  .mihi-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: $radius-full;
+    flex-shrink: 0;
+  }
+
+  &[data-status='active'] {
+    background-color: $green-50;
+    color: $green-700;
+    border-color: $green-200;
+
+    .mihi-status-dot {
+      background-color: $green-500;
+      position: relative;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: $radius-full;
+        background-color: $green-300;
+        opacity: 0.75;
+        animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+      }
+    }
+  }
+
+  &[data-status='draft'] {
+    background-color: $amber-50;
+    color: $amber-700;
+    border-color: $amber-200;
+
+    .mihi-status-dot {
+      background-color: $amber-500;
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  }
+
+  &[data-status='disabled'] {
+    background-color: $gray-100;
+    color: $gray-600;
+    border-color: $gray-200;
+
+    .mihi-status-dot {
+      background-color: $gray-400;
+    }
+  }
+}
+
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// ─── Header actions (kebab menu) ─────────────────────────────────────────────
+
+.mih-actions {
+  flex-shrink: 0;
+
+  > button[ngpButton] {
+    @include flex-center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: $radius-md;
+    background: transparent;
+    color: $gray-400;
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+
+    &:hover {
+      background-color: $gray-100;
+      color: $gray-700;
+    }
+
+    @include lucide-icon-fix;
+  }
+}
+
+[ngpMenu] {
+  background-color: #ffffff;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  min-width: 208px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  [ngpMenuItem] {
+    @include flex-align;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    border-radius: $radius-sm;
+    background: transparent;
+    color: $gray-700;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 120ms ease;
+
+    &:hover {
+      background-color: $gray-50;
+    }
+
+    @include lucide-icon-fix;
+
+    lucide-icon {
+      color: $gray-500;
+    }
+
+    &.mih-delete-btn {
+      color: $red-600;
+
+      lucide-icon {
+        color: $red-500;
+      }
+
+      &:hover {
+        background-color: $red-50;
+      }
+    }
+  }
+}
+
+// ─── Content: stat cards row ─────────────────────────────────────────────────
+
+.mi-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mic-stat-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  @include below-mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mics-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border-radius: $radius-md;
+  background-color: $gray-50;
+  border: 1px solid $gray-100;
+
+  .mics-card-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.075em;
+    color: $gray-500;
+  }
+
+  .mics-card-value {
+    @include flex-align;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $gray-900;
+
+    @include lucide-icon-fix;
+
+    &.success {
+      color: $green-700;
+
+      lucide-icon {
+        color: $green-500;
+      }
+    }
+
+    &.failure {
+      color: $red-700;
+
+      lucide-icon {
+        color: $red-500;
+      }
+    }
+  }
+}
+
+// ─── Credentials Health block ────────────────────────────────────────────────
+
+.mic-info {
+  position: relative;
+  padding: 18px 20px;
+  border-radius: $radius-lg;
+  background-color: rgba($gray-50, 0.8);
+  box-shadow: inset 0 0 0 1px rgba($gray-200, 0.7);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: $gray-300;
+  }
+
+  &[data-status='recent']::before {
+    background-color: $green-500;
+  }
+
+  &[data-status='due']::before {
+    background-color: $amber-500;
+  }
+
+  &[data-status='overdue']::before {
+    background-color: $red-500;
+  }
+}
+
+.mici-title {
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: $gray-500;
+  margin-bottom: 10px;
+}
+
+.mici-details {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+
+  // Dotted vertical divider between the two cells
+  > .mici-detail-box:not(:last-child)::after {
+    content: '';
+    align-self: stretch;
+    width: 1px;
+    margin-left: 20px;
+    background-image: linear-gradient($gray-300 50%, transparent 50%);
+    background-size: 1px 4px;
+    background-repeat: repeat-y;
+  }
+
+  > .mici-detail-box {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+.mici-detail-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.mici-detail-box-label {
+  @include flex-align;
+  gap: 6px;
+  font-size: 11.5px;
+  color: $gray-500;
+  margin-top: 4px;
+  order: 2;
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: $radius-full;
+    flex-shrink: 0;
+    background-color: $gray-400;
+  }
+
+  &[data-status='recent'] .status-dot {
+    background-color: $green-500;
+  }
+
+  &[data-status='due'] .status-dot {
+    background-color: $amber-500;
+  }
+
+  &[data-status='overdue'] .status-dot {
+    background-color: $red-500;
+  }
+}
+
+.mici-detail-box-value {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: $gray-900;
+  order: 1;
+  @include text-truncate;
+}
+
+.mic-info[data-status='overdue'] .mici-detail-box:first-child .mici-detail-box-value {
+  color: $red-900;
+}
+
+.mic-info[data-status='due'] .mici-detail-box:first-child .mici-detail-box-value {
+  color: $amber-900;
+}
+
+// ─── Footer ──────────────────────────────────────────────────────────────────
+
+.mi-footer {
+  @include flex-between;
+  margin-top: 16px;
+  gap: 12px;
+}
+
+.mif-date-info {
+  font-size: 12px;
+  color: $gray-500;
+}
+
+.mif-actions {
+  flex-shrink: 0;
+
+  // Tighten the shared button sizing for the card footer scale
+  > button {
+    padding: 8px 18px;
+    font-size: 13px;
+    gap: 6px;
+    @include lucide-icon-fix;
+  }
+}
+
+// ─── Responsive ──────────────────────────────────────────────────────────────
+
+@include below-mobile {
+  .method-item {
+    padding: 16px;
+  }
+
+  .mi-header {
+    flex-wrap: wrap;
+  }
+
+  .mihi-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .mici-details {
+    flex-direction: column;
+    gap: 12px;
+
+    > .mici-detail-box:not(:last-child)::after {
+      display: none;
+    }
+  }
+}

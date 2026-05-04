@@ -308,14 +308,9 @@ function HealthCell({
 function CredentialsHealth({ method }: { method: PaymentMethod }) {
   // Rotation
   const rotated = relativeDays(method.credentialsRotatedAt);
-  const rotationTone: RowTone =
-    rotated.days >= 90 ? 'bad' : rotated.days >= 30 ? 'warn' : 'good';
+  const rotationTone: RowTone = rotated.days >= 90 ? 'bad' : rotated.days >= 30 ? 'warn' : 'good';
   const rotationHint =
-    rotationTone === 'bad'
-      ? 'rotate now'
-      : rotationTone === 'warn'
-        ? 'rotate soon'
-        : undefined;
+    rotationTone === 'bad' ? 'rotate now' : rotationTone === 'warn' ? 'rotate soon' : undefined;
 
   // Last charge
   const charge = method.lastChargeAt ? relativeDays(method.lastChargeAt) : null;
@@ -339,22 +334,43 @@ function CredentialsHealth({ method }: { method: PaymentMethod }) {
     chargeHint = 'awaiting publish';
   }
 
+  const worstTone: RowTone =
+    rotationTone === 'bad'
+      ? 'bad'
+      : rotationTone === 'warn' || chargeTone === 'warn'
+        ? 'warn'
+        : rotationTone === 'good' || chargeTone === 'good'
+          ? 'good'
+          : 'neutral';
+
+  const RAIL_TONE: Record<RowTone, string> = {
+    good: 'bg-emerald-400',
+    warn: 'bg-amber-400',
+    bad: 'bg-red-400',
+    neutral: 'bg-slate-300',
+  };
+
   return (
-    <div className="rounded-xl bg-slate-50 p-4">
+    <div className="relative rounded-xl bg-slate-50/80 ring-1 ring-slate-200/70 pl-4 pr-4 py-3.5 overflow-hidden">
+      <span
+        className={`absolute left-0 top-0 bottom-0 w-[3px] ${RAIL_TONE[worstTone]}`}
+        aria-hidden
+      />
+      <p className="text-[9.5px] uppercase tracking-[0.14em] text-gray-500 font-semibold mb-2.5">
+        Credentials Health
+      </p>
       <div className="flex items-stretch gap-5">
         <HealthCell
           value={rotated.label.charAt(0).toUpperCase() + rotated.label.slice(1)}
-          label="Credentials rotated"
+          label="Rotated"
           hint={rotationHint}
           tone={rotationTone}
         />
-        <span className="w-px bg-slate-200 self-stretch" aria-hidden />
+        <span
+          className="w-px self-stretch bg-[length:1px_4px] bg-repeat-y bg-gradient-to-b from-slate-300 to-slate-300"
+          aria-hidden
+        />
         <HealthCell value={chargeValue} label="Last charge" hint={chargeHint} tone={chargeTone} />
-      </div>
-      <div className="mt-3 pt-3 border-t border-slate-200/80">
-        <p className="text-[11.5px] text-gray-500">
-          All amounts in <span className="font-semibold text-gray-700">{method.currency || '—'}</span>
-        </p>
       </div>
     </div>
   );
@@ -534,15 +550,6 @@ function PaymentSection() {
                     </button>
                     {openMenu === m.id && (
                       <div className="absolute right-0 mt-1 w-52 bg-white border border-gray-200 rounded-xl shadow-lg z-20 py-1.5 overflow-hidden">
-                        {m.status === 'draft' && (
-                          <button
-                            onClick={() => handlePublish(m.id)}
-                            className="w-full px-3 py-2 text-left text-sm text-emerald-700 hover:bg-emerald-50 flex items-center gap-2"
-                          >
-                            <Rocket size={15} />
-                            Publish & make live
-                          </button>
-                        )}
                         {m.status === 'live' && (
                           <button
                             onClick={() => handleDisable(m.id)}
@@ -550,15 +557,6 @@ function PaymentSection() {
                           >
                             <PowerOff size={15} />
                             Disable
-                          </button>
-                        )}
-                        {m.status === 'disabled' && (
-                          <button
-                            onClick={() => handleEnable(m.id)}
-                            className="w-full px-3 py-2 text-left text-sm text-emerald-700 hover:bg-emerald-50 flex items-center gap-2"
-                          >
-                            <Power size={15} />
-                            Re-enable
                           </button>
                         )}
                         <button
@@ -646,11 +644,19 @@ function PaymentSection() {
                     Publish
                   </button>
                 )}
+                {m.status === 'disabled' && (
+                  <button
+                    onClick={() => handleEnable(m.id)}
+                    className="px-3 py-1.5 rounded-lg bg-white text-gray-700 font-semibold border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
+                  >
+                    <Power size={13} />
+                    Re-enable
+                  </button>
+                )}
               </div>
             </article>
           ))}
         </div>
-
       </div>
 
       {showWizard && (
@@ -747,7 +753,11 @@ function PaymentWizard({
         mode,
         lastTested: testState === 'success' ? now : editing.lastTested,
         testStatus:
-          testState === 'success' ? 'success' : testState === 'failed' ? 'failed' : editing.testStatus,
+          testState === 'success'
+            ? 'success'
+            : testState === 'failed'
+              ? 'failed'
+              : editing.testStatus,
         credentialsRotatedAt: keysChanged ? now : editing.credentialsRotatedAt,
         config: {
           apiKeyMasked: apiKey ? '••••••••••••••••••••••••' : editing.config.apiKeyMasked,
@@ -787,10 +797,7 @@ function PaymentWizard({
   const canNext = () => {
     if (step === 1) return name.trim().length > 0;
     if (step === 2) return isEdit || (apiKey.length > 0 && hmac.length > 0);
-    if (step === 3)
-      return isEdit
-        ? true
-        : integrationId.length > 0 && iframeId.length > 0;
+    if (step === 3) return isEdit ? true : integrationId.length > 0 && iframeId.length > 0;
     return true;
   };
 
@@ -880,7 +887,9 @@ function PaymentWizard({
 
           {/* Right — content */}
           <div className="flex-1 overflow-y-auto p-8">
-            {step === 1 && <StepIdentity name={name} setName={setName} mode={mode} setMode={setMode} />}
+            {step === 1 && (
+              <StepIdentity name={name} setName={setName} mode={mode} setMode={setMode} />
+            )}
             {step === 2 && (
               <StepCredentials
                 apiKey={apiKey}
@@ -1024,8 +1033,8 @@ function StepIdentity({
             placeholder="e.g. Paymob — Cards (Live)"
           />
           <p className="text-xs text-gray-500 mt-2">
-            A short name like "Paymob Cards" or "Wallets — Sandbox" so you can tell methods apart
-            on the list.
+            A short name like "Paymob Cards" or "Wallets — Sandbox" so you can tell methods apart on
+            the list.
           </p>
         </div>
 
@@ -1110,10 +1119,7 @@ function CredentialField({
             placeholder={placeholder}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-          <KeyRound
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
+          <KeyRound size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
         <p className="text-xs text-gray-500 mt-2">{copyHelp}</p>
       </div>
@@ -1169,8 +1175,8 @@ function StepCredentials({
           <p className="font-semibold mb-0.5">These are sensitive credentials</p>
           <p className="text-xs leading-relaxed">
             Treat the API key like a password. Anyone who has it can charge your customers — never
-            paste it into chat, email, or screenshots. Cinefy stores it encrypted and never shows
-            it back to you in plain text.
+            paste it into chat, email, or screenshots. Cinefy stores it encrypted and never shows it
+            back to you in plain text.
           </p>
         </div>
       </div>
@@ -1257,7 +1263,10 @@ function StepIntegration({
                 inputMode="numeric"
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              <Webhook size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Webhook
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
             </div>
             <p className="text-xs text-gray-500 mt-2">
               Numeric only — usually 6 to 8 digits. Paymob auto-generates this when an integration
@@ -1286,7 +1295,10 @@ function StepIntegration({
                 inputMode="numeric"
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              <Layout size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Layout
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
             </div>
             <p className="text-xs text-gray-500 mt-2">
               The iframe is the secure card-entry box your customers see. Wallet-only methods don't
@@ -1460,8 +1472,8 @@ function StepReview({
       <p className="text-sm text-gray-600 mb-7">
         {isEdit ? (
           <>
-            Review your changes. The method's current status (live, draft, or disabled) won't
-            change — use the methods list to publish or disable it.
+            Review your changes. The method's current status (live, draft, or disabled) won't change
+            — use the methods list to publish or disable it.
           </>
         ) : (
           <>
