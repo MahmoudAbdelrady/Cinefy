@@ -1,12 +1,10 @@
 <div class="input-field-wrapper" [attr.data-size]="size()">
-  @if (label(); as labelText) {
-    <label class="if-label">
-      {{ labelText }}
-      @if (required()) {
-        <span class="if-required">*</span>
-      }
-    </label>
-  }
+  <label class="if-label">
+    {{ label() }}
+    @if (required()) {
+      <span class="if-required">*</span>
+    }
+  </label>
 
   <div
     class="if-input"

@@ -1,1 +1,45 @@
-<p>verification-step works!</p>
+<div class="verification-step-container">
+  <div class="vsc-header">
+    <h3>Test the connection</h3>
+    <p>We'll run four read-only checks against Paymob. No charges will be made.</p>
+  </div>
+  <div class="vsc-content">
+    <div class="vsc-test-box">
+      <div class="tb-info">
+        <div class="tbi-details">
+          <div class="status-icon">
+            <lucide-icon [img]="ZapIcon" [size]="20"></lucide-icon>
+          </div>
+          <div class="tbi-data">
+            <h3>Ready to verify</h3>
+            <p>Paymob — Cards · sandbox · integration 123456</p>
+          </div>
+        </div>
+        <div class="tbi-actions">
+          <button ngpButton class="btn-primary">
+            <lucide-icon [img]="ZapIcon" [size]="16"></lucide-icon>
+            <span>Test connection</span>
+          </button>
+        </div>
+      </div>
+      <div class="tb-results">
+        @for (result of testResults; track $index) {
+          <div class="tb-result" [class.error]="result.errorMsg">
+            <div class="tbr-icon">
+              <lucide-icon [img]="result.errorMsg ? XIcon : CheckIcon" [size]="16"></lucide-icon>
+            </div>
+            <div class="tbr-info">
+              <h4>{{ result.name }}</h4>
+              @if (result.errorMsg) {
+                <p class="error">{{ result.errorMsg }}</p>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+    <span class="vsc-tip"
+      >Tip: a failed test won't block you. You can always save as a draft and come back later.</span
+    >
+  </div>
+</div>

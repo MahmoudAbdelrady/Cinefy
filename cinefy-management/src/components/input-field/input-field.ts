@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, signal } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Eye, EyeOff, LucideAngularModule, LucideIconData } from 'lucide-angular';
 import { NgpInput } from 'ng-primitives/input';
@@ -16,7 +16,7 @@ export class InputField {
   protected readonly EyeOffIcon = EyeOff;
 
   readonly control = input.required<FormControl>();
-  readonly label = input<string | null>(null);
+  readonly label = input.required<string>();
   readonly type = input<'text' | 'number' | 'password'>('text');
   readonly placeholder = input<string>('');
   readonly hint = input<string | null>(null);
@@ -26,23 +26,7 @@ export class InputField {
   readonly monospace = input<boolean>(false);
 
   protected readonly showPassword = signal(false);
-
-  private readonly statusTrigger = signal(0);
-
-  constructor() {
-    effect((onCleanup) => {
-      const sub = this.control().statusChanges.subscribe(() => {
-        this.statusTrigger.update((n) => n + 1);
-      });
-      onCleanup(() => sub.unsubscribe());
-    });
-  }
-
-  protected readonly required = computed(() => {
-    this.statusTrigger();
-    return this.control().hasValidator(Validators.required);
-  });
-
+  protected readonly required = computed(() => this.control().hasValidator(Validators.required));
   protected readonly resolvedType = computed(() => {
     if (this.type() !== 'password') return this.type();
     return this.showPassword() ? 'text' : 'password';

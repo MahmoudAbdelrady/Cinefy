@@ -28,17 +28,13 @@
     </div>
     @let tip = noteTip();
     @if (tip) {
-      <div class="sc-note">
-        <div class="scn-header">
-          <lucide-icon [img]="CircleQuestionMark" [size]="16" />
-          <p>{{ tip.title }}</p>
-        </div>
+      <help-hint [title]="tip.title" [icon]="CircleQuestionMark">
         @if (noteTipTpl(); as tpl) {
-          <div class="scn-body"><ng-container [ngTemplateOutlet]="tpl" /></div>
+          <ng-container [ngTemplateOutlet]="tpl" />
         } @else {
-          <p class="scn-body">{{ noteTipText() }}</p>
+          {{ noteTipText() }}
         }
-      </div>
+      </help-hint>
     }
   </div>
   <div class="sc-content">

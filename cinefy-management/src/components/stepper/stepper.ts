@@ -1,6 +1,7 @@
 import { Component, computed, input, TemplateRef } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Check, CircleQuestionMark, LucideAngularModule } from 'lucide-angular';
+import { HelpHint } from '../help-hint/help-hint';
 
 export interface StepperStep {
   label: string;
@@ -15,7 +16,7 @@ export interface StepperNoteTip {
 
 @Component({
   selector: 'stepper',
-  imports: [NgTemplateOutlet, LucideAngularModule],
+  imports: [NgTemplateOutlet, LucideAngularModule, HelpHint],
   templateUrl: './stepper.html',
   styleUrl: './stepper.scss',
 })

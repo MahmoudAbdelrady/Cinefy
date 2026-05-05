@@ -10,7 +10,9 @@ import {
   VerificationStep,
   buildIdentityForm,
   buildCredentialsForm,
+  buildIntegrationForm,
 } from '../steps';
+import { Lock, LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'manage-payment-modal',
@@ -22,11 +24,14 @@ import {
     IntegrationStep,
     VerificationStep,
     ReviewStep,
+    LucideAngularModule,
   ],
   templateUrl: './manage-payment-modal.html',
   styleUrl: './manage-payment-modal.scss',
 })
 export class ManagePaymentModalComponent {
+  protected readonly LockIcon = Lock;
+
   readonly close = input.required<() => void>();
 
   protected readonly isEditMode = false;
@@ -84,6 +89,7 @@ export class ManagePaymentModalComponent {
   protected readonly form = new FormGroup({
     identity: buildIdentityForm(),
     credentials: buildCredentialsForm(),
+    integration: buildIntegrationForm(),
   });
 
   protected readonly currentStep = signal(0);
