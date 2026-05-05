@@ -25,11 +25,11 @@
             </div>
           </div>
           <div class="mih-actions">
-            <button [ngpMenuTrigger]="menu" ngpButton>
+            <button [ngpMenuTrigger]="paymentActionsMenu" ngpButton>
               <lucide-icon [img]="MenuIcon" size="16"></lucide-icon>
             </button>
 
-            <ng-template #menu>
+            <ng-template #paymentActionsMenu>
               <div ngpMenu>
                 @if (paymentMethod.status === 'active') {
                   <button ngpMenuItem>

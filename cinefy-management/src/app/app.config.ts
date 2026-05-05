@@ -6,6 +6,7 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { baseUrlInterceptor } from './core/interceptors/base-url';
 import { provideToastConfig } from 'ng-primitives/toast';
+import { provideMenuConfig } from 'ng-primitives/menu';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,5 +24,6 @@ export const appConfig: ApplicationConfig = {
       gap: 8,
       zIndex: 9999,
     }),
+    provideMenuConfig({ scrollBehavior: 'reposition' }),
   ],
 };
