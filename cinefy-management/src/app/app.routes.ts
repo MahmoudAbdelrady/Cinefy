@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from '../layout/app-layout';
-import { DashboardPage, HallsPage, MoviesPage } from '../pages';
+import { DashboardPage, HallsPage, MoviesPage, PaymentPage } from '../pages';
 
 export const routes: Routes = [
   {
@@ -18,6 +18,10 @@ export const routes: Routes = [
       {
         path: 'movies',
         component: MoviesPage,
+      },
+      {
+        path: 'payment',
+        component: PaymentPage,
       },
     ],
   },

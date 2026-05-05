@@ -1,0 +1,16 @@
+<ng-template #headerActionsTemplate>
+  <div class="action-buttons-container">
+    <button ngpButton [ngpDialogTrigger]="addPaymentMethodDialog">
+      <lucide-icon [img]="PlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+      <span>Add Payment Method</span>
+    </button>
+
+    <ng-template #addPaymentMethodDialog let-close="close">
+      <manage-payment-modal [close]="close" />
+    </ng-template>
+  </div>
+</ng-template>
+
+<div class="payment-container">
+  <payment-method-list />
+</div>

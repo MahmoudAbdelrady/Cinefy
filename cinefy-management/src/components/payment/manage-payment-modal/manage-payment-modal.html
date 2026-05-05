@@ -1,0 +1,48 @@
+<app-modal
+  #modal
+  [modalTitle]="modalTitle()"
+  [description]="modalDescription()"
+  [close]="close()"
+  width="1100px"
+  bodyPadding="0"
+>
+  <stepper [steps]="steps()" [noteTip]="stepperNoteTip()" [currentStep]="currentStep()" />
+  <ng-template #paymobHelp>
+    Most fields can be found in your
+    <a class="help-link" href="https://accept.paymob.com/portal2/" target="_blank" rel="noreferrer">
+      Paymob dashboard</a
+    >. If a field is missing, ask your account manager — every Paymob account has these.
+  </ng-template>
+  <ng-template #identity>
+    <identity-step [form]="form.controls.identity" />
+  </ng-template>
+  <ng-template #credentials>
+    <credentials-step [form]="form.controls.credentials" />
+  </ng-template>
+  <ng-template #integration>
+    <integration-step [form]="form.controls.integration" />
+  </ng-template>
+  <ng-template #verify>
+    <verification-step />
+  </ng-template>
+  <ng-template #review>
+    <review-step />
+  </ng-template>
+
+  <div modal-footer class="manage-footer">
+    <div class="mf-info">
+      <lucide-icon [img]="LockIcon" [size]="16"></lucide-icon>
+      <span>Credentials are encrypted at rest and never exposed to the browser after saving.</span>
+    </div>
+    <div class="action-btns">
+      @if (currentStep() > 0) {
+        <button ngpButton class="btn-secondary" (click)="goToPreviousStep()">Back</button>
+      }
+
+      @let isLastStep = currentStep() === steps().length - 1;
+      <button ngpButton class="btn-primary" (click)="isLastStep ? saveAsDraft() : goToNextStep()">
+        {{ isLastStep ? 'Save as Draft' : 'Continue' }}
+      </button>
+    </div>
+  </div>
+</app-modal>

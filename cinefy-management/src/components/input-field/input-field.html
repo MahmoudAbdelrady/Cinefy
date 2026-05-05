@@ -1,0 +1,36 @@
+<div class="input-field-wrapper" [attr.data-size]="size()">
+  <label class="if-label">
+    {{ label() }}
+    @if (required()) {
+      <span class="if-required">*</span>
+    }
+  </label>
+
+  <div
+    class="if-input"
+    [class.has-leading]="!!leadingIcon()"
+    [class.has-trailing]="type() === 'password'"
+  >
+    @if (leadingIcon(); as icon) {
+      <lucide-icon class="if-leading" [img]="icon" [size]="18" />
+    }
+    <input
+      ngpInput
+      [formControl]="control()"
+      [type]="resolvedType()"
+      [placeholder]="placeholder()"
+      [class.monospace]="monospace()"
+    />
+    @if (type() === 'password') {
+      <button ngpButton type="button" class="if-toggle" (click)="toggleShowPassword()">
+        <lucide-icon [img]="showPassword() ? EyeOffIcon : EyeIcon" [size]="18" />
+      </button>
+    }
+  </div>
+
+  @if (hint(); as hintText) {
+    <p class="if-hint">{{ hintText }}</p>
+  }
+
+  <field-error [control]="control()" [messages]="errorMessages()" />
+</div>

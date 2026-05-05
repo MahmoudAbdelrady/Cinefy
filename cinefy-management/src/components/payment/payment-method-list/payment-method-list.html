@@ -1,0 +1,169 @@
+<div class="payment-method-list-container">
+  <div class="payment-method-items">
+    @for (paymentMethod of paymentMethods; track paymentMethod.id) {
+      <div class="method-item" [attr.data-status]="paymentMethod.status">
+        <div class="mi-header">
+          <div class="mih-info">
+            <div class="mihi-details">
+              <div class="mihi-icon">
+                <lucide-icon [img]="CreditCardIcon" [size]="22"></lucide-icon>
+              </div>
+              <div class="mihi-name">
+                <div class="mihi-name-row">
+                  <h3>{{ paymentMethod.name }}</h3>
+                  <span class="mihi-name-badge" [attr.data-type]="paymentMethod.type">{{
+                    paymentMethod.type === 'production' ? 'Production' : 'Sandbox'
+                  }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="mihi-status" [attr.data-status]="paymentMethod.status">
+              <div class="mihi-status-dot"></div>
+              <span>{{
+                paymentMethod.status.charAt(0).toUpperCase() + paymentMethod.status.slice(1)
+              }}</span>
+            </div>
+          </div>
+          <div class="mih-actions">
+            <button [ngpMenuTrigger]="paymentActionsMenu" ngpButton>
+              <lucide-icon [img]="MenuIcon" size="16"></lucide-icon>
+            </button>
+
+            <ng-template #paymentActionsMenu>
+              <div ngpMenu>
+                @if (paymentMethod.status === 'active') {
+                  <button ngpMenuItem>
+                    <lucide-icon [img]="PowerOffIcon" size="16"></lucide-icon>
+                    <span>Deactivate</span>
+                  </button>
+                }
+                <button ngpMenuItem>
+                  <lucide-icon [img]="EditIcon" size="16"></lucide-icon>
+                  <span>Edit configuration</span>
+                </button>
+                <button ngpMenuItem>
+                  <lucide-icon [img]="ZapIcon" size="16"></lucide-icon>
+                  <span>Run test connection</span>
+                </button>
+                <button ngpMenuItem class="mih-delete-btn" [ngpDialogTrigger]="deleteDialog">
+                  <lucide-icon [img]="DeleteIcon" size="16"></lucide-icon>
+                  <span>Delete method</span>
+                </button>
+              </div>
+            </ng-template>
+
+            <ng-template #deleteDialog let-close="close">
+              <app-modal modalTitle="Delete Payment Method" [close]="close" width="448px">
+                <div class="delete-modal-content">
+                  <div class="dmc-icon">
+                    <lucide-icon [img]="AlertIcon" [size]="24" [strokeWidth]="2"></lucide-icon>
+                  </div>
+                  <p class="dmc-message">
+                    Are you sure you want to delete <strong>{{ paymentMethod.name }}</strong
+                    >? This action cannot be undone and will permanently remove this payment
+                    method's configuration and credentials.
+                  </p>
+                  <div class="dmc-warning">
+                    <lucide-icon [img]="AlertIcon" [size]="16" [strokeWidth]="2"></lucide-icon>
+                    <div>
+                      <p><strong>Warning:</strong></p>
+                      <ul>
+                        <li>Stored API credentials will be securely erased</li>
+                        <li>In-flight transactions may fail to settle</li>
+                        <li>Historical transaction records will be archived</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div modal-footer class="delete-modal-footer">
+                  <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+                  <button ngpButton class="btn-danger" (click)="close()">
+                    <span>Delete Method</span>
+                  </button>
+                </div>
+              </app-modal>
+            </ng-template>
+          </div>
+        </div>
+        <div class="mi-content">
+          <div class="mic-stat-cards">
+            <div class="mics-card">
+              <span class="mics-card-label">Volume 30D</span>
+              <span class="mics-card-value">{{
+                paymentMethod.monthVolume / 100
+                  | currency: paymentMethod.currency : 'symbol' : '1.0-0'
+              }}</span>
+            </div>
+            <div class="mics-card">
+              <span class="mics-card-label">Success Rate</span>
+              <span class="mics-card-value"
+                >{{ paymentMethod.successRate | number: '1.0-1' }}%</span
+              >
+            </div>
+            <div class="mics-card">
+              <span class="mics-card-label">Last Test</span>
+              <span
+                class="mics-card-value"
+                [class.success]="paymentMethod.lastTestStatus === 'success'"
+                [class.failure]="paymentMethod.lastTestStatus === 'failure'"
+              >
+                @let isTested = !!paymentMethod.lastTestStatus;
+                @if (isTested) {
+                  <lucide-icon
+                    [img]="paymentMethod.lastTestStatus === 'success' ? CheckIcon : AlertIcon"
+                    size="16"
+                  ></lucide-icon>
+                  {{ paymentMethod.lastTestStatus === 'success' ? 'Success' : 'Failure' }}
+                } @else {
+                  Not Tested
+                }
+              </span>
+            </div>
+          </div>
+          <div class="mic-info" [attr.data-status]="getRotationStatus(paymentMethod)">
+            <div class="mici-title">Credentials Stats</div>
+            <div class="mici-details">
+              <div class="mici-detail-box">
+                <div
+                  class="mici-detail-box-label"
+                  [attr.data-status]="getRotationStatus(paymentMethod)"
+                >
+                  <div class="status-dot"></div>
+                  Last Rotated
+                </div>
+                <div class="mici-detail-box-value">
+                  {{ paymentMethod.credentialsRotatedAt | relativeTime }}
+                </div>
+              </div>
+              <div class="mici-detail-box">
+                <div class="mici-detail-box-label">Last Charge</div>
+                <div class="mici-detail-box-value">
+                  {{ paymentMethod.lastChargeAt | relativeTime }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mi-footer">
+          <div class="mif-date-info">
+            {{
+              paymentMethod.status === 'draft'
+                ? 'Created ' + paymentMethod.createdAt
+                : 'Published ' + paymentMethod.publishedAt
+            }}
+          </div>
+          @if (paymentMethod.status === 'draft' || paymentMethod.status === 'disabled') {
+            @let isDraft = paymentMethod.status === 'draft';
+            <div class="mif-actions">
+              <button ngpButton [class]="isDraft ? 'btn-success' : 'btn-secondary'">
+                <lucide-icon [img]="isDraft ? RocketIcon : PowerIcon" [size]="14"></lucide-icon>
+                <span>{{ isDraft ? 'Publish' : 'Re-enable' }}</span>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

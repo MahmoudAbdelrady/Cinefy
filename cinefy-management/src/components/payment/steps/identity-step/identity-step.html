@@ -1,0 +1,50 @@
+<div class="identity-step-container">
+  <div class="hic-header">
+    <h3>Identify this payment method</h3>
+    <p>
+      Give it an internal name so your team can tell it apart from other configurations. This label
+      stays private.
+    </p>
+  </div>
+  <form class="hic-form" [formGroup]="form()">
+    <input-field
+      label="Display Name"
+      placeholder="e.g. Paymob Credit Cards"
+      hint="Choose a name that tells configurations apart at a glance — gateway, type, or environment usually works well."
+      [control]="form().controls.displayName"
+      [errorMessages]="{ required: 'Display name is required' }"
+    />
+    <div class="input-group">
+      <label>Environment<span class="required">*</span></label>
+      <div
+        ngpRadioGroup
+        class="radio-group"
+        [ngpRadioGroupValue]="form().controls.environment.value"
+        (ngpRadioGroupValueChange)="form().controls.environment.setValue($event!)"
+      >
+        <div ngpRadioItem ngpRadioItemValue="sandbox" class="radio-item">
+          <div class="env-row">
+            <div class="env-badge">Sandbox</div>
+            <lucide-icon class="env-check" [img]="CheckIcon" [size]="18" />
+          </div>
+          <h3 class="env-title">Test Environment</h3>
+          <p class="env-desc">
+            No real money is moved. Use test cards to walk through the full booking flow safely.
+            Recommended for first-time setup.
+          </p>
+        </div>
+        <div ngpRadioItem ngpRadioItemValue="production" class="radio-item">
+          <div class="env-row">
+            <div class="env-badge">Production</div>
+            <lucide-icon class="env-check" [img]="CheckIcon" [size]="18" />
+          </div>
+          <h3 class="env-title">Live Environment</h3>
+          <p class="env-desc">
+            Real charges go through. Only switch here once you've tested in sandbox and your Paymob
+            account is verified.
+          </p>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

@@ -7,46 +7,6 @@
   gap: 12px;
   width: 100%;
   justify-content: flex-end;
-
-  button {
-    padding: 10px 20px;
-    border-radius: $radius-md;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition:
-      background-color 150ms ease,
-      color 150ms ease,
-      border-color 150ms ease;
-  }
-
-  .btn-secondary {
-    background: #ffffff;
-    color: $gray-700;
-    border: 1px solid $gray-300;
-
-    &:hover {
-      background: $gray-100;
-    }
-  }
-
-  .btn-primary {
-    background: $blue-600;
-    color: #ffffff;
-    border: 1px solid $blue-600;
-
-    &:hover:not(:disabled) {
-      background: $blue-700;
-      border-color: $blue-700;
-    }
-
-    &:disabled {
-      background: $gray-300;
-      border-color: $gray-300;
-      color: $gray-500;
-      cursor: not-allowed;
-    }
-  }
 }
 
 .manage-showtime-container {
