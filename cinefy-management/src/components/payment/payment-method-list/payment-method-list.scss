@@ -526,3 +526,77 @@
     }
   }
 }
+
+// ─── Delete Modal ───────────────────────────────────────────────────────────────
+
+.delete-modal-footer {
+  @include flex-align;
+  gap: 12px;
+  width: 100%;
+
+  button {
+    flex: 1;
+  }
+}
+
+.delete-modal-content {
+  text-align: center;
+}
+
+.dmc-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: $radius-full;
+  background-color: $red-50;
+  @include flex-center;
+  margin: 0 auto 16px;
+
+  lucide-icon {
+    display: flex;
+    color: $red-600;
+  }
+}
+
+.dmc-message {
+  font-size: 14px;
+  color: $gray-600;
+  line-height: 1.6;
+  margin-bottom: 24px;
+
+  strong {
+    color: $gray-900;
+  }
+}
+
+.dmc-warning {
+  @include flex-align;
+  gap: 8px;
+  text-align: left;
+  padding: 16px;
+  background-color: $red-50;
+  border: 1px solid rgba($red-400, 0.4);
+  border-radius: $radius-md;
+
+  > lucide-icon {
+    display: flex;
+    color: $red-600;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+
+  p {
+    font-size: 14px;
+    color: #991b1b;
+    margin-bottom: 4px;
+  }
+
+  ul {
+    font-size: 14px;
+    color: #991b1b;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+}

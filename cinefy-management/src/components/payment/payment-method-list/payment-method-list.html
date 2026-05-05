@@ -45,11 +45,44 @@
                   <lucide-icon [img]="ZapIcon" size="16"></lucide-icon>
                   <span>Run test connection</span>
                 </button>
-                <button ngpMenuItem class="mih-delete-btn">
+                <button ngpMenuItem class="mih-delete-btn" [ngpDialogTrigger]="deleteDialog">
                   <lucide-icon [img]="DeleteIcon" size="16"></lucide-icon>
                   <span>Delete method</span>
                 </button>
               </div>
+            </ng-template>
+
+            <ng-template #deleteDialog let-close="close">
+              <app-modal modalTitle="Delete Payment Method" [close]="close" width="448px">
+                <div class="delete-modal-content">
+                  <div class="dmc-icon">
+                    <lucide-icon [img]="AlertIcon" [size]="24" [strokeWidth]="2"></lucide-icon>
+                  </div>
+                  <p class="dmc-message">
+                    Are you sure you want to delete <strong>{{ paymentMethod.name }}</strong
+                    >? This action cannot be undone and will permanently remove this payment
+                    method's configuration and credentials.
+                  </p>
+                  <div class="dmc-warning">
+                    <lucide-icon [img]="AlertIcon" [size]="16" [strokeWidth]="2"></lucide-icon>
+                    <div>
+                      <p><strong>Warning:</strong></p>
+                      <ul>
+                        <li>Stored API credentials will be securely erased</li>
+                        <li>In-flight transactions may fail to settle</li>
+                        <li>Historical transaction records will be archived</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div modal-footer class="delete-modal-footer">
+                  <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+                  <button ngpButton class="btn-danger" (click)="close()">
+                    <span>Delete Method</span>
+                  </button>
+                </div>
+              </app-modal>
             </ng-template>
           </div>
         </div>

@@ -15,7 +15,9 @@ import {
   Zap,
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
+import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
+import { ModalComponent } from '../../modal/modal';
 import { RelativeTimePipe } from '../../../shared/pipes';
 
 interface PaymentMethod {
@@ -40,6 +42,8 @@ interface PaymentMethod {
     NgpMenu,
     NgpMenuTrigger,
     NgpMenuItem,
+    NgpDialogTrigger,
+    ModalComponent,
     CurrencyPipe,
     DecimalPipe,
     NgpButton,
