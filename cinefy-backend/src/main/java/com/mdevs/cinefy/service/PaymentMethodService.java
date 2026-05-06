@@ -7,6 +7,7 @@ import com.mdevs.cinefy.entity.PaymentMethodStatus;
 import com.mdevs.cinefy.entity.PaymentMethodType;
 import com.mdevs.cinefy.entity.PaymentProvider;
 import com.mdevs.cinefy.repository.PaymentMethodRepository;
+import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,20 @@ public class PaymentMethodService {
         return toSummaryDTO(entity);
     }
 
+    @Transactional
+    public void deletePaymentMethod(String uuid) {
+        PaymentMethod entity = findPaymentMethod(uuid);
+        // TODO: when status == ACTIVE, check if there are active bookings tied to this payment method
+        //       and throw BusinessException to prevent deletion.
+        paymentMethodRepository.delete(entity);
+    }
+
     // =========================== Helpers ===========================
+
+    private PaymentMethod findPaymentMethod(String uuid) {
+        return paymentMethodRepository.findByUuid(uuid)
+                .orElseThrow(() -> new NotFoundException("Payment method not found with id: " + uuid));
+    }
 
     private void validatePaymentMethod(CreatePaymentMethodDTO dto) {
         // @TODO --> Validations will be added later
