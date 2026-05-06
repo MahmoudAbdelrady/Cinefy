@@ -46,7 +46,7 @@ public class PaymentMethod extends BaseEntity {
     @Column
     private String iframeId;
 
-    @Column(nullable = false, length = 3)
+    @Column(length = 3)
     private String currency;
 
     @Enumerated(EnumType.STRING)

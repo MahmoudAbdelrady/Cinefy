@@ -5,7 +5,7 @@ import java.util.Arrays;
 public enum PaymentMethodStatus {
     DRAFT,
     ACTIVE,
-    DISABLED;
+    INACTIVE;
 
     public static PaymentMethodStatus fromString(String name) {
         return Arrays.stream(values())
