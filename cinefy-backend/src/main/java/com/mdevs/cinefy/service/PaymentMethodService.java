@@ -2,18 +2,26 @@ package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.payment.CreatePaymentMethodDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
+import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
+import com.mdevs.cinefy.dto.payment.TestConnectionResultDTO;
 import com.mdevs.cinefy.entity.PaymentMethod;
 import com.mdevs.cinefy.entity.PaymentMethodStatus;
+import com.mdevs.cinefy.entity.PaymentMethodTestStatus;
 import com.mdevs.cinefy.entity.PaymentMethodType;
 import com.mdevs.cinefy.entity.PaymentProvider;
 import com.mdevs.cinefy.repository.PaymentMethodRepository;
+import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import com.mdevs.cinefy.shared.payment.PaymobClient;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Currency;
 import java.util.List;
 
 @Service
@@ -24,12 +32,22 @@ public class PaymentMethodService {
 
     private final CredentialCipher credentialCipher;
 
+    private final PaymobClient paymobClient;
+
     // ========================= Public API =========================
 
     public List<PaymentMethodSummaryDTO> getPaymentMethods() {
         return paymentMethodRepository.findAll().stream()
                 .map(this::toSummaryDTO)
                 .toList();
+    }
+
+    public TestConnectionResultDTO testConnection(TestConnectionRequestDTO dto) {
+        String error = paymobClient.testConnection(dto);
+        TestConnectionResultDTO result = new TestConnectionResultDTO();
+        result.setOk(StringUtils.isEmpty(error));
+        result.setError(error);
+        return result;
     }
 
     @Transactional
@@ -41,10 +59,13 @@ public class PaymentMethodService {
 
         if (dto.isConnectionTested()) {
             entity.setTestedAt(LocalDateTime.now());
-            // TODO: call PaymobClient.testConnection(dto.getSecretKey(), dto.getIntegrationId())
-            //       — when SUCCESS: setTestStatus(SUCCESS), setCurrency("EGP"), setCredentialsRotatedAt(now())
-            //       — when FAILURE (bad creds, network, Paymob down): setTestStatus(FAILURE)
-            // For now, leave testStatus at the entity default (UNTESTED); the follow-up plan wires real testing.
+            String error = paymobClient.testConnection(new TestConnectionRequestDTO(dto.getSecretKey(), dto.getIntegrationId(), dto.getCurrency()));
+            if (StringUtils.isEmpty(error)) {
+                entity.setTestStatus(PaymentMethodTestStatus.SUCCESS);
+                entity.setCredentialsRotatedAt(LocalDateTime.now());
+            } else {
+                entity.setTestStatus(PaymentMethodTestStatus.FAILURE);
+            }
         }
 
         paymentMethodRepository.save(entity);
@@ -67,7 +88,13 @@ public class PaymentMethodService {
     }
 
     private void validatePaymentMethod(CreatePaymentMethodDTO dto) {
-        // @TODO --> Validations will be added later
+        try {
+            Currency.getInstance(dto.getCurrency().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException("Invalid currency code");
+        }
+
+        // @TODO --> Other validations will be added later
     }
 
     private void applyCreateDtoToEntity(PaymentMethod entity, CreatePaymentMethodDTO dto) {
@@ -76,6 +103,7 @@ public class PaymentMethodService {
         entity.setProvider(PaymentProvider.PAYMOB);
         entity.setType(PaymentMethodType.fromString(dto.getType()));
         entity.setTest(dto.isTest());
+        entity.setCurrency(dto.getCurrency().toUpperCase());
         entity.setSecretKey(credentialCipher.encrypt(dto.getSecretKey()));
         entity.setHmacKey(credentialCipher.encrypt(dto.getHmacSecret()));
         entity.setPublicKey(dto.getPublicKey());

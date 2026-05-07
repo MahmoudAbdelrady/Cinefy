@@ -2,6 +2,8 @@ package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.payment.CreatePaymentMethodDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
+import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
+import com.mdevs.cinefy.dto.payment.TestConnectionResultDTO;
 import com.mdevs.cinefy.service.PaymentMethodService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +40,10 @@ public class PaymentMethodController {
     public ResponseEntity<Void> deletePaymentMethod(@PathVariable String uuid) {
         paymentMethodService.deletePaymentMethod(uuid);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/test-connection")
+    public ResponseEntity<TestConnectionResultDTO> testConnection(@Valid @RequestBody TestConnectionRequestDTO dto) {
+        return ResponseEntity.ok(paymentMethodService.testConnection(dto));
     }
 }

@@ -3,6 +3,7 @@ package com.mdevs.cinefy.dto.payment;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +18,10 @@ public class CreatePaymentMethodDTO {
     private String type;
 
     private boolean isTest = true;
+
+    @NotBlank(message = "Currency is required")
+    @Size(min = 3, max = 3, message = "Currency must be a 3-letter ISO 4217 code")
+    private String currency;
 
     @NotBlank(message = "Public key is required")
     private String publicKey;
