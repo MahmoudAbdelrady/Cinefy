@@ -1,6 +1,9 @@
 package com.mdevs.cinefy.shared.payment;
 
 import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
+import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
+import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +39,7 @@ public class PaymobClient {
                 .build();
     }
 
-    public String testConnection(TestConnectionRequestDTO dto) {
+    public void testConnection(TestConnectionRequestDTO dto) {
         try {
             restClient.post()
                     .uri(INTENTION_PATH)
@@ -45,17 +48,27 @@ public class PaymobClient {
                     .body(Map.of(
                             "amount", 100,
                             "currency", dto.getCurrency().toUpperCase(),
-                            "payment_methods", List.of(dto.getIntegrationId())
+                            "payment_methods", List.of(dto.getIntegrationId()),
+                            "expiration", 60,
+                            "billing_data", Map.of(
+                                    "first_name", "Cinefy",
+                                    "last_name", "ConnectionTest",
+                                    "email", "connection-test@cinefy.local",
+                                    "phone_number", "+2010xxxxxxxx"
+                            )
                     ))
                     .retrieve()
                     .toBodilessEntity();
-            return null;
         } catch (HttpClientErrorException e) {
             log.warn("Paymob connection test failed: status={} body={}", e.getStatusCode(), e.getResponseBodyAsString());
-            return extractErrorDetail(e.getResponseBodyAsString());
+            String message = extractErrorDetail(e.getResponseBodyAsString());
+            int status = e.getStatusCode().value();
+            if (status == 401) throw new UnauthorizedException(message);
+            if (status == 403) throw new ForbiddenException(message);
+            throw new BusinessException(message);
         } catch (RestClientException e) {
             log.warn("Paymob connection test failed: {}", e.getMessage());
-            return "Could not reach Paymob: " + e.getMessage();
+            throw new IllegalStateException("Could not reach Paymob: " + e.getMessage());
         }
     }
 

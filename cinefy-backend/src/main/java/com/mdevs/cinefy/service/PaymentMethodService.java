@@ -3,7 +3,6 @@ package com.mdevs.cinefy.service;
 import com.mdevs.cinefy.dto.payment.CreatePaymentMethodDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
 import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
-import com.mdevs.cinefy.dto.payment.TestConnectionResultDTO;
 import com.mdevs.cinefy.entity.PaymentMethod;
 import com.mdevs.cinefy.entity.PaymentMethodStatus;
 import com.mdevs.cinefy.entity.PaymentMethodTestStatus;
@@ -16,7 +15,6 @@ import com.mdevs.cinefy.shared.payment.PaymobClient;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,12 +40,8 @@ public class PaymentMethodService {
                 .toList();
     }
 
-    public TestConnectionResultDTO testConnection(TestConnectionRequestDTO dto) {
-        String error = paymobClient.testConnection(dto);
-        TestConnectionResultDTO result = new TestConnectionResultDTO();
-        result.setOk(StringUtils.isEmpty(error));
-        result.setError(error);
-        return result;
+    public void testConnection(TestConnectionRequestDTO dto) {
+        paymobClient.testConnection(dto);
     }
 
     @Transactional
@@ -59,11 +53,11 @@ public class PaymentMethodService {
 
         if (dto.isConnectionTested()) {
             entity.setTestedAt(LocalDateTime.now());
-            String error = paymobClient.testConnection(new TestConnectionRequestDTO(dto.getSecretKey(), dto.getIntegrationId(), dto.getCurrency()));
-            if (StringUtils.isEmpty(error)) {
+            try {
+                paymobClient.testConnection(new TestConnectionRequestDTO(dto.getSecretKey(), dto.getIntegrationId(), dto.getCurrency()));
                 entity.setTestStatus(PaymentMethodTestStatus.SUCCESS);
                 entity.setCredentialsRotatedAt(LocalDateTime.now());
-            } else {
+            } catch (Exception e) {
                 entity.setTestStatus(PaymentMethodTestStatus.FAILURE);
             }
         }

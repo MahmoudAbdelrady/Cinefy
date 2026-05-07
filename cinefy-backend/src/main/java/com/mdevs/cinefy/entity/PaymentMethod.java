@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(indexes = {
+        @Index(columnList = "_UUID")
+})
 public class PaymentMethod extends BaseEntity {
 
     @Column(nullable = false)

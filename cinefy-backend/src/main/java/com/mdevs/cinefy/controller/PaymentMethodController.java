@@ -3,7 +3,6 @@ package com.mdevs.cinefy.controller;
 import com.mdevs.cinefy.dto.payment.CreatePaymentMethodDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
 import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
-import com.mdevs.cinefy.dto.payment.TestConnectionResultDTO;
 import com.mdevs.cinefy.service.PaymentMethodService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,8 @@ public class PaymentMethodController {
     }
 
     @PostMapping("/test-connection")
-    public ResponseEntity<TestConnectionResultDTO> testConnection(@Valid @RequestBody TestConnectionRequestDTO dto) {
-        return ResponseEntity.ok(paymentMethodService.testConnection(dto));
+    public ResponseEntity<Void> testConnection(@Valid @RequestBody TestConnectionRequestDTO dto) {
+        paymentMethodService.testConnection(dto);
+        return ResponseEntity.noContent().build();
     }
 }
