@@ -63,8 +63,5 @@ public class PaymentMethod extends BaseEntity {
     private LocalDateTime testedAt;
 
     @Column(columnDefinition = "TIMESTAMP(0)")
-    private LocalDateTime publishedAt;
-
-    @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime credentialsRotatedAt;
 }

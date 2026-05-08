@@ -2,6 +2,7 @@ package com.mdevs.cinefy.dto.payment;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@NoArgsConstructor
 public class PaymentMethodSummaryDTO {
 
     private String id;
@@ -36,8 +38,6 @@ public class PaymentMethodSummaryDTO {
     private String testStatus;
 
     private String testFailureReason;
-
-    private LocalDateTime publishedAt;
 
     private LocalDateTime credentialsRotatedAt;
 

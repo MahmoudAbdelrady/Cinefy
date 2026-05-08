@@ -1,12 +1,10 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.payment.PaymentMethodDTO;
+import com.mdevs.cinefy.dto.payment.PaymentMethodStatusRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
 import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
-import com.mdevs.cinefy.entity.PaymentMethod;
-import com.mdevs.cinefy.entity.PaymentMethodTestStatus;
-import com.mdevs.cinefy.entity.PaymentMethodType;
-import com.mdevs.cinefy.entity.PaymentProvider;
+import com.mdevs.cinefy.entity.*;
 import com.mdevs.cinefy.repository.PaymentMethodRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
@@ -102,6 +100,25 @@ public class PaymentMethodService {
         return toSummaryDTO(paymentMethod);
     }
 
+    @Transactional
+    public PaymentMethodSummaryDTO updatePaymentMethodStatus(String uuid, PaymentMethodStatusRequestDTO dto) {
+        PaymentMethod paymentMethod = findPaymentMethod(uuid);
+        PaymentMethodStatus newStatus = PaymentMethodStatus.fromString(dto.getStatus());
+        // @TODO --> Review idempotency
+        if (!paymentMethod.getStatus().equals(newStatus)) {
+            if (newStatus.equals(PaymentMethodStatus.DRAFT)) {
+                throw new BusinessException("Cannot set a payment method to draft");
+            }
+            paymentMethod.setStatus(newStatus);
+            paymentMethodRepository.save(paymentMethod);
+        }
+
+        PaymentMethodSummaryDTO summaryDTO = new PaymentMethodSummaryDTO();
+        summaryDTO.setId(paymentMethod.getUuid());
+        summaryDTO.setStatus(newStatus.name());
+        return summaryDTO;
+    }
+
     // =========================== Helpers ===========================
 
     private PaymentMethod findPaymentMethod(String uuid) {
@@ -161,7 +178,6 @@ public class PaymentMethodService {
         dto.setIframeId(entity.getIframeId());
         dto.setTestStatus(entity.getTestStatus().name());
         dto.setTestFailureReason(entity.getTestFailureReason());
-        dto.setPublishedAt(entity.getPublishedAt());
         dto.setCredentialsRotatedAt(entity.getCredentialsRotatedAt());
         dto.setCreatedAt(entity.getCreatedAt());
         return dto;
