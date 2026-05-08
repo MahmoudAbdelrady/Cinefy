@@ -52,4 +52,9 @@ public class PaymentMethodController {
         paymentMethodService.testConnection(dto);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{uuid}/test-connection")
+    public ResponseEntity<PaymentMethodSummaryDTO> testPaymentMethodConnection(@PathVariable String uuid) {
+        return ResponseEntity.ok(paymentMethodService.testPaymentMethodConnection(uuid));
+    }
 }

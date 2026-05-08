@@ -14,7 +14,6 @@ import com.mdevs.cinefy.shared.payment.PaymobClient;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,32 +40,15 @@ public class PaymentMethodService {
     }
 
     @Transactional
-    public void testConnection(TestConnectionRequestDTO dto) {
-        if (dto.getPaymentMethodId() != null) {
-            PaymentMethod entity = findPaymentMethod(dto.getPaymentMethodId());
-            runConnectionTest(entity);
-            paymentMethodRepository.save(entity);
-            return;
-        }
-
-        if (StringUtils.isEmpty(dto.getSecretKey()) || dto.getIntegrationId() == null || StringUtils.isEmpty(dto.getCurrency())) {
-            throw new BusinessException("Secret key, integration ID, and currency are required to test the connection");
-        }
-        paymobClient.testConnection(dto);
-    }
-
-    @Transactional
     public PaymentMethodSummaryDTO createPaymentMethod(PaymentMethodDTO dto) {
         validatePaymentMethod(dto);
 
         PaymentMethod entity = new PaymentMethod();
         applyDtoToEntity(entity, dto);
+        entity.setCredentialsRotatedAt(LocalDateTime.now());
 
         if (dto.isConnectionTested()) {
             runConnectionTest(entity);
-            if (entity.getTestStatus().equals(PaymentMethodTestStatus.SUCCESS)) {
-                entity.setCredentialsRotatedAt(LocalDateTime.now());
-            }
         }
 
         paymentMethodRepository.save(entity);
@@ -84,11 +66,12 @@ public class PaymentMethodService {
 
         applyDtoToEntity(entity, dto);
 
+        if (credentialsChanged) {
+            entity.setCredentialsRotatedAt(LocalDateTime.now());
+        }
+
         if (dto.isConnectionTested()) {
             runConnectionTest(entity);
-            if (credentialsChanged && entity.getTestStatus().equals(PaymentMethodTestStatus.SUCCESS)) {
-                entity.setCredentialsRotatedAt(LocalDateTime.now());
-            }
         } else if (credentialsChanged) {
             entity.setTestStatus(PaymentMethodTestStatus.UNTESTED);
             entity.setTestFailureReason(null);
@@ -105,6 +88,18 @@ public class PaymentMethodService {
         // TODO: when status == ACTIVE, check if there are active bookings tied to this payment method
         //       and throw BusinessException to prevent deletion.
         paymentMethodRepository.delete(entity);
+    }
+
+    public void testConnection(TestConnectionRequestDTO dto) {
+        paymobClient.testConnection(dto);
+    }
+
+    @Transactional
+    public PaymentMethodSummaryDTO testPaymentMethodConnection(String uuid) {
+        PaymentMethod entity = findPaymentMethod(uuid);
+        runConnectionTest(entity);
+        paymentMethodRepository.save(entity);
+        return toSummaryDTO(entity);
     }
 
     // =========================== Helpers ===========================
@@ -128,7 +123,6 @@ public class PaymentMethodService {
         entity.setTestedAt(LocalDateTime.now());
         try {
             paymobClient.testConnection(new TestConnectionRequestDTO(
-                    null,
                     credentialCipher.decrypt(entity.getSecretKey()),
                     entity.getIntegrationId(),
                     entity.getCurrency()
