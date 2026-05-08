@@ -1,10 +1,9 @@
 package com.mdevs.cinefy.service;
 
-import com.mdevs.cinefy.dto.payment.CreatePaymentMethodDTO;
+import com.mdevs.cinefy.dto.payment.PaymentMethodDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
 import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
 import com.mdevs.cinefy.entity.PaymentMethod;
-import com.mdevs.cinefy.entity.PaymentMethodStatus;
 import com.mdevs.cinefy.entity.PaymentMethodTestStatus;
 import com.mdevs.cinefy.entity.PaymentMethodType;
 import com.mdevs.cinefy.entity.PaymentProvider;
@@ -15,6 +14,7 @@ import com.mdevs.cinefy.shared.payment.PaymobClient;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,27 +40,59 @@ public class PaymentMethodService {
                 .toList();
     }
 
+    @Transactional
     public void testConnection(TestConnectionRequestDTO dto) {
+        if (dto.getPaymentMethodId() != null) {
+            PaymentMethod entity = findPaymentMethod(dto.getPaymentMethodId());
+            runConnectionTest(entity);
+            paymentMethodRepository.save(entity);
+            return;
+        }
+
+        if (StringUtils.isEmpty(dto.getSecretKey()) || dto.getIntegrationId() == null || StringUtils.isEmpty(dto.getCurrency())) {
+            throw new BusinessException("Secret key, integration ID, and currency are required to test the connection");
+        }
         paymobClient.testConnection(dto);
     }
 
     @Transactional
-    public PaymentMethodSummaryDTO createPaymentMethod(CreatePaymentMethodDTO dto) {
+    public PaymentMethodSummaryDTO createPaymentMethod(PaymentMethodDTO dto) {
         validatePaymentMethod(dto);
 
         PaymentMethod entity = new PaymentMethod();
-        applyCreateDtoToEntity(entity, dto);
+        applyDtoToEntity(entity, dto);
 
         if (dto.isConnectionTested()) {
-            entity.setTestedAt(LocalDateTime.now());
-            try {
-                paymobClient.testConnection(new TestConnectionRequestDTO(dto.getSecretKey(), dto.getIntegrationId(), dto.getCurrency()));
-                entity.setTestStatus(PaymentMethodTestStatus.SUCCESS);
+            runConnectionTest(entity);
+            if (entity.getTestStatus().equals(PaymentMethodTestStatus.SUCCESS)) {
                 entity.setCredentialsRotatedAt(LocalDateTime.now());
-            } catch (Exception e) {
-                entity.setTestStatus(PaymentMethodTestStatus.FAILURE);
-                entity.setTestFailureReason(e.getMessage());
             }
+        }
+
+        paymentMethodRepository.save(entity);
+        return toSummaryDTO(entity);
+    }
+
+    @Transactional
+    public PaymentMethodSummaryDTO updatePaymentMethod(String uuid, PaymentMethodDTO dto) {
+        PaymentMethod entity = findPaymentMethod(uuid);
+        validatePaymentMethod(dto);
+
+        boolean credentialsChanged = !credentialCipher.decrypt(entity.getSecretKey()).equals(dto.getSecretKey())
+                || !credentialCipher.decrypt(entity.getHmacKey()).equals(dto.getHmacSecret())
+                || entity.getIntegrationId() != dto.getIntegrationId();
+
+        applyDtoToEntity(entity, dto);
+
+        if (dto.isConnectionTested()) {
+            runConnectionTest(entity);
+            if (credentialsChanged && entity.getTestStatus().equals(PaymentMethodTestStatus.SUCCESS)) {
+                entity.setCredentialsRotatedAt(LocalDateTime.now());
+            }
+        } else if (credentialsChanged) {
+            entity.setTestStatus(PaymentMethodTestStatus.UNTESTED);
+            entity.setTestFailureReason(null);
+            entity.setTestedAt(null);
         }
 
         paymentMethodRepository.save(entity);
@@ -82,7 +114,7 @@ public class PaymentMethodService {
                 .orElseThrow(() -> new NotFoundException("Payment method not found with id: " + uuid));
     }
 
-    private void validatePaymentMethod(CreatePaymentMethodDTO dto) {
+    private void validatePaymentMethod(PaymentMethodDTO dto) {
         try {
             Currency.getInstance(dto.getCurrency().toUpperCase());
         } catch (IllegalArgumentException e) {
@@ -92,9 +124,25 @@ public class PaymentMethodService {
         // @TODO --> Other validations will be added later
     }
 
-    private void applyCreateDtoToEntity(PaymentMethod entity, CreatePaymentMethodDTO dto) {
+    private void runConnectionTest(PaymentMethod entity) {
+        entity.setTestedAt(LocalDateTime.now());
+        try {
+            paymobClient.testConnection(new TestConnectionRequestDTO(
+                    null,
+                    credentialCipher.decrypt(entity.getSecretKey()),
+                    entity.getIntegrationId(),
+                    entity.getCurrency()
+            ));
+            entity.setTestStatus(PaymentMethodTestStatus.SUCCESS);
+            entity.setTestFailureReason(null);
+        } catch (Exception e) {
+            entity.setTestStatus(PaymentMethodTestStatus.FAILURE);
+            entity.setTestFailureReason(e.getMessage());
+        }
+    }
+
+    private void applyDtoToEntity(PaymentMethod entity, PaymentMethodDTO dto) {
         entity.setName(dto.getName());
-        entity.setStatus(PaymentMethodStatus.DRAFT);
         entity.setProvider(PaymentProvider.PAYMOB);
         entity.setType(PaymentMethodType.fromString(dto.getType()));
         entity.setTest(dto.isTest());

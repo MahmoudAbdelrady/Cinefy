@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreatePaymentMethodDTO {
+public class PaymentMethodDTO {
 
     @NotBlank(message = "Name is required")
     private String name;
