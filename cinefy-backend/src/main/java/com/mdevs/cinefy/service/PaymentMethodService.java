@@ -43,51 +43,51 @@ public class PaymentMethodService {
     public PaymentMethodSummaryDTO createPaymentMethod(PaymentMethodDTO dto) {
         validatePaymentMethod(dto);
 
-        PaymentMethod entity = new PaymentMethod();
-        applyDtoToEntity(entity, dto);
-        entity.setCredentialsRotatedAt(LocalDateTime.now());
+        PaymentMethod paymentMethod = new PaymentMethod();
+        applyDtoToEntity(paymentMethod, dto);
+        paymentMethod.setCredentialsRotatedAt(LocalDateTime.now());
 
         if (dto.isConnectionTested()) {
-            runConnectionTest(entity);
+            runConnectionTest(paymentMethod);
         }
 
-        paymentMethodRepository.save(entity);
-        return toSummaryDTO(entity);
+        paymentMethodRepository.save(paymentMethod);
+        return toSummaryDTO(paymentMethod);
     }
 
     @Transactional
     public PaymentMethodSummaryDTO updatePaymentMethod(String uuid, PaymentMethodDTO dto) {
-        PaymentMethod entity = findPaymentMethod(uuid);
+        PaymentMethod paymentMethod = findPaymentMethod(uuid);
         validatePaymentMethod(dto);
 
-        boolean credentialsChanged = !credentialCipher.decrypt(entity.getSecretKey()).equals(dto.getSecretKey())
-                || !credentialCipher.decrypt(entity.getHmacKey()).equals(dto.getHmacSecret())
-                || entity.getIntegrationId() != dto.getIntegrationId();
+        boolean credentialsChanged = !credentialCipher.decrypt(paymentMethod.getSecretKey()).equals(dto.getSecretKey())
+                || !credentialCipher.decrypt(paymentMethod.getHmacKey()).equals(dto.getHmacSecret())
+                || paymentMethod.getIntegrationId() != dto.getIntegrationId();
 
-        applyDtoToEntity(entity, dto);
+        applyDtoToEntity(paymentMethod, dto);
 
         if (credentialsChanged) {
-            entity.setCredentialsRotatedAt(LocalDateTime.now());
+            paymentMethod.setCredentialsRotatedAt(LocalDateTime.now());
         }
 
         if (dto.isConnectionTested()) {
-            runConnectionTest(entity);
+            runConnectionTest(paymentMethod);
         } else if (credentialsChanged) {
-            entity.setTestStatus(PaymentMethodTestStatus.UNTESTED);
-            entity.setTestFailureReason(null);
-            entity.setTestedAt(null);
+            paymentMethod.setTestStatus(PaymentMethodTestStatus.UNTESTED);
+            paymentMethod.setTestFailureReason(null);
+            paymentMethod.setTestedAt(null);
         }
 
-        paymentMethodRepository.save(entity);
-        return toSummaryDTO(entity);
+        paymentMethodRepository.save(paymentMethod);
+        return toSummaryDTO(paymentMethod);
     }
 
     @Transactional
     public void deletePaymentMethod(String uuid) {
-        PaymentMethod entity = findPaymentMethod(uuid);
+        PaymentMethod paymentMethod = findPaymentMethod(uuid);
         // TODO: when status == ACTIVE, check if there are active bookings tied to this payment method
         //       and throw BusinessException to prevent deletion.
-        paymentMethodRepository.delete(entity);
+        paymentMethodRepository.delete(paymentMethod);
     }
 
     public void testConnection(TestConnectionRequestDTO dto) {
@@ -96,10 +96,10 @@ public class PaymentMethodService {
 
     @Transactional
     public PaymentMethodSummaryDTO testPaymentMethodConnection(String uuid) {
-        PaymentMethod entity = findPaymentMethod(uuid);
-        runConnectionTest(entity);
-        paymentMethodRepository.save(entity);
-        return toSummaryDTO(entity);
+        PaymentMethod paymentMethod = findPaymentMethod(uuid);
+        runConnectionTest(paymentMethod);
+        paymentMethodRepository.save(paymentMethod);
+        return toSummaryDTO(paymentMethod);
     }
 
     // =========================== Helpers ===========================
@@ -119,19 +119,19 @@ public class PaymentMethodService {
         // @TODO --> Other validations will be added later
     }
 
-    private void runConnectionTest(PaymentMethod entity) {
-        entity.setTestedAt(LocalDateTime.now());
+    private void runConnectionTest(PaymentMethod paymentMethod) {
+        paymentMethod.setTestedAt(LocalDateTime.now());
         try {
             paymobClient.testConnection(new TestConnectionRequestDTO(
-                    credentialCipher.decrypt(entity.getSecretKey()),
-                    entity.getIntegrationId(),
-                    entity.getCurrency()
+                    credentialCipher.decrypt(paymentMethod.getSecretKey()),
+                    paymentMethod.getIntegrationId(),
+                    paymentMethod.getCurrency()
             ));
-            entity.setTestStatus(PaymentMethodTestStatus.SUCCESS);
-            entity.setTestFailureReason(null);
+            paymentMethod.setTestStatus(PaymentMethodTestStatus.SUCCESS);
+            paymentMethod.setTestFailureReason(null);
         } catch (Exception e) {
-            entity.setTestStatus(PaymentMethodTestStatus.FAILURE);
-            entity.setTestFailureReason(e.getMessage());
+            paymentMethod.setTestStatus(PaymentMethodTestStatus.FAILURE);
+            paymentMethod.setTestFailureReason(e.getMessage());
         }
     }
 
