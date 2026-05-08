@@ -1,5 +1,7 @@
 package com.mdevs.cinefy.entity;
 
+import com.mdevs.cinefy.shared.exception.types.BusinessException;
+
 import java.util.Arrays;
 
 public enum PaymentProvider {
@@ -9,6 +11,6 @@ public enum PaymentProvider {
         return Arrays.stream(values())
                 .filter(provider -> provider.name().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown PaymentProvider: " + name));
+                .orElseThrow(() -> new BusinessException("Unknown PaymentProvider: " + name));
     }
 }

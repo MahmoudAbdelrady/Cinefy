@@ -56,6 +56,9 @@ public class PaymentMethod extends BaseEntity {
     @Column(nullable = false)
     private PaymentMethodTestStatus testStatus = PaymentMethodTestStatus.UNTESTED;
 
+    @Column(columnDefinition = "TEXT")
+    private String testFailureReason;
+
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime testedAt;
 

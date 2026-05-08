@@ -59,6 +59,7 @@ public class PaymentMethodService {
                 entity.setCredentialsRotatedAt(LocalDateTime.now());
             } catch (Exception e) {
                 entity.setTestStatus(PaymentMethodTestStatus.FAILURE);
+                entity.setTestFailureReason(e.getMessage());
             }
         }
 
@@ -117,6 +118,7 @@ public class PaymentMethodService {
         dto.setIntegrationId(entity.getIntegrationId());
         dto.setIframeId(entity.getIframeId());
         dto.setTestStatus(entity.getTestStatus().name());
+        dto.setTestFailureReason(entity.getTestFailureReason());
         dto.setPublishedAt(entity.getPublishedAt());
         dto.setCredentialsRotatedAt(entity.getCredentialsRotatedAt());
         dto.setCreatedAt(entity.getCreatedAt());

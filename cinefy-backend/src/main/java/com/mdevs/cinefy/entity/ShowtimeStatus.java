@@ -1,5 +1,7 @@
 package com.mdevs.cinefy.entity;
 
+import com.mdevs.cinefy.shared.exception.types.BusinessException;
+
 import java.util.Arrays;
 import java.util.Set;
 
@@ -16,6 +18,6 @@ public enum ShowtimeStatus {
         return Arrays.stream(values())
                 .filter(status -> status.name().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown ShowtimeStatus: " + name));
+                .orElseThrow(() -> new BusinessException("Unknown ShowtimeStatus: " + name));
     }
 }

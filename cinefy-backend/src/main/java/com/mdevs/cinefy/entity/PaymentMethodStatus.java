@@ -1,5 +1,7 @@
 package com.mdevs.cinefy.entity;
 
+import com.mdevs.cinefy.shared.exception.types.BusinessException;
+
 import java.util.Arrays;
 
 public enum PaymentMethodStatus {
@@ -11,6 +13,6 @@ public enum PaymentMethodStatus {
         return Arrays.stream(values())
                 .filter(status -> status.name().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown PaymentMethodStatus: " + name));
+                .orElseThrow(() -> new BusinessException("Unknown PaymentMethodStatus: " + name));
     }
 }
