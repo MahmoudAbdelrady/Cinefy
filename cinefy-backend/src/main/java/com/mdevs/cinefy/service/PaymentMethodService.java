@@ -83,8 +83,7 @@ public class PaymentMethodService {
     @Transactional
     public void deletePaymentMethod(String uuid) {
         PaymentMethod paymentMethod = findPaymentMethod(uuid);
-        // TODO: when status == ACTIVE, check if there are active bookings tied to this payment method
-        //       and throw BusinessException to prevent deletion.
+        // TODO: when status == ACTIVE, check if there are active bookings tied to this payment method and throw BusinessException to prevent deletion.
         paymentMethodRepository.delete(paymentMethod);
     }
 
@@ -109,7 +108,7 @@ public class PaymentMethodService {
     public PaymentMethodSummaryDTO updatePaymentMethodStatus(String uuid, PaymentMethodStatusRequestDTO dto) {
         PaymentMethod paymentMethod = findPaymentMethod(uuid);
         PaymentMethodStatus newStatus = PaymentMethodStatus.fromString(dto.getStatus());
-        // @TODO --> Review idempotency
+        // TODO: Review idempotency
         if (!paymentMethod.getStatus().equals(newStatus)) {
             if (newStatus.equals(PaymentMethodStatus.DRAFT)) {
                 throw new BusinessException("Cannot set a payment method to draft");
@@ -138,7 +137,7 @@ public class PaymentMethodService {
             throw new BusinessException("Invalid currency code");
         }
 
-        // @TODO --> Other validations will be added later
+        // TODO: Other validations will be added later
     }
 
     private void runConnectionTest(PaymentMethod paymentMethod) {
