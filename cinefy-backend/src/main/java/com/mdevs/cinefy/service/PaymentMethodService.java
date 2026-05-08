@@ -97,7 +97,12 @@ public class PaymentMethodService {
         PaymentMethod paymentMethod = findPaymentMethod(uuid);
         runConnectionTest(paymentMethod);
         paymentMethodRepository.save(paymentMethod);
-        return toSummaryDTO(paymentMethod);
+
+        PaymentMethodSummaryDTO summaryDTO = new PaymentMethodSummaryDTO();
+        summaryDTO.setId(paymentMethod.getUuid());
+        summaryDTO.setTestStatus(paymentMethod.getTestStatus().name());
+        summaryDTO.setTestFailureReason(paymentMethod.getTestFailureReason());
+        return summaryDTO;
     }
 
     @Transactional
