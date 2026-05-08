@@ -3,6 +3,7 @@ package com.mdevs.cinefy.service;
 import com.mdevs.cinefy.dto.payment.PaymentMethodDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodStatusRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
+import com.mdevs.cinefy.dto.payment.PaymentMethodTestResultDTO;
 import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
 import com.mdevs.cinefy.entity.*;
 import com.mdevs.cinefy.repository.PaymentMethodRepository;
@@ -92,35 +93,30 @@ public class PaymentMethodService {
     }
 
     @Transactional
-    public PaymentMethodSummaryDTO testPaymentMethodConnection(String uuid) {
+    public PaymentMethodTestResultDTO testPaymentMethodConnection(String uuid) {
         PaymentMethod paymentMethod = findPaymentMethod(uuid);
         runConnectionTest(paymentMethod);
         paymentMethodRepository.save(paymentMethod);
 
-        PaymentMethodSummaryDTO summaryDTO = new PaymentMethodSummaryDTO();
-        summaryDTO.setId(paymentMethod.getUuid());
-        summaryDTO.setTestStatus(paymentMethod.getTestStatus().name());
-        summaryDTO.setTestFailureReason(paymentMethod.getTestFailureReason());
-        return summaryDTO;
+        PaymentMethodTestResultDTO resultDTO = new PaymentMethodTestResultDTO();
+        resultDTO.setId(paymentMethod.getUuid());
+        resultDTO.setTestStatus(paymentMethod.getTestStatus().name());
+        resultDTO.setTestFailureReason(paymentMethod.getTestFailureReason());
+        return resultDTO;
     }
 
     @Transactional
-    public PaymentMethodSummaryDTO updatePaymentMethodStatus(String uuid, PaymentMethodStatusRequestDTO dto) {
+    public void updatePaymentMethodStatus(String uuid, PaymentMethodStatusRequestDTO dto) {
         PaymentMethod paymentMethod = findPaymentMethod(uuid);
         PaymentMethodStatus newStatus = PaymentMethodStatus.fromString(dto.getStatus());
-        // TODO: Review idempotency
-        if (!paymentMethod.getStatus().equals(newStatus)) {
-            if (newStatus.equals(PaymentMethodStatus.DRAFT)) {
-                throw new BusinessException("Cannot set a payment method to draft");
-            }
-            paymentMethod.setStatus(newStatus);
-            paymentMethodRepository.save(paymentMethod);
+        if (paymentMethod.getStatus().equals(newStatus)) {
+            return;
         }
-
-        PaymentMethodSummaryDTO summaryDTO = new PaymentMethodSummaryDTO();
-        summaryDTO.setId(paymentMethod.getUuid());
-        summaryDTO.setStatus(newStatus.name());
-        return summaryDTO;
+        if (newStatus.equals(PaymentMethodStatus.DRAFT)) {
+            throw new BusinessException("Cannot set a payment method to draft");
+        }
+        paymentMethod.setStatus(newStatus);
+        paymentMethodRepository.save(paymentMethod);
     }
 
     // =========================== Helpers ===========================

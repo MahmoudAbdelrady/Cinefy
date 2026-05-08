@@ -3,6 +3,7 @@ package com.mdevs.cinefy.controller;
 import com.mdevs.cinefy.dto.payment.PaymentMethodDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodStatusRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
+import com.mdevs.cinefy.dto.payment.PaymentMethodTestResultDTO;
 import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
 import com.mdevs.cinefy.service.PaymentMethodService;
 import jakarta.validation.Valid;
@@ -55,12 +56,13 @@ public class PaymentMethodController {
     }
 
     @PostMapping("/{uuid}/test-connection")
-    public ResponseEntity<PaymentMethodSummaryDTO> testPaymentMethodConnection(@PathVariable String uuid) {
+    public ResponseEntity<PaymentMethodTestResultDTO> testPaymentMethodConnection(@PathVariable String uuid) {
         return ResponseEntity.ok(paymentMethodService.testPaymentMethodConnection(uuid));
     }
 
     @PostMapping("/{uuid}/status")
-    public ResponseEntity<PaymentMethodSummaryDTO> updatePaymentMethodStatus(@PathVariable String uuid, @Valid @RequestBody PaymentMethodStatusRequestDTO dto) {
-        return ResponseEntity.ok(paymentMethodService.updatePaymentMethodStatus(uuid, dto));
+    public ResponseEntity<Void> updatePaymentMethodStatus(@PathVariable String uuid, @Valid @RequestBody PaymentMethodStatusRequestDTO dto) {
+        paymentMethodService.updatePaymentMethodStatus(uuid, dto);
+        return ResponseEntity.noContent().build();
     }
 }
