@@ -38,11 +38,12 @@
     font-size: 14px;
     font-weight: 600;
     color: $gray-900;
-  }
 
-  .required {
-    color: $red-500;
-    margin-left: 2px;
+    &[data-required]::after {
+      content: '*';
+      color: $red-500;
+      margin-left: 3px;
+    }
   }
 }
 
