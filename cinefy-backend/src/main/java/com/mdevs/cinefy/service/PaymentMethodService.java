@@ -33,7 +33,7 @@ public class PaymentMethodService {
     // ========================= Public API =========================
 
     public List<PaymentMethodSummaryDTO> getPaymentMethods() {
-        return paymentMethodRepository.findAll().stream()
+        return paymentMethodRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::toSummaryDTO)
                 .toList();
     }

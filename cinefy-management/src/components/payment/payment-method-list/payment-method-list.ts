@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   CircleAlert,
   CircleCheck,
@@ -22,24 +23,13 @@ import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { ModalComponent } from '../../modal/modal';
 import { RelativeTimePipe } from '../../../shared/pipes';
-
-type PaymentMethodKind = 'CARD' | 'WALLET' | 'INSTALLMENT';
-type PaymentMethodTestStatus = 'UNTESTED' | 'SUCCESS' | 'FAILURE';
-
-interface PaymentMethod {
-  id: string;
-  name: string;
-  paymentType: PaymentMethodKind;
-  type: 'production' | 'sandbox';
-  status: 'active' | 'disabled' | 'draft';
-  testStatus: PaymentMethodTestStatus;
-  testFailureReason: string | null;
-  testedAt: string | null;
-  currency: string;
-  successRate30d: string;
-  createdAt: string;
-  credentialsRotatedAt: string;
-}
+import { PaymentMethodService } from '../../../services';
+import {
+  PAYMENT_METHOD_STATUS_LABELS,
+  PAYMENT_METHOD_TYPE_LABELS,
+  type PaymentMethodSummary,
+  type PaymentMethodType,
+} from '../../../shared/types';
 
 @Component({
   selector: 'payment-method-list',
@@ -74,68 +64,23 @@ export class PaymentMethodListComponent {
   protected readonly RocketIcon = Rocket;
   protected readonly DeleteIcon = Trash2;
 
-  protected readonly paymentMethods: PaymentMethod[] = [
-    {
-      id: 'pm_01',
-      name: 'Paymob — Cards',
-      paymentType: 'CARD',
-      type: 'production',
-      status: 'active',
-      testStatus: 'SUCCESS',
-      testFailureReason: null,
-      testedAt: '2026-05-06T08:14:00',
-      currency: 'EGP',
-      successRate30d: '98.4%',
-      createdAt: '2026-02-12',
-      credentialsRotatedAt: '2026-04-19',
-    },
-    {
-      id: 'pm_02',
-      name: 'Paymob — Wallets',
-      paymentType: 'WALLET',
-      type: 'production',
-      status: 'draft',
-      testStatus: 'SUCCESS',
-      testFailureReason: null,
-      testedAt: '2026-05-09T05:42:00',
-      currency: 'EGP',
-      successRate30d: '0.0%',
-      createdAt: '2026-04-28',
-      credentialsRotatedAt: '2026-04-28',
-    },
-    {
-      id: 'pm_03',
-      name: 'Paymob — Installments',
-      paymentType: 'INSTALLMENT',
-      type: 'sandbox',
-      status: 'disabled',
-      testStatus: 'FAILURE',
-      testFailureReason:
-        'HMAC verification failed for integration 4710228 — the signing secret on Paymob has been rotated since this method was last saved.',
-      testedAt: '2026-04-30T18:42:00',
-      currency: 'EGP',
-      successRate30d: '64.2%',
-      createdAt: '2026-03-01',
-      credentialsRotatedAt: '2026-03-01',
-    },
-    {
-      id: 'pm_04',
-      name: 'Paymob — Cards (Legacy)',
-      paymentType: 'CARD',
-      type: 'production',
-      status: 'active',
-      testStatus: 'UNTESTED',
-      testFailureReason: null,
-      testedAt: null,
-      currency: 'EGP',
-      successRate30d: '91.7%',
-      createdAt: '2025-08-14',
-      credentialsRotatedAt: '2026-01-15',
-    },
-  ];
+  private readonly paymentMethodService = inject(PaymentMethodService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected getPaymentTypeIcon(paymentType: PaymentMethodKind) {
-    switch (paymentType) {
+  protected readonly typeLabels = PAYMENT_METHOD_TYPE_LABELS;
+  protected readonly statusLabels = PAYMENT_METHOD_STATUS_LABELS;
+
+  protected readonly paymentMethods = signal<PaymentMethodSummary[]>([]);
+
+  constructor() {
+    this.paymentMethodService
+      .getPaymentMethods()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((methods) => this.paymentMethods.set(methods));
+  }
+
+  protected getPaymentTypeIcon(type: PaymentMethodType) {
+    switch (type) {
       case 'CARD':
         return this.CardIcon;
       case 'WALLET':
@@ -145,18 +90,7 @@ export class PaymentMethodListComponent {
     }
   }
 
-  protected getPaymentTypeLabel(paymentType: PaymentMethodKind): string {
-    switch (paymentType) {
-      case 'CARD':
-        return 'Card';
-      case 'WALLET':
-        return 'Wallet';
-      case 'INSTALLMENT':
-        return 'Installment';
-    }
-  }
-
-  protected getRotationStatus(method: PaymentMethod): 'recent' | 'due' | 'overdue' {
+  protected getRotationStatus(method: PaymentMethodSummary): 'recent' | 'due' | 'overdue' {
     const now = new Date();
     const rotatedAt = new Date(method.credentialsRotatedAt);
     const daysSinceRotation = (now.getTime() - rotatedAt.getTime()) / (1000 * 60 * 60 * 24);
@@ -170,7 +104,8 @@ export class PaymentMethodListComponent {
     }
   }
 
-  protected getSuccessRateTone(rate: string): 'healthy' | 'watch' | 'degraded' | 'empty' {
+  protected getSuccessRateTone(rate?: string): 'healthy' | 'watch' | 'degraded' | 'empty' {
+    if (!rate) return 'empty';
     const match = /^(-?\d+(\.\d+)?)\s*%?$/.exec(rate.trim());
     if (!match) return 'empty';
     const value = parseFloat(match[1]);

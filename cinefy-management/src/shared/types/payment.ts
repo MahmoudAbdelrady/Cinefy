@@ -51,7 +51,7 @@ interface PaymentMethodSummary {
   testFailureReason?: string;
   testedAt?: string;
   successRate?: string;
-  credentialsRotatedAt?: string;
+  credentialsRotatedAt: string;
   createdAt: string;
 }
 

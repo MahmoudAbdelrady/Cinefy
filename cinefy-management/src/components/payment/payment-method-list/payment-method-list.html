@@ -1,29 +1,27 @@
 <div class="payment-method-list-container">
   <div class="payment-method-items">
-    @for (paymentMethod of paymentMethods; track paymentMethod.id) {
+    @for (paymentMethod of paymentMethods(); track paymentMethod.id) {
       @let rotationStatus = getRotationStatus(paymentMethod);
-      @let successTone = getSuccessRateTone(paymentMethod.successRate30d);
+      @let successTone = getSuccessRateTone(paymentMethod.successRate);
       <div class="method-item" [attr.data-status]="paymentMethod.status">
         <div class="mi-header">
           <div class="mih-info">
             <div class="mihi-details">
-              <div class="mihi-icon" [attr.data-payment-type]="paymentMethod.paymentType">
+              <div class="mihi-icon" [attr.data-payment-type]="paymentMethod.type">
                 <lucide-icon
-                  [img]="getPaymentTypeIcon(paymentMethod.paymentType)"
+                  [img]="getPaymentTypeIcon(paymentMethod.type)"
                   [size]="22"
                 ></lucide-icon>
               </div>
               <div class="mihi-name">
                 <div class="mihi-name-row">
                   <h3>{{ paymentMethod.name }}</h3>
-                  <span class="mihi-name-badge" [attr.data-type]="paymentMethod.type">{{
-                    paymentMethod.type === 'production' ? 'Production' : 'Sandbox'
+                  <span class="mihi-name-badge" [attr.data-is-test]="paymentMethod.isTest">{{
+                    paymentMethod.isTest ? 'Sandbox' : 'Production'
                   }}</span>
                 </div>
                 <div class="mihi-meta-row">
-                  <span class="mihi-meta-type">{{
-                    getPaymentTypeLabel(paymentMethod.paymentType)
-                  }}</span>
+                  <span class="mihi-meta-type">{{ typeLabels[paymentMethod.type] }}</span>
                   <span class="mihi-meta-divider">·</span>
                   <span class="mihi-meta-currency">{{ paymentMethod.currency }}</span>
                 </div>
@@ -31,9 +29,7 @@
             </div>
             <div class="mihi-status" [attr.data-status]="paymentMethod.status">
               <div class="mihi-status-dot"></div>
-              <span>{{
-                paymentMethod.status.charAt(0).toUpperCase() + paymentMethod.status.slice(1)
-              }}</span>
+              <span>{{ statusLabels[paymentMethod.status] }}</span>
             </div>
           </div>
           <div class="mih-actions">
@@ -43,7 +39,7 @@
 
             <ng-template #paymentActionsMenu>
               <div ngpMenu>
-                @if (paymentMethod.status === 'active') {
+                @if (paymentMethod.status === 'ACTIVE') {
                   <button ngpMenuItem>
                     <lucide-icon [img]="PowerOffIcon" size="16"></lucide-icon>
                     <span>Deactivate</span>
@@ -102,7 +98,7 @@
           <div class="mic-meta-strip">
             <div class="mics-rate" [attr.data-tone]="successTone">
               <span class="mics-rate-label">Success rate · 30d</span>
-              <span class="mics-rate-value">{{ paymentMethod.successRate30d }}</span>
+              <span class="mics-rate-value">{{ paymentMethod.successRate ?? '—' }}</span>
               <div class="mics-rate-tone">
                 <span class="mics-rate-tone-dot"></span>
                 <span class="mics-rate-tone-label">{{ getSuccessRateLabel(successTone) }}</span>
@@ -111,7 +107,7 @@
             <span class="mics-divider"></span>
             <div class="mics-stack">
               <div class="mics-line">
-                <span class="mics-line-label">Test Status</span>
+                <span class="mics-line-label">Connection Test Status</span>
                 <div class="mics-line-value">
                   @switch (paymentMethod.testStatus) {
                     @case ('SUCCESS') {
@@ -183,8 +179,8 @@
             </div>
           </div>
         </div>
-        @if (paymentMethod.status === 'draft' || paymentMethod.status === 'disabled') {
-          @let isDraft = paymentMethod.status === 'draft';
+        @if (paymentMethod.status === 'DRAFT' || paymentMethod.status === 'INACTIVE') {
+          @let isDraft = paymentMethod.status === 'DRAFT';
           <div class="mi-footer">
             <button ngpButton [class]="isDraft ? 'btn-success' : 'btn-secondary'">
               <lucide-icon [img]="isDraft ? RocketIcon : PowerIcon" [size]="14"></lucide-icon>

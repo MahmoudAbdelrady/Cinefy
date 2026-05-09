@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(indexes = {
-        @Index(columnList = "_UUID")
+        @Index(columnList = "_UUID"),
+        @Index(columnList = "CREATED_AT")
 })
 public class PaymentMethod extends BaseEntity {
 
@@ -62,6 +63,6 @@ public class PaymentMethod extends BaseEntity {
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime testedAt;
 
-    @Column(columnDefinition = "TIMESTAMP(0)")
+    @Column(columnDefinition = "TIMESTAMP(0)", nullable = false)
     private LocalDateTime credentialsRotatedAt;
 }

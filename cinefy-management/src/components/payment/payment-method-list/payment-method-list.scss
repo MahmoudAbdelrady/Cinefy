@@ -39,17 +39,17 @@
       0 2px 4px -2px rgba(0, 0, 0, 0.05);
   }
 
-  &[data-status='draft'] {
+  &[data-status='DRAFT'] {
     border-color: rgba($amber-200, 0.8);
     box-shadow: 0 0 0 1px rgba($amber-100, 0.6);
   }
 
-  &[data-status='disabled'] {
+  &[data-status='INACTIVE'] {
     border-color: $gray-200;
     opacity: 0.95;
   }
 
-  &[data-status='active']:hover {
+  &[data-status='ACTIVE']:hover {
     border-color: $blue-200;
   }
 }
@@ -101,7 +101,7 @@
   }
 }
 
-.method-item[data-status='disabled'] .mihi-icon {
+.method-item[data-status='INACTIVE'] .mihi-icon {
   background: $gray-100;
   color: $gray-400;
   box-shadow: none;
@@ -142,13 +142,13 @@
   letter-spacing: 0.05em;
   border: 1px solid;
 
-  &[data-type='production'] {
+  &[data-is-test='false'] {
     background-color: $blue-50;
     color: $blue-700;
     border-color: $blue-200;
   }
 
-  &[data-type='sandbox'] {
+  &[data-is-test='true'] {
     background-color: $purple-50;
     color: $purple-600;
     border-color: $purple-200;
@@ -191,7 +191,7 @@
     flex-shrink: 0;
   }
 
-  &[data-status='active'] {
+  &[data-status='ACTIVE'] {
     background-color: $green-50;
     color: $green-700;
     border-color: $green-200;
@@ -212,7 +212,7 @@
     }
   }
 
-  &[data-status='draft'] {
+  &[data-status='DRAFT'] {
     background-color: $amber-50;
     color: $amber-700;
     border-color: $amber-200;
@@ -223,7 +223,7 @@
     }
   }
 
-  &[data-status='disabled'] {
+  &[data-status='INACTIVE'] {
     background-color: $gray-100;
     color: $gray-600;
     border-color: $gray-200;
