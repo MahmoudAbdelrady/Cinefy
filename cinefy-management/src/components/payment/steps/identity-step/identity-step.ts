@@ -3,11 +3,16 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import { Check, LucideAngularModule } from 'lucide-angular';
 import { InputField } from '../../../input-field/input-field';
+import { CustomSelectComponent } from '../../../drop-down/custom-select/custom-select';
+import { PAYMENT_METHOD_TYPE_LABELS, type PaymentMethodType } from '../../../../shared/types';
 
 export function buildIdentityForm() {
   return new FormGroup({
     displayName: new FormControl('', {
       nonNullable: true,
+      validators: [Validators.required],
+    }),
+    type: new FormControl<PaymentMethodType | null>(null, {
       validators: [Validators.required],
     }),
     environment: new FormControl<'sandbox' | 'production'>('sandbox', {
@@ -21,7 +26,14 @@ export type IdentityForm = ReturnType<typeof buildIdentityForm>;
 
 @Component({
   selector: 'identity-step',
-  imports: [ReactiveFormsModule, NgpRadioGroup, NgpRadioItem, LucideAngularModule, InputField],
+  imports: [
+    ReactiveFormsModule,
+    NgpRadioGroup,
+    NgpRadioItem,
+    LucideAngularModule,
+    InputField,
+    CustomSelectComponent,
+  ],
   templateUrl: './identity-step.html',
   styleUrl: './identity-step.scss',
 })
@@ -29,4 +41,13 @@ export class IdentityStep {
   readonly form = input.required<IdentityForm>();
 
   protected readonly CheckIcon = Check;
+
+  protected readonly typeOptions = Object.keys(PAYMENT_METHOD_TYPE_LABELS) as PaymentMethodType[];
+
+  protected readonly typeDisplayFn = (type: PaymentMethodType) => PAYMENT_METHOD_TYPE_LABELS[type];
+  protected readonly typeValueFn = (type: PaymentMethodType) => type;
+
+  protected onTypeChange(type: PaymentMethodType) {
+    this.form().controls.type.setValue(type);
+  }
 }

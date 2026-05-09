@@ -6,11 +6,15 @@ import { HelpHint } from '../../../help-hint/help-hint';
 
 export function buildCredentialsForm() {
   return new FormGroup({
-    apiKey: new FormControl('', {
+    secretKey: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
     }),
     hmac: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    publicKey: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
     }),

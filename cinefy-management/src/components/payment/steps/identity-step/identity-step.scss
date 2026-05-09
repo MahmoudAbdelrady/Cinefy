@@ -46,6 +46,16 @@
   }
 }
 
+.provider-input {
+  padding: 10px 12px;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  background-color: $gray-50;
+  font-size: 14px;
+  color: $gray-600;
+  cursor: not-allowed;
+}
+
 .radio-group {
   display: grid;
   grid-template-columns: 1fr;
