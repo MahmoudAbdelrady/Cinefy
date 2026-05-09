@@ -115,6 +115,9 @@ public class PaymentMethodService {
         if (newStatus.equals(PaymentMethodStatus.DRAFT)) {
             throw new BusinessException("Cannot set a payment method to draft");
         }
+        if (newStatus.equals(PaymentMethodStatus.INACTIVE) && paymentMethod.getStatus().equals(PaymentMethodStatus.DRAFT)) {
+            throw new BusinessException("Cannot set a draft payment method to inactive");
+        }
         paymentMethod.setStatus(newStatus);
         paymentMethodRepository.save(paymentMethod);
     }
