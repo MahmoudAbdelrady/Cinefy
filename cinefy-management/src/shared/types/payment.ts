@@ -31,7 +31,7 @@ interface PaymentMethod {
   secretKey: string;
   hmacSecret: string;
   integrationId: number;
-  connectionTested: boolean;
+  connectionTestRequested: boolean;
 }
 
 interface PaymentMethodSummary {

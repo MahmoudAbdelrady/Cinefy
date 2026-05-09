@@ -46,7 +46,7 @@ public class PaymentMethodService {
         applyDtoToEntity(paymentMethod, dto);
         paymentMethod.setCredentialsRotatedAt(LocalDateTime.now());
 
-        if (dto.isConnectionTested()) {
+        if (dto.isConnectionTestRequested()) {
             runConnectionTest(paymentMethod);
         }
 
@@ -69,7 +69,7 @@ public class PaymentMethodService {
             paymentMethod.setCredentialsRotatedAt(LocalDateTime.now());
         }
 
-        if (dto.isConnectionTested()) {
+        if (dto.isConnectionTestRequested()) {
             runConnectionTest(paymentMethod);
         } else if (credentialsChanged) {
             paymentMethod.setTestStatus(PaymentMethodTestStatus.UNTESTED);

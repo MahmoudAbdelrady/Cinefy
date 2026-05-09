@@ -22,11 +22,11 @@
   <ng-template #integration>
     <integration-step [form]="form.controls.integration" />
   </ng-template>
-  <ng-template #verify>
-    <verification-step />
-  </ng-template>
   <ng-template #review>
-    <review-step />
+    <review-step
+      [data]="paymentMethodValue()"
+      (connectionTestRequested)="connectionTestRequested.set(true)"
+    />
   </ng-template>
 
   <div modal-footer class="manage-footer">
