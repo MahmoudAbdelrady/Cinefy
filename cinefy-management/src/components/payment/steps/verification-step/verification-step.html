@@ -22,21 +22,22 @@
           </button>
         </div>
       </div>
-      <div class="tb-results">
-        @for (result of testResults; track $index) {
-          <div class="tb-result" [class.error]="result.errorMsg">
+      @if (testResult.testStatus !== 'UNTESTED') {
+        @let isFailure = testResult.testStatus === 'FAILURE';
+        <div class="tb-results">
+          <div class="tb-result" [class.error]="isFailure">
             <div class="tbr-icon">
-              <lucide-icon [img]="result.errorMsg ? XIcon : CheckIcon" [size]="16"></lucide-icon>
+              <lucide-icon [img]="isFailure ? XIcon : CheckIcon" [size]="16"></lucide-icon>
             </div>
             <div class="tbr-info">
-              <h4>{{ result.name }}</h4>
-              @if (result.errorMsg) {
-                <p class="error">{{ result.errorMsg }}</p>
+              <h4>{{ isFailure ? 'Connection failed' : 'Connection successful' }}</h4>
+              @if (isFailure && testResult.testFailureReason) {
+                <p class="error">{{ testResult.testFailureReason }}</p>
               }
             </div>
           </div>
-        }
-      </div>
+        </div>
+      }
     </div>
     <span class="vsc-tip"
       >Tip: a failed test won't block you. You can always save as a draft and come back later.</span

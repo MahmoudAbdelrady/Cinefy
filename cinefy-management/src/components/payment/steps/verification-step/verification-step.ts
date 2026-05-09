@@ -1,11 +1,7 @@
 import { Component } from '@angular/core';
 import { Check, LucideAngularModule, X, Zap } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
-
-interface TestResult {
-  name: string;
-  errorMsg?: string;
-}
+import type { PaymentMethodTestResult } from '../../../../shared/types';
 
 @Component({
   selector: 'verification-step',
@@ -18,10 +14,9 @@ export class VerificationStep {
   protected readonly CheckIcon = Check;
   protected readonly XIcon = X;
 
-  protected readonly testResults: TestResult[] = [
-    { name: 'API key authentication', errorMsg: 'Server returned 401' },
-    { name: 'HMAC signature' },
-    { name: 'Integration lookup' },
-    { name: 'Iframe accessibility' },
-  ];
+  protected readonly testResult: PaymentMethodTestResult = {
+    id: 'mock',
+    testStatus: 'FAILURE',
+    testFailureReason: 'Server returned 401',
+  };
 }
