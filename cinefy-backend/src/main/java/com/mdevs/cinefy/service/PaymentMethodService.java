@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.payment.PaymentMethodDTO;
+import com.mdevs.cinefy.dto.payment.PaymentMethodDetailDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodStatusRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodTestResultDTO;
@@ -13,6 +14,7 @@ import com.mdevs.cinefy.shared.payment.PaymobClient;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,8 +40,13 @@ public class PaymentMethodService {
                 .toList();
     }
 
+    public PaymentMethodDetailDTO getPaymentMethod(String uuid) {
+        return toDetailDTO(findPaymentMethod(uuid));
+    }
+
     @Transactional
     public PaymentMethodSummaryDTO createPaymentMethod(PaymentMethodDTO dto) {
+        validateCreatePaymentMethod(dto);
         validatePaymentMethod(dto);
 
         PaymentMethod paymentMethod = new PaymentMethod();
@@ -59,9 +66,10 @@ public class PaymentMethodService {
         PaymentMethod paymentMethod = findPaymentMethod(uuid);
         validatePaymentMethod(dto);
 
-        boolean credentialsChanged = !credentialCipher.decrypt(paymentMethod.getSecretKey()).equals(dto.getSecretKey())
-                || !credentialCipher.decrypt(paymentMethod.getHmacKey()).equals(dto.getHmacSecret())
-                || paymentMethod.getIntegrationId() != dto.getIntegrationId();
+        boolean secretKeyChanged = StringUtils.isNotBlank(dto.getSecretKey()) && !credentialCipher.decrypt(paymentMethod.getSecretKey()).equals(dto.getSecretKey());
+        boolean hmacChanged = StringUtils.isNotBlank(dto.getHmacSecret()) && !credentialCipher.decrypt(paymentMethod.getHmacKey()).equals(dto.getHmacSecret());
+        boolean integrationIdChanged = paymentMethod.getIntegrationId() != dto.getIntegrationId();
+        boolean credentialsChanged = secretKeyChanged || hmacChanged;
 
         applyDtoToEntity(paymentMethod, dto);
 
@@ -71,7 +79,7 @@ public class PaymentMethodService {
 
         if (dto.isConnectionTestRequested()) {
             runConnectionTest(paymentMethod);
-        } else if (credentialsChanged) {
+        } else if (credentialsChanged || integrationIdChanged) {
             paymentMethod.setTestStatus(PaymentMethodTestStatus.UNTESTED);
             paymentMethod.setTestFailureReason(null);
             paymentMethod.setTestedAt(null);
@@ -129,6 +137,15 @@ public class PaymentMethodService {
                 .orElseThrow(() -> new NotFoundException("Payment method not found with id: " + uuid));
     }
 
+    private void validateCreatePaymentMethod(PaymentMethodDTO dto) {
+        if (StringUtils.isEmpty(dto.getSecretKey())) {
+            throw new BusinessException("Secret key is required");
+        }
+        if (StringUtils.isEmpty(dto.getHmacSecret())) {
+            throw new BusinessException("HMAC secret is required");
+        }
+    }
+
     private void validatePaymentMethod(PaymentMethodDTO dto) {
         try {
             Currency.getInstance(dto.getCurrency().toUpperCase());
@@ -161,10 +178,14 @@ public class PaymentMethodService {
         entity.setType(PaymentMethodType.fromString(dto.getType()));
         entity.setTest(dto.isTest());
         entity.setCurrency(dto.getCurrency().toUpperCase());
-        entity.setSecretKey(credentialCipher.encrypt(dto.getSecretKey()));
-        entity.setHmacKey(credentialCipher.encrypt(dto.getHmacSecret()));
         entity.setPublicKey(dto.getPublicKey());
         entity.setIntegrationId(dto.getIntegrationId());
+        if (StringUtils.isNotBlank(dto.getSecretKey())) {
+            entity.setSecretKey(credentialCipher.encrypt(dto.getSecretKey()));
+        }
+        if (StringUtils.isNotBlank(dto.getHmacSecret())) {
+            entity.setHmacKey(credentialCipher.encrypt(dto.getHmacSecret()));
+        }
     }
 
     private PaymentMethodSummaryDTO toSummaryDTO(PaymentMethod entity) {
@@ -185,4 +206,19 @@ public class PaymentMethodService {
         dto.setCreatedAt(entity.getCreatedAt());
         return dto;
     }
+
+    private PaymentMethodDetailDTO toDetailDTO(PaymentMethod entity) {
+        PaymentMethodDetailDTO dto = new PaymentMethodDetailDTO();
+        dto.setId(entity.getUuid());
+        dto.setName(entity.getName());
+        dto.setType(entity.getType().name());
+        dto.setTest(entity.isTest());
+        dto.setCurrency(entity.getCurrency());
+        dto.setPublicKey(entity.getPublicKey());
+        dto.setIntegrationId(entity.getIntegrationId());
+        dto.setTestStatus(entity.getTestStatus().name());
+        dto.setTestFailureReason(entity.getTestFailureReason());
+        return dto;
+    }
+
 }

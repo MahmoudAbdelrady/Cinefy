@@ -29,10 +29,8 @@ public class PaymentMethodDTO {
     @NotBlank(message = "Public key is required")
     private String publicKey;
 
-    @NotBlank(message = "Secret key is required")
     private String secretKey;
 
-    @NotBlank(message = "HMAC secret is required")
     private String hmacSecret;
 
     @NotNull(message = "Integration ID is required")

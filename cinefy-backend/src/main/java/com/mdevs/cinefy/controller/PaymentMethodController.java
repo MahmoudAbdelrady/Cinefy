@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.payment.PaymentMethodDTO;
+import com.mdevs.cinefy.dto.payment.PaymentMethodDetailDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodStatusRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodTestResultDTO;
@@ -31,6 +32,11 @@ public class PaymentMethodController {
     @GetMapping
     public ResponseEntity<List<PaymentMethodSummaryDTO>> getPaymentMethods() {
         return ResponseEntity.ok(paymentMethodService.getPaymentMethods());
+    }
+
+    @GetMapping("/{uuid}")
+    public ResponseEntity<PaymentMethodDetailDTO> getPaymentMethod(@PathVariable String uuid) {
+        return ResponseEntity.ok(paymentMethodService.getPaymentMethod(uuid));
     }
 
     @PostMapping
