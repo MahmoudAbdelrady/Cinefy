@@ -63,12 +63,12 @@ export class ManagePaymentModalComponent {
     },
     {
       label: 'Add credentials',
-      description: 'Provide your API key and HMAC',
+      description: 'Secret, HMAC, and public keys',
       content: this.credentialsTpl(),
     },
     {
       label: 'Link integration',
-      description: 'Connect integration and iframe IDs',
+      description: 'Integration ID and currency',
       content: this.integrationTpl(),
     },
     {
