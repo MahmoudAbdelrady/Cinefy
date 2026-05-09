@@ -165,7 +165,6 @@ public class PaymentMethodService {
         entity.setHmacKey(credentialCipher.encrypt(dto.getHmacSecret()));
         entity.setPublicKey(dto.getPublicKey());
         entity.setIntegrationId(dto.getIntegrationId());
-        entity.setIframeId(dto.getIframeId());
     }
 
     private PaymentMethodSummaryDTO toSummaryDTO(PaymentMethod entity) {
@@ -178,7 +177,6 @@ public class PaymentMethodService {
         dto.setCurrency(entity.getCurrency());
         dto.setPublicKey(entity.getPublicKey());
         dto.setIntegrationId(entity.getIntegrationId());
-        dto.setIframeId(entity.getIframeId());
         dto.setTestStatus(entity.getTestStatus().name());
         dto.setTestFailureReason(entity.getTestFailureReason());
         dto.setTestedAt(entity.getTestedAt());

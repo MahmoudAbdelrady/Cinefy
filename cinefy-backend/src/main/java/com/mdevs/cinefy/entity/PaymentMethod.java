@@ -47,9 +47,6 @@ public class PaymentMethod extends BaseEntity {
     @Column(nullable = false)
     private long integrationId;
 
-    @Column
-    private String iframeId;
-
     @Column(length = 3)
     private String currency;
 

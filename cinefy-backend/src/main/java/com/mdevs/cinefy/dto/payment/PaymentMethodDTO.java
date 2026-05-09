@@ -39,7 +39,5 @@ public class PaymentMethodDTO {
     @Positive(message = "Integration ID must be greater than 0")
     private Long integrationId;
 
-    private String iframeId;
-
     private boolean connectionTested = false;
 }

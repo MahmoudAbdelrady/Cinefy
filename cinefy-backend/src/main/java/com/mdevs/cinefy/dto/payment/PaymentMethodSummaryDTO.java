@@ -36,8 +36,6 @@ public class PaymentMethodSummaryDTO {
 
     private long integrationId;
 
-    private String iframeId;
-
     private String testStatus;
 
     private String testFailureReason;
