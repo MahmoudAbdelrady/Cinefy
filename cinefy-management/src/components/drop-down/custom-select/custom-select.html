@@ -1,3 +1,11 @@
+@if (label(); as labelText) {
+  <label class="cs-label">
+    {{ labelText }}
+    @if (required()) {
+      <span class="cs-required">*</span>
+    }
+  </label>
+}
 <div
   ngpCombobox
   [ngpComboboxValue]="currentValue()"

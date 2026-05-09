@@ -25,18 +25,16 @@
     </div>
     <div class="isc-divider"></div>
     <div class="isc-form-field">
-      <div class="input-group">
-        <label>Currency<span class="required">*</span></label>
-        <custom-select
-          [items]="currencyOptions"
-          [value]="form().controls.currency.value"
-          [displayFn]="currencyDisplayFn"
-          [valueFn]="currencyValueFn"
-          placeholder="Select a currency"
-          [isError]="form().controls.currency.touched && form().controls.currency.invalid"
-          (selectionChange)="onCurrencyChange($event)"
-        />
-      </div>
+      <custom-select
+        label="Currency"
+        [required]="true"
+        [items]="currencyOptions"
+        [value]="form().controls.currency.value"
+        [displayFn]="currencyDisplayFn"
+        placeholder="Select a currency"
+        [isError]="form().controls.currency.touched && form().controls.currency.invalid"
+        (selectionChange)="onCurrencyChange($event)"
+      />
     </div>
   </form>
 </div>

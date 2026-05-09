@@ -18,18 +18,16 @@
       <label>Provider</label>
       <input class="provider-input" type="text" value="Paymob" disabled />
     </div>
-    <div class="input-group">
-      <label>Type<span class="required">*</span></label>
-      <custom-select
-        [items]="typeOptions"
-        [value]="form().controls.type.value"
-        [displayFn]="typeDisplayFn"
-        [valueFn]="typeValueFn"
-        placeholder="Select a type"
-        [isError]="form().controls.type.touched && form().controls.type.invalid"
-        (selectionChange)="onTypeChange($event)"
-      />
-    </div>
+    <custom-select
+      label="Type"
+      [required]="true"
+      [items]="typeOptions"
+      [value]="form().controls.type.value"
+      [displayFn]="typeDisplayFn"
+      placeholder="Select a type"
+      [isError]="form().controls.type.touched && form().controls.type.invalid"
+      (selectionChange)="onTypeChange($event)"
+    />
     <div class="input-group">
       <label>Environment<span class="required">*</span></label>
       <div

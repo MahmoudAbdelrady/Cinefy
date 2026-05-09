@@ -27,8 +27,10 @@ import {
 export class CustomSelectComponent<T> {
   readonly items = input.required<T[]>();
   readonly displayFn = input.required<(item: T) => string>();
-  readonly valueFn = input.required<(item: T) => unknown>();
+  readonly valueFn = input<(item: T) => unknown>((item) => item);
   readonly value = input<T | null>(null);
+  readonly label = input<string | null>(null);
+  readonly required = input(false);
   readonly placeholder = input('Select an option');
   readonly disabled = input(false);
   readonly clearable = input(false);

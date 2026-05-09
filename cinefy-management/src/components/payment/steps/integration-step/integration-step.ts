@@ -40,7 +40,6 @@ export class IntegrationStep {
   protected readonly currencyOptions = Object.keys(CURRENCY_LABELS) as Currency[];
 
   protected readonly currencyDisplayFn = (c: Currency) => CURRENCY_LABELS[c];
-  protected readonly currencyValueFn = (c: Currency) => c;
 
   protected onCurrencyChange(currency: Currency) {
     this.form().controls.currency.setValue(currency);

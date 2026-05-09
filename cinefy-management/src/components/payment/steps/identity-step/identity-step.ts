@@ -45,7 +45,6 @@ export class IdentityStep {
   protected readonly typeOptions = Object.keys(PAYMENT_METHOD_TYPE_LABELS) as PaymentMethodType[];
 
   protected readonly typeDisplayFn = (type: PaymentMethodType) => PAYMENT_METHOD_TYPE_LABELS[type];
-  protected readonly typeValueFn = (type: PaymentMethodType) => type;
 
   protected onTypeChange(type: PaymentMethodType) {
     this.form().controls.type.setValue(type);
