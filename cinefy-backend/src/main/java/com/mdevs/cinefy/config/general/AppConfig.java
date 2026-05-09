@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Properties;
 

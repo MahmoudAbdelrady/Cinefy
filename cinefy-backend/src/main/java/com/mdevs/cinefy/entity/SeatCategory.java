@@ -1,5 +1,7 @@
 package com.mdevs.cinefy.entity;
 
+import com.mdevs.cinefy.shared.exception.types.BusinessException;
+
 import java.util.Arrays;
 
 public enum SeatCategory {
@@ -11,6 +13,6 @@ public enum SeatCategory {
         return Arrays.stream(values())
                 .filter(category -> category.name().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown SeatCategory: " + name));
+                .orElseThrow(() -> new BusinessException("Unknown SeatCategory: " + name));
     }
 }

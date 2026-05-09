@@ -4,17 +4,15 @@ import com.mdevs.cinefy.shared.exception.types.BusinessException;
 
 import java.util.Arrays;
 
-public enum HallStatus {
-    SCHEDULED,
-    NOW_SHOWING,
-    ACTIVE,
-    INACTIVE,
-    UNDER_MAINTENANCE;
+public enum PaymentMethodTestStatus {
+    UNTESTED,
+    SUCCESS,
+    FAILURE;
 
-    public static HallStatus fromString(String name) {
+    public static PaymentMethodTestStatus fromString(String name) {
         return Arrays.stream(values())
                 .filter(status -> status.name().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException("Unknown HallStatus: " + name));
+                .orElseThrow(() -> new BusinessException("Unknown PaymentMethodTestStatus: " + name));
     }
 }
