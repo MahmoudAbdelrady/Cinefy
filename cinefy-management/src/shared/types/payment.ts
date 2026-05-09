@@ -31,7 +31,6 @@ interface PaymentMethod {
   secretKey: string;
   hmacSecret: string;
   integrationId: number;
-  iframeId?: string;
   connectionTested: boolean;
 }
 
@@ -46,7 +45,6 @@ interface PaymentMethodSummary {
   secretKeyHint: string;
   hmacKeyHint: string;
   integrationId: number;
-  iframeId?: string;
   testStatus: PaymentMethodTestStatus;
   testFailureReason?: string;
   testedAt?: string;

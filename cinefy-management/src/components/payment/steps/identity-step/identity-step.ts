@@ -8,7 +8,7 @@ import { PAYMENT_METHOD_TYPE_LABELS, type PaymentMethodType } from '../../../../
 
 export function buildIdentityForm() {
   return new FormGroup({
-    displayName: new FormControl('', {
+    name: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
     }),

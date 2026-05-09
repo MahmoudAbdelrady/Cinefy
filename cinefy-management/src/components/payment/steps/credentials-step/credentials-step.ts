@@ -10,7 +10,7 @@ export function buildCredentialsForm() {
       nonNullable: true,
       validators: [Validators.required],
     }),
-    hmac: new FormControl('', {
+    hmacSecret: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
     }),
