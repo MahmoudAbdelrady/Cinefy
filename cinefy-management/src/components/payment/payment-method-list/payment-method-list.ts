@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal, WritableSignal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   CircleAlert,
   CircleCheck,
@@ -22,11 +23,13 @@ import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { ModalComponent } from '../../modal/modal';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { RelativeTimePipe } from '../../../shared/pipes';
-import { PaymentMethodService } from '../../../services';
+import { PaymentMethodService, ToastService } from '../../../services';
 import {
   PAYMENT_METHOD_STATUS_LABELS,
   PAYMENT_METHOD_TYPE_LABELS,
+  type PaymentMethodStatus,
   type PaymentMethodSummary,
   type PaymentMethodType,
 } from '../../../shared/types';
@@ -42,6 +45,7 @@ import {
     NgpPopover,
     NgpPopoverTrigger,
     ModalComponent,
+    LoadingSpinnerComponent,
     NgpButton,
     DatePipe,
     RelativeTimePipe,
@@ -65,12 +69,16 @@ export class PaymentMethodListComponent {
   protected readonly DeleteIcon = Trash2;
 
   private readonly paymentMethodService = inject(PaymentMethodService);
+  private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly typeLabels = PAYMENT_METHOD_TYPE_LABELS;
   protected readonly statusLabels = PAYMENT_METHOD_STATUS_LABELS;
 
   protected readonly paymentMethods = signal<PaymentMethodSummary[]>([]);
+  protected readonly deletingMethodIds = signal<ReadonlySet<string>>(new Set());
+  protected readonly testingMethodIds = signal<ReadonlySet<string>>(new Set());
+  protected readonly updatingStatusMethodIds = signal<ReadonlySet<string>>(new Set());
 
   constructor() {
     this.paymentMethodService
@@ -81,6 +89,93 @@ export class PaymentMethodListComponent {
 
   addPaymentMethod(method: PaymentMethodSummary): void {
     this.paymentMethods.update((methods) => [method, ...methods]);
+  }
+
+  protected updateStatus(id: string, status: PaymentMethodStatus): void {
+    if (this.updatingStatusMethodIds().has(id)) return;
+    this.markInFlight(this.updatingStatusMethodIds, id);
+    this.paymentMethodService
+      .updatePaymentMethodStatus(id, { status })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.paymentMethods.update((methods) =>
+            methods.map((m) => (m.id === id ? { ...m, status } : m)),
+          );
+          this.clearInFlight(this.updatingStatusMethodIds, id);
+          this.toastService.success(`Updated status successfully`);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.clearInFlight(this.updatingStatusMethodIds, id);
+          this.toastService.error(err.error?.message ?? 'Failed to update status');
+        },
+      });
+  }
+
+  protected runTestConnection(id: string): void {
+    if (this.testingMethodIds().has(id)) return;
+    this.markInFlight(this.testingMethodIds, id);
+    this.paymentMethodService
+      .testPaymentMethodConnection(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.paymentMethods.update((methods) =>
+            methods.map((m) =>
+              m.id === id
+                ? {
+                    ...m,
+                    testStatus: result.testStatus,
+                    testFailureReason: result.testFailureReason,
+                    testedAt: new Date().toISOString(),
+                  }
+                : m,
+            ),
+          );
+          this.clearInFlight(this.testingMethodIds, id);
+          if (result.testStatus === 'SUCCESS') {
+            this.toastService.success('Connection test passed');
+          } else {
+            this.toastService.error(result.testFailureReason ?? 'Connection test failed');
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          this.clearInFlight(this.testingMethodIds, id);
+          this.toastService.error(err.error?.message ?? 'Failed to run test connection');
+        },
+      });
+  }
+
+  protected deletePaymentMethod(id: string, close: () => void): void {
+    if (this.deletingMethodIds().has(id)) return;
+    this.markInFlight(this.deletingMethodIds, id);
+    this.paymentMethodService
+      .deletePaymentMethod(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.paymentMethods.update((methods) => methods.filter((m) => m.id !== id));
+          this.clearInFlight(this.deletingMethodIds, id);
+          this.toastService.success('Payment method deleted successfully');
+          close();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.clearInFlight(this.deletingMethodIds, id);
+          this.toastService.error(err.error?.message ?? 'Failed to delete payment method');
+        },
+      });
+  }
+
+  private markInFlight(set: WritableSignal<ReadonlySet<string>>, id: string): void {
+    set.update((current) => new Set(current).add(id));
+  }
+
+  private clearInFlight(set: WritableSignal<ReadonlySet<string>>, id: string): void {
+    set.update((current) => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
   }
 
   protected getPaymentTypeIcon(type: PaymentMethodType) {

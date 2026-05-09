@@ -703,3 +703,8 @@
     gap: 4px;
   }
 }
+
+.pm-empty {
+  grid-column: 1 / -1;
+  @include empty-state-block;
+}

@@ -40,18 +40,36 @@
             <ng-template #paymentActionsMenu>
               <div ngpMenu>
                 @if (paymentMethod.status === 'ACTIVE') {
-                  <button ngpMenuItem>
-                    <lucide-icon [img]="PowerOffIcon" size="16"></lucide-icon>
-                    <span>Deactivate</span>
+                  <button
+                    ngpMenuItem
+                    [disabled]="updatingStatusMethodIds().has(paymentMethod.id)"
+                    (click)="updateStatus(paymentMethod.id, 'INACTIVE')"
+                  >
+                    @if (updatingStatusMethodIds().has(paymentMethod.id)) {
+                      <loading-spinner [size]="16" />
+                      <span>Deactivating…</span>
+                    } @else {
+                      <lucide-icon [img]="PowerOffIcon" size="16"></lucide-icon>
+                      <span>Deactivate</span>
+                    }
                   </button>
                 }
                 <button ngpMenuItem>
                   <lucide-icon [img]="EditIcon" size="16"></lucide-icon>
                   <span>Edit configuration</span>
                 </button>
-                <button ngpMenuItem>
-                  <lucide-icon [img]="ZapIcon" size="16"></lucide-icon>
-                  <span>Run test connection</span>
+                <button
+                  ngpMenuItem
+                  [disabled]="testingMethodIds().has(paymentMethod.id)"
+                  (click)="runTestConnection(paymentMethod.id)"
+                >
+                  @if (testingMethodIds().has(paymentMethod.id)) {
+                    <loading-spinner [size]="16" />
+                    <span>Testing…</span>
+                  } @else {
+                    <lucide-icon [img]="ZapIcon" size="16"></lucide-icon>
+                    <span>Run test connection</span>
+                  }
                 </button>
                 <button ngpMenuItem class="mih-delete-btn" [ngpDialogTrigger]="deleteDialog">
                   <lucide-icon [img]="DeleteIcon" size="16"></lucide-icon>
@@ -85,9 +103,26 @@
                 </div>
 
                 <div modal-footer class="delete-modal-footer">
-                  <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
-                  <button ngpButton class="btn-danger" (click)="close()">
-                    <span>Delete Method</span>
+                  <button
+                    ngpButton
+                    class="btn-secondary"
+                    [disabled]="deletingMethodIds().has(paymentMethod.id)"
+                    (click)="close()"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    ngpButton
+                    class="btn-danger"
+                    [disabled]="deletingMethodIds().has(paymentMethod.id)"
+                    (click)="deletePaymentMethod(paymentMethod.id, close)"
+                  >
+                    @if (deletingMethodIds().has(paymentMethod.id)) {
+                      <loading-spinner [size]="16" />
+                      <span>Deleting…</span>
+                    } @else {
+                      <span>Delete Method</span>
+                    }
                   </button>
                 </div>
               </app-modal>
@@ -182,12 +217,28 @@
         @if (paymentMethod.status === 'DRAFT' || paymentMethod.status === 'INACTIVE') {
           @let isDraft = paymentMethod.status === 'DRAFT';
           <div class="mi-footer">
-            <button ngpButton [class]="isDraft ? 'btn-success' : 'btn-secondary'">
-              <lucide-icon [img]="isDraft ? RocketIcon : PowerIcon" [size]="14"></lucide-icon>
-              <span>{{ isDraft ? 'Activate' : 'Re-enable' }}</span>
+            <button
+              ngpButton
+              [class]="isDraft ? 'btn-success' : 'btn-secondary'"
+              [disabled]="updatingStatusMethodIds().has(paymentMethod.id)"
+              (click)="updateStatus(paymentMethod.id, 'ACTIVE')"
+            >
+              @if (updatingStatusMethodIds().has(paymentMethod.id)) {
+                <loading-spinner [size]="14" />
+                <span>{{ isDraft ? 'Activating…' : 'Re-enabling…' }}</span>
+              } @else {
+                <lucide-icon [img]="isDraft ? RocketIcon : PowerIcon" [size]="14"></lucide-icon>
+                <span>{{ isDraft ? 'Activate' : 'Re-enable' }}</span>
+              }
             </button>
           </div>
         }
+      </div>
+    } @empty {
+      <div class="pm-empty">
+        <lucide-icon [img]="CardIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
+        <p>No payment methods yet</p>
+        <span>Add a method to start accepting payments.</span>
       </div>
     }
   </div>
