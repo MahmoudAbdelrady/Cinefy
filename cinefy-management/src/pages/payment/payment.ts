@@ -21,6 +21,7 @@ export class PaymentPage {
   private headerActions = inject(HeaderActionsService);
   private destroyRef = inject(DestroyRef);
   private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
+  protected paymentMethodList = viewChild.required(PaymentMethodListComponent);
 
   ngOnInit(): void {
     this.headerActions.template.set(this.headerActionsTemplate());

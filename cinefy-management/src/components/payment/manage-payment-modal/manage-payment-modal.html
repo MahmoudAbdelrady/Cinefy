@@ -36,17 +36,24 @@
     </div>
     <div class="action-btns">
       @if (currentStep() > 0) {
-        <button ngpButton class="btn-secondary" (click)="goToPreviousStep()">Back</button>
+        <button ngpButton class="btn-secondary" [disabled]="saving()" (click)="goToPreviousStep()">
+          Back
+        </button>
       }
 
       @let isLastStep = currentStep() === steps().length - 1;
       <button
         ngpButton
         class="btn-primary"
-        [disabled]="!currentStepValid()"
+        [disabled]="!currentStepValid() || saving()"
         (click)="isLastStep ? saveAsDraft() : goToNextStep()"
       >
-        {{ isLastStep ? 'Save as Draft' : 'Continue' }}
+        @if (saving()) {
+          <loading-spinner [size]="16" />
+          <span>Saving…</span>
+        } @else {
+          <span>{{ isLastStep ? 'Save as Draft' : 'Continue' }}</span>
+        }
       </button>
     </div>
   </div>

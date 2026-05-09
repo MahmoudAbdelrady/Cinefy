@@ -79,6 +79,10 @@ export class PaymentMethodListComponent {
       .subscribe((methods) => this.paymentMethods.set(methods));
   }
 
+  addPaymentMethod(method: PaymentMethodSummary): void {
+    this.paymentMethods.update((methods) => [method, ...methods]);
+  }
+
   protected getPaymentTypeIcon(type: PaymentMethodType) {
     switch (type) {
       case 'CARD':

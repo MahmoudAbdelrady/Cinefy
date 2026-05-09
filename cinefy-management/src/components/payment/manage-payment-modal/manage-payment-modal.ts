@@ -4,15 +4,18 @@ import {
   DestroyRef,
   inject,
   input,
+  output,
   signal,
   TemplateRef,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormGroup } from '@angular/forms';
 import { merge, startWith } from 'rxjs';
 import { ModalComponent } from '../../modal/modal';
 import { Stepper, StepperNoteTip, StepperStep } from '../../stepper/stepper';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import {
   IdentityStep,
   CredentialsStep,
@@ -23,7 +26,8 @@ import {
   buildIntegrationForm,
 } from '../steps';
 import { Lock, LucideAngularModule } from 'lucide-angular';
-import type { PaymentMethod } from '../../../shared/types';
+import { PaymentMethodService, ToastService } from '../../../services';
+import type { PaymentMethod, PaymentMethodSummary } from '../../../shared/types';
 
 @Component({
   selector: 'manage-payment-modal',
@@ -35,6 +39,7 @@ import type { PaymentMethod } from '../../../shared/types';
     IntegrationStep,
     ReviewStep,
     LucideAngularModule,
+    LoadingSpinnerComponent,
   ],
   templateUrl: './manage-payment-modal.html',
   styleUrl: './manage-payment-modal.scss',
@@ -43,8 +48,11 @@ export class ManagePaymentModalComponent {
   protected readonly LockIcon = Lock;
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly paymentMethodService = inject(PaymentMethodService);
+  private readonly toastService = inject(ToastService);
 
   readonly close = input.required<() => void>();
+  readonly paymentMethodCreated = output<PaymentMethodSummary>();
 
   protected readonly isEditMode = false;
 
@@ -100,6 +108,7 @@ export class ManagePaymentModalComponent {
 
   protected readonly currentStep = signal(0);
   protected readonly connectionTestRequested = signal(false);
+  protected readonly saving = signal(false);
 
   constructor() {
     merge(this.form.controls.credentials.valueChanges, this.form.controls.integration.valueChanges)
@@ -157,6 +166,22 @@ export class ManagePaymentModalComponent {
   }
 
   protected saveAsDraft() {
-    // TODO: implement save logic
+    if (this.saving()) return;
+    this.saving.set(true);
+    this.paymentMethodService
+      .createPaymentMethod(this.paymentMethodValue())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (created) => {
+          this.saving.set(false);
+          this.paymentMethodCreated.emit(created);
+          this.toastService.success('Payment method saved successfully');
+          this.close()();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.saving.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to save payment method');
+        },
+      });
   }
 }
