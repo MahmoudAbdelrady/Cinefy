@@ -40,7 +40,12 @@
       }
 
       @let isLastStep = currentStep() === steps().length - 1;
-      <button ngpButton class="btn-primary" (click)="isLastStep ? saveAsDraft() : goToNextStep()">
+      <button
+        ngpButton
+        class="btn-primary"
+        [disabled]="!currentStepValid()"
+        (click)="isLastStep ? saveAsDraft() : goToNextStep()"
+      >
         {{ isLastStep ? 'Save as Draft' : 'Continue' }}
       </button>
     </div>

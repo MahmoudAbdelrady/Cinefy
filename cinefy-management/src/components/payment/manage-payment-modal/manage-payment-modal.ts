@@ -1,5 +1,7 @@
 import { Component, computed, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
+import { merge, startWith } from 'rxjs';
 import { ModalComponent } from '../../modal/modal';
 import { Stepper, StepperNoteTip, StepperStep } from '../../stepper/stepper';
 import {
@@ -93,6 +95,21 @@ export class ManagePaymentModalComponent {
   });
 
   protected readonly currentStep = signal(0);
+
+  private readonly stepForms = [
+    this.form.controls.identity,
+    this.form.controls.credentials,
+    this.form.controls.integration,
+  ];
+
+  private readonly formStatus = toSignal(
+    merge(...this.stepForms.map((f) => f.statusChanges)).pipe(startWith(this.form.status)),
+  );
+
+  protected readonly currentStepValid = computed(() => {
+    this.formStatus();
+    return this.stepForms[this.currentStep()]?.valid ?? true;
+  });
 
   protected goToNextStep() {
     if (this.currentStep() < this.steps().length - 1) {
