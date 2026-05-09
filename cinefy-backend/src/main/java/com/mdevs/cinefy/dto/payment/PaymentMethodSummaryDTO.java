@@ -39,6 +39,10 @@ public class PaymentMethodSummaryDTO {
 
     private String testFailureReason;
 
+    private LocalDateTime testedAt;
+
+    private String successRate;
+
     private LocalDateTime credentialsRotatedAt;
 
     private LocalDateTime createdAt;

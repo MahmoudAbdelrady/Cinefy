@@ -181,6 +181,8 @@ public class PaymentMethodService {
         dto.setIframeId(entity.getIframeId());
         dto.setTestStatus(entity.getTestStatus().name());
         dto.setTestFailureReason(entity.getTestFailureReason());
+        dto.setTestedAt(entity.getTestedAt());
+        dto.setSuccessRate("0.0%"); // TODO: compute from orders table once it exists
         dto.setCredentialsRotatedAt(entity.getCredentialsRotatedAt());
         dto.setCreatedAt(entity.getCreatedAt());
         return dto;
