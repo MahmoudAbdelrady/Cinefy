@@ -50,24 +50,29 @@ import { ImageWithFallback } from './components/figma/ImageWithFallback';
 // Payment Section — Paymob integration management
 // ============================================================================
 
-type PaymentStatus = 'live' | 'draft' | 'disabled';
+type PaymentStatus = 'ACTIVE' | 'DRAFT' | 'INACTIVE';
+type PaymentMethodKind = 'CARD' | 'WALLET' | 'INSTALLMENT';
+type PaymentTestStatus = 'UNTESTED' | 'SUCCESS' | 'FAILURE';
 
 type PaymentMethod = {
   id: string;
   name: string;
   gateway: 'paymob';
+  type: PaymentMethodKind;
+  isTest: boolean;
   mode: 'live' | 'sandbox';
   status: PaymentStatus;
-  cardBrands: string[];
-  lastTested: string | null;
-  testStatus: 'success' | 'failed' | null;
-  createdAt: string;
-  publishedAt: string | null;
-  monthlyVolume: string;
-  successRate: number;
-  credentialsRotatedAt: string;
-  lastChargeAt: string | null;
   currency: string;
+  testStatus: PaymentTestStatus;
+  testFailureReason: string | null;
+  testedAt: string | null;
+  successRate: string;
+  credentialsRotatedAt: string;
+  createdAt: string;
+  cardBrands?: string[];
+  publishedAt?: string | null;
+  monthlyVolume?: string;
+  lastChargeAt?: string | null;
   config: {
     apiKeyMasked: string;
     integrationId: string;
@@ -79,20 +84,19 @@ type PaymentMethod = {
 const SAMPLE_METHODS: PaymentMethod[] = [
   {
     id: 'pm_01',
-    name: 'Paymob — Cards (Live)',
+    name: 'Paymob — Cards',
     gateway: 'paymob',
+    type: 'CARD',
+    isTest: false,
     mode: 'live',
-    status: 'live',
-    cardBrands: ['Visa', 'Mastercard', 'Meeza'],
-    lastTested: '2026-04-29T10:14:00',
-    testStatus: 'success',
-    createdAt: '2026-02-12',
-    publishedAt: '2026-02-14',
-    monthlyVolume: 'EGP 142,380',
-    successRate: 98.4,
-    credentialsRotatedAt: '2026-04-19',
-    lastChargeAt: '2026-05-01T07:42:00',
+    status: 'ACTIVE',
     currency: 'EGP',
+    testStatus: 'SUCCESS',
+    testFailureReason: null,
+    testedAt: '2026-05-06T08:14:00',
+    successRate: '98.4%',
+    credentialsRotatedAt: '2026-04-19',
+    createdAt: '2026-02-12',
     config: {
       apiKeyMasked: '••••••••••••••••••••••••',
       integrationId: '4827193',
@@ -104,18 +108,17 @@ const SAMPLE_METHODS: PaymentMethod[] = [
     id: 'pm_02',
     name: 'Paymob — Wallets',
     gateway: 'paymob',
+    type: 'WALLET',
+    isTest: false,
     mode: 'live',
-    status: 'draft',
-    cardBrands: ['Vodafone Cash', 'Orange Money', 'Etisalat'],
-    lastTested: '2026-04-30T18:42:00',
-    testStatus: 'success',
-    createdAt: '2026-04-28',
-    publishedAt: null,
-    monthlyVolume: '—',
-    successRate: 0,
-    credentialsRotatedAt: '2026-04-28',
-    lastChargeAt: null,
+    status: 'DRAFT',
     currency: 'EGP',
+    testStatus: 'SUCCESS',
+    testFailureReason: null,
+    testedAt: '2026-05-09T05:42:00',
+    successRate: '0.0%',
+    credentialsRotatedAt: '2026-04-28',
+    createdAt: '2026-04-28',
     config: {
       apiKeyMasked: '••••••••••••••••••••••••',
       integrationId: '4827511',
@@ -127,18 +130,18 @@ const SAMPLE_METHODS: PaymentMethod[] = [
     id: 'pm_03',
     name: 'Paymob — Installments',
     gateway: 'paymob',
+    type: 'INSTALLMENT',
+    isTest: true,
     mode: 'sandbox',
-    status: 'disabled',
-    cardBrands: ['ValU', 'Souhoola'],
-    lastTested: '2026-03-08T09:00:00',
-    testStatus: 'failed',
-    createdAt: '2026-03-01',
-    publishedAt: '2026-03-05',
-    monthlyVolume: 'EGP 0',
-    successRate: 64.2,
-    credentialsRotatedAt: '2026-03-01',
-    lastChargeAt: '2026-04-08T19:14:00',
+    status: 'INACTIVE',
     currency: 'EGP',
+    testStatus: 'FAILURE',
+    testFailureReason:
+      'HMAC verification failed for integration 4710228 — the signing secret on Paymob has been rotated since this method was last saved.',
+    testedAt: '2026-04-30T18:42:00',
+    successRate: '64.2%',
+    credentialsRotatedAt: '2026-03-01',
+    createdAt: '2026-03-01',
     config: {
       apiKeyMasked: '••••••••••••••••••••••••',
       integrationId: '4710228',
@@ -150,18 +153,17 @@ const SAMPLE_METHODS: PaymentMethod[] = [
     id: 'pm_04',
     name: 'Paymob — Cards (Legacy)',
     gateway: 'paymob',
+    type: 'CARD',
+    isTest: false,
     mode: 'live',
-    status: 'live',
-    cardBrands: ['Visa', 'Mastercard'],
-    lastTested: '2026-01-20T11:30:00',
-    testStatus: 'success',
-    createdAt: '2025-08-14',
-    publishedAt: '2025-08-16',
-    monthlyVolume: 'EGP 38,940',
-    successRate: 91.7,
-    credentialsRotatedAt: '2026-01-15',
-    lastChargeAt: '2026-04-30T22:08:00',
+    status: 'ACTIVE',
     currency: 'EGP',
+    testStatus: 'UNTESTED',
+    testFailureReason: null,
+    testedAt: null,
+    successRate: '91.7%',
+    credentialsRotatedAt: '2026-01-15',
+    createdAt: '2025-08-14',
     config: {
       apiKeyMasked: '••••••••••••••••••••••••',
       integrationId: '4392107',
@@ -180,18 +182,18 @@ const WIZARD_STEPS = [
 ];
 
 function StatusPill({ status }: { status: PaymentStatus }) {
-  if (status === 'live') {
+  if (status === 'ACTIVE') {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
         <span className="relative flex h-1.5 w-1.5">
           <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
           <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
         </span>
-        Live
+        Active
       </span>
     );
   }
-  if (status === 'draft') {
+  if (status === 'DRAFT') {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold">
         <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
@@ -202,19 +204,76 @@ function StatusPill({ status }: { status: PaymentStatus }) {
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-200 text-xs font-semibold">
       <span className="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
-      Disabled
+      Inactive
     </span>
   );
 }
 
-function ModeBadge({ mode }: { mode: 'live' | 'sandbox' }) {
-  return mode === 'live' ? (
-    <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[11px] font-semibold uppercase tracking-wider border border-blue-200">
-      Production
+const TYPE_META: Record<
+  PaymentMethodKind,
+  { label: string; icon: typeof CreditCard; gradient: string; ring: string; tile: string }
+> = {
+  CARD: {
+    label: 'Card',
+    icon: CreditCard,
+    gradient: 'from-[#1e3a8a] via-[#2563eb] to-[#1e40af]',
+    ring: 'ring-blue-200/70',
+    tile: 'text-white',
+  },
+  WALLET: {
+    label: 'Wallet',
+    icon: Webhook,
+    gradient: 'from-[#5b21b6] via-[#7c3aed] to-[#6d28d9]',
+    ring: 'ring-violet-200/70',
+    tile: 'text-white',
+  },
+  INSTALLMENT: {
+    label: 'Installment',
+    icon: Sparkles,
+    gradient: 'from-[#b45309] via-[#d97706] to-[#b45309]',
+    ring: 'ring-amber-200/70',
+    tile: 'text-white',
+  },
+};
+
+function TypeMonogram({ type, dim }: { type: PaymentMethodKind; dim?: boolean }) {
+  const meta = TYPE_META[type];
+  const Icon = meta.icon;
+  return (
+    <div
+      className={`relative w-12 h-14 rounded-[10px] flex items-center justify-center flex-shrink-0 overflow-hidden ${
+        dim
+          ? 'bg-gray-100 ring-1 ring-gray-200'
+          : `bg-gradient-to-br ${meta.gradient} shadow-[0_6px_18px_-8px_rgba(30,58,138,0.45)] ring-1 ${meta.ring}`
+      }`}
+    >
+      {/* fine internal frame */}
+      <span
+        className={`absolute inset-[3px] rounded-[7px] border ${
+          dim ? 'border-gray-200' : 'border-white/15'
+        }`}
+        aria-hidden
+      />
+      {/* magnetic stripe / decorative line */}
+      <span
+        className={`absolute left-0 right-0 top-[34%] h-[2px] ${
+          dim ? 'bg-gray-200' : 'bg-white/25'
+        }`}
+        aria-hidden
+      />
+      <Icon size={20} className={dim ? 'text-gray-400' : meta.tile} strokeWidth={2} />
+    </div>
+  );
+}
+
+function EnvChip({ isTest }: { isTest: boolean }) {
+  return isTest ? (
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-700 text-[10px] font-bold uppercase tracking-[0.12em] border border-violet-200/80">
+      Sandbox
     </span>
   ) : (
-    <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 text-[11px] font-semibold uppercase tracking-wider border border-purple-200">
-      Sandbox
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-[0.12em] border border-blue-200/80">
+      Production
     </span>
   );
 }
@@ -245,134 +304,110 @@ function HelperHint({
 }
 
 function relativeDays(iso: string): { days: number; label: string } {
-  const ms = Date.now() - new Date(iso).getTime();
-  const days = Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
-  if (days === 0) return { days, label: 'today' };
-  if (days === 1) return { days, label: 'yesterday' };
-  if (days < 30) return { days, label: `${days} days ago` };
+  const time = new Date(iso).getTime();
+  if (isNaN(time)) return { days: 0, label: '—' };
+  const days = Math.max(0, Math.floor((Date.now() - time) / 86_400_000));
+  if (days === 0) return { days, label: 'Today' };
+  if (days === 1) return { days, label: 'Yesterday' };
+  if (days < 7) return { days, label: `${days} days ago` };
+  if (days < 14) return { days, label: 'Last week' };
+  if (days < 30) return { days, label: `${Math.floor(days / 7)} weeks ago` };
   if (days < 60) return { days, label: '1 month ago' };
   if (days < 365) return { days, label: `${Math.floor(days / 30)} months ago` };
-  return { days, label: `${Math.floor(days / 365)}y ago` };
+  const years = Math.floor(days / 365);
+  return { days, label: years === 1 ? '1 year ago' : `${years} years ago` };
 }
 
-type RowTone = 'good' | 'warn' | 'bad' | 'neutral';
+function formatShortDate(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+}
 
-const TONE_DOT: Record<RowTone, string> = {
-  good: 'bg-emerald-500',
-  warn: 'bg-amber-500',
-  bad: 'bg-red-500',
-  neutral: '',
-};
+function parseRate(rate: string): number | null {
+  const match = /^(-?\d+(\.\d+)?)\s*%?$/.exec(rate.trim());
+  if (!match) return null;
+  const n = parseFloat(match[1]);
+  return isNaN(n) ? null : n;
+}
 
-const TONE_VALUE: Record<RowTone, string> = {
-  good: 'text-gray-900',
-  warn: 'text-amber-900',
-  bad: 'text-red-900',
-  neutral: 'text-gray-900',
-};
+function SuccessRateMetric({ rate }: { rate: string }) {
+  const value = parseRate(rate);
+  const isZero = value !== null && value === 0;
+  const tone =
+    value === null || isZero
+      ? { num: 'text-gray-400', dot: 'bg-gray-300', label: 'No data yet' }
+      : value >= 95
+        ? { num: 'text-emerald-600', dot: 'bg-emerald-500', label: 'Healthy' }
+        : value >= 80
+          ? { num: 'text-amber-600', dot: 'bg-amber-500', label: 'Watch' }
+          : { num: 'text-red-600', dot: 'bg-red-500', label: 'Degraded' };
 
-function HealthCell({
-  value,
-  label,
-  tone,
-  hint,
-}: {
-  value: string;
-  label: string;
-  tone: RowTone;
-  hint?: string;
-}) {
   return (
-    <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-2">
-        {tone !== 'neutral' && (
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${TONE_DOT[tone]} flex-shrink-0`}
-            aria-hidden
-          />
-        )}
-        <p
-          className={`text-[15px] font-semibold leading-tight tracking-tight ${TONE_VALUE[tone]} truncate`}
+    <div className="flex flex-col gap-1 min-w-0">
+      <span className="text-[9.5px] uppercase tracking-[0.14em] text-gray-500 font-semibold">
+        Success rate · 30d
+      </span>
+      <div className="flex items-baseline gap-1.5">
+        <span
+          className={`text-[26px] leading-none font-bold tabular-nums tracking-tight ${tone.num}`}
         >
-          {value}
-        </p>
+          {rate}
+        </span>
       </div>
-      <p className="text-[11.5px] text-gray-500 mt-1 truncate">
-        {label}
-        {hint && <span className="text-gray-400"> · {hint}</span>}
-      </p>
+      <div className="flex items-center gap-1.5 mt-0.5">
+        <span className={`h-1.5 w-1.5 rounded-full ${tone.dot}`} aria-hidden />
+        <span className="text-[10.5px] uppercase tracking-[0.1em] text-gray-500 font-semibold">
+          {tone.label}
+        </span>
+      </div>
     </div>
   );
 }
 
-function CredentialsHealth({ method }: { method: PaymentMethod }) {
-  // Rotation
-  const rotated = relativeDays(method.credentialsRotatedAt);
-  const rotationTone: RowTone = rotated.days >= 90 ? 'bad' : rotated.days >= 30 ? 'warn' : 'good';
-  const rotationHint =
-    rotationTone === 'bad' ? 'rotate now' : rotationTone === 'warn' ? 'rotate soon' : undefined;
-
-  // Last charge
-  const charge = method.lastChargeAt ? relativeDays(method.lastChargeAt) : null;
-  let chargeTone: RowTone = 'neutral';
-  let chargeValue = 'No charges yet';
-  let chargeHint: string | undefined;
-  if (charge) {
-    chargeValue = charge.label.charAt(0).toUpperCase() + charge.label.slice(1);
-    if (charge.days <= 1) {
-      chargeTone = 'good';
-    } else if (charge.days <= 14) {
-      chargeTone = 'neutral';
-    } else if (method.status === 'live') {
-      chargeTone = 'warn';
-      chargeHint = 'going quiet';
-    }
-  } else if (method.status === 'live') {
-    chargeTone = 'warn';
-    chargeHint = 'never used';
-  } else {
-    chargeHint = 'awaiting publish';
-  }
-
-  const worstTone: RowTone =
-    rotationTone === 'bad'
-      ? 'bad'
-      : rotationTone === 'warn' || chargeTone === 'warn'
-        ? 'warn'
-        : rotationTone === 'good' || chargeTone === 'good'
-          ? 'good'
-          : 'neutral';
-
-  const RAIL_TONE: Record<RowTone, string> = {
-    good: 'bg-emerald-400',
-    warn: 'bg-amber-400',
-    bad: 'bg-red-400',
-    neutral: 'bg-slate-300',
-  };
-
+function MetaLine({
+  label,
+  children,
+  tone,
+}: {
+  label: string;
+  children: React.ReactNode;
+  tone?: 'warn' | 'bad';
+}) {
+  const valueColor =
+    tone === 'bad' ? 'text-red-700' : tone === 'warn' ? 'text-amber-800' : 'text-gray-900';
   return (
-    <div className="relative rounded-xl bg-slate-50/80 ring-1 ring-slate-200/70 pl-4 pr-4 py-3.5 overflow-hidden">
-      <span
-        className={`absolute left-0 top-0 bottom-0 w-[3px] ${RAIL_TONE[worstTone]}`}
-        aria-hidden
-      />
-      <p className="text-[9.5px] uppercase tracking-[0.14em] text-gray-500 font-semibold mb-2.5">
-        Credentials Health
-      </p>
-      <div className="flex items-stretch gap-5">
-        <HealthCell
-          value={rotated.label.charAt(0).toUpperCase() + rotated.label.slice(1)}
-          label="Rotated"
-          hint={rotationHint}
-          tone={rotationTone}
-        />
-        <span
-          className="w-px self-stretch bg-[length:1px_4px] bg-repeat-y bg-gradient-to-b from-slate-300 to-slate-300"
-          aria-hidden
-        />
-        <HealthCell value={chargeValue} label="Last charge" hint={chargeHint} tone={chargeTone} />
-      </div>
+    <div className="flex items-center justify-between gap-3 min-w-0">
+      <span className="text-[10.5px] uppercase tracking-[0.12em] text-gray-500 font-semibold flex-shrink-0">
+        {label}
+      </span>
+      <div className={`text-[12.5px] font-semibold ${valueColor} text-right`}>{children}</div>
     </div>
+  );
+}
+
+function TestStatusBadge({ status }: { status: PaymentTestStatus }) {
+  if (status === 'SUCCESS') {
+    return (
+      <span className="inline-flex items-center gap-1 text-emerald-700">
+        <CircleCheck size={13} className="text-emerald-500" strokeWidth={2.5} />
+        <span className="text-[13px] font-semibold leading-none">Passed</span>
+      </span>
+    );
+  }
+  if (status === 'FAILURE') {
+    return (
+      <span className="inline-flex items-center gap-1 text-red-700">
+        <CircleAlert size={13} className="text-red-500" strokeWidth={2.5} />
+        <span className="text-[13px] font-semibold leading-none">Failed</span>
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-gray-500">
+      <span className="h-1.5 w-1.5 rounded-full bg-gray-300" aria-hidden />
+      <span className="text-[13px] font-semibold leading-none">Untested</span>
+    </span>
   );
 }
 
@@ -382,6 +417,8 @@ function PaymentSection() {
   const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [openError, setOpenError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
 
   const openCreateWizard = () => {
     setEditingMethod(null);
@@ -409,15 +446,25 @@ function PaymentSection() {
     return () => document.removeEventListener('mousedown', handler);
   }, [openMenu]);
 
-  const liveCount = methods.filter((m) => m.status === 'live').length;
-  const draftCount = methods.filter((m) => m.status === 'draft').length;
-  const disabledCount = methods.filter((m) => m.status === 'disabled').length;
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (errorRef.current && !errorRef.current.contains(e.target as Node)) {
+        setOpenError(null);
+      }
+    };
+    if (openError) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [openError]);
+
+  const activeCount = methods.filter((m) => m.status === 'ACTIVE').length;
+  const draftCount = methods.filter((m) => m.status === 'DRAFT').length;
+  const inactiveCount = methods.filter((m) => m.status === 'INACTIVE').length;
 
   const handlePublish = (id: string) => {
     setMethods((prev) =>
       prev.map((m) =>
         m.id === id
-          ? { ...m, status: 'live' as PaymentStatus, publishedAt: new Date().toISOString() }
+          ? { ...m, status: 'ACTIVE' as PaymentStatus, publishedAt: new Date().toISOString() }
           : m,
       ),
     );
@@ -426,14 +473,14 @@ function PaymentSection() {
 
   const handleDisable = (id: string) => {
     setMethods((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status: 'disabled' as PaymentStatus } : m)),
+      prev.map((m) => (m.id === id ? { ...m, status: 'INACTIVE' as PaymentStatus } : m)),
     );
     setOpenMenu(null);
   };
 
   const handleEnable = (id: string) => {
     setMethods((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status: 'live' as PaymentStatus } : m)),
+      prev.map((m) => (m.id === id ? { ...m, status: 'ACTIVE' as PaymentStatus } : m)),
     );
     setOpenMenu(null);
   };
@@ -452,7 +499,7 @@ function PaymentSection() {
             <h2 className="text-2xl font-semibold text-gray-900">Payment Methods</h2>
             <p className="text-sm text-gray-600 mt-1">
               Manage gateways your customers use to pay. Only{' '}
-              <span className="font-semibold text-emerald-600">Live</span> methods are visible at
+              <span className="font-semibold text-emerald-600">Active</span> methods are visible at
               checkout.
             </p>
           </div>
@@ -490,172 +537,214 @@ function PaymentSection() {
           </div>
           <div className="flex items-center gap-1.5 text-xs font-semibold">
             <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/70 tabular-nums">
-              {liveCount} live
+              {activeCount} active
             </span>
             <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200/70 tabular-nums">
               {draftCount} draft
             </span>
             <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-200 tabular-nums">
-              {disabledCount} disabled
+              {inactiveCount} inactive
             </span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {methods.map((m) => (
-            <article
-              key={m.id}
-              className={`group relative bg-white rounded-2xl border p-5 transition-all hover:shadow-md ${
-                m.status === 'draft'
-                  ? 'border-amber-200/80 ring-1 ring-amber-100/60'
-                  : m.status === 'disabled'
-                    ? 'border-gray-200 opacity-90'
-                    : 'border-gray-200 hover:border-blue-200'
-              }`}
-            >
-              {/* Header row */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      m.status === 'disabled'
-                        ? 'bg-gray-100'
-                        : 'bg-gradient-to-br from-blue-600 to-indigo-700 shadow-sm'
-                    }`}
-                  >
-                    <CreditCard
-                      size={22}
-                      className={m.status === 'disabled' ? 'text-gray-400' : 'text-white'}
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-semibold text-gray-900 truncate">{m.name}</h4>
-                      <ModeBadge mode={m.mode} />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Paymob · {m.cardBrands.join(' · ')}
-                    </p>
-                  </div>
-                </div>
+          {methods.map((m) => {
+            const dim = m.status === 'INACTIVE';
+            const typeMeta = TYPE_META[m.type];
+            const rotated = relativeDays(m.credentialsRotatedAt);
+            const rotationCritical = rotated.days >= 90;
+            const rotationStale = rotated.days >= 30 && !rotationCritical;
+            const tested = m.testedAt ? relativeDays(m.testedAt) : null;
+            const showFailure = m.testStatus === 'FAILURE' && !!m.testFailureReason;
+            const cardBorder =
+              m.status === 'DRAFT'
+                ? 'border-amber-200/80 ring-1 ring-amber-100/60'
+                : m.status === 'INACTIVE'
+                  ? 'border-gray-200'
+                  : 'border-gray-200 hover:border-blue-200';
 
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <StatusPill status={m.status} />
-                  <div className="relative" ref={openMenu === m.id ? menuRef : undefined}>
-                    <button
-                      onClick={() => setOpenMenu(openMenu === m.id ? null : m.id)}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
-                    >
-                      <MoreVertical size={18} />
-                    </button>
-                    {openMenu === m.id && (
-                      <div className="absolute right-0 mt-1 w-52 bg-white border border-gray-200 rounded-xl shadow-lg z-20 py-1.5 overflow-hidden">
-                        {m.status === 'live' && (
-                          <button
-                            onClick={() => handleDisable(m.id)}
-                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                          >
-                            <PowerOff size={15} />
-                            Disable
-                          </button>
-                        )}
-                        <button
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                          onClick={() => openEditWizard(m)}
-                        >
-                          <Edit size={15} />
-                          Edit configuration
-                        </button>
-                        <button
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                          onClick={() => setOpenMenu(null)}
-                        >
-                          <Zap size={15} />
-                          Run test connection
-                        </button>
-                        <div className="my-1 border-t border-gray-100" />
-                        <button
-                          onClick={() => handleDelete(m.id)}
-                          className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                        >
-                          <Trash2 size={15} />
-                          Delete method
-                        </button>
+            return (
+              <article
+                key={m.id}
+                className={`group relative bg-white rounded-2xl border ${cardBorder} transition-all hover:shadow-[0_10px_30px_-12px_rgba(15,23,42,0.18)] ${
+                  dim ? 'opacity-95' : ''
+                }`}
+              >
+
+                <div className="p-5">
+                  {/* Header */}
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <TypeMonogram type={m.type} dim={dim} />
+                      <div className="min-w-0 pt-0.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="font-semibold text-[15.5px] text-gray-900 tracking-tight leading-tight truncate">
+                            {m.name}
+                          </h4>
+                          <EnvChip isTest={m.isTest} />
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-1.5 text-[11.5px] text-gray-500">
+                          <span className="font-semibold text-gray-700">{typeMeta.label}</span>
+                          <span className="text-gray-300">·</span>
+                          <span className="font-semibold text-gray-700 tabular-nums">
+                            {m.currency}
+                          </span>
+                        </div>
                       </div>
-                    )}
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <StatusPill status={m.status} />
+                      <div className="relative" ref={openMenu === m.id ? menuRef : undefined}>
+                        <button
+                          onClick={() => setOpenMenu(openMenu === m.id ? null : m.id)}
+                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+                        >
+                          <MoreVertical size={18} />
+                        </button>
+                        {openMenu === m.id && (
+                          <div className="absolute right-0 mt-1 w-52 bg-white border border-gray-200 rounded-xl shadow-lg z-20 py-1.5 overflow-hidden">
+                            {m.status === 'ACTIVE' && (
+                              <button
+                                onClick={() => handleDisable(m.id)}
+                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              >
+                                <PowerOff size={15} />
+                                Set inactive
+                              </button>
+                            )}
+                            <button
+                              className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              onClick={() => openEditWizard(m)}
+                            >
+                              <Edit size={15} />
+                              Edit configuration
+                            </button>
+                            <button
+                              className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              onClick={() => setOpenMenu(null)}
+                            >
+                              <Zap size={15} />
+                              Run test connection
+                            </button>
+                            <div className="my-1 border-t border-gray-100" />
+                            <button
+                              onClick={() => handleDelete(m.id)}
+                              className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                            >
+                              <Trash2 size={15} />
+                              Delete method
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Stat row */}
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
-                  <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">
-                    Volume 30d
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900">{m.monthlyVolume}</p>
-                </div>
-                <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
-                  <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">
-                    Success
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {m.successRate > 0 ? `${m.successRate}%` : '—'}
-                  </p>
-                </div>
-                <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
-                  <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">
-                    Last test
-                  </p>
-                  <p className="text-sm font-semibold flex items-center gap-1">
-                    {m.testStatus === 'success' && (
-                      <>
-                        <CircleCheck size={14} className="text-emerald-500" />
-                        <span className="text-emerald-700">Passed</span>
-                      </>
-                    )}
-                    {m.testStatus === 'failed' && (
-                      <>
-                        <CircleAlert size={14} className="text-red-500" />
-                        <span className="text-red-700">Failed</span>
-                      </>
-                    )}
-                    {!m.testStatus && <span className="text-gray-500">Never</span>}
-                  </p>
-                </div>
-              </div>
+                  {/* Meta strip — success rate hero + detail stack */}
+                  <div className="rounded-xl bg-slate-50/70 ring-1 ring-slate-200/70 px-4 py-3.5 flex items-stretch gap-4">
+                    <div className="flex-shrink-0 self-center pr-1">
+                      <SuccessRateMetric rate={m.successRate} />
+                    </div>
+                    <span
+                      className="w-px self-stretch bg-gradient-to-b from-transparent via-slate-200 to-transparent"
+                      aria-hidden
+                    />
+                    <div className="flex-1 min-w-0 flex flex-col justify-center gap-2">
+                      <MetaLine label="Test Status">
+                        <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                          <TestStatusBadge status={m.testStatus} />
+                          {tested && (
+                            <span className="text-gray-400 font-normal text-[11.5px]">
+                              · {tested.label}
+                            </span>
+                          )}
+                          {showFailure && (
+                            <div
+                              className="relative inline-block ml-0.5"
+                              ref={openError === m.id ? errorRef : undefined}
+                            >
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setOpenError(openError === m.id ? null : m.id)
+                                }
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-700 text-[11px] font-semibold border border-red-200/80 transition-colors"
+                              >
+                                <Info size={11} strokeWidth={2.5} />
+                                View error
+                              </button>
+                              {openError === m.id && (
+                                <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-[0_18px_40px_-12px_rgba(15,23,42,0.28)] border border-red-200/80 z-30 overflow-hidden">
+                                  <div className="px-3.5 py-2.5 bg-red-50/80 border-b border-red-100 flex items-center gap-2">
+                                    <CircleAlert
+                                      size={14}
+                                      className="text-red-500"
+                                      strokeWidth={2.5}
+                                    />
+                                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-red-700">
+                                      Last test failed
+                                    </p>
+                                  </div>
+                                  <p className="px-3.5 py-3 text-[12.5px] text-gray-800 leading-relaxed text-left whitespace-normal">
+                                    {m.testFailureReason}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </MetaLine>
+                      <MetaLine
+                        label="Rotated"
+                        tone={rotationCritical ? 'bad' : rotationStale ? 'warn' : undefined}
+                      >
+                        <span className="inline-flex items-center gap-1.5">
+                          {(rotationCritical || rotationStale) && (
+                            <span
+                              className={`h-1.5 w-1.5 rounded-full ${
+                                rotationCritical ? 'bg-red-500' : 'bg-amber-500'
+                              }`}
+                              aria-hidden
+                            />
+                          )}
+                          {rotated.label}
+                        </span>
+                      </MetaLine>
+                      <MetaLine label="Created">
+                        <span className="tabular-nums">{formatShortDate(m.createdAt)}</span>
+                      </MetaLine>
+                    </div>
+                  </div>
 
-              {/* Credentials health */}
-              <CredentialsHealth method={m} />
-
-              {/* Footer actions */}
-              <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-                <span>
-                  {m.publishedAt
-                    ? `Published ${new Date(m.publishedAt).toLocaleDateString()}`
-                    : `Created ${new Date(m.createdAt).toLocaleDateString()}`}
-                </span>
-                {m.status === 'draft' && (
-                  <button
-                    onClick={() => handlePublish(m.id)}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shadow-sm"
-                  >
-                    <Rocket size={13} />
-                    Publish
-                  </button>
-                )}
-                {m.status === 'disabled' && (
-                  <button
-                    onClick={() => handleEnable(m.id)}
-                    className="px-3 py-1.5 rounded-lg bg-white text-gray-700 font-semibold border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
-                  >
-                    <Power size={13} />
-                    Re-enable
-                  </button>
-                )}
-              </div>
-            </article>
-          ))}
+                  {/* Footer actions */}
+                  {(m.status === 'DRAFT' || m.status === 'INACTIVE') && (
+                    <div className="mt-4 flex items-center justify-end">
+                      {m.status === 'DRAFT' && (
+                        <button
+                          onClick={() => handlePublish(m.id)}
+                          className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shadow-sm"
+                        >
+                          <Rocket size={13} />
+                          Activate
+                        </button>
+                      )}
+                      {m.status === 'INACTIVE' && (
+                        <button
+                          onClick={() => handleEnable(m.id)}
+                          className="px-3 py-1.5 rounded-lg bg-white text-gray-700 text-xs font-semibold border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
+                        >
+                          <Power size={13} />
+                          Re-enable
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
 
@@ -699,9 +788,11 @@ function PaymentWizard({
   const [iframeId, setIframeId] = useState(editing?.config.iframeId ?? '');
   const [showSecrets, setShowSecrets] = useState(false);
   const [testState, setTestState] = useState<'idle' | 'running' | 'success' | 'failed'>(
-    editing?.testStatus === 'success' || editing?.testStatus === 'failed'
-      ? editing.testStatus
-      : 'idle',
+    editing?.testStatus === 'SUCCESS'
+      ? 'success'
+      : editing?.testStatus === 'FAILURE'
+        ? 'failed'
+        : 'idle',
   );
   const [testReport, setTestReport] = useState<
     { label: string; ok: boolean; detail: string }[] | null
@@ -745,19 +836,29 @@ function PaymentWizard({
   const finish = () => {
     const now = new Date().toISOString();
     const keysChanged = apiKey.length > 0 || hmac.length > 0;
+    const nextTestStatus: PaymentTestStatus =
+      testState === 'success'
+        ? 'SUCCESS'
+        : testState === 'failed'
+          ? 'FAILURE'
+          : isEdit
+            ? (editing?.testStatus ?? 'UNTESTED')
+            : 'UNTESTED';
+
+    const ranTest = testState === 'success' || testState === 'failed';
 
     if (isEdit && editing) {
       onSave({
         ...editing,
         name: name || editing.name,
         mode,
-        lastTested: testState === 'success' ? now : editing.lastTested,
-        testStatus:
-          testState === 'success'
-            ? 'success'
-            : testState === 'failed'
-              ? 'failed'
-              : editing.testStatus,
+        isTest: mode === 'sandbox',
+        testStatus: nextTestStatus,
+        testFailureReason:
+          nextTestStatus === 'FAILURE'
+            ? (editing.testFailureReason ?? 'Connection test failed.')
+            : null,
+        testedAt: ranTest ? now : editing.testedAt,
         credentialsRotatedAt: keysChanged ? now : editing.credentialsRotatedAt,
         config: {
           apiKeyMasked: apiKey ? '••••••••••••••••••••••••' : editing.config.apiKeyMasked,
@@ -773,18 +874,17 @@ function PaymentWizard({
       id: `pm_${Date.now()}`,
       name: name || 'Paymob method',
       gateway: 'paymob',
+      type: 'CARD',
+      isTest: mode === 'sandbox',
       mode,
-      status: 'draft',
-      cardBrands: ['Visa', 'Mastercard'],
-      lastTested: testState === 'success' ? now : null,
-      testStatus: testState === 'success' ? 'success' : testState === 'failed' ? 'failed' : null,
-      createdAt: now,
-      publishedAt: null,
-      monthlyVolume: '—',
-      successRate: 0,
-      credentialsRotatedAt: now,
-      lastChargeAt: null,
+      status: 'DRAFT',
       currency: 'EGP',
+      testStatus: nextTestStatus,
+      testFailureReason: nextTestStatus === 'FAILURE' ? 'Connection test failed.' : null,
+      testedAt: ranTest ? now : null,
+      successRate: '0.0%',
+      credentialsRotatedAt: now,
+      createdAt: now,
       config: {
         apiKeyMasked: '••••••••••••••••••••••••',
         integrationId: integrationId || '—',
@@ -1494,7 +1594,9 @@ function StepReview({
             </p>
             <p className="font-semibold truncate">{name || 'Untitled method'}</p>
           </div>
-          <ModeBadge mode={mode} />
+          <span className="px-2 py-0.5 rounded-md bg-white/15 backdrop-blur text-white text-[11px] font-bold uppercase tracking-[0.12em] border border-white/25">
+            {mode === 'live' ? 'Live' : 'Sandbox'}
+          </span>
         </div>
 
         <dl className="divide-y divide-gray-100">
