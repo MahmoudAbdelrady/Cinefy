@@ -43,6 +43,13 @@ import {
   Sparkles,
   CircleAlert,
   HelpCircle,
+  UserPlus,
+  Mail,
+  Phone,
+  Briefcase,
+  AtSign,
+  CalendarClock,
+  ContactRound,
 } from 'lucide-react';
 import { ImageWithFallback } from './components/figma/ImageWithFallback';
 
@@ -1655,6 +1662,241 @@ function StepReview({
   );
 }
 
+// ============================================================================
+// Staff Section — Cinema staff roster management
+// ============================================================================
+
+type StaffPosition = 'Manager' | 'Cashier' | 'Projectionist' | 'Usher' | 'Concessions';
+type EmploymentType = 'Full-time' | 'Part-time';
+type Weekday = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
+
+const WEEKDAYS: { value: Weekday; label: string }[] = [
+  { value: 'Mon', label: 'Monday' },
+  { value: 'Tue', label: 'Tuesday' },
+  { value: 'Wed', label: 'Wednesday' },
+  { value: 'Thu', label: 'Thursday' },
+  { value: 'Fri', label: 'Friday' },
+  { value: 'Sat', label: 'Saturday' },
+  { value: 'Sun', label: 'Sunday' },
+];
+
+type StaffMember = {
+  id: string;
+  fullName: string;
+  username: string;
+  email: string;
+  phone: string;
+  position: StaffPosition;
+  employmentType: EmploymentType;
+  hiredAt: string;
+  startDay: Weekday;
+  endDay: Weekday;
+  startTime: string;
+  endTime: string;
+  rating: number;
+};
+
+const STAFF_SAMPLE: StaffMember[] = [
+  {
+    id: 'st_01',
+    fullName: 'Yara El-Sayed',
+    username: 'yara.elsayed',
+    email: 'yara.elsayed@cinefy.eg',
+    phone: '+20 100 422 8841',
+    position: 'Manager',
+    employmentType: 'Full-time',
+    hiredAt: '2024-03-11',
+    startDay: 'Mon',
+    endDay: 'Fri',
+    startTime: '10:00',
+    endTime: '19:00',
+    rating: 4.9,
+  },
+  {
+    id: 'st_02',
+    fullName: 'Omar Hassan',
+    username: 'omar.hassan',
+    email: 'omar.hassan@cinefy.eg',
+    phone: '+20 109 718 0260',
+    position: 'Projectionist',
+    employmentType: 'Full-time',
+    hiredAt: '2023-11-02',
+    startDay: 'Tue',
+    endDay: 'Sat',
+    startTime: '14:00',
+    endTime: '23:00',
+    rating: 4.7,
+  },
+  {
+    id: 'st_03',
+    fullName: 'Mariam Nabil',
+    username: 'mariam.nabil',
+    email: 'mariam.nabil@cinefy.eg',
+    phone: '+20 122 305 7714',
+    position: 'Cashier',
+    employmentType: 'Part-time',
+    hiredAt: '2025-08-19',
+    startDay: 'Wed',
+    endDay: 'Sun',
+    startTime: '12:00',
+    endTime: '20:00',
+    rating: 4.6,
+  },
+  {
+    id: 'st_04',
+    fullName: 'Tarek Abdelaziz',
+    username: 'tarek.abdelaziz',
+    email: 'tarek.abdelaziz@cinefy.eg',
+    phone: '+20 111 540 9162',
+    position: 'Usher',
+    employmentType: 'Part-time',
+    hiredAt: '2026-01-22',
+    startDay: 'Thu',
+    endDay: 'Mon',
+    startTime: '16:00',
+    endTime: '23:59',
+    rating: 4.4,
+  },
+  {
+    id: 'st_05',
+    fullName: 'Habiba Saad',
+    username: 'habiba.saad',
+    email: 'habiba.saad@cinefy.eg',
+    phone: '+20 106 884 2207',
+    position: 'Concessions',
+    employmentType: 'Full-time',
+    hiredAt: '2025-04-30',
+    startDay: 'Mon',
+    endDay: 'Fri',
+    startTime: '13:00',
+    endTime: '21:00',
+    rating: 4.8,
+  },
+  {
+    id: 'st_06',
+    fullName: 'Karim Fouad',
+    username: 'karim.fouad',
+    email: 'karim.fouad@cinefy.eg',
+    phone: '+20 128 217 4593',
+    position: 'Cashier',
+    employmentType: 'Part-time',
+    hiredAt: '2024-09-08',
+    startDay: 'Fri',
+    endDay: 'Tue',
+    startTime: '17:00',
+    endTime: '23:59',
+    rating: 4.3,
+  },
+];
+
+const POSITION_META: Record<
+  StaffPosition,
+  { gradient: string; ring: string; soft: string; text: string; ink: string }
+> = {
+  Manager: {
+    gradient: 'from-indigo-600 via-indigo-500 to-violet-600',
+    ring: 'ring-indigo-200/70',
+    soft: 'bg-indigo-50 border-indigo-200',
+    text: 'text-indigo-700',
+    ink: 'text-indigo-900',
+  },
+  Cashier: {
+    gradient: 'from-emerald-600 via-emerald-500 to-teal-600',
+    ring: 'ring-emerald-200/70',
+    soft: 'bg-emerald-50 border-emerald-200',
+    text: 'text-emerald-700',
+    ink: 'text-emerald-900',
+  },
+  Projectionist: {
+    gradient: 'from-amber-600 via-amber-500 to-orange-600',
+    ring: 'ring-amber-200/70',
+    soft: 'bg-amber-50 border-amber-200',
+    text: 'text-amber-700',
+    ink: 'text-amber-900',
+  },
+  Usher: {
+    gradient: 'from-rose-600 via-rose-500 to-pink-600',
+    ring: 'ring-rose-200/70',
+    soft: 'bg-rose-50 border-rose-200',
+    text: 'text-rose-700',
+    ink: 'text-rose-900',
+  },
+  Concessions: {
+    gradient: 'from-sky-600 via-sky-500 to-cyan-600',
+    ring: 'ring-sky-200/70',
+    soft: 'bg-sky-50 border-sky-200',
+    text: 'text-sky-700',
+    ink: 'text-sky-900',
+  },
+};
+
+function getInitials(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function StaffMonogram({
+  member,
+  size = 'md',
+}: {
+  member: StaffMember;
+  size?: 'sm' | 'md' | 'lg';
+}) {
+  const meta = POSITION_META[member.position];
+  const dims =
+    size === 'lg'
+      ? 'w-16 h-16 text-lg'
+      : size === 'sm'
+        ? 'w-10 h-10 text-xs'
+        : 'w-14 h-14 text-base';
+  return (
+    <div
+      className={`relative ${dims} rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden bg-gradient-to-br ${meta.gradient} shadow-[0_8px_20px_-10px_rgba(30,41,59,0.5)] ring-1 ${meta.ring}`}
+    >
+      <span
+        className="absolute inset-[3px] rounded-[14px] border border-white/15 pointer-events-none"
+        aria-hidden
+      />
+      <span
+        className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-white/15 blur-md"
+        aria-hidden
+      />
+      <span className="relative font-bold tracking-wide text-white">
+        {getInitials(member.fullName)}
+      </span>
+    </div>
+  );
+}
+
+function PositionChip({ position }: { position: StaffPosition }) {
+  const meta = POSITION_META[position];
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md ${meta.soft} ${meta.text} text-[11px] font-bold uppercase tracking-[0.1em] border`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full bg-current opacity-70`}></span>
+      {position}
+    </span>
+  );
+}
+
+function formatStaffDate(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatScheduleRange(
+  startDay: Weekday,
+  endDay: Weekday,
+  startTime: string,
+  endTime: string,
+): string {
+  const range = startDay === endDay ? startDay : `${startDay} – ${endDay}`;
+  return `${range} · ${startTime} – ${endTime}`;
+}
+
 export default function App() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [showAddHallModal, setShowAddHallModal] = useState(false);
@@ -1675,6 +1917,155 @@ export default function App() {
   const [selectedMovie, setSelectedMovie] = useState<any>(null);
   const [selectedShowtime, setSelectedShowtime] = useState<any>(null);
   const [selectedShowtimeDate, setSelectedShowtimeDate] = useState<string>('');
+
+  // Staff management state
+  const [staff, setStaff] = useState<StaffMember[]>(STAFF_SAMPLE);
+  const [staffSearch, setStaffSearch] = useState('');
+  const [staffPositionFilter, setStaffPositionFilter] = useState<'ALL' | StaffPosition>('ALL');
+  const [showStaffFormModal, setShowStaffFormModal] = useState(false);
+  const [staffEditMode, setStaffEditMode] = useState(false);
+  const [showStaffViewModal, setShowStaffViewModal] = useState(false);
+  const [showStaffDeleteConfirm, setShowStaffDeleteConfirm] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
+  const [staffForm, setStaffForm] = useState<{
+    fullName: string;
+    username: string;
+    email: string;
+    phone: string;
+    position: StaffPosition;
+    employmentType: EmploymentType;
+    startDay: Weekday;
+    endDay: Weekday;
+    startTime: string;
+    endTime: string;
+  }>({
+    fullName: '',
+    username: '',
+    email: '',
+    phone: '',
+    position: 'Cashier',
+    employmentType: 'Part-time',
+    startDay: 'Mon',
+    endDay: 'Fri',
+    startTime: '09:00',
+    endTime: '17:00',
+  });
+
+  const openAddStaff = () => {
+    setStaffEditMode(false);
+    setSelectedStaff(null);
+    setStaffForm({
+      fullName: '',
+      username: '',
+      email: '',
+      phone: '',
+      position: 'Cashier',
+      employmentType: 'Part-time',
+      startDay: 'Mon',
+      endDay: 'Fri',
+      startTime: '09:00',
+      endTime: '17:00',
+    });
+    setShowStaffFormModal(true);
+  };
+
+  const openEditStaff = (member: StaffMember) => {
+    setStaffEditMode(true);
+    setSelectedStaff(member);
+    setStaffForm({
+      fullName: member.fullName,
+      username: member.username,
+      email: member.email,
+      phone: member.phone,
+      position: member.position,
+      employmentType: member.employmentType,
+      startDay: member.startDay,
+      endDay: member.endDay,
+      startTime: member.startTime,
+      endTime: member.endTime,
+    });
+    setShowStaffFormModal(true);
+  };
+
+  const handleSaveStaff = () => {
+    if (!staffForm.fullName.trim()) return;
+    if (staffEditMode && selectedStaff) {
+      setStaff((prev) =>
+        prev.map((m) =>
+          m.id === selectedStaff.id
+            ? {
+                ...m,
+                fullName: staffForm.fullName,
+                username: staffForm.username,
+                email: staffForm.email,
+                phone: staffForm.phone,
+                position: staffForm.position,
+                employmentType: staffForm.employmentType,
+                startDay: staffForm.startDay,
+                endDay: staffForm.endDay,
+                startTime: staffForm.startTime,
+                endTime: staffForm.endTime,
+              }
+            : m,
+        ),
+      );
+    } else {
+      const newId = `st_${String(staff.length + 1).padStart(2, '0')}`;
+      setStaff((prev) => [
+        {
+          id: newId,
+          fullName: staffForm.fullName,
+          username: staffForm.username,
+          email: staffForm.email,
+          phone: staffForm.phone,
+          position: staffForm.position,
+          employmentType: staffForm.employmentType,
+          hiredAt: '2026-05-11',
+          startDay: staffForm.startDay,
+          endDay: staffForm.endDay,
+          startTime: staffForm.startTime,
+          endTime: staffForm.endTime,
+          rating: 4.5,
+        },
+        ...prev,
+      ]);
+    }
+    setShowStaffFormModal(false);
+  };
+
+  const handleDeleteStaff = () => {
+    if (!selectedStaff) return;
+    setStaff((prev) => prev.filter((m) => m.id !== selectedStaff.id));
+    setShowStaffDeleteConfirm(false);
+    setSelectedStaff(null);
+  };
+
+  const filteredStaff = staff.filter((m) => {
+    if (staffPositionFilter !== 'ALL' && m.position !== staffPositionFilter) return false;
+    if (!staffSearch.trim()) return true;
+    const q = staffSearch.trim().toLowerCase();
+    return (
+      m.fullName.toLowerCase().includes(q) ||
+      m.email.toLowerCase().includes(q) ||
+      m.phone.toLowerCase().includes(q) ||
+      m.position.toLowerCase().includes(q)
+    );
+  });
+
+  const staffStats = {
+    total: staff.length,
+    newHires: staff.filter((m) => {
+      const hired = new Date(m.hiredAt);
+      const cutoff = new Date('2026-05-11');
+      cutoff.setDate(cutoff.getDate() - 90);
+      return hired >= cutoff;
+    }).length,
+    managers: staff.filter((m) => m.position === 'Manager').length,
+    avgRating:
+      staff.length > 0
+        ? (staff.reduce((acc, m) => acc + m.rating, 0) / staff.length).toFixed(1)
+        : '0.0',
+  };
 
   // Search dropdown ref for click outside detection
   const searchDropdownRef = useRef<HTMLDivElement>(null);
@@ -2529,6 +2920,18 @@ export default function App() {
             >
               <BarChart3 size={20} />
               <span className="flex-1 text-left font-medium">Statistics</span>
+            </button>
+
+            <button
+              onClick={() => setActiveSection('staff')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                activeSection === 'staff'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <ContactRound size={20} />
+              <span className="flex-1 text-left font-medium">Staff</span>
             </button>
 
             <div className="pt-4 mt-4 border-t border-gray-200">
@@ -3439,6 +3842,220 @@ export default function App() {
         )}
 
         {activeSection === 'payment' && <PaymentSection />}
+
+        {/* Staff Management Section */}
+        {activeSection === 'staff' && (
+          <>
+            {/* Top Bar */}
+            <div className="bg-white border-b border-gray-200 px-8 py-4 sticky top-0 z-10 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-900">Staff</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Roster, positions, and contact details for the team on the floor
+                  </p>
+                </div>
+                <button
+                  onClick={openAddStaff}
+                  className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+                >
+                  <UserPlus size={18} />
+                  <span>Add Staff Member</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-8">
+              {/* Stats Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white rounded-xl border border-gray-200 p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+                      <Users size={24} className="text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-gray-900">{staffStats.total}</p>
+                      <p className="text-sm text-gray-600">Total Staff</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl border border-gray-200 p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                      <Sparkles size={24} className="text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-gray-900">{staffStats.newHires}</p>
+                      <p className="text-sm text-gray-600">New Hires (90d)</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl border border-gray-200 p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
+                      <ShieldCheck size={24} className="text-violet-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-gray-900">{staffStats.managers}</p>
+                      <p className="text-sm text-gray-600">Managers</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl border border-gray-200 p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                      <Star size={24} className="text-amber-600 fill-amber-500" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-gray-900">{staffStats.avgRating}</p>
+                      <p className="text-sm text-gray-600">Avg Rating</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Staff List */}
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">All Staff Members</h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {filteredStaff.length} of {staff.length} member
+                        {staff.length === 1 ? '' : 's'} shown
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="relative">
+                        <Search
+                          size={16}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                        />
+                        <input
+                          type="text"
+                          value={staffSearch}
+                          onChange={(e) => setStaffSearch(e.target.value)}
+                          placeholder="Search by name, email, phone…"
+                          className="w-72 pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                      <select
+                        value={staffPositionFilter}
+                        onChange={(e) =>
+                          setStaffPositionFilter(e.target.value as 'ALL' | StaffPosition)
+                        }
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                      >
+                        <option value="ALL">All positions</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Cashier">Cashier</option>
+                        <option value="Projectionist">Projectionist</option>
+                        <option value="Usher">Usher</option>
+                        <option value="Concessions">Concessions</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {filteredStaff.length === 0 ? (
+                  <div className="p-16 flex flex-col items-center justify-center text-center">
+                    <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                      <Users size={24} className="text-gray-400" />
+                    </div>
+                    <p className="text-gray-900 font-medium">No staff match this view</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Try clearing the search or switching the position filter.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-200">
+                    {filteredStaff.map((member) => (
+                      <div
+                        key={member.id}
+                        className="p-6 hover:bg-gray-50/80 transition-colors"
+                      >
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-4 flex-1 min-w-0">
+                            <StaffMonogram member={member} />
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-3 mb-2">
+                                <h4 className="text-lg font-semibold text-gray-900 truncate">
+                                  {member.fullName}
+                                </h4>
+                                <PositionChip position={member.position} />
+                              </div>
+
+                              <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-gray-600">
+                                <span className="flex items-center gap-1.5 truncate">
+                                  <Mail size={14} className="text-gray-400 flex-shrink-0" />
+                                  <span className="truncate">{member.email}</span>
+                                </span>
+                                <span className="flex items-center gap-1.5">
+                                  <Phone size={14} className="text-gray-400 flex-shrink-0" />
+                                  {member.phone}
+                                </span>
+                                <span className="flex items-center gap-1.5 text-gray-500">
+                                  <CalendarClock
+                                    size={14}
+                                    className="text-gray-400 flex-shrink-0"
+                                  />
+                                  {formatScheduleRange(
+                                    member.startDay,
+                                    member.endDay,
+                                    member.startTime,
+                                    member.endTime,
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <button
+                              onClick={() => {
+                                setSelectedStaff(member);
+                                setShowStaffViewModal(true);
+                              }}
+                              className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2 border border-gray-300"
+                              title="View info"
+                            >
+                              <Eye size={16} />
+                              <span>View</span>
+                            </button>
+                            <button
+                              onClick={() => openEditStaff(member)}
+                              className="px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2 border border-blue-200"
+                              title="Edit info"
+                            >
+                              <Edit size={16} />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedStaff(member);
+                                setShowStaffDeleteConfirm(true);
+                              }}
+                              className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 border border-red-200"
+                              title="Delete"
+                            >
+                              <Trash2 size={16} />
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </main>
 
       {/* Add/Edit Hall Modal */}
@@ -4779,6 +5396,470 @@ export default function App() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Staff Add/Edit Modal */}
+      {showStaffFormModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-violet-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-md">
+                    {staffEditMode ? (
+                      <Edit size={20} className="text-white" />
+                    ) : (
+                      <UserPlus size={20} className="text-white" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      {staffEditMode ? `Edit ${selectedStaff?.fullName}` : 'Add Staff Member'}
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-0.5">
+                      {staffEditMode
+                        ? 'Update contact details, position, or shift'
+                        : "We'll add this person to the active roster"}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowStaffFormModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full name
+                </label>
+                <input
+                  type="text"
+                  value={staffForm.fullName}
+                  onChange={(e) =>
+                    setStaffForm((f) => ({ ...f, fullName: e.target.value }))
+                  }
+                  placeholder="e.g., Yara El-Sayed"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Username
+                </label>
+                <div className="relative">
+                  <AtSign
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                  />
+                  <input
+                    type="text"
+                    value={staffForm.username}
+                    onChange={(e) =>
+                      setStaffForm((f) => ({ ...f, username: e.target.value }))
+                    }
+                    placeholder="e.g., yara.elsayed"
+                    className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <div className="relative">
+                    <Mail
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                    />
+                    <input
+                      type="email"
+                      value={staffForm.email}
+                      onChange={(e) =>
+                        setStaffForm((f) => ({ ...f, email: e.target.value }))
+                      }
+                      placeholder="name@cinefy.eg"
+                      className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone number
+                  </label>
+                  <div className="relative">
+                    <Phone
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                    />
+                    <input
+                      type="tel"
+                      value={staffForm.phone}
+                      onChange={(e) =>
+                        setStaffForm((f) => ({ ...f, phone: e.target.value }))
+                      }
+                      placeholder="+20 100 000 0000"
+                      className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                  {(
+                    ['Manager', 'Cashier', 'Projectionist', 'Usher', 'Concessions'] as StaffPosition[]
+                  ).map((pos) => {
+                    const meta = POSITION_META[pos];
+                    const active = staffForm.position === pos;
+                    return (
+                      <button
+                        key={pos}
+                        type="button"
+                        onClick={() => setStaffForm((f) => ({ ...f, position: pos }))}
+                        className={`px-2 py-2.5 rounded-lg border-2 text-xs font-semibold transition-all ${
+                          active
+                            ? `${meta.soft} ${meta.ink} border-current shadow-sm`
+                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                        }`}
+                      >
+                        {pos}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Employment type
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(['Full-time', 'Part-time'] as EmploymentType[]).map((t) => {
+                    const active = staffForm.employmentType === t;
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setStaffForm((f) => ({ ...f, employmentType: t }))}
+                        className={`px-3 py-2.5 rounded-lg border-2 text-sm font-semibold transition-all ${
+                          active
+                            ? 'bg-blue-50 text-blue-900 border-blue-500 shadow-sm'
+                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Working days
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <select
+                    value={staffForm.startDay}
+                    onChange={(e) =>
+                      setStaffForm((f) => ({
+                        ...f,
+                        startDay: e.target.value as Weekday,
+                      }))
+                    }
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {WEEKDAYS.map((d) => (
+                      <option key={d.value} value={d.value}>
+                        {d.label}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={staffForm.endDay}
+                    onChange={(e) =>
+                      setStaffForm((f) => ({
+                        ...f,
+                        endDay: e.target.value as Weekday,
+                      }))
+                    }
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {WEEKDAYS.map((d) => (
+                      <option key={d.value} value={d.value}>
+                        {d.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Working hours
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="time"
+                    value={staffForm.startTime}
+                    onChange={(e) =>
+                      setStaffForm((f) => ({ ...f, startTime: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <input
+                    type="time"
+                    value={staffForm.endTime}
+                    onChange={(e) =>
+                      setStaffForm((f) => ({ ...f, endTime: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+            </div>
+
+            <div className="p-6 border-t border-gray-200 bg-gray-50 flex items-center gap-3">
+              <button
+                onClick={() => setShowStaffFormModal(false)}
+                className="flex-1 px-6 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors border border-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveStaff}
+                disabled={!staffForm.fullName.trim()}
+                className="flex-1 px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors shadow-md flex items-center justify-center gap-2"
+              >
+                <Check size={18} />
+                {staffEditMode ? 'Save changes' : 'Add staff member'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Staff View Info Modal */}
+      {showStaffViewModal && selectedStaff && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Hero */}
+            <div
+              className={`relative bg-gradient-to-br ${POSITION_META[selectedStaff.position].gradient} p-8 text-white`}
+            >
+              <button
+                onClick={() => {
+                  setShowStaffViewModal(false);
+                  setSelectedStaff(null);
+                }}
+                className="absolute top-4 right-4 w-9 h-9 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors"
+              >
+                <X size={18} className="text-white" />
+              </button>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-2xl bg-white/15 backdrop-blur-sm ring-1 ring-white/30 flex items-center justify-center text-2xl font-bold">
+                  {getInitials(selectedStaff.fullName)}
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-2xl font-bold truncate">{selectedStaff.fullName}</h3>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-sm text-[11px] font-bold uppercase tracking-[0.1em]">
+                      <Briefcase size={11} />
+                      {selectedStaff.position}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-5">
+              <div>
+                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                  Contact
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                      <AtSign size={16} className="text-gray-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-gray-500">Username</p>
+                      <p className="text-sm font-medium text-gray-900 font-mono truncate">
+                        {selectedStaff.username}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                      <Mail size={16} className="text-gray-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-gray-500">Email</p>
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {selectedStaff.email}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                      <Phone size={16} className="text-gray-500" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Phone</p>
+                      <p className="text-sm font-medium text-gray-900">{selectedStaff.phone}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                  Employment
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="px-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <p className="text-xs text-gray-500 mb-0.5 flex items-center gap-1.5">
+                      <Calendar size={12} /> Hired
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {formatStaffDate(selectedStaff.hiredAt)}
+                    </p>
+                  </div>
+                  <div className="px-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <p className="text-xs text-gray-500 mb-0.5 flex items-center gap-1.5">
+                      <Briefcase size={12} /> Employment type
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {selectedStaff.employmentType}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                  Working schedule
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                      <Calendar size={16} className="text-gray-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-gray-500">Working days</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {selectedStaff.startDay === selectedStaff.endDay
+                          ? (WEEKDAYS.find((d) => d.value === selectedStaff.startDay)?.label ??
+                            selectedStaff.startDay)
+                          : `${
+                              WEEKDAYS.find((d) => d.value === selectedStaff.startDay)?.label ??
+                              selectedStaff.startDay
+                            } – ${
+                              WEEKDAYS.find((d) => d.value === selectedStaff.endDay)?.label ??
+                              selectedStaff.endDay
+                            }`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                      <Clock size={16} className="text-gray-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-gray-500">Working hours</p>
+                      <p className="text-sm font-medium text-gray-900 font-mono">
+                        {selectedStaff.startTime} – {selectedStaff.endTime}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div className="p-5 border-t border-gray-200 bg-gray-50 flex items-center gap-3">
+              <button
+                onClick={() => {
+                  setShowStaffViewModal(false);
+                  setSelectedStaff(null);
+                }}
+                className="flex-1 px-6 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors border border-gray-300"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  setShowStaffViewModal(false);
+                  if (selectedStaff) openEditStaff(selectedStaff);
+                }}
+                className="flex-1 px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors shadow-md flex items-center justify-center gap-2"
+              >
+                <Edit size={16} />
+                Edit info
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Staff Delete Confirmation */}
+      {showStaffDeleteConfirm && selectedStaff && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="p-6">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle size={24} className="text-red-600" />
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+                Remove staff member
+              </h3>
+              <p className="text-gray-600 text-center mb-6">
+                Are you sure you want to remove{' '}
+                <strong>{selectedStaff.fullName}</strong> from the roster? This action cannot be
+                undone.
+              </p>
+
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-2">
+                  <AlertCircle size={16} className="text-red-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-red-800">
+                    <p className="font-semibold mb-1">This will:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>Revoke their dashboard access</li>
+                      <li>Clear future shift assignments</li>
+                      <li>Archive their employment history</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowStaffDeleteConfirm(false)}
+                  className="flex-1 px-6 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteStaff}
+                  className="flex-1 px-6 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-colors shadow-md"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
