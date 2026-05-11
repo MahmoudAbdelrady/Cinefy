@@ -30,6 +30,23 @@ export type {
 
 export type { Movie, MovieSearchResult, MovieDetail } from './movies';
 
+export {
+  PAYMENT_METHOD_TYPE_LABELS,
+  PAYMENT_METHOD_STATUS_LABELS,
+  PAYMENT_METHOD_TEST_STATUS_LABELS,
+} from './payment';
+export type {
+  PaymentMethodType,
+  PaymentMethodStatus,
+  PaymentMethodTestStatus,
+  PaymentMethod,
+  PaymentMethodSummary,
+  PaymentMethodDetail,
+  PaymentMethodTestResult,
+  PaymentMethodStatusRequest,
+  TestConnectionRequest,
+} from './payment';
+
 export { SHOWTIME_STATUS_LABELS } from './showtimes';
 export type {
   ShowtimeStatus,

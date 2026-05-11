@@ -1,5 +1,6 @@
 @use '../../../../shared/styles/colors' as *;
 @use '../../../../shared/styles/mixins' as *;
+@use '../../../../shared/styles/breakpoints' as *;
 
 .review-step-container {
   max-width: 768px;
@@ -71,7 +72,6 @@
     display: block;
     font-size: 11px;
     font-weight: 600;
-    text-transform: uppercase;
     letter-spacing: 0.05em;
     color: rgba(#ffffff, 0.7);
     margin-bottom: 2px;
@@ -92,9 +92,18 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  background: $purple-100;
-  color: $purple-600;
-  border: 1px solid $purple-200;
+
+  &[data-is-test='true'] {
+    background: $purple-100;
+    color: $purple-600;
+    border: 1px solid $purple-200;
+  }
+
+  &[data-is-test='false'] {
+    background: $green-100;
+    color: $green-700;
+    border: 1px solid $green-200;
+  }
 }
 
 .rscd-info {
@@ -126,48 +135,162 @@
     font-weight: 500;
     @include flex-align;
     gap: 6px;
+    min-width: 0;
 
     &.success {
       color: $green-700;
       font-weight: 600;
+    }
+
+    &.monospace {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+        monospace;
+      font-size: 12.5px;
+      overflow-wrap: anywhere;
+      line-height: 1.5;
+    }
+  }
+
+  .rii-secret {
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+
+    .rii-secret-text {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
+      line-height: 1.5;
+
+      &.monospace {
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+          monospace;
+        font-size: 12.5px;
+      }
+    }
+
+    .rii-toggle {
+      flex-shrink: 0;
+      @include flex-center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: $radius-md;
+      background: transparent;
+      color: $gray-500;
+      cursor: pointer;
+      transition:
+        background-color 150ms ease,
+        color 150ms ease;
+
+      &:hover {
+        background-color: $gray-100;
+        color: $gray-700;
+      }
+    }
+  }
+}
+
+// ─── Connection test card ───────────────────────────────────────────────────
+.rsc-test {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: $radius-xl;
+  border: 1px solid $gray-200;
+  background: linear-gradient(to bottom right, $gray-50, #ffffff);
+  @include lucide-icon-fix;
+}
+
+.rsct-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  @include below-mobile {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .rsct-info {
+    flex: 1;
+    min-width: 0;
+
+    h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: $gray-900;
+      line-height: 1.4;
+    }
+
+    p {
+      font-size: 12.5px;
+      color: $gray-600;
+      margin-top: 2px;
+      line-height: 1.5;
+    }
+  }
+}
+
+.rsct-result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: $radius-lg;
+  border: 1px solid $green-200;
+  background: rgba($green-50, 0.4);
+
+  .rsctr-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: $radius-full;
+    @include flex-center;
+    flex-shrink: 0;
+    background: $green-500;
+    color: #ffffff;
+  }
+
+  .rsctr-info {
+    flex: 1;
+    min-width: 0;
+
+    h5 {
+      font-size: 14px;
+      font-weight: 600;
+      color: $green-900;
+      line-height: 1.4;
+    }
+
+    p {
+      font-size: 12px;
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+        monospace;
+      color: rgba($red-700, 0.8);
+      margin-top: 2px;
+      line-height: 1.5;
+    }
+  }
+
+  &.error {
+    border-color: $red-200;
+    background: rgba($red-50, 0.4);
+
+    .rsctr-icon {
+      background: $red-500;
+    }
+
+    .rsctr-info h5 {
+      color: $red-900;
     }
   }
 }
 
 .success-icon {
   color: $green-700;
-}
-
-// ─── "What happens next" tip ────────────────────────────────────────────────
-.rsc-tip {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  border-radius: $radius-xl;
-  border: 1px solid $green-200;
-  background: rgba($green-50, 0.6);
-  @include lucide-icon-fix;
-}
-
-.rsct-icon {
-  flex-shrink: 0;
-  margin-top: 2px;
-  color: $green-700;
-}
-
-.rsct-info {
-  color: $green-900;
-
-  h3 {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 2px;
-    line-height: 1.4;
-  }
-
-  p {
-    font-size: 12px;
-    line-height: 1.6;
-  }
 }

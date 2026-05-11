@@ -17,31 +17,50 @@
     <identity-step [form]="form.controls.identity" />
   </ng-template>
   <ng-template #credentials>
-    <credentials-step [form]="form.controls.credentials" />
+    <credentials-step [form]="form.controls.credentials" [isEditMode]="isEditMode()" />
   </ng-template>
   <ng-template #integration>
     <integration-step [form]="form.controls.integration" />
   </ng-template>
-  <ng-template #verify>
-    <verification-step />
-  </ng-template>
   <ng-template #review>
-    <review-step />
+    <review-step
+      [data]="paymentMethodValue()"
+      [methodId]="methodId()"
+      [initialTestResult]="initialTestResult()"
+      (connectionTestRequested)="connectionTestRequested.set(true)"
+    />
   </ng-template>
 
   <div modal-footer class="manage-footer">
     <div class="mf-info">
       <lucide-icon [img]="LockIcon" [size]="16"></lucide-icon>
-      <span>Credentials are encrypted at rest and never exposed to the browser after saving.</span>
+      <span
+        >Sensitive credentials stay encrypted server-side and never round-trip back to your
+        browser.</span
+      >
     </div>
     <div class="action-btns">
       @if (currentStep() > 0) {
-        <button ngpButton class="btn-secondary" (click)="goToPreviousStep()">Back</button>
+        <button ngpButton class="btn-secondary" [disabled]="saving()" (click)="goToPreviousStep()">
+          Back
+        </button>
       }
 
       @let isLastStep = currentStep() === steps().length - 1;
-      <button ngpButton class="btn-primary" (click)="isLastStep ? saveAsDraft() : goToNextStep()">
-        {{ isLastStep ? 'Save as Draft' : 'Continue' }}
+      <button
+        ngpButton
+        class="btn-primary"
+        [disabled]="!currentStepValid() || saving()"
+        (click)="isLastStep ? save() : goToNextStep()"
+      >
+        @if (saving()) {
+          <loading-spinner [size]="16" />
+          <span>Saving…</span>
+        } @else {
+          <span>{{
+            isLastStep ? (isEditMode() ? 'Save Changes' : 'Save as Draft') : 'Continue'
+          }}</span>
+        }
       </button>
     </div>
   </div>

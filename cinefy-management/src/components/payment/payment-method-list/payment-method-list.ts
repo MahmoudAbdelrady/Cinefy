@@ -1,39 +1,39 @@
-import { CurrencyPipe, DecimalPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, DestroyRef, inject, signal, WritableSignal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
-  Check,
   CircleAlert,
   CircleCheck,
   CreditCard,
   EllipsisVertical,
+  Info,
   LucideAngularModule,
   Power,
   PowerOff,
   Rocket,
+  Sparkles,
   SquarePen,
   Trash2,
+  Webhook,
   Zap,
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
+import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { ModalComponent } from '../../modal/modal';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { ManagePaymentModalComponent } from '../manage-payment-modal/manage-payment-modal';
 import { RelativeTimePipe } from '../../../shared/pipes';
-
-interface PaymentMethod {
-  id: string;
-  name: string;
-  type: 'production' | 'sandbox';
-  status: 'active' | 'disabled' | 'draft';
-  lastTestStatus?: 'success' | 'failure';
-  currency: string;
-  monthVolume: number; // in cents
-  successRate: number; // percentage from 0 to 100
-  createdAt: string; // ISO date string
-  publishedAt: string; // ISO date string
-  credentialsRotatedAt: string; // ISO date string
-  lastChargeAt: string; // ISO date string
-}
+import { PaymentMethodService, ToastService } from '../../../services';
+import {
+  PAYMENT_METHOD_STATUS_LABELS,
+  PAYMENT_METHOD_TYPE_LABELS,
+  type PaymentMethodStatus,
+  type PaymentMethodSummary,
+  type PaymentMethodType,
+} from '../../../shared/types';
 
 @Component({
   selector: 'payment-method-list',
@@ -43,17 +43,22 @@ interface PaymentMethod {
     NgpMenuTrigger,
     NgpMenuItem,
     NgpDialogTrigger,
+    NgpPopover,
+    NgpPopoverTrigger,
     ModalComponent,
-    CurrencyPipe,
-    DecimalPipe,
+    LoadingSpinnerComponent,
+    ManagePaymentModalComponent,
     NgpButton,
+    DatePipe,
     RelativeTimePipe,
   ],
   templateUrl: './payment-method-list.html',
   styleUrl: './payment-method-list.scss',
 })
 export class PaymentMethodListComponent {
-  protected readonly CreditCardIcon = CreditCard;
+  protected readonly CardIcon = CreditCard;
+  protected readonly WalletIcon = Webhook;
+  protected readonly InstallmentIcon = Sparkles;
   protected readonly MenuIcon = EllipsisVertical;
   protected readonly PowerIcon = Power;
   protected readonly PowerOffIcon = PowerOff;
@@ -61,79 +66,172 @@ export class PaymentMethodListComponent {
   protected readonly ZapIcon = Zap;
   protected readonly CheckIcon = CircleCheck;
   protected readonly AlertIcon = CircleAlert;
+  protected readonly InfoIcon = Info;
   protected readonly RocketIcon = Rocket;
   protected readonly DeleteIcon = Trash2;
 
-  protected readonly paymentMethods: PaymentMethod[] = [
-    {
-      id: 'pm_01',
-      name: 'Paymob — Cards (Live)',
-      type: 'production',
-      status: 'active',
-      lastTestStatus: 'success',
-      currency: 'EGP',
-      monthVolume: 14238000,
-      successRate: 98.4,
-      createdAt: '2026-02-12',
-      publishedAt: '2026-02-14',
-      credentialsRotatedAt: '2026-04-19',
-      lastChargeAt: '2026-05-01T07:42:00',
-    },
-    {
-      id: 'pm_02',
-      name: 'Paymob — Wallets',
-      type: 'production',
-      status: 'draft',
-      lastTestStatus: 'success',
-      currency: 'EGP',
-      monthVolume: 0,
-      successRate: 0,
-      createdAt: '2026-04-28',
-      publishedAt: '',
-      credentialsRotatedAt: '2026-04-28',
-      lastChargeAt: '',
-    },
-    {
-      id: 'pm_03',
-      name: 'Paymob — Installments',
-      type: 'sandbox',
-      status: 'disabled',
-      lastTestStatus: 'failure',
-      currency: 'EGP',
-      monthVolume: 0,
-      successRate: 64.2,
-      createdAt: '2026-03-01',
-      publishedAt: '2026-03-05',
-      credentialsRotatedAt: '2026-03-01',
-      lastChargeAt: '2026-04-08T19:14:00',
-    },
-    {
-      id: 'pm_04',
-      name: 'Paymob — Cards (Legacy)',
-      type: 'production',
-      status: 'active',
-      lastTestStatus: 'success',
-      currency: 'EGP',
-      monthVolume: 3894000,
-      successRate: 91.7,
-      createdAt: '2025-08-14',
-      publishedAt: '2025-08-16',
-      credentialsRotatedAt: '2026-01-15',
-      lastChargeAt: '2026-04-30T22:08:00',
-    },
-  ];
+  private readonly paymentMethodService = inject(PaymentMethodService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected getRotationStatus(method: PaymentMethod): 'recent' | 'due' | 'overdue' {
+  protected readonly typeLabels = PAYMENT_METHOD_TYPE_LABELS;
+  protected readonly statusLabels = PAYMENT_METHOD_STATUS_LABELS;
+
+  protected readonly paymentMethods = signal<PaymentMethodSummary[]>([]);
+  protected readonly deletingMethodIds = signal<ReadonlySet<string>>(new Set());
+  protected readonly testingMethodIds = signal<ReadonlySet<string>>(new Set());
+  protected readonly updatingStatusMethodIds = signal<ReadonlySet<string>>(new Set());
+
+  constructor() {
+    this.paymentMethodService
+      .getPaymentMethods()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((methods) => this.paymentMethods.set(methods));
+  }
+
+  addPaymentMethod(method: PaymentMethodSummary): void {
+    this.paymentMethods.update((methods) => [method, ...methods]);
+  }
+
+  updatePaymentMethod(method: PaymentMethodSummary): void {
+    this.paymentMethods.update((methods) =>
+      methods.map((m) => (m.id === method.id ? method : m)),
+    );
+  }
+
+  protected updateStatus(id: string, status: PaymentMethodStatus): void {
+    if (this.updatingStatusMethodIds().has(id)) return;
+    this.markInFlight(this.updatingStatusMethodIds, id);
+    this.paymentMethodService
+      .updatePaymentMethodStatus(id, { status })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.paymentMethods.update((methods) =>
+            methods.map((m) => (m.id === id ? { ...m, status } : m)),
+          );
+          this.clearInFlight(this.updatingStatusMethodIds, id);
+          this.toastService.success(`Updated status successfully`);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.clearInFlight(this.updatingStatusMethodIds, id);
+          this.toastService.error(err.error?.message ?? 'Failed to update status');
+        },
+      });
+  }
+
+  protected runTestConnection(id: string): void {
+    if (this.testingMethodIds().has(id)) return;
+    this.markInFlight(this.testingMethodIds, id);
+    this.paymentMethodService
+      .testPaymentMethodConnection(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.paymentMethods.update((methods) =>
+            methods.map((m) =>
+              m.id === id
+                ? {
+                    ...m,
+                    testStatus: result.testStatus,
+                    testFailureReason: result.testFailureReason,
+                    testedAt: new Date().toISOString(),
+                  }
+                : m,
+            ),
+          );
+          this.clearInFlight(this.testingMethodIds, id);
+          if (result.testStatus === 'SUCCESS') {
+            this.toastService.success('Connection test passed');
+          } else {
+            this.toastService.error(result.testFailureReason ?? 'Connection test failed');
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          this.clearInFlight(this.testingMethodIds, id);
+          this.toastService.error(err.error?.message ?? 'Failed to run test connection');
+        },
+      });
+  }
+
+  protected deletePaymentMethod(id: string, close: () => void): void {
+    if (this.deletingMethodIds().has(id)) return;
+    this.markInFlight(this.deletingMethodIds, id);
+    this.paymentMethodService
+      .deletePaymentMethod(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.paymentMethods.update((methods) => methods.filter((m) => m.id !== id));
+          this.clearInFlight(this.deletingMethodIds, id);
+          this.toastService.success('Payment method deleted successfully');
+          close();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.clearInFlight(this.deletingMethodIds, id);
+          this.toastService.error(err.error?.message ?? 'Failed to delete payment method');
+        },
+      });
+  }
+
+  private markInFlight(set: WritableSignal<ReadonlySet<string>>, id: string): void {
+    set.update((current) => new Set(current).add(id));
+  }
+
+  private clearInFlight(set: WritableSignal<ReadonlySet<string>>, id: string): void {
+    set.update((current) => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
+  }
+
+  protected getPaymentTypeIcon(type: PaymentMethodType) {
+    switch (type) {
+      case 'CARD':
+        return this.CardIcon;
+      case 'WALLET':
+        return this.WalletIcon;
+      case 'INSTALLMENT':
+        return this.InstallmentIcon;
+    }
+  }
+
+  protected getRotationStatus(method: PaymentMethodSummary): 'recent' | 'due' | 'overdue' {
     const now = new Date();
     const rotatedAt = new Date(method.credentialsRotatedAt);
     const daysSinceRotation = (now.getTime() - rotatedAt.getTime()) / (1000 * 60 * 60 * 24);
 
     if (daysSinceRotation < 30) {
       return 'recent';
-    } else if (daysSinceRotation < 60) {
+    } else if (daysSinceRotation < 90) {
       return 'due';
     } else {
       return 'overdue';
+    }
+  }
+
+  protected getSuccessRateTone(rate?: string): 'healthy' | 'watch' | 'degraded' | 'empty' {
+    if (!rate) return 'empty';
+    const match = /^(-?\d+(\.\d+)?)\s*%?$/.exec(rate.trim());
+    if (!match) return 'empty';
+    const value = parseFloat(match[1]);
+    if (isNaN(value) || value === 0) return 'empty';
+    if (value >= 95) return 'healthy';
+    if (value >= 80) return 'watch';
+    return 'degraded';
+  }
+
+  protected getSuccessRateLabel(tone: 'healthy' | 'watch' | 'degraded' | 'empty'): string {
+    switch (tone) {
+      case 'healthy':
+        return 'Healthy';
+      case 'watch':
+        return 'Watch';
+      case 'degraded':
+        return 'Degraded';
+      case 'empty':
+        return 'No data yet';
     }
   }
 }

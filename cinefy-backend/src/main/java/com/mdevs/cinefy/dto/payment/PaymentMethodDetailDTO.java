@@ -12,13 +12,11 @@ import java.time.LocalDateTime;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
-public class PaymentMethodSummaryDTO {
+public class PaymentMethodDetailDTO {
 
     private String id;
 
     private String name;
-
-    private String status;
 
     private String type;
 
@@ -30,10 +28,6 @@ public class PaymentMethodSummaryDTO {
 
     private String publicKey;
 
-    private String secretKeyHint;
-
-    private String hmacKeyHint;
-
     private long integrationId;
 
     private String testStatus;
@@ -41,10 +35,4 @@ public class PaymentMethodSummaryDTO {
     private String testFailureReason;
 
     private LocalDateTime testedAt;
-
-    private String successRate;
-
-    private LocalDateTime credentialsRotatedAt;
-
-    private LocalDateTime createdAt;
 }

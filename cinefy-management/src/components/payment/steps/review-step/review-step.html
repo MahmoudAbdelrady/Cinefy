@@ -1,12 +1,18 @@
 <div class="review-step-container">
   <div class="rsc-header">
-    <h3>Review and save</h3>
+    <h3>Review and test</h3>
     <p>
-      This method will be saved as a <strong>draft</strong>. It won't be visible to customers until
-      you publish it from the methods list.
+      Confirm the configuration and run a read-only test. The method will be saved as a
+      <strong>draft</strong> — it won't be visible to customers until you publish it from the
+      methods list.
     </p>
   </div>
   <div class="rsc-content">
+    @let payment = data();
+    @let result = testResult();
+    @let isFailure = result.testStatus === 'FAILURE';
+    @let isSuccess = result.testStatus === 'SUCCESS';
+
     <div class="rsc-details">
       <div class="rscd-header">
         <div class="rsc-data">
@@ -14,53 +20,127 @@
             <lucide-icon [img]="CreditCardIcon" [size]="16"></lucide-icon>
           </div>
           <div class="rsh-info">
-            <span>New Payment Method</span>
-            <h4>Paymob - Cards</h4>
+            <h4>{{ payment.name || '—' }}</h4>
+            <span>{{ typeLabels[payment.type] }} · {{ payment.currency }}</span>
           </div>
         </div>
-        <div class="rsc-tag">Sandbox</div>
+        <div class="rsc-tag" [attr.data-is-test]="payment.isTest">
+          {{ payment.isTest ? 'Sandbox' : 'Production' }}
+        </div>
       </div>
       <div class="rscd-info">
         <div class="rsc-info-item">
-          <span class="rii-label">Display Name</span>
-          <span class="rii-value">Paymob - Cards</span>
+          <span class="rii-label">Provider</span>
+          <span class="rii-value">Paymob</span>
         </div>
         <div class="rsc-info-item">
-          <span class="rii-label">API key</span>
-          <span class="rii-value">••••••••••••••••••••••••</span>
+          <span class="rii-label">Secret key</span>
+          <span class="rii-value rii-secret">
+            <span
+              class="rii-secret-text"
+              [class.monospace]="showSecretKey() && payment.secretKey"
+              >{{
+                payment.secretKey
+                  ? showSecretKey()
+                    ? payment.secretKey
+                    : mask(payment.secretKey)
+                  : '—'
+              }}</span
+            >
+            @if (payment.secretKey) {
+              <button type="button" class="rii-toggle" (click)="toggleSecretKey()">
+                <lucide-icon
+                  [img]="showSecretKey() ? EyeOffIcon : EyeIcon"
+                  [size]="16"
+                ></lucide-icon>
+              </button>
+            }
+          </span>
         </div>
         <div class="rsc-info-item">
           <span class="rii-label">HMAC secret</span>
-          <span class="rii-value">••••••••••••••••</span>
+          <span class="rii-value rii-secret">
+            <span
+              class="rii-secret-text"
+              [class.monospace]="showHmacSecret() && payment.hmacSecret"
+              >{{
+                payment.hmacSecret
+                  ? showHmacSecret()
+                    ? payment.hmacSecret
+                    : mask(payment.hmacSecret)
+                  : '—'
+              }}</span
+            >
+            @if (payment.hmacSecret) {
+              <button type="button" class="rii-toggle" (click)="toggleHmacSecret()">
+                <lucide-icon
+                  [img]="showHmacSecret() ? EyeOffIcon : EyeIcon"
+                  [size]="16"
+                ></lucide-icon>
+              </button>
+            }
+          </span>
+        </div>
+        <div class="rsc-info-item">
+          <span class="rii-label">Public key</span>
+          <span class="rii-value monospace">{{ payment.publicKey || '—' }}</span>
         </div>
         <div class="rsc-info-item">
           <span class="rii-label">Integration ID</span>
-          <span class="rii-value">123456</span>
-        </div>
-        <div class="rsc-info-item">
-          <span class="rii-label">Iframe ID</span>
-          <span class="rii-value">123456</span>
-        </div>
-        <div class="rsc-info-item">
-          <span class="rii-label">Connection test</span>
-          <span class="rii-value success">
-            <lucide-icon [img]="CheckIcon" [size]="16"></lucide-icon>
-            Successful
-          </span>
+          <span class="rii-value">{{ payment.integrationId || '—' }}</span>
         </div>
       </div>
     </div>
-    <div class="rsc-tip">
-      <div class="rsct-icon">
-        <lucide-icon [img]="SparklesIcon" [size]="16"></lucide-icon>
+
+    <div class="rsc-test">
+      <div class="rsct-row">
+        <div class="rsct-info">
+          <h4>Connection test</h4>
+          <p>
+            @if (result.fromPriorSession) {
+              Showing the last saved test result. Run again to re-check with the current
+              configuration.
+            } @else if (isSuccess) {
+              Connection successful — credentials accepted by Paymob.
+            } @else if (isFailure) {
+              Connection failed. Review the error and adjust your credentials if needed.
+            } @else {
+              Run a read-only check against Paymob. No charges will be made.
+            }
+          </p>
+        </div>
+        <button ngpButton class="btn-primary" [disabled]="loading()" (click)="runTest()">
+          @if (loading()) {
+            <loading-spinner [size]="16" />
+            <span>Testing…</span>
+          } @else {
+            <lucide-icon [img]="ZapIcon" [size]="16"></lucide-icon>
+            <span>{{ result.testStatus === 'UNTESTED' ? 'Test connection' : 'Test again' }}</span>
+          }
+        </button>
       </div>
-      <div class="rsct-info">
-        <h3>What happens next</h3>
-        <p>
-          We'll save this configuration as a draft. From the Payment Methods page you can publish it
-          (so customers can pay with it), edit any field, or delete it.
-        </p>
-      </div>
+      @if (result.testStatus !== 'UNTESTED') {
+        <div class="rsct-result" [class.error]="isFailure">
+          <div class="rsctr-icon">
+            <lucide-icon [img]="isFailure ? XIcon : CheckIcon" [size]="16"></lucide-icon>
+          </div>
+          <div class="rsctr-info">
+            <h5>
+              @if (result.fromPriorSession) {
+                Last test {{ isFailure ? 'failed' : 'passed' }}
+                @if (result.testedAt) {
+                  · <span class="rsctr-time">{{ result.testedAt | relativeTime }}</span>
+                }
+              } @else {
+                {{ isFailure ? 'Connection failed' : 'Connection successful' }}
+              }
+            </h5>
+            @if (isFailure && result.testFailureReason) {
+              <p>{{ result.testFailureReason }}</p>
+            }
+          </div>
+        </div>
+      }
     </div>
   </div>
 </div>

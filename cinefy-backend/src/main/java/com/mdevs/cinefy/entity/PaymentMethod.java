@@ -12,7 +12,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(indexes = {
-        @Index(columnList = "_UUID")
+        @Index(columnList = "_UUID"),
+        @Index(columnList = "CREATED_AT"),
+        @Index(columnList = "TYPE"),
+        @Index(columnList = "STATUS"),
+        @Index(columnList = "TYPE, STATUS")
 })
 public class PaymentMethod extends BaseEntity {
 
@@ -46,9 +50,6 @@ public class PaymentMethod extends BaseEntity {
     @Column(nullable = false)
     private long integrationId;
 
-    @Column
-    private String iframeId;
-
     @Column(length = 3)
     private String currency;
 
@@ -62,6 +63,6 @@ public class PaymentMethod extends BaseEntity {
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime testedAt;
 
-    @Column(columnDefinition = "TIMESTAMP(0)")
+    @Column(columnDefinition = "TIMESTAMP(0)", nullable = false)
     private LocalDateTime credentialsRotatedAt;
 }

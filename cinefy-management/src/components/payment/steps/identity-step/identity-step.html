@@ -11,11 +11,25 @@
       label="Display Name"
       placeholder="e.g. Paymob Credit Cards"
       hint="Choose a name that tells configurations apart at a glance — gateway, type, or environment usually works well."
-      [control]="form().controls.displayName"
+      [control]="form().controls.name"
       [errorMessages]="{ required: 'Display name is required' }"
     />
     <div class="input-group">
-      <label>Environment<span class="required">*</span></label>
+      <label>Provider</label>
+      <input class="provider-input" type="text" value="Paymob" disabled />
+    </div>
+    <custom-select
+      label="Type"
+      [required]="true"
+      [items]="typeOptions"
+      [value]="form().controls.type.value"
+      [displayFn]="typeDisplayFn"
+      placeholder="Select a type"
+      [isError]="form().controls.type.touched && form().controls.type.invalid"
+      (selectionChange)="onTypeChange($event)"
+    />
+    <div class="input-group">
+      <label data-required>Environment</label>
       <div
         ngpRadioGroup
         class="radio-group"

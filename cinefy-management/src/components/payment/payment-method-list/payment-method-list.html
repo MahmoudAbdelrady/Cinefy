@@ -1,27 +1,35 @@
 <div class="payment-method-list-container">
   <div class="payment-method-items">
-    @for (paymentMethod of paymentMethods; track paymentMethod.id) {
+    @for (paymentMethod of paymentMethods(); track paymentMethod.id) {
+      @let rotationStatus = getRotationStatus(paymentMethod);
+      @let successTone = getSuccessRateTone(paymentMethod.successRate);
       <div class="method-item" [attr.data-status]="paymentMethod.status">
         <div class="mi-header">
           <div class="mih-info">
             <div class="mihi-details">
-              <div class="mihi-icon">
-                <lucide-icon [img]="CreditCardIcon" [size]="22"></lucide-icon>
+              <div class="mihi-icon" [attr.data-payment-type]="paymentMethod.type">
+                <lucide-icon
+                  [img]="getPaymentTypeIcon(paymentMethod.type)"
+                  [size]="22"
+                ></lucide-icon>
               </div>
               <div class="mihi-name">
                 <div class="mihi-name-row">
                   <h3>{{ paymentMethod.name }}</h3>
-                  <span class="mihi-name-badge" [attr.data-type]="paymentMethod.type">{{
-                    paymentMethod.type === 'production' ? 'Production' : 'Sandbox'
+                  <span class="mihi-name-badge" [attr.data-is-test]="paymentMethod.isTest">{{
+                    paymentMethod.isTest ? 'Sandbox' : 'Production'
                   }}</span>
+                </div>
+                <div class="mihi-meta-row">
+                  <span class="mihi-meta-type">{{ typeLabels[paymentMethod.type] }}</span>
+                  <span class="mihi-meta-divider">·</span>
+                  <span class="mihi-meta-currency">{{ paymentMethod.currency }}</span>
                 </div>
               </div>
             </div>
             <div class="mihi-status" [attr.data-status]="paymentMethod.status">
               <div class="mihi-status-dot"></div>
-              <span>{{
-                paymentMethod.status.charAt(0).toUpperCase() + paymentMethod.status.slice(1)
-              }}</span>
+              <span>{{ statusLabels[paymentMethod.status] }}</span>
             </div>
           </div>
           <div class="mih-actions">
@@ -31,19 +39,45 @@
 
             <ng-template #paymentActionsMenu>
               <div ngpMenu>
-                @if (paymentMethod.status === 'active') {
-                  <button ngpMenuItem>
-                    <lucide-icon [img]="PowerOffIcon" size="16"></lucide-icon>
-                    <span>Deactivate</span>
+                @if (paymentMethod.status === 'ACTIVE') {
+                  <button
+                    ngpMenuItem
+                    [disabled]="updatingStatusMethodIds().has(paymentMethod.id)"
+                    (click)="updateStatus(paymentMethod.id, 'INACTIVE')"
+                  >
+                    @if (updatingStatusMethodIds().has(paymentMethod.id)) {
+                      <loading-spinner [size]="16" />
+                      <span>Deactivating…</span>
+                    } @else {
+                      <lucide-icon [img]="PowerOffIcon" size="16"></lucide-icon>
+                      <span>Deactivate</span>
+                    }
                   </button>
                 }
-                <button ngpMenuItem>
+                <button ngpMenuItem [ngpDialogTrigger]="editDialog">
                   <lucide-icon [img]="EditIcon" size="16"></lucide-icon>
                   <span>Edit configuration</span>
                 </button>
-                <button ngpMenuItem>
-                  <lucide-icon [img]="ZapIcon" size="16"></lucide-icon>
-                  <span>Run test connection</span>
+
+                <ng-template #editDialog let-close="close">
+                  <manage-payment-modal
+                    [close]="close"
+                    [methodId]="paymentMethod.id"
+                    (paymentMethodUpdated)="updatePaymentMethod($event)"
+                  />
+                </ng-template>
+                <button
+                  ngpMenuItem
+                  [disabled]="testingMethodIds().has(paymentMethod.id)"
+                  (click)="runTestConnection(paymentMethod.id)"
+                >
+                  @if (testingMethodIds().has(paymentMethod.id)) {
+                    <loading-spinner [size]="16" />
+                    <span>Testing…</span>
+                  } @else {
+                    <lucide-icon [img]="ZapIcon" size="16"></lucide-icon>
+                    <span>Run test connection</span>
+                  }
                 </button>
                 <button ngpMenuItem class="mih-delete-btn" [ngpDialogTrigger]="deleteDialog">
                   <lucide-icon [img]="DeleteIcon" size="16"></lucide-icon>
@@ -77,9 +111,26 @@
                 </div>
 
                 <div modal-footer class="delete-modal-footer">
-                  <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
-                  <button ngpButton class="btn-danger" (click)="close()">
-                    <span>Delete Method</span>
+                  <button
+                    ngpButton
+                    class="btn-secondary"
+                    [disabled]="deletingMethodIds().has(paymentMethod.id)"
+                    (click)="close()"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    ngpButton
+                    class="btn-danger"
+                    [disabled]="deletingMethodIds().has(paymentMethod.id)"
+                    (click)="deletePaymentMethod(paymentMethod.id, close)"
+                  >
+                    @if (deletingMethodIds().has(paymentMethod.id)) {
+                      <loading-spinner [size]="16" />
+                      <span>Deleting…</span>
+                    } @else {
+                      <span>Delete Method</span>
+                    }
                   </button>
                 </div>
               </app-modal>
@@ -87,82 +138,115 @@
           </div>
         </div>
         <div class="mi-content">
-          <div class="mic-stat-cards">
-            <div class="mics-card">
-              <span class="mics-card-label">Volume 30D</span>
-              <span class="mics-card-value">{{
-                paymentMethod.monthVolume / 100
-                  | currency: paymentMethod.currency : 'symbol' : '1.0-0'
-              }}</span>
+          <div class="mic-meta-strip">
+            <div class="mics-rate" [attr.data-tone]="successTone">
+              <span class="mics-rate-label">Success rate · 30d</span>
+              <span class="mics-rate-value">{{ paymentMethod.successRate ?? '—' }}</span>
+              <div class="mics-rate-tone">
+                <span class="mics-rate-tone-dot"></span>
+                <span class="mics-rate-tone-label">{{ getSuccessRateLabel(successTone) }}</span>
+              </div>
             </div>
-            <div class="mics-card">
-              <span class="mics-card-label">Success Rate</span>
-              <span class="mics-card-value"
-                >{{ paymentMethod.successRate | number: '1.0-1' }}%</span
-              >
-            </div>
-            <div class="mics-card">
-              <span class="mics-card-label">Last Test</span>
-              <span
-                class="mics-card-value"
-                [class.success]="paymentMethod.lastTestStatus === 'success'"
-                [class.failure]="paymentMethod.lastTestStatus === 'failure'"
-              >
-                @let isTested = !!paymentMethod.lastTestStatus;
-                @if (isTested) {
-                  <lucide-icon
-                    [img]="paymentMethod.lastTestStatus === 'success' ? CheckIcon : AlertIcon"
-                    size="16"
-                  ></lucide-icon>
-                  {{ paymentMethod.lastTestStatus === 'success' ? 'Success' : 'Failure' }}
-                } @else {
-                  Not Tested
-                }
-              </span>
-            </div>
-          </div>
-          <div class="mic-info" [attr.data-status]="getRotationStatus(paymentMethod)">
-            <div class="mici-title">Credentials Stats</div>
-            <div class="mici-details">
-              <div class="mici-detail-box">
-                <div
-                  class="mici-detail-box-label"
-                  [attr.data-status]="getRotationStatus(paymentMethod)"
-                >
-                  <div class="status-dot"></div>
-                  Last Rotated
-                </div>
-                <div class="mici-detail-box-value">
-                  {{ paymentMethod.credentialsRotatedAt | relativeTime }}
+            <span class="mics-divider"></span>
+            <div class="mics-stack">
+              <div class="mics-line">
+                <span class="mics-line-label">Connection Test Status</span>
+                <div class="mics-line-value">
+                  @switch (paymentMethod.testStatus) {
+                    @case ('SUCCESS') {
+                      <span class="mics-test-badge" data-test-status="success">
+                        <lucide-icon [img]="CheckIcon" size="14"></lucide-icon>
+                        Passed
+                      </span>
+                    }
+                    @case ('FAILURE') {
+                      <span class="mics-test-badge" data-test-status="failure">
+                        <lucide-icon [img]="AlertIcon" size="14"></lucide-icon>
+                        Failed
+                      </span>
+                    }
+                    @default {
+                      <span class="mics-test-badge" data-test-status="untested">
+                        <span class="mics-test-dot"></span>
+                        Untested
+                      </span>
+                    }
+                  }
+                  @if (paymentMethod.testedAt) {
+                    <span class="mics-tested-at"
+                      >· {{ paymentMethod.testedAt | relativeTime }}</span
+                    >
+                  }
+                  @if (paymentMethod.testStatus === 'FAILURE' && paymentMethod.testFailureReason) {
+                    <button
+                      #errorTrigger
+                      type="button"
+                      class="mics-error-btn"
+                      [ngpPopoverTrigger]="errorPopover"
+                      [ngpPopoverTriggerContainer]="errorTrigger.parentElement"
+                      ngpPopoverTriggerScrollBehavior="reposition"
+                      ngpPopoverTriggerPlacement="bottom-end"
+                      [ngpPopoverTriggerOffset]="6"
+                    >
+                      View error
+                    </button>
+                    <ng-template #errorPopover>
+                      <div ngpPopover class="mics-error-popover">
+                        <div class="mics-error-popover-header">
+                          <lucide-icon [img]="AlertIcon" size="14"></lucide-icon>
+                          <span>Last test failed</span>
+                        </div>
+                        <p class="mics-error-popover-body">
+                          {{ paymentMethod.testFailureReason }}
+                        </p>
+                      </div>
+                    </ng-template>
+                  }
                 </div>
               </div>
-              <div class="mici-detail-box">
-                <div class="mici-detail-box-label">Last Charge</div>
-                <div class="mici-detail-box-value">
-                  {{ paymentMethod.lastChargeAt | relativeTime }}
+              <div class="mics-line" [attr.data-tone]="rotationStatus">
+                <span class="mics-line-label">Rotated</span>
+                <div class="mics-line-value">
+                  @if (rotationStatus !== 'recent') {
+                    <span class="mics-rotation-dot"></span>
+                  }
+                  <span>{{ paymentMethod.credentialsRotatedAt | relativeTime }}</span>
+                </div>
+              </div>
+              <div class="mics-line">
+                <span class="mics-line-label">Created</span>
+                <div class="mics-line-value">
+                  <span>{{ paymentMethod.createdAt | date: 'dd MMM yyyy' }}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="mi-footer">
-          <div class="mif-date-info">
-            {{
-              paymentMethod.status === 'draft'
-                ? 'Created ' + paymentMethod.createdAt
-                : 'Published ' + paymentMethod.publishedAt
-            }}
-          </div>
-          @if (paymentMethod.status === 'draft' || paymentMethod.status === 'disabled') {
-            @let isDraft = paymentMethod.status === 'draft';
-            <div class="mif-actions">
-              <button ngpButton [class]="isDraft ? 'btn-success' : 'btn-secondary'">
+        @if (paymentMethod.status === 'DRAFT' || paymentMethod.status === 'INACTIVE') {
+          @let isDraft = paymentMethod.status === 'DRAFT';
+          <div class="mi-footer">
+            <button
+              ngpButton
+              [class]="isDraft ? 'btn-success' : 'btn-secondary'"
+              [disabled]="updatingStatusMethodIds().has(paymentMethod.id)"
+              (click)="updateStatus(paymentMethod.id, 'ACTIVE')"
+            >
+              @if (updatingStatusMethodIds().has(paymentMethod.id)) {
+                <loading-spinner [size]="14" />
+                <span>{{ isDraft ? 'Activating…' : 'Re-enabling…' }}</span>
+              } @else {
                 <lucide-icon [img]="isDraft ? RocketIcon : PowerIcon" [size]="14"></lucide-icon>
-                <span>{{ isDraft ? 'Publish' : 'Re-enable' }}</span>
-              </button>
-            </div>
-          }
-        </div>
+                <span>{{ isDraft ? 'Activate' : 'Re-enable' }}</span>
+              }
+            </button>
+          </div>
+        }
+      </div>
+    } @empty {
+      <div class="pm-empty">
+        <lucide-icon [img]="CardIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
+        <p>No payment methods yet</p>
+        <span>Add a method to start accepting payments.</span>
       </div>
     }
   </div>

@@ -15,7 +15,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TestConnectionRequestDTO {
 
-    @NotBlank(message = "Secret key is required")
+    private String paymentMethodId;
+
     private String secretKey;
 
     @NotNull(message = "Integration ID is required")

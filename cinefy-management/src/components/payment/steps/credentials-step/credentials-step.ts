@@ -6,11 +6,15 @@ import { HelpHint } from '../../../help-hint/help-hint';
 
 export function buildCredentialsForm() {
   return new FormGroup({
-    apiKey: new FormControl('', {
+    secretKey: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
     }),
-    hmac: new FormControl('', {
+    hmacSecret: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    publicKey: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
     }),
@@ -30,4 +34,5 @@ export class CredentialsStep {
   protected readonly KeyIcon = KeyRound;
 
   readonly form = input.required<CredentialsForm>();
+  readonly isEditMode = input(false);
 }

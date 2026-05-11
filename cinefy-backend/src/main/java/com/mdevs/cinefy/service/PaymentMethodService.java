@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.payment.PaymentMethodDTO;
+import com.mdevs.cinefy.dto.payment.PaymentMethodDetailDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodStatusRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodTestResultDTO;
@@ -13,6 +14,7 @@ import com.mdevs.cinefy.shared.payment.PaymobClient;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,20 +35,25 @@ public class PaymentMethodService {
     // ========================= Public API =========================
 
     public List<PaymentMethodSummaryDTO> getPaymentMethods() {
-        return paymentMethodRepository.findAll().stream()
+        return paymentMethodRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::toSummaryDTO)
                 .toList();
     }
 
+    public PaymentMethodDetailDTO getPaymentMethod(String uuid) {
+        return toDetailDTO(findPaymentMethod(uuid));
+    }
+
     @Transactional
     public PaymentMethodSummaryDTO createPaymentMethod(PaymentMethodDTO dto) {
+        validateCreatePaymentMethod(dto);
         validatePaymentMethod(dto);
 
         PaymentMethod paymentMethod = new PaymentMethod();
         applyDtoToEntity(paymentMethod, dto);
         paymentMethod.setCredentialsRotatedAt(LocalDateTime.now());
 
-        if (dto.isConnectionTested()) {
+        if (dto.isConnectionTestRequested()) {
             runConnectionTest(paymentMethod);
         }
 
@@ -59,9 +66,10 @@ public class PaymentMethodService {
         PaymentMethod paymentMethod = findPaymentMethod(uuid);
         validatePaymentMethod(dto);
 
-        boolean credentialsChanged = !credentialCipher.decrypt(paymentMethod.getSecretKey()).equals(dto.getSecretKey())
-                || !credentialCipher.decrypt(paymentMethod.getHmacKey()).equals(dto.getHmacSecret())
-                || paymentMethod.getIntegrationId() != dto.getIntegrationId();
+        boolean secretKeyChanged = StringUtils.isNotBlank(dto.getSecretKey()) && !credentialCipher.decrypt(paymentMethod.getSecretKey()).equals(dto.getSecretKey());
+        boolean hmacChanged = StringUtils.isNotBlank(dto.getHmacSecret()) && !credentialCipher.decrypt(paymentMethod.getHmacKey()).equals(dto.getHmacSecret());
+        boolean integrationIdChanged = paymentMethod.getIntegrationId() != dto.getIntegrationId();
+        boolean credentialsChanged = secretKeyChanged || hmacChanged;
 
         applyDtoToEntity(paymentMethod, dto);
 
@@ -69,12 +77,16 @@ public class PaymentMethodService {
             paymentMethod.setCredentialsRotatedAt(LocalDateTime.now());
         }
 
-        if (dto.isConnectionTested()) {
+        if (dto.isConnectionTestRequested()) {
             runConnectionTest(paymentMethod);
-        } else if (credentialsChanged) {
+        } else if (credentialsChanged || integrationIdChanged) {
             paymentMethod.setTestStatus(PaymentMethodTestStatus.UNTESTED);
             paymentMethod.setTestFailureReason(null);
             paymentMethod.setTestedAt(null);
+        }
+
+        if (paymentMethod.getStatus().equals(PaymentMethodStatus.ACTIVE) && credentialsChanged && !paymentMethod.getTestStatus().equals(PaymentMethodTestStatus.SUCCESS)) {
+            throw new BusinessException("A successful connection test is required before updating credentials on an active payment method");
         }
 
         paymentMethodRepository.save(paymentMethod);
@@ -89,6 +101,13 @@ public class PaymentMethodService {
     }
 
     public void testConnection(TestConnectionRequestDTO dto) {
+        if (StringUtils.isEmpty(dto.getSecretKey())) {
+            if (StringUtils.isEmpty(dto.getPaymentMethodId())) {
+                throw new BusinessException("Secret key is required");
+            }
+            PaymentMethod paymentMethod = findPaymentMethod(dto.getPaymentMethodId());
+            dto.setSecretKey(credentialCipher.decrypt(paymentMethod.getSecretKey()));
+        }
         paymobClient.testConnection(dto);
     }
 
@@ -118,6 +137,13 @@ public class PaymentMethodService {
         if (newStatus.equals(PaymentMethodStatus.INACTIVE) && paymentMethod.getStatus().equals(PaymentMethodStatus.DRAFT)) {
             throw new BusinessException("Cannot set a draft payment method to inactive");
         }
+        if (newStatus.equals(PaymentMethodStatus.ACTIVE) && !paymentMethod.getTestStatus().equals(PaymentMethodTestStatus.SUCCESS)) {
+            throw new BusinessException("A successful connection test is required before activating a payment method");
+        }
+        if (newStatus.equals(PaymentMethodStatus.ACTIVE)
+                && paymentMethodRepository.existsByTypeAndStatusAndIdNot(paymentMethod.getType(), PaymentMethodStatus.ACTIVE, paymentMethod.getId())) {
+            throw new BusinessException("Only one payment method of the same type can be active at a time");
+        }
         paymentMethod.setStatus(newStatus);
         paymentMethodRepository.save(paymentMethod);
     }
@@ -127,6 +153,15 @@ public class PaymentMethodService {
     private PaymentMethod findPaymentMethod(String uuid) {
         return paymentMethodRepository.findByUuid(uuid)
                 .orElseThrow(() -> new NotFoundException("Payment method not found with id: " + uuid));
+    }
+
+    private void validateCreatePaymentMethod(PaymentMethodDTO dto) {
+        if (StringUtils.isEmpty(dto.getSecretKey())) {
+            throw new BusinessException("Secret key is required");
+        }
+        if (StringUtils.isEmpty(dto.getHmacSecret())) {
+            throw new BusinessException("HMAC secret is required");
+        }
     }
 
     private void validatePaymentMethod(PaymentMethodDTO dto) {
@@ -141,12 +176,12 @@ public class PaymentMethodService {
 
     private void runConnectionTest(PaymentMethod paymentMethod) {
         paymentMethod.setTestedAt(LocalDateTime.now());
+        TestConnectionRequestDTO dto = new TestConnectionRequestDTO();
+        dto.setSecretKey(credentialCipher.decrypt(paymentMethod.getSecretKey()));
+        dto.setIntegrationId(paymentMethod.getIntegrationId());
+        dto.setCurrency(paymentMethod.getCurrency());
         try {
-            paymobClient.testConnection(new TestConnectionRequestDTO(
-                    credentialCipher.decrypt(paymentMethod.getSecretKey()),
-                    paymentMethod.getIntegrationId(),
-                    paymentMethod.getCurrency()
-            ));
+            paymobClient.testConnection(dto);
             paymentMethod.setTestStatus(PaymentMethodTestStatus.SUCCESS);
             paymentMethod.setTestFailureReason(null);
         } catch (Exception e) {
@@ -161,11 +196,14 @@ public class PaymentMethodService {
         entity.setType(PaymentMethodType.fromString(dto.getType()));
         entity.setTest(dto.isTest());
         entity.setCurrency(dto.getCurrency().toUpperCase());
-        entity.setSecretKey(credentialCipher.encrypt(dto.getSecretKey()));
-        entity.setHmacKey(credentialCipher.encrypt(dto.getHmacSecret()));
         entity.setPublicKey(dto.getPublicKey());
         entity.setIntegrationId(dto.getIntegrationId());
-        entity.setIframeId(dto.getIframeId());
+        if (StringUtils.isNotBlank(dto.getSecretKey())) {
+            entity.setSecretKey(credentialCipher.encrypt(dto.getSecretKey()));
+        }
+        if (StringUtils.isNotBlank(dto.getHmacSecret())) {
+            entity.setHmacKey(credentialCipher.encrypt(dto.getHmacSecret()));
+        }
     }
 
     private PaymentMethodSummaryDTO toSummaryDTO(PaymentMethod entity) {
@@ -178,7 +216,6 @@ public class PaymentMethodService {
         dto.setCurrency(entity.getCurrency());
         dto.setPublicKey(entity.getPublicKey());
         dto.setIntegrationId(entity.getIntegrationId());
-        dto.setIframeId(entity.getIframeId());
         dto.setTestStatus(entity.getTestStatus().name());
         dto.setTestFailureReason(entity.getTestFailureReason());
         dto.setTestedAt(entity.getTestedAt());
@@ -187,4 +224,20 @@ public class PaymentMethodService {
         dto.setCreatedAt(entity.getCreatedAt());
         return dto;
     }
+
+    private PaymentMethodDetailDTO toDetailDTO(PaymentMethod entity) {
+        PaymentMethodDetailDTO dto = new PaymentMethodDetailDTO();
+        dto.setId(entity.getUuid());
+        dto.setName(entity.getName());
+        dto.setType(entity.getType().name());
+        dto.setTest(entity.isTest());
+        dto.setCurrency(entity.getCurrency());
+        dto.setPublicKey(entity.getPublicKey());
+        dto.setIntegrationId(entity.getIntegrationId());
+        dto.setTestStatus(entity.getTestStatus().name());
+        dto.setTestFailureReason(entity.getTestFailureReason());
+        dto.setTestedAt(entity.getTestedAt());
+        return dto;
+    }
+
 }

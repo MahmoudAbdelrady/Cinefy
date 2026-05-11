@@ -1,17 +1,23 @@
 import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputField } from '../../../input-field/input-field';
-import { LucideAngularModule, PanelsTopLeft, Webhook } from 'lucide-angular';
+import { LucideAngularModule, Webhook } from 'lucide-angular';
 import { HelpHint } from '../../../help-hint/help-hint';
+import { CustomSelectComponent } from '../../../drop-down/custom-select/custom-select';
+
+const CURRENCY_LABELS = {
+  EGP: 'EGP',
+  USD: 'USD',
+} as const;
+
+export type Currency = keyof typeof CURRENCY_LABELS;
 
 export function buildIntegrationForm() {
   return new FormGroup({
-    integrationId: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
+    integrationId: new FormControl<number | null>(null, {
+      validators: [Validators.required, Validators.min(1)],
     }),
-    iframeId: new FormControl('', {
-      nonNullable: true,
+    currency: new FormControl<Currency | null>(null, {
       validators: [Validators.required],
     }),
   });
@@ -21,13 +27,20 @@ export type IntegrationForm = ReturnType<typeof buildIntegrationForm>;
 
 @Component({
   selector: 'integration-step',
-  imports: [ReactiveFormsModule, LucideAngularModule, InputField, HelpHint],
+  imports: [ReactiveFormsModule, LucideAngularModule, InputField, HelpHint, CustomSelectComponent],
   templateUrl: './integration-step.html',
   styleUrl: './integration-step.scss',
 })
 export class IntegrationStep {
   protected readonly WebHookIcon = Webhook;
-  protected readonly PanelsIcon = PanelsTopLeft;
 
   readonly form = input.required<IntegrationForm>();
+
+  protected readonly currencyOptions = Object.keys(CURRENCY_LABELS) as Currency[];
+
+  protected readonly currencyDisplayFn = (c: Currency) => CURRENCY_LABELS[c];
+
+  protected onCurrencyChange(currency: Currency) {
+    this.form().controls.currency.setValue(currency);
+  }
 }

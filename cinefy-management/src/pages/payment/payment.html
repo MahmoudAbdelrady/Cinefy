@@ -6,7 +6,10 @@
     </button>
 
     <ng-template #addPaymentMethodDialog let-close="close">
-      <manage-payment-modal [close]="close" />
+      <manage-payment-modal
+        [close]="close"
+        (paymentMethodCreated)="paymentMethodList().addPaymentMethod($event)"
+      />
     </ng-template>
   </div>
 </ng-template>

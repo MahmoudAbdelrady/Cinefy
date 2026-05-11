@@ -2,8 +2,8 @@
   <div class="isc-header">
     <h3>Pick your integration</h3>
     <p>
-      Paymob calls each payment channel an "integration". Each one has a numeric ID and (for cards)
-      a checkout iframe.
+      Paymob calls each payment channel an "integration". Pick the one you want to charge through
+      along with its corresponding currency.
     </p>
   </div>
   <form class="isc-form" [formGroup]="form()">
@@ -25,19 +25,19 @@
     </div>
     <div class="isc-divider"></div>
     <div class="isc-form-field">
-      <input-field
-        label="Iframe ID"
-        type="number"
-        placeholder="912034"
-        hint="The iframe is the secure card-entry box your customers see. Wallet-only methods don't use one — leave it blank."
-        [control]="form().controls.iframeId"
-        [leadingIcon]="PanelsIcon"
-        [monospace]="true"
-        [errorMessages]="{ required: 'Iframe ID is required' }"
+      <custom-select
+        label="Currency"
+        [required]="true"
+        [items]="currencyOptions"
+        [value]="form().controls.currency.value"
+        [displayFn]="currencyDisplayFn"
+        placeholder="Select a currency"
+        [isError]="form().controls.currency.touched && form().controls.currency.invalid"
+        (selectionChange)="onCurrencyChange($event)"
       />
-      <help-hint title="Where to find it">
-        <strong>Developers → iFrames</strong>. Pick the iframe that matches the look you configured
-        (currency, language, brand color).
+      <help-hint title="Match it to the channel">
+        This must match the currency configured on the integration channel above. If they disagree,
+        Paymob will reject transactions at checkout.
       </help-hint>
     </div>
   </form>

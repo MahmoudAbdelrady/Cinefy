@@ -38,12 +38,23 @@
     font-size: 14px;
     font-weight: 600;
     color: $gray-900;
-  }
 
-  .required {
-    color: $red-500;
-    margin-left: 2px;
+    &[data-required]::after {
+      content: '*';
+      color: $red-500;
+      margin-left: 3px;
+    }
   }
+}
+
+.provider-input {
+  padding: 10px 12px;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  background-color: $gray-50;
+  font-size: 14px;
+  color: $gray-600;
+  cursor: not-allowed;
 }
 
 .radio-group {
