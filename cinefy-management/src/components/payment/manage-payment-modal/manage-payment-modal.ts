@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   input,
   output,
@@ -11,7 +12,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, Validators } from '@angular/forms';
 import { merge, startWith } from 'rxjs';
 import { ModalComponent } from '../../modal/modal';
 import { Stepper, StepperNoteTip, StepperStep } from '../../stepper/stepper';
@@ -24,6 +25,7 @@ import {
   buildIdentityForm,
   buildCredentialsForm,
   buildIntegrationForm,
+  type Currency,
 } from '../steps';
 import { Lock, LucideAngularModule } from 'lucide-angular';
 import { PaymentMethodService, ToastService } from '../../../services';
@@ -52,16 +54,18 @@ export class ManagePaymentModalComponent {
   private readonly toastService = inject(ToastService);
 
   readonly close = input.required<() => void>();
+  readonly methodId = input<string | null>(null);
   readonly paymentMethodCreated = output<PaymentMethodSummary>();
+  readonly paymentMethodUpdated = output<PaymentMethodSummary>();
 
-  protected readonly isEditMode = false;
+  protected readonly isEditMode = computed(() => this.methodId() !== null);
 
   protected readonly modalTitle = computed(() =>
-    this.isEditMode ? 'Edit payment method' : 'Add payment method',
+    this.isEditMode() ? 'Edit payment method' : 'Add payment method',
   );
 
   protected readonly modalDescription = computed(() =>
-    this.isEditMode
+    this.isEditMode()
       ? 'Update the configuration for this payment method.'
       : 'Connect a new gateway so customers can pay through Cinefy.',
   );
@@ -109,11 +113,15 @@ export class ManagePaymentModalComponent {
   protected readonly currentStep = signal(0);
   protected readonly connectionTestRequested = signal(false);
   protected readonly saving = signal(false);
+  protected readonly loadingDetail = signal(false);
 
   constructor() {
     merge(this.form.controls.credentials.valueChanges, this.form.controls.integration.valueChanges)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.connectionTestRequested.set(false));
+
+    effect(() => this.applyEditModeValidators(this.isEditMode()));
+    effect(() => this.loadMethodIfEditing(this.methodId()));
   }
 
   private readonly stepForms = [
@@ -165,22 +173,71 @@ export class ManagePaymentModalComponent {
     }
   }
 
-  protected saveAsDraft() {
+  protected save() {
     if (this.saving()) return;
+    const id = this.methodId();
     this.saving.set(true);
+    const request$ = id
+      ? this.paymentMethodService.updatePaymentMethod(id, this.paymentMethodValue())
+      : this.paymentMethodService.createPaymentMethod(this.paymentMethodValue());
+
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (result) => {
+        this.saving.set(false);
+        if (id) {
+          this.paymentMethodUpdated.emit(result);
+          this.toastService.success('Payment method updated successfully');
+        } else {
+          this.paymentMethodCreated.emit(result);
+          this.toastService.success('Payment method saved successfully');
+        }
+        this.close()();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.saving.set(false);
+        this.toastService.error(err.error?.message ?? 'Failed to save payment method');
+      },
+    });
+  }
+
+  private applyEditModeValidators(editMode: boolean) {
+    const secretCtrl = this.form.controls.credentials.controls.secretKey;
+    const hmacCtrl = this.form.controls.credentials.controls.hmacSecret;
+    if (editMode) {
+      secretCtrl.clearValidators();
+      hmacCtrl.clearValidators();
+    } else {
+      secretCtrl.setValidators(Validators.required);
+      hmacCtrl.setValidators(Validators.required);
+    }
+    secretCtrl.updateValueAndValidity();
+    hmacCtrl.updateValueAndValidity();
+  }
+
+  private loadMethodIfEditing(id: string | null) {
+    if (!id) return;
+    this.loadingDetail.set(true);
     this.paymentMethodService
-      .createPaymentMethod(this.paymentMethodValue())
+      .getPaymentMethod(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (created) => {
-          this.saving.set(false);
-          this.paymentMethodCreated.emit(created);
-          this.toastService.success('Payment method saved successfully');
-          this.close()();
+        next: (detail) => {
+          this.form.controls.identity.patchValue({
+            name: detail.name,
+            type: detail.type,
+            environment: detail.isTest ? 'sandbox' : 'production',
+          });
+          this.form.controls.credentials.controls.publicKey.setValue(detail.publicKey);
+          this.form.controls.integration.patchValue({
+            integrationId: detail.integrationId,
+            currency: detail.currency as Currency,
+          });
+          this.loadingDetail.set(false);
         },
         error: (err: HttpErrorResponse) => {
-          this.saving.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to save payment method');
+          this.loadingDetail.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load payment method');
+          this.close()();
         },
       });
   }

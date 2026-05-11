@@ -34,6 +34,7 @@ export class ReviewStep {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly data = input.required<PaymentMethod>();
+  readonly methodId = input<string | null>(null);
   readonly connectionTestRequested = output<void>();
 
   protected readonly typeLabels = PAYMENT_METHOD_TYPE_LABELS;
@@ -61,8 +62,14 @@ export class ReviewStep {
     this.loading.set(true);
     this.connectionTestRequested.emit();
     const { secretKey, integrationId, currency } = this.data();
+    const methodId = this.methodId();
     this.paymentMethodService
-      .testConnection({ secretKey, integrationId, currency })
+      .testConnection({
+        paymentMethodId: methodId ?? undefined,
+        secretKey: secretKey || undefined,
+        integrationId,
+        currency,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

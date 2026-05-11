@@ -41,6 +41,7 @@ export type {
   PaymentMethodTestStatus,
   PaymentMethod,
   PaymentMethodSummary,
+  PaymentMethodDetail,
   PaymentMethodTestResult,
   PaymentMethodStatusRequest,
   TestConnectionRequest,

@@ -24,7 +24,9 @@
             <span>{{ typeLabels[payment.type] }} · {{ payment.currency }}</span>
           </div>
         </div>
-        <div class="rsc-tag">{{ payment.isTest ? 'Sandbox' : 'Production' }}</div>
+        <div class="rsc-tag" [attr.data-is-test]="payment.isTest">
+          {{ payment.isTest ? 'Sandbox' : 'Production' }}
+        </div>
       </div>
       <div class="rscd-info">
         <div class="rsc-info-item">
@@ -34,26 +36,49 @@
         <div class="rsc-info-item">
           <span class="rii-label">Secret key</span>
           <span class="rii-value rii-secret">
-            <span class="rii-secret-text" [class.monospace]="showSecretKey()">{{
-              showSecretKey() ? payment.secretKey || '—' : mask(payment.secretKey)
-            }}</span>
-            <button type="button" class="rii-toggle" (click)="toggleSecretKey()">
-              <lucide-icon [img]="showSecretKey() ? EyeOffIcon : EyeIcon" [size]="16"></lucide-icon>
-            </button>
+            <span
+              class="rii-secret-text"
+              [class.monospace]="showSecretKey() && payment.secretKey"
+              >{{
+                payment.secretKey
+                  ? showSecretKey()
+                    ? payment.secretKey
+                    : mask(payment.secretKey)
+                  : '—'
+              }}</span
+            >
+            @if (payment.secretKey) {
+              <button type="button" class="rii-toggle" (click)="toggleSecretKey()">
+                <lucide-icon
+                  [img]="showSecretKey() ? EyeOffIcon : EyeIcon"
+                  [size]="16"
+                ></lucide-icon>
+              </button>
+            }
           </span>
         </div>
         <div class="rsc-info-item">
           <span class="rii-label">HMAC secret</span>
           <span class="rii-value rii-secret">
-            <span class="rii-secret-text" [class.monospace]="showHmacSecret()">{{
-              showHmacSecret() ? payment.hmacSecret || '—' : mask(payment.hmacSecret)
-            }}</span>
-            <button type="button" class="rii-toggle" (click)="toggleHmacSecret()">
-              <lucide-icon
-                [img]="showHmacSecret() ? EyeOffIcon : EyeIcon"
-                [size]="16"
-              ></lucide-icon>
-            </button>
+            <span
+              class="rii-secret-text"
+              [class.monospace]="showHmacSecret() && payment.hmacSecret"
+              >{{
+                payment.hmacSecret
+                  ? showHmacSecret()
+                    ? payment.hmacSecret
+                    : mask(payment.hmacSecret)
+                  : '—'
+              }}</span
+            >
+            @if (payment.hmacSecret) {
+              <button type="button" class="rii-toggle" (click)="toggleHmacSecret()">
+                <lucide-icon
+                  [img]="showHmacSecret() ? EyeOffIcon : EyeIcon"
+                  [size]="16"
+                ></lucide-icon>
+              </button>
+            }
           </span>
         </div>
         <div class="rsc-info-item">

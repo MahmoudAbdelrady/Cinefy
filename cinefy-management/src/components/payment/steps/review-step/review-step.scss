@@ -92,9 +92,18 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  background: $purple-100;
-  color: $purple-600;
-  border: 1px solid $purple-200;
+
+  &[data-is-test='true'] {
+    background: $purple-100;
+    color: $purple-600;
+    border: 1px solid $purple-200;
+  }
+
+  &[data-is-test='false'] {
+    background: $green-100;
+    color: $green-700;
+    border: 1px solid $green-200;
+  }
 }
 
 .rscd-info {

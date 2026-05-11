@@ -17,7 +17,7 @@
     <identity-step [form]="form.controls.identity" />
   </ng-template>
   <ng-template #credentials>
-    <credentials-step [form]="form.controls.credentials" />
+    <credentials-step [form]="form.controls.credentials" [isEditMode]="isEditMode()" />
   </ng-template>
   <ng-template #integration>
     <integration-step [form]="form.controls.integration" />
@@ -25,6 +25,7 @@
   <ng-template #review>
     <review-step
       [data]="paymentMethodValue()"
+      [methodId]="methodId()"
       (connectionTestRequested)="connectionTestRequested.set(true)"
     />
   </ng-template>
@@ -32,7 +33,10 @@
   <div modal-footer class="manage-footer">
     <div class="mf-info">
       <lucide-icon [img]="LockIcon" [size]="16"></lucide-icon>
-      <span>Credentials are encrypted at rest and never exposed to the browser after saving.</span>
+      <span
+        >Sensitive credentials stay encrypted server-side and never round-trip back to your
+        browser.</span
+      >
     </div>
     <div class="action-btns">
       @if (currentStep() > 0) {
@@ -46,13 +50,15 @@
         ngpButton
         class="btn-primary"
         [disabled]="!currentStepValid() || saving()"
-        (click)="isLastStep ? saveAsDraft() : goToNextStep()"
+        (click)="isLastStep ? save() : goToNextStep()"
       >
         @if (saving()) {
           <loading-spinner [size]="16" />
           <span>Saving…</span>
         } @else {
-          <span>{{ isLastStep ? 'Save as Draft' : 'Continue' }}</span>
+          <span>{{
+            isLastStep ? (isEditMode() ? 'Save Changes' : 'Save as Draft') : 'Continue'
+          }}</span>
         }
       </button>
     </div>

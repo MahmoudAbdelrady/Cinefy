@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
   PaymentMethod,
+  PaymentMethodDetail,
   PaymentMethodStatusRequest,
   PaymentMethodSummary,
   PaymentMethodTestResult,
@@ -15,6 +16,10 @@ export class PaymentMethodService {
 
   getPaymentMethods(): Observable<PaymentMethodSummary[]> {
     return this.http.get<PaymentMethodSummary[]>('/payment-methods');
+  }
+
+  getPaymentMethod(id: string): Observable<PaymentMethodDetail> {
+    return this.http.get<PaymentMethodDetail>(`/payment-methods/${id}`);
   }
 
   createPaymentMethod(data: PaymentMethod): Observable<PaymentMethodSummary> {

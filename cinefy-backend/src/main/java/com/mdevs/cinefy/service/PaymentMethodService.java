@@ -97,6 +97,13 @@ public class PaymentMethodService {
     }
 
     public void testConnection(TestConnectionRequestDTO dto) {
+        if (StringUtils.isEmpty(dto.getSecretKey())) {
+            if (StringUtils.isEmpty(dto.getPaymentMethodId())) {
+                throw new BusinessException("Secret key is required");
+            }
+            PaymentMethod paymentMethod = findPaymentMethod(dto.getPaymentMethodId());
+            dto.setSecretKey(credentialCipher.decrypt(paymentMethod.getSecretKey()));
+        }
         paymobClient.testConnection(dto);
     }
 
@@ -158,12 +165,12 @@ public class PaymentMethodService {
 
     private void runConnectionTest(PaymentMethod paymentMethod) {
         paymentMethod.setTestedAt(LocalDateTime.now());
+        TestConnectionRequestDTO dto = new TestConnectionRequestDTO();
+        dto.setSecretKey(credentialCipher.decrypt(paymentMethod.getSecretKey()));
+        dto.setIntegrationId(paymentMethod.getIntegrationId());
+        dto.setCurrency(paymentMethod.getCurrency());
         try {
-            paymobClient.testConnection(new TestConnectionRequestDTO(
-                    credentialCipher.decrypt(paymentMethod.getSecretKey()),
-                    paymentMethod.getIntegrationId(),
-                    paymentMethod.getCurrency()
-            ));
+            paymobClient.testConnection(dto);
             paymentMethod.setTestStatus(PaymentMethodTestStatus.SUCCESS);
             paymentMethod.setTestFailureReason(null);
         } catch (Exception e) {

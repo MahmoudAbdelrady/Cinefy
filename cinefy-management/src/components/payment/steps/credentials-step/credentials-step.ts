@@ -34,4 +34,5 @@ export class CredentialsStep {
   protected readonly KeyIcon = KeyRound;
 
   readonly form = input.required<CredentialsForm>();
+  readonly isEditMode = input(false);
 }

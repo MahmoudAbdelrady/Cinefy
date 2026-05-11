@@ -10,7 +10,7 @@ const CURRENCY_LABELS = {
   USD: 'USD',
 } as const;
 
-type Currency = keyof typeof CURRENCY_LABELS;
+export type Currency = keyof typeof CURRENCY_LABELS;
 
 export function buildIntegrationForm() {
   return new FormGroup({

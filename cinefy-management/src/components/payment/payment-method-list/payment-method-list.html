@@ -54,10 +54,18 @@
                     }
                   </button>
                 }
-                <button ngpMenuItem>
+                <button ngpMenuItem [ngpDialogTrigger]="editDialog">
                   <lucide-icon [img]="EditIcon" size="16"></lucide-icon>
                   <span>Edit configuration</span>
                 </button>
+
+                <ng-template #editDialog let-close="close">
+                  <manage-payment-modal
+                    [close]="close"
+                    [methodId]="paymentMethod.id"
+                    (paymentMethodUpdated)="updatePaymentMethod($event)"
+                  />
+                </ng-template>
                 <button
                   ngpMenuItem
                   [disabled]="testingMethodIds().has(paymentMethod.id)"

@@ -53,6 +53,18 @@ interface PaymentMethodSummary {
   createdAt: string;
 }
 
+interface PaymentMethodDetail {
+  id: string;
+  name: string;
+  type: PaymentMethodType;
+  isTest: boolean;
+  currency: string;
+  publicKey: string;
+  integrationId: number;
+  testStatus: PaymentMethodTestStatus;
+  testFailureReason?: string;
+}
+
 interface PaymentMethodTestResult {
   id: string;
   testStatus: PaymentMethodTestStatus;
@@ -64,7 +76,8 @@ interface PaymentMethodStatusRequest {
 }
 
 interface TestConnectionRequest {
-  secretKey: string;
+  paymentMethodId?: string;
+  secretKey?: string;
   integrationId: number;
   currency: string;
 }
@@ -80,6 +93,7 @@ export type {
   PaymentMethodTestStatus,
   PaymentMethod,
   PaymentMethodSummary,
+  PaymentMethodDetail,
   PaymentMethodTestResult,
   PaymentMethodStatusRequest,
   TestConnectionRequest,

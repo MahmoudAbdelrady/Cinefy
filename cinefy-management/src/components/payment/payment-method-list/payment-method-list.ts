@@ -24,6 +24,7 @@ import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { ModalComponent } from '../../modal/modal';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { ManagePaymentModalComponent } from '../manage-payment-modal/manage-payment-modal';
 import { RelativeTimePipe } from '../../../shared/pipes';
 import { PaymentMethodService, ToastService } from '../../../services';
 import {
@@ -46,6 +47,7 @@ import {
     NgpPopoverTrigger,
     ModalComponent,
     LoadingSpinnerComponent,
+    ManagePaymentModalComponent,
     NgpButton,
     DatePipe,
     RelativeTimePipe,
@@ -89,6 +91,12 @@ export class PaymentMethodListComponent {
 
   addPaymentMethod(method: PaymentMethodSummary): void {
     this.paymentMethods.update((methods) => [method, ...methods]);
+  }
+
+  updatePaymentMethod(method: PaymentMethodSummary): void {
+    this.paymentMethods.update((methods) =>
+      methods.map((m) => (m.id === method.id ? method : m)),
+    );
   }
 
   protected updateStatus(id: string, status: PaymentMethodStatus): void {
