@@ -13,7 +13,10 @@ import java.time.LocalDateTime;
 @Entity
 @Table(indexes = {
         @Index(columnList = "_UUID"),
-        @Index(columnList = "CREATED_AT")
+        @Index(columnList = "CREATED_AT"),
+        @Index(columnList = "TYPE"),
+        @Index(columnList = "STATUS"),
+        @Index(columnList = "TYPE, STATUS")
 })
 public class PaymentMethod extends BaseEntity {
 

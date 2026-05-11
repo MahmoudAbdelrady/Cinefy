@@ -140,6 +140,10 @@ public class PaymentMethodService {
         if (newStatus.equals(PaymentMethodStatus.ACTIVE) && !paymentMethod.getTestStatus().equals(PaymentMethodTestStatus.SUCCESS)) {
             throw new BusinessException("A successful connection test is required before activating a payment method");
         }
+        if (newStatus.equals(PaymentMethodStatus.ACTIVE)
+                && paymentMethodRepository.existsByTypeAndStatusAndIdNot(paymentMethod.getType(), PaymentMethodStatus.ACTIVE, paymentMethod.getId())) {
+            throw new BusinessException("Only one payment method of the same type can be active at a time");
+        }
         paymentMethod.setStatus(newStatus);
         paymentMethodRepository.save(paymentMethod);
     }
