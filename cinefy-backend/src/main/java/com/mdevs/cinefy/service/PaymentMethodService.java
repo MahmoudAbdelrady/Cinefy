@@ -85,6 +85,10 @@ public class PaymentMethodService {
             paymentMethod.setTestedAt(null);
         }
 
+        if (paymentMethod.getStatus().equals(PaymentMethodStatus.ACTIVE) && credentialsChanged && !paymentMethod.getTestStatus().equals(PaymentMethodTestStatus.SUCCESS)) {
+            throw new BusinessException("A successful connection test is required before updating credentials on an active payment method");
+        }
+
         paymentMethodRepository.save(paymentMethod);
         return toSummaryDTO(paymentMethod);
     }
@@ -132,6 +136,9 @@ public class PaymentMethodService {
         }
         if (newStatus.equals(PaymentMethodStatus.INACTIVE) && paymentMethod.getStatus().equals(PaymentMethodStatus.DRAFT)) {
             throw new BusinessException("Cannot set a draft payment method to inactive");
+        }
+        if (newStatus.equals(PaymentMethodStatus.ACTIVE) && !paymentMethod.getTestStatus().equals(PaymentMethodTestStatus.SUCCESS)) {
+            throw new BusinessException("A successful connection test is required before activating a payment method");
         }
         paymentMethod.setStatus(newStatus);
         paymentMethodRepository.save(paymentMethod);
