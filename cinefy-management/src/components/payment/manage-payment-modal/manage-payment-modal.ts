@@ -26,6 +26,7 @@ import {
   buildCredentialsForm,
   buildIntegrationForm,
   type Currency,
+  type TestResultState,
 } from '../steps';
 import { Lock, LucideAngularModule } from 'lucide-angular';
 import { PaymentMethodService, ToastService } from '../../../services';
@@ -114,11 +115,15 @@ export class ManagePaymentModalComponent {
   protected readonly connectionTestRequested = signal(false);
   protected readonly saving = signal(false);
   protected readonly loadingDetail = signal(false);
+  protected readonly initialTestResult = signal<TestResultState | null>(null);
 
   constructor() {
     merge(this.form.controls.credentials.valueChanges, this.form.controls.integration.valueChanges)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.connectionTestRequested.set(false));
+      .subscribe(() => {
+        this.connectionTestRequested.set(false);
+        this.initialTestResult.set(null);
+      });
 
     effect(() => this.applyEditModeValidators(this.isEditMode()));
     effect(() => this.loadMethodIfEditing(this.methodId()));
@@ -232,6 +237,13 @@ export class ManagePaymentModalComponent {
             integrationId: detail.integrationId,
             currency: detail.currency as Currency,
           });
+          if (detail.testStatus !== 'UNTESTED') {
+            this.initialTestResult.set({
+              testStatus: detail.testStatus,
+              testFailureReason: detail.testFailureReason,
+              testedAt: detail.testedAt,
+            });
+          }
           this.loadingDetail.set(false);
         },
         error: (err: HttpErrorResponse) => {

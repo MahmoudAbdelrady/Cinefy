@@ -97,7 +97,10 @@
         <div class="rsct-info">
           <h4>Connection test</h4>
           <p>
-            @if (isSuccess) {
+            @if (result.fromPriorSession) {
+              Showing the last saved test result. Run again to re-check with the current
+              configuration.
+            } @else if (isSuccess) {
               Connection successful — credentials accepted by Paymob.
             } @else if (isFailure) {
               Connection failed. Review the error and adjust your credentials if needed.
@@ -122,7 +125,16 @@
             <lucide-icon [img]="isFailure ? XIcon : CheckIcon" [size]="16"></lucide-icon>
           </div>
           <div class="rsctr-info">
-            <h5>{{ isFailure ? 'Connection failed' : 'Connection successful' }}</h5>
+            <h5>
+              @if (result.fromPriorSession) {
+                Last test {{ isFailure ? 'failed' : 'passed' }}
+                @if (result.testedAt) {
+                  · <span class="rsctr-time">{{ result.testedAt | relativeTime }}</span>
+                }
+              } @else {
+                {{ isFailure ? 'Connection failed' : 'Connection successful' }}
+              }
+            </h5>
             @if (isFailure && result.testFailureReason) {
               <p>{{ result.testFailureReason }}</p>
             }

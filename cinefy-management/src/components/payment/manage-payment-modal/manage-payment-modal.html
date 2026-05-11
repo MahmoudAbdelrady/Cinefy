@@ -26,6 +26,7 @@
     <review-step
       [data]="paymentMethodValue()"
       [methodId]="methodId()"
+      [initialTestResult]="initialTestResult()"
       (connectionTestRequested)="connectionTestRequested.set(true)"
     />
   </ng-template>

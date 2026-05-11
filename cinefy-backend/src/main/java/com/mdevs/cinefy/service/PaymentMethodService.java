@@ -225,6 +225,7 @@ public class PaymentMethodService {
         dto.setIntegrationId(entity.getIntegrationId());
         dto.setTestStatus(entity.getTestStatus().name());
         dto.setTestFailureReason(entity.getTestFailureReason());
+        dto.setTestedAt(entity.getTestedAt());
         return dto;
     }
 

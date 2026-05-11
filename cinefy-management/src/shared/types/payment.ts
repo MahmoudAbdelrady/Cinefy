@@ -63,6 +63,7 @@ interface PaymentMethodDetail {
   integrationId: number;
   testStatus: PaymentMethodTestStatus;
   testFailureReason?: string;
+  testedAt?: string;
 }
 
 interface PaymentMethodTestResult {
