@@ -12,26 +12,23 @@ import {
   Trash2,
   Users,
 } from 'lucide-angular';
+import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
 import { InputField } from '../../input-field/input-field';
 import { PaginationComponent } from '../../pagination/pagination';
-
-interface StaffMember {
-  id: string;
-  username: string;
-  fullName: string;
-  email: string;
-  phoneNumber: string;
-  position: string;
-  workingDays: string;
-  workingHours: string;
-  hiredAt: string;
-  employmentType: 'Full-time' | 'Part-time';
-}
+import { StaffDetailsComponent } from '../staff-details/staff-details';
+import { type StaffMember } from '../../../shared/types';
 
 @Component({
   selector: 'staff-list',
-  imports: [LucideAngularModule, CustomSelectComponent, InputField, PaginationComponent],
+  imports: [
+    LucideAngularModule,
+    CustomSelectComponent,
+    InputField,
+    PaginationComponent,
+    NgpDialogTrigger,
+    StaffDetailsComponent,
+  ],
   templateUrl: './staff-list.html',
   styleUrl: './staff-list.scss',
 })

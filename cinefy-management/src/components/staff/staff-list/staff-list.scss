@@ -170,40 +170,23 @@ pagination-component {
     position: relative;
   }
 
-  // Position-specific gradients + rings
-  &[data-position='Manager'] {
-    background-image: linear-gradient(135deg, #4f46e5, #6366f1 50%, #7c3aed);
-    &::before {
-      box-shadow: inset 0 0 0 1px rgba(199, 210, 254, 0.7);
-    }
-  }
+  // Position-specific gradients (shared mixin) + per-position rings
+  @include staff-position-gradients;
 
-  &[data-position='Cashier'] {
-    background-image: linear-gradient(135deg, #059669, #10b981 50%, #0d9488);
-    &::before {
-      box-shadow: inset 0 0 0 1px rgba(167, 243, 208, 0.7);
-    }
+  &[data-position='Manager']::before {
+    box-shadow: inset 0 0 0 1px rgba(199, 210, 254, 0.7);
   }
-
-  &[data-position='Projectionist'] {
-    background-image: linear-gradient(135deg, #d97706, #f59e0b 50%, #ea580c);
-    &::before {
-      box-shadow: inset 0 0 0 1px rgba(253, 230, 138, 0.7);
-    }
+  &[data-position='Cashier']::before {
+    box-shadow: inset 0 0 0 1px rgba(167, 243, 208, 0.7);
   }
-
-  &[data-position='Usher'] {
-    background-image: linear-gradient(135deg, #e11d48, #f43f5e 50%, #db2777);
-    &::before {
-      box-shadow: inset 0 0 0 1px rgba(254, 205, 211, 0.7);
-    }
+  &[data-position='Projectionist']::before {
+    box-shadow: inset 0 0 0 1px rgba(253, 230, 138, 0.7);
   }
-
-  &[data-position='Concessions'] {
-    background-image: linear-gradient(135deg, #0284c7, #0ea5e9 50%, #0891b2);
-    &::before {
-      box-shadow: inset 0 0 0 1px rgba(186, 230, 253, 0.7);
-    }
+  &[data-position='Usher']::before {
+    box-shadow: inset 0 0 0 1px rgba(254, 205, 211, 0.7);
+  }
+  &[data-position='Concessions']::before {
+    box-shadow: inset 0 0 0 1px rgba(186, 230, 253, 0.7);
   }
 }
 

@@ -62,3 +62,5 @@ export type {
 } from './showtimes';
 
 export type { StatsCard } from './stats';
+
+export type { StaffMember } from './staff';

@@ -26,11 +26,11 @@
     </div>
   </div>
   <div class="sl-items">
-    @for (staff of staffMembers; track staff.id) {
+    @for (member of staffMembers; track member.id) {
       <div class="staff-member">
         <div class="staff-info">
-          @let staffNameParts = staff.fullName.split(' ');
-          <div class="si-img" [attr.data-position]="staff.position">
+          @let staffNameParts = member.fullName.split(' ');
+          <div class="si-img" [attr.data-position]="member.position">
             <span class="si-img-ink"></span>
             <span class="si-img-glow"></span>
             <span class="si-img-initials">
@@ -42,30 +42,30 @@
           </div>
           <div class="si-details">
             <div class="sid-name-box">
-              <span class="sidb-name">{{ staff.fullName }}</span>
-              <div class="sidb-position" [attr.data-position]="staff.position">
+              <span class="sidb-name">{{ member.fullName }}</span>
+              <div class="sidb-position" [attr.data-position]="member.position">
                 <span class="sidbp-dot"></span>
-                <span>{{ staff.position }}</span>
+                <span>{{ member.position }}</span>
               </div>
             </div>
             <div class="sid-contact">
               <div class="sidc-item">
                 <lucide-icon [img]="EmailIcon" [size]="14"></lucide-icon>
-                <span>{{ staff.email }}</span>
+                <span>{{ member.email }}</span>
               </div>
               <div class="sidc-item">
                 <lucide-icon [img]="PhoneIcon" [size]="14"></lucide-icon>
-                <span>{{ staff.phoneNumber }}</span>
+                <span>{{ member.phoneNumber }}</span>
               </div>
               <div class="sidc-item">
                 <lucide-icon [img]="CalendarClockIcon" [size]="14"></lucide-icon>
-                <span>{{ staff.workingDays }} · {{ staff.workingHours }}</span>
+                <span>{{ member.workingDays }} · {{ member.workingHours }}</span>
               </div>
             </div>
           </div>
         </div>
         <div class="staff-actions">
-          <button ngpButton class="sa-btn sa-btn-view">
+          <button ngpButton class="sa-btn sa-btn-view" [ngpDialogTrigger]="viewDialog">
             <lucide-icon [img]="EyeIcon" [size]="16"></lucide-icon>
             <span>View</span>
           </button>
@@ -77,6 +77,10 @@
             <lucide-icon [img]="DeleteIcon" [size]="16"></lucide-icon>
             <span>Delete</span>
           </button>
+
+          <ng-template #viewDialog let-close="close">
+            <staff-details [staffMember]="member" [close]="close" />
+          </ng-template>
         </div>
       </div>
     } @empty {
