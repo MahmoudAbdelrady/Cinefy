@@ -1922,6 +1922,8 @@ export default function App() {
   const [staff, setStaff] = useState<StaffMember[]>(STAFF_SAMPLE);
   const [staffSearch, setStaffSearch] = useState('');
   const [staffPositionFilter, setStaffPositionFilter] = useState<'ALL' | StaffPosition>('ALL');
+  const [staffPage, setStaffPage] = useState(1);
+  const [staffPageSize, setStaffPageSize] = useState(5);
   const [showStaffFormModal, setShowStaffFormModal] = useState(false);
   const [staffEditMode, setStaffEditMode] = useState(false);
   const [showStaffViewModal, setShowStaffViewModal] = useState(false);
@@ -2052,20 +2054,54 @@ export default function App() {
     );
   });
 
-  const staffStats = {
-    total: staff.length,
-    newHires: staff.filter((m) => {
-      const hired = new Date(m.hiredAt);
-      const cutoff = new Date('2026-05-11');
-      cutoff.setDate(cutoff.getDate() - 90);
-      return hired >= cutoff;
-    }).length,
-    managers: staff.filter((m) => m.position === 'Manager').length,
-    avgRating:
-      staff.length > 0
-        ? (staff.reduce((acc, m) => acc + m.rating, 0) / staff.length).toFixed(1)
-        : '0.0',
+  const staffTotalPages = Math.max(1, Math.ceil(filteredStaff.length / staffPageSize));
+  const currentStaffPage = Math.min(staffPage, staffTotalPages);
+  const staffRangeStart =
+    filteredStaff.length === 0 ? 0 : (currentStaffPage - 1) * staffPageSize + 1;
+  const staffRangeEnd = Math.min(currentStaffPage * staffPageSize, filteredStaff.length);
+  const paginatedStaff = filteredStaff.slice(
+    (currentStaffPage - 1) * staffPageSize,
+    currentStaffPage * staffPageSize,
+  );
+
+  useEffect(() => {
+    setStaffPage(1);
+  }, [staffSearch, staffPositionFilter, staffPageSize]);
+
+  const buildStaffPageItems = (current: number, total: number): (number | 'gap')[] => {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const items: (number | 'gap')[] = [1];
+    const left = Math.max(2, current - 1);
+    const right = Math.min(total - 1, current + 1);
+    if (left > 2) items.push('gap');
+    for (let i = left; i <= right; i++) items.push(i);
+    if (right < total - 1) items.push('gap');
+    items.push(total);
+    return items;
   };
+
+  const STAFF_POSITION_ORDER: StaffPosition[] = [
+    'Manager',
+    'Projectionist',
+    'Cashier',
+    'Concessions',
+    'Usher',
+  ];
+  const STAFF_POSITION_COLORS: Record<
+    StaffPosition,
+    { bar: string; dot: string; text: string }
+  > = {
+    Manager: { bar: 'bg-violet-500', dot: 'bg-violet-500', text: 'text-violet-700' },
+    Projectionist: { bar: 'bg-indigo-500', dot: 'bg-indigo-500', text: 'text-indigo-700' },
+    Cashier: { bar: 'bg-blue-500', dot: 'bg-blue-500', text: 'text-blue-700' },
+    Concessions: { bar: 'bg-amber-500', dot: 'bg-amber-500', text: 'text-amber-700' },
+    Usher: { bar: 'bg-emerald-500', dot: 'bg-emerald-500', text: 'text-emerald-700' },
+  };
+  const positionCounts = STAFF_POSITION_ORDER.map((position) => ({
+    position,
+    count: staff.filter((m) => m.position === position).length,
+  }));
+  const positionTotal = positionCounts.reduce((acc, p) => acc + p.count, 0);
 
   // Search dropdown ref for click outside detection
   const searchDropdownRef = useRef<HTMLDivElement>(null);
@@ -3866,55 +3902,62 @@ export default function App() {
             </div>
 
             <div className="p-8">
-              {/* Stats Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white rounded-xl border border-gray-200 p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                      <Users size={24} className="text-indigo-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">{staffStats.total}</p>
-                      <p className="text-sm text-gray-600">Total Staff</p>
-                    </div>
-                  </div>
+              {/* Position Coverage */}
+              <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+                <div className="mb-4">
+                  <p className="text-[11px] font-semibold tracking-[0.14em] text-gray-500 uppercase">
+                    Position Coverage
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    How the {positionTotal}-person roster splits across roles
+                  </p>
                 </div>
 
-                <div className="bg-white rounded-xl border border-gray-200 p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                      <Sparkles size={24} className="text-emerald-600" />
+                {positionTotal === 0 ? (
+                  <div className="py-6 text-sm text-gray-500">No staff members yet.</div>
+                ) : (
+                  <>
+                    <div className="flex h-3 w-full overflow-hidden rounded-full bg-gray-100">
+                      {positionCounts.map(({ position, count }) =>
+                        count === 0 ? null : (
+                          <div
+                            key={position}
+                            className={`${STAFF_POSITION_COLORS[position].bar} h-full transition-all`}
+                            style={{ width: `${(count / positionTotal) * 100}%` }}
+                            title={`${position}: ${count}`}
+                          />
+                        ),
+                      )}
                     </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">{staffStats.newHires}</p>
-                      <p className="text-sm text-gray-600">New Hires (90d)</p>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="bg-white rounded-xl border border-gray-200 p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
-                      <ShieldCheck size={24} className="text-violet-600" />
+                    <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+                      {positionCounts.map(({ position, count }) => {
+                        const pct = Math.round((count / positionTotal) * 100);
+                        const colors = STAFF_POSITION_COLORS[position];
+                        return (
+                          <button
+                            key={position}
+                            onClick={() => setStaffPositionFilter(position)}
+                            className={`flex items-center gap-2 text-sm rounded-md px-2 py-1 -mx-2 transition-colors ${
+                              count === 0
+                                ? 'opacity-50 cursor-default'
+                                : 'hover:bg-gray-50 cursor-pointer'
+                            }`}
+                            disabled={count === 0}
+                            title={count === 0 ? 'No staff in this position' : `Filter by ${position}`}
+                          >
+                            <span className={`w-2 h-2 rounded-full ${colors.dot}`} />
+                            <span className="text-gray-700">{position}</span>
+                            <span className={`font-semibold tabular-nums ${colors.text}`}>
+                              {count}
+                            </span>
+                            <span className="text-gray-400 text-xs tabular-nums">{pct}%</span>
+                          </button>
+                        );
+                      })}
                     </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">{staffStats.managers}</p>
-                      <p className="text-sm text-gray-600">Managers</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-xl border border-gray-200 p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                      <Star size={24} className="text-amber-600 fill-amber-500" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">{staffStats.avgRating}</p>
-                      <p className="text-sm text-gray-600">Avg Rating</p>
-                    </div>
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
 
               {/* Staff List */}
@@ -3973,7 +4016,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-200">
-                    {filteredStaff.map((member) => (
+                    {paginatedStaff.map((member) => (
                       <div
                         key={member.id}
                         className="p-6 hover:bg-gray-50/80 transition-colors"
@@ -4050,6 +4093,89 @@ export default function App() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {filteredStaff.length > 0 && (
+                  <div className="px-6 py-4 border-t border-gray-200 bg-gradient-to-b from-white to-gray-50/60">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                      <div className="flex items-center gap-4 text-sm">
+                        <span className="text-gray-600">
+                          Showing{' '}
+                          <span className="font-semibold text-gray-900 tabular-nums">
+                            {staffRangeStart}–{staffRangeEnd}
+                          </span>{' '}
+                          of{' '}
+                          <span className="font-semibold text-gray-900 tabular-nums">
+                            {filteredStaff.length}
+                          </span>
+                        </span>
+                        <span className="h-4 w-px bg-gray-200" />
+                        <label className="flex items-center gap-2 text-gray-600">
+                          <span>Rows</span>
+                          <select
+                            value={staffPageSize}
+                            onChange={(e) => setStaffPageSize(Number(e.target.value))}
+                            className="px-2 py-1 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent tabular-nums"
+                          >
+                            <option value={5}>5</option>
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                            <option value={50}>50</option>
+                          </select>
+                        </label>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setStaffPage((p) => Math.max(1, p - 1))}
+                          disabled={currentStaffPage === 1}
+                          className="px-2.5 h-9 text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent hover:border-gray-200 rounded-lg transition-all flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-600 disabled:hover:border-transparent disabled:hover:shadow-none"
+                          title="Previous page"
+                        >
+                          <ChevronLeft size={16} />
+                          <span className="hidden sm:inline text-sm">Prev</span>
+                        </button>
+
+                        <div className="flex items-center gap-1 px-1">
+                          {buildStaffPageItems(currentStaffPage, staffTotalPages).map((item, idx) =>
+                            item === 'gap' ? (
+                              <span
+                                key={`gap-${idx}`}
+                                className="w-9 h-9 flex items-center justify-center text-gray-400 select-none"
+                              >
+                                …
+                              </span>
+                            ) : (
+                              <button
+                                key={item}
+                                onClick={() => setStaffPage(item)}
+                                aria-current={item === currentStaffPage ? 'page' : undefined}
+                                className={
+                                  item === currentStaffPage
+                                    ? 'w-9 h-9 flex items-center justify-center text-sm font-semibold rounded-lg bg-gray-900 text-white shadow-sm ring-1 ring-gray-900/10 tabular-nums'
+                                    : 'w-9 h-9 flex items-center justify-center text-sm font-medium rounded-lg text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent hover:border-gray-200 transition-all tabular-nums'
+                                }
+                              >
+                                {item}
+                              </button>
+                            ),
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() =>
+                            setStaffPage((p) => Math.min(staffTotalPages, p + 1))
+                          }
+                          disabled={currentStaffPage === staffTotalPages}
+                          className="px-2.5 h-9 text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent hover:border-gray-200 rounded-lg transition-all flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-600 disabled:hover:border-transparent disabled:hover:shadow-none"
+                          title="Next page"
+                        >
+                          <span className="hidden sm:inline text-sm">Next</span>
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
