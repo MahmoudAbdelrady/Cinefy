@@ -3967,8 +3967,7 @@ export default function App() {
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">All Staff Members</h3>
                       <p className="text-sm text-gray-600 mt-1">
-                        {filteredStaff.length} of {staff.length} member
-                        {staff.length === 1 ? '' : 's'} shown
+                        Manage your cinema team and their shift schedules
                       </p>
                     </div>
 
