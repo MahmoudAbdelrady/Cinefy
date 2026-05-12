@@ -28,6 +28,8 @@ import { ManagePaymentModalComponent } from './payment/manage-payment-modal/mana
 import { Stepper } from './stepper/stepper';
 import { PaymentMethodListComponent } from './payment/payment-method-list/payment-method-list';
 import { StaffListComponent } from './staff/staff-list/staff-list';
+import { ManageStaffModalComponent } from './staff/manage-staff-modal/manage-staff-modal';
+import { StaffDetailsComponent } from './staff/staff-details/staff-details';
 
 export {
   HeaderComponent,
@@ -60,4 +62,6 @@ export {
   Stepper,
   PaymentMethodListComponent,
   StaffListComponent,
+  ManageStaffModalComponent,
+  StaffDetailsComponent,
 };
