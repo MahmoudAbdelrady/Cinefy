@@ -1,5 +1,7 @@
 <div class="input-field-wrapper" [attr.data-size]="size()">
-  <label class="if-label" [attr.data-required]="required() ? '' : null">{{ label() }}</label>
+  @if (label(); as labelText) {
+    <label class="if-label" [attr.data-required]="required() ? '' : null">{{ labelText }}</label>
+  }
 
   <div
     class="if-input"
@@ -27,5 +29,7 @@
     <p class="if-hint">{{ hintText }}</p>
   }
 
-  <field-error [control]="control()" [messages]="errorMessages()" />
+  @if (control().touched && control().errors) {
+    <field-error [control]="control()" [messages]="errorMessages()" />
+  }
 </div>

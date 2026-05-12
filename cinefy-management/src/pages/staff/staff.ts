@@ -3,10 +3,11 @@ import { LucideAngularModule, UserPlus } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { HeaderActionsService } from '../../services';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { StaffListComponent } from '../../components';
 
 @Component({
   selector: 'staff-page',
-  imports: [LucideAngularModule, NgpButton, NgpDialogTrigger],
+  imports: [LucideAngularModule, NgpButton, NgpDialogTrigger, StaffListComponent],
   templateUrl: './staff.html',
   styleUrl: './staff.scss',
 })
