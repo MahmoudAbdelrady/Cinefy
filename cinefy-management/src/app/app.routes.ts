@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from '../layout/app-layout';
-import { DashboardPage, HallsPage, MoviesPage, PaymentPage } from '../pages';
+import { DashboardPage, HallsPage, MoviesPage, PaymentPage, StaffPage } from '../pages';
 
 export const routes: Routes = [
   {
@@ -22,6 +22,10 @@ export const routes: Routes = [
       {
         path: 'payment',
         component: PaymentPage,
+      },
+      {
+        path: 'staff',
+        component: StaffPage,
       },
     ],
   },
