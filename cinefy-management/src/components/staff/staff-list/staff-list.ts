@@ -17,7 +17,13 @@ import { CustomSelectComponent } from '../../drop-down/custom-select/custom-sele
 import { InputField } from '../../input-field/input-field';
 import { PaginationComponent } from '../../pagination/pagination';
 import { StaffDetailsComponent } from '../staff-details/staff-details';
-import { STAFF_POSITION_LABELS, type StaffMember, type StaffPosition } from '../../../shared/types';
+import { ManageStaffModalComponent } from '../manage-staff-modal/manage-staff-modal';
+import {
+  STAFF_POSITION_LABELS,
+  WEEK_DAY_LABELS,
+  type StaffMember,
+  type StaffPosition,
+} from '../../../shared/types';
 
 @Component({
   selector: 'staff-list',
@@ -28,6 +34,7 @@ import { STAFF_POSITION_LABELS, type StaffMember, type StaffPosition } from '../
     PaginationComponent,
     NgpDialogTrigger,
     StaffDetailsComponent,
+    ManageStaffModalComponent,
   ],
   templateUrl: './staff-list.html',
   styleUrl: './staff-list.scss',
@@ -60,6 +67,7 @@ export class StaffListComponent {
   }
 
   protected readonly positionLabels = STAFF_POSITION_LABELS;
+  protected readonly weekDayLabels = WEEK_DAY_LABELS;
   protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
 
   protected readonly staffMembers: StaffMember[] = [
@@ -70,8 +78,10 @@ export class StaffListComponent {
       email: 'yara.elsayed@cinefy.eg',
       phoneNumber: '+20 100 422 8841',
       position: 'MANAGER',
-      workingDays: 'Mon–Fri',
-      workingHours: '10:00–19:00',
+      workingDayStart: 'MONDAY',
+      workingDayEnd: 'FRIDAY',
+      workingHourStart: '10:00',
+      workingHourEnd: '19:00',
       hiredAt: '2024-03-11',
       employmentType: 'FULL_TIME',
     },
@@ -82,8 +92,10 @@ export class StaffListComponent {
       email: 'omar.hassan@cinefy.eg',
       phoneNumber: '+20 109 718 0260',
       position: 'PROJECTIONIST',
-      workingDays: 'Tue–Sat',
-      workingHours: '14:00–23:00',
+      workingDayStart: 'TUESDAY',
+      workingDayEnd: 'SATURDAY',
+      workingHourStart: '14:00',
+      workingHourEnd: '23:00',
       hiredAt: '2023-11-02',
       employmentType: 'FULL_TIME',
     },
@@ -94,8 +106,10 @@ export class StaffListComponent {
       email: 'mariam.nabil@cinefy.eg',
       phoneNumber: '+20 122 305 7714',
       position: 'CASHIER',
-      workingDays: 'Wed–Sun',
-      workingHours: '12:00–20:00',
+      workingDayStart: 'WEDNESDAY',
+      workingDayEnd: 'SUNDAY',
+      workingHourStart: '12:00',
+      workingHourEnd: '20:00',
       hiredAt: '2025-08-19',
       employmentType: 'PART_TIME',
     },
@@ -106,8 +120,10 @@ export class StaffListComponent {
       email: 'tarek.abdelaziz@cinefy.eg',
       phoneNumber: '+20 111 540 9162',
       position: 'USHER',
-      workingDays: 'Thu–Mon',
-      workingHours: '16:00–23:59',
+      workingDayStart: 'THURSDAY',
+      workingDayEnd: 'MONDAY',
+      workingHourStart: '16:00',
+      workingHourEnd: '23:59',
       hiredAt: '2026-01-22',
       employmentType: 'PART_TIME',
     },
@@ -118,8 +134,10 @@ export class StaffListComponent {
       email: 'habiba.saad@cinefy.eg',
       phoneNumber: '+20 106 884 2207',
       position: 'CONCESSIONS',
-      workingDays: 'Mon–Fri',
-      workingHours: '13:00–21:00',
+      workingDayStart: 'MONDAY',
+      workingDayEnd: 'FRIDAY',
+      workingHourStart: '13:00',
+      workingHourEnd: '21:00',
       hiredAt: '2025-04-30',
       employmentType: 'FULL_TIME',
     },
@@ -130,8 +148,10 @@ export class StaffListComponent {
       email: 'karim.fouad@cinefy.eg',
       phoneNumber: '+20 128 217 4593',
       position: 'CASHIER',
-      workingDays: 'Fri–Tue',
-      workingHours: '17:00–23:59',
+      workingDayStart: 'FRIDAY',
+      workingDayEnd: 'TUESDAY',
+      workingHourStart: '17:00',
+      workingHourEnd: '23:59',
       hiredAt: '2024-09-08',
       employmentType: 'PART_TIME',
     },

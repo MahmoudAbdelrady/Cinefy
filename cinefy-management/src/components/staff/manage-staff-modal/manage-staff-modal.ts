@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, effect, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AtSign, Check, LucideAngularModule, Mail, Phone, User } from 'lucide-angular';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
@@ -7,23 +7,14 @@ import { InputField } from '../../input-field/input-field';
 import {
   EMPLOYMENT_TYPE_LABELS,
   STAFF_POSITION_LABELS,
+  StaffMember,
+  WEEK_DAY_LABELS,
   type EmploymentType,
   type StaffPosition,
+  type WeekDay,
 } from '../../../shared/types';
 import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
 import { TimePicker } from '../../date-time/time-picker/time-picker';
-
-const WEEK_DAY_LABELS = {
-  MONDAY: 'Monday',
-  TUESDAY: 'Tuesday',
-  WEDNESDAY: 'Wednesday',
-  THURSDAY: 'Thursday',
-  FRIDAY: 'Friday',
-  SATURDAY: 'Saturday',
-  SUNDAY: 'Sunday',
-} as const;
-
-type WeekDay = keyof typeof WEEK_DAY_LABELS;
 
 @Component({
   selector: 'manage-staff-modal',
@@ -49,12 +40,14 @@ export class ManageStaffModalComponent {
   protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
 
   readonly close = input.required<() => void>();
+  readonly selectedStaffMember = input<StaffMember>();
 
-  protected readonly isEdit = signal(false);
+  protected readonly isEdit = computed(() => !!this.selectedStaffMember());
 
-  protected readonly modalTitle = computed(() =>
-    this.isEdit() ? 'Edit staff member' : 'Add staff member',
-  );
+  protected readonly modalTitle = computed(() => {
+    const member = this.selectedStaffMember();
+    return member ? `Edit ${member.fullName} info` : 'Add staff member';
+  });
 
   protected readonly modalDescription = computed(() =>
     this.isEdit()
@@ -108,6 +101,25 @@ export class ManageStaffModalComponent {
     }),
   });
 
+  constructor() {
+    effect(() => {
+      const member = this.selectedStaffMember();
+      if (!member) return;
+      this.staffForm.patchValue({
+        fullName: member.fullName,
+        username: member.username,
+        email: member.email,
+        phoneNumber: member.phoneNumber,
+        position: member.position,
+        employmentType: member.employmentType,
+        workingDayStart: member.workingDayStart,
+        workingDayEnd: member.workingDayEnd,
+        workingHourStart: member.workingHourStart,
+        workingHourEnd: member.workingHourEnd,
+      });
+    });
+  }
+
   protected readonly positionDisplayFn = (position: StaffPosition): string =>
     STAFF_POSITION_LABELS[position];
 
@@ -115,26 +127,44 @@ export class ManageStaffModalComponent {
 
   protected onPositionChange(position: StaffPosition): void {
     this.staffForm.controls.position.setValue(position);
+    this.staffForm.controls.position.markAsTouched();
   }
 
   protected onPositionCleared(): void {
     this.staffForm.controls.position.setValue(null);
+    this.staffForm.controls.position.markAsTouched();
+  }
+
+  protected onPositionTouched(): void {
+    this.staffForm.controls.position.markAsTouched();
   }
 
   protected onWorkingDayStartChange(day: WeekDay): void {
     this.staffForm.controls.workingDayStart.setValue(day);
+    this.staffForm.controls.workingDayStart.markAsTouched();
   }
 
   protected onWorkingDayStartCleared(): void {
     this.staffForm.controls.workingDayStart.setValue(null);
+    this.staffForm.controls.workingDayStart.markAsTouched();
+  }
+
+  protected onWorkingDayStartTouched(): void {
+    this.staffForm.controls.workingDayStart.markAsTouched();
   }
 
   protected onWorkingDayEndChange(day: WeekDay): void {
     this.staffForm.controls.workingDayEnd.setValue(day);
+    this.staffForm.controls.workingDayEnd.markAsTouched();
   }
 
   protected onWorkingDayEndCleared(): void {
     this.staffForm.controls.workingDayEnd.setValue(null);
+    this.staffForm.controls.workingDayEnd.markAsTouched();
+  }
+
+  protected onWorkingDayEndTouched(): void {
+    this.staffForm.controls.workingDayEnd.markAsTouched();
   }
 
   protected saveMember() {}

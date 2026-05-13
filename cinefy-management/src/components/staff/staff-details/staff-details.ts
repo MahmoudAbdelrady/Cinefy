@@ -1,6 +1,11 @@
 import { Component, input } from '@angular/core';
 import { ModalComponent } from '../../modal/modal';
-import { EMPLOYMENT_TYPE_LABELS, STAFF_POSITION_LABELS, StaffMember } from '../../../shared/types';
+import {
+  EMPLOYMENT_TYPE_LABELS,
+  STAFF_POSITION_LABELS,
+  StaffMember,
+  WEEK_DAY_LABELS,
+} from '../../../shared/types';
 import {
   AtSign,
   BriefcaseBusiness,
@@ -32,4 +37,5 @@ export class StaffDetailsComponent {
 
   protected readonly employmentTypeLabels = EMPLOYMENT_TYPE_LABELS;
   protected readonly positionLabels = STAFF_POSITION_LABELS;
+  protected readonly weekDayLabels = WEEK_DAY_LABELS;
 }

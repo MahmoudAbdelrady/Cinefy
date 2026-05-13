@@ -15,6 +15,18 @@ const EMPLOYMENT_TYPE_LABELS = {
 
 type EmploymentType = keyof typeof EMPLOYMENT_TYPE_LABELS;
 
+const WEEK_DAY_LABELS = {
+  MONDAY: 'Monday',
+  TUESDAY: 'Tuesday',
+  WEDNESDAY: 'Wednesday',
+  THURSDAY: 'Thursday',
+  FRIDAY: 'Friday',
+  SATURDAY: 'Saturday',
+  SUNDAY: 'Sunday',
+} as const;
+
+type WeekDay = keyof typeof WEEK_DAY_LABELS;
+
 interface StaffMember {
   id: string;
   username: string;
@@ -22,11 +34,13 @@ interface StaffMember {
   email: string;
   phoneNumber: string;
   position: StaffPosition;
-  workingDays: string;
-  workingHours: string;
+  workingDayStart: WeekDay;
+  workingDayEnd: WeekDay;
+  workingHourStart: string;
+  workingHourEnd: string;
   hiredAt: string;
   employmentType: EmploymentType;
 }
 
-export { STAFF_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS };
-export type { StaffMember, StaffPosition, EmploymentType };
+export { STAFF_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS };
+export type { StaffMember, StaffPosition, EmploymentType, WeekDay };

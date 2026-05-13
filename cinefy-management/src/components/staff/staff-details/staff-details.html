@@ -86,7 +86,11 @@
           </div>
           <div class="sdcs-item-info">
             <span class="item-title">Working days</span>
-            <span class="item-value">{{ staffMember().workingDays }}</span>
+            <span class="item-value">
+              {{ weekDayLabels[staffMember().workingDayStart] }}–{{
+                weekDayLabels[staffMember().workingDayEnd]
+              }}
+            </span>
           </div>
         </div>
         <div class="sdcs-item">
@@ -95,7 +99,9 @@
           </div>
           <div class="sdcs-item-info">
             <span class="item-title">Working hours</span>
-            <span class="item-value">{{ staffMember().workingHours }}</span>
+            <span class="item-value">
+              {{ staffMember().workingHourStart }}–{{ staffMember().workingHourEnd }}
+            </span>
           </div>
         </div>
       </div>

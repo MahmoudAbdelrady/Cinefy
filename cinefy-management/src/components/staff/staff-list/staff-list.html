@@ -59,7 +59,12 @@
               </div>
               <div class="sidc-item">
                 <lucide-icon [img]="CalendarClockIcon" [size]="14"></lucide-icon>
-                <span>{{ member.workingDays }} · {{ member.workingHours }}</span>
+                <span>
+                  {{ weekDayLabels[member.workingDayStart] }}–{{
+                    weekDayLabels[member.workingDayEnd]
+                  }}
+                  · {{ member.workingHourStart }}–{{ member.workingHourEnd }}
+                </span>
               </div>
             </div>
           </div>
@@ -69,7 +74,7 @@
             <lucide-icon [img]="EyeIcon" [size]="16"></lucide-icon>
             <span>View</span>
           </button>
-          <button ngpButton class="sa-btn sa-btn-edit">
+          <button ngpButton class="sa-btn sa-btn-edit" [ngpDialogTrigger]="editDialog">
             <lucide-icon [img]="EditIcon" [size]="16"></lucide-icon>
             <span>Edit</span>
           </button>
@@ -80,6 +85,9 @@
 
           <ng-template #viewDialog let-close="close">
             <staff-details [staffMember]="member" [close]="close" />
+          </ng-template>
+          <ng-template #editDialog let-close="close">
+            <manage-staff-modal [selectedStaffMember]="member" [close]="close" />
           </ng-template>
         </div>
       </div>

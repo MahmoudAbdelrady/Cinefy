@@ -50,11 +50,15 @@
       label="Position"
       [items]="staffPositions"
       [displayFn]="positionDisplayFn"
+      [value]="staffForm.controls.position.value"
+      [control]="staffForm.controls.position"
+      [errorMessages]="{ required: 'Position is required' }"
       [clearable]="true"
       [required]="true"
       placeholder="Select a position"
       (selectionChange)="onPositionChange($event)"
       (cleared)="onPositionCleared()"
+      (touched)="onPositionTouched()"
     />
   </div>
   <div class="input-group">
@@ -79,22 +83,30 @@
         <custom-select
           [items]="weekDays"
           [displayFn]="weekDayDisplayFn"
+          [value]="staffForm.controls.workingDayStart.value"
+          [control]="staffForm.controls.workingDayStart"
+          [errorMessages]="{ required: 'Start day is required' }"
           [clearable]="true"
           [required]="true"
           placeholder="Select start day"
           (selectionChange)="onWorkingDayStartChange($event)"
           (cleared)="onWorkingDayStartCleared()"
+          (touched)="onWorkingDayStartTouched()"
         />
       </div>
       <div class="input-group">
         <custom-select
           [items]="weekDays"
           [displayFn]="weekDayDisplayFn"
+          [value]="staffForm.controls.workingDayEnd.value"
+          [control]="staffForm.controls.workingDayEnd"
+          [errorMessages]="{ required: 'End day is required' }"
           [clearable]="true"
           [required]="true"
           placeholder="Select end day"
           (selectionChange)="onWorkingDayEndChange($event)"
           (cleared)="onWorkingDayEndCleared()"
+          (touched)="onWorkingDayEndTouched()"
         />
       </div>
     </div>
