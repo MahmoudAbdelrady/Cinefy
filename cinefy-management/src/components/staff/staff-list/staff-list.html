@@ -26,7 +26,7 @@
     </div>
   </div>
   <div class="sl-items">
-    @for (member of staffMembers; track member.id) {
+    @for (member of staffMembers(); track member.id) {
       <div class="staff-member">
         <div class="staff-info">
           @let staffNameParts = member.fullName.split(' ');
@@ -78,7 +78,7 @@
             <lucide-icon [img]="EditIcon" [size]="16"></lucide-icon>
             <span>Edit</span>
           </button>
-          <button ngpButton class="sa-btn sa-btn-delete">
+          <button ngpButton class="sa-btn sa-btn-delete" [ngpDialogTrigger]="deleteDialog">
             <lucide-icon [img]="DeleteIcon" [size]="16"></lucide-icon>
             <span>Delete</span>
           </button>
@@ -88,6 +88,54 @@
           </ng-template>
           <ng-template #editDialog let-close="close">
             <manage-staff-modal [selectedStaffMember]="member" [close]="close" />
+          </ng-template>
+          <ng-template #deleteDialog let-close="close">
+            <app-modal modalTitle="Delete Staff Member" [close]="close" width="448px">
+              <div class="delete-modal-content">
+                <div class="dmc-icon">
+                  <lucide-icon [img]="AlertIcon" [size]="24" [strokeWidth]="2"></lucide-icon>
+                </div>
+                <p class="dmc-message">
+                  Are you sure you want to remove <strong>{{ member.fullName }}</strong> from the
+                  staff roster? This action cannot be undone and will revoke their access
+                  immediately.
+                </p>
+                <div class="dmc-warning">
+                  <lucide-icon [img]="AlertIcon" [size]="16" [strokeWidth]="2"></lucide-icon>
+                  <div>
+                    <p><strong>Warning:</strong></p>
+                    <ul>
+                      <li>Their login credentials will be revoked</li>
+                      <li>Active shift assignments will be cleared</li>
+                      <li>Historical attendance records will be archived</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div modal-footer class="delete-modal-footer">
+                <button
+                  ngpButton
+                  class="btn-secondary"
+                  [disabled]="deletingStaffIds().has(member.id)"
+                  (click)="close()"
+                >
+                  Cancel
+                </button>
+                <button
+                  ngpButton
+                  class="btn-danger"
+                  [disabled]="deletingStaffIds().has(member.id)"
+                  (click)="deleteStaffMember(member.id, close)"
+                >
+                  @if (deletingStaffIds().has(member.id)) {
+                    <span>Deleting…</span>
+                  } @else {
+                    <span>Delete Member</span>
+                  }
+                </button>
+              </div>
+            </app-modal>
           </ng-template>
         </div>
       </div>

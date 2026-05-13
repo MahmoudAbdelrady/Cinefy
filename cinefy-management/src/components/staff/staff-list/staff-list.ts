@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import {
   CalendarClock,
+  CircleAlert,
   Eye,
   LucideAngularModule,
   Mail,
@@ -12,9 +13,11 @@ import {
   Trash2,
   Users,
 } from 'lucide-angular';
+import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
 import { InputField } from '../../input-field/input-field';
+import { ModalComponent } from '../../modal/modal';
 import { PaginationComponent } from '../../pagination/pagination';
 import { StaffDetailsComponent } from '../staff-details/staff-details';
 import { ManageStaffModalComponent } from '../manage-staff-modal/manage-staff-modal';
@@ -32,7 +35,9 @@ import {
     CustomSelectComponent,
     InputField,
     PaginationComponent,
+    NgpButton,
     NgpDialogTrigger,
+    ModalComponent,
     StaffDetailsComponent,
     ManageStaffModalComponent,
   ],
@@ -48,6 +53,9 @@ export class StaffListComponent {
   protected readonly EyeIcon = Eye;
   protected readonly EditIcon = SquarePen;
   protected readonly DeleteIcon = Trash2;
+  protected readonly AlertIcon = CircleAlert;
+
+  protected readonly deletingStaffIds = signal<ReadonlySet<string>>(new Set());
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -55,7 +63,7 @@ export class StaffListComponent {
 
   protected readonly page = signal(1);
   protected readonly pageSize = 10;
-  protected readonly totalItems = computed(() => this.staffMembers.length);
+  protected readonly totalItems = computed(() => this.staffMembers().length);
   protected readonly pageCount = computed(() =>
     Math.max(1, Math.ceil(this.totalItems() / this.pageSize)),
   );
@@ -70,7 +78,7 @@ export class StaffListComponent {
   protected readonly weekDayLabels = WEEK_DAY_LABELS;
   protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
 
-  protected readonly staffMembers: StaffMember[] = [
+  protected readonly staffMembers = signal<StaffMember[]>([
     {
       id: 'st_01',
       username: 'yara.elsayed',
@@ -155,7 +163,7 @@ export class StaffListComponent {
       hiredAt: '2024-09-08',
       employmentType: 'PART_TIME',
     },
-  ];
+  ]);
 
   protected readonly positionDisplayFn = (position: StaffPosition): string =>
     STAFF_POSITION_LABELS[position];
@@ -170,5 +178,17 @@ export class StaffListComponent {
 
   protected onPositionFilterCleared(): void {
     console.log('Position filter cleared');
+  }
+
+  protected deleteStaffMember(id: string, close: () => void): void {
+    if (this.deletingStaffIds().has(id)) return;
+    this.deletingStaffIds.update((current) => new Set(current).add(id));
+    this.staffMembers.update((members) => members.filter((m) => m.id !== id));
+    this.deletingStaffIds.update((current) => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
+    close();
   }
 }
