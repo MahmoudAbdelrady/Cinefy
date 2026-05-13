@@ -74,7 +74,7 @@
             <lucide-icon [img]="EyeIcon" [size]="16"></lucide-icon>
             <span>View</span>
           </button>
-          <button ngpButton class="sa-btn sa-btn-edit" [ngpDialogTrigger]="editDialog">
+          <button ngpButton class="sa-btn sa-btn-edit" (click)="openEditDialog(member)">
             <lucide-icon [img]="EditIcon" [size]="16"></lucide-icon>
             <span>Edit</span>
           </button>
@@ -84,10 +84,11 @@
           </button>
 
           <ng-template #viewDialog let-close="close">
-            <staff-details [staffMember]="member" [close]="close" />
-          </ng-template>
-          <ng-template #editDialog let-close="close">
-            <manage-staff-modal [selectedStaffMember]="member" [close]="close" />
+            <staff-details
+              [staffMember]="member"
+              [close]="close"
+              (editRequested)="openEditDialog($event)"
+            />
           </ng-template>
           <ng-template #deleteDialog let-close="close">
             <app-modal modalTitle="Delete Staff Member" [close]="close" width="448px">
@@ -153,4 +154,10 @@
     [totalItems]="totalItems()"
     [pageSize]="pageSize"
   />
+
+  <ng-template #editDialog let-close="close">
+    @if (pendingEditMember(); as member) {
+      <manage-staff-modal [selectedStaffMember]="member" [close]="close" />
+    }
+  </ng-template>
 </div>

@@ -1,4 +1,12 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import {
@@ -14,7 +22,7 @@ import {
   Users,
 } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
 import { InputField } from '../../input-field/input-field';
 import { ModalComponent } from '../../modal/modal';
@@ -58,6 +66,10 @@ export class StaffListComponent {
   protected readonly deletingStaffIds = signal<ReadonlySet<string>>(new Set());
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogManager = inject(NgpDialogManager);
+
+  protected readonly editTemplate = viewChild.required<TemplateRef<unknown>>('editDialog');
+  protected readonly pendingEditMember = signal<StaffMember | null>(null);
 
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
 
@@ -96,7 +108,7 @@ export class StaffListComponent {
     {
       id: 'st_02',
       username: 'omar.hassan',
-      fullName: 'Omar Hassan',
+      fullName: 'Omar Hassan Ibrahim Mohamed',
       email: 'omar.hassan@cinefy.eg',
       phoneNumber: '+20 109 718 0260',
       position: 'PROJECTIONIST',
@@ -178,6 +190,11 @@ export class StaffListComponent {
 
   protected onPositionFilterCleared(): void {
     console.log('Position filter cleared');
+  }
+
+  protected openEditDialog(member: StaffMember): void {
+    this.pendingEditMember.set(member);
+    this.dialogManager.open(this.editTemplate() as never);
   }
 
   protected deleteStaffMember(id: string, close: () => void): void {

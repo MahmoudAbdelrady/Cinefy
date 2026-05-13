@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { ModalComponent } from '../../modal/modal';
 import {
   EMPLOYMENT_TYPE_LABELS,
@@ -34,8 +34,14 @@ export class StaffDetailsComponent {
 
   readonly close = input.required<() => void>();
   readonly staffMember = input.required<StaffMember>();
+  readonly editRequested = output<StaffMember>();
 
   protected readonly employmentTypeLabels = EMPLOYMENT_TYPE_LABELS;
   protected readonly positionLabels = STAFF_POSITION_LABELS;
   protected readonly weekDayLabels = WEEK_DAY_LABELS;
+
+  protected requestEdit(): void {
+    this.close()();
+    this.editRequested.emit(this.staffMember());
+  }
 }

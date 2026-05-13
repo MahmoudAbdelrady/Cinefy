@@ -16,7 +16,7 @@
     </div>
   </div>
   <div modal-header-actions>
-    <button ngpButton title="Edit Info">
+    <button ngpButton (click)="requestEdit()">
       <lucide-icon [img]="EditIcon" [size]="20" [strokeWidth]="2"></lucide-icon>
       <span>Edit Info</span>
     </button>
