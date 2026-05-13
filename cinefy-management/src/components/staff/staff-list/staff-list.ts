@@ -108,7 +108,7 @@ export class StaffListComponent {
     {
       id: 'st_02',
       username: 'omar.hassan',
-      fullName: 'Omar Hassan Ibrahim Mohamed',
+      fullName: 'Omar Hassan Ibrahim Mohamed Ahmed Mostafa',
       email: 'omar.hassan@cinefy.eg',
       phoneNumber: '+20 109 718 0260',
       position: 'PROJECTIONIST',
