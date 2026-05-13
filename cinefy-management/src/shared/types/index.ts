@@ -63,4 +63,5 @@ export type {
 
 export type { StatsCard } from './stats';
 
-export type { StaffMember } from './staff';
+export { STAFF_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS } from './staff';
+export type { StaffMember, StaffPosition, EmploymentType } from './staff';

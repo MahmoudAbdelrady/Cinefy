@@ -17,7 +17,7 @@ import { CustomSelectComponent } from '../../drop-down/custom-select/custom-sele
 import { InputField } from '../../input-field/input-field';
 import { PaginationComponent } from '../../pagination/pagination';
 import { StaffDetailsComponent } from '../staff-details/staff-details';
-import { type StaffMember } from '../../../shared/types';
+import { STAFF_POSITION_LABELS, type StaffMember, type StaffPosition } from '../../../shared/types';
 
 @Component({
   selector: 'staff-list',
@@ -59,13 +59,8 @@ export class StaffListComponent {
       .subscribe((value) => this.onSearch(value));
   }
 
-  protected readonly StaffPositions: string[] = [
-    'Manager',
-    'Projectionist',
-    'Cashier',
-    'Concessions',
-    'Usher',
-  ];
+  protected readonly positionLabels = STAFF_POSITION_LABELS;
+  protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
 
   protected readonly staffMembers: StaffMember[] = [
     {
@@ -74,11 +69,11 @@ export class StaffListComponent {
       fullName: 'Yara El-Sayed',
       email: 'yara.elsayed@cinefy.eg',
       phoneNumber: '+20 100 422 8841',
-      position: 'Manager',
+      position: 'MANAGER',
       workingDays: 'Mon–Fri',
       workingHours: '10:00–19:00',
       hiredAt: '2024-03-11',
-      employmentType: 'Full-time',
+      employmentType: 'FULL_TIME',
     },
     {
       id: 'st_02',
@@ -86,11 +81,11 @@ export class StaffListComponent {
       fullName: 'Omar Hassan',
       email: 'omar.hassan@cinefy.eg',
       phoneNumber: '+20 109 718 0260',
-      position: 'Projectionist',
+      position: 'PROJECTIONIST',
       workingDays: 'Tue–Sat',
       workingHours: '14:00–23:00',
       hiredAt: '2023-11-02',
-      employmentType: 'Full-time',
+      employmentType: 'FULL_TIME',
     },
     {
       id: 'st_03',
@@ -98,11 +93,11 @@ export class StaffListComponent {
       fullName: 'Mariam Nabil',
       email: 'mariam.nabil@cinefy.eg',
       phoneNumber: '+20 122 305 7714',
-      position: 'Cashier',
+      position: 'CASHIER',
       workingDays: 'Wed–Sun',
       workingHours: '12:00–20:00',
       hiredAt: '2025-08-19',
-      employmentType: 'Part-time',
+      employmentType: 'PART_TIME',
     },
     {
       id: 'st_04',
@@ -110,11 +105,11 @@ export class StaffListComponent {
       fullName: 'Tarek Abdelaziz',
       email: 'tarek.abdelaziz@cinefy.eg',
       phoneNumber: '+20 111 540 9162',
-      position: 'Usher',
+      position: 'USHER',
       workingDays: 'Thu–Mon',
       workingHours: '16:00–23:59',
       hiredAt: '2026-01-22',
-      employmentType: 'Part-time',
+      employmentType: 'PART_TIME',
     },
     {
       id: 'st_05',
@@ -122,11 +117,11 @@ export class StaffListComponent {
       fullName: 'Habiba Saad',
       email: 'habiba.saad@cinefy.eg',
       phoneNumber: '+20 106 884 2207',
-      position: 'Concessions',
+      position: 'CONCESSIONS',
       workingDays: 'Mon–Fri',
       workingHours: '13:00–21:00',
       hiredAt: '2025-04-30',
-      employmentType: 'Full-time',
+      employmentType: 'FULL_TIME',
     },
     {
       id: 'st_06',
@@ -134,21 +129,22 @@ export class StaffListComponent {
       fullName: 'Karim Fouad',
       email: 'karim.fouad@cinefy.eg',
       phoneNumber: '+20 128 217 4593',
-      position: 'Cashier',
+      position: 'CASHIER',
       workingDays: 'Fri–Tue',
       workingHours: '17:00–23:59',
       hiredAt: '2024-09-08',
-      employmentType: 'Part-time',
+      employmentType: 'PART_TIME',
     },
   ];
 
-  protected readonly positionDisplayFn = (position: string): string => position;
+  protected readonly positionDisplayFn = (position: StaffPosition): string =>
+    STAFF_POSITION_LABELS[position];
 
   protected onSearch(value: string): void {
     console.log('Search value:', value);
   }
 
-  protected onPositionFilterChange(position: string): void {
+  protected onPositionFilterChange(position: StaffPosition): void {
     console.log('Position filter changed:', position);
   }
 

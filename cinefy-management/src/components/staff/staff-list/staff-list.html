@@ -15,7 +15,7 @@
       </div>
       <div class="drop-down-filter">
         <custom-select
-          [items]="StaffPositions"
+          [items]="staffPositions"
           [displayFn]="positionDisplayFn"
           [clearable]="true"
           placeholder="All positions"
@@ -45,7 +45,7 @@
               <span class="sidb-name">{{ member.fullName }}</span>
               <div class="sidb-position" [attr.data-position]="member.position">
                 <span class="sidbp-dot"></span>
-                <span>{{ member.position }}</span>
+                <span>{{ positionLabels[member.position] }}</span>
               </div>
             </div>
             <div class="sid-contact">

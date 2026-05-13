@@ -173,19 +173,19 @@ pagination-component {
   // Position-specific gradients (shared mixin) + per-position rings
   @include staff-position-gradients;
 
-  &[data-position='Manager']::before {
+  &[data-position='MANAGER']::before {
     box-shadow: inset 0 0 0 1px rgba(199, 210, 254, 0.7);
   }
-  &[data-position='Cashier']::before {
+  &[data-position='CASHIER']::before {
     box-shadow: inset 0 0 0 1px rgba(167, 243, 208, 0.7);
   }
-  &[data-position='Projectionist']::before {
+  &[data-position='PROJECTIONIST']::before {
     box-shadow: inset 0 0 0 1px rgba(253, 230, 138, 0.7);
   }
-  &[data-position='Usher']::before {
+  &[data-position='USHER']::before {
     box-shadow: inset 0 0 0 1px rgba(254, 205, 211, 0.7);
   }
-  &[data-position='Concessions']::before {
+  &[data-position='CONCESSIONS']::before {
     box-shadow: inset 0 0 0 1px rgba(186, 230, 253, 0.7);
   }
 }
@@ -219,7 +219,6 @@ pagination-component {
   border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.1em;
   border: 1px solid transparent;
 
@@ -232,31 +231,31 @@ pagination-component {
   }
 
   // Position-specific soft surface + ink
-  &[data-position='Manager'] {
+  &[data-position='MANAGER'] {
     background-color: #eef2ff; // indigo-50
     border-color: #c7d2fe; // indigo-200
     color: #4338ca; // indigo-700
   }
 
-  &[data-position='Cashier'] {
+  &[data-position='CASHIER'] {
     background-color: #ecfdf5; // emerald-50
     border-color: #a7f3d0; // emerald-200
     color: #047857; // emerald-700
   }
 
-  &[data-position='Projectionist'] {
+  &[data-position='PROJECTIONIST'] {
     background-color: $amber-50;
     border-color: $amber-200;
     color: $amber-700;
   }
 
-  &[data-position='Usher'] {
+  &[data-position='USHER'] {
     background-color: #fff1f2; // rose-50
     border-color: #fecdd3; // rose-200
     color: #be123c; // rose-700
   }
 
-  &[data-position='Concessions'] {
+  &[data-position='CONCESSIONS'] {
     background-color: #f0f9ff; // sky-50
     border-color: #bae6fd; // sky-200
     color: #0369a1; // sky-700

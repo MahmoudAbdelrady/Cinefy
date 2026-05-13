@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { ModalComponent } from '../../modal/modal';
-import { StaffMember } from '../../../shared/types';
+import { EMPLOYMENT_TYPE_LABELS, STAFF_POSITION_LABELS, StaffMember } from '../../../shared/types';
 import {
   AtSign,
   BriefcaseBusiness,
@@ -29,4 +29,7 @@ export class StaffDetailsComponent {
 
   readonly close = input.required<() => void>();
   readonly staffMember = input.required<StaffMember>();
+
+  protected readonly employmentTypeLabels = EMPLOYMENT_TYPE_LABELS;
+  protected readonly positionLabels = STAFF_POSITION_LABELS;
 }

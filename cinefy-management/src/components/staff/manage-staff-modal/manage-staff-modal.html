@@ -1,1 +1,121 @@
-<p>manage-staff-modal works!</p>
+<app-modal
+  #modal
+  [modalTitle]="modalTitle()"
+  [description]="modalDescription()"
+  [close]="close()"
+  width="700px"
+>
+  <div class="input-group">
+    <input-field
+      label="Full name"
+      placeholder="e.g. Mohamed Ahmed"
+      [leadingIcon]="FullNameIcon"
+      [control]="staffForm.controls.fullName"
+      [errorMessages]="{ required: 'Full name is required' }"
+    />
+  </div>
+  <div class="input-group">
+    <input-field
+      label="Username"
+      placeholder="e.g. mohamed.ahmed"
+      [leadingIcon]="UsernameIcon"
+      [control]="staffForm.controls.username"
+      [errorMessages]="{ required: 'Username is required' }"
+    />
+  </div>
+  <div class="input-groups">
+    <div class="fields">
+      <div class="input-group">
+        <input-field
+          label="Email"
+          placeholder="e.g. mohamed.ahmed@gmail.com"
+          [leadingIcon]="EmailIcon"
+          [control]="staffForm.controls.email"
+          [errorMessages]="{ required: 'Email is required' }"
+        />
+      </div>
+      <div class="input-group">
+        <input-field
+          label="Phone number"
+          placeholder="e.g. +20 100 000 0000"
+          [leadingIcon]="PhoneIcon"
+          [control]="staffForm.controls.phoneNumber"
+          [errorMessages]="{ required: 'Phone number is required' }"
+        />
+      </div>
+    </div>
+  </div>
+  <div class="input-group">
+    <custom-select
+      label="Position"
+      [items]="staffPositions"
+      [displayFn]="positionDisplayFn"
+      [clearable]="true"
+      [required]="true"
+      placeholder="Select a position"
+      (selectionChange)="onPositionChange($event)"
+      (cleared)="onPositionCleared()"
+    />
+  </div>
+  <div class="input-group">
+    <label data-required>Employment Type</label>
+    <div
+      ngpRadioGroup
+      class="radio-group"
+      [ngpRadioGroupValue]="staffForm.controls.employmentType.value"
+      (ngpRadioGroupValueChange)="staffForm.controls.employmentType.setValue($event!)"
+    >
+      @for (entry of employmentTypeEntries; track entry.value) {
+        <div ngpRadioItem [ngpRadioItemValue]="entry.value" class="radio-item">
+          <span>{{ entry.label }}</span>
+        </div>
+      }
+    </div>
+  </div>
+  <div class="input-groups">
+    <label data-required>Working days</label>
+    <div class="fields">
+      <div class="input-group">
+        <custom-select
+          [items]="weekDays"
+          [displayFn]="weekDayDisplayFn"
+          [clearable]="true"
+          [required]="true"
+          placeholder="Select start day"
+          (selectionChange)="onWorkingDayStartChange($event)"
+          (cleared)="onWorkingDayStartCleared()"
+        />
+      </div>
+      <div class="input-group">
+        <custom-select
+          [items]="weekDays"
+          [displayFn]="weekDayDisplayFn"
+          [clearable]="true"
+          [required]="true"
+          placeholder="Select end day"
+          (selectionChange)="onWorkingDayEndChange($event)"
+          (cleared)="onWorkingDayEndCleared()"
+        />
+      </div>
+    </div>
+  </div>
+  <div class="input-groups">
+    <label data-required>Working hours</label>
+    <div class="fields">
+      <div class="input-group">
+        <time-picker [formControl]="staffForm.controls.workingHourStart" placeholder="Start time" />
+      </div>
+      <div class="input-group">
+        <time-picker [formControl]="staffForm.controls.workingHourEnd" placeholder="End time" />
+      </div>
+    </div>
+  </div>
+  <div modal-footer class="manage-staff-modal-footer">
+    <div class="save-btns">
+      <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
+      <button ngpButton class="btn-primary" (click)="saveMember()" [disabled]="staffForm.invalid">
+        {{ isEdit() ? 'Save Changes' : 'Add staff member' }}
+      </button>
+    </div>
+  </div>
+</app-modal>

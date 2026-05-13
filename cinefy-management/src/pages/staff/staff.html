@@ -6,7 +6,9 @@
     </button>
   </div>
 
-  <ng-template #manageStaffDialog let-close="close"> Test </ng-template>
+  <ng-template #manageStaffDialog let-close="close">
+    <manage-staff-modal [close]="close" />
+  </ng-template>
 </ng-template>
 
 <div class="staff-container">

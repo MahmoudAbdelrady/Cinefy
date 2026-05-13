@@ -1,0 +1,162 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
+@use '../../../shared/styles/breakpoints' as *;
+
+:host {
+  display: contents;
+}
+
+// Spacing between top-level form rows. The `.fields` grid handles its own
+// internal gap, so nested `.input-group` siblings must NOT pick up this margin.
+.input-group + .input-group,
+.input-group + .input-groups,
+.input-groups + .input-group,
+.input-groups + .input-groups {
+  margin-top: 20px;
+}
+
+.fields > .input-group + .input-group {
+  margin-top: 0;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  > label {
+    font-size: 14px;
+    font-weight: 600;
+    color: $gray-900;
+
+    &[data-required]::after {
+      content: '*';
+      color: $red-500;
+      margin-left: 3px;
+    }
+  }
+
+  > *:not(label) {
+    width: 100%;
+  }
+}
+
+.input-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  > label {
+    font-size: 14px;
+    font-weight: 600;
+    color: $gray-900;
+
+    &[data-required]::after {
+      content: '*';
+      color: $red-500;
+      margin-left: 3px;
+    }
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    gap: 16px;
+
+    > .input-group {
+      min-width: 0;
+
+      // Stretch each field's top-level child so triggers share the same width
+      // and height regardless of the inner component.
+      > * {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    @include below-phone {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.radio-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+
+  @include below-phone {
+    grid-template-columns: 1fr;
+  }
+}
+
+.manage-staff-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+
+  .cancel-btn {
+    padding: 8px 24px;
+    color: $gray-700;
+    border: 1px solid $gray-300;
+    border-radius: $radius-md;
+    transition: all 150ms ease;
+
+    &:hover {
+      background-color: $gray-200;
+    }
+  }
+
+  .save-btns {
+    @include flex-align;
+    gap: 12px;
+  }
+
+  @include below-phone {
+    .cancel-btn,
+    .btn-primary {
+      width: 100%;
+    }
+
+    .save-btns {
+      flex-direction: column-reverse;
+      width: 100%;
+      gap: 8px;
+    }
+  }
+}
+
+.radio-item {
+  @include flex-center;
+  padding: 10px 12px;
+  border: 2px solid $gray-200;
+  border-radius: $radius-md;
+  background-color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  color: $gray-600;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+
+  &:hover:not([data-checked]) {
+    border-color: $gray-300;
+  }
+
+  &[data-checked] {
+    border-color: $blue-500;
+    background-color: $blue-50;
+    color: $blue-800;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px $blue-500;
+  }
+}

@@ -11,7 +11,7 @@
       <div class="sdhi-name">{{ staffMember().fullName }}</div>
       <div class="sdhi-position">
         <lucide-icon [img]="BriefCaseIcon" [size]="11" [strokeWidth]="2.5"></lucide-icon>
-        <span>{{ staffMember().position }}</span>
+        <span>{{ positionLabels[staffMember().position] }}</span>
       </div>
     </div>
   </div>
@@ -72,7 +72,7 @@
           </div>
           <div class="sdcs-item-info">
             <span class="item-title">Employment Type</span>
-            <span class="item-value">{{ staffMember().employmentType }}</span>
+            <span class="item-value">{{ employmentTypeLabels[staffMember().employmentType] }}</span>
           </div>
         </div>
       </div>
