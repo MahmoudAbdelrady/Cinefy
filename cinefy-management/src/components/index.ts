@@ -30,6 +30,7 @@ import { PaymentMethodListComponent } from './payment/payment-method-list/paymen
 import { StaffListComponent } from './staff/staff-list/staff-list';
 import { ManageStaffModalComponent } from './staff/manage-staff-modal/manage-staff-modal';
 import { StaffDetailsComponent } from './staff/staff-details/staff-details';
+import { StaffPositionCoverageComponent } from './staff/staff-position-coverage/staff-position-coverage';
 
 export {
   HeaderComponent,
@@ -64,4 +65,5 @@ export {
   StaffListComponent,
   ManageStaffModalComponent,
   StaffDetailsComponent,
+  StaffPositionCoverageComponent,
 };
