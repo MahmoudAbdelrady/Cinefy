@@ -24,7 +24,6 @@ public class StaffMemberDTO {
     @NotBlank(message = "Email is required")
     private String email;
 
-    @NotBlank(message = "Password is required")
     @Pattern(
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$",
             message = "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a symbol"

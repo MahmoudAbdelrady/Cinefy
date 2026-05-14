@@ -47,28 +47,31 @@ public class StaffMemberService {
     public StaffMemberSummaryDTO createStaffMember(StaffMemberDTO dto) {
         String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
         StaffPosition position = StaffPosition.fromString(dto.getPosition());
-        validateStaffMember(dto, normalizedPhoneNumber, position);
+        validateStaffMember(dto, normalizedPhoneNumber, position, null);
 
-        EmploymentType employmentType = EmploymentType.fromString(dto.getEmploymentType());
-        DayOfWeek workingDayStart = parseDayOfWeek(dto.getWorkingDayStart(), "workingDayStart");
-        DayOfWeek workingDayEnd = parseDayOfWeek(dto.getWorkingDayEnd(), "workingDayEnd");
-        LocalTime workingHourStart = parseTime(dto.getWorkingHourStart(), "workingHourStart");
-        LocalTime workingHourEnd = parseTime(dto.getWorkingHourEnd(), "workingHourEnd");
+        if (StringUtils.isBlank(dto.getPassword())) {
+            throw new BusinessException("Password is required");
+        }
 
         StaffMember staffMember = new StaffMember();
-        staffMember.setFirstName(dto.getFirstName());
-        staffMember.setLastName(dto.getLastName());
-        staffMember.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
-        staffMember.setUsername(dto.getUsername());
-        staffMember.setPhoneNumber(normalizedPhoneNumber);
-        staffMember.setEmail(dto.getEmail());
+        applyDtoToStaffMember(staffMember, dto, normalizedPhoneNumber, position);
         staffMember.setPassword(passwordEncoder.encode(dto.getPassword()));
-        staffMember.setPosition(position);
-        staffMember.setEmploymentType(employmentType);
-        staffMember.setWorkingDayStart(workingDayStart);
-        staffMember.setWorkingDayEnd(workingDayEnd);
-        staffMember.setWorkingHourStart(workingHourStart);
-        staffMember.setWorkingHourEnd(workingHourEnd);
+
+        staffMemberRepository.save(staffMember);
+        return toSummaryDTO(staffMember);
+    }
+
+    @Transactional
+    public StaffMemberSummaryDTO updateStaffMember(String uuid, StaffMemberDTO dto) {
+        StaffMember staffMember = findStaffMember(uuid);
+        String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
+        StaffPosition position = StaffPosition.fromString(dto.getPosition());
+        validateStaffMember(dto, normalizedPhoneNumber, position, staffMember.getId());
+
+        applyDtoToStaffMember(staffMember, dto, normalizedPhoneNumber, position);
+        if (StringUtils.isNotEmpty(dto.getPassword())) {
+            staffMember.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
 
         staffMemberRepository.save(staffMember);
         return toSummaryDTO(staffMember);
@@ -87,17 +90,26 @@ public class StaffMemberService {
                 .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + uuid));
     }
 
-    private void validateStaffMember(StaffMemberDTO dto, String normalizedPhoneNumber, StaffPosition position) {
-        if (position.equals(StaffPosition.ADMIN)) {
+    private void validateStaffMember(StaffMemberDTO dto, String normalizedPhoneNumber, StaffPosition position, Long excludeId) {
+        if (position.equals(StaffPosition.ADMIN)) { // @ TODO: update the condition to check if the current user isn't admin
             throw new BusinessException("Assigning the admin position is not allowed");
         }
-        if (staffMemberRepository.existsByUsername(dto.getUsername())) {
+        boolean usernameExists = excludeId == null
+                ? staffMemberRepository.existsByUsername(dto.getUsername())
+                : staffMemberRepository.existsByUsernameAndIdNot(dto.getUsername(), excludeId);
+        if (usernameExists) {
             throw new BusinessException("Username already in use");
         }
-        if (staffMemberRepository.existsByEmail(dto.getEmail())) {
+        boolean emailExists = excludeId == null
+                ? staffMemberRepository.existsByEmail(dto.getEmail())
+                : staffMemberRepository.existsByEmailAndIdNot(dto.getEmail(), excludeId);
+        if (emailExists) {
             throw new BusinessException("Email already in use");
         }
-        if (staffMemberRepository.existsByPhoneNumber(normalizedPhoneNumber)) {
+        boolean phoneNumberExists = excludeId == null
+                ? staffMemberRepository.existsByPhoneNumber(normalizedPhoneNumber)
+                : staffMemberRepository.existsByPhoneNumberAndIdNot(normalizedPhoneNumber, excludeId);
+        if (phoneNumberExists) {
             throw new BusinessException("Phone number already in use");
         }
     }
@@ -120,6 +132,21 @@ public class StaffMemberService {
 
     private String normalizePhoneNumber(String phoneNumber) {
         return phoneNumber.trim().replaceAll("\\D", "");
+    }
+
+    private void applyDtoToStaffMember(StaffMember staffMember, StaffMemberDTO dto, String normalizedPhoneNumber, StaffPosition position) {
+        staffMember.setFirstName(dto.getFirstName());
+        staffMember.setLastName(dto.getLastName());
+        staffMember.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
+        staffMember.setUsername(dto.getUsername());
+        staffMember.setPhoneNumber(normalizedPhoneNumber);
+        staffMember.setEmail(dto.getEmail());
+        staffMember.setPosition(position);
+        staffMember.setEmploymentType(EmploymentType.fromString(dto.getEmploymentType()));
+        staffMember.setWorkingDayStart(parseDayOfWeek(dto.getWorkingDayStart(), "workingDayStart"));
+        staffMember.setWorkingDayEnd(parseDayOfWeek(dto.getWorkingDayEnd(), "workingDayEnd"));
+        staffMember.setWorkingHourStart(parseTime(dto.getWorkingHourStart(), "workingHourStart"));
+        staffMember.setWorkingHourEnd(parseTime(dto.getWorkingHourEnd(), "workingHourEnd"));
     }
 
     private StaffMemberSummaryDTO toSummaryDTO(StaffMember staffMember) {
