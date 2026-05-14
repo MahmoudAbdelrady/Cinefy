@@ -16,7 +16,7 @@ export class InputField {
   protected readonly EyeOffIcon = EyeOff;
 
   readonly control = input.required<FormControl>();
-  readonly label = input.required<string>();
+  readonly label = input<string | null>(null);
   readonly type = input<'text' | 'number' | 'password'>('text');
   readonly placeholder = input<string>('');
   readonly hint = input<string | null>(null);

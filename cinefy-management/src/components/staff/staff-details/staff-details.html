@@ -1,0 +1,109 @@
+<app-modal [close]="close()" width="640px" [customHeader]="true">
+  <div modal-header class="sd-header" [attr.data-position]="staffMember().position">
+    <div class="sdh-img">
+      @let staffNameParts = staffMember().fullName.split(' ');
+      {{
+        staffNameParts[0].charAt(0).toUpperCase() +
+          staffNameParts[staffNameParts.length - 1].charAt(0).toUpperCase()
+      }}
+    </div>
+    <div class="sdh-info">
+      <div class="sdhi-name">{{ staffMember().fullName }}</div>
+      <div class="sdhi-position">
+        <lucide-icon [img]="BriefCaseIcon" [size]="11" [strokeWidth]="2.5"></lucide-icon>
+        <span>{{ positionLabels[staffMember().position] }}</span>
+      </div>
+    </div>
+  </div>
+  <div modal-header-actions>
+    <button ngpButton title="Edit Info" (click)="requestEdit()">
+      <lucide-icon [img]="EditIcon" [size]="20" [strokeWidth]="2"></lucide-icon>
+    </button>
+  </div>
+  <div class="staff-details-container">
+    <div class="sdc-section">
+      <div class="sdc-section-title">Contact</div>
+      <div class="sdc-section-items full">
+        <div class="sdcs-item">
+          <div class="sdcs-item-icon">
+            <lucide-icon [img]="UsernameIcon" [size]="14"></lucide-icon>
+          </div>
+          <div class="sdcs-item-info">
+            <span class="item-title">Username</span>
+            <span class="item-value">{{ staffMember().username }}</span>
+          </div>
+        </div>
+        <div class="sdcs-item">
+          <div class="sdcs-item-icon">
+            <lucide-icon [img]="EmailIcon" [size]="14"></lucide-icon>
+          </div>
+          <div class="sdcs-item-info">
+            <span class="item-title">Email</span>
+            <span class="item-value">{{ staffMember().email }}</span>
+          </div>
+        </div>
+        <div class="sdcs-item">
+          <div class="sdcs-item-icon">
+            <lucide-icon [img]="PhoneIcon" [size]="14"></lucide-icon>
+          </div>
+          <div class="sdcs-item-info">
+            <span class="item-title">Phone</span>
+            <span class="item-value">{{ staffMember().phoneNumber }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sdc-section">
+      <div class="sdc-section-title">Employment</div>
+      <div class="sdc-section-items">
+        <div class="sdcs-item">
+          <div class="sdcs-item-icon">
+            <lucide-icon [img]="CalendarIcon" [size]="14"></lucide-icon>
+          </div>
+          <div class="sdcs-item-info">
+            <span class="item-title">Hired On</span>
+            <span class="item-value">{{ staffMember().hiredAt }}</span>
+          </div>
+        </div>
+        <div class="sdcs-item">
+          <div class="sdcs-item-icon">
+            <lucide-icon [img]="BriefCaseIcon" [size]="14"></lucide-icon>
+          </div>
+          <div class="sdcs-item-info">
+            <span class="item-title">Employment Type</span>
+            <span class="item-value">{{ employmentTypeLabels[staffMember().employmentType] }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sdc-section">
+      <div class="sdc-section-title">Working Schedule</div>
+      <div class="sdc-section-items">
+        <div class="sdcs-item">
+          <div class="sdcs-item-icon">
+            <lucide-icon [img]="CalendarIcon" [size]="14"></lucide-icon>
+          </div>
+          <div class="sdcs-item-info">
+            <span class="item-title">Working days</span>
+            <span class="item-value">
+              {{ weekDayLabels[staffMember().workingDayStart] }}–{{
+                weekDayLabels[staffMember().workingDayEnd]
+              }}
+            </span>
+          </div>
+        </div>
+        <div class="sdcs-item">
+          <div class="sdcs-item-icon">
+            <lucide-icon [img]="CalendarIcon" [size]="14"></lucide-icon>
+          </div>
+          <div class="sdcs-item-info">
+            <span class="item-title">Working hours</span>
+            <span class="item-value">
+              {{ staffMember().workingHourStart }}–{{ staffMember().workingHourEnd }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-modal>

@@ -1,0 +1,151 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
+@use '../../../shared/styles/breakpoints' as *;
+
+.staff-position-coverage-container {
+  background-color: $color-card;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  padding: 24px;
+}
+
+.spcc-header {
+  margin-bottom: 16px;
+}
+
+.spcc-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: $gray-500;
+  text-transform: uppercase;
+}
+
+.spcc-subtitle {
+  font-size: 14px;
+  color: $gray-600;
+  margin-top: 4px;
+}
+
+.spcc-empty {
+  padding: 24px 0;
+  font-size: 14px;
+  color: $gray-500;
+}
+
+.spcc-bars {
+  display: flex;
+  width: 100%;
+  height: 12px;
+  background-color: $gray-100;
+  border-radius: $radius-full;
+  overflow: hidden;
+}
+
+.spcc-bar {
+  height: 100%;
+  transition: all 150ms ease;
+
+  &[data-position='MANAGER'] {
+    background-color: #8b5cf6; // violet-500
+  }
+  &[data-position='PROJECTIONIST'] {
+    background-color: #6366f1; // indigo-500
+  }
+  &[data-position='CASHIER'] {
+    background-color: $blue-500;
+  }
+  &[data-position='CONCESSIONS'] {
+    background-color: $amber-500;
+  }
+  &[data-position='USHER'] {
+    background-color: #10b981; // emerald-500
+  }
+}
+
+.spcc-position-items {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 24px;
+  row-gap: 8px;
+  margin-top: 16px;
+}
+
+.spcc-item {
+  @include flex-align;
+  gap: 8px;
+  font-size: 14px;
+
+  .spcc-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .pos-name {
+    color: $gray-700;
+  }
+
+  .pos-count {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pos-percentage {
+    color: $gray-400;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &[data-position='MANAGER'] {
+    .spcc-dot {
+      background-color: #8b5cf6;
+    }
+    .pos-count {
+      color: #6d28d9; // violet-700
+    }
+  }
+  &[data-position='PROJECTIONIST'] {
+    .spcc-dot {
+      background-color: #6366f1;
+    }
+    .pos-count {
+      color: #4338ca; // indigo-700
+    }
+  }
+  &[data-position='CASHIER'] {
+    .spcc-dot {
+      background-color: $blue-500;
+    }
+    .pos-count {
+      color: $blue-700;
+    }
+  }
+  &[data-position='CONCESSIONS'] {
+    .spcc-dot {
+      background-color: $amber-500;
+    }
+    .pos-count {
+      color: $amber-700;
+    }
+  }
+  &[data-position='USHER'] {
+    .spcc-dot {
+      background-color: #10b981;
+    }
+    .pos-count {
+      color: #047857; // emerald-700
+    }
+  }
+}
+
+@include below-mobile {
+  .staff-position-coverage-container {
+    padding: 16px;
+  }
+
+  .spcc-position-items {
+    column-gap: 16px;
+  }
+}

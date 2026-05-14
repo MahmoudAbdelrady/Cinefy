@@ -1,0 +1,35 @@
+<div class="staff-position-coverage-container">
+  <div class="spcc-header">
+    <p class="spcc-eyebrow">Position Coverage</p>
+    <p class="spcc-subtitle">
+      How the {{ positionCoverageItems.total }}-person roster splits across roles
+    </p>
+  </div>
+
+  @if (positionCoverageItems.total === 0) {
+    <div class="spcc-empty">No staff members yet.</div>
+  } @else {
+    <div class="spcc-bars">
+      @for (posItem of positionCoverageItems.positions; track posItem.position) {
+        @if (posItem.count > 0) {
+          <div
+            class="spcc-bar"
+            [attr.data-position]="posItem.position"
+            [style.width.%]="(posItem.count / positionCoverageItems.total) * 100"
+          ></div>
+        }
+      }
+    </div>
+
+    <div class="spcc-position-items">
+      @for (posItem of positionCoverageItems.positions; track posItem.position) {
+        <div class="spcc-item" [attr.data-position]="posItem.position">
+          <span class="spcc-dot"></span>
+          <span class="pos-name">{{ positionLabels[posItem.position] }}</span>
+          <span class="pos-count">{{ posItem.count }}</span>
+          <span class="pos-percentage">{{ percentage(posItem.count) }}%</span>
+        </div>
+      }
+    </div>
+  }
+</div>

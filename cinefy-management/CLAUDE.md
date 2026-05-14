@@ -176,6 +176,18 @@ Seat IDs follow `{RowLabel}{ColumnNumber}` format — rows cycle A-Z then AA-ZZ.
 - Default port: 4000 (configurable via `PORT` env var).
 - Client hydration enabled with event replay.
 
+## Code Navigation
+
+Always reach for the **LSP tool first** when navigating code — `documentSymbol`, `workspaceSymbol`, `findReferences`, `goToDefinition`, `goToImplementation`, `hover`. It returns semantic, type-aware results instead of plain text matches, so it avoids false positives from comments, strings, or unrelated identifiers.
+
+Fall back to `grep` / `rg` / `find` only when:
+
+- LSP returns an error (e.g., the language server isn't running for that file type).
+- LSP returns an empty/clearly-wrong result for a legitimate query.
+- The search is non-semantic by nature (e.g., finding a string literal, a config value, a CSS class name, a TODO comment, a filename pattern) — LSP doesn't help there, so grep is the right tool.
+
+LSP coverage in this repo: TypeScript files (Angular components, services, types) via `typescript-language-server`. SCSS, HTML templates, and JSON go straight to grep.
+
 ## Key Conventions
 
 1. Always use **pnpm**.
@@ -188,3 +200,4 @@ Seat IDs follow `{RowLabel}{ColumnNumber}` format — rows cycle A-Z then AA-ZZ.
 8. Use **lucide-angular** for all icons.
 9. Filenames use kebab-case without `.component`/`.service` suffixes (e.g., `halls-list.ts`, not `halls-list.component.ts`).
 10. Tests are skipped by default in schematics (`skipTests: true` in angular.json).
+11. **LSP-first for code navigation** — see _Code Navigation_ above; grep is the fallback, not the default.

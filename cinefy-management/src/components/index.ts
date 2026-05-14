@@ -27,6 +27,10 @@ import { MovieShowtimesModal } from './movies/movie-showtimes-modal/movie-showti
 import { ManagePaymentModalComponent } from './payment/manage-payment-modal/manage-payment-modal';
 import { Stepper } from './stepper/stepper';
 import { PaymentMethodListComponent } from './payment/payment-method-list/payment-method-list';
+import { StaffListComponent } from './staff/staff-list/staff-list';
+import { ManageStaffModalComponent } from './staff/manage-staff-modal/manage-staff-modal';
+import { StaffDetailsComponent } from './staff/staff-details/staff-details';
+import { StaffPositionCoverageComponent } from './staff/staff-position-coverage/staff-position-coverage';
 
 export {
   HeaderComponent,
@@ -58,4 +62,8 @@ export {
   ManagePaymentModalComponent,
   Stepper,
   PaymentMethodListComponent,
+  StaffListComponent,
+  ManageStaffModalComponent,
+  StaffDetailsComponent,
+  StaffPositionCoverageComponent,
 };

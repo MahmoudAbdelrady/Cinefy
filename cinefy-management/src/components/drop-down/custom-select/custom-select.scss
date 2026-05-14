@@ -2,11 +2,12 @@
 @use '../../../shared/styles/colors' as *;
 
 custom-select {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 
   .cs-label {
     display: block;
-    margin-bottom: 8px;
     font-size: 14px;
     font-weight: 600;
     color: $gray-900;

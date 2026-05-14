@@ -1,0 +1,163 @@
+<div class="staff-list-container">
+  <div class="sl-header">
+    <div class="sl-header-left">
+      <h3>All Staff Members</h3>
+      <p>Manage your cinema team and their shift schedules</p>
+    </div>
+    <div class="sl-header-right">
+      <div class="search-filter">
+        <input-field
+          [control]="searchControl"
+          [leadingIcon]="SearchIcon"
+          placeholder="Search staff..."
+          size="sm"
+        />
+      </div>
+      <div class="drop-down-filter">
+        <custom-select
+          [items]="staffPositions"
+          [displayFn]="positionDisplayFn"
+          [clearable]="true"
+          placeholder="All positions"
+          (selectionChange)="onPositionFilterChange($event)"
+          (cleared)="onPositionFilterCleared()"
+        />
+      </div>
+    </div>
+  </div>
+  <div class="sl-items">
+    @for (member of staffMembers(); track member.id) {
+      <div class="staff-member">
+        <div class="staff-info">
+          @let staffNameParts = member.fullName.split(' ');
+          <div class="si-img" [attr.data-position]="member.position">
+            <span class="si-img-ink"></span>
+            <span class="si-img-glow"></span>
+            <span class="si-img-initials">
+              {{
+                staffNameParts[0].charAt(0).toUpperCase() +
+                  staffNameParts[staffNameParts.length - 1].charAt(0).toUpperCase()
+              }}
+            </span>
+          </div>
+          <div class="si-details">
+            <div class="sid-name-box">
+              <span class="sidb-name">{{ member.fullName }}</span>
+              <div class="sidb-position" [attr.data-position]="member.position">
+                <span class="sidbp-dot"></span>
+                <span>{{ positionLabels[member.position] }}</span>
+              </div>
+            </div>
+            <div class="sid-contact">
+              <div class="sidc-item">
+                <lucide-icon [img]="EmailIcon" [size]="14"></lucide-icon>
+                <span>{{ member.email }}</span>
+              </div>
+              <div class="sidc-item">
+                <lucide-icon [img]="PhoneIcon" [size]="14"></lucide-icon>
+                <span>{{ member.phoneNumber }}</span>
+              </div>
+              <div class="sidc-item">
+                <lucide-icon [img]="CalendarClockIcon" [size]="14"></lucide-icon>
+                <span>
+                  {{ weekDayLabels[member.workingDayStart] }}–{{
+                    weekDayLabels[member.workingDayEnd]
+                  }}
+                  · {{ member.workingHourStart }}–{{ member.workingHourEnd }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="staff-actions">
+          <button ngpButton class="sa-btn sa-btn-view" [ngpDialogTrigger]="viewDialog">
+            <lucide-icon [img]="EyeIcon" [size]="16"></lucide-icon>
+            <span>View</span>
+          </button>
+          <button ngpButton class="sa-btn sa-btn-edit" (click)="openEditDialog(member)">
+            <lucide-icon [img]="EditIcon" [size]="16"></lucide-icon>
+            <span>Edit</span>
+          </button>
+          <button ngpButton class="sa-btn sa-btn-delete" [ngpDialogTrigger]="deleteDialog">
+            <lucide-icon [img]="DeleteIcon" [size]="16"></lucide-icon>
+            <span>Delete</span>
+          </button>
+
+          <ng-template #viewDialog let-close="close">
+            <staff-details
+              [staffMember]="member"
+              [close]="close"
+              (editRequested)="openEditDialog($event)"
+            />
+          </ng-template>
+          <ng-template #deleteDialog let-close="close">
+            <app-modal modalTitle="Delete Staff Member" [close]="close" width="448px">
+              <div class="delete-modal-content">
+                <div class="dmc-icon">
+                  <lucide-icon [img]="AlertIcon" [size]="24" [strokeWidth]="2"></lucide-icon>
+                </div>
+                <p class="dmc-message">
+                  Are you sure you want to remove <strong>{{ member.fullName }}</strong> from the
+                  staff roster? This action cannot be undone and will revoke their access
+                  immediately.
+                </p>
+                <div class="dmc-warning">
+                  <lucide-icon [img]="AlertIcon" [size]="16" [strokeWidth]="2"></lucide-icon>
+                  <div>
+                    <p><strong>Warning:</strong></p>
+                    <ul>
+                      <li>Their login credentials will be revoked</li>
+                      <li>Active shift assignments will be cleared</li>
+                      <li>Historical attendance records will be archived</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div modal-footer class="delete-modal-footer">
+                <button
+                  ngpButton
+                  class="btn-secondary"
+                  [disabled]="deletingStaffIds().has(member.id)"
+                  (click)="close()"
+                >
+                  Cancel
+                </button>
+                <button
+                  ngpButton
+                  class="btn-danger"
+                  [disabled]="deletingStaffIds().has(member.id)"
+                  (click)="deleteStaffMember(member.id, close)"
+                >
+                  @if (deletingStaffIds().has(member.id)) {
+                    <span>Deleting…</span>
+                  } @else {
+                    <span>Delete Member</span>
+                  }
+                </button>
+              </div>
+            </app-modal>
+          </ng-template>
+        </div>
+      </div>
+    } @empty {
+      <div class="sl-empty">
+        <lucide-icon [img]="UsersIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
+        <p>No staff members yet</p>
+        <span>Add a staff member to start building your cinema team.</span>
+      </div>
+    }
+  </div>
+  <pagination-component
+    [(page)]="page"
+    [pageCount]="pageCount()"
+    [totalItems]="totalItems()"
+    [pageSize]="pageSize"
+  />
+
+  <ng-template #editDialog let-close="close">
+    @if (pendingEditMember(); as member) {
+      <manage-staff-modal [selectedStaffMember]="member" [close]="close" />
+    }
+  </ng-template>
+</div>

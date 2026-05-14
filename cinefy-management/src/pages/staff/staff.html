@@ -1,0 +1,17 @@
+<ng-template #headerActionsTemplate>
+  <div class="action-buttons-container">
+    <button ngpButton [ngpDialogTrigger]="manageStaffDialog">
+      <lucide-icon [img]="UserPlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+      <span>Add Staff Member</span>
+    </button>
+  </div>
+
+  <ng-template #manageStaffDialog let-close="close">
+    <manage-staff-modal [close]="close" />
+  </ng-template>
+</ng-template>
+
+<div class="staff-container">
+  <staff-position-coverage />
+  <staff-list />
+</div>

@@ -1,4 +1,5 @@
 import { Component, computed, input, output, signal, ViewEncapsulation } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { LucideAngularModule, ChevronDown, X } from 'lucide-angular';
 import {
   NgpCombobox,
@@ -8,6 +9,7 @@ import {
   NgpComboboxOption,
   NgpComboboxPortal,
 } from 'ng-primitives/combobox';
+import { FieldErrorComponent } from '../../field-error/field-error';
 
 @Component({
   selector: 'custom-select',
@@ -19,6 +21,7 @@ import {
     NgpComboboxInput,
     NgpComboboxOption,
     NgpComboboxPortal,
+    FieldErrorComponent,
   ],
   templateUrl: './custom-select.html',
   styleUrl: './custom-select.scss',
@@ -36,6 +39,8 @@ export class CustomSelectComponent<T> {
   readonly clearable = input(false);
   readonly searchable = input(false);
   readonly isError = input(false);
+  readonly control = input<FormControl | null>(null);
+  readonly errorMessages = input<Record<string, string>>({});
   readonly compareWith = input<(a: T, b: T) => boolean>(Object.is);
   readonly container = input<string | HTMLElement | null>(null);
 

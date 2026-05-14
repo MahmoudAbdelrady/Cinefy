@@ -62,3 +62,6 @@ export type {
 } from './showtimes';
 
 export type { StatsCard } from './stats';
+
+export { STAFF_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS } from './staff';
+export type { StaffMember, StaffPosition, EmploymentType, WeekDay } from './staff';
