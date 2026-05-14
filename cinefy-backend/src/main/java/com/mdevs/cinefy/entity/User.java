@@ -18,6 +18,9 @@ public abstract class User extends BaseEntity {
     @Column(nullable = false)
     private String lastName;
 
+    @Column(nullable = false)
+    private String fullName;
+
     @Column(nullable = false, unique = true)
     private String username;
 
@@ -29,4 +32,8 @@ public abstract class User extends BaseEntity {
 
     @Column(nullable = false)
     private String password;
+
+    public static String toFullName(String firstName, String lastName) {
+        return firstName + " " + lastName;
+    }
 }

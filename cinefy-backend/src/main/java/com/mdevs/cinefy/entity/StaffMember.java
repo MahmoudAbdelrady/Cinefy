@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +17,15 @@ import java.time.LocalTime;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(indexes = {
+        @Index(columnList = "USERNAME"),
+        @Index(columnList = "EMAIL"),
+        @Index(columnList = "PHONE_NUMBER"),
+        @Index(columnList = "FULL_NAME"),
+        @Index(columnList = "POSITION"),
+        @Index(columnList = "_UUID"),
+        @Index(columnList = "CREATED_AT")
+})
 public class StaffMember extends User {
 
     @Enumerated(EnumType.STRING)
