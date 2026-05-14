@@ -1,5 +1,8 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.staff.PositionCoverageDTO;
+import com.mdevs.cinefy.dto.staff.PositionCoverageItemDTO;
+import com.mdevs.cinefy.dto.staff.PositionCoverageProjection;
 import com.mdevs.cinefy.dto.staff.StaffMemberDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberDetailDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberSummaryDTO;
@@ -21,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +45,17 @@ public class StaffMemberService {
 
     public StaffMemberDetailDTO getStaffMember(String uuid) {
         return toDetailDTO(findStaffMember(uuid));
+    }
+
+    public PositionCoverageDTO getPositionCoverage() {
+        PositionCoverageProjection countResult = staffMemberRepository.getPositionCoverage();
+        PositionCoverageDTO dto = new PositionCoverageDTO();
+        dto.setTotal(countResult.getTotal());
+        dto.setPositions(List.of(
+                new PositionCoverageItemDTO(StaffPosition.MANAGER.name(), countResult.getManagerCount()),
+                new PositionCoverageItemDTO(StaffPosition.CASHIER.name(), countResult.getCashierCount()),
+                new PositionCoverageItemDTO(StaffPosition.USHER.name(), countResult.getUsherCount())));
+        return dto;
     }
 
     @Transactional

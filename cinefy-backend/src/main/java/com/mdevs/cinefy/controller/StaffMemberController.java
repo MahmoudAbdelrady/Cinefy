@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.dto.staff.PositionCoverageDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberDetailDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberSummaryDTO;
@@ -32,6 +33,11 @@ public class StaffMemberController {
                                                                        @RequestParam(required = false) String position,
                                                                        Pageable pageable) {
         return ResponseEntity.ok(staffMemberService.getStaffMembers(name, position, pageable));
+    }
+
+    @GetMapping("/position-coverage")
+    public ResponseEntity<PositionCoverageDTO> getPositionCoverage() {
+        return ResponseEntity.ok(staffMemberService.getPositionCoverage());
     }
 
     @GetMapping("/{uuid}")
