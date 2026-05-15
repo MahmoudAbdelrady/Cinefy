@@ -1,6 +1,6 @@
 import { Component, computed, effect, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AtSign, Check, LucideAngularModule, Mail, Phone, User } from 'lucide-angular';
+import { AtSign, Check, KeyRound, LucideAngularModule, Mail, Phone, User } from 'lucide-angular';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import { ModalComponent } from '../../modal/modal';
 import { InputField } from '../../input-field/input-field';
@@ -37,6 +37,7 @@ export class ManageStaffModalComponent {
   protected readonly UsernameIcon = AtSign;
   protected readonly EmailIcon = Mail;
   protected readonly PhoneIcon = Phone;
+  protected readonly KeyIcon = KeyRound;
   protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
 
   readonly close = input.required<() => void>();
@@ -83,6 +84,9 @@ export class ManageStaffModalComponent {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    password: new FormControl('', {
+      nonNullable: true,
+    }),
     position: new FormControl<StaffPosition | null>(null, {
       validators: [Validators.required],
     }),
@@ -106,6 +110,12 @@ export class ManageStaffModalComponent {
   });
 
   constructor() {
+    effect(() => {
+      const passwordControl = this.staffForm.controls.password;
+      passwordControl.setValidators(this.isEdit() ? [] : [Validators.required]);
+      passwordControl.updateValueAndValidity({ emitEvent: false });
+    });
+
     effect(() => {
       const member = this.selectedStaffMember();
       if (!member) return;

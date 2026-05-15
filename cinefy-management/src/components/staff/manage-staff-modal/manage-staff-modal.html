@@ -59,6 +59,16 @@
     </div>
   </div>
   <div class="input-group">
+    <input-field
+      label="Password"
+      placeholder="e.g. Strongpassword##123"
+      type="password"
+      [leadingIcon]="KeyIcon"
+      [control]="staffForm.controls.password"
+      [errorMessages]="{ required: 'Password is required' }"
+    />
+  </div>
+  <div class="input-group">
     <custom-select
       label="Position"
       [items]="staffPositions"
