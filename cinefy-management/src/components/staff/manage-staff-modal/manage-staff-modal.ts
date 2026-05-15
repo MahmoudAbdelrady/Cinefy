@@ -33,7 +33,7 @@ import { TimePicker } from '../../date-time/time-picker/time-picker';
 })
 export class ManageStaffModalComponent {
   protected readonly CheckIcon = Check;
-  protected readonly FullNameIcon = User;
+  protected readonly NameIcon = User;
   protected readonly UsernameIcon = AtSign;
   protected readonly EmailIcon = Mail;
   protected readonly PhoneIcon = Phone;
@@ -63,7 +63,11 @@ export class ManageStaffModalComponent {
   );
 
   protected readonly staffForm = new FormGroup({
-    fullName: new FormControl('', {
+    firstName: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    lastName: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
     }),
@@ -105,8 +109,10 @@ export class ManageStaffModalComponent {
     effect(() => {
       const member = this.selectedStaffMember();
       if (!member) return;
+      const [memberFirstName, ...memberRestNames] = member.fullName.split(' ');
       this.staffForm.patchValue({
-        fullName: member.fullName,
+        firstName: memberFirstName,
+        lastName: memberRestNames.join(' '),
         username: member.username,
         email: member.email,
         phoneNumber: member.phoneNumber,

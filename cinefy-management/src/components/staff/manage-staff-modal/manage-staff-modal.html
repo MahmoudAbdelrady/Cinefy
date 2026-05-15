@@ -5,14 +5,27 @@
   [close]="close()"
   width="700px"
 >
-  <div class="input-group">
-    <input-field
-      label="Full name"
-      placeholder="e.g. Mohamed Ahmed"
-      [leadingIcon]="FullNameIcon"
-      [control]="staffForm.controls.fullName"
-      [errorMessages]="{ required: 'Full name is required' }"
-    />
+  <div class="input-groups">
+    <div class="fields">
+      <div class="input-group">
+        <input-field
+          label="First name"
+          placeholder="e.g. Mohamed"
+          [leadingIcon]="NameIcon"
+          [control]="staffForm.controls.firstName"
+          [errorMessages]="{ required: 'First name is required' }"
+        />
+      </div>
+      <div class="input-group">
+        <input-field
+          label="Last name"
+          placeholder="e.g. Ahmed"
+          [leadingIcon]="NameIcon"
+          [control]="staffForm.controls.lastName"
+          [errorMessages]="{ required: 'Last name is required' }"
+        />
+      </div>
+    </div>
   </div>
   <div class="input-group">
     <input-field
