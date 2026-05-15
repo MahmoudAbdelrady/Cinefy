@@ -64,7 +64,7 @@ public class StaffMemberService {
         StaffPosition position = StaffPosition.fromString(dto.getPosition());
         validateStaffMember(dto, normalizedPhoneNumber, position, null);
 
-        if (StringUtils.isBlank(dto.getPassword())) {
+        if (StringUtils.isEmpty(dto.getPassword())) {
             throw new BusinessException("Password is required");
         }
 
