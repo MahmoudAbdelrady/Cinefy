@@ -186,6 +186,7 @@ public class StaffMemberService {
         dto.setUsername(staffMember.getUsername());
         dto.setEmail(staffMember.getEmail());
         dto.setPhoneNumber(staffMember.getPhoneNumber());
+        dto.setPosition(staffMember.getPosition().name());
         dto.setHiredAt(staffMember.getCreatedAt());
         dto.setEmploymentType(staffMember.getEmploymentType().name());
         dto.setWorkingDayStart(staffMember.getWorkingDayStart().name());

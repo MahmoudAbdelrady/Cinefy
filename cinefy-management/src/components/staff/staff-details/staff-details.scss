@@ -2,6 +2,11 @@
 @use '../../../shared/styles/mixins' as *;
 @use '../../../shared/styles/breakpoints' as *;
 
+.staff-details-loading {
+  @include flex-center;
+  min-height: 240px;
+}
+
 // ─── Hero header (gradient bg per position) ─────────────────────────────────────
 
 .sd-header {

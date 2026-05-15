@@ -17,6 +17,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ModalComponent } from '../../modal/modal';
+import { Time12hPipe } from '../../../shared/pipes';
 import {
   EditableShowtime,
   MovieDetail,
@@ -57,6 +58,7 @@ import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
     NgpButton,
     NgpDialogTrigger,
     LoadingSpinnerComponent,
+    Time12hPipe,
   ],
   templateUrl: './movie-showtimes-modal.html',
   styleUrl: './movie-showtimes-modal.scss',

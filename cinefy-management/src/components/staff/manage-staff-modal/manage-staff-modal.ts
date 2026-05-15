@@ -1,5 +1,14 @@
-import { Component, computed, effect, input } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { AtSign, Check, KeyRound, LucideAngularModule, Mail, Phone, User } from 'lucide-angular';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import { ModalComponent } from '../../modal/modal';
@@ -7,14 +16,24 @@ import { InputField } from '../../input-field/input-field';
 import {
   EMPLOYMENT_TYPE_LABELS,
   STAFF_POSITION_LABELS,
-  StaffMember,
   WEEK_DAY_LABELS,
   type EmploymentType,
+  type StaffMemberDetail,
   type StaffPosition,
   type WeekDay,
 } from '../../../shared/types';
+import { StaffService, ToastService } from '../../../services';
 import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
 import { TimePicker } from '../../date-time/time-picker/time-picker';
+import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+
+const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+function passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (!value) return null;
+  return PASSWORD_PATTERN.test(value) ? null : { passwordStrength: true };
+}
 
 @Component({
   selector: 'manage-staff-modal',
@@ -27,6 +46,7 @@ import { TimePicker } from '../../date-time/time-picker/time-picker';
     NgpRadioItem,
     ReactiveFormsModule,
     TimePicker,
+    LoadingSpinnerComponent,
   ],
   templateUrl: './manage-staff-modal.html',
   styleUrl: './manage-staff-modal.scss',
@@ -40,14 +60,25 @@ export class ManageStaffModalComponent {
   protected readonly KeyIcon = KeyRound;
   protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
 
-  readonly close = input.required<() => void>();
-  readonly selectedStaffMember = input<StaffMember>();
+  private readonly staffService = inject(StaffService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly isEdit = computed(() => !!this.selectedStaffMember());
+  readonly close = input.required<() => void>();
+  readonly staffMemberId = input<string | null>(null);
+  readonly selectedStaffMember = input<StaffMemberDetail | null>(null);
+
+  protected readonly resolvedStaffMember = signal<StaffMemberDetail | null>(null);
+  protected readonly loading = signal(false);
+
+  protected readonly isEdit = computed(
+    () => this.selectedStaffMember() !== null || this.staffMemberId() !== null,
+  );
 
   protected readonly modalTitle = computed(() => {
-    const member = this.selectedStaffMember();
-    return member ? `Edit ${member.fullName} info` : 'Add staff member';
+    if (!this.isEdit()) return 'Add staff member';
+    const member = this.resolvedStaffMember();
+    return member ? `Edit ${member.firstName} ${member.lastName} info` : 'Edit staff member';
   });
 
   protected readonly modalDescription = computed(() =>
@@ -86,6 +117,7 @@ export class ManageStaffModalComponent {
     }),
     password: new FormControl('', {
       nonNullable: true,
+      validators: [passwordStrengthValidator],
     }),
     position: new FormControl<StaffPosition | null>(null, {
       validators: [Validators.required],
@@ -111,18 +143,42 @@ export class ManageStaffModalComponent {
 
   constructor() {
     effect(() => {
+      if (this.isEdit()) return;
       const passwordControl = this.staffForm.controls.password;
-      passwordControl.setValidators(this.isEdit() ? [] : [Validators.required]);
+      passwordControl.addValidators(Validators.required);
       passwordControl.updateValueAndValidity({ emitEvent: false });
     });
 
     effect(() => {
       const member = this.selectedStaffMember();
+      if (member) {
+        this.resolvedStaffMember.set(member);
+        return;
+      }
+      const id = this.staffMemberId();
+      if (id === null) return;
+      this.loading.set(true);
+      this.staffService
+        .getStaffMember(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (detail) => {
+            this.resolvedStaffMember.set(detail);
+            this.loading.set(false);
+          },
+          error: (err: HttpErrorResponse) => {
+            this.loading.set(false);
+            this.toastService.error(err.error?.message ?? 'Failed to load staff member');
+          },
+        });
+    });
+
+    effect(() => {
+      const member = this.resolvedStaffMember();
       if (!member) return;
-      const [memberFirstName, ...memberRestNames] = member.fullName.split(' ');
       this.staffForm.patchValue({
-        firstName: memberFirstName,
-        lastName: memberRestNames.join(' '),
+        firstName: member.firstName,
+        lastName: member.lastName,
         username: member.username,
         email: member.email,
         phoneNumber: member.phoneNumber,

@@ -61,6 +61,7 @@ interface StaffMemberDetail {
   username: string;
   email: string;
   phoneNumber: string;
+  position: StaffPosition;
   hiredAt: string;
   employmentType: EmploymentType;
   workingDayStart: WeekDay;

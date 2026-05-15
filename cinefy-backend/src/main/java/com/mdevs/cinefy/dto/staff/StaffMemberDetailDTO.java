@@ -21,6 +21,8 @@ public class StaffMemberDetailDTO {
 
     private String phoneNumber;
 
+    private String position;
+
     private LocalDateTime hiredAt;
 
     private String employmentType;

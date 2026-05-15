@@ -102,6 +102,11 @@
   @include empty-state-block;
 }
 
+.sl-loading {
+  @include flex-center;
+  min-height: 100px;
+}
+
 pagination-component {
   display: block;
   padding: 16px 24px;

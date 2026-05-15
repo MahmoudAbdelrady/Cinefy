@@ -37,9 +37,7 @@
               <div class="ds-item">
                 <div class="ds-info">
                   <div class="dsi-details">
-                    <span class="dsid-time">{{
-                      selectedTab() + 'T' + showtimeDetail.time | date: 'h:mm a'
-                    }}</span>
+                    <span class="dsid-time">{{ showtimeDetail.time | time12h }}</span>
                     <div class="dsid-location">
                       <lucide-icon [img]="LocationIcon" [size]="14"></lucide-icon>
                       <span>{{ showtimeDetail.hall.name }}</span>
@@ -96,9 +94,7 @@
                           Are you sure you want to delete this showtime for
                           <strong>{{ selectedMovie().title }}</strong> on
                           <strong>{{ selectedTab() | date: 'mediumDate' }}</strong> at
-                          <strong>{{
-                            selectedTab() + 'T' + showtimeDetail.time | date: 'h:mm a'
-                          }}</strong
+                          <strong>{{ showtimeDetail.time | time12h }}</strong
                           >?
                         </p>
                         <div class="dmc-warning">

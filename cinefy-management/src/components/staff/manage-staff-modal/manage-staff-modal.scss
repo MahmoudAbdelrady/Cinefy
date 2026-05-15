@@ -6,6 +6,11 @@
   display: contents;
 }
 
+.manage-staff-modal-loading {
+  @include flex-center;
+  min-height: 320px;
+}
+
 // Spacing between top-level form rows. The `.fields` grid handles its own
 // internal gap, so nested `.input-group` siblings must NOT pick up this margin.
 .input-group + .input-group,
