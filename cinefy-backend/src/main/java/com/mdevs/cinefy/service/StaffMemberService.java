@@ -37,8 +37,8 @@ public class StaffMemberService {
     // ========================= Public API =========================
 
     public Page<StaffMemberSummaryDTO> getStaffMembers(String name, String position, Pageable pageable) {
-        StaffPosition positionFilter = StringUtils.isBlank(position) ? null : StaffPosition.fromString(position);
-        String nameFilter = StringUtils.isBlank(name) ? null : name;
+        StaffPosition positionFilter = StringUtils.isEmpty(position) ? null : StaffPosition.fromString(position);
+        String nameFilter = StringUtils.isEmpty(name) ? null : name;
         return staffMemberRepository.findAllFiltered(nameFilter, positionFilter, pageable)
                 .map(this::toSummaryDTO);
     }
