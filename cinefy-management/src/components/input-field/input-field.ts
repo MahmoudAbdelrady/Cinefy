@@ -26,7 +26,10 @@ export class InputField {
   readonly monospace = input<boolean>(false);
 
   protected readonly showPassword = signal(false);
-  protected readonly required = computed(() => this.control().hasValidator(Validators.required));
+  protected get required(): boolean {
+    const c = this.control();
+    return c.hasValidator(Validators.required) && c.enabled;
+  }
   protected readonly resolvedType = computed(() => {
     if (this.type() !== 'password') return this.type();
     return this.showPassword() ? 'text' : 'password';

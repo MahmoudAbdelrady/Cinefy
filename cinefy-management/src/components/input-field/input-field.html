@@ -1,6 +1,6 @@
 <div class="input-field-wrapper" [attr.data-size]="size()">
   @if (label(); as labelText) {
-    <label class="if-label" [attr.data-required]="required() ? '' : null">{{ labelText }}</label>
+    <label class="if-label" [attr.data-required]="required ? '' : null">{{ labelText }}</label>
   }
 
   <div
