@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormControl,
@@ -89,6 +89,7 @@ export class ManageStaffModalComponent {
   protected readonly resolvedStaffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
   protected readonly saving = signal(false);
+  private readonly initialFormSnapshot = signal<string | null>(null);
 
   protected readonly isEdit = computed(
     () => this.selectedStaffMember() !== null || this.staffMemberId() !== null,
@@ -175,6 +176,17 @@ export class ManageStaffModalComponent {
     }),
   });
 
+  private readonly currentFormValue = toSignal(this.staffForm.valueChanges, {
+    initialValue: this.staffForm.getRawValue(),
+  });
+
+  protected readonly hasChanges = computed(() => {
+    const snapshot = this.initialFormSnapshot();
+    if (snapshot === null) return true;
+    this.currentFormValue();
+    return JSON.stringify(this.staffForm.getRawValue()) !== snapshot;
+  });
+
   constructor() {
     this.staffForm.controls.workingHourEnd.addValidators((control) => {
       const start = this.staffForm.controls.workingHourStart.value;
@@ -233,6 +245,7 @@ export class ManageStaffModalComponent {
         workingHourStart: member.workingHourStart,
         workingHourEnd: member.workingHourEnd,
       });
+      this.initialFormSnapshot.set(JSON.stringify(this.staffForm.getRawValue()));
     });
   }
 

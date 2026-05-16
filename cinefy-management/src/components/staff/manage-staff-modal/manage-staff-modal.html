@@ -189,7 +189,7 @@
         ngpButton
         class="btn-primary"
         (click)="saveMember()"
-        [disabled]="staffForm.invalid || saving()"
+        [disabled]="staffForm.invalid || saving() || (isEdit() && !hasChanges())"
       >
         {{ isEdit() ? 'Save Changes' : 'Add staff member' }}
       </button>
