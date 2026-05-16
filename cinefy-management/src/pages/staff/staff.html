@@ -13,5 +13,5 @@
 
 <div class="staff-container">
   <staff-position-coverage />
-  <staff-list />
+  <staff-list (coverageChanged)="staffPositionCoverage().applyChange($event)" />
 </div>

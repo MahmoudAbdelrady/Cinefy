@@ -1,7 +1,13 @@
 import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { STAFF_POSITION_LABELS, type PositionCoverage } from '../../../shared/types';
+import {
+  STAFF_POSITION_LABELS,
+  type CoverageChange,
+  type PositionCoverage,
+  type PositionCoverageItem,
+  type StaffPosition,
+} from '../../../shared/types';
 import { StaffService, ToastService } from '../../../services';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 
@@ -41,5 +47,40 @@ export class StaffPositionCoverageComponent {
   protected percentage(count: number): number {
     const total = this.positionCoverageItems()?.total ?? 0;
     return total === 0 ? 0 : Math.round((count / total) * 100);
+  }
+
+  applyChange(change: CoverageChange): void {
+    const coverage = this.positionCoverageItems();
+    if (!coverage) return;
+
+    const positions = coverage.positions.map((p) => ({ ...p }));
+
+    if (change.action === 'add') {
+      this.adjustPositionCount(positions, change.position, 1);
+      this.positionCoverageItems.set({ total: coverage.total + 1, positions });
+    } else if (change.action === 'delete') {
+      this.adjustPositionCount(positions, change.position, -1);
+      this.positionCoverageItems.set({
+        total: Math.max(0, coverage.total - 1),
+        positions,
+      });
+    } else {
+      this.adjustPositionCount(positions, change.from, -1);
+      this.adjustPositionCount(positions, change.to, 1);
+      this.positionCoverageItems.set({ total: coverage.total, positions });
+    }
+  }
+
+  private adjustPositionCount(
+    positions: PositionCoverageItem[],
+    position: StaffPosition,
+    delta: number,
+  ): void {
+    const entry = positions.find((p) => p.position === position);
+    if (entry) {
+      entry.count = Math.max(0, entry.count + delta);
+    } else if (delta > 0) {
+      positions.push({ position, count: delta });
+    }
   }
 }

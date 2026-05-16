@@ -4,6 +4,7 @@ import {
   computed,
   DestroyRef,
   inject,
+  output,
   signal,
   TemplateRef,
   viewChild,
@@ -13,8 +14,9 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { combineLatest, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs';
 import {
-  CalendarClock,
+  Calendar,
   CircleAlert,
+  Clock,
   Eye,
   LucideAngularModule,
   Mail,
@@ -37,6 +39,7 @@ import {
   PaginatedResponse,
   STAFF_POSITION_LABELS,
   WEEK_DAY_LABELS,
+  type CoverageChange,
   type StaffMemberDetail,
   type StaffMemberSummary,
   type StaffPosition,
@@ -66,7 +69,8 @@ export class StaffListComponent {
   protected readonly SearchIcon = Search;
   protected readonly EmailIcon = Mail;
   protected readonly PhoneIcon = Phone;
-  protected readonly CalendarClockIcon = CalendarClock;
+  protected readonly CalendarIcon = Calendar;
+  protected readonly ClockIcon = Clock;
   protected readonly UsersIcon = Users;
   protected readonly EyeIcon = Eye;
   protected readonly EditIcon = SquarePen;
@@ -82,6 +86,8 @@ export class StaffListComponent {
   protected readonly pendingEditId = signal<string | null>(null);
   protected readonly pendingEditMember = signal<StaffMemberDetail | null>(null);
   protected readonly deletingStaffIds = signal<ReadonlySet<string>>(new Set());
+
+  readonly coverageChanged = output<CoverageChange>();
 
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
   protected readonly search = signal('');
@@ -170,9 +176,17 @@ export class StaffListComponent {
     if (isEdit) {
       const index = staffPage.content.findIndex((m) => m.id === member.id);
       if (index === -1) return;
+      const previous = staffPage.content[index];
       const content = [...staffPage.content];
       content[index] = member;
       this.staffPage.set({ ...staffPage, content });
+      if (previous.position !== member.position) {
+        this.coverageChanged.emit({
+          action: 'reassign',
+          from: previous.position,
+          to: member.position,
+        });
+      }
       return;
     }
 
@@ -186,6 +200,7 @@ export class StaffListComponent {
         totalPages: pageIsFull ? staffPage.page.totalPages + 1 : staffPage.page.totalPages,
       },
     });
+    this.coverageChanged.emit({ action: 'add', position: member.position });
   }
 
   protected deleteStaffMember(id: string, close: () => void): void {
@@ -195,6 +210,7 @@ export class StaffListComponent {
       next: () => {
         const staffPage = this.staffPage();
         if (staffPage) {
+          const deletedPosition = staffPage.content.find((m) => m.id === id)?.position;
           const content = staffPage.content.filter((m) => m.id !== id);
           if (content.length === 0 && this.page() > 1) {
             this.page.update((p) => p - 1);
@@ -204,6 +220,9 @@ export class StaffListComponent {
               content,
               page: { ...staffPage.page, totalElements: staffPage.page.totalElements - 1 },
             });
+          }
+          if (deletedPosition) {
+            this.coverageChanged.emit({ action: 'delete', position: deletedPosition });
           }
         }
         this.deletingStaffIds.update((current) => {

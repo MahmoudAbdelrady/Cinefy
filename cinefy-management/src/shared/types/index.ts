@@ -74,4 +74,5 @@ export type {
   WeekDay,
   PositionCoverage,
   PositionCoverageItem,
+  CoverageChange,
 } from './staff';

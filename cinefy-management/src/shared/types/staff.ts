@@ -93,6 +93,11 @@ interface PositionCoverage {
   positions: PositionCoverageItem[];
 }
 
+type CoverageChange =
+  | { action: 'add'; position: StaffPosition }
+  | { action: 'delete'; position: StaffPosition }
+  | { action: 'reassign'; from: StaffPosition; to: StaffPosition };
+
 export { STAFF_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS };
 export type {
   StaffMember,
@@ -104,4 +109,5 @@ export type {
   WeekDay,
   PositionCoverage,
   PositionCoverageItem,
+  CoverageChange,
 };
