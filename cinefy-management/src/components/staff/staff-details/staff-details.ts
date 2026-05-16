@@ -1,4 +1,12 @@
-import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -61,11 +69,10 @@ export class StaffDetailsComponent {
   protected readonly weekDayLabels = WEEK_DAY_LABELS;
 
   constructor() {
-    effect(() => {
-      const id = this.staffMemberId();
+    afterNextRender(() => {
       this.loading.set(true);
       this.staffService
-        .getStaffMember(id)
+        .getStaffMember(this.staffMemberId())
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (member) => {
