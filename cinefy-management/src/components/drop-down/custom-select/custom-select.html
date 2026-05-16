@@ -9,11 +9,13 @@
   [ngpComboboxCompareWith]="compareWith()"
   (ngpComboboxOpenChange)="onOpenChange($event)"
   [ngpComboboxDropdownContainer]="container()"
+  ngpComboboxDropdownPlacement="bottom-start"
 >
   <button
     type="button"
     ngpComboboxButton
     class="cs-trigger"
+    [attr.data-size]="size()"
     [class.cs-error]="isError() || !!(control()?.touched && control()?.invalid)"
     [disabled]="disabled()"
   >
@@ -36,7 +38,12 @@
     }
   </button>
 
-  <div *ngpComboboxPortal ngpComboboxDropdown class="cs-dropdown">
+  <div
+    *ngpComboboxPortal
+    ngpComboboxDropdown
+    class="cs-dropdown"
+    [attr.data-width]="dropdownWidth()"
+  >
     @if (searchable()) {
       <input
         ngpComboboxInput
@@ -46,13 +53,15 @@
         (input)="onSearchInput($event)"
       />
     }
-    @for (item of filteredItems(); track valueFn()(item)) {
-      <div ngpComboboxOption class="cs-option" [ngpComboboxOptionValue]="item">
-        {{ displayFn()(item) }}
-      </div>
-    } @empty {
-      <div class="cs-empty">No results</div>
-    }
+    <div class="cs-options" (mousedown)="onOptionsAreaMousedown($event)">
+      @for (item of filteredItems(); track valueFn()(item)) {
+        <div ngpComboboxOption class="cs-option" [ngpComboboxOptionValue]="item">
+          {{ displayFn()(item) }}
+        </div>
+      } @empty {
+        <div class="cs-empty">No results</div>
+      }
+    </div>
   </div>
 </div>
 

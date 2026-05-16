@@ -28,6 +28,8 @@ export class StaffPage implements OnInit {
   private headerActions = inject(HeaderActionsService);
   private destroyRef = inject(DestroyRef);
   private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
+  protected staffList = viewChild.required(StaffListComponent);
+  protected staffPositionCoverage = viewChild.required(StaffPositionCoverageComponent);
 
   ngOnInit(): void {
     this.headerActions.template.set(this.headerActionsTemplate());

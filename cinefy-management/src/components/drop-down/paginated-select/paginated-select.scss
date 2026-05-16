@@ -26,6 +26,10 @@ paginated-select {
   @include select-dropdown;
 }
 
+.ps-options {
+  @include select-options;
+}
+
 .ps-option {
   @include select-option;
 }

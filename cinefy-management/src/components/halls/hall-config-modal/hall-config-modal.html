@@ -90,6 +90,7 @@
         <div class="input-group">
           <span>Status</span>
           <custom-select
+            size="sm"
             [items]="hallStatusEntries()"
             [value]="statusEntry()"
             [displayFn]="statusDisplayFn"
@@ -105,6 +106,7 @@
         <div class="input-group type-group">
           <span>Type</span>
           <custom-select
+            size="sm"
             [items]="hallTypes()"
             [value]="selectedHallType()"
             [displayFn]="hallTypeDisplayFn"

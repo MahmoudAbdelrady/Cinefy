@@ -5,127 +5,212 @@
   [close]="close()"
   width="700px"
 >
-  <div class="input-group">
-    <input-field
-      label="Full name"
-      placeholder="e.g. Mohamed Ahmed"
-      [leadingIcon]="FullNameIcon"
-      [control]="staffForm.controls.fullName"
-      [errorMessages]="{ required: 'Full name is required' }"
-    />
-  </div>
-  <div class="input-group">
-    <input-field
-      label="Username"
-      placeholder="e.g. mohamed.ahmed"
-      [leadingIcon]="UsernameIcon"
-      [control]="staffForm.controls.username"
-      [errorMessages]="{ required: 'Username is required' }"
-    />
-  </div>
-  <div class="input-groups">
-    <div class="fields">
+  @if (loading()) {
+    <div class="manage-staff-modal-loading">
+      <loading-spinner />
+    </div>
+  } @else {
+    <div class="input-groups">
+      <div class="fields">
+        <div class="input-group">
+          <input-field
+            label="First name"
+            placeholder="e.g. Mohamed"
+            [leadingIcon]="NameIcon"
+            [control]="staffForm.controls.firstName"
+            [errorMessages]="{
+              required: 'First name is required',
+              minlength: 'First name must be at least 2 characters',
+              maxlength: 'First name must not exceed 50 characters',
+              pattern: 'First name may only contain letters, spaces, hyphens, and apostrophes',
+            }"
+          />
+        </div>
+        <div class="input-group">
+          <input-field
+            label="Last name"
+            placeholder="e.g. Ahmed"
+            [leadingIcon]="NameIcon"
+            [control]="staffForm.controls.lastName"
+            [errorMessages]="{
+              required: 'Last name is required',
+              minlength: 'Last name must be at least 2 characters',
+              maxlength: 'Last name must not exceed 50 characters',
+              pattern: 'Last name may only contain letters, spaces, hyphens, and apostrophes',
+            }"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="input-group">
+      <input-field
+        label="Username"
+        placeholder="e.g. mohamed.ahmed"
+        [leadingIcon]="UsernameIcon"
+        [control]="staffForm.controls.username"
+        [errorMessages]="{
+          required: 'Username is required',
+          minlength: 'Username must be at least 3 characters',
+          maxlength: 'Username must not exceed 30 characters',
+          pattern:
+            'Username must start with a lowercase letter and contain only lowercase letters, digits, dots, underscores, or hyphens (no consecutive or trailing separators)',
+        }"
+      />
+    </div>
+    <div class="input-groups">
       <div class="input-group">
         <input-field
           label="Email"
           placeholder="e.g. mohamed.ahmed@gmail.com"
           [leadingIcon]="EmailIcon"
           [control]="staffForm.controls.email"
-          [errorMessages]="{ required: 'Email is required' }"
+          [errorMessages]="{
+            required: 'Email is required',
+            pattern: 'Email must be a valid address',
+          }"
         />
       </div>
       <div class="input-group">
-        <input-field
-          label="Phone number"
-          placeholder="e.g. +20 100 000 0000"
-          [leadingIcon]="PhoneIcon"
-          [control]="staffForm.controls.phoneNumber"
-          [errorMessages]="{ required: 'Phone number is required' }"
-        />
-      </div>
-    </div>
-  </div>
-  <div class="input-group">
-    <custom-select
-      label="Position"
-      [items]="staffPositions"
-      [displayFn]="positionDisplayFn"
-      [value]="staffForm.controls.position.value"
-      [control]="staffForm.controls.position"
-      [errorMessages]="{ required: 'Position is required' }"
-      [clearable]="true"
-      [required]="true"
-      placeholder="Select a position"
-      (selectionChange)="onPositionChange($event)"
-      (cleared)="onPositionCleared()"
-      (touched)="onPositionTouched()"
-    />
-  </div>
-  <div class="input-group">
-    <label data-required>Employment Type</label>
-    <div
-      ngpRadioGroup
-      class="radio-group"
-      [ngpRadioGroupValue]="staffForm.controls.employmentType.value"
-      (ngpRadioGroupValueChange)="staffForm.controls.employmentType.setValue($event!)"
-    >
-      @for (entry of employmentTypeEntries; track entry.value) {
-        <div ngpRadioItem [ngpRadioItemValue]="entry.value" class="radio-item">
-          <span>{{ entry.label }}</span>
+        <label data-required>Phone number</label>
+        <div class="phone-row">
+          <div class="phone-country">
+            <custom-select
+              [items]="countryOptions"
+              [displayFn]="countryDisplayFn"
+              [triggerDisplayFn]="countryTriggerDisplayFn"
+              [compareWith]="countryCompareFn"
+              [value]="selectedCountryOption"
+              [searchable]="true"
+              [container]="modal.panelEl()"
+              dropdownWidth="matchContent"
+              placeholder="Country"
+              (selectionChange)="onPhoneCountryChange($event)"
+              (touched)="markPhoneCountryTouched()"
+            />
+          </div>
+          <div class="phone-national">
+            <input-field
+              [placeholder]="phonePlaceholder()"
+              [leadingIcon]="PhoneIcon"
+              [control]="staffForm.controls.phoneNumber"
+              [errorMessages]="{
+                required: 'Phone number is required',
+                invalidPhone: 'Phone number is invalid for the selected country',
+              }"
+            />
+          </div>
         </div>
-      }
-    </div>
-  </div>
-  <div class="input-groups">
-    <label data-required>Working days</label>
-    <div class="fields">
-      <div class="input-group">
-        <custom-select
-          [items]="weekDays"
-          [displayFn]="weekDayDisplayFn"
-          [value]="staffForm.controls.workingDayStart.value"
-          [control]="staffForm.controls.workingDayStart"
-          [errorMessages]="{ required: 'Start day is required' }"
-          [clearable]="true"
-          [required]="true"
-          placeholder="Select start day"
-          (selectionChange)="onWorkingDayStartChange($event)"
-          (cleared)="onWorkingDayStartCleared()"
-          (touched)="onWorkingDayStartTouched()"
-        />
-      </div>
-      <div class="input-group">
-        <custom-select
-          [items]="weekDays"
-          [displayFn]="weekDayDisplayFn"
-          [value]="staffForm.controls.workingDayEnd.value"
-          [control]="staffForm.controls.workingDayEnd"
-          [errorMessages]="{ required: 'End day is required' }"
-          [clearable]="true"
-          [required]="true"
-          placeholder="Select end day"
-          (selectionChange)="onWorkingDayEndChange($event)"
-          (cleared)="onWorkingDayEndCleared()"
-          (touched)="onWorkingDayEndTouched()"
-        />
       </div>
     </div>
-  </div>
-  <div class="input-groups">
-    <label data-required>Working hours</label>
-    <div class="fields">
-      <div class="input-group">
-        <time-picker [formControl]="staffForm.controls.workingHourStart" placeholder="Start time" />
-      </div>
-      <div class="input-group">
-        <time-picker [formControl]="staffForm.controls.workingHourEnd" placeholder="End time" />
+    <div class="input-group">
+      <input-field
+        label="Password"
+        placeholder="e.g. Strongpassword##123"
+        type="password"
+        [hint]="isEdit() ? 'Leave empty to keep the current password' : ''"
+        [leadingIcon]="KeyIcon"
+        [control]="staffForm.controls.password"
+        [errorMessages]="{
+          required: 'Password is required',
+          pattern:
+            'Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a symbol',
+        }"
+      />
+    </div>
+    <div class="input-group">
+      <custom-select
+        label="Position"
+        [items]="staffPositions"
+        [displayFn]="positionDisplayFn"
+        [value]="staffForm.controls.position.value"
+        [control]="staffForm.controls.position"
+        [errorMessages]="{ required: 'Position is required' }"
+        [clearable]="true"
+        [required]="true"
+        placeholder="Select a position"
+        (selectionChange)="onPositionChange($event)"
+        (cleared)="onPositionCleared()"
+        (touched)="markPositionTouched()"
+      />
+    </div>
+    <div class="input-group">
+      <label data-required>Employment Type</label>
+      <div
+        ngpRadioGroup
+        class="radio-group"
+        [ngpRadioGroupValue]="staffForm.controls.employmentType.value"
+        (ngpRadioGroupValueChange)="staffForm.controls.employmentType.setValue($event!)"
+      >
+        @for (entry of employmentTypeEntries; track entry.value) {
+          <div ngpRadioItem [ngpRadioItemValue]="entry.value" class="radio-item">
+            <span>{{ entry.label }}</span>
+          </div>
+        }
       </div>
     </div>
-  </div>
+    <div class="input-groups">
+      <label data-required>Working days</label>
+      <div class="fields">
+        <div class="input-group">
+          <custom-select
+            [items]="weekDays"
+            [displayFn]="weekDayDisplayFn"
+            [value]="staffForm.controls.workingDayStart.value"
+            [control]="staffForm.controls.workingDayStart"
+            [errorMessages]="{ required: 'Start day is required' }"
+            [clearable]="true"
+            [required]="true"
+            placeholder="Select start day"
+            (selectionChange)="onWorkingDayStartChange($event)"
+            (cleared)="onWorkingDayStartCleared()"
+            (touched)="markWorkingDayStartTouched()"
+          />
+        </div>
+        <div class="input-group">
+          <custom-select
+            [items]="weekDays"
+            [displayFn]="weekDayDisplayFn"
+            [value]="staffForm.controls.workingDayEnd.value"
+            [control]="staffForm.controls.workingDayEnd"
+            [errorMessages]="{ required: 'End day is required' }"
+            [clearable]="true"
+            [required]="true"
+            placeholder="Select end day"
+            (selectionChange)="onWorkingDayEndChange($event)"
+            (cleared)="onWorkingDayEndCleared()"
+            (touched)="markWorkingDayEndTouched()"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="input-groups">
+      <label data-required>Working hours</label>
+      <div class="fields">
+        <div class="input-group">
+          <time-picker
+            [formControl]="staffForm.controls.workingHourStart"
+            placeholder="Start time"
+          />
+        </div>
+        <div class="input-group">
+          <time-picker [formControl]="staffForm.controls.workingHourEnd" placeholder="End time" />
+          <field-error
+            [control]="staffForm.controls.workingHourEnd"
+            [messages]="{ sameAsStart: 'End time must be different from start time' }"
+          />
+        </div>
+      </div>
+    </div>
+  }
   <div modal-footer class="manage-staff-modal-footer">
     <div class="save-btns">
       <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
-      <button ngpButton class="btn-primary" (click)="saveMember()" [disabled]="staffForm.invalid">
+      <button
+        ngpButton
+        class="btn-primary"
+        (click)="saveMember()"
+        [disabled]="staffForm.invalid || saving() || (isEdit() && !hasChanges())"
+      >
         {{ isEdit() ? 'Save Changes' : 'Add staff member' }}
       </button>
     </div>

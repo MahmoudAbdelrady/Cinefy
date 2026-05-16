@@ -1,8 +1,6 @@
 const STAFF_POSITION_LABELS = {
   MANAGER: 'Manager',
-  PROJECTIONIST: 'Projectionist',
   CASHIER: 'Cashier',
-  CONCESSIONS: 'Concessions',
   USHER: 'Usher',
 } as const;
 
@@ -42,5 +40,74 @@ interface StaffMember {
   employmentType: EmploymentType;
 }
 
+interface StaffMemberSummary {
+  id: string;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  position: StaffPosition;
+  workingDayStart: WeekDay;
+  workingDayEnd: WeekDay;
+  workingHourStart: string;
+  workingHourEnd: string;
+}
+
+interface StaffMemberDetail {
+  id: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  phoneNumber: string;
+  position: StaffPosition;
+  hiredAt: string;
+  employmentType: EmploymentType;
+  workingDayStart: WeekDay;
+  workingDayEnd: WeekDay;
+  workingHourStart: string;
+  workingHourEnd: string;
+}
+
+interface StaffMemberPayload {
+  firstName: string;
+  lastName: string;
+  username: string;
+  phoneNumber: string;
+  email: string;
+  password?: string;
+  position: StaffPosition;
+  employmentType: EmploymentType;
+  workingDayStart: WeekDay;
+  workingDayEnd: WeekDay;
+  workingHourStart: string;
+  workingHourEnd: string;
+}
+
+interface PositionCoverageItem {
+  position: StaffPosition;
+  count: number;
+}
+
+interface PositionCoverage {
+  total: number;
+  positions: PositionCoverageItem[];
+}
+
+type CoverageChange =
+  | { action: 'add'; position: StaffPosition }
+  | { action: 'delete'; position: StaffPosition }
+  | { action: 'reassign'; from: StaffPosition; to: StaffPosition };
+
 export { STAFF_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS };
-export type { StaffMember, StaffPosition, EmploymentType, WeekDay };
+export type {
+  StaffMember,
+  StaffMemberSummary,
+  StaffMemberDetail,
+  StaffMemberPayload,
+  StaffPosition,
+  EmploymentType,
+  WeekDay,
+  PositionCoverage,
+  PositionCoverageItem,
+  CoverageChange,
+};

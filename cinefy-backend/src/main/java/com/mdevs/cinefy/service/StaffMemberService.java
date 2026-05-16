@@ -1,5 +1,8 @@
 package com.mdevs.cinefy.service;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import com.mdevs.cinefy.dto.staff.PositionCoverageDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageItemDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageProjection;
@@ -33,6 +36,8 @@ public class StaffMemberService {
     private final StaffMemberRepository staffMemberRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
     // ========================= Public API =========================
 
@@ -109,6 +114,10 @@ public class StaffMemberService {
         if (position.equals(StaffPosition.ADMIN)) { // @ TODO: update the condition to check if the current user isn't admin
             throw new BusinessException("Assigning the admin position is not allowed");
         }
+        if (dto.getWorkingHourStart().equals(dto.getWorkingHourEnd())) {
+            throw new BusinessException("Working hour end must be different from working hour start");
+        }
+        validatePhoneNumber(normalizedPhoneNumber);
         boolean usernameExists = excludeId == null
                 ? staffMemberRepository.existsByUsername(dto.getUsername())
                 : staffMemberRepository.existsByUsernameAndIdNot(dto.getUsername(), excludeId);
@@ -129,11 +138,23 @@ public class StaffMemberService {
         }
     }
 
+    private void validatePhoneNumber(String normalizedPhoneNumber) {
+        PhoneNumber parsed;
+        try {
+            parsed = PHONE_NUMBER_UTIL.parse("+" + normalizedPhoneNumber, null);
+        } catch (NumberParseException ex) {
+            throw new BusinessException("Invalid phone number");
+        }
+        if (!PHONE_NUMBER_UTIL.isValidNumber(parsed)) {
+            throw new BusinessException("Invalid phone number");
+        }
+    }
+
     private DayOfWeek parseDayOfWeek(String value, String fieldName) {
         try {
             return DayOfWeek.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException ex) {
-            throw new BusinessException("Invalid " + fieldName + ": " + value);
+            throw new BusinessException("Invalid week day for: " + fieldName);
         }
     }
 
@@ -141,7 +162,7 @@ public class StaffMemberService {
         try {
             return LocalTime.parse(value);
         } catch (DateTimeParseException ex) {
-            throw new BusinessException("Invalid " + fieldName + ": " + value);
+            throw new BusinessException("Invalid format for: " + fieldName);
         }
     }
 
@@ -186,6 +207,7 @@ public class StaffMemberService {
         dto.setUsername(staffMember.getUsername());
         dto.setEmail(staffMember.getEmail());
         dto.setPhoneNumber(staffMember.getPhoneNumber());
+        dto.setPosition(staffMember.getPosition().name());
         dto.setHiredAt(staffMember.getCreatedAt());
         dto.setEmploymentType(staffMember.getEmploymentType().name());
         dto.setWorkingDayStart(staffMember.getWorkingDayStart().name());

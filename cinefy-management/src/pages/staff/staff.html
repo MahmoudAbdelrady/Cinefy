@@ -7,11 +7,11 @@
   </div>
 
   <ng-template #manageStaffDialog let-close="close">
-    <manage-staff-modal [close]="close" />
+    <manage-staff-modal [close]="close" (saved)="staffList().onStaffMemberSaved($event)" />
   </ng-template>
 </ng-template>
 
 <div class="staff-container">
   <staff-position-coverage />
-  <staff-list />
+  <staff-list (coverageChanged)="staffPositionCoverage().applyChange($event)" />
 </div>

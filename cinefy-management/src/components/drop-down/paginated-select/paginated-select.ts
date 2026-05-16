@@ -117,6 +117,12 @@ export class PaginatedSelectComponent<T> {
     }
   }
 
+  protected onOptionsAreaMousedown(event: MouseEvent) {
+    if (event.target === event.currentTarget) {
+      event.preventDefault();
+    }
+  }
+
   private resetAndFetch() {
     this.items.set([]);
     this.currentPage = 0;

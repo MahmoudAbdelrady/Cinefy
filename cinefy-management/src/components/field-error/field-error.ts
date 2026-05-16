@@ -19,6 +19,12 @@ import { AbstractControl } from '@angular/forms';
       color: #ef4444;
       margin-top: 4px;
     }
+    span {
+      display: block;
+    }
+    span + span {
+      margin-top: 2px;
+    }
   `,
 })
 export class FieldErrorComponent {

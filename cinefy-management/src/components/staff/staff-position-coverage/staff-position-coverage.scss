@@ -1,6 +1,7 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
 @use '../../../shared/styles/breakpoints' as *;
+@use '../position-colors' as *;
 
 .staff-position-coverage-container {
   background-color: $color-card;
@@ -31,6 +32,12 @@
   padding: 24px 0;
   font-size: 14px;
   color: $gray-500;
+  text-align: center;
+}
+
+.spcc-loading {
+  @include flex-center;
+  min-height: 100px;
 }
 
 .spcc-bars {
@@ -46,21 +53,7 @@
   height: 100%;
   transition: all 150ms ease;
 
-  &[data-position='MANAGER'] {
-    background-color: #8b5cf6; // violet-500
-  }
-  &[data-position='PROJECTIONIST'] {
-    background-color: #6366f1; // indigo-500
-  }
-  &[data-position='CASHIER'] {
-    background-color: $blue-500;
-  }
-  &[data-position='CONCESSIONS'] {
-    background-color: $amber-500;
-  }
-  &[data-position='USHER'] {
-    background-color: #10b981; // emerald-500
-  }
+  @include staff-position-solid-bg;
 }
 
 .spcc-position-items {
@@ -98,46 +91,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  &[data-position='MANAGER'] {
-    .spcc-dot {
-      background-color: #8b5cf6;
-    }
-    .pos-count {
-      color: #6d28d9; // violet-700
-    }
-  }
-  &[data-position='PROJECTIONIST'] {
-    .spcc-dot {
-      background-color: #6366f1;
-    }
-    .pos-count {
-      color: #4338ca; // indigo-700
-    }
-  }
-  &[data-position='CASHIER'] {
-    .spcc-dot {
-      background-color: $blue-500;
-    }
-    .pos-count {
-      color: $blue-700;
-    }
-  }
-  &[data-position='CONCESSIONS'] {
-    .spcc-dot {
-      background-color: $amber-500;
-    }
-    .pos-count {
-      color: $amber-700;
-    }
-  }
-  &[data-position='USHER'] {
-    .spcc-dot {
-      background-color: #10b981;
-    }
-    .pos-count {
-      color: #047857; // emerald-700
-    }
-  }
+  @include staff-position-dot-and-text('.spcc-dot', '.pos-count');
 }
 
 @include below-mobile {
