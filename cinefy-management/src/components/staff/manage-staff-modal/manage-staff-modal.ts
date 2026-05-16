@@ -10,14 +10,7 @@ import {
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AtSign, Check, KeyRound, LucideAngularModule, Mail, Phone, User } from 'lucide-angular';
 import {
   getCountries,
@@ -69,12 +62,6 @@ const COUNTRY_OPTIONS: CountryOption[] = getCountries()
   }))
   .sort((a, b) => a.name.localeCompare(b.name));
 const DEFAULT_COUNTRY: CountryCode = 'EG';
-
-function passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (!value) return null;
-  return PASSWORD_PATTERN.test(value) ? null : { passwordStrength: true };
-}
 
 @Component({
   selector: 'manage-staff-modal',
@@ -195,7 +182,7 @@ export class ManageStaffModalComponent {
     }),
     password: new FormControl('', {
       nonNullable: true,
-      validators: [passwordStrengthValidator],
+      validators: [Validators.pattern(PASSWORD_PATTERN)],
     }),
     position: new FormControl<StaffPosition | null>(null, {
       validators: [Validators.required],
