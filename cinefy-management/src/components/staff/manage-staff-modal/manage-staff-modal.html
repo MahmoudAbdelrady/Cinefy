@@ -58,27 +58,47 @@
       />
     </div>
     <div class="input-groups">
-      <div class="fields">
-        <div class="input-group">
-          <input-field
-            label="Email"
-            placeholder="e.g. mohamed.ahmed@gmail.com"
-            [leadingIcon]="EmailIcon"
-            [control]="staffForm.controls.email"
-            [errorMessages]="{
-              required: 'Email is required',
-              pattern: 'Email must be a valid address',
-            }"
-          />
-        </div>
-        <div class="input-group">
-          <input-field
-            label="Phone number"
-            placeholder="e.g. +201234567890"
-            [leadingIcon]="PhoneIcon"
-            [control]="staffForm.controls.phoneNumber"
-            [errorMessages]="{ required: 'Phone number is required' }"
-          />
+      <div class="input-group">
+        <input-field
+          label="Email"
+          placeholder="e.g. mohamed.ahmed@gmail.com"
+          [leadingIcon]="EmailIcon"
+          [control]="staffForm.controls.email"
+          [errorMessages]="{
+            required: 'Email is required',
+            pattern: 'Email must be a valid address',
+          }"
+        />
+      </div>
+      <div class="input-group">
+        <label data-required>Phone number</label>
+        <div class="phone-row">
+          <div class="phone-country">
+            <custom-select
+              [items]="countryOptions"
+              [displayFn]="countryDisplayFn"
+              [triggerDisplayFn]="countryTriggerDisplayFn"
+              [compareWith]="countryCompareFn"
+              [value]="selectedCountryOption"
+              [searchable]="true"
+              [container]="modal.panelEl()"
+              dropdownWidth="matchContent"
+              placeholder="Country"
+              (selectionChange)="onPhoneCountryChange($event)"
+              (touched)="markPhoneCountryTouched()"
+            />
+          </div>
+          <div class="phone-national">
+            <input-field
+              [placeholder]="phonePlaceholder()"
+              [leadingIcon]="PhoneIcon"
+              [control]="staffForm.controls.phoneNumber"
+              [errorMessages]="{
+                required: 'Phone number is required',
+                invalidPhone: 'Phone number is invalid for the selected country',
+              }"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -110,7 +130,7 @@
         placeholder="Select a position"
         (selectionChange)="onPositionChange($event)"
         (cleared)="onPositionCleared()"
-        (touched)="onPositionTouched()"
+        (touched)="markPositionTouched()"
       />
     </div>
     <div class="input-group">
@@ -143,7 +163,7 @@
             placeholder="Select start day"
             (selectionChange)="onWorkingDayStartChange($event)"
             (cleared)="onWorkingDayStartCleared()"
-            (touched)="onWorkingDayStartTouched()"
+            (touched)="markWorkingDayStartTouched()"
           />
         </div>
         <div class="input-group">
@@ -158,7 +178,7 @@
             placeholder="Select end day"
             (selectionChange)="onWorkingDayEndChange($event)"
             (cleared)="onWorkingDayEndCleared()"
-            (touched)="onWorkingDayEndTouched()"
+            (touched)="markWorkingDayEndTouched()"
           />
         </div>
       </div>

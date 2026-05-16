@@ -19,6 +19,7 @@
           [displayFn]="positionDisplayFn"
           [clearable]="true"
           placeholder="All positions"
+          size="sm"
           (selectionChange)="onPositionFilterChange($event)"
           (cleared)="onPositionFilterCleared()"
         />
@@ -60,7 +61,7 @@
                 </div>
                 <div class="sidc-item">
                   <lucide-icon [img]="PhoneIcon" [size]="14"></lucide-icon>
-                  <span>{{ member.phoneNumber }}</span>
+                  <span>{{ member.phoneNumber | phoneFormat }}</span>
                 </div>
                 <div class="sidc-item">
                   <lucide-icon [img]="CalendarIcon" [size]="14"></lucide-icon>

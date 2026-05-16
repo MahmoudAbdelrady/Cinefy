@@ -45,7 +45,7 @@ import {
   type StaffPosition,
 } from '../../../shared/types';
 import { StaffService, ToastService } from '../../../services';
-import { Time12hPipe } from '../../../shared/pipes';
+import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
 
 @Component({
   selector: 'staff-list',
@@ -61,6 +61,7 @@ import { Time12hPipe } from '../../../shared/pipes';
     StaffDetailsComponent,
     ManageStaffModalComponent,
     Time12hPipe,
+    PhoneFormatPipe,
   ],
   templateUrl: './staff-list.html',
   styleUrl: './staff-list.scss',

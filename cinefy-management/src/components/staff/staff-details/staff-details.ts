@@ -13,7 +13,7 @@ import {
 } from 'lucide-angular';
 import { DatePipe } from '@angular/common';
 import { ModalComponent } from '../../modal/modal';
-import { Time12hPipe } from '../../../shared/pipes';
+import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import {
   EMPLOYMENT_TYPE_LABELS,
@@ -25,7 +25,14 @@ import { StaffService, ToastService } from '../../../services';
 
 @Component({
   selector: 'staff-details',
-  imports: [ModalComponent, LucideAngularModule, LoadingSpinnerComponent, DatePipe, Time12hPipe],
+  imports: [
+    ModalComponent,
+    LucideAngularModule,
+    LoadingSpinnerComponent,
+    DatePipe,
+    Time12hPipe,
+    PhoneFormatPipe,
+  ],
   templateUrl: './staff-details.html',
   styleUrl: './staff-details.scss',
 })

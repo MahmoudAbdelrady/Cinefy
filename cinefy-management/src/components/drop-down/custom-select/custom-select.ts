@@ -43,6 +43,9 @@ export class CustomSelectComponent<T> {
   readonly errorMessages = input<Record<string, string>>({});
   readonly compareWith = input<(a: T, b: T) => boolean>(Object.is);
   readonly container = input<string | HTMLElement | null>(null);
+  readonly size = input<'sm' | 'md'>('md');
+  readonly dropdownWidth = input<'matchTrigger' | 'matchContent'>('matchTrigger');
+  readonly triggerDisplayFn = input<((item: T) => string) | null>(null);
 
   readonly selectionChange = output<T>();
   readonly cleared = output<void>();
@@ -58,7 +61,9 @@ export class CustomSelectComponent<T> {
   protected readonly displayValue = computed(() => {
     if (this.wasCleared()) return null;
     const item = this.value() ?? this.selectedItem();
-    return item ? this.displayFn()(item) : null;
+    if (!item) return null;
+    const trigger = this.triggerDisplayFn();
+    return (trigger ?? this.displayFn())(item);
   });
 
   protected readonly currentValue = computed<T | null>(() => {
@@ -89,6 +94,12 @@ export class CustomSelectComponent<T> {
 
   protected onSearchInput(event: Event) {
     this.searchTerm.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onOptionsAreaMousedown(event: MouseEvent) {
+    if (event.target === event.currentTarget) {
+      event.preventDefault();
+    }
   }
 
   protected clear(event: MouseEvent) {

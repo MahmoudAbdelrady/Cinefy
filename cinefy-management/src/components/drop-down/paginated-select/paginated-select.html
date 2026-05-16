@@ -26,7 +26,7 @@
     }
   </button>
 
-  <div *ngpComboboxPortal ngpComboboxDropdown class="ps-dropdown" (scroll)="onScroll($event)">
+  <div *ngpComboboxPortal ngpComboboxDropdown class="ps-dropdown">
     @if (searchable()) {
       <input
         ngpComboboxInput
@@ -36,20 +36,26 @@
         (input)="onSearchInput($event)"
       />
     }
-    @for (item of items(); track valueFn()(item)) {
-      <div ngpComboboxOption class="ps-option" [ngpComboboxOptionValue]="item">
-        {{ displayFn()(item) }}
-      </div>
-    } @empty {
-      @if (!loading()) {
-        <div class="ps-empty">No items available</div>
+    <div
+      class="ps-options"
+      (scroll)="onScroll($event)"
+      (mousedown)="onOptionsAreaMousedown($event)"
+    >
+      @for (item of items(); track valueFn()(item)) {
+        <div ngpComboboxOption class="ps-option" [ngpComboboxOptionValue]="item">
+          {{ displayFn()(item) }}
+        </div>
+      } @empty {
+        @if (!loading()) {
+          <div class="ps-empty">No items available</div>
+        }
       }
-    }
 
-    @if (loading()) {
-      <div class="ps-loading">
-        <loading-spinner [size]="16" [strokeWidth]="2" />
-      </div>
-    }
+      @if (loading()) {
+        <div class="ps-loading">
+          <loading-spinner [size]="16" [strokeWidth]="2" />
+        </div>
+      }
+    </div>
   </div>
 </div>
