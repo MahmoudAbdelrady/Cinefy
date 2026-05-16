@@ -1,8 +1,6 @@
 const STAFF_POSITION_LABELS = {
   MANAGER: 'Manager',
-  PROJECTIONIST: 'Projectionist',
   CASHIER: 'Cashier',
-  CONCESSIONS: 'Concessions',
   USHER: 'Usher',
 } as const;
 

@@ -42,6 +42,7 @@ import {
   type StaffPosition,
 } from '../../../shared/types';
 import { StaffService, ToastService } from '../../../services';
+import { Time12hPipe } from '../../../shared/pipes';
 
 @Component({
   selector: 'staff-list',
@@ -56,6 +57,7 @@ import { StaffService, ToastService } from '../../../services';
     ModalComponent,
     StaffDetailsComponent,
     ManageStaffModalComponent,
+    Time12hPipe,
   ],
   templateUrl: './staff-list.html',
   styleUrl: './staff-list.scss',
@@ -160,20 +162,50 @@ export class StaffListComponent {
     this.dialogManager.open(this.editTemplate() as never);
   }
 
+  onStaffMemberSaved(event: { member: StaffMemberSummary; isEdit: boolean }): void {
+    const { member, isEdit } = event;
+    const staffPage = this.staffPage();
+    if (!staffPage) return;
+
+    if (isEdit) {
+      const index = staffPage.content.findIndex((m) => m.id === member.id);
+      if (index === -1) return;
+      const content = [...staffPage.content];
+      content[index] = member;
+      this.staffPage.set({ ...staffPage, content });
+      return;
+    }
+
+    const pageIsFull = staffPage.content.length >= staffPage.page.size;
+    this.staffPage.set({
+      ...staffPage,
+      content: pageIsFull ? staffPage.content : [...staffPage.content, member],
+      page: {
+        ...staffPage.page,
+        totalElements: staffPage.page.totalElements + 1,
+        totalPages: pageIsFull ? staffPage.page.totalPages + 1 : staffPage.page.totalPages,
+      },
+    });
+  }
+
   protected deleteStaffMember(id: string, close: () => void): void {
     if (this.deletingStaffIds().has(id)) return;
     this.deletingStaffIds.update((current) => new Set(current).add(id));
     this.staffService.deleteStaffMember(id).subscribe({
       next: () => {
-        this.staffPage.update((page) =>
-          page
-            ? {
-                ...page,
-                content: page.content.filter((m) => m.id !== id),
-                page: { ...page.page, totalElements: page.page.totalElements - 1 },
-              }
-            : page,
-        );
+        const staffPage = this.staffPage();
+        if (staffPage) {
+          const content = staffPage.content.filter((m) => m.id !== id);
+          if (content.length === 0 && this.page() > 1) {
+            this.page.update((p) => p - 1);
+          } else {
+            this.staffPage.set({
+              ...staffPage,
+              content,
+              page: { ...staffPage.page, totalElements: staffPage.page.totalElements - 1 },
+            });
+          }
+        }
         this.deletingStaffIds.update((current) => {
           const next = new Set(current);
           next.delete(id);

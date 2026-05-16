@@ -22,9 +22,9 @@ export class StaffPositionCoverageComponent {
     total: 6,
     positions: [
       { position: 'MANAGER', count: 1 },
-      { position: 'PROJECTIONIST', count: 1 },
+      { position: 'CASHIER', count: 1 },
       { position: 'CASHIER', count: 2 },
-      { position: 'CONCESSIONS', count: 1 },
+      { position: 'USHER', count: 1 },
       { position: 'USHER', count: 1 },
     ],
   };

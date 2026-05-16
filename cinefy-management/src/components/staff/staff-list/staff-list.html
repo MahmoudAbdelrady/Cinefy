@@ -65,10 +65,10 @@
                 <div class="sidc-item">
                   <lucide-icon [img]="CalendarClockIcon" [size]="14"></lucide-icon>
                   <span>
-                    {{ weekDayLabels[member.workingDayStart] }}–{{
-                      weekDayLabels[member.workingDayEnd]
-                    }}
-                    · {{ member.workingHourStart }}–{{ member.workingHourEnd }}
+                    {{ weekDayLabels[member.workingDayStart] }} –
+                    {{ weekDayLabels[member.workingDayEnd] }} ·
+                    {{ member.workingHourStart | time12h }} –
+                    {{ member.workingHourEnd | time12h }}
                   </span>
                 </div>
               </div>
@@ -166,6 +166,7 @@
       [staffMemberId]="pendingEditId()"
       [selectedStaffMember]="pendingEditMember()"
       [close]="close"
+      (saved)="onStaffMemberSaved($event)"
     />
   </ng-template>
 </div>

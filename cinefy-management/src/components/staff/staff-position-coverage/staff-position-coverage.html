@@ -10,7 +10,7 @@
     <div class="spcc-empty">No staff members yet.</div>
   } @else {
     <div class="spcc-bars">
-      @for (posItem of positionCoverageItems.positions; track posItem.position) {
+      @for (posItem of positionCoverageItems.positions; track $index) {
         @if (posItem.count > 0) {
           <div
             class="spcc-bar"
@@ -22,7 +22,7 @@
     </div>
 
     <div class="spcc-position-items">
-      @for (posItem of positionCoverageItems.positions; track posItem.position) {
+      @for (posItem of positionCoverageItems.positions; track $index) {
         <div class="spcc-item" [attr.data-position]="posItem.position">
           <span class="spcc-dot"></span>
           <span class="pos-name">{{ positionLabels[posItem.position] }}</span>

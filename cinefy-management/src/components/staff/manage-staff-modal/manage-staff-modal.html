@@ -18,7 +18,12 @@
             placeholder="e.g. Mohamed"
             [leadingIcon]="NameIcon"
             [control]="staffForm.controls.firstName"
-            [errorMessages]="{ required: 'First name is required' }"
+            [errorMessages]="{
+              required: 'First name is required',
+              minlength: 'First name must be at least 2 characters',
+              maxlength: 'First name must not exceed 50 characters',
+              pattern: 'First name may only contain letters, spaces, hyphens, and apostrophes',
+            }"
           />
         </div>
         <div class="input-group">
@@ -27,7 +32,12 @@
             placeholder="e.g. Ahmed"
             [leadingIcon]="NameIcon"
             [control]="staffForm.controls.lastName"
-            [errorMessages]="{ required: 'Last name is required' }"
+            [errorMessages]="{
+              required: 'Last name is required',
+              minlength: 'Last name must be at least 2 characters',
+              maxlength: 'Last name must not exceed 50 characters',
+              pattern: 'Last name may only contain letters, spaces, hyphens, and apostrophes',
+            }"
           />
         </div>
       </div>
@@ -38,7 +48,13 @@
         placeholder="e.g. mohamed.ahmed"
         [leadingIcon]="UsernameIcon"
         [control]="staffForm.controls.username"
-        [errorMessages]="{ required: 'Username is required' }"
+        [errorMessages]="{
+          required: 'Username is required',
+          minlength: 'Username must be at least 3 characters',
+          maxlength: 'Username must not exceed 30 characters',
+          pattern:
+            'Username must start with a lowercase letter and contain only lowercase letters, digits, dots, underscores, or hyphens (no consecutive or trailing separators)',
+        }"
       />
     </div>
     <div class="input-groups">
@@ -49,7 +65,10 @@
             placeholder="e.g. mohamed.ahmed@gmail.com"
             [leadingIcon]="EmailIcon"
             [control]="staffForm.controls.email"
-            [errorMessages]="{ required: 'Email is required' }"
+            [errorMessages]="{
+              required: 'Email is required',
+              pattern: 'Email must be a valid address',
+            }"
           />
         </div>
         <div class="input-group">
@@ -155,6 +174,10 @@
         </div>
         <div class="input-group">
           <time-picker [formControl]="staffForm.controls.workingHourEnd" placeholder="End time" />
+          <field-error
+            [control]="staffForm.controls.workingHourEnd"
+            [messages]="{ sameAsStart: 'End time must be different from start time' }"
+          />
         </div>
       </div>
     </div>
@@ -166,7 +189,7 @@
         ngpButton
         class="btn-primary"
         (click)="saveMember()"
-        [disabled]="staffForm.invalid || loading()"
+        [disabled]="staffForm.invalid || saving()"
       >
         {{ isEdit() ? 'Save Changes' : 'Add staff member' }}
       </button>
