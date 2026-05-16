@@ -2,7 +2,6 @@ import {
   afterNextRender,
   Component,
   computed,
-  DestroyRef,
   effect,
   ElementRef,
   inject,
@@ -14,7 +13,7 @@ import {
 import { NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   LucideAngularModule,
   Settings,
@@ -90,7 +89,6 @@ export class HallConfigModalComponent {
   // Dependencies
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly layoutEditor = viewChild.required(HallLayoutEditorComponent);
   private readonly discardTrigger = viewChild<ElementRef>('discardTrigger');
 
@@ -137,7 +135,7 @@ export class HallConfigModalComponent {
   protected readonly saving = signal(false);
   private readonly layoutBaseline = signal<LayoutBaseline | null>(null);
   protected readonly loadingHall = signal(false);
-  protected readonly hasUnsavedChanges = signal(false);
+  private readonly initialSnapshot = signal<string | null>(null);
   protected readonly selectedHallType = signal<HallType | null>(null);
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems[0]);
   private readonly onSiteOnlyPreference = signal(false);
@@ -203,6 +201,23 @@ export class HallConfigModalComponent {
   protected readonly statusEntry = computed(
     () => this.hallStatusEntries().find((e) => e[0] === this.statusValue()) ?? null,
   );
+  private readonly currentFormValue = toSignal(this.hallForm.valueChanges, {
+    initialValue: this.hallForm.getRawValue(),
+  });
+  protected readonly hasChanges = computed(() => {
+    const snapshot = this.initialSnapshot();
+    if (snapshot === null) return true;
+    this.currentFormValue();
+    this.layoutEditor().seatLayout();
+    return this.serializeState() !== snapshot;
+  });
+
+  private serializeState(): string {
+    return JSON.stringify({
+      form: this.hallForm.getRawValue(),
+      grid: this.layoutEditor().seatLayout(),
+    });
+  }
 
   // Select config functions
   protected readonly statusDisplayFn = (entry: [HallStatus, string]) => entry[1];
@@ -244,12 +259,6 @@ export class HallConfigModalComponent {
       }
     });
 
-    this.hallForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      if (this.isEditMode()) {
-        this.hasUnsavedChanges.set(true);
-      }
-    });
-
     afterNextRender(() => {
       this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
 
@@ -284,7 +293,7 @@ export class HallConfigModalComponent {
       supports3D: detail.supports3D,
     });
     this.applyLayoutData(detail);
-    this.hasUnsavedChanges.set(false);
+    this.initialSnapshot.set(this.serializeState());
   }
 
   protected onStatusChange(entry: [HallStatus, string]) {
@@ -309,14 +318,8 @@ export class HallConfigModalComponent {
     this.onSiteOnlyPreference.set(value);
   }
 
-  protected onLayoutChange() {
-    if (this.isEditMode()) {
-      this.hasUnsavedChanges.set(true);
-    }
-  }
-
   protected toggleEditMode() {
-    if (this.isEditMode() && this.hasUnsavedChanges()) {
+    if (this.isEditMode() && this.hasChanges()) {
       this.discardTrigger()?.nativeElement.click();
       return;
     }

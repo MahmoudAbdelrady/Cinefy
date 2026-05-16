@@ -273,7 +273,6 @@
           [numRows]="numRowsValue() ?? 10"
           [seatsPerRow]="seatsPerRowValue() ?? 12"
           [disabled]="isViewMode()"
-          (seatChanged)="onLayoutChange()"
           (layoutReset)="onResetLayout()"
         />
       </div>
@@ -287,7 +286,7 @@
           ngpButton
           class="btn-primary"
           (click)="saveHall()"
-          [disabled]="hallForm.invalid || saving()"
+          [disabled]="hallForm.invalid || !hasChanges() || saving()"
         >
           @if (saving()) {
             <loading-spinner [strokeWidth]="2" />
