@@ -33,6 +33,11 @@
   color: $gray-500;
 }
 
+.spcc-loading {
+  @include flex-center;
+  min-height: 100px;
+}
+
 .spcc-bars {
   display: flex;
   width: 100%;

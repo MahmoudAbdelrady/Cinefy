@@ -2,34 +2,40 @@
   <div class="spcc-header">
     <p class="spcc-eyebrow">Position Coverage</p>
     <p class="spcc-subtitle">
-      How the {{ positionCoverageItems.total }}-person roster splits across roles
+      How the {{ positionCoverageItems()?.total ?? 0 }}-person roster splits across roles
     </p>
   </div>
 
-  @if (positionCoverageItems.total === 0) {
-    <div class="spcc-empty">No staff members yet.</div>
-  } @else {
-    <div class="spcc-bars">
-      @for (posItem of positionCoverageItems.positions; track $index) {
-        @if (posItem.count > 0) {
-          <div
-            class="spcc-bar"
-            [attr.data-position]="posItem.position"
-            [style.width.%]="(posItem.count / positionCoverageItems.total) * 100"
-          ></div>
+  @if (loading()) {
+    <div class="spcc-loading">
+      <loading-spinner />
+    </div>
+  } @else if (positionCoverageItems(); as coverage) {
+    @if (coverage.total === 0) {
+      <div class="spcc-empty">No staff members yet.</div>
+    } @else {
+      <div class="spcc-bars">
+        @for (posItem of coverage.positions; track $index) {
+          @if (posItem.count > 0) {
+            <div
+              class="spcc-bar"
+              [attr.data-position]="posItem.position"
+              [style.width.%]="(posItem.count / coverage.total) * 100"
+            ></div>
+          }
         }
-      }
-    </div>
+      </div>
 
-    <div class="spcc-position-items">
-      @for (posItem of positionCoverageItems.positions; track $index) {
-        <div class="spcc-item" [attr.data-position]="posItem.position">
-          <span class="spcc-dot"></span>
-          <span class="pos-name">{{ positionLabels[posItem.position] }}</span>
-          <span class="pos-count">{{ posItem.count }}</span>
-          <span class="pos-percentage">{{ percentage(posItem.count) }}%</span>
-        </div>
-      }
-    </div>
+      <div class="spcc-position-items">
+        @for (posItem of coverage.positions; track $index) {
+          <div class="spcc-item" [attr.data-position]="posItem.position">
+            <span class="spcc-dot"></span>
+            <span class="pos-name">{{ positionLabels[posItem.position] }}</span>
+            <span class="pos-count">{{ posItem.count }}</span>
+            <span class="pos-percentage">{{ percentage(posItem.count) }}%</span>
+          </div>
+        }
+      </div>
+    }
   }
 </div>
