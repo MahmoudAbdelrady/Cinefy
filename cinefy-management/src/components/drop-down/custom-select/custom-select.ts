@@ -34,6 +34,7 @@ export class CustomSelectComponent<T> {
   readonly valueFn = input<(item: T) => unknown>((item) => item);
   readonly value = input<T | null>(null);
   readonly label = input<string | null>(null);
+  readonly hint = input<string | null>(null);
   readonly required = input(false);
   readonly placeholder = input('Select an option');
   readonly disabled = input(false);

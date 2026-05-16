@@ -36,7 +36,8 @@
     }
   }
 
-  &.cs-error {
+  &.cs-error,
+  &.ps-error {
     border-color: $red-500;
 
     &:focus {

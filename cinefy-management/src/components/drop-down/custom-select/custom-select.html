@@ -65,6 +65,10 @@
   </div>
 </div>
 
+@if (hint(); as hintText) {
+  <p class="cs-hint">{{ hintText }}</p>
+}
+
 @if (control(); as ctrl) {
   @if (ctrl.touched && ctrl.errors) {
     <field-error [control]="ctrl" [messages]="errorMessages()" />
