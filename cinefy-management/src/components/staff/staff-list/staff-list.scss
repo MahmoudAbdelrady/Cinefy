@@ -1,6 +1,7 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
 @use '../../../shared/styles/breakpoints' as *;
+@use '../position-colors' as *;
 
 // ─── Container ──────────────────────────────────────────────────────────────────
 
@@ -154,7 +155,7 @@ pagination-component {
     position: absolute;
     inset: 3px;
     border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    // border: 1px solid rgba(255, 255, 255, 0.15);
     pointer-events: none;
   }
 
@@ -173,26 +174,12 @@ pagination-component {
 
   .si-img-initials {
     position: relative;
+    user-select: none;
   }
 
   // Position-specific gradients (shared mixin) + per-position rings
   @include staff-position-gradients;
-
-  &[data-position='MANAGER']::before {
-    box-shadow: inset 0 0 0 1px rgba(199, 210, 254, 0.7);
-  }
-  &[data-position='CASHIER']::before {
-    box-shadow: inset 0 0 0 1px rgba(167, 243, 208, 0.7);
-  }
-  &[data-position='PROJECTIONIST']::before {
-    box-shadow: inset 0 0 0 1px rgba(253, 230, 138, 0.7);
-  }
-  &[data-position='USHER']::before {
-    box-shadow: inset 0 0 0 1px rgba(254, 205, 211, 0.7);
-  }
-  &[data-position='CONCESSIONS']::before {
-    box-shadow: inset 0 0 0 1px rgba(186, 230, 253, 0.7);
-  }
+  @include staff-position-ring-on-pseudo;
 }
 
 // ─── Name + position chip + contact ─────────────────────────────────────────────
@@ -235,36 +222,8 @@ pagination-component {
     opacity: 0.7;
   }
 
-  // Position-specific soft surface + ink
-  &[data-position='MANAGER'] {
-    background-color: #eef2ff; // indigo-50
-    border-color: #c7d2fe; // indigo-200
-    color: #4338ca; // indigo-700
-  }
-
-  &[data-position='CASHIER'] {
-    background-color: #ecfdf5; // emerald-50
-    border-color: #a7f3d0; // emerald-200
-    color: #047857; // emerald-700
-  }
-
-  &[data-position='PROJECTIONIST'] {
-    background-color: $amber-50;
-    border-color: $amber-200;
-    color: $amber-700;
-  }
-
-  &[data-position='USHER'] {
-    background-color: #fff1f2; // rose-50
-    border-color: #fecdd3; // rose-200
-    color: #be123c; // rose-700
-  }
-
-  &[data-position='CONCESSIONS'] {
-    background-color: #f0f9ff; // sky-50
-    border-color: #bae6fd; // sky-200
-    color: #0369a1; // sky-700
-  }
+  // Position-specific soft surface + ink (shared palette)
+  @include staff-position-chip-colors;
 }
 
 .sid-contact {
