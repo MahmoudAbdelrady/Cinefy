@@ -1,5 +1,8 @@
 package com.mdevs.cinefy.service;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import com.mdevs.cinefy.dto.staff.PositionCoverageDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageItemDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageProjection;
@@ -33,6 +36,8 @@ public class StaffMemberService {
     private final StaffMemberRepository staffMemberRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
     // ========================= Public API =========================
 
@@ -112,6 +117,7 @@ public class StaffMemberService {
         if (dto.getWorkingHourStart().equals(dto.getWorkingHourEnd())) {
             throw new BusinessException("Working hour end must be different from working hour start");
         }
+        validatePhoneNumber(normalizedPhoneNumber);
         boolean usernameExists = excludeId == null
                 ? staffMemberRepository.existsByUsername(dto.getUsername())
                 : staffMemberRepository.existsByUsernameAndIdNot(dto.getUsername(), excludeId);
@@ -129,6 +135,18 @@ public class StaffMemberService {
                 : staffMemberRepository.existsByPhoneNumberAndIdNot(normalizedPhoneNumber, excludeId);
         if (phoneNumberExists) {
             throw new BusinessException("Phone number already in use");
+        }
+    }
+
+    private void validatePhoneNumber(String normalizedPhoneNumber) {
+        PhoneNumber parsed;
+        try {
+            parsed = PHONE_NUMBER_UTIL.parse("+" + normalizedPhoneNumber, null);
+        } catch (NumberParseException ex) {
+            throw new BusinessException("Invalid phone number");
+        }
+        if (!PHONE_NUMBER_UTIL.isValidNumber(parsed)) {
+            throw new BusinessException("Invalid phone number");
         }
     }
 
