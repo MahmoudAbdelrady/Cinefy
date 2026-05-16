@@ -150,7 +150,7 @@ pagination-component {
     pointer-events: none;
   }
 
-  // Inner soft inset border (mirrors `inset-[3px] rounded-[14px] border border-white/15`)
+  // Inner soft inset (mirrors `inset-[3px] rounded-[14px]`)
   .si-img-ink {
     position: absolute;
     inset: 3px;
