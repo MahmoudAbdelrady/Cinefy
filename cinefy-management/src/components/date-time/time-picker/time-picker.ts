@@ -41,6 +41,7 @@ export class TimePicker implements ControlValueAccessor {
   readonly disabled = input<boolean>(false);
   readonly minuteStep = input<number>(1);
   readonly container = input<string | HTMLElement | null>(null);
+  readonly size = input<'sm' | 'md'>('md');
 
   protected readonly hour24 = signal<number | null>(null);
   protected readonly minute = signal<number | null>(null);

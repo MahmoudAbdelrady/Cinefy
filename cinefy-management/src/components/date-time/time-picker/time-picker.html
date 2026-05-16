@@ -8,6 +8,7 @@
   [ngpPopoverTriggerOffset]="6"
   [disabled]="isDisabled() || disabled()"
   [attr.data-empty]="displayLabel() ? null : ''"
+  [attr.data-size]="size()"
 >
   <lucide-icon [img]="ClockIcon" [size]="16"></lucide-icon>
   <span class="tp-trigger-label">
