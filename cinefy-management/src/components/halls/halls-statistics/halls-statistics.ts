@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Eye, LayoutDashboard, TrendingUp, Users } from 'lucide-angular';
@@ -32,18 +32,20 @@ export class HallsStatisticsComponent {
   });
 
   constructor() {
-    this.hallsService
-      .getHallsStatistics()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (stats) => {
-          this.statistics.set(stats);
-          this.loading.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.loading.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load statistics');
-        },
-      });
+    afterNextRender(() => {
+      this.hallsService
+        .getHallsStatistics()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (stats) => {
+            this.statistics.set(stats);
+            this.loading.set(false);
+          },
+          error: (err: HttpErrorResponse) => {
+            this.loading.set(false);
+            this.toastService.error(err.error?.message ?? 'Failed to load statistics');
+          },
+        });
+    });
   }
 }

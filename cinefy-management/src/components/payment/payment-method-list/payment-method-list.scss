@@ -722,3 +722,9 @@
   grid-column: 1 / -1;
   @include empty-state-block;
 }
+
+.pm-loading {
+  grid-column: 1 / -1;
+  @include flex-center;
+  min-height: 100px;
+}

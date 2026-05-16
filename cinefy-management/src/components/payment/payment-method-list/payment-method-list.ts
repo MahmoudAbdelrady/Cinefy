@@ -1,5 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, DestroyRef, inject, signal, WritableSignal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -77,16 +84,28 @@ export class PaymentMethodListComponent {
   protected readonly typeLabels = PAYMENT_METHOD_TYPE_LABELS;
   protected readonly statusLabels = PAYMENT_METHOD_STATUS_LABELS;
 
+  protected readonly loading = signal(true);
   protected readonly paymentMethods = signal<PaymentMethodSummary[]>([]);
   protected readonly deletingMethodIds = signal<ReadonlySet<string>>(new Set());
   protected readonly testingMethodIds = signal<ReadonlySet<string>>(new Set());
   protected readonly updatingStatusMethodIds = signal<ReadonlySet<string>>(new Set());
 
   constructor() {
-    this.paymentMethodService
-      .getPaymentMethods()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((methods) => this.paymentMethods.set(methods));
+    afterNextRender(() => {
+      this.paymentMethodService
+        .getPaymentMethods()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (methods) => {
+            this.paymentMethods.set(methods);
+            this.loading.set(false);
+          },
+          error: (err: HttpErrorResponse) => {
+            this.loading.set(false);
+            this.toastService.error(err.error?.message ?? 'Failed to load payment methods');
+          },
+        });
+    });
   }
 
   addPaymentMethod(method: PaymentMethodSummary): void {
@@ -94,9 +113,7 @@ export class PaymentMethodListComponent {
   }
 
   updatePaymentMethod(method: PaymentMethodSummary): void {
-    this.paymentMethods.update((methods) =>
-      methods.map((m) => (m.id === method.id ? method : m)),
-    );
+    this.paymentMethods.update((methods) => methods.map((m) => (m.id === method.id ? method : m)));
   }
 
   protected updateStatus(id: string, status: PaymentMethodStatus): void {

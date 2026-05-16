@@ -1,4 +1,13 @@
-import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Calendar, Clock, Film } from 'lucide-angular';
@@ -32,7 +41,7 @@ export class MoviesStatisticsComponent {
   });
 
   constructor() {
-    this.refetchStatistics(true);
+    afterNextRender(() => this.refetchStatistics(true));
 
     effect(() => {
       if (!this.showtimeEvents.created()) return;
