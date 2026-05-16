@@ -109,6 +109,9 @@ public class StaffMemberService {
         if (position.equals(StaffPosition.ADMIN)) { // @ TODO: update the condition to check if the current user isn't admin
             throw new BusinessException("Assigning the admin position is not allowed");
         }
+        if (dto.getWorkingHourStart().equals(dto.getWorkingHourEnd())) {
+            throw new BusinessException("Working hour end must be different from working hour start");
+        }
         boolean usernameExists = excludeId == null
                 ? staffMemberRepository.existsByUsername(dto.getUsername())
                 : staffMemberRepository.existsByUsernameAndIdNot(dto.getUsername(), excludeId);
@@ -133,7 +136,7 @@ public class StaffMemberService {
         try {
             return DayOfWeek.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException ex) {
-            throw new BusinessException("Invalid " + fieldName + ": " + value);
+            throw new BusinessException("Invalid week day for: " + fieldName);
         }
     }
 
@@ -141,7 +144,7 @@ public class StaffMemberService {
         try {
             return LocalTime.parse(value);
         } catch (DateTimeParseException ex) {
-            throw new BusinessException("Invalid " + fieldName + ": " + value);
+            throw new BusinessException("Invalid format for: " + fieldName);
         }
     }
 
