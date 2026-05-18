@@ -172,7 +172,8 @@
       [staffMemberId]="pendingEditId()"
       [selectedStaffMember]="pendingEditMember()"
       [close]="close"
-      (saved)="onStaffMemberSaved($event)"
+      (staffMemberCreated)="onStaffMemberCreated($event)"
+      (staffMemberUpdated)="onStaffMemberUpdated($event)"
     />
   </ng-template>
 </div>

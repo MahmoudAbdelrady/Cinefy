@@ -7,7 +7,11 @@
   </div>
 
   <ng-template #manageStaffDialog let-close="close">
-    <manage-staff-modal [close]="close" (saved)="staffList().onStaffMemberSaved($event)" />
+    <manage-staff-modal
+      [close]="close"
+      (staffMemberCreated)="staffList().onStaffMemberCreated($event)"
+      (staffMemberUpdated)="staffList().onStaffMemberUpdated($event)"
+    />
   </ng-template>
 </ng-template>
 

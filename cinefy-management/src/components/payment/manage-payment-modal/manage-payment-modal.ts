@@ -191,10 +191,10 @@ export class ManagePaymentModalComponent {
         this.saving.set(false);
         if (id) {
           this.paymentMethodUpdated.emit(result);
-          this.toastService.success('Payment method updated successfully');
+          this.toastService.success('Payment method updated');
         } else {
           this.paymentMethodCreated.emit(result);
-          this.toastService.success('Payment method saved successfully');
+          this.toastService.success('Payment method created');
         }
         this.close()();
       },

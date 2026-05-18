@@ -389,10 +389,10 @@ export class HallConfigModalComponent {
         this.saving.set(false);
         if (existing) {
           this.hallUpdated.emit(result);
-          this.toastService.success('Hall updated successfully');
+          this.toastService.success('Hall updated');
         } else {
           this.hallCreated.emit(result);
-          this.toastService.success('Hall created successfully');
+          this.toastService.success('Hall created');
         }
         this.close()();
       },

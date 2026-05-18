@@ -128,7 +128,7 @@ export class PaymentMethodListComponent {
             methods.map((m) => (m.id === id ? { ...m, status } : m)),
           );
           this.clearInFlight(this.updatingStatusMethodIds, id);
-          this.toastService.success(`Updated status successfully`);
+          this.toastService.success('Status updated');
         },
         error: (err: HttpErrorResponse) => {
           this.clearInFlight(this.updatingStatusMethodIds, id);
@@ -181,7 +181,7 @@ export class PaymentMethodListComponent {
         next: () => {
           this.paymentMethods.update((methods) => methods.filter((m) => m.id !== id));
           this.clearInFlight(this.deletingMethodIds, id);
-          this.toastService.success('Payment method deleted successfully');
+          this.toastService.success('Payment method deleted');
           close();
         },
         error: (err: HttpErrorResponse) => {

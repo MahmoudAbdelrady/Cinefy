@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { afterNextRender, Component, inject, input, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import {
@@ -49,7 +49,7 @@ function notBlankValidator(control: AbstractControl): ValidationErrors | null {
   templateUrl: './manage-hall-types-modal.html',
   styleUrl: './manage-hall-types-modal.scss',
 })
-export class ManageHallTypesModalComponent implements OnInit {
+export class ManageHallTypesModalComponent {
   protected readonly EditIcon = SquarePen;
   protected readonly DeleteIcon = Trash2;
   protected readonly CheckIcon = Check;
@@ -86,8 +86,8 @@ export class ManageHallTypesModalComponent implements OnInit {
     notBlank: "Hall Type name can't be empty",
   };
 
-  ngOnInit() {
-    this.loadHallTypes();
+  constructor() {
+    afterNextRender(() => this.loadHallTypes());
   }
 
   private loadHallTypes() {
@@ -175,7 +175,7 @@ export class ManageHallTypesModalComponent implements OnInit {
         this.newTypeControl.reset();
         this.addingType.set(false);
         this.showNewTypeForm.set(false);
-        this.toastService.success('Hall type added');
+        this.toastService.success('Hall type created');
       },
       error: (err: HttpErrorResponse) => {
         this.addingType.set(false);

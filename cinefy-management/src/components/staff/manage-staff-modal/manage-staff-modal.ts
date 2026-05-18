@@ -96,7 +96,8 @@ export class ManageStaffModalComponent {
   readonly close = input.required<() => void>();
   readonly staffMemberId = input<string | null>(null);
   readonly selectedStaffMember = input<StaffMemberDetail | null>(null);
-  readonly saved = output<{ member: StaffMemberSummary; isEdit: boolean }>();
+  readonly staffMemberCreated = output<StaffMemberSummary>();
+  readonly staffMemberUpdated = output<StaffMemberSummary>();
 
   protected readonly resolvedStaffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
@@ -376,11 +377,17 @@ export class ManageStaffModalComponent {
       : this.staffService.createStaffMember(payloadWithPassword);
 
     this.saving.set(true);
+    const isEdit = this.isEdit();
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (member) => {
         this.saving.set(false);
-        this.toastService.success(this.isEdit() ? 'Staff member updated' : 'Staff member added');
-        this.saved.emit({ member, isEdit: this.isEdit() });
+        if (isEdit) {
+          this.staffMemberUpdated.emit(member);
+          this.toastService.success('Staff member updated');
+        } else {
+          this.staffMemberCreated.emit(member);
+          this.toastService.success('Staff member created');
+        }
         this.close()();
       },
       error: (err: HttpErrorResponse) => {

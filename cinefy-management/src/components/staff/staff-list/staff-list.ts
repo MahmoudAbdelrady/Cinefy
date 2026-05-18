@@ -169,28 +169,27 @@ export class StaffListComponent {
     this.dialogManager.open(this.editTemplate() as never);
   }
 
-  onStaffMemberSaved(event: { member: StaffMemberSummary; isEdit: boolean }): void {
-    const { member, isEdit } = event;
+  onStaffMemberUpdated(member: StaffMemberSummary): void {
     const staffPage = this.staffPage();
     if (!staffPage) return;
-
-    if (isEdit) {
-      const index = staffPage.content.findIndex((m) => m.id === member.id);
-      if (index === -1) return;
-      const previous = staffPage.content[index];
-      const content = [...staffPage.content];
-      content[index] = member;
-      this.staffPage.set({ ...staffPage, content });
-      if (previous.position !== member.position) {
-        this.coverageChanged.emit({
-          action: 'reassign',
-          from: previous.position,
-          to: member.position,
-        });
-      }
-      return;
+    const index = staffPage.content.findIndex((m) => m.id === member.id);
+    if (index === -1) return;
+    const previous = staffPage.content[index];
+    const content = [...staffPage.content];
+    content[index] = member;
+    this.staffPage.set({ ...staffPage, content });
+    if (previous.position !== member.position) {
+      this.coverageChanged.emit({
+        action: 'reassign',
+        from: previous.position,
+        to: member.position,
+      });
     }
+  }
 
+  onStaffMemberCreated(member: StaffMemberSummary): void {
+    const staffPage = this.staffPage();
+    if (!staffPage) return;
     const pageIsFull = staffPage.content.length >= staffPage.page.size;
     this.staffPage.set({
       ...staffPage,
