@@ -217,26 +217,6 @@
   gap: 12px;
   padding: 64px 24px;
   color: $gray-400;
-
-  p {
-    font-size: 14px;
-    color: $gray-400;
-  }
-}
-
-.ah-loading-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid $gray-200;
-  border-top-color: $blue-600;
-  border-radius: $radius-pill;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 // ─── Empty State ────────────────────────────────────────────────────────────────

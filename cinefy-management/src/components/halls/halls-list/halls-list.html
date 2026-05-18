@@ -12,8 +12,7 @@
   <div class="ah-items">
     @if (loading()) {
       <div class="ah-loading">
-        <div class="ah-loading-spinner"></div>
-        <p>Loading halls...</p>
+        <loading-spinner [size]="32" [strokeWidth]="3" />
       </div>
     } @else {
       @for (hall of hallPage()?.content ?? []; track hall.id) {
