@@ -4,14 +4,13 @@ import { Loader, LucideAngularModule } from 'lucide-angular';
 @Component({
   selector: 'loading-spinner',
   imports: [LucideAngularModule],
-  template: `<lucide-icon
-    [img]="LoaderIcon"
-    [size]="size()"
-    [strokeWidth]="strokeWidth()"
-  ></lucide-icon>`,
+  template: `<div class="spinner" [style.width.px]="size()" [style.height.px]="size()">
+    <lucide-icon [img]="LoaderIcon" [size]="size()" [strokeWidth]="strokeWidth()"></lucide-icon>
+  </div>`,
   styles: `
-    :host {
-      display: inline-flex;
+    .spinner {
+      display: grid;
+      place-items: center;
       animation: spin 700ms linear infinite;
     }
 
@@ -23,8 +22,8 @@ import { Loader, LucideAngularModule } from 'lucide-angular';
   `,
 })
 export class LoadingSpinnerComponent {
+  protected readonly LoaderIcon = Loader;
+
   readonly size = input(16);
   readonly strokeWidth = input(2.5);
-
-  protected readonly LoaderIcon = Loader;
 }
