@@ -10,7 +10,6 @@
           [control]="searchControl"
           [leadingIcon]="SearchIcon"
           placeholder="Search staff..."
-          size="sm"
         />
       </div>
       <div class="drop-down-filter">
@@ -19,7 +18,6 @@
           [displayFn]="positionDisplayFn"
           [clearable]="true"
           placeholder="All positions"
-          size="sm"
           (selectionChange)="onPositionFilterChange($event)"
           (cleared)="onPositionFilterCleared()"
         />

@@ -50,7 +50,6 @@ export class PaginatedSelectComponent<T> {
   readonly label = input<string | null>(null);
   readonly hint = input<string | null>(null);
   readonly required = input(false);
-  readonly size = input<'sm' | 'md'>('md');
   readonly placeholder = input('Select an option');
   readonly disabled = input(false);
   readonly clearable = input(false);

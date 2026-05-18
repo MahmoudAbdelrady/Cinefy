@@ -22,7 +22,6 @@ export class InputField {
   readonly hint = input<string | null>(null);
   readonly leadingIcon = input<LucideIconData | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
-  readonly size = input<'sm' | 'md'>('md');
   readonly monospace = input<boolean>(false);
 
   protected readonly showPassword = signal(false);

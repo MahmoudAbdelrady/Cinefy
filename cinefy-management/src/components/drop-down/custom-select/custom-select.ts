@@ -45,7 +45,6 @@ export class CustomSelectComponent<T> {
   readonly errorMessages = input<Record<string, string>>({});
   readonly compareWith = input<(a: T, b: T) => boolean>(Object.is);
   readonly container = input<string | HTMLElement | null>(null);
-  readonly size = input<'sm' | 'md'>('md');
   readonly dropdownWidth = input<'matchTrigger' | 'matchContent'>('matchTrigger');
 
   readonly selectionChange = output<T>();

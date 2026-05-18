@@ -52,7 +52,6 @@ export class DatePicker implements ControlValueAccessor {
   readonly max = input<Date | undefined>(undefined);
   readonly disabled = input<boolean>(false);
   readonly container = input<string | HTMLElement | null>(null);
-  readonly size = input<'sm' | 'md'>('md');
 
   protected readonly value = signal<Date | undefined>(undefined);
   protected readonly isDisabled = signal(false);

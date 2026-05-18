@@ -4,12 +4,12 @@
 @mixin select-trigger {
   position: relative;
   width: 100%;
-  padding: 8px 36px 8px 16px;
+  padding: 12px 36px 12px 16px;
   font: inherit;
   font-size: 14px;
   text-align: left;
   border: 1px solid $gray-300;
-  border-radius: $radius-md;
+  border-radius: $radius-lg;
   color: $gray-900;
   background-color: #ffffff;
   cursor: pointer;
