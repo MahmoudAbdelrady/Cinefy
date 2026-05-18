@@ -1,9 +1,9 @@
 @use '../select' as *;
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
 
 custom-select {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 8px;
 
   .cs-label {

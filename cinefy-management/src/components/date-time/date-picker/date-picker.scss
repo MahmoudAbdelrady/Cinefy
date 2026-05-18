@@ -1,4 +1,5 @@
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
 @use '../../../shared/styles/mixins' as *;
 
 :host {
@@ -45,7 +46,7 @@
   &[data-focus-visible] {
     outline: none;
     border-color: transparent;
-    box-shadow: 0 0 0 2px $blue-500;
+    box-shadow: $shadow-focus-ring;
   }
 
   &:disabled {
@@ -63,9 +64,7 @@
   background: #ffffff;
   border: 1px solid $gray-200;
   border-radius: $radius-lg;
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  box-shadow: $shadow-lg;
 
   &[data-enter] {
     animation: dp-fade-in 150ms ease-out;
@@ -113,8 +112,7 @@
 }
 
 .dp-grid {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 4px;
 }
 
@@ -135,8 +133,7 @@
 }
 
 .dp-weeks {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 2px;
 }
 

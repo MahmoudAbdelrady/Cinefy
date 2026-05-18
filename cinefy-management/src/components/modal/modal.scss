@@ -19,8 +19,7 @@
 }
 
 .modal-panel {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   width: 100%;
   max-width: var(--modal-max-width, 960px);
   max-height: 90vh;

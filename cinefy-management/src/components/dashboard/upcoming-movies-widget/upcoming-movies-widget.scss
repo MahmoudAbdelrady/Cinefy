@@ -1,4 +1,5 @@
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
 @use '../../../shared/styles/mixins' as *;
 
 :host {
@@ -68,7 +69,7 @@
   border-radius: $radius-md;
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: $shadow-sm;
 
   img {
     width: 100%;

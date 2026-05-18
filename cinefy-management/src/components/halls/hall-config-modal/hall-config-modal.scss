@@ -1,4 +1,5 @@
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
 @use '../../../shared/styles/mixins' as *;
 @use '../../../shared/styles/breakpoints' as *;
 
@@ -23,8 +24,7 @@
 // ─── Hall Information ───────────────────────────────────────────────────────────
 
 .hall-information {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 24px;
   max-height: 65vh;
   overflow-y: auto;
@@ -58,14 +58,12 @@
 }
 
 .hi-form {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 16px;
 }
 
 .input-group {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
 }
 
 .number-input-group {
@@ -121,7 +119,7 @@
     height: 20px;
     border-radius: $radius-full;
     background-color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-sm;
     transition: transform 200ms ease;
     transform: translateX(2px);
   }
@@ -139,14 +137,12 @@
 // ─── Seat Categories ────────────────────────────────────────────────────────────
 
 .seats-configuration {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 24px;
 }
 
 .seat-categories {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
 }
 
 .sc-header {
@@ -164,14 +160,12 @@
 }
 
 .sc-content {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 12px;
 }
 
 .sc-type-items {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 12px;
 }
 
@@ -185,7 +179,7 @@
   cursor: pointer;
 
   &:hover {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-sm;
   }
 
   .sti-item-icon {
@@ -232,7 +226,7 @@
   &.selected {
     background-color: $blue-100;
     border-color: $blue-500;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-sm;
   }
 
   &:nth-child(2) {
@@ -246,7 +240,7 @@
     &.selected {
       background-color: $purple-100;
       border-color: $purple-500;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: $shadow-sm;
     }
 
     .sti-item-selected {
@@ -265,7 +259,7 @@
     &.selected {
       background-color: $gray-200;
       border-color: $gray-500;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: $shadow-sm;
     }
 
     .sti-item-selected {
@@ -369,8 +363,7 @@
 // ─── Ticket Pricing ─────────────────────────────────────────────────────────────
 
 .ticket-pricing {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
 }
 
 .tp-header {
@@ -394,14 +387,12 @@
 }
 
 .tp-content {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 12px;
 }
 
 .tp-input-group {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
 
   .tpi-label {
     @include flex-align;

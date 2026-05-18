@@ -154,14 +154,12 @@
 // ─── Body ───────────────────────────────────────────────────────────────────────
 
 .staff-details-container {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 20px;
 }
 
 .sdc-section {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 12px;
 }
 
@@ -210,8 +208,7 @@
 }
 
 .sdcs-item-info {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 2px;
   min-width: 0;
 

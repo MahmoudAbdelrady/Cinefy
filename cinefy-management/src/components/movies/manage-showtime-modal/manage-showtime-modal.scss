@@ -1,4 +1,5 @@
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
 @use '../../../shared/styles/mixins' as *;
 @use '../../../shared/styles/breakpoints' as *;
 
@@ -10,8 +11,7 @@
 }
 
 .manage-showtime-container {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 24px;
 }
 
@@ -37,7 +37,7 @@
     overflow: hidden;
     flex-shrink: 0;
     background: $gray-100;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: $shadow-xs;
 
     img {
       width: 100%;
@@ -146,8 +146,7 @@
 }
 
 .manager-showtime-form {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 24px;
 }
 
@@ -194,7 +193,7 @@
     height: 20px;
     border-radius: $radius-full;
     background-color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-sm;
     transition: transform 200ms ease;
     transform: translateX(2px);
   }
@@ -220,8 +219,7 @@
 }
 
 .input-group {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
 
   > label,
   > span {
@@ -258,7 +256,7 @@
     &:focus {
       outline: none;
       border-color: transparent;
-      box-shadow: 0 0 0 2px $blue-500;
+      box-shadow: $shadow-focus-ring;
     }
   }
 }

@@ -1,4 +1,5 @@
 @use '../../shared/styles/colors' as *;
+@use '../../shared/styles/shadows' as *;
 @use '../../shared/styles/mixins' as *;
 
 .stepper-container {
@@ -14,8 +15,7 @@
   background: linear-gradient(to bottom, $gray-50, #ffffff);
   padding: 24px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 32px;
 
   @media (max-width: 1023px) {
@@ -39,8 +39,7 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
 }
 
 .scs-item {
@@ -121,7 +120,7 @@
       background: #10b981;
       border-color: #10b981;
       color: #ffffff;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      box-shadow: $shadow-xs;
     }
 
     .sci-info h5 {

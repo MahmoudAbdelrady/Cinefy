@@ -1,4 +1,5 @@
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
 @use '../../../shared/styles/mixins' as *;
 @use '../../../shared/styles/breakpoints' as *;
 
@@ -25,8 +26,7 @@
 }
 
 .input-group {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 8px;
 
   > label {
@@ -47,8 +47,7 @@
 }
 
 .input-groups {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 8px;
 
   > label {
@@ -157,12 +156,12 @@
     border-color: $blue-500;
     background-color: $blue-50;
     color: $blue-800;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: $shadow-xs;
   }
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px $blue-500;
+    box-shadow: $shadow-focus-ring;
   }
 }
 
