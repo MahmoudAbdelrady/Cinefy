@@ -122,7 +122,6 @@
         label="Position"
         [items]="staffPositions"
         [displayFn]="positionDisplayFn"
-        [value]="staffForm.controls.position.value"
         [control]="staffForm.controls.position"
         [errorMessages]="{ required: 'Position is required' }"
         [clearable]="true"
@@ -155,7 +154,6 @@
           <custom-select
             [items]="weekDays"
             [displayFn]="weekDayDisplayFn"
-            [value]="staffForm.controls.workingDayStart.value"
             [control]="staffForm.controls.workingDayStart"
             [errorMessages]="{ required: 'Start day is required' }"
             [clearable]="true"
@@ -170,7 +168,6 @@
           <custom-select
             [items]="weekDays"
             [displayFn]="weekDayDisplayFn"
-            [value]="staffForm.controls.workingDayEnd.value"
             [control]="staffForm.controls.workingDayEnd"
             [errorMessages]="{ required: 'End day is required' }"
             [clearable]="true"

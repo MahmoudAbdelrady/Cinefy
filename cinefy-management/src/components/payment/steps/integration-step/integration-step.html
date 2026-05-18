@@ -29,10 +29,10 @@
         label="Currency"
         [required]="true"
         [items]="currencyOptions"
-        [value]="form().controls.currency.value"
+        [control]="form().controls.currency"
         [displayFn]="currencyDisplayFn"
         placeholder="Select a currency"
-        [isError]="form().controls.currency.touched && form().controls.currency.invalid"
+        [errorMessages]="{ required: 'Currency is required' }"
         (selectionChange)="onCurrencyChange($event)"
       />
       <help-hint title="Match it to the channel">

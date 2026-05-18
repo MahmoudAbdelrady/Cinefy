@@ -1,4 +1,15 @@
-import { Component, computed, input, output, signal, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  ViewEncapsulation,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { LucideAngularModule, ChevronDown, X } from 'lucide-angular';
 import {
@@ -28,6 +39,8 @@ import { FieldErrorComponent } from '../../field-error/field-error';
   encapsulation: ViewEncapsulation.None,
 })
 export class CustomSelectComponent<T> {
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly items = input.required<T[]>();
   readonly displayFn = input.required<(item: T) => string>();
   readonly triggerDisplayFn = input<((item: T) => string) | null>(null);
@@ -58,9 +71,35 @@ export class CustomSelectComponent<T> {
   protected readonly searchTerm = signal('');
   private readonly wasCleared = signal(false);
 
+  private readonly controlValue = signal<unknown>(null);
+
+  constructor() {
+    effect((onCleanup) => {
+      const ctrl = this.control();
+      if (!ctrl) {
+        this.controlValue.set(null);
+        return;
+      }
+      this.controlValue.set(ctrl.value);
+      const sub = ctrl.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((v) => this.controlValue.set(v));
+      onCleanup(() => sub.unsubscribe());
+    });
+  }
+
+  private readonly itemFromControl = computed<T | null>(() => {
+    if (!this.control()) return null;
+    const formValue = this.controlValue();
+    if (formValue == null) return null;
+    const valueFn = this.valueFn();
+    const compareWith = this.compareWith();
+    return this.items().find((item) => compareWith(valueFn(item) as T, formValue as T)) ?? null;
+  });
+
   protected readonly displayValue = computed(() => {
     if (this.wasCleared()) return null;
-    const item = this.value() ?? this.selectedItem();
+    const item = this.value() ?? this.selectedItem() ?? this.itemFromControl();
     if (!item) return null;
     const trigger = this.triggerDisplayFn();
     return (trigger ?? this.displayFn())(item);
@@ -68,7 +107,7 @@ export class CustomSelectComponent<T> {
 
   protected readonly currentValue = computed<T | null>(() => {
     if (this.wasCleared()) return null;
-    return this.value() ?? this.selectedItem();
+    return this.value() ?? this.selectedItem() ?? this.itemFromControl();
   });
 
   protected readonly filteredItems = computed(() => {
