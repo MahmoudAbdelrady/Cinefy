@@ -9,7 +9,7 @@
       <h3>Existing Types</h3>
       @if (loadingTypes()) {
         <div class="loading-types">
-          <loading-spinner [size]="28" [strokeWidth]="2.5" />
+          <loading-spinner variant="lg" />
         </div>
       } @else {
         <div class="existing-types-list">
@@ -87,7 +87,7 @@
                           (click)="$event.stopPropagation(); deleteType(type); deleteTrigger.hide()"
                         >
                           @if (deletingTypeId() === type.id) {
-                            <loading-spinner [size]="14" />
+                            <loading-spinner variant="xs" />
                           } @else {
                             Delete
                           }

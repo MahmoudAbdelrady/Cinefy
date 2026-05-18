@@ -8,7 +8,7 @@
 
   @if (loading()) {
     <div class="spcc-loading">
-      <loading-spinner />
+      <loading-spinner variant="md" />
     </div>
   } @else if (positionCoverageItems(); as coverage) {
     @if (coverage.total === 0) {

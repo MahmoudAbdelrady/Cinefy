@@ -12,7 +12,7 @@
   <div class="ah-items">
     @if (loading()) {
       <div class="ah-loading">
-        <loading-spinner [size]="32" [strokeWidth]="3" />
+        <loading-spinner variant="xl" />
       </div>
     } @else {
       @for (hall of hallPage()?.content ?? []; track hall.id) {
@@ -97,7 +97,7 @@
                     (click)="deleteHall(hall, close)"
                   >
                     @if (deletingHallId() === hall.id) {
-                      <loading-spinner />
+                      <loading-spinner variant="sm" />
                     } @else {
                       <span>Delete Hall</span>
                     }

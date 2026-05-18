@@ -22,7 +22,7 @@
     </div>
   } @else if (loading()) {
     <div class="search-loading">
-      <loading-spinner [size]="24" [strokeWidth]="2" />
+      <loading-spinner variant="md" />
     </div>
   } @else if (movies().length > 0) {
     <div class="search-count">{{ movies().length }} movies found</div>
@@ -66,7 +66,7 @@
         (click)="loadMore()"
       >
         @if (loadingMore()) {
-          <loading-spinner [size]="16" [strokeWidth]="2" />
+          <loading-spinner variant="sm" />
           <span>Loading...</span>
         } @else {
           <span>Load more</span>

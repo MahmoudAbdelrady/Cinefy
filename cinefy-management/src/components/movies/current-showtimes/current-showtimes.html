@@ -6,7 +6,7 @@
   <div class="content">
     @if (loading()) {
       <div class="cs-loading">
-        <loading-spinner [size]="24" [strokeWidth]="2" />
+        <loading-spinner variant="md" />
       </div>
     } @else {
       @for (item of moviesWithShowtimes(); track item.movieDetails.id) {
@@ -55,7 +55,7 @@
                 [disabled]="deletingShowtimeIds().has(shMovie.id)"
               >
                 @if (deletingShowtimeIds().has(shMovie.id)) {
-                  <loading-spinner [size]="18" [strokeWidth]="2.5" />
+                  <loading-spinner variant="sm" />
                 } @else {
                   <lucide-icon [img]="DeleteIcon" [size]="18"></lucide-icon>
                 }
@@ -139,7 +139,7 @@
                   (click)="deleteShowtime(shMovie.id, close)"
                 >
                   @if (deletingShowtimeIds().has(shMovie.id)) {
-                    <loading-spinner />
+                    <loading-spinner variant="sm" />
                   } @else {
                     <span>Delete All</span>
                   }

@@ -54,7 +54,7 @@
         (click)="isLastStep ? save() : goToNextStep()"
       >
         @if (saving()) {
-          <loading-spinner [size]="16" />
+          <loading-spinner variant="sm" />
           <span>Saving…</span>
         } @else {
           <span>{{

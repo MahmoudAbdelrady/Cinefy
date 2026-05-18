@@ -27,7 +27,7 @@
   <div class="sl-items">
     @if (loading()) {
       <div class="sl-loading">
-        <loading-spinner />
+        <loading-spinner variant="md" />
       </div>
     } @else {
       @for (member of staffMembers(); track member.id) {

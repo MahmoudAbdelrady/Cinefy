@@ -11,7 +11,7 @@
   <div class="content">
     @if (loading()) {
       <div class="um-loading">
-        <loading-spinner [size]="24" [strokeWidth]="2" />
+        <loading-spinner variant="md" />
       </div>
     } @else {
       @for (upcomingMovie of movies(); track upcomingMovie.id) {

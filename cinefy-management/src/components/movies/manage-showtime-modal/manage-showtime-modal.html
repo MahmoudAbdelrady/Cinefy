@@ -129,7 +129,7 @@
         (click)="onSubmit()"
       >
         @if (submitting()) {
-          <loading-spinner [size]="16" [strokeWidth]="2.5" />
+          <loading-spinner variant="sm" />
         } @else {
           {{ submitLabel() }}
         }
