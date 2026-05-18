@@ -68,17 +68,41 @@ export class TimePicker {
     return c.hasValidator(Validators.required) && c.enabled;
   }
 
-  protected setHour12(input: string | number) {
-    const raw = Number(input);
-    if (!Number.isFinite(raw)) return;
-    const h12 = Math.max(1, Math.min(12, Math.round(raw)));
+  protected onHourInput(event: Event) {
+    const el = event.target as HTMLInputElement;
+    const digits = el.value.replace(/\D/g, '').slice(0, 2);
+    if (el.value !== digits) {
+      el.value = digits;
+    }
+  }
+
+  protected onHourBlur(event: Event) {
+    const el = event.target as HTMLInputElement;
+    const digits = el.value.replace(/\D/g, '');
+    if (!digits) {
+      el.value = this.hour12().toString().padStart(2, '0');
+      return;
+    }
+    const h12 = Math.max(1, Math.min(12, Number(digits)));
     this.commit(this.to24(h12, this.period()), this.parts().minute);
   }
 
-  protected setMinute(input: string | number) {
-    const raw = Number(input);
-    if (!Number.isFinite(raw)) return;
-    const minute = Math.max(0, Math.min(59, Math.round(raw)));
+  protected onMinuteInput(event: Event) {
+    const el = event.target as HTMLInputElement;
+    const digits = el.value.replace(/\D/g, '').slice(0, 2);
+    if (el.value !== digits) {
+      el.value = digits;
+    }
+  }
+
+  protected onMinuteBlur(event: Event) {
+    const el = event.target as HTMLInputElement;
+    const digits = el.value.replace(/\D/g, '');
+    if (!digits) {
+      el.value = this.parts().minute.toString().padStart(2, '0');
+      return;
+    }
+    const minute = Math.max(0, Math.min(59, Number(digits)));
     this.commit(this.parts().hour24, minute);
   }
 

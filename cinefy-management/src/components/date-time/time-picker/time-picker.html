@@ -22,13 +22,14 @@
             <lucide-icon [img]="ChevronUpIcon" [size]="14"></lucide-icon>
           </button>
           <input
-            type="number"
+            type="text"
             class="tp-field-input"
             inputmode="numeric"
-            min="1"
-            max="12"
-            [value]="hour12()"
-            (input)="setHour12($any($event.target).value)"
+            maxlength="2"
+            [value]="hour12().toString().padStart(2, '0')"
+            (input)="onHourInput($event)"
+            (blur)="onHourBlur($event)"
+            (keydown.enter)="$event.target.blur()"
           />
           <button type="button" ngpButton class="tp-step" (click)="stepHour(-1)">
             <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
@@ -42,13 +43,14 @@
             <lucide-icon [img]="ChevronUpIcon" [size]="14"></lucide-icon>
           </button>
           <input
-            type="number"
+            type="text"
             class="tp-field-input"
             inputmode="numeric"
-            min="0"
-            max="59"
+            maxlength="2"
             [value]="parts().minute.toString().padStart(2, '0')"
-            (input)="setMinute($any($event.target).value)"
+            (input)="onMinuteInput($event)"
+            (blur)="onMinuteBlur($event)"
+            (keydown.enter)="$event.target.blur()"
           />
           <button type="button" ngpButton class="tp-step" (click)="stepMinute(-1)">
             <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
