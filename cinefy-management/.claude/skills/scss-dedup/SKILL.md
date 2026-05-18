@@ -1,20 +1,19 @@
 ---
-description: Scan SCSS files in src/ for repeated raw values and extract them into shared variables/mixins
-alwaysApply: false
+name: scss-dedup
+description: Scans SCSS files under src/ for repeated raw values (colors, radii, layout patterns, property clusters) and extracts them into shared variables/mixins in src/shared/styles/. Only invoke when the user explicitly asks to dedupe, audit, or extract repeated SCSS values.
+disable-model-invocation: false
 ---
-
-## SCSS Deduplication Rules
 
 When triggered, scan all `.scss` files under `src/` to find repeated raw values that should be extracted into `src/shared/styles/`.
 
-### What to scan for
+## What to scan for
 
 1. **Colors** — Raw hex values (e.g. `#111827`, `#2563eb`) and `rgba(...)` expressions that appear **3 or more times** across different files.
 2. **Border radii** — Repeated `border-radius` values (e.g. `12px`, `8px`) that appear **3 or more times**.
 3. **Layout patterns** — Identical multi-property blocks (e.g. `display: flex; align-items: center; justify-content: center`) that appear **3 or more times**.
 4. **Other repeated property groups** — Any cluster of 2+ properties that appears verbatim in 3+ places (e.g. `white-space: nowrap; overflow: hidden; text-overflow: ellipsis`).
 
-### Process
+## Process
 
 1. **Search** — Use grep/ripgrep across `src/**/*.scss` to count occurrences of each raw value or pattern.
 2. **Check existing tokens** — Read `src/shared/styles/_colors.scss` and `src/shared/styles/_mixins.scss` (and any other partials in that folder) to see if a matching variable or mixin already exists.
@@ -24,7 +23,7 @@ When triggered, scan all `.scss` files under `src/` to find repeated raw values 
    - Update **every** `.scss` file that uses the raw value to import and use the new token instead.
 5. **Verify** — Confirm there are no lint errors and the build compiles successfully after all replacements.
 
-### Rules
+## Rules
 
 - Never create a variable/mixin for a value that only appears once or twice — leave those inline.
 - Follow existing naming conventions in the shared partials (e.g. `$gray-900`, `$blue-600`, `$radius-lg`, `@include flex-align`).
