@@ -51,7 +51,7 @@
         <div class="input-group">
           <input-field
             label="Hall Name"
-            size="sm"
+            size="md"
             placeholder="e.g. Hall 1, VIP Hall, IMAX"
             [control]="hallForm.controls.name"
             [errorMessages]="{ required: 'Hall name is required' }"
@@ -62,7 +62,7 @@
             <input-field
               label="Number of Rows"
               type="number"
-              size="sm"
+              size="md"
               placeholder="e.g. 10"
               [control]="hallForm.controls.numberOfRows"
               [errorMessages]="{
@@ -76,7 +76,7 @@
             <input-field
               label="Seats per Row"
               type="number"
-              size="sm"
+              size="md"
               placeholder="e.g. 12"
               [control]="hallForm.controls.seatsPerRow"
               [errorMessages]="{
@@ -90,7 +90,7 @@
         <div class="input-group">
           <custom-select
             label="Status"
-            size="sm"
+            size="md"
             [items]="hallStatusEntries()"
             [value]="statusEntry()"
             [displayFn]="statusDisplayFn"
@@ -107,7 +107,7 @@
         <div class="input-group type-group">
           <custom-select
             label="Type"
-            size="sm"
+            size="md"
             [items]="hallTypes()"
             [value]="selectedHallType()"
             [displayFn]="hallTypeDisplayFn"
@@ -142,6 +142,7 @@
           <div class="input-group">
             <paginated-select
               label="Copy Layout From Existing Hall"
+              size="md"
               placeholder="None"
               [clearable]="true"
               [searchable]="true"
@@ -224,7 +225,7 @@
                   </div>
                   <input-field
                     type="number"
-                    size="sm"
+                    size="md"
                     placeholder="e.g. 10"
                     [leadingIcon]="DollarSignIcon"
                     [control]="hallForm.controls.normalPrice"
@@ -245,7 +246,7 @@
                   </div>
                   <input-field
                     type="number"
-                    size="sm"
+                    size="md"
                     placeholder="e.g. 10"
                     [leadingIcon]="DollarSignIcon"
                     [control]="hallForm.controls.vipPrice"
