@@ -2,15 +2,14 @@
 
 ## Overview
 
-Angular 21 management dashboard for the Cinefy cinema platform. Standalone components, signal-based state, SSR-enabled, custom SCSS design system with ng-primitives for accessible headless UI.
+Angular 21 management dashboard for the Cinefy cinema platform. Standalone components, signal-based state, client-side rendered (no SSR — admin app behind auth), custom SCSS design system with ng-primitives for accessible headless UI.
 
 ## Commands
 
 ```bash
 pnpm start                                    # Dev server on :4200
-pnpm build                                    # Production build (browser + SSR)
+pnpm build                                    # Production build (browser only)
 pnpm test                                     # Run tests (Karma)
-pnpm run serve:ssr:cinefy-management          # SSR server on :4000
 ```
 
 > **pnpm only** (v10.28.1) — do not use npm or yarn.
@@ -23,9 +22,7 @@ src/
 │   ├── core/interceptors/base-url.ts   # Prepends environment apiUrl to HTTP requests
 │   ├── app.ts                          # Root component
 │   ├── app.routes.ts                   # Route definitions
-│   ├── app.config.ts                   # Providers (router, HTTP, toast)
-│   ├── app.config.server.ts            # SSR providers
-│   └── app.routes.server.ts            # Server route config
+│   └── app.config.ts                   # Providers (router, HTTP, toast)
 ├── components/                         # Reusable UI components
 │   ├── dashboard/                      # now-showing, today-schedule, upcoming-movies
 │   ├── drop-down/
@@ -168,13 +165,12 @@ Hall → has HallType (by typeId), TicketPricing[] (per SeatCategory), seat layo
 
 Seat IDs follow `{RowLabel}{ColumnNumber}` format — rows cycle A-Z then AA-ZZ.
 
-## SSR
+## Rendering
 
-- Express server at `src/server.ts` using `AngularNodeAppEngine`.
-- Browser bundle: `dist/cinefy-management/browser/`
-- Server bundle: `dist/cinefy-management/server/server.mjs`
-- Default port: 4000 (configurable via `PORT` env var).
-- Client hydration enabled with event replay.
+- **Client-side only** — no SSR. This is an authenticated admin/staff app: no SEO value, no anonymous-user first-paint win, and HTML can't be CDN-cached anyway.
+- Browser bundle output: `dist/cinefy-management/browser/`
+- Browser-only APIs (`window`, `localStorage`, `IntersectionObserver`) and `afterNextRender` can be used freely without SSR guards.
+- If SSR/prerendering is ever needed for a public-facing surface, that belongs in the separate `cinefy-client` project, not here.
 
 ## Code Navigation
 
