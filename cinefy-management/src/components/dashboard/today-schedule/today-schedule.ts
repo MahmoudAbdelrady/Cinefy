@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import {
-  LucideAngularModule,
-  Clock,
-  LayoutDashboard,
-  Ticket,
-  ChevronRight,
-} from 'lucide-angular';
+  ChevronRightIcon,
+  ClockIcon,
+  LayoutIcon,
+  TicketIcon,
+} from '../../../shared/icons';
 import { RouterLink } from '@angular/router';
 
 interface TodayScheduleMovie {
@@ -24,10 +24,12 @@ interface TodayScheduleMovie {
   styleUrl: './today-schedule.scss',
 })
 export class TodayScheduleComponent {
-  protected ClockIcon = Clock;
-  protected LayoutIcon = LayoutDashboard;
-  protected TicketIcon = Ticket;
-  protected ChevronRightIcon = ChevronRight;
+  protected readonly icons = {
+    ChevronRightIcon,
+    ClockIcon,
+    LayoutIcon,
+    TicketIcon,
+  };
   protected todayScheduleMovies: TodayScheduleMovie[] = [
     {
       poster:

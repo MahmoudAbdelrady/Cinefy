@@ -9,7 +9,7 @@
   [disabled]="isDisabled() || disabled()"
   [attr.data-empty]="formatted() ? null : ''"
 >
-  <lucide-icon [img]="CalendarIcon" [size]="16"></lucide-icon>
+  <lucide-icon [img]="icons.CalendarIcon" [size]="16"></lucide-icon>
   <span class="dp-trigger-label">
     {{ formatted() || placeholder() }}
   </span>
@@ -27,11 +27,11 @@
   >
     <div class="dp-header">
       <button type="button" ngpButton ngpDatePickerPreviousMonth class="dp-nav-btn">
-        <lucide-icon [img]="ChevronLeftIcon" [size]="16"></lucide-icon>
+        <lucide-icon [img]="icons.ChevronLeftIcon" [size]="16"></lucide-icon>
       </button>
       <div ngpDatePickerLabel class="dp-label"></div>
       <button type="button" ngpButton ngpDatePickerNextMonth class="dp-nav-btn">
-        <lucide-icon [img]="ChevronRightIcon" [size]="16"></lucide-icon>
+        <lucide-icon [img]="icons.ChevronRightIcon" [size]="16"></lucide-icon>
       </button>
     </div>
 

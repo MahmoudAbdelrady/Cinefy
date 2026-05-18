@@ -46,7 +46,7 @@
             <div class="shia-buttons">
               <button ngpButton [ngpDialogTrigger]="viewShowtimesDialog">View Showtimes</button>
               <button ngpButton [ngpDialogTrigger]="addShowtimeDialog">
-                <lucide-icon [img]="PlusIcon"></lucide-icon>
+                <lucide-icon [img]="icons.PlusIcon"></lucide-icon>
                 <span>Add Showtime</span>
               </button>
               <button
@@ -57,7 +57,7 @@
                 @if (deletingShowtimeIds().has(shMovie.id)) {
                   <loading-spinner variant="sm" />
                 } @else {
-                  <lucide-icon [img]="DeleteIcon" [size]="18"></lucide-icon>
+                  <lucide-icon [img]="icons.DeleteIcon" [size]="18"></lucide-icon>
                 }
               </button>
             </div>
@@ -107,7 +107,11 @@
             <app-modal modalTitle="Delete All Showtimes" [close]="close" width="500px">
               <div class="delete-modal-content">
                 <div class="dmc-icon">
-                  <lucide-icon [img]="AlertIcon" [size]="24" [strokeWidth]="2"></lucide-icon>
+                  <lucide-icon
+                    [img]="icons.WarningIcon"
+                    [size]="24"
+                    [strokeWidth]="2"
+                  ></lucide-icon>
                 </div>
                 <p class="dmc-message">
                   Are you sure you want to delete <strong>all showtimes</strong> for
@@ -115,7 +119,11 @@
                   >? This action cannot be undone.
                 </p>
                 <div class="dmc-warning">
-                  <lucide-icon [img]="AlertIcon" [size]="16" [strokeWidth]="2"></lucide-icon>
+                  <lucide-icon
+                    [img]="icons.WarningIcon"
+                    [size]="16"
+                    [strokeWidth]="2"
+                  ></lucide-icon>
                   <div>
                     <p><strong>Critical Warning:</strong></p>
                     <ul>

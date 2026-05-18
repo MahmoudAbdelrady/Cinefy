@@ -29,16 +29,13 @@ import {
   Showtime,
 } from '../../../shared/types';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
+import { LucideAngularModule, MapPin, Send, StickyNote } from 'lucide-angular';
 import {
-  MapPin,
-  LucideAngularModule,
-  SquarePen,
-  Trash2,
-  Plus,
-  Send,
-  TriangleAlert,
-  StickyNote,
-} from 'lucide-angular';
+  DeleteIcon,
+  EditIcon,
+  PlusIcon,
+  WarningIcon,
+} from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ShowtimeEventsService, ShowtimesService, ToastService } from '../../../services';
@@ -65,13 +62,15 @@ import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 })
 export class MovieShowtimesModal {
   protected readonly statusLabels = SHOWTIME_STATUS_LABELS;
-  protected readonly LocationIcon = MapPin;
-  protected readonly EditIcon = SquarePen;
-  protected readonly DeleteIcon = Trash2;
-  protected readonly PlusIcon = Plus;
-  protected readonly PublishIcon = Send;
-  protected readonly AlertIcon = TriangleAlert;
-  protected readonly NotesIcon = StickyNote;
+  protected readonly icons = {
+    DeleteIcon,
+    EditIcon,
+    PlusIcon,
+    WarningIcon,
+    LocationIcon: MapPin,
+    PublishIcon: Send,
+    NotesIcon: StickyNote,
+  };
 
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);

@@ -8,7 +8,7 @@
       <div class="search-filter">
         <input-field
           [control]="searchControl"
-          [leadingIcon]="SearchIcon"
+          [leadingIcon]="icons.SearchIcon"
           placeholder="Search staff..."
         />
       </div>
@@ -54,22 +54,22 @@
               </div>
               <div class="sid-contact">
                 <div class="sidc-item">
-                  <lucide-icon [img]="EmailIcon" [size]="14"></lucide-icon>
+                  <lucide-icon [img]="icons.EmailIcon" [size]="14"></lucide-icon>
                   <span>{{ member.email }}</span>
                 </div>
                 <div class="sidc-item">
-                  <lucide-icon [img]="PhoneIcon" [size]="14"></lucide-icon>
+                  <lucide-icon [img]="icons.PhoneIcon" [size]="14"></lucide-icon>
                   <span>{{ member.phoneNumber | phoneFormat }}</span>
                 </div>
                 <div class="sidc-item">
-                  <lucide-icon [img]="CalendarIcon" [size]="14"></lucide-icon>
+                  <lucide-icon [img]="icons.CalendarIcon" [size]="14"></lucide-icon>
                   <span>
                     {{ weekDayLabels[member.workingDayStart] }} –
                     {{ weekDayLabels[member.workingDayEnd] }}
                   </span>
                 </div>
                 <div class="sidc-item">
-                  <lucide-icon [img]="ClockIcon" [size]="14"></lucide-icon>
+                  <lucide-icon [img]="icons.ClockIcon" [size]="14"></lucide-icon>
                   <span>
                     {{ member.workingHourStart | time12h }} –
                     {{ member.workingHourEnd | time12h }}
@@ -80,15 +80,15 @@
           </div>
           <div class="staff-actions">
             <button ngpButton class="sa-btn sa-btn-view" [ngpDialogTrigger]="viewDialog">
-              <lucide-icon [img]="EyeIcon" [size]="16"></lucide-icon>
+              <lucide-icon [img]="icons.EyeIcon" [size]="16"></lucide-icon>
               <span>View</span>
             </button>
             <button ngpButton class="sa-btn sa-btn-edit" (click)="openEditDialog(member.id)">
-              <lucide-icon [img]="EditIcon" [size]="16"></lucide-icon>
+              <lucide-icon [img]="icons.EditIcon" [size]="16"></lucide-icon>
               <span>Edit</span>
             </button>
             <button ngpButton class="sa-btn sa-btn-delete" [ngpDialogTrigger]="deleteDialog">
-              <lucide-icon [img]="DeleteIcon" [size]="16"></lucide-icon>
+              <lucide-icon [img]="icons.DeleteIcon" [size]="16"></lucide-icon>
               <span>Delete</span>
             </button>
 
@@ -103,7 +103,11 @@
               <app-modal modalTitle="Delete Staff Member" [close]="close" width="448px">
                 <div class="delete-modal-content">
                   <div class="dmc-icon">
-                    <lucide-icon [img]="AlertIcon" [size]="24" [strokeWidth]="2"></lucide-icon>
+                    <lucide-icon
+                      [img]="icons.AlertIcon"
+                      [size]="24"
+                      [strokeWidth]="2"
+                    ></lucide-icon>
                   </div>
                   <p class="dmc-message">
                     Are you sure you want to remove <strong>{{ member.fullName }}</strong> from the
@@ -111,7 +115,11 @@
                     immediately.
                   </p>
                   <div class="dmc-warning">
-                    <lucide-icon [img]="AlertIcon" [size]="16" [strokeWidth]="2"></lucide-icon>
+                    <lucide-icon
+                      [img]="icons.AlertIcon"
+                      [size]="16"
+                      [strokeWidth]="2"
+                    ></lucide-icon>
                     <div>
                       <p><strong>Warning:</strong></p>
                       <ul>
@@ -151,7 +159,7 @@
         </div>
       } @empty {
         <div class="sl-empty">
-          <lucide-icon [img]="UsersIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
+          <lucide-icon [img]="icons.UsersIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
           <p>No staff members yet</p>
           <span>Add a staff member to start building your cinema team.</span>
         </div>

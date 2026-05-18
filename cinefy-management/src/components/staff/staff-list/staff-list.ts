@@ -13,19 +13,19 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { combineLatest, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs';
+import { LucideAngularModule } from 'lucide-angular';
 import {
-  Calendar,
-  CircleAlert,
-  Clock,
-  Eye,
-  LucideAngularModule,
-  Mail,
-  Phone,
-  Search,
-  SquarePen,
-  Trash2,
-  Users,
-} from 'lucide-angular';
+  AlertIcon,
+  CalendarIcon,
+  ClockIcon,
+  DeleteIcon,
+  EditIcon,
+  EmailIcon,
+  EyeIcon,
+  PhoneIcon,
+  SearchIcon,
+  UsersIcon,
+} from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
@@ -67,16 +67,18 @@ import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
   styleUrl: './staff-list.scss',
 })
 export class StaffListComponent {
-  protected readonly SearchIcon = Search;
-  protected readonly EmailIcon = Mail;
-  protected readonly PhoneIcon = Phone;
-  protected readonly CalendarIcon = Calendar;
-  protected readonly ClockIcon = Clock;
-  protected readonly UsersIcon = Users;
-  protected readonly EyeIcon = Eye;
-  protected readonly EditIcon = SquarePen;
-  protected readonly DeleteIcon = Trash2;
-  protected readonly AlertIcon = CircleAlert;
+  protected readonly icons = {
+    SearchIcon,
+    EmailIcon,
+    PhoneIcon,
+    CalendarIcon,
+    ClockIcon,
+    UsersIcon,
+    EyeIcon,
+    EditIcon,
+    DeleteIcon,
+    AlertIcon,
+  };
 
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);

@@ -16,7 +16,7 @@
         [title]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
       >
         <lucide-icon
-          [img]="isEditMode() ? ViewIcon : EditIcon"
+          [img]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
           [size]="20"
           [strokeWidth]="2"
         ></lucide-icon>
@@ -44,7 +44,7 @@
   <div class="hall-config-modal-content" [hidden]="loadingHall()">
     <div class="hall-information">
       <div class="hi-header">
-        <lucide-icon [img]="SettingsIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+        <lucide-icon [img]="icons.SettingsIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
         <span>Hall Information</span>
       </div>
       <form class="hi-form" [formGroup]="hallForm">
@@ -153,7 +153,7 @@
           @if (!isViewMode()) {
             <div class="seat-categories">
               <div class="sc-header">
-                <lucide-icon [img]="StarIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <lucide-icon [img]="icons.StarIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
                 <span>Seat Categories</span>
               </div>
               <div class="sc-content">
@@ -205,7 +205,11 @@
           }
           <div class="ticket-pricing">
             <div class="tp-header">
-              <lucide-icon [img]="DollarSignIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+              <lucide-icon
+                [img]="icons.DollarSignIcon"
+                [size]="16"
+                [strokeWidth]="2.5"
+              ></lucide-icon>
               <span class="tp-title">Ticket Pricing <span class="tp-vat">(without VAT)</span></span>
             </div>
             <div class="tp-content">
@@ -220,7 +224,7 @@
                   <input-field
                     type="number"
                     placeholder="e.g. 10"
-                    [leadingIcon]="DollarSignIcon"
+                    [leadingIcon]="icons.DollarSignIcon"
                     [control]="hallForm.controls.normalPrice"
                     [errorMessages]="{
                       required: 'Normal price is required',
@@ -240,7 +244,7 @@
                   <input-field
                     type="number"
                     placeholder="e.g. 10"
-                    [leadingIcon]="DollarSignIcon"
+                    [leadingIcon]="icons.DollarSignIcon"
                     [control]="hallForm.controls.vipPrice"
                     [errorMessages]="{
                       required: 'VIP price is required',
@@ -256,7 +260,7 @@
     </div>
     <div class="hall-layout-editor">
       <div class="hle-header">
-        <lucide-icon [img]="LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+        <lucide-icon [img]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
         <span>Seat Layout Editor</span>
       </div>
       <div class="hle-content">

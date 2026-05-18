@@ -10,7 +10,7 @@
     [disabled]="control().disabled"
     [attr.data-empty]="displayLabel() ? null : ''"
   >
-    <lucide-icon [img]="ClockIcon" [size]="16"></lucide-icon>
+    <lucide-icon [img]="icons.ClockIcon" [size]="16"></lucide-icon>
     <span class="tp-trigger-label">{{ displayLabel() || 'Select a time' }}</span>
   </button>
 
@@ -19,7 +19,7 @@
       <div class="tp-fields">
         <div class="tp-field">
           <button type="button" ngpButton class="tp-step" (click)="stepHour(1)">
-            <lucide-icon [img]="ChevronUpIcon" [size]="14"></lucide-icon>
+            <lucide-icon [img]="icons.ChevronUpIcon" [size]="14"></lucide-icon>
           </button>
           <input
             type="text"
@@ -32,7 +32,7 @@
             (keydown.enter)="$event.target.blur()"
           />
           <button type="button" ngpButton class="tp-step" (click)="stepHour(-1)">
-            <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
+            <lucide-icon [img]="icons.ChevronDownIcon" [size]="14"></lucide-icon>
           </button>
         </div>
 
@@ -40,7 +40,7 @@
 
         <div class="tp-field">
           <button type="button" ngpButton class="tp-step" (click)="stepMinute(1)">
-            <lucide-icon [img]="ChevronUpIcon" [size]="14"></lucide-icon>
+            <lucide-icon [img]="icons.ChevronUpIcon" [size]="14"></lucide-icon>
           </button>
           <input
             type="text"
@@ -53,7 +53,7 @@
             (keydown.enter)="$event.target.blur()"
           />
           <button type="button" ngpButton class="tp-step" (click)="stepMinute(-1)">
-            <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
+            <lucide-icon [img]="icons.ChevronDownIcon" [size]="14"></lucide-icon>
           </button>
         </div>
 

@@ -10,9 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
-  CircleAlert,
   CircleCheck,
-  CreditCard,
   EllipsisVertical,
   Info,
   LucideAngularModule,
@@ -20,11 +18,15 @@ import {
   PowerOff,
   Rocket,
   Sparkles,
-  SquarePen,
-  Trash2,
   Webhook,
   Zap,
 } from 'lucide-angular';
+import {
+  AlertIcon,
+  CreditCardIcon,
+  DeleteIcon,
+  EditIcon,
+} from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
@@ -63,19 +65,21 @@ import {
   styleUrl: './payment-method-list.scss',
 })
 export class PaymentMethodListComponent {
-  protected readonly CardIcon = CreditCard;
-  protected readonly WalletIcon = Webhook;
-  protected readonly InstallmentIcon = Sparkles;
-  protected readonly MenuIcon = EllipsisVertical;
-  protected readonly PowerIcon = Power;
-  protected readonly PowerOffIcon = PowerOff;
-  protected readonly EditIcon = SquarePen;
-  protected readonly ZapIcon = Zap;
-  protected readonly CheckIcon = CircleCheck;
-  protected readonly AlertIcon = CircleAlert;
-  protected readonly InfoIcon = Info;
-  protected readonly RocketIcon = Rocket;
-  protected readonly DeleteIcon = Trash2;
+  protected readonly icons = {
+    AlertIcon,
+    CreditCardIcon,
+    DeleteIcon,
+    EditIcon,
+    WalletIcon: Webhook,
+    InstallmentIcon: Sparkles,
+    MenuIcon: EllipsisVertical,
+    PowerIcon: Power,
+    PowerOffIcon: PowerOff,
+    ZapIcon: Zap,
+    CheckIcon: CircleCheck,
+    InfoIcon: Info,
+    RocketIcon: Rocket,
+  };
 
   private readonly paymentMethodService = inject(PaymentMethodService);
   private readonly toastService = inject(ToastService);
@@ -206,11 +210,11 @@ export class PaymentMethodListComponent {
   protected getPaymentTypeIcon(type: PaymentMethodType) {
     switch (type) {
       case 'CARD':
-        return this.CardIcon;
+        return this.icons.CreditCardIcon;
       case 'WALLET':
-        return this.WalletIcon;
+        return this.icons.WalletIcon;
       case 'INSTALLMENT':
-        return this.InstallmentIcon;
+        return this.icons.InstallmentIcon;
     }
   }
 

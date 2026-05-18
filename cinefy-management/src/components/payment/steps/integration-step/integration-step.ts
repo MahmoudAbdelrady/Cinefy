@@ -32,7 +32,9 @@ export type IntegrationForm = ReturnType<typeof buildIntegrationForm>;
   styleUrl: './integration-step.scss',
 })
 export class IntegrationStep {
-  protected readonly WebHookIcon = Webhook;
+  protected readonly icons = {
+    WebHookIcon: Webhook,
+  };
 
   readonly form = input.required<IntegrationForm>();
 

@@ -14,10 +14,12 @@ import { ToastContext } from '../../services/toast';
   },
 })
 export class ToastComponent {
+  protected readonly icons = {
+    SuccessIcon: CircleCheckBig,
+    ErrorIcon: CircleX,
+    CloseIcon: X,
+  };
   protected readonly context = injectToastContext<ToastContext>();
-  protected readonly SuccessIcon = CircleCheckBig;
-  protected readonly ErrorIcon = CircleX;
-  protected readonly CloseIcon = X;
 
   private readonly manager = inject(NgpToastManager);
   private readonly toast = viewChild.required<NgpToast>('toast');

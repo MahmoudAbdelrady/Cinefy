@@ -27,8 +27,10 @@ interface SidebarTab {
   styleUrl: './sidebar.scss',
 })
 export class SidebarComponent {
+  protected readonly icons = {
+    XIcon: X,
+  };
   protected sidebarService = inject(SidebarService);
-  protected XIcon = X;
 
   protected readonly tabs: SidebarTab[] = [
     { label: 'Dashboard', icon: House, path: '/' },

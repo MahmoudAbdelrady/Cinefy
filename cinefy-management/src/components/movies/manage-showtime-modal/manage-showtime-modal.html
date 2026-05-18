@@ -16,7 +16,7 @@
               @if (activeMovie()!.posterUrl; as posterUrl) {
                 <img [src]="posterUrl" alt="{{ activeMovie()!.title }} Poster" />
               } @else {
-                <lucide-icon [img]="MovieIcon"></lucide-icon>
+                <lucide-icon [img]="icons.FilmIcon"></lucide-icon>
               }
             </div>
             <div class="sm-details">

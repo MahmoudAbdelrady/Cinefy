@@ -14,15 +14,14 @@ import { NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { LucideAngularModule, Star } from 'lucide-angular';
 import {
-  LucideAngularModule,
-  Settings,
-  Star,
-  DollarSign,
-  LayoutDashboard,
-  SquarePen,
-  Eye,
-} from 'lucide-angular';
+  DollarSignIcon,
+  EditIcon,
+  EyeIcon,
+  LayoutIcon,
+  SettingsIcon,
+} from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
@@ -78,21 +77,20 @@ interface LayoutBaseline {
   styleUrl: './hall-config-modal.scss',
 })
 export class HallConfigModalComponent {
-  // Icons
-  protected readonly SettingsIcon = Settings;
-  protected readonly StarIcon = Star;
-  protected readonly DollarSignIcon = DollarSign;
-  protected readonly LayoutIcon = LayoutDashboard;
-  protected readonly EditIcon = SquarePen;
-  protected readonly ViewIcon = Eye;
+  protected readonly icons = {
+    DollarSignIcon,
+    EditIcon,
+    EyeIcon,
+    LayoutIcon,
+    SettingsIcon,
+    StarIcon: Star,
+  };
 
-  // Dependencies
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
   private readonly layoutEditor = viewChild.required(HallLayoutEditorComponent);
   private readonly discardTrigger = viewChild<ElementRef>('discardTrigger');
 
-  // Static data
   private static readonly AUTO_HALL_STATUSES: HallStatus[] = ['SCHEDULED', 'NOW_SHOWING'];
 
   private static readonly SELECTABLE_HALL_STATUS_ENTRIES = (
@@ -120,15 +118,12 @@ export class HallConfigModalComponent {
     type: key as SeatCategory,
   }));
 
-  // Inputs
   readonly close = input.required<() => void>();
   readonly selectedHallId = input<string | null>(null);
 
-  // Outputs
   readonly hallCreated = output<HallSummary>();
   readonly hallUpdated = output<HallSummary>();
 
-  // State signals
   readonly isEditMode = signal(false);
   private readonly selectedHallData = signal<HallDetail | null>(null);
   readonly hallTypes = signal<HallType[]>([]);
@@ -140,7 +135,6 @@ export class HallConfigModalComponent {
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems[0]);
   private readonly onSiteOnlyPreference = signal(false);
 
-  // Form
   protected readonly hallForm = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
@@ -165,7 +159,6 @@ export class HallConfigModalComponent {
     vipPrice: new FormControl<number | null>(null),
   });
 
-  // Computed & derived signals
   protected readonly isViewMode = computed(
     () => this.selectedHallId() !== null && !this.isEditMode(),
   );
@@ -219,7 +212,6 @@ export class HallConfigModalComponent {
     });
   }
 
-  // Select config functions
   protected readonly statusDisplayFn = (entry: [HallStatus, string]) => entry[1];
   protected readonly statusValueFn = (entry: [HallStatus, string]) => entry[0];
   protected readonly hallTypeDisplayFn = (type: HallType) => type.name;

@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
-import { LucideAngularModule, Plus } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { PlusIcon } from '../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
@@ -25,7 +26,9 @@ import { HeaderActionsService } from '../../services';
   styleUrl: './movies.scss',
 })
 export class MoviesPage implements OnInit {
-  protected readonly PlusIcon = Plus;
+  protected readonly icons = {
+    PlusIcon,
+  };
 
   private headerActions = inject(HeaderActionsService);
   private destroyRef = inject(DestroyRef);

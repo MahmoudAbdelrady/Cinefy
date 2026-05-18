@@ -16,7 +16,7 @@ const VARIANT_PRESETS: Record<LoadingSpinnerVariant, { size: number; strokeWidth
   imports: [LucideAngularModule],
   template: `<div class="spinner" [style.width.px]="resolvedSize()" [style.height.px]="resolvedSize()">
     <lucide-icon
-      [img]="LoaderIcon"
+      [img]="icons.LoaderIcon"
       [size]="resolvedSize()"
       [strokeWidth]="resolvedStrokeWidth()"
     ></lucide-icon>
@@ -36,7 +36,9 @@ const VARIANT_PRESETS: Record<LoadingSpinnerVariant, { size: number; strokeWidth
   `,
 })
 export class LoadingSpinnerComponent {
-  protected readonly LoaderIcon = Loader;
+  protected readonly icons = {
+    LoaderIcon: Loader,
+  };
 
   readonly variant = input<LoadingSpinnerVariant | null>(null);
   readonly size = input<number | null>(null);

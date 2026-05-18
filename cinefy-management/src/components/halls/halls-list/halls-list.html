@@ -5,7 +5,7 @@
       <p>Manage your cinema halls and seating arrangements</p>
     </div>
     <div class="ah-header-right">
-      <lucide-icon [img]="SearchIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+      <lucide-icon [img]="icons.SearchIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
       <input type="text" placeholder="Search halls..." (input)="onSearch($event)" />
     </div>
   </div>
@@ -19,7 +19,7 @@
         <div class="ah-item">
           <div class="ahi-info">
             <div class="ahi-info-icon">
-              <lucide-icon [img]="LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+              <lucide-icon [img]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
             </div>
             <div class="ahi-info-details">
               <div class="ahid-header">
@@ -32,15 +32,23 @@
               </div>
               <div class="ahid-content">
                 <div class="ahidc-item">
-                  <lucide-icon [img]="PeopleIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                  <lucide-icon
+                    [img]="icons.UsersIcon"
+                    [size]="16"
+                    [strokeWidth]="2.5"
+                  ></lucide-icon>
                   <span>{{ hall.totalRows * hall.totalColumns }} seats</span>
                 </div>
                 <div class="ahidc-item">
-                  <lucide-icon [img]="LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                  <lucide-icon
+                    [img]="icons.LayoutIcon"
+                    [size]="16"
+                    [strokeWidth]="2.5"
+                  ></lucide-icon>
                   <span>{{ hall.totalRows }} rows × {{ hall.totalColumns }} seats</span>
                 </div>
                 <div class="ahidc-item">
-                  <lucide-icon [img]="TagIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                  <lucide-icon [img]="icons.TagIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
                   <span>{{ hall.typeName }}</span>
                 </div>
               </div>
@@ -48,11 +56,11 @@
           </div>
           <div class="ahi-actions">
             <button ngpButton [ngpDialogTrigger]="viewDialog">
-              <lucide-icon [img]="EyeIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+              <lucide-icon [img]="icons.EyeIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
               <span>View</span>
             </button>
             <button ngpButton [ngpDialogTrigger]="deleteDialog">
-              <lucide-icon [img]="DeleteIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+              <lucide-icon [img]="icons.DeleteIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
               <span>Delete</span>
             </button>
 
@@ -68,7 +76,11 @@
               <app-modal modalTitle="Delete Hall" [close]="close" width="448px">
                 <div class="delete-modal-content">
                   <div class="dmc-icon">
-                    <lucide-icon [img]="AlertIcon" [size]="24" [strokeWidth]="2"></lucide-icon>
+                    <lucide-icon
+                      [img]="icons.AlertIcon"
+                      [size]="24"
+                      [strokeWidth]="2"
+                    ></lucide-icon>
                   </div>
                   <p class="dmc-message">
                     Are you sure you want to delete <strong>{{ hall.name }}</strong
@@ -76,7 +88,11 @@
                     associated data.
                   </p>
                   <div class="dmc-warning">
-                    <lucide-icon [img]="AlertIcon" [size]="16" [strokeWidth]="2"></lucide-icon>
+                    <lucide-icon
+                      [img]="icons.AlertIcon"
+                      [size]="16"
+                      [strokeWidth]="2"
+                    ></lucide-icon>
                     <div>
                       <p><strong>Warning:</strong></p>
                       <ul>
@@ -109,7 +125,7 @@
         </div>
       } @empty {
         <div class="ah-empty">
-          <lucide-icon [img]="LayoutIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
+          <lucide-icon [img]="icons.LayoutIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
           <p>No halls found</p>
           @if (search()) {
             <span>Try adjusting your search term</span>

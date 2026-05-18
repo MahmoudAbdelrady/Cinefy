@@ -11,7 +11,8 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AtSign, Check, KeyRound, LucideAngularModule, Mail, Phone, User } from 'lucide-angular';
+import { AtSign, KeyRound, LucideAngularModule, User } from 'lucide-angular';
+import { CheckIcon, EmailIcon, PhoneIcon } from '../../../shared/icons';
 import {
   getCountries,
   getCountryCallingCode,
@@ -79,12 +80,14 @@ const DEFAULT_COUNTRY: CountryCode = 'EG';
   styleUrl: './manage-staff-modal.scss',
 })
 export class ManageStaffModalComponent {
-  protected readonly CheckIcon = Check;
-  protected readonly NameIcon = User;
-  protected readonly UsernameIcon = AtSign;
-  protected readonly EmailIcon = Mail;
-  protected readonly PhoneIcon = Phone;
-  protected readonly KeyIcon = KeyRound;
+  protected readonly icons = {
+    CheckIcon,
+    EmailIcon,
+    PhoneIcon,
+    NameIcon: User,
+    UsernameIcon: AtSign,
+    KeyIcon: KeyRound,
+  };
   protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
 
   private readonly staffService = inject(StaffService);

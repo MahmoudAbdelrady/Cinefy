@@ -26,13 +26,13 @@
     @if (clearable() && selectedItem()) {
       <lucide-icon
         class="ps-clear"
-        [img]="XIcon"
+        [img]="icons.XIcon"
         [size]="16"
         [strokeWidth]="2"
         (click)="clear($event)"
       />
     } @else {
-      <lucide-icon class="ps-chevron" [img]="ChevronDownIcon" [size]="16" [strokeWidth]="2" />
+      <lucide-icon class="ps-chevron" [img]="icons.ChevronDownIcon" [size]="16" [strokeWidth]="2" />
     }
   </button>
 

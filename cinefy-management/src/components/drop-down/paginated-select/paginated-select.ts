@@ -12,7 +12,8 @@ import { FormControl } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, debounceTime, distinctUntilChanged } from 'rxjs';
-import { LucideAngularModule, ChevronDown, X } from 'lucide-angular';
+import { LucideAngularModule, X } from 'lucide-angular';
+import { ChevronDownIcon } from '../../../shared/icons';
 import {
   NgpCombobox,
   NgpComboboxButton,
@@ -44,6 +45,10 @@ import { ToastService } from '../../../services';
   encapsulation: ViewEncapsulation.None,
 })
 export class PaginatedSelectComponent<T> {
+  protected readonly icons = {
+    ChevronDownIcon,
+    XIcon: X,
+  };
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
 
@@ -69,8 +74,6 @@ export class PaginatedSelectComponent<T> {
   readonly selectionChange = output<T>();
   readonly cleared = output<void>();
 
-  protected readonly ChevronDownIcon = ChevronDown;
-  protected readonly XIcon = X;
 
   protected readonly items = signal<T[]>([]);
   protected readonly loading = signal(false);

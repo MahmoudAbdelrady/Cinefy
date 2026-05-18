@@ -1,7 +1,8 @@
 import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ChevronDown, ChevronUp, Clock, LucideAngularModule } from 'lucide-angular';
+import { ChevronUp, LucideAngularModule } from 'lucide-angular';
+import { ChevronDownIcon, ClockIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { FieldErrorComponent } from '../../field-error/field-error';
@@ -17,11 +18,13 @@ const pad = (n: number) => n.toString().padStart(2, '0');
   styleUrl: './time-picker.scss',
 })
 export class TimePicker {
+  protected readonly icons = {
+    ChevronDownIcon,
+    ClockIcon,
+    ChevronUpIcon: ChevronUp,
+  };
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly ClockIcon = Clock;
-  protected readonly ChevronUpIcon = ChevronUp;
-  protected readonly ChevronDownIcon = ChevronDown;
 
   readonly control = input.required<FormControl<string | null>>();
   readonly hint = input<string | null>(null);

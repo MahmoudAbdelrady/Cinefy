@@ -16,7 +16,7 @@
           <input-field
             label="First name"
             placeholder="e.g. Mohamed"
-            [leadingIcon]="NameIcon"
+            [leadingIcon]="icons.NameIcon"
             [control]="staffForm.controls.firstName"
             [errorMessages]="{
               required: 'First name is required',
@@ -30,7 +30,7 @@
           <input-field
             label="Last name"
             placeholder="e.g. Ahmed"
-            [leadingIcon]="NameIcon"
+            [leadingIcon]="icons.NameIcon"
             [control]="staffForm.controls.lastName"
             [errorMessages]="{
               required: 'Last name is required',
@@ -46,7 +46,7 @@
       <input-field
         label="Username"
         placeholder="e.g. mohamed.ahmed"
-        [leadingIcon]="UsernameIcon"
+        [leadingIcon]="icons.UsernameIcon"
         [control]="staffForm.controls.username"
         [errorMessages]="{
           required: 'Username is required',
@@ -62,7 +62,7 @@
         <input-field
           label="Email"
           placeholder="e.g. mohamed.ahmed@gmail.com"
-          [leadingIcon]="EmailIcon"
+          [leadingIcon]="icons.EmailIcon"
           [control]="staffForm.controls.email"
           [errorMessages]="{
             required: 'Email is required',
@@ -91,7 +91,7 @@
           <div class="phone-national">
             <input-field
               [placeholder]="phonePlaceholder()"
-              [leadingIcon]="PhoneIcon"
+              [leadingIcon]="icons.PhoneIcon"
               [control]="staffForm.controls.phoneNumber"
               [errorMessages]="{
                 required: 'Phone number is required',
@@ -108,7 +108,7 @@
         placeholder="e.g. Strongpassword##123"
         type="password"
         [hint]="isEdit() ? 'Leave empty to keep the current password' : ''"
-        [leadingIcon]="KeyIcon"
+        [leadingIcon]="icons.KeyIcon"
         [control]="staffForm.controls.password"
         [errorMessages]="{
           required: 'Password is required',

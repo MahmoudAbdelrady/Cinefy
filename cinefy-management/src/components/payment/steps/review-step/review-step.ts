@@ -1,7 +1,8 @@
 import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Check, CreditCard, Eye, EyeOff, LucideAngularModule, X, Zap } from 'lucide-angular';
+import { EyeOff, LucideAngularModule, X, Zap } from 'lucide-angular';
+import { CheckIcon, CreditCardIcon, EyeIcon } from '../../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { LoadingSpinnerComponent } from '../../../loading-spinner/loading-spinner';
 import { RelativeTimePipe } from '../../../../shared/pipes';
@@ -26,12 +27,14 @@ export interface TestResultState {
   styleUrl: './review-step.scss',
 })
 export class ReviewStep {
-  protected readonly CreditCardIcon = CreditCard;
-  protected readonly CheckIcon = Check;
-  protected readonly XIcon = X;
-  protected readonly ZapIcon = Zap;
-  protected readonly EyeIcon = Eye;
-  protected readonly EyeOffIcon = EyeOff;
+  protected readonly icons = {
+    CheckIcon,
+    CreditCardIcon,
+    EyeIcon,
+    XIcon: X,
+    ZapIcon: Zap,
+    EyeOffIcon: EyeOff,
+  };
 
   private readonly paymentMethodService = inject(PaymentMethodService);
   private readonly destroyRef = inject(DestroyRef);

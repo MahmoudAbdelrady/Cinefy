@@ -9,16 +9,8 @@ import {
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  AtSign,
-  BriefcaseBusiness,
-  Calendar,
-  Clock,
-  LucideAngularModule,
-  Mail,
-  Phone,
-  SquarePen,
-} from 'lucide-angular';
+import { AtSign, BriefcaseBusiness, LucideAngularModule } from 'lucide-angular';
+import { CalendarIcon, EditIcon, EmailIcon, PhoneIcon } from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
 import { ModalComponent } from '../../modal/modal';
 import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
@@ -45,13 +37,14 @@ import { StaffService, ToastService } from '../../../services';
   styleUrl: './staff-details.scss',
 })
 export class StaffDetailsComponent {
-  protected readonly UsernameIcon = AtSign;
-  protected readonly EmailIcon = Mail;
-  protected readonly PhoneIcon = Phone;
-  protected readonly CalendarIcon = Calendar;
-  protected readonly ClockIcon = Clock;
-  protected readonly BriefCaseIcon = BriefcaseBusiness;
-  protected readonly EditIcon = SquarePen;
+  protected readonly icons = {
+    CalendarIcon,
+    EditIcon,
+    EmailIcon,
+    PhoneIcon,
+    UsernameIcon: AtSign,
+    BriefCaseIcon: BriefcaseBusiness,
+  };
 
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);

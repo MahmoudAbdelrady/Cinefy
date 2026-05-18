@@ -39,7 +39,7 @@
             </div>
             <div class="mih-actions">
               <button [ngpMenuTrigger]="paymentActionsMenu" ngpButton>
-                <lucide-icon [img]="MenuIcon" size="16"></lucide-icon>
+                <lucide-icon [img]="icons.MenuIcon" size="16"></lucide-icon>
               </button>
 
               <ng-template #paymentActionsMenu>
@@ -54,13 +54,13 @@
                         <loading-spinner variant="sm" />
                         <span>Deactivating…</span>
                       } @else {
-                        <lucide-icon [img]="PowerOffIcon" size="16"></lucide-icon>
+                        <lucide-icon [img]="icons.PowerOffIcon" size="16"></lucide-icon>
                         <span>Deactivate</span>
                       }
                     </button>
                   }
                   <button ngpMenuItem [ngpDialogTrigger]="editDialog">
-                    <lucide-icon [img]="EditIcon" size="16"></lucide-icon>
+                    <lucide-icon [img]="icons.EditIcon" size="16"></lucide-icon>
                     <span>Edit configuration</span>
                   </button>
 
@@ -80,12 +80,12 @@
                       <loading-spinner variant="sm" />
                       <span>Testing…</span>
                     } @else {
-                      <lucide-icon [img]="ZapIcon" size="16"></lucide-icon>
+                      <lucide-icon [img]="icons.ZapIcon" size="16"></lucide-icon>
                       <span>Run test connection</span>
                     }
                   </button>
                   <button ngpMenuItem class="mih-delete-btn" [ngpDialogTrigger]="deleteDialog">
-                    <lucide-icon [img]="DeleteIcon" size="16"></lucide-icon>
+                    <lucide-icon [img]="icons.DeleteIcon" size="16"></lucide-icon>
                     <span>Delete method</span>
                   </button>
                 </div>
@@ -95,7 +95,11 @@
                 <app-modal modalTitle="Delete Payment Method" [close]="close" width="448px">
                   <div class="delete-modal-content">
                     <div class="dmc-icon">
-                      <lucide-icon [img]="AlertIcon" [size]="24" [strokeWidth]="2"></lucide-icon>
+                      <lucide-icon
+                        [img]="icons.AlertIcon"
+                        [size]="24"
+                        [strokeWidth]="2"
+                      ></lucide-icon>
                     </div>
                     <p class="dmc-message">
                       Are you sure you want to delete <strong>{{ paymentMethod.name }}</strong
@@ -103,7 +107,11 @@
                       method's configuration and credentials.
                     </p>
                     <div class="dmc-warning">
-                      <lucide-icon [img]="AlertIcon" [size]="16" [strokeWidth]="2"></lucide-icon>
+                      <lucide-icon
+                        [img]="icons.AlertIcon"
+                        [size]="16"
+                        [strokeWidth]="2"
+                      ></lucide-icon>
                       <div>
                         <p><strong>Warning:</strong></p>
                         <ul>
@@ -160,13 +168,13 @@
                     @switch (paymentMethod.testStatus) {
                       @case ('SUCCESS') {
                         <span class="mics-test-badge" data-test-status="success">
-                          <lucide-icon [img]="CheckIcon" size="14"></lucide-icon>
+                          <lucide-icon [img]="icons.CheckIcon" size="14"></lucide-icon>
                           Passed
                         </span>
                       }
                       @case ('FAILURE') {
                         <span class="mics-test-badge" data-test-status="failure">
-                          <lucide-icon [img]="AlertIcon" size="14"></lucide-icon>
+                          <lucide-icon [img]="icons.AlertIcon" size="14"></lucide-icon>
                           Failed
                         </span>
                       }
@@ -200,7 +208,7 @@
                       <ng-template #errorPopover>
                         <div ngpPopover class="mics-error-popover">
                           <div class="mics-error-popover-header">
-                            <lucide-icon [img]="AlertIcon" size="14"></lucide-icon>
+                            <lucide-icon [img]="icons.AlertIcon" size="14"></lucide-icon>
                             <span>Last test failed</span>
                           </div>
                           <p class="mics-error-popover-body">
@@ -242,7 +250,10 @@
                   <loading-spinner variant="xs" />
                   <span>{{ isDraft ? 'Activating…' : 'Re-enabling…' }}</span>
                 } @else {
-                  <lucide-icon [img]="isDraft ? RocketIcon : PowerIcon" [size]="14"></lucide-icon>
+                  <lucide-icon
+                    [img]="isDraft ? icons.RocketIcon : icons.PowerIcon"
+                    [size]="14"
+                  ></lucide-icon>
                   <span>{{ isDraft ? 'Activate' : 'Re-enable' }}</span>
                 }
               </button>
@@ -251,7 +262,7 @@
         </div>
       } @empty {
         <div class="pm-empty">
-          <lucide-icon [img]="CardIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
+          <lucide-icon [img]="icons.CreditCardIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
           <p>No payment methods yet</p>
           <span>Add a method to start accepting payments.</span>
         </div>

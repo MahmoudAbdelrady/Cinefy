@@ -16,7 +16,8 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpFormField } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
-import { ChevronRight, Film, LucideAngularModule, Search } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { ChevronRightIcon, FilmIcon, SearchIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { MovieSearchResult } from '../../../shared/types';
 import { MoviesService, ToastService } from '../../../services';
@@ -38,9 +39,11 @@ import { MoviesService, ToastService } from '../../../services';
   styleUrl: './movie-picker.scss',
 })
 export class MoviePickerComponent {
-  protected readonly SearchIcon = Search;
-  protected readonly MovieIcon = Film;
-  protected readonly ChevronRightIcon = ChevronRight;
+  protected readonly icons = {
+    ChevronRightIcon,
+    FilmIcon,
+    SearchIcon,
+  };
 
   private readonly moviesService = inject(MoviesService);
   private readonly toastService = inject(ToastService);

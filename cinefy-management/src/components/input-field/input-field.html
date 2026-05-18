@@ -20,7 +20,7 @@
     />
     @if (type() === 'password') {
       <button ngpButton type="button" class="if-toggle" (click)="toggleShowPassword()">
-        <lucide-icon [img]="showPassword() ? EyeOffIcon : EyeIcon" [size]="18" />
+        <lucide-icon [img]="showPassword() ? icons.EyeOffIcon : icons.EyeIcon" [size]="18" />
       </button>
     }
   </div>

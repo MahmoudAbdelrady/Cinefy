@@ -11,7 +11,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
-import { LucideAngularModule, ChevronDown, X } from 'lucide-angular';
+import { LucideAngularModule, X } from 'lucide-angular';
+import { ChevronDownIcon } from '../../../shared/icons';
 import {
   NgpCombobox,
   NgpComboboxButton,
@@ -39,6 +40,10 @@ import { FieldErrorComponent } from '../../field-error/field-error';
   encapsulation: ViewEncapsulation.None,
 })
 export class CustomSelectComponent<T> {
+  protected readonly icons = {
+    ChevronDownIcon,
+    XIcon: X,
+  };
   private readonly destroyRef = inject(DestroyRef);
 
   readonly items = input.required<T[]>();
@@ -64,8 +69,6 @@ export class CustomSelectComponent<T> {
   readonly cleared = output<void>();
   readonly touched = output<void>();
 
-  protected readonly ChevronDownIcon = ChevronDown;
-  protected readonly XIcon = X;
 
   protected readonly selectedItem = signal<T | null>(null);
   protected readonly searchTerm = signal('');

@@ -39,7 +39,7 @@
                   <div class="dsi-details">
                     <span class="dsid-time">{{ showtimeDetail.time | time12h }}</span>
                     <div class="dsid-location">
-                      <lucide-icon [img]="LocationIcon" [size]="14"></lucide-icon>
+                      <lucide-icon [img]="icons.LocationIcon" [size]="14"></lucide-icon>
                       <span>{{ showtimeDetail.hall.name }}</span>
                     </div>
                     <span class="dsid-status" [attr.data-status]="showtimeDetail.status">
@@ -58,7 +58,7 @@
                         @if (publishingShowtimeIds().has(showtimeDetail.id)) {
                           <loading-spinner variant="xs" />
                         } @else {
-                          <lucide-icon [img]="PublishIcon" [size]="14"></lucide-icon>
+                          <lucide-icon [img]="icons.PublishIcon" [size]="14"></lucide-icon>
                         }
                       </button>
                     }
@@ -68,7 +68,7 @@
                       title="Edit"
                       (click)="onEditShowtime(showtimeDetail)"
                     >
-                      <lucide-icon [img]="EditIcon" [size]="14"></lucide-icon>
+                      <lucide-icon [img]="icons.EditIcon" [size]="14"></lucide-icon>
                     </button>
                     <button
                       ngpButton
@@ -76,7 +76,7 @@
                       title="Delete"
                       [ngpDialogTrigger]="deleteDialog"
                     >
-                      <lucide-icon [img]="DeleteIcon" [size]="14"></lucide-icon>
+                      <lucide-icon [img]="icons.DeleteIcon" [size]="14"></lucide-icon>
                     </button>
                   </div>
 
@@ -85,7 +85,7 @@
                       <div class="delete-modal-content">
                         <div class="dmc-icon">
                           <lucide-icon
-                            [img]="AlertIcon"
+                            [img]="icons.WarningIcon"
                             [size]="24"
                             [strokeWidth]="2"
                           ></lucide-icon>
@@ -99,7 +99,7 @@
                         </p>
                         <div class="dmc-warning">
                           <lucide-icon
-                            [img]="AlertIcon"
+                            [img]="icons.WarningIcon"
                             [size]="16"
                             [strokeWidth]="2"
                           ></lucide-icon>
@@ -149,7 +149,7 @@
                 @if (showtimeDetail.specialNotes) {
                   @let expanded = expandedNotes().has(showtimeDetail.id);
                   <div class="ds-notes" [class.expanded]="expanded">
-                    <lucide-icon [img]="NotesIcon" [size]="12"></lucide-icon>
+                    <lucide-icon [img]="icons.NotesIcon" [size]="12"></lucide-icon>
                     <span #noteText class="dsn-text" [attr.data-note-id]="showtimeDetail.id">{{
                       showtimeDetail.specialNotes
                     }}</span>
@@ -182,7 +182,7 @@
         [class]="hasDayDrafts() || hasOtherDrafts() ? 'btn-add-outlined' : 'btn-add-solid'"
         (click)="onAddShowtime()"
       >
-        <lucide-icon [img]="PlusIcon" [size]="16"></lucide-icon>
+        <lucide-icon [img]="icons.PlusIcon" [size]="16"></lucide-icon>
         <span>Add Showtime</span>
       </button>
 
@@ -197,7 +197,7 @@
             @if (publishingAll()) {
               <loading-spinner variant="sm" />
             } @else if (!hasDayDrafts()) {
-              <lucide-icon [img]="PublishIcon" [size]="16"></lucide-icon>
+              <lucide-icon [img]="icons.PublishIcon" [size]="16"></lucide-icon>
             }
             <span>Publish all ({{ data.numberOfDrafts }})</span>
           </button>
@@ -212,7 +212,7 @@
             @if (publishingDay()) {
               <loading-spinner variant="sm" />
             } @else {
-              <lucide-icon [img]="PublishIcon" [size]="16"></lucide-icon>
+              <lucide-icon [img]="icons.PublishIcon" [size]="16"></lucide-icon>
             }
             <span>Publish Drafts ({{ dayDrafts() }})</span>
           </button>

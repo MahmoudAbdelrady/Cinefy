@@ -10,7 +10,8 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { EditableShowtime, MovieWithShowtimes, Showtime } from '../../../shared/types';
-import { Plus, Trash2, TriangleAlert, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { DeleteIcon, PlusIcon, WarningIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ModalComponent } from '../../modal/modal';
@@ -34,9 +35,11 @@ import { ShowtimeEventsService, ShowtimesService, ToastService } from '../../../
   styleUrl: './current-showtimes.scss',
 })
 export class CurrentShowtimesComponent {
-  protected readonly PlusIcon = Plus;
-  protected readonly DeleteIcon = Trash2;
-  protected readonly AlertIcon = TriangleAlert;
+  protected readonly icons = {
+    DeleteIcon,
+    PlusIcon,
+    WarningIcon,
+  };
 
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);

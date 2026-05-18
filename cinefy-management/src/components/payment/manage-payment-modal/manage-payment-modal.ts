@@ -48,7 +48,9 @@ import type { PaymentMethod, PaymentMethodSummary } from '../../../shared/types'
   styleUrl: './manage-payment-modal.scss',
 })
 export class ManagePaymentModalComponent {
-  protected readonly LockIcon = Lock;
+  protected readonly icons = {
+    LockIcon: Lock,
+  };
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly paymentMethodService = inject(PaymentMethodService);

@@ -7,13 +7,8 @@ import {
   NgpPaginationPrevious,
 } from 'ng-primitives/pagination';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
-import {
-  ChevronsLeft,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsRight,
-  LucideAngularModule,
-} from 'lucide-angular';
+import { ChevronLeft, ChevronsLeft, ChevronsRight, LucideAngularModule } from 'lucide-angular';
+import { ChevronRightIcon } from '../../shared/icons';
 
 @Component({
   selector: 'pagination-component',
@@ -31,10 +26,12 @@ import {
   styleUrl: './pagination.scss',
 })
 export class PaginationComponent {
-  protected readonly FirstIcon = ChevronsLeft;
-  protected readonly PrevIcon = ChevronLeft;
-  protected readonly NextIcon = ChevronRight;
-  protected readonly LastIcon = ChevronsRight;
+  protected readonly icons = {
+    ChevronRightIcon,
+    FirstIcon: ChevronsLeft,
+    PrevIcon: ChevronLeft,
+    LastIcon: ChevronsRight,
+  };
 
   readonly page = model.required<number>();
   readonly pageCount = input.required<number>();

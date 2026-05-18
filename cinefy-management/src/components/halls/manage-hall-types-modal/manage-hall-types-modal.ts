@@ -8,16 +8,14 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
+import { Loader, LucideAngularModule, X } from 'lucide-angular';
 import {
-  Check,
-  Loader,
-  LucideAngularModule,
-  Plus,
-  SquarePen,
-  Trash2,
-  TriangleAlert,
-  X,
-} from 'lucide-angular';
+  CheckIcon,
+  DeleteIcon,
+  EditIcon,
+  PlusIcon,
+  WarningIcon,
+} from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { ModalComponent } from '../../modal/modal';
@@ -50,13 +48,15 @@ function notBlankValidator(control: AbstractControl): ValidationErrors | null {
   styleUrl: './manage-hall-types-modal.scss',
 })
 export class ManageHallTypesModalComponent {
-  protected readonly EditIcon = SquarePen;
-  protected readonly DeleteIcon = Trash2;
-  protected readonly CheckIcon = Check;
-  protected readonly XIcon = X;
-  protected readonly WarningIcon = TriangleAlert;
-  protected readonly LoaderIcon = Loader;
-  protected readonly PlusIcon = Plus;
+  protected readonly icons = {
+    CheckIcon,
+    DeleteIcon,
+    EditIcon,
+    PlusIcon,
+    WarningIcon,
+    XIcon: X,
+    LoaderIcon: Loader,
+  };
 
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
