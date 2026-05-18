@@ -64,13 +64,8 @@
           <div class="input-group">
             <label>Time</label>
             <time-picker
-              formControlName="time"
-              placeholder="Select a time"
-              [container]="modal.panelEl()"
-            />
-            <field-error
               [control]="showtimeForm.controls.time"
-              [messages]="{
+              [errorMessages]="{
                 required: 'Time is required',
                 pastTime: 'Time cannot be in the past',
               }"

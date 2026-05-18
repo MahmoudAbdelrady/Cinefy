@@ -24,7 +24,6 @@ import examples from 'libphonenumber-js/examples.mobile.json';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import { ModalComponent } from '../../modal/modal';
 import { InputField } from '../../input-field/input-field';
-import { FieldErrorComponent } from '../../field-error/field-error';
 import {
   EMPLOYMENT_TYPE_LABELS,
   STAFF_POSITION_LABELS,
@@ -69,7 +68,6 @@ const DEFAULT_COUNTRY: CountryCode = 'EG';
     ModalComponent,
     InputField,
     CustomSelectComponent,
-    FieldErrorComponent,
     LucideAngularModule,
     NgpRadioGroup,
     NgpRadioItem,

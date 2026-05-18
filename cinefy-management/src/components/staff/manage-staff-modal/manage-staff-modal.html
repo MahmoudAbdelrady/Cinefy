@@ -187,16 +187,12 @@
       <label data-required>Working hours</label>
       <div class="fields">
         <div class="input-group">
-          <time-picker
-            [formControl]="staffForm.controls.workingHourStart"
-            placeholder="Start time"
-          />
+          <time-picker [control]="staffForm.controls.workingHourStart" />
         </div>
         <div class="input-group">
-          <time-picker [formControl]="staffForm.controls.workingHourEnd" placeholder="End time" />
-          <field-error
+          <time-picker
             [control]="staffForm.controls.workingHourEnd"
-            [messages]="{ sameAsStart: 'End time must be different from start time' }"
+            [errorMessages]="{ sameAsStart: 'End time must be different from start time' }"
           />
         </div>
       </div>
