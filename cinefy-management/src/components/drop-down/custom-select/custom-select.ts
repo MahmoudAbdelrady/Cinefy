@@ -78,10 +78,9 @@ export class CustomSelectComponent<T> {
   private readonly itemFromControl = computed<T | null>(() => {
     if (!this.control()) return null;
     const formValue = this.controlValue();
-    if (formValue == null) return null;
+    if (formValue == null || formValue === '') return null;
     const valueFn = this.valueFn();
-    const compareWith = this.compareWith();
-    return this.items().find((item) => compareWith(valueFn(item) as T, formValue as T)) ?? null;
+    return this.items().find((item) => Object.is(valueFn(item), formValue)) ?? null;
   });
 
   protected readonly displayValue = computed(() => {
