@@ -67,8 +67,6 @@ export class CustomSelectComponent<T> {
 
   readonly selectionChange = output<T>();
   readonly cleared = output<void>();
-  readonly touched = output<void>();
-
 
   protected readonly selectedItem = signal<T | null>(null);
   protected readonly searchTerm = signal('');
@@ -124,7 +122,7 @@ export class CustomSelectComponent<T> {
     if (open) {
       this.searchTerm.set('');
     } else {
-      this.touched.emit();
+      this.control()?.markAsTouched();
     }
   }
 
@@ -148,6 +146,7 @@ export class CustomSelectComponent<T> {
     event.stopPropagation();
     this.wasCleared.set(true);
     this.selectedItem.set(null);
+    this.control()?.markAsTouched();
     this.cleared.emit();
   }
 }

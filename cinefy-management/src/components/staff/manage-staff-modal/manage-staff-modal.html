@@ -85,7 +85,6 @@
               dropdownWidth="matchContent"
               placeholder="Country"
               (selectionChange)="onPhoneCountryChange($event)"
-              (touched)="markPhoneCountryTouched()"
             />
           </div>
           <div class="phone-national">
@@ -124,12 +123,10 @@
         [displayFn]="positionDisplayFn"
         [control]="staffForm.controls.position"
         [errorMessages]="{ required: 'Position is required' }"
-        [clearable]="true"
         [required]="true"
         placeholder="Select a position"
         (selectionChange)="onPositionChange($event)"
         (cleared)="onPositionCleared()"
-        (touched)="markPositionTouched()"
       />
     </div>
     <div class="input-group">
@@ -160,7 +157,6 @@
             placeholder="Select start day"
             (selectionChange)="onWorkingDayStartChange($event)"
             (cleared)="onWorkingDayStartCleared()"
-            (touched)="markWorkingDayStartTouched()"
           />
         </div>
         <div class="input-group">
@@ -173,7 +169,6 @@
             placeholder="Select end day"
             (selectionChange)="onWorkingDayEndChange($event)"
             (cleared)="onWorkingDayEndCleared()"
-            (touched)="markWorkingDayEndTouched()"
           />
         </div>
       </div>

@@ -15,13 +15,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideAngularModule, Star } from 'lucide-angular';
-import {
-  DollarSignIcon,
-  EditIcon,
-  EyeIcon,
-  LayoutIcon,
-  SettingsIcon,
-} from '../../../shared/icons';
+import { DollarSignIcon, EditIcon, EyeIcon, LayoutIcon, SettingsIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';

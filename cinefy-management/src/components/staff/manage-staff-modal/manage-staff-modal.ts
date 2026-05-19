@@ -300,53 +300,30 @@ export class ManageStaffModalComponent {
 
   protected onPositionChange(position: StaffPosition): void {
     this.staffForm.controls.position.setValue(position);
-    this.markPositionTouched();
   }
 
   protected onPositionCleared(): void {
     this.staffForm.controls.position.setValue(null);
-    this.markPositionTouched();
-  }
-
-  protected markPositionTouched(): void {
-    this.staffForm.controls.position.markAsTouched();
   }
 
   protected onWorkingDayStartChange(day: WeekDay): void {
     this.staffForm.controls.workingDayStart.setValue(day);
-    this.markWorkingDayStartTouched();
   }
 
   protected onWorkingDayStartCleared(): void {
     this.staffForm.controls.workingDayStart.setValue(null);
-    this.markWorkingDayStartTouched();
-  }
-
-  protected markWorkingDayStartTouched(): void {
-    this.staffForm.controls.workingDayStart.markAsTouched();
   }
 
   protected onWorkingDayEndChange(day: WeekDay): void {
     this.staffForm.controls.workingDayEnd.setValue(day);
-    this.markWorkingDayEndTouched();
   }
 
   protected onWorkingDayEndCleared(): void {
     this.staffForm.controls.workingDayEnd.setValue(null);
-    this.markWorkingDayEndTouched();
-  }
-
-  protected markWorkingDayEndTouched(): void {
-    this.staffForm.controls.workingDayEnd.markAsTouched();
   }
 
   protected onPhoneCountryChange(option: CountryOption): void {
     this.staffForm.controls.phoneCountry.setValue(option.code);
-    this.markPhoneCountryTouched();
-  }
-
-  protected markPhoneCountryTouched(): void {
-    this.staffForm.controls.phoneCountry.markAsTouched();
   }
 
   protected get selectedCountryOption(): CountryOption | null {

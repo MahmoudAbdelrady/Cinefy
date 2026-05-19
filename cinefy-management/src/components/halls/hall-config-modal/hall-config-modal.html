@@ -108,7 +108,6 @@
             [displayFn]="hallTypeDisplayFn"
             [valueFn]="hallTypeValueFn"
             [compareWith]="compareHallTypes"
-            [clearable]="!isViewMode()"
             [disabled]="isViewMode()"
             [searchable]="true"
             [control]="hallForm.controls.typeId"
@@ -118,7 +117,6 @@
             [container]="modal.panelEl()"
             (selectionChange)="onHallTypeChange($event)"
             (cleared)="onHallTypeCleared()"
-            (touched)="hallForm.controls.typeId.markAsTouched()"
           />
           <div class="switch-group">
             <span>Supports 3D</span>
