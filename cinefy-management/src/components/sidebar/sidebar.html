@@ -28,16 +28,4 @@
       </a>
     }
   </div>
-  <div class="footer">
-    <a
-      class="page-item"
-      [routerLink]="settingsTab.path"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      (click)="sidebarService.close()"
-    >
-      <lucide-icon [img]="settingsTab.icon" [size]="20"></lucide-icon>
-      <span>{{ settingsTab.label }}</span>
-    </a>
-  </div>
 </div>

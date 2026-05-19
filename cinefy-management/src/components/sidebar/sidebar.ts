@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   LucideAngularModule,
   LucideIconData,
-  Settings,
   Users,
   X,
 } from 'lucide-angular';
@@ -40,10 +39,4 @@ export class SidebarComponent {
     { label: 'Payment', icon: CreditCard, path: '/payment' },
     { label: 'Staff', icon: Users, path: '/staff' },
   ];
-
-  protected readonly settingsTab: SidebarTab = {
-    label: 'Settings',
-    icon: Settings,
-    path: '/settings',
-  };
 }
