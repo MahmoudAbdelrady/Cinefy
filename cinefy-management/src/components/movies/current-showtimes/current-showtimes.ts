@@ -53,19 +53,16 @@ export class CurrentShowtimesComponent {
 
   constructor() {
     afterNextRender(() => {
-      this.showtimesService
-        .getMoviesWithShowtimes()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (list) => {
-            this.moviesWithShowtimes.set(list);
-            this.loading.set(false);
-          },
-          error: (err: HttpErrorResponse) => {
-            this.loading.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
-          },
-        });
+      this.showtimesService.getMoviesWithShowtimes().subscribe({
+        next: (list) => {
+          this.moviesWithShowtimes.set(list);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
+        },
+      });
     });
 
     effect(() => {

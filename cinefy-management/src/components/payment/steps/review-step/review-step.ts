@@ -1,5 +1,4 @@
-import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { EyeOff, LucideAngularModule, X, Zap } from 'lucide-angular';
 import { CheckIcon, CreditCardIcon, EyeIcon } from '../../../../shared/icons';
@@ -37,7 +36,6 @@ export class ReviewStep {
   };
 
   private readonly paymentMethodService = inject(PaymentMethodService);
-  private readonly destroyRef = inject(DestroyRef);
 
   readonly data = input.required<PaymentMethod>();
   readonly methodId = input<string | null>(null);
@@ -86,7 +84,6 @@ export class ReviewStep {
         integrationId,
         currency,
       })
-      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.testResult.set({ testStatus: 'SUCCESS', fromPriorSession: false });

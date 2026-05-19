@@ -2,6 +2,7 @@ import {
   afterNextRender,
   Component,
   computed,
+  DestroyRef,
   effect,
   ElementRef,
   inject,
@@ -13,7 +14,7 @@ import {
 import { NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LucideAngularModule, Star } from 'lucide-angular';
 import { DollarSignIcon, EditIcon, EyeIcon, LayoutIcon, SettingsIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
@@ -82,6 +83,7 @@ export class HallConfigModalComponent {
 
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly layoutEditor = viewChild.required(HallLayoutEditorComponent);
   private readonly discardTrigger = viewChild<ElementRef>('discardTrigger');
 
@@ -365,7 +367,7 @@ export class HallConfigModalComponent {
       ? this.hallsService.updateHall(existing, hall)
       : this.hallsService.createHall(hall);
 
-    request$.subscribe({
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.saving.set(false);
         if (existing) {

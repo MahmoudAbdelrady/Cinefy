@@ -1,14 +1,5 @@
-import {
-  afterNextRender,
-  Component,
-  DestroyRef,
-  inject,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { afterNextRender, Component, inject, input, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AtSign, BriefcaseBusiness, LucideAngularModule } from 'lucide-angular';
 import { CalendarIcon, EditIcon, EmailIcon, PhoneIcon } from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
@@ -48,7 +39,6 @@ export class StaffDetailsComponent {
 
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly employmentTypeLabels = EMPLOYMENT_TYPE_LABELS;
   protected readonly positionLabels = STAFF_POSITION_LABELS;
@@ -65,19 +55,16 @@ export class StaffDetailsComponent {
   constructor() {
     afterNextRender(() => {
       this.loading.set(true);
-      this.staffService
-        .getStaffMember(this.staffMemberId())
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (member) => {
-            this.staffMember.set(member);
-            this.loading.set(false);
-          },
-          error: (err: HttpErrorResponse) => {
-            this.loading.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to load staff member');
-          },
-        });
+      this.staffService.getStaffMember(this.staffMemberId()).subscribe({
+        next: (member) => {
+          this.staffMember.set(member);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load staff member');
+        },
+      });
     });
   }
 

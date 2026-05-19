@@ -1,5 +1,4 @@
-import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule } from 'lucide-angular';
 import { CalendarIcon } from '../../../shared/icons';
@@ -29,26 +28,22 @@ export class UpcomingMoviesComponent {
 
   private readonly moviesService = inject(MoviesService);
   private readonly toastService = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly movies = signal<MovieSearchResult[]>([]);
 
   constructor() {
     afterNextRender(() => {
-      this.moviesService
-        .getUpcomingMovies()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (list) => {
-            this.movies.set(list);
-            this.loading.set(false);
-          },
-          error: (err: HttpErrorResponse) => {
-            this.loading.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to load upcoming movies');
-          },
-        });
+      this.moviesService.getUpcomingMovies().subscribe({
+        next: (list) => {
+          this.movies.set(list);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load upcoming movies');
+        },
+      });
     });
   }
 

@@ -152,7 +152,28 @@ Always use `inject()` — never constructor injection.
 - `input()` / `output()` signal-based for component I/O.
 - **RxJS** is used only for HTTP streams and combining/debouncing observables.
 - `toSignal()` / `toObservable()` to bridge between the two.
-- `takeUntilDestroyed()` for subscription cleanup.
+
+### When to use `takeUntilDestroyed`
+
+`takeUntilDestroyed(this.destroyRef)` is **only** needed when the source observable doesn't complete on its own. Adding it everywhere is cargo-cult — `HttpClient` observables emit once and complete, so they cannot leak.
+
+**Required** for:
+
+- `FormControl.valueChanges` / `FormGroup.valueChanges` (never completes).
+- `toObservable(signal)` derived streams.
+- Custom `Subject` / `BehaviorSubject` (e.g., a debounced search subject in a paginated select).
+- Combinators (`merge`, `combineLatest`, `switchMap`, ...) over any of the above.
+- `fromEvent`, `interval`, `timer`, websockets — anything continuous.
+
+**Allowed (but as a cancellation guard, not a leak fix)** for one-shot HTTP when a late response after destroy would cause observable side effects — emitting an `output()`, firing a toast, calling `close()`, mutating shared state. Typical cases: modal **save / delete / publish** flows and detail loads inside an `effect()` keyed by id (so a stale id's response can't clobber the new one). Setting a signal on a destroyed component is a no-op, so a read-only fetch that only `.set()`s local state does **not** need it.
+
+**Not needed** for one-shot HTTP that only writes local state (`getStatistics()`, `getDetail()` in `afterNextRender`, an initial list load). Subscribe directly:
+
+```typescript
+this.service.getThing().subscribe({ next: ..., error: ... });
+```
+
+Reference: [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-config-modal.ts) uses it only on the create/update path (which fires `hallCreated` / `hallUpdated` outputs and calls `close()`), not on the initial loads.
 
 ### Forms
 

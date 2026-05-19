@@ -1,6 +1,5 @@
-import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
+import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   STAFF_POSITION_LABELS,
   type CoverageChange,
@@ -20,7 +19,6 @@ import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 export class StaffPositionCoverageComponent {
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly positionLabels = STAFF_POSITION_LABELS;
 
@@ -29,19 +27,16 @@ export class StaffPositionCoverageComponent {
 
   constructor() {
     afterNextRender(() => {
-      this.staffService
-        .getPositionCoverage()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (coverage) => {
-            this.positionCoverageItems.set(coverage);
-            this.loading.set(false);
-          },
-          error: (err: HttpErrorResponse) => {
-            this.loading.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to load position coverage');
-          },
-        });
+      this.staffService.getPositionCoverage().subscribe({
+        next: (coverage) => {
+          this.positionCoverageItems.set(coverage);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load position coverage');
+        },
+      });
     });
   }
 

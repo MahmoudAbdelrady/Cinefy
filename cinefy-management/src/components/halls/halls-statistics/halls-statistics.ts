@@ -1,5 +1,4 @@
-import { afterNextRender, Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Eye, LayoutDashboard, TrendingUp, Users } from 'lucide-angular';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
@@ -16,7 +15,6 @@ import type { HallStatistics, StatsCard } from '../../../shared/types';
 export class HallsStatisticsComponent {
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected statistics = signal<HallStatistics | null>(null);
   protected loading = signal(true);
@@ -33,19 +31,16 @@ export class HallsStatisticsComponent {
 
   constructor() {
     afterNextRender(() => {
-      this.hallsService
-        .getHallsStatistics()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (stats) => {
-            this.statistics.set(stats);
-            this.loading.set(false);
-          },
-          error: (err: HttpErrorResponse) => {
-            this.loading.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to load statistics');
-          },
-        });
+      this.hallsService.getHallsStatistics().subscribe({
+        next: (stats) => {
+          this.statistics.set(stats);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load statistics');
+        },
+      });
     });
   }
 }

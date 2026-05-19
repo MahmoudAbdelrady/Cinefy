@@ -91,19 +91,16 @@ export class PaymentMethodListComponent {
 
   constructor() {
     afterNextRender(() => {
-      this.paymentMethodService
-        .getPaymentMethods()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (methods) => {
-            this.paymentMethods.set(methods);
-            this.loading.set(false);
-          },
-          error: (err: HttpErrorResponse) => {
-            this.loading.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to load payment methods');
-          },
-        });
+      this.paymentMethodService.getPaymentMethods().subscribe({
+        next: (methods) => {
+          this.paymentMethods.set(methods);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load payment methods');
+        },
+      });
     });
   }
 
