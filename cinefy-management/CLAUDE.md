@@ -264,6 +264,7 @@ POST   /payment-methods/:id/status       # Toggle active/inactive
 - Icon mixins: `icon-box($size)`, `lucide-icon-fix` (applied on the **parent** of `<lucide-icon>`, never inside a `lucide-icon { }` block).
 - Other mixins: `text-truncate`, `empty-state-block`.
 - Responsive mixins: `below-phone/mobile/tablet/desktop` and `from-phone/mobile/tablet/desktop` (mobile-first by default).
+- **Flag new raw values before adding them** — if a color, shadow, gradient, or other "designed" value is not already in `src/shared/styles/`, surface it before writing: name the value, the closest existing token, and how they differ, then wait for the user to choose keep / replace with token / extract to shared. Doesn't apply to plain layout numbers (paddings, gaps, line-heights).
 
 ### Prettier
 

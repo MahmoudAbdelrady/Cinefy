@@ -1,1 +1,51 @@
-<p>login works!</p>
+<div class="login-page">
+  <div class="lp-heading">
+    <h1>Sign in</h1>
+    <p>Access the Cinefy management console.</p>
+  </div>
+
+  <div class="lp-card">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="lp-form">
+      <input-field
+        label="Username"
+        placeholder="Enter your username"
+        [leadingIcon]="icons.AtSignIcon"
+        [control]="loginForm.controls.username"
+        [errorMessages]="{
+          required: 'Username is required',
+        }"
+      />
+
+      <div class="lp-password">
+        <input-field
+          label="Password"
+          type="password"
+          placeholder="Enter your password"
+          [leadingIcon]="icons.PasswordIcon"
+          [control]="loginForm.controls.password"
+          [errorMessages]="{
+            required: 'Password is required',
+          }"
+        />
+        <div class="lp-forgot">
+          <a routerLink="/auth/forgot-password">Forgot password?</a>
+        </div>
+      </div>
+
+      <button
+        ngpButton
+        type="submit"
+        class="lp-submit"
+        [disabled]="loginForm.invalid || submitting()"
+      >
+        @if (submitting()) {
+          <loading-spinner variant="sm" />
+          <span>Signing in…</span>
+        } @else {
+          <span>Sign in</span>
+          <lucide-icon class="lp-submit-arrow" [img]="icons.ArrowRightIcon" [size]="16" />
+        }
+      </button>
+    </form>
+  </div>
+</div>

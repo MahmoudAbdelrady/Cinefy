@@ -13,4 +13,6 @@ export class AuthLayout {
   protected readonly icons = {
     FilmIcon,
   };
+
+  protected readonly currentYear = new Date().getFullYear();
 }

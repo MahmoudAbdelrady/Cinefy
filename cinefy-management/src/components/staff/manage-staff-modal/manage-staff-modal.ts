@@ -11,8 +11,8 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AtSign, KeyRound, LucideAngularModule, User } from 'lucide-angular';
-import { CheckIcon, EmailIcon, PhoneIcon } from '../../../shared/icons';
+import { LucideAngularModule, User } from 'lucide-angular';
+import { AtSignIcon, CheckIcon, EmailIcon, PasswordIcon, PhoneIcon } from '../../../shared/icons';
 import {
   getCountries,
   getCountryCallingCode,
@@ -85,8 +85,8 @@ export class ManageStaffModalComponent {
     EmailIcon,
     PhoneIcon,
     NameIcon: User,
-    UsernameIcon: AtSign,
-    KeyIcon: KeyRound,
+    UsernameIcon: AtSignIcon,
+    KeyIcon: PasswordIcon,
   };
 
   private readonly staffService = inject(StaffService);
