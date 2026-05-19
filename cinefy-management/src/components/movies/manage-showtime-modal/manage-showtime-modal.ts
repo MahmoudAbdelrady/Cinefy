@@ -30,7 +30,8 @@ import {
 } from '../../../services';
 import { NgpTextarea } from 'ng-primitives/textarea';
 import { NgpButton } from 'ng-primitives/button';
-import { Film, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { FilmIcon } from '../../../shared/icons';
 import { ModalComponent } from '../../modal/modal';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
@@ -80,9 +81,11 @@ function timeNotInPastValidator(control: AbstractControl): ValidationErrors | nu
   styleUrl: './manage-showtime-modal.scss',
 })
 export class ManageShowtimeModalComponent {
-  protected readonly MovieIcon = Film;
+  protected readonly icons = {
+    FilmIcon,
+  };
 
-  protected hallsService = inject(HallsService);
+  private readonly hallsService = inject(HallsService);
   private readonly moviesService = inject(MoviesService);
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
@@ -94,11 +97,10 @@ export class ManageShowtimeModalComponent {
   readonly showSelectedMovie = input(true);
   readonly editingShowtime = input<EditableShowtime | null>(null);
 
-  protected readonly fetchHalls = (page: number, size: number, search?: string) =>
-    this.hallsService.getHalls(search, { page, size }, undefined, ACTIVE_HALL_STATUSES);
-
-  protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
-  protected readonly hallValueFn = (hall: HallSummary) => hall.id;
+  protected readonly submitting = signal(false);
+  protected readonly selectedHall = signal<HallSummary | null>(null);
+  protected pickedMovie = signal<MovieSearchResult | null>(null);
+  protected readonly activeMovieDetail = signal<MovieDetail | null>(null);
 
   protected readonly showtimeForm = new FormGroup({
     date: new FormControl<Date | null>(null, {
@@ -116,11 +118,6 @@ export class ManageShowtimeModalComponent {
       validators: [Validators.maxLength(255)],
     }),
   });
-
-  protected readonly submitting = signal(false);
-  protected readonly selectedHall = signal<HallSummary | null>(null);
-  protected pickedMovie = signal<MovieSearchResult | null>(null);
-  protected readonly activeMovieDetail = signal<MovieDetail | null>(null);
 
   protected readonly activeMovie = computed<MovieSearchResult | null>(
     () => this.selectedMovie() ?? this.pickedMovie(),
@@ -144,6 +141,12 @@ export class ManageShowtimeModalComponent {
   protected readonly submitLabel = computed(() =>
     this.isEditMode() ? 'Save Changes' : 'Create Showtime',
   );
+
+  protected readonly fetchHalls = (page: number, size: number, search?: string) =>
+    this.hallsService.getHalls(search, { page, size }, undefined, ACTIVE_HALL_STATUSES);
+
+  protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
+  protected readonly hallValueFn = (hall: HallSummary) => hall.id;
 
   constructor() {
     this.showtimeForm.controls.date.valueChanges

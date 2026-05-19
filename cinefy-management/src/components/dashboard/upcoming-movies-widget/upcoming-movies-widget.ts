@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { LucideAngularModule, Calendar, Clock } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { CalendarIcon, ClockIcon } from '../../../shared/icons';
 import { RouterLink } from '@angular/router';
 import type { Movie } from '../../../shared/types';
 
@@ -11,8 +12,10 @@ import type { Movie } from '../../../shared/types';
   styleUrl: './upcoming-movies-widget.scss',
 })
 export class UpcomingMoviesWidgetComponent {
-  protected CalendarIcon = Calendar;
-  protected ClockIcon = Clock;
+  protected readonly icons = {
+    CalendarIcon,
+    ClockIcon,
+  };
   protected upcomingMovies: Movie[] = [
     {
       id: 101,

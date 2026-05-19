@@ -1,4 +1,5 @@
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
 @use '../../../shared/styles/mixins' as *;
 @use '../../../shared/styles/breakpoints' as *;
 
@@ -83,7 +84,7 @@
   border-radius: $radius-md;
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: $shadow-sm;
 
   @include below-mobile {
     width: 40px;
@@ -141,7 +142,7 @@
 .tsild-dot {
   width: 4px;
   height: 4px;
-  border-radius: 50%;
+  border-radius: $radius-pill;
   background-color: $gray-300;
 }
 
@@ -193,7 +194,7 @@
     height: 6px;
     min-width: 6px;
     min-height: 6px;
-    border-radius: 50%;
+    border-radius: $radius-pill;
     flex-shrink: 0;
     padding: 0;
   }

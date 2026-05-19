@@ -1,16 +1,14 @@
 import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LucideAngularModule, Tag } from 'lucide-angular';
 import {
-  CircleAlert,
-  Eye,
-  Film,
-  LayoutDashboard,
-  LucideAngularModule,
-  Search,
-  Tag,
-  Trash2,
-  Users,
-} from 'lucide-angular';
+  AlertIcon,
+  DeleteIcon,
+  EyeIcon,
+  LayoutIcon,
+  SearchIcon,
+  UsersIcon,
+} from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -37,9 +35,21 @@ import { HallsService, ToastService } from '../../../services';
   styleUrl: './halls-list.scss',
 })
 export class HallsListComponent {
+  protected readonly icons = {
+    SearchIcon,
+    LayoutIcon,
+    UsersIcon,
+    EyeIcon,
+    DeleteIcon,
+    AlertIcon,
+    TagIcon: Tag,
+  };
+
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly statusLabels = HALL_STATUS_LABELS;
 
   protected readonly page = signal(1);
   protected readonly search = signal('');
@@ -52,17 +62,6 @@ export class HallsListComponent {
     toObservable(this.search).pipe(debounceTime(300), distinctUntilChanged()),
     toObservable(this.page),
   ]);
-
-  protected readonly SearchIcon = Search;
-  protected readonly LayoutIcon = LayoutDashboard;
-  protected readonly PeopleIcon = Users;
-  protected readonly FilmIcon = Film;
-  protected readonly EyeIcon = Eye;
-  protected readonly DeleteIcon = Trash2;
-  protected readonly AlertIcon = CircleAlert;
-  protected readonly TagIcon = Tag;
-
-  protected readonly statusLabels = HALL_STATUS_LABELS;
 
   constructor() {
     afterNextRender(() => {

@@ -29,16 +29,8 @@ import {
   Showtime,
 } from '../../../shared/types';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
-import {
-  MapPin,
-  LucideAngularModule,
-  SquarePen,
-  Trash2,
-  Plus,
-  Send,
-  TriangleAlert,
-  StickyNote,
-} from 'lucide-angular';
+import { LucideAngularModule, MapPin, Send, StickyNote } from 'lucide-angular';
+import { DeleteIcon, EditIcon, PlusIcon, WarningIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ShowtimeEventsService, ShowtimesService, ToastService } from '../../../services';
@@ -64,22 +56,28 @@ import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
   styleUrl: './movie-showtimes-modal.scss',
 })
 export class MovieShowtimesModal {
-  protected readonly statusLabels = SHOWTIME_STATUS_LABELS;
-  protected readonly LocationIcon = MapPin;
-  protected readonly EditIcon = SquarePen;
-  protected readonly DeleteIcon = Trash2;
-  protected readonly PlusIcon = Plus;
-  protected readonly PublishIcon = Send;
-  protected readonly AlertIcon = TriangleAlert;
-  protected readonly NotesIcon = StickyNote;
+  protected readonly icons = {
+    DeleteIcon,
+    EditIcon,
+    PlusIcon,
+    WarningIcon,
+    LocationIcon: MapPin,
+    PublishIcon: Send,
+    NotesIcon: StickyNote,
+  };
 
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
+  private readonly noteEls = viewChildren<ElementRef<HTMLElement>>('noteText');
+
+  protected readonly statusLabels = SHOWTIME_STATUS_LABELS;
+
   readonly close = input.required<() => void>();
   readonly selectedMovie = input.required<MovieDetail>();
+
   readonly addShowtimeRequested = output<void>();
   readonly editShowtimeRequested = output<EditableShowtime>();
 
@@ -95,7 +93,6 @@ export class MovieShowtimesModal {
   protected readonly publishingAll = signal(false);
   protected readonly expandedNotes = signal<Set<string>>(new Set());
   protected readonly overflowingNotes = signal<Set<string>>(new Set());
-  private readonly noteEls = viewChildren<ElementRef<HTMLElement>>('noteText');
 
   private readonly dayCache = new Map<string, MovieShowtimesResponse>();
 
@@ -270,6 +267,18 @@ export class MovieShowtimesModal {
       this.applyLocalBulkPublish(0);
       this.dayCache.clear();
       this.showtimeEvents.notifyPublished(movieId, count);
+    });
+  }
+
+  protected toggleNote(id: string) {
+    this.expandedNotes.update((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
     });
   }
 
@@ -468,18 +477,6 @@ export class MovieShowtimesModal {
         next.add(id);
       } else {
         next.delete(id);
-      }
-      return next;
-    });
-  }
-
-  protected toggleNote(id: string) {
-    this.expandedNotes.update((current) => {
-      const next = new Set(current);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
       }
       return next;
     });

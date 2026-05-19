@@ -1,7 +1,7 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Calendar, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { CalendarIcon } from '../../../shared/icons';
 import type { MovieSearchResult } from '../../../shared/types';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
@@ -22,20 +22,19 @@ import { MoviesService, ToastService } from '../../../services';
   styleUrl: './upcoming-movies.scss',
 })
 export class UpcomingMoviesComponent {
-  protected readonly CalendarIcon = Calendar;
+  protected readonly icons = {
+    CalendarIcon,
+  };
 
   private readonly moviesService = inject(MoviesService);
   private readonly toastService = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly movies = signal<MovieSearchResult[]>([]);
 
   constructor() {
-    this.moviesService
-      .getUpcomingMovies()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
+    afterNextRender(() => {
+      this.moviesService.getUpcomingMovies().subscribe({
         next: (list) => {
           this.movies.set(list);
           this.loading.set(false);
@@ -45,6 +44,7 @@ export class UpcomingMoviesComponent {
           this.toastService.error(err.error?.message ?? 'Failed to load upcoming movies');
         },
       });
+    });
   }
 
   protected isComingSoon(releaseDate: string | undefined): boolean {

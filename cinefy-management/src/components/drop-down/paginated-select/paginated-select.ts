@@ -8,10 +8,12 @@ import {
   signal,
   ViewEncapsulation,
 } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, debounceTime, distinctUntilChanged } from 'rxjs';
-import { LucideAngularModule, ChevronDown, X } from 'lucide-angular';
+import { LucideAngularModule, X } from 'lucide-angular';
+import { ChevronDownIcon } from '../../../shared/icons';
 import {
   NgpCombobox,
   NgpComboboxButton,
@@ -21,6 +23,7 @@ import {
   NgpComboboxPortal,
 } from 'ng-primitives/combobox';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { FieldErrorComponent } from '../../field-error/field-error';
 import type { PaginatedResponse } from '../../../shared/types';
 import { ToastService } from '../../../services';
 
@@ -35,15 +38,23 @@ import { ToastService } from '../../../services';
     NgpComboboxPortal,
     LucideAngularModule,
     LoadingSpinnerComponent,
+    FieldErrorComponent,
   ],
   templateUrl: './paginated-select.html',
   styleUrl: './paginated-select.scss',
   encapsulation: ViewEncapsulation.None,
 })
 export class PaginatedSelectComponent<T> {
+  protected readonly icons = {
+    ChevronDownIcon,
+    XIcon: X,
+  };
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
 
+  readonly label = input<string | null>(null);
+  readonly hint = input<string | null>(null);
+  readonly required = input(false);
   readonly placeholder = input('Select an option');
   readonly disabled = input(false);
   readonly clearable = input(false);
@@ -51,6 +62,8 @@ export class PaginatedSelectComponent<T> {
   readonly pageSize = input(20);
   readonly container = input<string | HTMLElement | null>(null);
   readonly initialValue = input<T | null>(null);
+  readonly control = input<FormControl | null>(null);
+  readonly errorMessages = input<Record<string, string>>({});
   readonly fetchFn =
     input.required<
       (page: number, size: number, search?: string) => Observable<PaginatedResponse<T>>
@@ -61,8 +74,6 @@ export class PaginatedSelectComponent<T> {
   readonly selectionChange = output<T>();
   readonly cleared = output<void>();
 
-  protected readonly ChevronDownIcon = ChevronDown;
-  protected readonly XIcon = X;
 
   protected readonly items = signal<T[]>([]);
   protected readonly loading = signal(false);

@@ -1,31 +1,7 @@
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
 @use '../../../shared/styles/mixins' as *;
 @use '../../../shared/styles/breakpoints' as *;
-
-@mixin disabled-input {
-  &:disabled,
-  &[disabled] {
-    background-color: $gray-50;
-    border-color: $gray-200;
-    color: $gray-900;
-    cursor: default;
-    -webkit-text-fill-color: $gray-900;
-
-    &:focus {
-      outline: none;
-      border-color: $gray-200;
-      box-shadow: none;
-    }
-
-    &.ng-invalid.ng-touched {
-      border-color: $gray-200;
-
-      &:focus {
-        box-shadow: none;
-      }
-    }
-  }
-}
 
 // ─── Add / Edit Hall Modal ──────────────────────────────────────────────────────
 
@@ -48,8 +24,7 @@
 // ─── Hall Information ───────────────────────────────────────────────────────────
 
 .hall-information {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 24px;
   max-height: 65vh;
   overflow-y: auto;
@@ -83,60 +58,12 @@
 }
 
 .hi-form {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 16px;
 }
 
 .input-group {
-  display: flex;
-  flex-direction: column;
-
-  > span {
-    font-size: 14px;
-    font-weight: 500;
-    color: $gray-700;
-    margin-bottom: 8px;
-  }
-
-  .status-caption {
-    display: block;
-    font-size: 12px;
-    color: $gray-500;
-    margin-top: 4px;
-    font-weight: 400;
-  }
-
-  input {
-    width: 100%;
-    padding: 8px 16px;
-    font-size: 14px;
-    border: 1px solid $gray-300;
-    border-radius: $radius-md;
-    color: $gray-900;
-    background-color: #ffffff;
-    transition: all 150ms ease;
-
-    &::placeholder {
-      color: $gray-400;
-    }
-
-    &:focus {
-      outline: none;
-      border-color: transparent;
-      box-shadow: 0 0 0 2px $blue-500;
-    }
-
-    &.ng-invalid.ng-touched {
-      border-color: $red-500;
-
-      &:focus {
-        box-shadow: 0 0 0 2px $red-500;
-      }
-    }
-
-    @include disabled-input;
-  }
+  @include flex-column;
 }
 
 .number-input-group {
@@ -192,7 +119,7 @@
     height: 20px;
     border-radius: $radius-full;
     background-color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-sm;
     transition: transform 200ms ease;
     transform: translateX(2px);
   }
@@ -210,14 +137,12 @@
 // ─── Seat Categories ────────────────────────────────────────────────────────────
 
 .seats-configuration {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 24px;
 }
 
 .seat-categories {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
 }
 
 .sc-header {
@@ -235,14 +160,12 @@
 }
 
 .sc-content {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 12px;
 }
 
 .sc-type-items {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 12px;
 }
 
@@ -256,7 +179,7 @@
   cursor: pointer;
 
   &:hover {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-sm;
   }
 
   .sti-item-icon {
@@ -303,7 +226,7 @@
   &.selected {
     background-color: $blue-100;
     border-color: $blue-500;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-sm;
   }
 
   &:nth-child(2) {
@@ -317,7 +240,7 @@
     &.selected {
       background-color: $purple-100;
       border-color: $purple-500;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: $shadow-sm;
     }
 
     .sti-item-selected {
@@ -336,7 +259,7 @@
     &.selected {
       background-color: $gray-200;
       border-color: $gray-500;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: $shadow-sm;
     }
 
     .sti-item-selected {
@@ -440,8 +363,7 @@
 // ─── Ticket Pricing ─────────────────────────────────────────────────────────────
 
 .ticket-pricing {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
 }
 
 .tp-header {
@@ -465,14 +387,12 @@
 }
 
 .tp-content {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 12px;
 }
 
 .tp-input-group {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
 
   .tpi-label {
     @include flex-align;
@@ -497,41 +417,11 @@
   .tpi-label-text {
     font-size: 14px;
     color: $gray-700;
-  }
 
-  .tpi-input {
-    position: relative;
-
-    lucide-icon {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: $gray-500;
-      display: flex;
-    }
-
-    input {
-      width: 100%;
-      padding: 8px 16px 8px 32px;
-      font-size: 14px;
-      border: 1px solid $gray-300;
-      border-radius: $radius-md;
-      color: $gray-900;
-      background-color: #ffffff;
-      transition: all 150ms ease;
-
-      &::placeholder {
-        color: $gray-400;
-      }
-
-      &:focus {
-        outline: none;
-        border-color: transparent;
-        box-shadow: 0 0 0 2px $blue-500;
-      }
-
-      @include disabled-input;
+    &[data-required]::after {
+      content: '*';
+      color: $red-500;
+      margin-left: 3px;
     }
   }
 }

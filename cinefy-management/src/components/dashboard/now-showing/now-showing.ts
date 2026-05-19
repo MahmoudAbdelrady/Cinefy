@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import {
-  LucideAngularModule,
-  Film,
-  ChevronRight,
-  Clock,
-  Ticket,
-  DollarSign,
-  Users,
-} from 'lucide-angular';
+  ChevronRightIcon,
+  ClockIcon,
+  DollarSignIcon,
+  FilmIcon,
+  TicketIcon,
+  UsersIcon,
+} from '../../../shared/icons';
 import { RouterLink } from '@angular/router';
 
 interface NowShowingMovie {
@@ -27,12 +27,14 @@ interface NowShowingMovie {
   styleUrl: './now-showing.scss',
 })
 export class NowShowingComponent {
-  protected FilmIcon = Film;
-  protected ChevronRightIcon = ChevronRight;
-  protected ClockIcon = Clock;
-  protected TicketIcon = Ticket;
-  protected DollarSignIcon = DollarSign;
-  protected UsersIcon = Users;
+  protected readonly icons = {
+    ChevronRightIcon,
+    ClockIcon,
+    DollarSignIcon,
+    FilmIcon,
+    TicketIcon,
+    UsersIcon,
+  };
   protected nowShowingMovies: NowShowingMovie[] = [
     {
       poster:

@@ -1,4 +1,5 @@
 @use '../../shared/styles/colors' as *;
+@use '../../shared/styles/shadows' as *;
 @use '../../shared/styles/mixins' as *;
 @use '../../shared/styles/breakpoints' as *;
 
@@ -10,9 +11,7 @@
   width: 192px;
   background-color: #ffffff;
   border-radius: $radius-lg;
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  box-shadow: $shadow-lg;
   border: 1px solid $card-border-subtle;
   padding: 6px 0;
   overflow: hidden;

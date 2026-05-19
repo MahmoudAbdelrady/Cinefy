@@ -1,11 +1,16 @@
 import { DatePipe } from '@angular/common';
-import { Component, DestroyRef, inject, signal, WritableSignal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
-  CircleAlert,
   CircleCheck,
-  CreditCard,
   EllipsisVertical,
   Info,
   LucideAngularModule,
@@ -13,11 +18,10 @@ import {
   PowerOff,
   Rocket,
   Sparkles,
-  SquarePen,
-  Trash2,
   Webhook,
   Zap,
 } from 'lucide-angular';
+import { AlertIcon, CreditCardIcon, DeleteIcon, EditIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
@@ -56,19 +60,21 @@ import {
   styleUrl: './payment-method-list.scss',
 })
 export class PaymentMethodListComponent {
-  protected readonly CardIcon = CreditCard;
-  protected readonly WalletIcon = Webhook;
-  protected readonly InstallmentIcon = Sparkles;
-  protected readonly MenuIcon = EllipsisVertical;
-  protected readonly PowerIcon = Power;
-  protected readonly PowerOffIcon = PowerOff;
-  protected readonly EditIcon = SquarePen;
-  protected readonly ZapIcon = Zap;
-  protected readonly CheckIcon = CircleCheck;
-  protected readonly AlertIcon = CircleAlert;
-  protected readonly InfoIcon = Info;
-  protected readonly RocketIcon = Rocket;
-  protected readonly DeleteIcon = Trash2;
+  protected readonly icons = {
+    AlertIcon,
+    CreditCardIcon,
+    DeleteIcon,
+    EditIcon,
+    WalletIcon: Webhook,
+    InstallmentIcon: Sparkles,
+    MenuIcon: EllipsisVertical,
+    PowerIcon: Power,
+    PowerOffIcon: PowerOff,
+    ZapIcon: Zap,
+    CheckIcon: CircleCheck,
+    InfoIcon: Info,
+    RocketIcon: Rocket,
+  };
 
   private readonly paymentMethodService = inject(PaymentMethodService);
   private readonly toastService = inject(ToastService);
@@ -77,26 +83,33 @@ export class PaymentMethodListComponent {
   protected readonly typeLabels = PAYMENT_METHOD_TYPE_LABELS;
   protected readonly statusLabels = PAYMENT_METHOD_STATUS_LABELS;
 
+  protected readonly loading = signal(true);
   protected readonly paymentMethods = signal<PaymentMethodSummary[]>([]);
   protected readonly deletingMethodIds = signal<ReadonlySet<string>>(new Set());
   protected readonly testingMethodIds = signal<ReadonlySet<string>>(new Set());
   protected readonly updatingStatusMethodIds = signal<ReadonlySet<string>>(new Set());
 
   constructor() {
-    this.paymentMethodService
-      .getPaymentMethods()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((methods) => this.paymentMethods.set(methods));
+    afterNextRender(() => {
+      this.paymentMethodService.getPaymentMethods().subscribe({
+        next: (methods) => {
+          this.paymentMethods.set(methods);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load payment methods');
+        },
+      });
+    });
   }
 
   addPaymentMethod(method: PaymentMethodSummary): void {
     this.paymentMethods.update((methods) => [method, ...methods]);
   }
 
-  updatePaymentMethod(method: PaymentMethodSummary): void {
-    this.paymentMethods.update((methods) =>
-      methods.map((m) => (m.id === method.id ? method : m)),
-    );
+  protected updatePaymentMethod(method: PaymentMethodSummary): void {
+    this.paymentMethods.update((methods) => methods.map((m) => (m.id === method.id ? method : m)));
   }
 
   protected updateStatus(id: string, status: PaymentMethodStatus): void {
@@ -111,7 +124,7 @@ export class PaymentMethodListComponent {
             methods.map((m) => (m.id === id ? { ...m, status } : m)),
           );
           this.clearInFlight(this.updatingStatusMethodIds, id);
-          this.toastService.success(`Updated status successfully`);
+          this.toastService.success('Status updated');
         },
         error: (err: HttpErrorResponse) => {
           this.clearInFlight(this.updatingStatusMethodIds, id);
@@ -164,7 +177,7 @@ export class PaymentMethodListComponent {
         next: () => {
           this.paymentMethods.update((methods) => methods.filter((m) => m.id !== id));
           this.clearInFlight(this.deletingMethodIds, id);
-          this.toastService.success('Payment method deleted successfully');
+          this.toastService.success('Payment method deleted');
           close();
         },
         error: (err: HttpErrorResponse) => {
@@ -189,11 +202,11 @@ export class PaymentMethodListComponent {
   protected getPaymentTypeIcon(type: PaymentMethodType) {
     switch (type) {
       case 'CARD':
-        return this.CardIcon;
+        return this.icons.CreditCardIcon;
       case 'WALLET':
-        return this.WalletIcon;
+        return this.icons.WalletIcon;
       case 'INSTALLMENT':
-        return this.InstallmentIcon;
+        return this.icons.InstallmentIcon;
     }
   }
 

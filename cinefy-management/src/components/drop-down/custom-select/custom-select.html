@@ -15,7 +15,6 @@
     type="button"
     ngpComboboxButton
     class="cs-trigger"
-    [attr.data-size]="size()"
     [class.cs-error]="isError() || !!(control()?.touched && control()?.invalid)"
     [disabled]="disabled()"
   >
@@ -28,13 +27,13 @@
     @if (clearable() && displayValue()) {
       <lucide-icon
         class="cs-clear"
-        [img]="XIcon"
+        [img]="icons.XIcon"
         [size]="16"
         [strokeWidth]="2"
         (click)="clear($event)"
       />
     } @else {
-      <lucide-icon class="cs-chevron" [img]="ChevronDownIcon" [size]="16" [strokeWidth]="2" />
+      <lucide-icon class="cs-chevron" [img]="icons.ChevronDownIcon" [size]="16" [strokeWidth]="2" />
     }
   </button>
 
@@ -64,6 +63,10 @@
     </div>
   </div>
 </div>
+
+@if (hint(); as hintText) {
+  <p class="cs-hint">{{ hintText }}</p>
+}
 
 @if (control(); as ctrl) {
   @if (ctrl.touched && ctrl.errors) {

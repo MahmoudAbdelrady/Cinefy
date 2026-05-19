@@ -1,8 +1,17 @@
-import { Component, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { EditableShowtime, MovieWithShowtimes, Showtime } from '../../../shared/types';
-import { Plus, Trash2, TriangleAlert, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { DeleteIcon, PlusIcon, WarningIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ModalComponent } from '../../modal/modal';
@@ -26,9 +35,11 @@ import { ShowtimeEventsService, ShowtimesService, ToastService } from '../../../
   styleUrl: './current-showtimes.scss',
 })
 export class CurrentShowtimesComponent {
-  protected readonly PlusIcon = Plus;
-  protected readonly DeleteIcon = Trash2;
-  protected readonly AlertIcon = TriangleAlert;
+  protected readonly icons = {
+    DeleteIcon,
+    PlusIcon,
+    WarningIcon,
+  };
 
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
@@ -41,10 +52,8 @@ export class CurrentShowtimesComponent {
   protected readonly moviesWithShowtimes = signal<MovieWithShowtimes[]>([]);
 
   constructor() {
-    this.showtimesService
-      .getMoviesWithShowtimes()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
+    afterNextRender(() => {
+      this.showtimesService.getMoviesWithShowtimes().subscribe({
         next: (list) => {
           this.moviesWithShowtimes.set(list);
           this.loading.set(false);
@@ -54,6 +63,7 @@ export class CurrentShowtimesComponent {
           this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
         },
       });
+    });
 
     effect(() => {
       const showtime = this.showtimeEvents.created();

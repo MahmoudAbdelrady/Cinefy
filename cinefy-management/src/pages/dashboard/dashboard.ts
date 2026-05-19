@@ -1,20 +1,23 @@
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
 import {
-  ArrowUp,
   ArrowDown,
+  ArrowUp,
+  Clock,
+  Film,
+  LayoutTemplate,
   LucideAngularModule,
   LucideIconData,
-  Ticket,
-  DollarSign,
   TrendingUp,
-  LayoutDashboard,
-  Film,
-  Plus,
-  ChevronDown,
-  Clock,
-  LayoutTemplate,
 } from 'lucide-angular';
+import {
+  ChevronDownIcon,
+  DollarSignIcon,
+  FilmIcon,
+  LayoutIcon,
+  PlusIcon,
+  TicketIcon,
+} from '../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import {
@@ -47,21 +50,23 @@ interface DropDownMenuItem {
   styleUrl: './dashboard.scss',
 })
 export class DashboardPage implements OnInit {
+  protected readonly icons = {
+    ChevronDownIcon,
+    DollarSignIcon,
+    FilmIcon,
+    LayoutIcon,
+    PlusIcon,
+    TicketIcon,
+    ArrowUpIcon: ArrowUp,
+    ArrowDownIcon: ArrowDown,
+    TrendingUpIcon: TrendingUp,
+  };
   private headerActions = inject(HeaderActionsService);
   private destroyRef = inject(DestroyRef);
 
   private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
 
   protected currentDate = new Date();
-  protected ArrowUpIcon = ArrowUp;
-  protected ArrowDownIcon = ArrowDown;
-  protected TicketIcon = Ticket;
-  protected DollarSignIcon = DollarSign;
-  protected TrendingUpIcon = TrendingUp;
-  protected LayoutIcon = LayoutDashboard;
-  protected FilmIcon = Film;
-  protected PlusIcon = Plus;
-  protected ChevronDownIcon = ChevronDown;
 
   protected readonly quickAddMenuItems: DropDownMenuItem[] = [
     { icon: Film, label: 'Movie', code: 'movie' },

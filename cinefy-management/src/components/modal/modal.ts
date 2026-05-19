@@ -14,6 +14,12 @@ import { LucideAngularModule, X } from 'lucide-angular';
   styleUrl: './modal.scss',
 })
 export class ModalComponent {
+  protected readonly icons = {
+    XIcon: X,
+  };
+
+  private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
+
   readonly modalTitle = input<string | null>(null);
   readonly description = input<string>();
   readonly close = input.required<() => void>();
@@ -21,8 +27,5 @@ export class ModalComponent {
   readonly bodyPadding = input<string>('24px');
   readonly customHeader = input<boolean>(false);
 
-  private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
   readonly panelEl = computed(() => this.panel()?.nativeElement ?? null);
-
-  protected readonly XIcon = X;
 }

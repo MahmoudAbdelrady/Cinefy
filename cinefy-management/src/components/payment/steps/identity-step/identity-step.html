@@ -22,10 +22,10 @@
       label="Type"
       [required]="true"
       [items]="typeOptions"
-      [value]="form().controls.type.value"
+      [control]="form().controls.type"
       [displayFn]="typeDisplayFn"
       placeholder="Select a type"
-      [isError]="form().controls.type.touched && form().controls.type.invalid"
+      [errorMessages]="{ required: 'Type is required' }"
       (selectionChange)="onTypeChange($event)"
     />
     <div class="input-group">
@@ -39,7 +39,7 @@
         <div ngpRadioItem ngpRadioItemValue="sandbox" class="radio-item">
           <div class="env-row">
             <div class="env-badge">Sandbox</div>
-            <lucide-icon class="env-check" [img]="CheckIcon" [size]="18" />
+            <lucide-icon class="env-check" [img]="icons.CheckIcon" [size]="18" />
           </div>
           <h3 class="env-title">Test Environment</h3>
           <p class="env-desc">
@@ -50,7 +50,7 @@
         <div ngpRadioItem ngpRadioItemValue="production" class="radio-item">
           <div class="env-row">
             <div class="env-badge">Production</div>
-            <lucide-icon class="env-check" [img]="CheckIcon" [size]="18" />
+            <lucide-icon class="env-check" [img]="icons.CheckIcon" [size]="18" />
           </div>
           <h3 class="env-title">Live Environment</h3>
           <p class="env-desc">

@@ -1,14 +1,7 @@
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import {
-  Calendar,
-  ChevronDown,
-  LucideAngularModule,
-  LucideIconData,
-  LogOut,
-  Menu,
-  User,
-} from 'lucide-angular';
+import { LogOut, LucideAngularModule, LucideIconData, Menu, User } from 'lucide-angular';
+import { CalendarIcon, ChevronDownIcon } from '../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { HeaderActionsService, SidebarService } from '../../services';
@@ -34,20 +27,22 @@ interface DropDownMenuItem {
   styleUrl: './header.scss',
 })
 export class HeaderComponent {
-  protected ChevronDownIcon = ChevronDown;
-  protected CalendarIcon = Calendar;
-  protected MenuIcon = Menu;
+  protected readonly icons = {
+    CalendarIcon,
+    ChevronDownIcon,
+    MenuIcon: Menu,
+  };
 
   private sidebarService = inject(SidebarService);
   private headerActionsService = inject(HeaderActionsService);
-
-  protected headerActionsTemplate = this.headerActionsService.template;
-  protected currentDate = new Date();
 
   protected readonly userInfoMenuItems: DropDownMenuItem[] = [
     { icon: User, label: 'Profile', code: 'profile' },
     { icon: LogOut, label: 'Logout', code: 'logout' },
   ];
+
+  protected headerActionsTemplate = this.headerActionsService.template;
+  protected currentDate = new Date();
 
   protected openSidebar() {
     this.sidebarService.open();

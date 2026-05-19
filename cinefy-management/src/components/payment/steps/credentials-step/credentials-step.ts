@@ -30,8 +30,10 @@ export type CredentialsForm = ReturnType<typeof buildCredentialsForm>;
   styleUrl: './credentials-step.scss',
 })
 export class CredentialsStep {
-  protected readonly LockIcon = Lock;
-  protected readonly KeyIcon = KeyRound;
+  protected readonly icons = {
+    LockIcon: Lock,
+    KeyIcon: KeyRound,
+  };
 
   readonly form = input.required<CredentialsForm>();
   readonly isEditMode = input(false);

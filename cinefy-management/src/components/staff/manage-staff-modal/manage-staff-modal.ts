@@ -11,7 +11,8 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AtSign, Check, KeyRound, LucideAngularModule, Mail, Phone, User } from 'lucide-angular';
+import { AtSign, KeyRound, LucideAngularModule, User } from 'lucide-angular';
+import { CheckIcon, EmailIcon, PhoneIcon } from '../../../shared/icons';
 import {
   getCountries,
   getCountryCallingCode,
@@ -24,7 +25,6 @@ import examples from 'libphonenumber-js/examples.mobile.json';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import { ModalComponent } from '../../modal/modal';
 import { InputField } from '../../input-field/input-field';
-import { FieldErrorComponent } from '../../field-error/field-error';
 import {
   EMPLOYMENT_TYPE_LABELS,
   STAFF_POSITION_LABELS,
@@ -69,7 +69,6 @@ const DEFAULT_COUNTRY: CountryCode = 'EG';
     ModalComponent,
     InputField,
     CustomSelectComponent,
-    FieldErrorComponent,
     LucideAngularModule,
     NgpRadioGroup,
     NgpRadioItem,
@@ -81,64 +80,38 @@ const DEFAULT_COUNTRY: CountryCode = 'EG';
   styleUrl: './manage-staff-modal.scss',
 })
 export class ManageStaffModalComponent {
-  protected readonly CheckIcon = Check;
-  protected readonly NameIcon = User;
-  protected readonly UsernameIcon = AtSign;
-  protected readonly EmailIcon = Mail;
-  protected readonly PhoneIcon = Phone;
-  protected readonly KeyIcon = KeyRound;
-  protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
+  protected readonly icons = {
+    CheckIcon,
+    EmailIcon,
+    PhoneIcon,
+    NameIcon: User,
+    UsernameIcon: AtSign,
+    KeyIcon: KeyRound,
+  };
 
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
+  protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
+  protected readonly weekDays = Object.keys(WEEK_DAY_LABELS) as WeekDay[];
+  protected readonly countryOptions = COUNTRY_OPTIONS;
+  protected readonly employmentTypeEntries = Object.entries(EMPLOYMENT_TYPE_LABELS).map(
+    ([value, label]) => ({ value: value as EmploymentType, label }),
+  );
+
   readonly close = input.required<() => void>();
   readonly staffMemberId = input<string | null>(null);
   readonly selectedStaffMember = input<StaffMemberDetail | null>(null);
-  readonly saved = output<{ member: StaffMemberSummary; isEdit: boolean }>();
+
+  readonly staffMemberCreated = output<StaffMemberSummary>();
+  readonly staffMemberUpdated = output<StaffMemberSummary>();
 
   protected readonly resolvedStaffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
   protected readonly saving = signal(false);
   private readonly initialFormSnapshot = signal<string | null>(null);
-
-  protected readonly isEdit = computed(
-    () => this.selectedStaffMember() !== null || this.staffMemberId() !== null,
-  );
-
-  protected readonly modalTitle = computed(() => {
-    if (!this.isEdit()) return 'Add staff member';
-    const member = this.resolvedStaffMember();
-    return member ? `Edit ${member.firstName} ${member.lastName} info` : 'Edit staff member';
-  });
-
-  protected readonly modalDescription = computed(() =>
-    this.isEdit()
-      ? 'Update the details for this staff member.'
-      : 'Add a new team member to manage Cinefy.',
-  );
-
-  protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
-  protected readonly weekDays = Object.keys(WEEK_DAY_LABELS) as WeekDay[];
-  protected readonly countryOptions = COUNTRY_OPTIONS;
-  protected readonly countryDisplayFn = (option: CountryOption): string =>
-    `+${option.dialCode} ${option.name}`;
-  protected readonly countryTriggerDisplayFn = (option: CountryOption): string =>
-    `+${option.dialCode}`;
-  protected readonly countryCompareFn = (a: CountryOption, b: CountryOption): boolean =>
-    a.code === b.code;
-
-  protected readonly phonePlaceholder = computed(() => {
-    this.currentFormValue();
-    const country = this.staffForm.controls.phoneCountry.value;
-    const example = getExampleNumber(country, examples);
-    return example ? `e.g. ${example.nationalNumber}` : 'Phone number';
-  });
-
-  protected readonly employmentTypeEntries = Object.entries(EMPLOYMENT_TYPE_LABELS).map(
-    ([value, label]) => ({ value: value as EmploymentType, label }),
-  );
 
   protected readonly staffForm = new FormGroup({
     firstName: new FormControl('', {
@@ -206,8 +179,31 @@ export class ManageStaffModalComponent {
     }),
   });
 
+  protected readonly isEdit = computed(
+    () => this.selectedStaffMember() !== null || this.staffMemberId() !== null,
+  );
+
+  protected readonly modalTitle = computed(() => {
+    if (!this.isEdit()) return 'Add staff member';
+    const member = this.resolvedStaffMember();
+    return member ? `Edit ${member.firstName} ${member.lastName} info` : 'Edit staff member';
+  });
+
+  protected readonly modalDescription = computed(() =>
+    this.isEdit()
+      ? 'Update the details for this staff member.'
+      : 'Add a new team member to manage Cinefy.',
+  );
+
   private readonly currentFormValue = toSignal(this.staffForm.valueChanges, {
     initialValue: this.staffForm.getRawValue(),
+  });
+
+  protected readonly phonePlaceholder = computed(() => {
+    this.currentFormValue();
+    const country = this.staffForm.controls.phoneCountry.value;
+    const example = getExampleNumber(country, examples);
+    return example ? `e.g. ${example.nationalNumber}` : 'Phone number';
   });
 
   protected readonly hasChanges = computed(() => {
@@ -216,6 +212,18 @@ export class ManageStaffModalComponent {
     this.currentFormValue();
     return JSON.stringify(this.staffForm.getRawValue()) !== snapshot;
   });
+
+  protected readonly countryDisplayFn = (option: CountryOption): string =>
+    `+${option.dialCode} ${option.name}`;
+  protected readonly countryTriggerDisplayFn = (option: CountryOption): string =>
+    `+${option.dialCode}`;
+  protected readonly countryCompareFn = (a: CountryOption, b: CountryOption): boolean =>
+    a.code === b.code;
+
+  protected readonly positionDisplayFn = (position: StaffPosition): string =>
+    STAFF_POSITION_LABELS[position];
+
+  protected readonly weekDayDisplayFn = (day: WeekDay): string => WEEK_DAY_LABELS[day];
 
   constructor() {
     this.staffForm.controls.workingHourEnd.addValidators((control) => {
@@ -291,60 +299,32 @@ export class ManageStaffModalComponent {
     });
   }
 
-  protected readonly positionDisplayFn = (position: StaffPosition): string =>
-    STAFF_POSITION_LABELS[position];
-
-  protected readonly weekDayDisplayFn = (day: WeekDay): string => WEEK_DAY_LABELS[day];
-
   protected onPositionChange(position: StaffPosition): void {
     this.staffForm.controls.position.setValue(position);
-    this.markPositionTouched();
   }
 
   protected onPositionCleared(): void {
     this.staffForm.controls.position.setValue(null);
-    this.markPositionTouched();
-  }
-
-  protected markPositionTouched(): void {
-    this.staffForm.controls.position.markAsTouched();
   }
 
   protected onWorkingDayStartChange(day: WeekDay): void {
     this.staffForm.controls.workingDayStart.setValue(day);
-    this.markWorkingDayStartTouched();
   }
 
   protected onWorkingDayStartCleared(): void {
     this.staffForm.controls.workingDayStart.setValue(null);
-    this.markWorkingDayStartTouched();
-  }
-
-  protected markWorkingDayStartTouched(): void {
-    this.staffForm.controls.workingDayStart.markAsTouched();
   }
 
   protected onWorkingDayEndChange(day: WeekDay): void {
     this.staffForm.controls.workingDayEnd.setValue(day);
-    this.markWorkingDayEndTouched();
   }
 
   protected onWorkingDayEndCleared(): void {
     this.staffForm.controls.workingDayEnd.setValue(null);
-    this.markWorkingDayEndTouched();
-  }
-
-  protected markWorkingDayEndTouched(): void {
-    this.staffForm.controls.workingDayEnd.markAsTouched();
   }
 
   protected onPhoneCountryChange(option: CountryOption): void {
     this.staffForm.controls.phoneCountry.setValue(option.code);
-    this.markPhoneCountryTouched();
-  }
-
-  protected markPhoneCountryTouched(): void {
-    this.staffForm.controls.phoneCountry.markAsTouched();
   }
 
   protected get selectedCountryOption(): CountryOption | null {
@@ -376,11 +356,17 @@ export class ManageStaffModalComponent {
       : this.staffService.createStaffMember(payloadWithPassword);
 
     this.saving.set(true);
+    const isEdit = this.isEdit();
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (member) => {
         this.saving.set(false);
-        this.toastService.success(this.isEdit() ? 'Staff member updated' : 'Staff member added');
-        this.saved.emit({ member, isEdit: this.isEdit() });
+        if (isEdit) {
+          this.staffMemberUpdated.emit(member);
+          this.toastService.success('Staff member updated');
+        } else {
+          this.staffMemberCreated.emit(member);
+          this.toastService.success('Staff member created');
+        }
         this.close()();
       },
       error: (err: HttpErrorResponse) => {

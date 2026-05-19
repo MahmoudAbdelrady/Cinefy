@@ -16,7 +16,7 @@
         [title]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
       >
         <lucide-icon
-          [img]="isEditMode() ? ViewIcon : EditIcon"
+          [img]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
           [size]="20"
           [strokeWidth]="2"
         ></lucide-icon>
@@ -38,36 +38,32 @@
   }
   @if (loadingHall()) {
     <div class="hall-config-loading">
-      <loading-spinner [size]="32" [strokeWidth]="2.5" />
+      <loading-spinner variant="xl" />
     </div>
   }
   <div class="hall-config-modal-content" [hidden]="loadingHall()">
     <div class="hall-information">
       <div class="hi-header">
-        <lucide-icon [img]="SettingsIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+        <lucide-icon [img]="icons.SettingsIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
         <span>Hall Information</span>
       </div>
       <form class="hi-form" [formGroup]="hallForm">
         <div class="input-group">
-          <span>Hall Name</span>
-          <input
-            ngpInput
-            type="text"
+          <input-field
+            label="Hall Name"
             placeholder="e.g. Hall 1, VIP Hall, IMAX"
-            formControlName="name"
-          />
-          <field-error
             [control]="hallForm.controls.name"
-            [messages]="{ required: 'Hall name is required' }"
+            [errorMessages]="{ required: 'Hall name is required' }"
           />
         </div>
         <div class="number-input-group">
           <div class="input-group">
-            <span>Number of Rows</span>
-            <input ngpInput type="number" placeholder="e.g. 10" formControlName="numberOfRows" />
-            <field-error
+            <input-field
+              label="Number of Rows"
+              type="number"
+              placeholder="e.g. 10"
               [control]="hallForm.controls.numberOfRows"
-              [messages]="{
+              [errorMessages]="{
                 required: 'Number of rows is required',
                 min: 'Must be at least 1',
                 max: 'Must be at most 100',
@@ -75,11 +71,12 @@
             />
           </div>
           <div class="input-group">
-            <span>Seats per Row</span>
-            <input ngpInput type="number" placeholder="e.g. 12" formControlName="seatsPerRow" />
-            <field-error
+            <input-field
+              label="Seats per Row"
+              type="number"
+              placeholder="e.g. 12"
               [control]="hallForm.controls.seatsPerRow"
-              [messages]="{
+              [errorMessages]="{
                 required: 'Seats per row is required',
                 min: 'Must be at least 1',
                 max: 'Must be at most 50',
@@ -88,43 +85,37 @@
           </div>
         </div>
         <div class="input-group">
-          <span>Status</span>
           <custom-select
-            size="sm"
+            label="Status"
             [items]="hallStatusEntries()"
             [value]="statusEntry()"
             [displayFn]="statusDisplayFn"
             [valueFn]="statusValueFn"
+            [required]="!isViewMode() && !isStatusLocked()"
             [disabled]="isViewMode() || isStatusLocked()"
+            [hint]="
+              !isViewMode() && isStatusLocked() ? 'Locked while showtimes are scheduled.' : null
+            "
             [container]="modal.panelEl()"
             (selectionChange)="onStatusChange($event)"
           />
-          @if (!isViewMode() && isStatusLocked()) {
-            <span class="status-caption">Locked while showtimes are scheduled.</span>
-          }
         </div>
         <div class="input-group type-group">
-          <span>Type</span>
           <custom-select
-            size="sm"
+            label="Type"
             [items]="hallTypes()"
             [value]="selectedHallType()"
             [displayFn]="hallTypeDisplayFn"
             [valueFn]="hallTypeValueFn"
             [compareWith]="compareHallTypes"
-            [clearable]="!isViewMode()"
             [disabled]="isViewMode()"
             [searchable]="true"
-            [isError]="hallForm.controls.typeId.touched && hallForm.controls.typeId.invalid"
+            [control]="hallForm.controls.typeId"
+            [required]="!isViewMode()"
+            [errorMessages]="{ required: 'Hall type is required' }"
             placeholder="Select a type"
             [container]="modal.panelEl()"
             (selectionChange)="onHallTypeChange($event)"
-            (cleared)="onHallTypeCleared()"
-            (touched)="hallForm.controls.typeId.markAsTouched()"
-          />
-          <field-error
-            [control]="hallForm.controls.typeId"
-            [messages]="{ required: 'Hall type is required' }"
           />
           <div class="switch-group">
             <span>Supports 3D</span>
@@ -141,8 +132,8 @@
         </div>
         @if (!isViewMode()) {
           <div class="input-group">
-            <span>Copy Layout From Existing Hall</span>
             <paginated-select
+              label="Copy Layout From Existing Hall"
               placeholder="None"
               [clearable]="true"
               [searchable]="true"
@@ -159,7 +150,7 @@
           @if (!isViewMode()) {
             <div class="seat-categories">
               <div class="sc-header">
-                <lucide-icon [img]="StarIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <lucide-icon [img]="icons.StarIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
                 <span>Seat Categories</span>
               </div>
               <div class="sc-content">
@@ -211,7 +202,11 @@
           }
           <div class="ticket-pricing">
             <div class="tp-header">
-              <lucide-icon [img]="DollarSignIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+              <lucide-icon
+                [img]="icons.DollarSignIcon"
+                [size]="16"
+                [strokeWidth]="2.5"
+              ></lucide-icon>
               <span class="tp-title">Ticket Pricing <span class="tp-vat">(without VAT)</span></span>
             </div>
             <div class="tp-content">
@@ -219,24 +214,16 @@
                 <div class="tp-input-group">
                   <div class="tpi-label">
                     <span class="tpi-label-icon normal"></span>
-                    <span class="tpi-label-text">Normal</span>
+                    <span class="tpi-label-text" [attr.data-required]="!isViewMode() ? '' : null"
+                      >Normal</span
+                    >
                   </div>
-                  <div class="tpi-input">
-                    <lucide-icon
-                      [img]="DollarSignIcon"
-                      [size]="16"
-                      [strokeWidth]="2.5"
-                    ></lucide-icon>
-                    <input
-                      ngpInput
-                      type="number"
-                      placeholder="e.g. 10"
-                      formControlName="normalPrice"
-                    />
-                  </div>
-                  <field-error
+                  <input-field
+                    type="number"
+                    placeholder="e.g. 10"
+                    [leadingIcon]="icons.DollarSignIcon"
                     [control]="hallForm.controls.normalPrice"
-                    [messages]="{
+                    [errorMessages]="{
                       required: 'Normal price is required',
                       min: 'Price must be at least 1',
                     }"
@@ -247,24 +234,16 @@
                 <div class="tp-input-group">
                   <div class="tpi-label">
                     <span class="tpi-label-icon vip"></span>
-                    <span class="tpi-label-text">VIP Seat</span>
+                    <span class="tpi-label-text" [attr.data-required]="!isViewMode() ? '' : null"
+                      >VIP Seat</span
+                    >
                   </div>
-                  <div class="tpi-input">
-                    <lucide-icon
-                      [img]="DollarSignIcon"
-                      [size]="16"
-                      [strokeWidth]="2.5"
-                    ></lucide-icon>
-                    <input
-                      ngpInput
-                      type="number"
-                      placeholder="e.g. 10"
-                      formControlName="vipPrice"
-                    />
-                  </div>
-                  <field-error
+                  <input-field
+                    type="number"
+                    placeholder="e.g. 10"
+                    [leadingIcon]="icons.DollarSignIcon"
                     [control]="hallForm.controls.vipPrice"
-                    [messages]="{
+                    [errorMessages]="{
                       required: 'VIP price is required',
                       min: 'Price must be at least 1',
                     }"
@@ -278,7 +257,7 @@
     </div>
     <div class="hall-layout-editor">
       <div class="hle-header">
-        <lucide-icon [img]="LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+        <lucide-icon [img]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
         <span>Seat Layout Editor</span>
       </div>
       <div class="hle-content">
@@ -288,7 +267,6 @@
           [numRows]="numRowsValue() ?? 10"
           [seatsPerRow]="seatsPerRowValue() ?? 12"
           [disabled]="isViewMode()"
-          (seatChanged)="onLayoutChange()"
           (layoutReset)="onResetLayout()"
         />
       </div>
@@ -302,10 +280,10 @@
           ngpButton
           class="btn-primary"
           (click)="saveHall()"
-          [disabled]="hallForm.invalid || saving()"
+          [disabled]="hallForm.invalid || !hasChanges() || saving()"
         >
           @if (saving()) {
-            <loading-spinner [strokeWidth]="2" />
+            <loading-spinner variant="sm" />
           } @else {
             {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}
           }

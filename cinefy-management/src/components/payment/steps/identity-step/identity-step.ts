@@ -1,7 +1,8 @@
 import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
-import { Check, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { CheckIcon } from '../../../../shared/icons';
 import { InputField } from '../../../input-field/input-field';
 import { CustomSelectComponent } from '../../../drop-down/custom-select/custom-select';
 import { PAYMENT_METHOD_TYPE_LABELS, type PaymentMethodType } from '../../../../shared/types';
@@ -38,9 +39,10 @@ export type IdentityForm = ReturnType<typeof buildIdentityForm>;
   styleUrl: './identity-step.scss',
 })
 export class IdentityStep {
+  protected readonly icons = {
+    CheckIcon,
+  };
   readonly form = input.required<IdentityForm>();
-
-  protected readonly CheckIcon = Check;
 
   protected readonly typeOptions = Object.keys(PAYMENT_METHOD_TYPE_LABELS) as PaymentMethodType[];
 

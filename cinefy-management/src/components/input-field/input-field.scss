@@ -2,8 +2,7 @@
 @use '../../shared/styles/mixins' as *;
 
 .input-field-wrapper {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 8px;
 }
 
@@ -29,6 +28,8 @@
     color: $gray-900;
     background-color: #ffffff;
     border: 1px solid $gray-300;
+    padding: 12px 16px;
+    border-radius: $radius-lg;
     transition:
       border-color 150ms ease,
       box-shadow 150ms ease;
@@ -50,10 +51,19 @@
     }
   }
 
+  &.has-leading input[ngpInput] {
+    padding-left: 40px;
+  }
+
+  &.has-trailing input[ngpInput] {
+    padding-right: 44px;
+  }
+
   .if-leading {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
+    left: 12px;
     color: $gray-400;
     pointer-events: none;
   }
@@ -62,6 +72,8 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
+    right: 8px;
+    padding: 6px;
     @include flex-center;
     border-radius: $radius-md;
     color: $gray-400;
@@ -80,58 +92,4 @@
   font-size: 12px;
   color: $gray-500;
   line-height: 1.5;
-}
-
-// ─── Size: md (default) ──────────────────────────────────────────────────────
-.input-field-wrapper[data-size='md'] {
-  .if-input {
-    input[ngpInput] {
-      padding: 12px 16px;
-      border-radius: $radius-lg;
-    }
-
-    &.has-leading input[ngpInput] {
-      padding-left: 40px;
-    }
-
-    &.has-trailing input[ngpInput] {
-      padding-right: 44px;
-    }
-
-    .if-leading {
-      left: 12px;
-    }
-
-    .if-toggle {
-      right: 8px;
-      padding: 6px;
-    }
-  }
-}
-
-// ─── Size: sm ────────────────────────────────────────────────────────────────
-.input-field-wrapper[data-size='sm'] {
-  .if-input {
-    input[ngpInput] {
-      padding: 8px 16px;
-      border-radius: $radius-md;
-    }
-
-    &.has-leading input[ngpInput] {
-      padding-left: 32px;
-    }
-
-    &.has-trailing input[ngpInput] {
-      padding-right: 36px;
-    }
-
-    .if-leading {
-      left: 10px;
-    }
-
-    .if-toggle {
-      right: 6px;
-      padding: 4px;
-    }
-  }
 }

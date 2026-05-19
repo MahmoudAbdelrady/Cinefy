@@ -13,19 +13,19 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { combineLatest, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs';
+import { LucideAngularModule } from 'lucide-angular';
 import {
-  Calendar,
-  CircleAlert,
-  Clock,
-  Eye,
-  LucideAngularModule,
-  Mail,
-  Phone,
-  Search,
-  SquarePen,
-  Trash2,
-  Users,
-} from 'lucide-angular';
+  AlertIcon,
+  CalendarIcon,
+  ClockIcon,
+  DeleteIcon,
+  EditIcon,
+  EmailIcon,
+  EyeIcon,
+  PhoneIcon,
+  SearchIcon,
+  UsersIcon,
+} from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
@@ -67,16 +67,18 @@ import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
   styleUrl: './staff-list.scss',
 })
 export class StaffListComponent {
-  protected readonly SearchIcon = Search;
-  protected readonly EmailIcon = Mail;
-  protected readonly PhoneIcon = Phone;
-  protected readonly CalendarIcon = Calendar;
-  protected readonly ClockIcon = Clock;
-  protected readonly UsersIcon = Users;
-  protected readonly EyeIcon = Eye;
-  protected readonly EditIcon = SquarePen;
-  protected readonly DeleteIcon = Trash2;
-  protected readonly AlertIcon = CircleAlert;
+  protected readonly icons = {
+    SearchIcon,
+    EmailIcon,
+    PhoneIcon,
+    CalendarIcon,
+    ClockIcon,
+    UsersIcon,
+    EyeIcon,
+    EditIcon,
+    DeleteIcon,
+    AlertIcon,
+  };
 
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
@@ -84,35 +86,41 @@ export class StaffListComponent {
   private readonly dialogManager = inject(NgpDialogManager);
 
   protected readonly editTemplate = viewChild.required<TemplateRef<unknown>>('editDialog');
+
+  protected readonly positionLabels = STAFF_POSITION_LABELS;
+  protected readonly weekDayLabels = WEEK_DAY_LABELS;
+  protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
+  protected readonly pageSize = 10;
+
+  readonly coverageChanged = output<CoverageChange>();
+
   protected readonly pendingEditId = signal<string | null>(null);
   protected readonly pendingEditMember = signal<StaffMemberDetail | null>(null);
   protected readonly deletingStaffIds = signal<ReadonlySet<string>>(new Set());
 
-  readonly coverageChanged = output<CoverageChange>();
-
-  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
   protected readonly search = signal('');
   protected readonly positionFilter = signal<StaffPosition | undefined>(undefined);
   protected readonly page = signal(1);
-  protected readonly pageSize = 10;
 
   protected readonly loading = signal(true);
   protected readonly staffPage = signal<PaginatedResponse<StaffMemberSummary> | null>(null);
+
+  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+
   protected readonly staffMembers = computed(() => this.staffPage()?.content ?? []);
   protected readonly totalItems = computed(() => this.staffPage()?.page.totalElements ?? 0);
   protected readonly pageCount = computed(() =>
     Math.max(1, this.staffPage()?.page.totalPages ?? 1),
   );
 
-  protected readonly positionLabels = STAFF_POSITION_LABELS;
-  protected readonly weekDayLabels = WEEK_DAY_LABELS;
-  protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
-
   private readonly staff$ = combineLatest([
     toObservable(this.search).pipe(debounceTime(300), distinctUntilChanged()),
     toObservable(this.positionFilter),
     toObservable(this.page),
   ]);
+
+  protected readonly positionDisplayFn = (position: StaffPosition): string =>
+    STAFF_POSITION_LABELS[position];
 
   constructor() {
     this.searchControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
@@ -145,8 +153,39 @@ export class StaffListComponent {
     });
   }
 
-  protected readonly positionDisplayFn = (position: StaffPosition): string =>
-    STAFF_POSITION_LABELS[position];
+  onStaffMemberUpdated(member: StaffMemberSummary): void {
+    const staffPage = this.staffPage();
+    if (!staffPage) return;
+    const index = staffPage.content.findIndex((m) => m.id === member.id);
+    if (index === -1) return;
+    const previous = staffPage.content[index];
+    const content = [...staffPage.content];
+    content[index] = member;
+    this.staffPage.set({ ...staffPage, content });
+    if (previous.position !== member.position) {
+      this.coverageChanged.emit({
+        action: 'reassign',
+        from: previous.position,
+        to: member.position,
+      });
+    }
+  }
+
+  onStaffMemberCreated(member: StaffMemberSummary): void {
+    const staffPage = this.staffPage();
+    if (!staffPage) return;
+    const pageIsFull = staffPage.content.length >= staffPage.page.size;
+    this.staffPage.set({
+      ...staffPage,
+      content: pageIsFull ? staffPage.content : [...staffPage.content, member],
+      page: {
+        ...staffPage.page,
+        totalElements: staffPage.page.totalElements + 1,
+        totalPages: pageIsFull ? staffPage.page.totalPages + 1 : staffPage.page.totalPages,
+      },
+    });
+    this.coverageChanged.emit({ action: 'add', position: member.position });
+  }
 
   protected onPositionFilterChange(position: StaffPosition): void {
     this.positionFilter.set(position);
@@ -167,41 +206,6 @@ export class StaffListComponent {
       this.pendingEditMember.set(idOrMember);
     }
     this.dialogManager.open(this.editTemplate() as never);
-  }
-
-  onStaffMemberSaved(event: { member: StaffMemberSummary; isEdit: boolean }): void {
-    const { member, isEdit } = event;
-    const staffPage = this.staffPage();
-    if (!staffPage) return;
-
-    if (isEdit) {
-      const index = staffPage.content.findIndex((m) => m.id === member.id);
-      if (index === -1) return;
-      const previous = staffPage.content[index];
-      const content = [...staffPage.content];
-      content[index] = member;
-      this.staffPage.set({ ...staffPage, content });
-      if (previous.position !== member.position) {
-        this.coverageChanged.emit({
-          action: 'reassign',
-          from: previous.position,
-          to: member.position,
-        });
-      }
-      return;
-    }
-
-    const pageIsFull = staffPage.content.length >= staffPage.page.size;
-    this.staffPage.set({
-      ...staffPage,
-      content: pageIsFull ? staffPage.content : [...staffPage.content, member],
-      page: {
-        ...staffPage.page,
-        totalElements: staffPage.page.totalElements + 1,
-        totalPages: pageIsFull ? staffPage.page.totalPages + 1 : staffPage.page.totalPages,
-      },
-    });
-    this.coverageChanged.emit({ action: 'add', position: member.position });
   }
 
   protected deleteStaffMember(id: string, close: () => void): void {

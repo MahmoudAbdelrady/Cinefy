@@ -1,6 +1,18 @@
-import { Component, computed, input, output, signal, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  ViewEncapsulation,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
-import { LucideAngularModule, ChevronDown, X } from 'lucide-angular';
+import { LucideAngularModule, X } from 'lucide-angular';
+import { ChevronDownIcon } from '../../../shared/icons';
 import {
   NgpCombobox,
   NgpComboboxButton,
@@ -28,12 +40,20 @@ import { FieldErrorComponent } from '../../field-error/field-error';
   encapsulation: ViewEncapsulation.None,
 })
 export class CustomSelectComponent<T> {
+  protected readonly icons = {
+    ChevronDownIcon,
+    XIcon: X,
+  };
+
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly items = input.required<T[]>();
   readonly displayFn = input.required<(item: T) => string>();
   readonly triggerDisplayFn = input<((item: T) => string) | null>(null);
   readonly valueFn = input<(item: T) => unknown>((item) => item);
   readonly value = input<T | null>(null);
   readonly label = input<string | null>(null);
+  readonly hint = input<string | null>(null);
   readonly required = input(false);
   readonly placeholder = input('Select an option');
   readonly disabled = input(false);
@@ -44,23 +64,28 @@ export class CustomSelectComponent<T> {
   readonly errorMessages = input<Record<string, string>>({});
   readonly compareWith = input<(a: T, b: T) => boolean>(Object.is);
   readonly container = input<string | HTMLElement | null>(null);
-  readonly size = input<'sm' | 'md'>('md');
   readonly dropdownWidth = input<'matchTrigger' | 'matchContent'>('matchTrigger');
 
   readonly selectionChange = output<T>();
   readonly cleared = output<void>();
-  readonly touched = output<void>();
-
-  protected readonly ChevronDownIcon = ChevronDown;
-  protected readonly XIcon = X;
 
   protected readonly selectedItem = signal<T | null>(null);
   protected readonly searchTerm = signal('');
   private readonly wasCleared = signal(false);
 
+  private readonly controlValue = signal<unknown>(null);
+
+  private readonly itemFromControl = computed<T | null>(() => {
+    if (!this.control()) return null;
+    const formValue = this.controlValue();
+    if (formValue == null || formValue === '') return null;
+    const valueFn = this.valueFn();
+    return this.items().find((item) => Object.is(valueFn(item), formValue)) ?? null;
+  });
+
   protected readonly displayValue = computed(() => {
     if (this.wasCleared()) return null;
-    const item = this.value() ?? this.selectedItem();
+    const item = this.value() ?? this.selectedItem() ?? this.itemFromControl();
     if (!item) return null;
     const trigger = this.triggerDisplayFn();
     return (trigger ?? this.displayFn())(item);
@@ -68,7 +93,7 @@ export class CustomSelectComponent<T> {
 
   protected readonly currentValue = computed<T | null>(() => {
     if (this.wasCleared()) return null;
-    return this.value() ?? this.selectedItem();
+    return this.value() ?? this.selectedItem() ?? this.itemFromControl();
   });
 
   protected readonly filteredItems = computed(() => {
@@ -78,11 +103,26 @@ export class CustomSelectComponent<T> {
     return this.items().filter((item) => displayFn(item).toLowerCase().includes(term));
   });
 
+  constructor() {
+    effect((onCleanup) => {
+      const ctrl = this.control();
+      if (!ctrl) {
+        this.controlValue.set(null);
+        return;
+      }
+      this.controlValue.set(ctrl.value);
+      const sub = ctrl.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((v) => this.controlValue.set(v));
+      onCleanup(() => sub.unsubscribe());
+    });
+  }
+
   protected onOpenChange(open: boolean) {
     if (open) {
       this.searchTerm.set('');
     } else {
-      this.touched.emit();
+      this.control()?.markAsTouched();
     }
   }
 
@@ -106,6 +146,7 @@ export class CustomSelectComponent<T> {
     event.stopPropagation();
     this.wasCleared.set(true);
     this.selectedItem.set(null);
+    this.control()?.markAsTouched();
     this.cleared.emit();
   }
 }

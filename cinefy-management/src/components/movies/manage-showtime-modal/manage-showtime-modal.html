@@ -16,7 +16,7 @@
               @if (activeMovie()!.posterUrl; as posterUrl) {
                 <img [src]="posterUrl" alt="{{ activeMovie()!.title }} Poster" />
               } @else {
-                <lucide-icon [img]="MovieIcon"></lucide-icon>
+                <lucide-icon [img]="icons.FilmIcon"></lucide-icon>
               }
             </div>
             <div class="sm-details">
@@ -52,7 +52,6 @@
               formControlName="date"
               placeholder="Select a date"
               [container]="modal.panelEl()"
-              size="sm"
             />
             <field-error
               [control]="showtimeForm.controls.date"
@@ -65,14 +64,8 @@
           <div class="input-group">
             <label>Time</label>
             <time-picker
-              formControlName="time"
-              placeholder="Select a time"
-              [container]="modal.panelEl()"
-              size="sm"
-            />
-            <field-error
               [control]="showtimeForm.controls.time"
-              [messages]="{
+              [errorMessages]="{
                 required: 'Time is required',
                 pastTime: 'Time cannot be in the past',
               }"
@@ -136,7 +129,7 @@
         (click)="onSubmit()"
       >
         @if (submitting()) {
-          <loading-spinner [size]="16" [strokeWidth]="2.5" />
+          <loading-spinner variant="sm" />
         } @else {
           {{ submitLabel() }}
         }

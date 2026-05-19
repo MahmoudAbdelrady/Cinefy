@@ -14,7 +14,8 @@ import {
 import { NgpNativeDateAdapter, provideDateAdapter } from 'ng-primitives/date-time';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { LucideAngularModule, ChevronLeft, ChevronRight, Calendar } from 'lucide-angular';
+import { ChevronLeft, LucideAngularModule } from 'lucide-angular';
+import { CalendarIcon, ChevronRightIcon } from '../../../shared/icons';
 
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -47,20 +48,22 @@ const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   styleUrl: './date-picker.scss',
 })
 export class DatePicker implements ControlValueAccessor {
+  protected readonly icons = {
+    CalendarIcon,
+    ChevronRightIcon,
+    ChevronLeftIcon: ChevronLeft,
+  };
+
+  protected readonly weekdays = WEEKDAY_LABELS;
+
   readonly placeholder = input<string>('Select a date');
   readonly min = input<Date | undefined>(undefined);
   readonly max = input<Date | undefined>(undefined);
   readonly disabled = input<boolean>(false);
   readonly container = input<string | HTMLElement | null>(null);
-  readonly size = input<'sm' | 'md'>('md');
 
   protected readonly value = signal<Date | undefined>(undefined);
   protected readonly isDisabled = signal(false);
-
-  protected readonly ChevronLeftIcon = ChevronLeft;
-  protected readonly ChevronRightIcon = ChevronRight;
-  protected readonly CalendarIcon = Calendar;
-  protected readonly weekdays = WEEKDAY_LABELS;
 
   protected readonly formatted = computed(() => {
     const date = this.value();

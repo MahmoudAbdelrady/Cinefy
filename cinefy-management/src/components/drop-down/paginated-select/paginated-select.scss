@@ -3,7 +3,21 @@
 @use '../../../shared/styles/colors' as *;
 
 paginated-select {
-  display: block;
+  @include flex-column;
+  gap: 8px;
+
+  .ps-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: $gray-900;
+
+    &[data-required]::after {
+      content: '*';
+      color: $red-500;
+      margin-left: 3px;
+    }
+  }
 
   .ps-trigger {
     @include select-trigger;
@@ -20,6 +34,12 @@ paginated-select {
   .ps-clear {
     @include select-clear;
   }
+}
+
+.ps-hint {
+  font-size: 12px;
+  color: $gray-500;
+  line-height: 1.5;
 }
 
 .ps-dropdown {

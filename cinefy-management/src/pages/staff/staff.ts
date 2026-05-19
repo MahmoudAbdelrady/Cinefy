@@ -23,7 +23,9 @@ import {
   styleUrl: './staff.scss',
 })
 export class StaffPage implements OnInit {
-  protected readonly UserPlusIcon = UserPlus;
+  protected readonly icons = {
+    UserPlusIcon: UserPlus,
+  };
 
   private headerActions = inject(HeaderActionsService);
   private destroyRef = inject(DestroyRef);

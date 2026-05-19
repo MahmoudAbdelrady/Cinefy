@@ -1,82 +1,91 @@
-<button
-  type="button"
-  ngpButton
-  class="tp-trigger"
-  [ngpPopoverTrigger]="timePopover"
-  [ngpPopoverTriggerContainer]="container()"
-  ngpPopoverTriggerPlacement="bottom-start"
-  [ngpPopoverTriggerOffset]="6"
-  [disabled]="isDisabled() || disabled()"
-  [attr.data-empty]="displayLabel() ? null : ''"
-  [attr.data-size]="size()"
->
-  <lucide-icon [img]="ClockIcon" [size]="16"></lucide-icon>
-  <span class="tp-trigger-label">
-    {{ displayLabel() || placeholder() }}
-  </span>
-</button>
+<div class="time-picker-wrapper">
+  <button
+    type="button"
+    ngpButton
+    class="tp-trigger"
+    [class.has-error]="control().touched && control().errors"
+    [ngpPopoverTrigger]="timePopover"
+    ngpPopoverTriggerPlacement="bottom-start"
+    [ngpPopoverTriggerOffset]="6"
+    [disabled]="control().disabled"
+    [attr.data-empty]="displayLabel() ? null : ''"
+  >
+    <lucide-icon [img]="icons.ClockIcon" [size]="16"></lucide-icon>
+    <span class="tp-trigger-label">{{ displayLabel() || 'Select a time' }}</span>
+  </button>
 
-<ng-template #timePopover>
-  <div ngpPopover class="tp-popover">
-    <div class="tp-fields">
-      <div
-        ngpNumberField
-        class="tp-field"
-        [ngpNumberFieldValue]="hour12()"
-        [ngpNumberFieldMin]="1"
-        [ngpNumberFieldMax]="12"
-        [ngpNumberFieldStep]="1"
-        (ngpNumberFieldValueChange)="onHour12Change($event)"
-      >
-        <button type="button" ngpButton ngpNumberFieldIncrement class="tp-step">
-          <lucide-icon [img]="ChevronUpIcon" [size]="14"></lucide-icon>
-        </button>
-        <input ngpNumberFieldInput class="tp-field-input" inputmode="numeric" />
-        <button type="button" ngpButton ngpNumberFieldDecrement class="tp-step">
-          <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
-        </button>
-      </div>
+  <ng-template #timePopover>
+    <div ngpPopover class="tp-popover">
+      <div class="tp-fields">
+        <div class="tp-field">
+          <button type="button" ngpButton class="tp-step" (click)="stepHour(1)">
+            <lucide-icon [img]="icons.ChevronUpIcon" [size]="14"></lucide-icon>
+          </button>
+          <input
+            type="text"
+            class="tp-field-input"
+            inputmode="numeric"
+            maxlength="2"
+            [value]="hour12().toString().padStart(2, '0')"
+            (input)="onHourInput($event)"
+            (blur)="onHourBlur($event)"
+            (keydown.enter)="$event.target.blur()"
+          />
+          <button type="button" ngpButton class="tp-step" (click)="stepHour(-1)">
+            <lucide-icon [img]="icons.ChevronDownIcon" [size]="14"></lucide-icon>
+          </button>
+        </div>
 
-      <span class="tp-colon">:</span>
+        <span class="tp-colon">:</span>
 
-      <div
-        ngpNumberField
-        class="tp-field"
-        [ngpNumberFieldValue]="minute() ?? 0"
-        [ngpNumberFieldMin]="0"
-        [ngpNumberFieldMax]="59"
-        [ngpNumberFieldStep]="minuteStep()"
-        (ngpNumberFieldValueChange)="onMinuteChange($event)"
-      >
-        <button type="button" ngpButton ngpNumberFieldIncrement class="tp-step">
-          <lucide-icon [img]="ChevronUpIcon" [size]="14"></lucide-icon>
-        </button>
-        <input ngpNumberFieldInput class="tp-field-input" inputmode="numeric" />
-        <button type="button" ngpButton ngpNumberFieldDecrement class="tp-step">
-          <lucide-icon [img]="ChevronDownIcon" [size]="14"></lucide-icon>
-        </button>
-      </div>
+        <div class="tp-field">
+          <button type="button" ngpButton class="tp-step" (click)="stepMinute(1)">
+            <lucide-icon [img]="icons.ChevronUpIcon" [size]="14"></lucide-icon>
+          </button>
+          <input
+            type="text"
+            class="tp-field-input"
+            inputmode="numeric"
+            maxlength="2"
+            [value]="parts().minute.toString().padStart(2, '0')"
+            (input)="onMinuteInput($event)"
+            (blur)="onMinuteBlur($event)"
+            (keydown.enter)="$event.target.blur()"
+          />
+          <button type="button" ngpButton class="tp-step" (click)="stepMinute(-1)">
+            <lucide-icon [img]="icons.ChevronDownIcon" [size]="14"></lucide-icon>
+          </button>
+        </div>
 
-      <div class="tp-period">
-        <button
-          type="button"
-          ngpButton
-          class="tp-period-btn"
-          [attr.data-active]="period() === 'AM' ? '' : null"
-          (click)="setPeriod('AM')"
-        >
-          AM
-        </button>
-        <button
-          type="button"
-          ngpButton
-          class="tp-period-btn"
-          [attr.data-active]="period() === 'PM' ? '' : null"
-          (click)="setPeriod('PM')"
-        >
-          PM
-        </button>
+        <div class="tp-period">
+          <button
+            type="button"
+            ngpButton
+            class="tp-period-btn"
+            [attr.data-active]="period() === 'AM' ? '' : null"
+            (click)="setPeriod('AM')"
+          >
+            AM
+          </button>
+          <button
+            type="button"
+            ngpButton
+            class="tp-period-btn"
+            [attr.data-active]="period() === 'PM' ? '' : null"
+            (click)="setPeriod('PM')"
+          >
+            PM
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-</ng-template>
+  </ng-template>
+
+  @if (hint(); as hintText) {
+    <p class="tp-hint">{{ hintText }}</p>
+  }
+
+  @if (control().touched && control().errors) {
+    <field-error [control]="control()" [messages]="errorMessages()" />
+  }
+</div>

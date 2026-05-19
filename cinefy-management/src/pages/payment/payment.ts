@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, TemplateRef, viewChild } from '@angular/core';
-import { LucideAngularModule, Plus } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { PlusIcon } from '../../shared/icons';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { HeaderActionsService } from '../../services';
 import { ManagePaymentModalComponent, PaymentMethodListComponent } from '../../components';
@@ -16,7 +17,9 @@ import { ManagePaymentModalComponent, PaymentMethodListComponent } from '../../c
   styleUrl: './payment.scss',
 })
 export class PaymentPage {
-  protected readonly PlusIcon = Plus;
+  protected readonly icons = {
+    PlusIcon,
+  };
 
   private headerActions = inject(HeaderActionsService);
   private destroyRef = inject(DestroyRef);

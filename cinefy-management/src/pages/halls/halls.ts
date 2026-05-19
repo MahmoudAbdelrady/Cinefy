@@ -6,7 +6,8 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { LucideAngularModule, Plus, Settings } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { PlusIcon, SettingsIcon } from '../../shared/icons';
 import { HeaderActionsService } from '../../services';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
@@ -32,8 +33,10 @@ import {
   styleUrl: './halls.scss',
 })
 export class HallsPage implements OnInit {
-  protected SettingsIcon = Settings;
-  protected PlusIcon = Plus;
+  protected readonly icons = {
+    PlusIcon,
+    SettingsIcon,
+  };
 
   private headerActions = inject(HeaderActionsService);
   private destroyRef = inject(DestroyRef);

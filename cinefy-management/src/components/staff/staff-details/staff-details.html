@@ -7,7 +7,7 @@
       <div class="sdh-info">
         <div class="sdhi-name">{{ member.firstName }} {{ member.lastName }}</div>
         <div class="sdhi-position">
-          <lucide-icon [img]="BriefCaseIcon" [size]="11" [strokeWidth]="2.5"></lucide-icon>
+          <lucide-icon [img]="icons.BriefCaseIcon" [size]="11" [strokeWidth]="2.5"></lucide-icon>
           <span>{{ positionLabels[member.position] }}</span>
         </div>
       </div>
@@ -16,13 +16,13 @@
   @if (staffMember()) {
     <div modal-header-actions>
       <button ngpButton title="Edit Info" (click)="requestEdit()">
-        <lucide-icon [img]="EditIcon" [size]="20" [strokeWidth]="2"></lucide-icon>
+        <lucide-icon [img]="icons.EditIcon" [size]="20" [strokeWidth]="2"></lucide-icon>
       </button>
     </div>
   }
   @if (loading()) {
     <div class="staff-details-loading">
-      <loading-spinner />
+      <loading-spinner variant="md" />
     </div>
   } @else if (staffMember(); as member) {
     <div class="staff-details-container">
@@ -31,7 +31,7 @@
         <div class="sdc-section-items full">
           <div class="sdcs-item">
             <div class="sdcs-item-icon">
-              <lucide-icon [img]="UsernameIcon" [size]="14"></lucide-icon>
+              <lucide-icon [img]="icons.UsernameIcon" [size]="14"></lucide-icon>
             </div>
             <div class="sdcs-item-info">
               <span class="item-title">Username</span>
@@ -40,7 +40,7 @@
           </div>
           <div class="sdcs-item">
             <div class="sdcs-item-icon">
-              <lucide-icon [img]="EmailIcon" [size]="14"></lucide-icon>
+              <lucide-icon [img]="icons.EmailIcon" [size]="14"></lucide-icon>
             </div>
             <div class="sdcs-item-info">
               <span class="item-title">Email</span>
@@ -49,7 +49,7 @@
           </div>
           <div class="sdcs-item">
             <div class="sdcs-item-icon">
-              <lucide-icon [img]="PhoneIcon" [size]="14"></lucide-icon>
+              <lucide-icon [img]="icons.PhoneIcon" [size]="14"></lucide-icon>
             </div>
             <div class="sdcs-item-info">
               <span class="item-title">Phone</span>
@@ -63,7 +63,7 @@
         <div class="sdc-section-items">
           <div class="sdcs-item">
             <div class="sdcs-item-icon">
-              <lucide-icon [img]="CalendarIcon" [size]="14"></lucide-icon>
+              <lucide-icon [img]="icons.CalendarIcon" [size]="14"></lucide-icon>
             </div>
             <div class="sdcs-item-info">
               <span class="item-title">Hired On</span>
@@ -72,7 +72,7 @@
           </div>
           <div class="sdcs-item">
             <div class="sdcs-item-icon">
-              <lucide-icon [img]="BriefCaseIcon" [size]="14"></lucide-icon>
+              <lucide-icon [img]="icons.BriefCaseIcon" [size]="14"></lucide-icon>
             </div>
             <div class="sdcs-item-info">
               <span class="item-title">Employment Type</span>
@@ -86,7 +86,7 @@
         <div class="sdc-section-items">
           <div class="sdcs-item">
             <div class="sdcs-item-icon">
-              <lucide-icon [img]="CalendarIcon" [size]="14"></lucide-icon>
+              <lucide-icon [img]="icons.CalendarIcon" [size]="14"></lucide-icon>
             </div>
             <div class="sdcs-item-info">
               <span class="item-title">Working days</span>
@@ -98,7 +98,7 @@
           </div>
           <div class="sdcs-item">
             <div class="sdcs-item-icon">
-              <lucide-icon [img]="CalendarIcon" [size]="14"></lucide-icon>
+              <lucide-icon [img]="icons.CalendarIcon" [size]="14"></lucide-icon>
             </div>
             <div class="sdcs-item-info">
               <span class="item-title">Working hours</span>

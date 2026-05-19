@@ -6,6 +6,16 @@
 - In DTO classes, separate each field with a blank line — never stack fields without spacing.
 - For method ordering within a class (public API layout, helper grouping by role, mapper placement), follow [.claude/rules/file-methods-order.md](.claude/rules/file-methods-order.md) — check it at the start of each session.
 
+## Required Configuration
+
+The app won't boot without these (typically set in `application-local.properties` for dev):
+
+- `cinefy.encryption.key` — Base64-encoded 32-byte AES key for `CredentialCipher` (payment-method secret encryption). `CredentialCipher` throws at construction time if missing or wrong length.
+- `cinefy.mail.username` / `cinefy.mail.password` — Gmail SMTP creds for the `JavaMailSender` bean in `AppConfig`.
+- `app.frontend.url` — single allowed CORS origin (read by `SecurityConfig`).
+- `app.tmdb.api-base-url`, `app.tmdb.image-base-url` — defaulted in `application.properties` to TMDB v3; the TMDB API key itself is read by `TmdbMovieService` from configuration.
+- `app.paymob.api-base-url` — defaulted in `application.properties` to `https://accept.paymob.com`.
+
 ## Stack
 
 - **Spring Boot 4.0.5**, Java 25, Maven
@@ -14,8 +24,15 @@
 - **Hibernate Envers** for entity auditing (all entities via `BaseEntity`); configured with `store_data_at_delete=true` and `global_with_modified_flag=true`
 - **Jakarta Validation** for request DTOs
 - **commons-lang3** for string utilities (`StringUtils`)
+- **Spring Security** — wired in `SecurityConfig`; currently `anyRequest().permitAll()` (CSRF off, CORS allow-list of `app.frontend.url`). `BCryptPasswordEncoder` bean exists and is used to hash staff passwords. Auth/authorization is **not yet enforced** — endpoints are open.
 - **Spring Mail + Thymeleaf** starters present (mail bean wired in `AppConfig`, no email flows yet)
-- `@EnableJpaAuditing` and `@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)` on `CinefyApplication`
+- **Scheduling** — `@EnableScheduling` on `CinefyApplication`; jobs live under `job/` (`ShowtimeStatusJob` every 60s; `TmdbSyncJob` cron `0 0 3 * * *`)
+- **AOP** — `RequestLoggingAspect` (around any `@RestController`) and `TransactionLoggingAspect` (around any `@Transactional`) under `aspect/`, both delegating to `LoggingUtil`
+- **TMDB integration** — `TmdbMovieService` calls TheMovieDB via `RestClient` (`app.tmdb.api-base-url`), caches results in the local `TmdbMovie` table
+- **Paymob integration** — `PaymobClient` under `shared/payment/` performs connection tests against `app.paymob.api-base-url` using `RestClient`
+- **Credential encryption** — `CredentialCipher` under `shared/security/` (AES-256-GCM); requires `cinefy.encryption.key` (Base64 of 32 bytes). Used to encrypt payment-method secrets before persisting.
+- **libphonenumber** (Google) — phone validation/normalization for `StaffMember`
+- `@EnableJpaAuditing`, `@EnableScheduling`, and `@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)` on `CinefyApplication`
 
 ## Package Structure
 
@@ -23,15 +40,40 @@
 com.mdevs.cinefy
 ├── config/
 │   ├── database/   — CinefyTableNamingStrategy
-│   └── general/    — WebConfig (CORS), AppConfig (env detection)
+│   └── general/    — AppConfig (mail, env, password encoder), SecurityConfig (CORS + filter chain)
 ├── controller/     — REST controllers (@RestController)
-├── dto/            — Request/response DTOs
-├── entity/         — JPA entities
-├── repository/     — Spring Data JPA repositories
-├── service/        — Business logic
+│                     Hall, Showtime, StaffMember, PaymentMethod, TmdbMovie
+├── dto/            — Request/response DTOs, grouped per domain
+│   ├── hall/       — HallDTO, HallDetailDTO, HallLayoutDTO, HallSummaryDTO,
+│   │                  HallReferenceDTO, HallTypeDTO, HallStatisticsDTO,
+│   │                  SeatLayoutDTO, TicketPricingDTO
+│   ├── movie/      — MovieSearchResultDTO, MovieDetailDTO
+│   ├── showtime/   — ShowtimeDTO, ShowtimeSummaryDTO, MovieShowtimesDTO,
+│   │                  MovieShowtimeDatesDTO, MovieShowtimeListItemDTO,
+│   │                  MovieShowtimeCountProjection, MovieWithShowtimesDTO,
+│   │                  ShowtimesStatisticsDTO, PublishShowtimesDTO
+│   ├── staff/      — StaffMemberDTO, StaffMemberDetailDTO, StaffMemberSummaryDTO,
+│   │                  PositionCoverageDTO, PositionCoverageItemDTO, PositionCoverageProjection
+│   └── payment/    — PaymentMethodDTO, PaymentMethodDetailDTO, PaymentMethodSummaryDTO,
+│                      PaymentMethodStatusRequestDTO, PaymentMethodTestResultDTO,
+│                      TestConnectionRequestDTO
+├── entity/         — JPA entities + enums
+│                     Hall, HallType, HallCategoryPrice, Seat, SeatCategory, HallStatus
+│                     Showtime, ShowtimeStatus, TmdbMovie
+│                     User (MappedSuperclass), StaffMember, StaffPosition, EmploymentType
+│                     PaymentMethod, PaymentMethodStatus, PaymentMethodTestStatus,
+│                     PaymentMethodType, PaymentProvider
+├── repository/     — Spring Data JPA repositories (extend BaseRepository)
+├── service/        — Business logic (HallService, ShowtimeService, StaffMemberService,
+│                     PaymentMethodService, TmdbMovieService)
+├── aspect/         — RequestLoggingAspect, TransactionLoggingAspect
+├── job/            — Scheduled jobs: ShowtimeStatusJob, TmdbSyncJob
 ├── shared/
-│   └── exception/  — Global exception handler + exception types
-└── utils/          — ExceptionResponseMaker
+│   ├── exception/  — Global @RestControllerAdvice + exception types
+│   │                 (Business, NotFound, Forbidden, Unauthorized)
+│   ├── payment/    — PaymobClient (RestClient wrapper for Paymob test-connection)
+│   └── security/   — CredentialCipher (AES-256-GCM for payment secrets)
+└── utils/          — ExceptionResponseMaker, LoggingUtil, TmdbGenres
 ```
 
 ## Key Patterns
@@ -51,6 +93,8 @@ All entities extend `BaseEntity` which provides:
 ### BaseRepository
 
 All repositories extend `BaseRepository<T extends BaseEntity>` which extends `JpaRepository<T, Long>`. Adds a `default T findOne(Long id)` convenience.
+
+`TmdbMovieRepository` is the one exception: `TmdbMovie` uses its TMDB id as the primary key (no UUID, no audit columns, no `BaseEntity`), so the repository extends `JpaRepository<TmdbMovie, Long>` directly.
 
 `HallRepository` uses `@EntityGraph(attributePaths = {"type", "categoryPrices", "seats"})` on `findByUuid` and `JOIN FETCH` in its custom paged query to avoid N+1 on hall loads. Apply the same pattern when adding new finders that need associations.
 
@@ -90,8 +134,32 @@ Global `@RestControllerAdvice` in `CinefyExceptionHandler`:
 
 - `BusinessException` → 400
 - `NotFoundException` → 404
+- `UnauthorizedException` → 401
+- `ForbiddenException` → 403
 - `MethodArgumentNotValidException` → 400 with field-level errors
 - Generic `Exception` → 500 (message hidden in production)
+
+### Scheduled Jobs
+
+Under `job/`:
+
+- **`ShowtimeStatusJob`** — `@Scheduled(fixedDelay = 60_000)`; calls `ShowtimeRepository.markRunningAsOf(now)` / `markFinishedAsOf(now)` to advance `Showtime.status` based on `startDateTime` / `endDateTime`.
+- **`TmdbSyncJob`** — cron `0 0 3 * * *` (daily 03:00); deletes orphan `TmdbMovie` rows that no `Showtime` references, then refreshes the rest in batches of 50 against the TMDB API.
+
+When adding a new scheduled job: place it under `job/`, use `@Slf4j` + `@Scheduled`, and inject repositories/services through `@RequiredArgsConstructor`.
+
+### Logging Aspects
+
+- `RequestLoggingAspect` — pointcut `within(@RestController *)`; logs `(METHOD) Request URI: ...` around every controller call.
+- `TransactionLoggingAspect` — pointcut `@annotation(...Transactional)`; logs `Transaction with method: Class.method` around every `@Transactional` invocation.
+
+Both delegate to `LoggingUtil.proceedWithLogging(...)`. Don't add ad-hoc `log.info(...)` around controller/transaction entry points — the aspects already cover that.
+
+### Security & Encryption
+
+- `SecurityConfig` builds the `SecurityFilterChain`: CSRF disabled, CORS allow-list bound to `AppConfig.getFrontendUrl()`, `anyRequest().permitAll()` (no auth gate yet). When endpoint-level authorization is introduced, replace `permitAll()` with explicit rules and add `@PreAuthorize` on services.
+- `BCryptPasswordEncoder` bean (in `AppConfig`) — used by `StaffMemberService` when storing/updating `password`.
+- `CredentialCipher` (AES-256-GCM, `cinefy.encryption.key` required, Base64-encoded 32-byte key) — encrypts payment-method secrets (`secretKey`, `hmacKey`) at rest. The cipher output prepends a fresh IV per call and tags the value with the GCM authentication tag.
 
 ### Naming Strategy
 
@@ -132,12 +200,58 @@ HallCategoryPrice
  ├── category (SeatCategory enum)
  └── ticketPrice (BigDecimal)
 
+TmdbMovie  (NOT a BaseEntity — TMDB id is the @Id; no UUID, no audit)
+ ├── id (Long, from TMDB)
+ ├── title, synopsis, genres, contentRating
+ ├── releaseDate, durationMinutes
+ ├── posterUrl, backdropUrl
+ └── lastSyncedAt (refreshed by TmdbSyncJob)
+
+Showtime
+ ├── startDateTime, endDateTime (TIMESTAMP(0))
+ ├── hall → Hall (ManyToOne)
+ ├── tmdbMovie → TmdbMovie (ManyToOne)
+ ├── specialNotes
+ ├── is3D
+ └── status (ShowtimeStatus enum, default DRAFT)
+
+User (@MappedSuperclass — abstract; no table)
+ ├── firstName, lastName, fullName (derived)
+ ├── username (unique), email (unique)
+ ├── phoneNumber (digits only — frontend owns the +)
+ └── password (bcrypt-hashed)
+
+StaffMember extends User
+ ├── position (StaffPosition enum)
+ ├── employmentType (EmploymentType enum)
+ ├── workingDayStart, workingDayEnd (java.time.DayOfWeek)
+ └── workingHourStart, workingHourEnd (LocalTime)
+
+PaymentMethod
+ ├── name
+ ├── provider (PaymentProvider enum — currently PAYMOB only)
+ ├── type (PaymentMethodType enum)
+ ├── status (PaymentMethodStatus, default DRAFT)
+ ├── isTest
+ ├── secretKey, hmacKey (TEXT, AES-encrypted via CredentialCipher)
+ ├── publicKey, integrationId, currency
+ ├── testStatus (PaymentMethodTestStatus, default UNTESTED)
+ ├── testFailureReason, testedAt
+ └── credentialsRotatedAt
+
 Enums:
-  HallStatus:   SCHEDULED | NOW_SHOWING | ACTIVE | INACTIVE | UNDER_MAINTENANCE
-  SeatCategory: NORMAL | VIP | AISLE
+  HallStatus:              SCHEDULED | NOW_SHOWING | ACTIVE | INACTIVE | UNDER_MAINTENANCE
+  SeatCategory:            NORMAL | VIP | AISLE
+  ShowtimeStatus:          DRAFT | PUBLISHED | RUNNING | FINISHED | CANCELLED
+  StaffPosition:           ADMIN | MANAGER | CASHIER | USHER
+  EmploymentType:          FULL_TIME | PART_TIME
+  PaymentProvider:         PAYMOB
+  PaymentMethodType:       CARD | WALLET | INSTALLMENT
+  PaymentMethodStatus:     DRAFT | ACTIVE | INACTIVE
+  PaymentMethodTestStatus: UNTESTED | SUCCESS | FAILURE
 ```
 
-Both enums expose a static `fromString(String)` for parsing from API input — use it instead of `valueOf` so bad values raise `BusinessException` consistently.
+Enums expose a static `fromString(String)` for parsing from API input — use it instead of `valueOf` so bad values raise `BusinessException` consistently.
 
 ### Seat Layout Conventions
 
@@ -145,7 +259,7 @@ Seat positions are strings matching `^([A-Z]+)([0-9]+)$` (e.g. `A1`, `AA15`). `H
 
 ## API Endpoints
 
-All under `/halls`:
+### `/halls` — HallController
 
 | Method | Path                   | Input                         | Output                                                     |
 | ------ | ---------------------- | ----------------------------- | ---------------------------------------------------------- |
@@ -160,3 +274,55 @@ All under `/halls`:
 | POST   | `/halls/types`         | HallTypeDTO                   | HallTypeDTO                                                |
 | PUT    | `/halls/types/{uuid}`  | HallTypeDTO                   | HallTypeDTO                                                |
 | DELETE | `/halls/types/{uuid}`  |                               | 204                                                        |
+
+### `/movies` — TmdbMovieController
+
+| Method | Path               | Input           | Output                     |
+| ------ | ------------------ | --------------- | -------------------------- |
+| GET    | `/movies/search`   | ?query, page    | Page<MovieSearchResultDTO> |
+| GET    | `/movies/upcoming` | ?limit          | List<MovieSearchResultDTO> |
+| GET    | `/movies/{id}`     | (TMDB id, Long) | MovieDetailDTO             |
+
+Note: `{id}` is the raw TMDB id, **not** a uuid — `TmdbMovie` isn't a `BaseEntity`.
+
+### `/showtimes` — ShowtimeController
+
+| Method | Path                          | Input                       | Output                          |
+| ------ | ----------------------------- | --------------------------- | ------------------------------- |
+| GET    | `/showtimes/movies`           |                             | List<MovieWithShowtimesDTO>     |
+| GET    | `/showtimes/statistics`       |                             | ShowtimesStatisticsDTO          |
+| GET    | `/showtimes/movie-dates`      | ?movieId (TMDB id)          | MovieShowtimeDatesDTO           |
+| GET    | `/showtimes/movie-day`        | ?movieId, ?date (LocalDate) | MovieShowtimesDTO               |
+| POST   | `/showtimes`                  | ShowtimeDTO                 | ShowtimeSummaryDTO              |
+| PUT    | `/showtimes/{uuid}`           | ShowtimeDTO                 | ShowtimeSummaryDTO              |
+| DELETE | `/showtimes/{uuid}`           |                             | 204                             |
+| DELETE | `/showtimes/movies/{movieId}` | (TMDB id, Long)             | 204 (delete all for that movie) |
+| POST   | `/showtimes/publish`          | PublishShowtimesDTO         | 204 (DRAFT → PUBLISHED batch)   |
+
+### `/staff` — StaffMemberController
+
+| Method | Path                       | Input          | Output                      |
+| ------ | -------------------------- | -------------- | --------------------------- |
+| GET    | `/staff`                   | ?search, page  | Page<StaffMemberSummaryDTO> |
+| GET    | `/staff/position-coverage` |                | PositionCoverageDTO         |
+| GET    | `/staff/{uuid}`            |                | StaffMemberDetailDTO        |
+| POST   | `/staff`                   | StaffMemberDTO | StaffMemberSummaryDTO       |
+| PUT    | `/staff/{uuid}`            | StaffMemberDTO | StaffMemberSummaryDTO       |
+| DELETE | `/staff/{uuid}`            |                | 204                         |
+
+Phone numbers in `StaffMemberDTO` are validated/normalized with Google libphonenumber before persistence.
+
+### `/payment-methods` — PaymentMethodController
+
+| Method | Path                                      | Input                         | Output                        |
+| ------ | ----------------------------------------- | ----------------------------- | ----------------------------- |
+| GET    | `/payment-methods`                        |                               | List<PaymentMethodSummaryDTO> |
+| GET    | `/payment-methods/{uuid}`                 |                               | PaymentMethodDetailDTO        |
+| POST   | `/payment-methods`                        | PaymentMethodDTO              | PaymentMethodSummaryDTO       |
+| PUT    | `/payment-methods/{uuid}`                 | PaymentMethodDTO              | PaymentMethodSummaryDTO       |
+| DELETE | `/payment-methods/{uuid}`                 |                               | 204                           |
+| POST   | `/payment-methods/test-connection`        | TestConnectionRequestDTO      | 204 / error (pre-save test)   |
+| POST   | `/payment-methods/{uuid}/test-connection` |                               | PaymentMethodTestResultDTO    |
+| POST   | `/payment-methods/{uuid}/status`          | PaymentMethodStatusRequestDTO | 204                           |
+
+Secrets in `PaymentMethodDTO` are encrypted with `CredentialCipher` before being written to `secretKey`/`hmacKey`. The pre-save `test-connection` endpoint lets the UI verify credentials before creating the row; the per-id variant re-tests using the stored (decrypted) credentials and writes `testStatus` / `testFailureReason` / `testedAt` back to the entity.

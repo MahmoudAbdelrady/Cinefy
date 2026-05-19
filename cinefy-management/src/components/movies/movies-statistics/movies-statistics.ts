@@ -1,5 +1,12 @@
-import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Calendar, Clock, Film } from 'lucide-angular';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
@@ -17,7 +24,6 @@ export class MoviesStatisticsComponent {
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly toastService = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected statistics = signal<ShowtimesStatistics | null>(null);
   protected loading = signal(true);
@@ -32,7 +38,7 @@ export class MoviesStatisticsComponent {
   });
 
   constructor() {
-    this.refetchStatistics(true);
+    afterNextRender(() => this.refetchStatistics(true));
 
     effect(() => {
       if (!this.showtimeEvents.created()) return;
@@ -47,18 +53,15 @@ export class MoviesStatisticsComponent {
 
   private refetchStatistics(showLoading: boolean): void {
     if (showLoading) this.loading.set(true);
-    this.showtimesService
-      .getShowtimesStatistics()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (stats) => {
-          this.statistics.set(stats);
-          if (showLoading) this.loading.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          if (showLoading) this.loading.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load statistics');
-        },
-      });
+    this.showtimesService.getShowtimesStatistics().subscribe({
+      next: (stats) => {
+        this.statistics.set(stats);
+        if (showLoading) this.loading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        if (showLoading) this.loading.set(false);
+        this.toastService.error(err.error?.message ?? 'Failed to load statistics');
+      },
+    });
   }
 }

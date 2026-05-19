@@ -14,7 +14,7 @@
         placeholder="4827193"
         hint="Numeric only — usually 6 to 8 digits. Paymob auto-generates this when an integration is created."
         [control]="form().controls.integrationId"
-        [leadingIcon]="WebHookIcon"
+        [leadingIcon]="icons.WebHookIcon"
         [monospace]="true"
         [errorMessages]="{ required: 'Integration ID is required' }"
       />
@@ -29,10 +29,10 @@
         label="Currency"
         [required]="true"
         [items]="currencyOptions"
-        [value]="form().controls.currency.value"
+        [control]="form().controls.currency"
         [displayFn]="currencyDisplayFn"
         placeholder="Select a currency"
-        [isError]="form().controls.currency.touched && form().controls.currency.invalid"
+        [errorMessages]="{ required: 'Currency is required' }"
         (selectionChange)="onCurrencyChange($event)"
       />
       <help-hint title="Match it to the channel">

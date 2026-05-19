@@ -15,8 +15,7 @@
 }
 
 .manage-types-modal-content {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 16px;
 }
 
@@ -30,8 +29,7 @@
 }
 
 .existing-types-list {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 8px;
   max-height: 300px;
   overflow-y: auto;
@@ -78,8 +76,7 @@
 
   .edit-type-field {
     flex: 1;
-    display: flex;
-    flex-direction: column;
+    @include flex-column;
     min-width: 0;
   }
 
@@ -268,8 +265,7 @@
 
   .new-type-field {
     flex: 1;
-    display: flex;
-    flex-direction: column;
+    @include flex-column;
     min-width: 0;
   }
 

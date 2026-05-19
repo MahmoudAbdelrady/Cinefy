@@ -1,9 +1,9 @@
 @use '../select' as *;
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
 
 custom-select {
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   gap: 8px;
 
   .cs-label {
@@ -34,20 +34,6 @@ custom-select {
   .cs-clear {
     @include select-clear;
   }
-
-  // ─── Size: md ──────────────────────────────────────────────────────────
-  // Matches input-field[size='md']: 12px vertical padding, radius-lg.
-  .cs-trigger[data-size='md'] {
-    padding: 12px 36px 12px 16px;
-    border-radius: $radius-lg;
-  }
-
-  // ─── Size: sm ──────────────────────────────────────────────────────────
-  // Matches input-field[size='sm']: 8px vertical padding, radius-md.
-  .cs-trigger[data-size='sm'] {
-    padding: 8px 36px 8px 16px;
-    border-radius: $radius-md;
-  }
 }
 
 .cs-dropdown {
@@ -58,6 +44,12 @@ custom-select {
     width: max-content;
     min-width: var(--ngp-combobox-width);
   }
+}
+
+.cs-hint {
+  font-size: 12px;
+  color: $gray-500;
+  line-height: 1.5;
 }
 
 .cs-options {

@@ -1,6 +1,7 @@
 import { Component, computed, input, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Eye, EyeOff, LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { EyeOff, LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { EyeIcon } from '../../shared/icons';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpButton } from 'ng-primitives/button';
 import { FieldErrorComponent } from '../field-error/field-error';
@@ -12,8 +13,10 @@ import { FieldErrorComponent } from '../field-error/field-error';
   styleUrl: './input-field.scss',
 })
 export class InputField {
-  protected readonly EyeIcon = Eye;
-  protected readonly EyeOffIcon = EyeOff;
+  protected readonly icons = {
+    EyeIcon,
+    EyeOffIcon: EyeOff,
+  };
 
   readonly control = input.required<FormControl>();
   readonly label = input<string | null>(null);
@@ -22,15 +25,19 @@ export class InputField {
   readonly hint = input<string | null>(null);
   readonly leadingIcon = input<LucideIconData | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
-  readonly size = input<'sm' | 'md'>('md');
   readonly monospace = input<boolean>(false);
 
   protected readonly showPassword = signal(false);
-  protected readonly required = computed(() => this.control().hasValidator(Validators.required));
+
   protected readonly resolvedType = computed(() => {
     if (this.type() !== 'password') return this.type();
     return this.showPassword() ? 'text' : 'password';
   });
+
+  protected get required(): boolean {
+    const c = this.control();
+    return c.hasValidator(Validators.required) && c.enabled;
+  }
 
   protected toggleShowPassword() {
     this.showPassword.update((v) => !v);

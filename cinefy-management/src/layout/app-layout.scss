@@ -1,4 +1,5 @@
 @use '../shared/styles/colors' as *;
+@use '../shared/styles/mixins' as *;
 @use '../shared/styles/breakpoints' as *;
 
 .app-layout-container {
@@ -25,8 +26,7 @@
 
 .main-container {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
   overflow: hidden;
   min-width: 0;
 }

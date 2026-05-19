@@ -1,17 +1,30 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { Loader, LucideAngularModule } from 'lucide-angular';
+
+export type LoadingSpinnerVariant = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+const VARIANT_PRESETS: Record<LoadingSpinnerVariant, { size: number; strokeWidth: number }> = {
+  xs: { size: 14, strokeWidth: 2.5 },
+  sm: { size: 16, strokeWidth: 2.5 },
+  md: { size: 24, strokeWidth: 2 },
+  lg: { size: 28, strokeWidth: 2.5 },
+  xl: { size: 32, strokeWidth: 3 },
+};
 
 @Component({
   selector: 'loading-spinner',
   imports: [LucideAngularModule],
-  template: `<lucide-icon
-    [img]="LoaderIcon"
-    [size]="size()"
-    [strokeWidth]="strokeWidth()"
-  ></lucide-icon>`,
+  template: `<div class="spinner" [style.width.px]="resolvedSize()" [style.height.px]="resolvedSize()">
+    <lucide-icon
+      [img]="icons.LoaderIcon"
+      [size]="resolvedSize()"
+      [strokeWidth]="resolvedStrokeWidth()"
+    ></lucide-icon>
+  </div>`,
   styles: `
-    :host {
-      display: inline-flex;
+    .spinner {
+      display: grid;
+      place-items: center;
       animation: spin 700ms linear infinite;
     }
 
@@ -23,8 +36,19 @@ import { Loader, LucideAngularModule } from 'lucide-angular';
   `,
 })
 export class LoadingSpinnerComponent {
-  readonly size = input(16);
-  readonly strokeWidth = input(2.5);
+  protected readonly icons = {
+    LoaderIcon: Loader,
+  };
 
-  protected readonly LoaderIcon = Loader;
+  readonly variant = input<LoadingSpinnerVariant | null>(null);
+  readonly size = input<number | null>(null);
+  readonly strokeWidth = input<number | null>(null);
+
+  protected readonly resolvedSize = computed(
+    () => this.size() ?? VARIANT_PRESETS[this.variant() ?? 'md'].size,
+  );
+
+  protected readonly resolvedStrokeWidth = computed(
+    () => this.strokeWidth() ?? VARIANT_PRESETS[this.variant() ?? 'md'].strokeWidth,
+  );
 }

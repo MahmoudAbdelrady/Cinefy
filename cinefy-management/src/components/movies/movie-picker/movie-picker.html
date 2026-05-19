@@ -1,7 +1,7 @@
 <div class="movie-picker">
   <div ngpFormField class="search-bar">
     <div ngpSearch>
-      <lucide-icon [img]="SearchIcon"></lucide-icon>
+      <lucide-icon [img]="icons.SearchIcon"></lucide-icon>
       <input
         [value]="movieSearchQuery()"
         (input)="movieSearchQuery.set($event.target.value)"
@@ -15,14 +15,14 @@
   @if (movieSearchQuery().length === 0) {
     <div class="search-placeholder">
       <div class="sp-icon" data-variant="empty">
-        <lucide-icon [img]="MovieIcon"></lucide-icon>
+        <lucide-icon [img]="icons.FilmIcon"></lucide-icon>
       </div>
       <h4>Search for a movie</h4>
       <p>Type a movie title to find it in the catalog</p>
     </div>
   } @else if (loading()) {
     <div class="search-loading">
-      <loading-spinner [size]="24" [strokeWidth]="2" />
+      <loading-spinner variant="md" />
     </div>
   } @else if (movies().length > 0) {
     <div class="search-count">{{ movies().length }} movies found</div>
@@ -34,7 +34,7 @@
               @if (movie.posterUrl) {
                 <img [src]="movie.posterUrl" alt="{{ movie.title }} Poster" />
               } @else {
-                <lucide-icon [img]="MovieIcon"></lucide-icon>
+                <lucide-icon [img]="icons.FilmIcon"></lucide-icon>
               }
             </div>
             <div class="mi-details">
@@ -51,7 +51,7 @@
           </div>
           <div class="mi-actions">
             <div class="mia-item">
-              <lucide-icon [img]="ChevronRightIcon"></lucide-icon>
+              <lucide-icon [img]="icons.ChevronRightIcon"></lucide-icon>
             </div>
           </div>
         </div>
@@ -66,7 +66,7 @@
         (click)="loadMore()"
       >
         @if (loadingMore()) {
-          <loading-spinner [size]="16" [strokeWidth]="2" />
+          <loading-spinner variant="sm" />
           <span>Loading...</span>
         } @else {
           <span>Load more</span>
@@ -76,7 +76,7 @@
   } @else {
     <div class="search-placeholder">
       <div class="sp-icon" data-variant="no-results">
-        <lucide-icon [img]="SearchIcon"></lucide-icon>
+        <lucide-icon [img]="icons.SearchIcon"></lucide-icon>
       </div>
       <h4>No movies found</h4>
       <p>Try a different title</p>
