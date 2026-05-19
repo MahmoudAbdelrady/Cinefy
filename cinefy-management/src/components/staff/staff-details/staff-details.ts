@@ -50,16 +50,17 @@ export class StaffDetailsComponent {
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly employmentTypeLabels = EMPLOYMENT_TYPE_LABELS;
+  protected readonly positionLabels = STAFF_POSITION_LABELS;
+  protected readonly weekDayLabels = WEEK_DAY_LABELS;
+
   readonly close = input.required<() => void>();
   readonly staffMemberId = input.required<string>();
+
   readonly editRequested = output<StaffMemberDetail>();
 
   protected readonly staffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
-
-  protected readonly employmentTypeLabels = EMPLOYMENT_TYPE_LABELS;
-  protected readonly positionLabels = STAFF_POSITION_LABELS;
-  protected readonly weekDayLabels = WEEK_DAY_LABELS;
 
   constructor() {
     afterNextRender(() => {

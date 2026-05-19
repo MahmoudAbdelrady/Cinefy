@@ -21,12 +21,7 @@ import {
   Webhook,
   Zap,
 } from 'lucide-angular';
-import {
-  AlertIcon,
-  CreditCardIcon,
-  DeleteIcon,
-  EditIcon,
-} from '../../../shared/icons';
+import { AlertIcon, CreditCardIcon, DeleteIcon, EditIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
@@ -116,7 +111,7 @@ export class PaymentMethodListComponent {
     this.paymentMethods.update((methods) => [method, ...methods]);
   }
 
-  updatePaymentMethod(method: PaymentMethodSummary): void {
+  protected updatePaymentMethod(method: PaymentMethodSummary): void {
     this.paymentMethods.update((methods) => methods.map((m) => (m.id === method.id ? method : m)));
   }
 

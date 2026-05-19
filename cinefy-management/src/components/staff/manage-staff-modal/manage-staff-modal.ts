@@ -88,15 +88,23 @@ export class ManageStaffModalComponent {
     UsernameIcon: AtSign,
     KeyIcon: KeyRound,
   };
-  protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
 
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
+  protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
+  protected readonly weekDays = Object.keys(WEEK_DAY_LABELS) as WeekDay[];
+  protected readonly countryOptions = COUNTRY_OPTIONS;
+  protected readonly employmentTypeEntries = Object.entries(EMPLOYMENT_TYPE_LABELS).map(
+    ([value, label]) => ({ value: value as EmploymentType, label }),
+  );
+
   readonly close = input.required<() => void>();
   readonly staffMemberId = input<string | null>(null);
   readonly selectedStaffMember = input<StaffMemberDetail | null>(null);
+
   readonly staffMemberCreated = output<StaffMemberSummary>();
   readonly staffMemberUpdated = output<StaffMemberSummary>();
 
@@ -104,43 +112,6 @@ export class ManageStaffModalComponent {
   protected readonly loading = signal(false);
   protected readonly saving = signal(false);
   private readonly initialFormSnapshot = signal<string | null>(null);
-
-  protected readonly isEdit = computed(
-    () => this.selectedStaffMember() !== null || this.staffMemberId() !== null,
-  );
-
-  protected readonly modalTitle = computed(() => {
-    if (!this.isEdit()) return 'Add staff member';
-    const member = this.resolvedStaffMember();
-    return member ? `Edit ${member.firstName} ${member.lastName} info` : 'Edit staff member';
-  });
-
-  protected readonly modalDescription = computed(() =>
-    this.isEdit()
-      ? 'Update the details for this staff member.'
-      : 'Add a new team member to manage Cinefy.',
-  );
-
-  protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
-  protected readonly weekDays = Object.keys(WEEK_DAY_LABELS) as WeekDay[];
-  protected readonly countryOptions = COUNTRY_OPTIONS;
-  protected readonly countryDisplayFn = (option: CountryOption): string =>
-    `+${option.dialCode} ${option.name}`;
-  protected readonly countryTriggerDisplayFn = (option: CountryOption): string =>
-    `+${option.dialCode}`;
-  protected readonly countryCompareFn = (a: CountryOption, b: CountryOption): boolean =>
-    a.code === b.code;
-
-  protected readonly phonePlaceholder = computed(() => {
-    this.currentFormValue();
-    const country = this.staffForm.controls.phoneCountry.value;
-    const example = getExampleNumber(country, examples);
-    return example ? `e.g. ${example.nationalNumber}` : 'Phone number';
-  });
-
-  protected readonly employmentTypeEntries = Object.entries(EMPLOYMENT_TYPE_LABELS).map(
-    ([value, label]) => ({ value: value as EmploymentType, label }),
-  );
 
   protected readonly staffForm = new FormGroup({
     firstName: new FormControl('', {
@@ -208,8 +179,31 @@ export class ManageStaffModalComponent {
     }),
   });
 
+  protected readonly isEdit = computed(
+    () => this.selectedStaffMember() !== null || this.staffMemberId() !== null,
+  );
+
+  protected readonly modalTitle = computed(() => {
+    if (!this.isEdit()) return 'Add staff member';
+    const member = this.resolvedStaffMember();
+    return member ? `Edit ${member.firstName} ${member.lastName} info` : 'Edit staff member';
+  });
+
+  protected readonly modalDescription = computed(() =>
+    this.isEdit()
+      ? 'Update the details for this staff member.'
+      : 'Add a new team member to manage Cinefy.',
+  );
+
   private readonly currentFormValue = toSignal(this.staffForm.valueChanges, {
     initialValue: this.staffForm.getRawValue(),
+  });
+
+  protected readonly phonePlaceholder = computed(() => {
+    this.currentFormValue();
+    const country = this.staffForm.controls.phoneCountry.value;
+    const example = getExampleNumber(country, examples);
+    return example ? `e.g. ${example.nationalNumber}` : 'Phone number';
   });
 
   protected readonly hasChanges = computed(() => {
@@ -218,6 +212,18 @@ export class ManageStaffModalComponent {
     this.currentFormValue();
     return JSON.stringify(this.staffForm.getRawValue()) !== snapshot;
   });
+
+  protected readonly countryDisplayFn = (option: CountryOption): string =>
+    `+${option.dialCode} ${option.name}`;
+  protected readonly countryTriggerDisplayFn = (option: CountryOption): string =>
+    `+${option.dialCode}`;
+  protected readonly countryCompareFn = (a: CountryOption, b: CountryOption): boolean =>
+    a.code === b.code;
+
+  protected readonly positionDisplayFn = (position: StaffPosition): string =>
+    STAFF_POSITION_LABELS[position];
+
+  protected readonly weekDayDisplayFn = (day: WeekDay): string => WEEK_DAY_LABELS[day];
 
   constructor() {
     this.staffForm.controls.workingHourEnd.addValidators((control) => {
@@ -292,11 +298,6 @@ export class ManageStaffModalComponent {
       this.initialFormSnapshot.set(JSON.stringify(this.staffForm.getRawValue()));
     });
   }
-
-  protected readonly positionDisplayFn = (position: StaffPosition): string =>
-    STAFF_POSITION_LABELS[position];
-
-  protected readonly weekDayDisplayFn = (day: WeekDay): string => WEEK_DAY_LABELS[day];
 
   protected onPositionChange(position: StaffPosition): void {
     this.staffForm.controls.position.setValue(position);

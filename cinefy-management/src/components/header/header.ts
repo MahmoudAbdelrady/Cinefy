@@ -36,13 +36,13 @@ export class HeaderComponent {
   private sidebarService = inject(SidebarService);
   private headerActionsService = inject(HeaderActionsService);
 
-  protected headerActionsTemplate = this.headerActionsService.template;
-  protected currentDate = new Date();
-
   protected readonly userInfoMenuItems: DropDownMenuItem[] = [
     { icon: User, label: 'Profile', code: 'profile' },
     { icon: LogOut, label: 'Logout', code: 'logout' },
   ];
+
+  protected headerActionsTemplate = this.headerActionsService.template;
+  protected currentDate = new Date();
 
   protected openSidebar() {
     this.sidebarService.open();

@@ -24,7 +24,8 @@ src/
 │   ├── app.routes.ts                   # Route definitions
 │   └── app.config.ts                   # Providers (router, HTTP, toast)
 ├── components/                         # Reusable UI components
-│   ├── dashboard/                      # now-showing, today-schedule, upcoming-movies
+│   ├── dashboard/                      # now-showing, today-schedule, upcoming-movies-widget
+│   ├── date-time/                      # date-picker, time-picker, date-time-picker
 │   ├── drop-down/
 │   │   ├── custom-select/              # Generic single-select dropdown
 │   │   └── paginated-select/           # Lazy-loading paginated dropdown
@@ -34,47 +35,77 @@ src/
 │   │   ├── halls-list/                 # Paginated searchable hall table
 │   │   ├── halls-statistics/           # Stats cards
 │   │   └── manage-hall-types-modal/    # Hall type CRUD
+│   ├── movies/                         # movie-picker, current-showtimes, upcoming-movies,
+│   │                                   #   movie-showtimes-modal, manage-showtime-modal,
+│   │                                   #   movies-statistics
+│   ├── payment/
+│   │   ├── manage-payment-modal/       # Wizard for create/edit payment method
+│   │   ├── payment-method-list/        # List + status toggles
+│   │   └── steps/                      # identity, credentials, integration, review
+│   ├── staff/
+│   │   ├── manage-staff-modal/         # Create/edit staff member form
+│   │   ├── staff-details/              # Read-only staff detail view
+│   │   ├── staff-list/                 # Paginated searchable staff table
+│   │   └── staff-position-coverage/    # Position coverage stats
 │   ├── field-error/                    # Form validation error display
 │   ├── header/                         # Top navigation bar
+│   ├── help-hint/                      # Inline help tooltip
+│   ├── input-field/                    # Wrapped text input + leading icon + validation
 │   ├── loading-spinner/                # Animated loader
 │   ├── modal/                          # ng-primitives dialog wrapper
 │   ├── pagination/                     # Pagination with jump-to
 │   ├── sidebar/                        # Navigation sidebar
+│   ├── stats/                          # Generic stat-card component
+│   ├── stepper/                        # Wizard step indicator
 │   └── toast/                          # Success/error notifications
 ├── pages/                              # Route-level components
 │   ├── dashboard/                      # Dashboard page (/)
-│   └── halls/                          # Hall management page (/halls)
+│   ├── halls/                          # Hall management page (/halls)
+│   ├── movies/                         # Movies / showtimes page (/movies)
+│   ├── payment/                        # Payment methods page (/payment)
+│   └── staff/                          # Staff management page (/staff)
 ├── layout/
 │   └── app-layout.ts                   # Root layout: sidebar + header + <router-outlet>
 ├── services/
 │   ├── halls.ts                        # Hall & hall-type CRUD (HttpClient)
+│   ├── movies.ts                       # Movie search + detail
+│   ├── showtimes.ts                    # Showtime CRUD + publish + stats
+│   ├── showtime-events.ts              # Cross-component showtime update signals
+│   ├── staff.ts                        # Staff CRUD + position coverage
+│   ├── payment-method.ts               # Payment method CRUD + connection testing
 │   ├── header-actions.ts               # Signal-based template injection for header
 │   ├── sidebar.ts                      # Sidebar open/close state (signal)
 │   └── toast.ts                        # Toast notification manager
 ├── shared/
-│   ├── types/
-│   │   ├── halls.ts                    # Hall domain types & enums
-│   │   └── index.ts                    # Generic types (PaginatedResponse, PageFields)
+│   ├── icons.ts                        # Re-exports of lucide icons used in the app
+│   ├── pipes/                          # phone-format, relative-time, time-12h
+│   ├── types/                          # halls, movies, showtimes, staff, payment, stats
 │   └── styles/
 │       ├── _colors.scss                # Full color palette + dark theme vars
-│       └── _mixins.scss                # flex-center, flex-align, flex-between, icon-box, text-truncate
+│       ├── _mixins.scss                # flex-*, icon-box, lucide-icon-fix, text-truncate, empty-state-block
+│       ├── _shadows.scss               # $shadow-xs/sm/md/lg + focus-ring tokens
+│       ├── _buttons.scss               # Button base + primary/secondary mixins
+│       └── _breakpoints.scss           # $bp-phone/mobile/tablet/desktop + below-* / from-* mixins
 ├── environments/
 │   ├── environment.ts                  # Dev: apiUrl = http://localhost:8080
 │   └── environment.prod.ts             # Prod: apiUrl = /api
 └── styles.scss                         # Global reset + ng-primitives overrides (tooltip, dialog overlay)
 ```
 
-Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, and `shared/types/index.ts` — always import through them.
+Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, and `shared/pipes/index.ts` — always import through them.
 
 ## Routes
 
 ```
 / (AppLayout)
 ├── /           → DashboardPage
-└── /halls      → HallsPage
+├── /halls      → HallsPage
+├── /movies     → MoviesPage      (movie search + showtimes scheduling)
+├── /payment    → PaymentPage     (payment methods)
+└── /staff      → StaffPage       (staff management)
 ```
 
-Planned but not yet implemented: `/movies`, `/payment`, `/statistics`, `/staff`, `/settings`.
+Planned but not yet implemented: `/statistics`, `/settings`.
 
 ## Architecture & Patterns
 
@@ -83,7 +114,27 @@ Planned but not yet implemented: `/movies`, `/payment`, `/statistics`, `/staff`,
 - **Standalone only** — no NgModules. Every component declares its `imports` array.
 - Components use **inline selector** (`selector: 'component-name'`), **external template** (`templateUrl`), and **external SCSS** (`styleUrl`).
 - File naming: `component-name.ts`, `component-name.html`, `component-name.scss` (no `.component` suffix).
-- `protected` for template-bound properties; `private readonly` for injected services.
+- `protected` for template-bound properties; `private readonly` for injected services; inputs/outputs are public (`readonly` with no visibility keyword).
+
+### Class Member Order
+
+All component classes follow the order set by [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-config-modal.ts). New components should match it; touching an existing one is a good time to bring it in line.
+
+1. `protected readonly icons = { ... }` — lucide icon map / UI dict.
+2. `private readonly` injected services (`inject(...)`) and `DestroyRef`.
+3. `private readonly` `viewChild` / `contentChild` / `ElementRef` references.
+4. `private static readonly` constants and any `protected readonly` computeds derived purely from those constants (keep them adjacent).
+5. Public **signal inputs** (`input()` / `input.required()`), then **outputs** (`output()`).
+6. **Signal state** (`signal(...)`) — public → protected → private, grouped by feature.
+7. **Reactive forms** (`protected readonly someForm = new FormGroup({ ... })`).
+8. **Computeds / `toSignal`-derived state** — keep related ones adjacent (e.g., a `toSignal` and the `computed` that consumes it).
+9. **Arrow-fn template helpers** — `displayFn`, `valueFn`, `compareWith`, etc. They're fields, so they go with the field declarations, not with the methods.
+10. **`constructor()`** — `effect()` blocks + `afterNextRender` init.
+11. **Private init / data-loader methods** called from the constructor.
+12. **Protected event handlers** (methods called from the template — `onXxxChange`, `saveXxx`, etc.).
+13. **Private helper methods** (utilities called only from inside the class).
+
+Within each bucket, preserve the existing order — don't alphabetize. Visibility follows usage: template-bound → `protected`; only-used-internally → `private`; component API (inputs/outputs) → public.
 
 ### Dependency Injection
 
@@ -119,18 +170,54 @@ Always use `inject()` — never constructor injection.
 ### API Endpoints (currently used)
 
 ```
-GET    /halls                  # Paginated list (search, page, size)
-GET    /halls/statistics       # Aggregate stats for halls-statistics cards
-GET    /halls/:id              # Hall detail
-GET    /halls/:id/layout       # Hall layout (seats + pricing)
-POST   /halls                  # Create hall
-PUT    /halls/:id              # Update hall
-DELETE /halls/:id              # Delete hall
+# Halls
+GET    /halls                            # Paginated list (search, page, size)
+GET    /halls/statistics                 # Aggregate stats for halls-statistics cards
+GET    /halls/:id                        # Hall detail
+GET    /halls/:id/layout                 # Hall layout (seats + pricing)
+POST   /halls                            # Create hall
+PUT    /halls/:id                        # Update hall
+DELETE /halls/:id                        # Delete hall
 
-GET    /halls/types            # List hall types
-POST   /halls/types            # Create hall type
-PUT    /halls/types/:id        # Update hall type
-DELETE /halls/types/:id        # Delete hall type
+# Hall types
+GET    /halls/types
+POST   /halls/types
+PUT    /halls/types/:id
+DELETE /halls/types/:id
+
+# Movies (TMDB-backed search)
+GET    /movies/search                    # Paginated movie search
+GET    /movies/upcoming                  # Upcoming-release list
+GET    /movies/:id                       # Movie detail
+
+# Showtimes
+GET    /showtimes/movies                 # Movies with grouped showtimes
+GET    /showtimes/statistics             # Showtime stats
+GET    /showtimes/movie-dates            # Dates a movie has showtimes on
+GET    /showtimes/movie-day              # Showtimes for a movie on a given day
+POST   /showtimes                        # Create showtime
+PUT    /showtimes/:id                    # Update showtime
+DELETE /showtimes/:id                    # Delete a single showtime
+DELETE /showtimes/movies/:movieId        # Delete all showtimes for a movie
+POST   /showtimes/publish                # Publish a batch of showtimes
+
+# Staff
+GET    /staff                            # Paginated list
+GET    /staff/position-coverage          # Coverage by position
+GET    /staff/:id                        # Staff detail
+POST   /staff                            # Create
+PUT    /staff/:id                        # Update
+DELETE /staff/:id                        # Delete
+
+# Payment methods
+GET    /payment-methods
+GET    /payment-methods/:id
+POST   /payment-methods
+PUT    /payment-methods/:id
+DELETE /payment-methods/:id
+POST   /payment-methods/test-connection  # Pre-save connection test
+POST   /payment-methods/:id/test-connection
+POST   /payment-methods/:id/status       # Toggle active/inactive
 ```
 
 ## Styling
@@ -146,9 +233,16 @@ DELETE /halls/types/:id        # Delete hall type
 
 - Import colors: `@use 'shared/styles/colors' as *;`
 - Import mixins: `@use 'shared/styles/mixins' as *;`
+- Import shadows: `@use 'shared/styles/shadows' as *;`
+- Import buttons: `@use 'shared/styles/buttons' as *;`
+- Import breakpoints: `@use 'shared/styles/breakpoints' as *;`
 - Use `$color-*` variables from `_colors.scss` — never hardcode colors.
 - Use `$radius-sm/md/lg/xl/full` for border-radius.
-- Available mixins: `flex-center`, `flex-align`, `flex-between`, `icon-box($size)`, `lucide-icon-fix`, `text-truncate`.
+- Use `$shadow-xs/sm/md/lg` and `$shadow-focus-ring[-error]` from `_shadows.scss` — never hardcode `box-shadow` values.
+- Layout mixins: `flex-center`, `flex-align`, `flex-between`, `flex-column`.
+- Icon mixins: `icon-box($size)`, `lucide-icon-fix` (applied on the **parent** of `<lucide-icon>`, never inside a `lucide-icon { }` block).
+- Other mixins: `text-truncate`, `empty-state-block`.
+- Responsive mixins: `below-phone/mobile/tablet/desktop` and `from-phone/mobile/tablet/desktop` (mobile-first by default).
 
 ### Prettier
 
@@ -157,10 +251,16 @@ Configured in `package.json`: 100-char width, single quotes, Angular HTML parser
 ## Domain Model
 
 ```
-HallStatus: ACTIVE | SCHEDULED | NOW_SHOWING | UNDER_MAINTENANCE | INACTIVE
-SeatCategory: NORMAL | VIP | AISLE
+HallStatus:    ACTIVE | SCHEDULED | NOW_SHOWING | UNDER_MAINTENANCE | INACTIVE
+SeatCategory:  NORMAL | VIP | AISLE
 
-Hall → has HallType (by typeId), TicketPricing[] (per SeatCategory), seat layout (map of SeatCategory → seatId[])
+Hall      → has HallType (by typeId), TicketPricing[] (per SeatCategory),
+            seat layout (map of SeatCategory → seatId[])
+Movie     → TMDB-backed metadata; referenced by id from Showtimes
+Showtime  → ties a Movie + Hall + start time; published in batches
+Staff     → has StaffPosition, EmploymentType, working days (start/end WeekDay),
+            working hours, phone (digits only — frontend owns the `+`)
+PaymentMethod → has type, credentials, integration config; status toggled separately
 ```
 
 Seat IDs follow `{RowLabel}{ColumnNumber}` format — rows cycle A-Z then AA-ZZ.
@@ -189,11 +289,12 @@ LSP coverage in this repo: TypeScript files (Angular components, services, types
 1. Always use **pnpm**.
 2. Always use **standalone components** with `inject()`.
 3. Prefer **signals** over RxJS for UI state.
-4. Use **barrel exports** — import from `../components`, `../services`, `../shared/types`.
+4. Use **barrel exports** — import from `../components`, `../services`, `../shared/types`, `../shared/pipes`.
 5. Keep types in `shared/types/` with barrel re-exports.
-6. Use the existing **color palette and mixins** — don't introduce new color values.
+6. Use the existing **color palette, shadows, and mixins** — don't introduce new color or shadow values.
 7. Use **ng-primitives** directives for interactive UI (buttons, dialogs, selects, etc.).
-8. Use **lucide-angular** for all icons.
+8. Use **lucide-angular** for all icons. Re-export new icons through `shared/icons.ts`. Size icons via `[size]="N"` — never via SCSS `svg { width/height }`.
 9. Filenames use kebab-case without `.component`/`.service` suffixes (e.g., `halls-list.ts`, not `halls-list.component.ts`).
 10. Tests are skipped by default in schematics (`skipTests: true` in angular.json).
 11. **LSP-first for code navigation** — see _Code Navigation_ above; grep is the fallback, not the default.
+12. **Class member order** — follow the canonical order in [_Class Member Order_](#class-member-order) above (modeled on `hall-config-modal.ts`).

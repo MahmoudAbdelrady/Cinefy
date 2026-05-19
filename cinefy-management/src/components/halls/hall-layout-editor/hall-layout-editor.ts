@@ -21,6 +21,7 @@ export class HallLayoutEditorComponent {
   readonly selectedSeatType = input<SeatCategory>('NORMAL');
   readonly selectedOnsiteOnly = input(false);
   readonly disabled = input(false);
+
   readonly seatChanged = output<void>();
   readonly layoutReset = output<void>();
 
@@ -65,6 +66,10 @@ export class HallLayoutEditorComponent {
     return letter.repeat(repeat);
   }
 
+  setLayout(layout: Seat[][]) {
+    this._seatLayout.set(layout);
+  }
+
   protected seatTitle(rowIndex: number, seatIndex: number, seat: Seat): string {
     const id = `${this.rowLabel(rowIndex)}${seatIndex + 1}`;
     const action = this.disabled() ? '' : ' - Click to change';
@@ -93,10 +98,6 @@ export class HallLayoutEditorComponent {
     if (layoutChanged) {
       this.seatChanged.emit();
     }
-  }
-
-  setLayout(layout: Seat[][]) {
-    this._seatLayout.set(layout);
   }
 
   private initializeLayout(rows: number, cols: number) {

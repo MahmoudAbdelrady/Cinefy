@@ -19,10 +19,11 @@ export class ToastComponent {
     ErrorIcon: CircleX,
     CloseIcon: X,
   };
-  protected readonly context = injectToastContext<ToastContext>();
 
   private readonly manager = inject(NgpToastManager);
   private readonly toast = viewChild.required<NgpToast>('toast');
+
+  protected readonly context = injectToastContext<ToastContext>();
 
   protected dismiss(): void {
     this.manager.dismiss(this.toast());

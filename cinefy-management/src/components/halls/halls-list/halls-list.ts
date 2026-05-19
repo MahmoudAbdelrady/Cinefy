@@ -44,9 +44,12 @@ export class HallsListComponent {
     AlertIcon,
     TagIcon: Tag,
   };
+
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly statusLabels = HALL_STATUS_LABELS;
 
   protected readonly page = signal(1);
   protected readonly search = signal('');
@@ -59,9 +62,6 @@ export class HallsListComponent {
     toObservable(this.search).pipe(debounceTime(300), distinctUntilChanged()),
     toObservable(this.page),
   ]);
-
-
-  protected readonly statusLabels = HALL_STATUS_LABELS;
 
   constructor() {
     afterNextRender(() => {

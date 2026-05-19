@@ -49,9 +49,9 @@ export class MoviePickerComponent {
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly movieSelected = output<MovieSearchResult>();
-
   private static readonly PAGE_SIZE = 20;
+
+  readonly movieSelected = output<MovieSearchResult>();
 
   protected readonly movieSearchQuery = signal('');
   protected readonly loading = signal(false);

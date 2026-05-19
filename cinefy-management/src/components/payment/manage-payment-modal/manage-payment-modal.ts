@@ -56,10 +56,43 @@ export class ManagePaymentModalComponent {
   private readonly paymentMethodService = inject(PaymentMethodService);
   private readonly toastService = inject(ToastService);
 
+  private readonly identityTpl = viewChild.required<TemplateRef<unknown>>('identity');
+  private readonly credentialsTpl = viewChild.required<TemplateRef<unknown>>('credentials');
+  private readonly integrationTpl = viewChild.required<TemplateRef<unknown>>('integration');
+  private readonly reviewTpl = viewChild.required<TemplateRef<unknown>>('review');
+  private readonly paymobHelpTpl = viewChild.required<TemplateRef<unknown>>('paymobHelp');
+
   readonly close = input.required<() => void>();
   readonly methodId = input<string | null>(null);
+
   readonly paymentMethodCreated = output<PaymentMethodSummary>();
   readonly paymentMethodUpdated = output<PaymentMethodSummary>();
+
+  protected readonly currentStep = signal(0);
+  protected readonly connectionTestRequested = signal(false);
+  protected readonly saving = signal(false);
+  protected readonly loadingDetail = signal(false);
+  protected readonly initialTestResult = signal<TestResultState | null>(null);
+
+  protected readonly form = new FormGroup({
+    identity: buildIdentityForm(),
+    credentials: buildCredentialsForm(),
+    integration: buildIntegrationForm(),
+  });
+
+  private readonly stepForms = [
+    this.form.controls.identity,
+    this.form.controls.credentials,
+    this.form.controls.integration,
+  ];
+
+  private readonly formStatus = toSignal(
+    merge(...this.stepForms.map((f) => f.statusChanges)).pipe(startWith(null)),
+  );
+
+  private readonly formValue = toSignal(
+    merge(...this.stepForms.map((f) => f.valueChanges)).pipe(startWith(null)),
+  );
 
   protected readonly isEditMode = computed(() => this.methodId() !== null);
 
@@ -72,12 +105,6 @@ export class ManagePaymentModalComponent {
       ? 'Update the configuration for this payment method.'
       : 'Connect a new gateway so customers can pay through Cinefy.',
   );
-
-  private readonly identityTpl = viewChild.required<TemplateRef<unknown>>('identity');
-  private readonly credentialsTpl = viewChild.required<TemplateRef<unknown>>('credentials');
-  private readonly integrationTpl = viewChild.required<TemplateRef<unknown>>('integration');
-  private readonly reviewTpl = viewChild.required<TemplateRef<unknown>>('review');
-  private readonly paymobHelpTpl = viewChild.required<TemplateRef<unknown>>('paymobHelp');
 
   protected readonly steps = computed<StepperStep[]>(() => [
     {
@@ -107,44 +134,6 @@ export class ManagePaymentModalComponent {
     content: this.paymobHelpTpl(),
   }));
 
-  protected readonly form = new FormGroup({
-    identity: buildIdentityForm(),
-    credentials: buildCredentialsForm(),
-    integration: buildIntegrationForm(),
-  });
-
-  protected readonly currentStep = signal(0);
-  protected readonly connectionTestRequested = signal(false);
-  protected readonly saving = signal(false);
-  protected readonly loadingDetail = signal(false);
-  protected readonly initialTestResult = signal<TestResultState | null>(null);
-
-  constructor() {
-    merge(this.form.controls.credentials.valueChanges, this.form.controls.integration.valueChanges)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.connectionTestRequested.set(false);
-        this.initialTestResult.set(null);
-      });
-
-    effect(() => this.applyEditModeValidators(this.isEditMode()));
-    effect(() => this.loadMethodIfEditing(this.methodId()));
-  }
-
-  private readonly stepForms = [
-    this.form.controls.identity,
-    this.form.controls.credentials,
-    this.form.controls.integration,
-  ];
-
-  private readonly formStatus = toSignal(
-    merge(...this.stepForms.map((f) => f.statusChanges)).pipe(startWith(null)),
-  );
-
-  private readonly formValue = toSignal(
-    merge(...this.stepForms.map((f) => f.valueChanges)).pipe(startWith(null)),
-  );
-
   protected readonly currentStepValid = computed(() => {
     this.formStatus();
     return this.stepForms[this.currentStep()]?.valid ?? true;
@@ -167,6 +156,18 @@ export class ManagePaymentModalComponent {
       connectionTestRequested: this.connectionTestRequested(),
     };
   });
+
+  constructor() {
+    merge(this.form.controls.credentials.valueChanges, this.form.controls.integration.valueChanges)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.connectionTestRequested.set(false);
+        this.initialTestResult.set(null);
+      });
+
+    effect(() => this.applyEditModeValidators(this.isEditMode()));
+    effect(() => this.loadMethodIfEditing(this.methodId()));
+  }
 
   protected goToNextStep() {
     if (this.currentStep() < this.steps().length - 1) {

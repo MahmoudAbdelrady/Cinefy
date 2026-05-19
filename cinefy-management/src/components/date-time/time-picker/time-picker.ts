@@ -23,25 +23,14 @@ export class TimePicker {
     ClockIcon,
     ChevronUpIcon: ChevronUp,
   };
-  private readonly destroyRef = inject(DestroyRef);
 
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly control = input.required<FormControl<string | null>>();
   readonly hint = input<string | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
 
   private readonly value = signal<string | null>(null);
-
-  constructor() {
-    effect((onCleanup) => {
-      const c = this.control();
-      this.value.set(c.value);
-      const sub = c.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((v) => {
-        this.value.set(v);
-      });
-      onCleanup(() => sub.unsubscribe());
-    });
-  }
 
   protected readonly parts = computed(() => {
     const value = this.value();
@@ -69,6 +58,17 @@ export class TimePicker {
   protected get required(): boolean {
     const c = this.control();
     return c.hasValidator(Validators.required) && c.enabled;
+  }
+
+  constructor() {
+    effect((onCleanup) => {
+      const c = this.control();
+      this.value.set(c.value);
+      const sub = c.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((v) => {
+        this.value.set(v);
+      });
+      onCleanup(() => sub.unsubscribe());
+    });
   }
 
   protected onHourInput(event: Event) {

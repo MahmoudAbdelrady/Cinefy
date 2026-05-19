@@ -86,35 +86,41 @@ export class StaffListComponent {
   private readonly dialogManager = inject(NgpDialogManager);
 
   protected readonly editTemplate = viewChild.required<TemplateRef<unknown>>('editDialog');
+
+  protected readonly positionLabels = STAFF_POSITION_LABELS;
+  protected readonly weekDayLabels = WEEK_DAY_LABELS;
+  protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
+  protected readonly pageSize = 10;
+
+  readonly coverageChanged = output<CoverageChange>();
+
   protected readonly pendingEditId = signal<string | null>(null);
   protected readonly pendingEditMember = signal<StaffMemberDetail | null>(null);
   protected readonly deletingStaffIds = signal<ReadonlySet<string>>(new Set());
 
-  readonly coverageChanged = output<CoverageChange>();
-
-  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
   protected readonly search = signal('');
   protected readonly positionFilter = signal<StaffPosition | undefined>(undefined);
   protected readonly page = signal(1);
-  protected readonly pageSize = 10;
 
   protected readonly loading = signal(true);
   protected readonly staffPage = signal<PaginatedResponse<StaffMemberSummary> | null>(null);
+
+  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+
   protected readonly staffMembers = computed(() => this.staffPage()?.content ?? []);
   protected readonly totalItems = computed(() => this.staffPage()?.page.totalElements ?? 0);
   protected readonly pageCount = computed(() =>
     Math.max(1, this.staffPage()?.page.totalPages ?? 1),
   );
 
-  protected readonly positionLabels = STAFF_POSITION_LABELS;
-  protected readonly weekDayLabels = WEEK_DAY_LABELS;
-  protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
-
   private readonly staff$ = combineLatest([
     toObservable(this.search).pipe(debounceTime(300), distinctUntilChanged()),
     toObservable(this.positionFilter),
     toObservable(this.page),
   ]);
+
+  protected readonly positionDisplayFn = (position: StaffPosition): string =>
+    STAFF_POSITION_LABELS[position];
 
   constructor() {
     this.searchControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
@@ -145,30 +151,6 @@ export class StaffListComponent {
           },
         });
     });
-  }
-
-  protected readonly positionDisplayFn = (position: StaffPosition): string =>
-    STAFF_POSITION_LABELS[position];
-
-  protected onPositionFilterChange(position: StaffPosition): void {
-    this.positionFilter.set(position);
-    this.page.set(1);
-  }
-
-  protected onPositionFilterCleared(): void {
-    this.positionFilter.set(undefined);
-    this.page.set(1);
-  }
-
-  protected openEditDialog(idOrMember: string | StaffMemberDetail): void {
-    if (typeof idOrMember === 'string') {
-      this.pendingEditId.set(idOrMember);
-      this.pendingEditMember.set(null);
-    } else {
-      this.pendingEditId.set(null);
-      this.pendingEditMember.set(idOrMember);
-    }
-    this.dialogManager.open(this.editTemplate() as never);
   }
 
   onStaffMemberUpdated(member: StaffMemberSummary): void {
@@ -203,6 +185,27 @@ export class StaffListComponent {
       },
     });
     this.coverageChanged.emit({ action: 'add', position: member.position });
+  }
+
+  protected onPositionFilterChange(position: StaffPosition): void {
+    this.positionFilter.set(position);
+    this.page.set(1);
+  }
+
+  protected onPositionFilterCleared(): void {
+    this.positionFilter.set(undefined);
+    this.page.set(1);
+  }
+
+  protected openEditDialog(idOrMember: string | StaffMemberDetail): void {
+    if (typeof idOrMember === 'string') {
+      this.pendingEditId.set(idOrMember);
+      this.pendingEditMember.set(null);
+    } else {
+      this.pendingEditId.set(null);
+      this.pendingEditMember.set(idOrMember);
+    }
+    this.dialogManager.open(this.editTemplate() as never);
   }
 
   protected deleteStaffMember(id: string, close: () => void): void {

@@ -22,9 +22,10 @@ export class StaffPositionCoverageComponent {
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly positionLabels = STAFF_POSITION_LABELS;
+
   protected readonly loading = signal(true);
   protected readonly positionCoverageItems = signal<PositionCoverage | null>(null);
-  protected readonly positionLabels = STAFF_POSITION_LABELS;
 
   constructor() {
     afterNextRender(() => {
@@ -42,11 +43,6 @@ export class StaffPositionCoverageComponent {
           },
         });
     });
-  }
-
-  protected percentage(count: number): number {
-    const total = this.positionCoverageItems()?.total ?? 0;
-    return total === 0 ? 0 : Math.round((count / total) * 100);
   }
 
   applyChange(change: CoverageChange): void {
@@ -69,6 +65,11 @@ export class StaffPositionCoverageComponent {
       this.adjustPositionCount(positions, change.to, 1);
       this.positionCoverageItems.set({ total: coverage.total, positions });
     }
+  }
+
+  protected percentage(count: number): number {
+    const total = this.positionCoverageItems()?.total ?? 0;
+    return total === 0 ? 0 : Math.round((count / total) * 100);
   }
 
   private adjustPositionCount(

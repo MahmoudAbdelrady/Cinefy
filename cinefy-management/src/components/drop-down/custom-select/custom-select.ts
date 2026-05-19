@@ -44,6 +44,7 @@ export class CustomSelectComponent<T> {
     ChevronDownIcon,
     XIcon: X,
   };
+
   private readonly destroyRef = inject(DestroyRef);
 
   readonly items = input.required<T[]>();
@@ -74,21 +75,6 @@ export class CustomSelectComponent<T> {
 
   private readonly controlValue = signal<unknown>(null);
 
-  constructor() {
-    effect((onCleanup) => {
-      const ctrl = this.control();
-      if (!ctrl) {
-        this.controlValue.set(null);
-        return;
-      }
-      this.controlValue.set(ctrl.value);
-      const sub = ctrl.valueChanges
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((v) => this.controlValue.set(v));
-      onCleanup(() => sub.unsubscribe());
-    });
-  }
-
   private readonly itemFromControl = computed<T | null>(() => {
     if (!this.control()) return null;
     const formValue = this.controlValue();
@@ -117,6 +103,21 @@ export class CustomSelectComponent<T> {
     const displayFn = this.displayFn();
     return this.items().filter((item) => displayFn(item).toLowerCase().includes(term));
   });
+
+  constructor() {
+    effect((onCleanup) => {
+      const ctrl = this.control();
+      if (!ctrl) {
+        this.controlValue.set(null);
+        return;
+      }
+      this.controlValue.set(ctrl.value);
+      const sub = ctrl.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((v) => this.controlValue.set(v));
+      onCleanup(() => sub.unsubscribe());
+    });
+  }
 
   protected onOpenChange(open: boolean) {
     if (open) {

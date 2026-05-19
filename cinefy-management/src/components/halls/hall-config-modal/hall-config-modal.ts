@@ -291,11 +291,6 @@ export class HallConfigModalComponent {
     this.hallForm.controls.typeId.setValue(type.id ?? '');
   }
 
-  protected onHallTypeCleared() {
-    this.selectedHallType.set(null);
-    this.hallForm.controls.typeId.setValue('');
-  }
-
   protected selectSeatCategory(category: SeatCategoryItem) {
     this.selectedSeatCategory.set(category);
   }

@@ -53,6 +53,9 @@ export class DatePicker implements ControlValueAccessor {
     ChevronRightIcon,
     ChevronLeftIcon: ChevronLeft,
   };
+
+  protected readonly weekdays = WEEKDAY_LABELS;
+
   readonly placeholder = input<string>('Select a date');
   readonly min = input<Date | undefined>(undefined);
   readonly max = input<Date | undefined>(undefined);
@@ -61,8 +64,6 @@ export class DatePicker implements ControlValueAccessor {
 
   protected readonly value = signal<Date | undefined>(undefined);
   protected readonly isDisabled = signal(false);
-
-  protected readonly weekdays = WEEKDAY_LABELS;
 
   protected readonly formatted = computed(() => {
     const date = this.value();
