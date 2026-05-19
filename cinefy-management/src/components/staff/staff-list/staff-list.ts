@@ -12,7 +12,7 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
-import { combineLatest, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs';
+import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   AlertIcon,
@@ -98,7 +98,6 @@ export class StaffListComponent {
   protected readonly pendingEditMember = signal<StaffMemberDetail | null>(null);
   protected readonly deletingStaffIds = signal<ReadonlySet<string>>(new Set());
 
-  protected readonly search = signal('');
   protected readonly positionFilter = signal<StaffPosition | undefined>(undefined);
   protected readonly page = signal(1);
 
@@ -114,7 +113,12 @@ export class StaffListComponent {
   );
 
   private readonly staff$ = combineLatest([
-    toObservable(this.search).pipe(debounceTime(300), distinctUntilChanged()),
+    this.searchControl.valueChanges.pipe(
+      startWith(''),
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap(() => this.page.set(1)),
+    ),
     toObservable(this.positionFilter),
     toObservable(this.page),
   ]);
@@ -123,11 +127,6 @@ export class StaffListComponent {
     STAFF_POSITION_LABELS[position];
 
   constructor() {
-    this.searchControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
-      this.search.set(value);
-      this.page.set(1);
-    });
-
     afterNextRender(() => {
       this.staff$
         .pipe(

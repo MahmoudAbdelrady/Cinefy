@@ -37,42 +37,10 @@
 }
 
 .ah-header-right {
-  position: relative;
   width: 288px;
 
   @include below-mobile {
     width: 100%;
-  }
-
-  lucide-icon {
-    display: flex;
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: $gray-400;
-    pointer-events: none;
-  }
-
-  input {
-    width: 100%;
-    padding: 8px 16px 8px 36px;
-    font-size: 14px;
-    border: 1px solid $gray-300;
-    border-radius: $radius-md;
-    color: $gray-900;
-    background-color: #ffffff;
-    transition: all 150ms ease;
-
-    &::placeholder {
-      color: $gray-400;
-    }
-
-    &:focus {
-      outline: none;
-      border-color: $blue-600;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
   }
 }
 

@@ -1,5 +1,6 @@
 import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { FormControl } from '@angular/forms';
 import { LucideAngularModule, Tag } from 'lucide-angular';
 import {
   AlertIcon,
@@ -12,7 +13,8 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { combineLatest, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs';
+import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
+import { InputField } from '../../input-field/input-field';
 import { PaginationComponent } from '../../pagination/pagination';
 import { ModalComponent } from '../../modal/modal';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
@@ -26,6 +28,7 @@ import { HallsService, ToastService } from '../../../services';
     LucideAngularModule,
     NgpButton,
     NgpDialogTrigger,
+    InputField,
     PaginationComponent,
     ModalComponent,
     HallConfigModalComponent,
@@ -52,14 +55,20 @@ export class HallsListComponent {
   protected readonly statusLabels = HALL_STATUS_LABELS;
 
   protected readonly page = signal(1);
-  protected readonly search = signal('');
   protected readonly pageSize = 10;
   protected readonly loading = signal(true);
   protected readonly deletingHallId = signal<string | null>(null);
   protected readonly hallPage = signal<PaginatedResponse<HallSummary> | null>(null);
 
+  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+
   private readonly halls$ = combineLatest([
-    toObservable(this.search).pipe(debounceTime(300), distinctUntilChanged()),
+    this.searchControl.valueChanges.pipe(
+      startWith(''),
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap(() => this.page.set(1)),
+    ),
     toObservable(this.page),
   ]);
 
@@ -110,11 +119,6 @@ export class HallsListComponent {
           }
         : page,
     );
-  }
-
-  protected onSearch(event: Event): void {
-    this.search.set((event.target as HTMLInputElement).value);
-    this.page.set(1);
   }
 
   protected deleteHall(hall: HallSummary, close: () => void): void {
