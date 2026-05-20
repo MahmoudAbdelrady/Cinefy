@@ -1,4 +1,4 @@
-<div class="fp-stage">
+<div class="reset-step-container">
   <div class="fp-heading">
     <h1>Set a new password</h1>
     <p>Choose a strong password you haven't used before.</p>
@@ -6,7 +6,7 @@
 
   <div class="fp-card">
     <form [formGroup]="resetForm" (ngSubmit)="onSubmit()" class="fp-form">
-      <div class="fp-password-block">
+      <div class="input-group">
         <input-field
           label="New password"
           type="password"
@@ -17,7 +17,7 @@
         />
       </div>
 
-      <div class="fp-password-block">
+      <div class="input-group">
         <input-field
           label="Confirm new password"
           type="password"

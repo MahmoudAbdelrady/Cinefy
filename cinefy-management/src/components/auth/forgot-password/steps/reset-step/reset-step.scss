@@ -7,7 +7,7 @@
   width: 100%;
 }
 
-.fp-stage {
+.reset-step-container {
   @include auth-stage;
 }
 
@@ -23,9 +23,9 @@
   @include auth-form;
 }
 
-.fp-password-block {
+.input-group {
   @include flex-column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .fp-mismatch {
