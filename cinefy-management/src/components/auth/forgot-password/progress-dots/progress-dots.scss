@@ -1,7 +1,7 @@
 @use '../../../../shared/styles/colors' as *;
 @use '../../../../shared/styles/mixins' as *;
 
-.fp-dots {
+.progress-dots-container {
   @include flex-center;
   gap: 6px;
   margin-bottom: 28px;
