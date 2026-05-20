@@ -1,0 +1,38 @@
+@use '../../../auth-card' as *;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.fp-stage {
+  @include auth-stage;
+}
+
+.fp-heading {
+  @include auth-heading;
+}
+
+.fp-card {
+  @include auth-card;
+}
+
+.fp-form {
+  @include auth-form;
+}
+
+.fp-submit {
+  @include auth-submit-btn;
+
+  .fp-submit-arrow {
+    @include auth-submit-arrow;
+  }
+
+  &:not(:disabled):hover .fp-submit-arrow {
+    @include auth-submit-arrow-hover;
+  }
+}
+
+.fp-back-link {
+  @include auth-back-link;
+}

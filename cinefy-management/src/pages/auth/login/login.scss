@@ -1,6 +1,6 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/mixins' as *;
-@use '../../../shared/styles/shadows' as *;
+@use '../../../components/auth/auth-card' as *;
 
 :host {
   display: block;
@@ -13,35 +13,15 @@
 }
 
 .lp-heading {
-  margin-bottom: 28px;
-
-  h1 {
-    font-size: 24px;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    font-weight: 600;
-    color: $gray-900;
-    margin: 0;
-  }
-
-  p {
-    margin: 6px 0 0;
-    font-size: 14px;
-    color: $gray-600;
-  }
+  @include auth-heading;
 }
 
 .lp-card {
-  background-color: #ffffff;
-  border: 1px solid $gray-200;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-sm;
-  padding: 32px;
+  @include auth-card;
 }
 
 .lp-form {
-  @include flex-column;
-  gap: 20px;
+  @include auth-form;
 }
 
 .lp-password {
@@ -67,44 +47,13 @@
 }
 
 .lp-submit {
-  position: relative;
-  width: 100%;
-  margin-top: 4px;
-  @include flex-center;
-  gap: 8px;
-  height: 44px;
-  border-radius: $radius-md;
-  background-color: $blue-600;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 600;
-  box-shadow: $shadow-xs;
-  transition:
-    background-color 150ms ease,
-    box-shadow 150ms ease,
-    transform 100ms ease;
-  cursor: pointer;
-  @include lucide-icon-fix;
-
-  &:not(:disabled):hover {
-    background-color: $blue-700;
-  }
-
-  &:not(:disabled):active {
-    transform: translateY(1px);
-  }
-
-  &:disabled {
-    background-color: $gray-300;
-    box-shadow: none;
-    cursor: not-allowed;
-  }
+  @include auth-submit-btn;
 
   .lp-submit-arrow {
-    transition: transform 150ms ease;
+    @include auth-submit-arrow;
   }
 
   &:not(:disabled):hover .lp-submit-arrow {
-    transform: translateX(2px);
+    @include auth-submit-arrow-hover;
   }
 }
