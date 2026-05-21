@@ -1,6 +1,6 @@
-@use '../shared/styles/colors' as *;
-@use '../shared/styles/mixins' as *;
-@use '../shared/styles/breakpoints' as *;
+@use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
+@use '../../shared/styles/breakpoints' as *;
 
 .app-layout-container {
   display: flex;

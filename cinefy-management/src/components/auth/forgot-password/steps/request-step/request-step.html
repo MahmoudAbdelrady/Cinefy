@@ -1,0 +1,38 @@
+<div class="request-step-container">
+  <div class="fp-heading">
+    <h1>Forgot password?</h1>
+    <p>Enter your username and we'll send a verification code to the email address on file.</p>
+  </div>
+
+  <div class="fp-card">
+    <form [formGroup]="requestForm" (ngSubmit)="onSubmit()" class="fp-form">
+      <input-field
+        label="Username"
+        placeholder="Enter your username"
+        [leadingIcon]="icons.AtSignIcon"
+        [control]="requestForm.controls.username"
+        [errorMessages]="{ required: 'Username is required' }"
+      />
+
+      <button
+        ngpButton
+        type="submit"
+        class="fp-submit"
+        [disabled]="requestForm.invalid || submitting()"
+      >
+        @if (submitting()) {
+          <loading-spinner variant="sm" />
+          <span>Sending code…</span>
+        } @else {
+          <span>Send verification code</span>
+          <lucide-icon class="fp-submit-arrow" [img]="icons.ArrowRightIcon" [size]="16" />
+        }
+      </button>
+    </form>
+  </div>
+
+  <a routerLink="/auth/login" class="fp-back-link">
+    <lucide-icon [img]="icons.ArrowLeftIcon" [size]="14" [strokeWidth]="2" />
+    Back to sign in
+  </a>
+</div>

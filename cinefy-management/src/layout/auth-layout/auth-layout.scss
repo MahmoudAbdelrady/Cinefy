@@ -1,0 +1,83 @@
+@use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
+@use '../../shared/styles/shadows' as *;
+@use '../../shared/styles/breakpoints' as *;
+
+.auth-layout-container {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #fafafa;
+  color: $gray-900;
+  @include flex-column;
+}
+
+.alc-header {
+  width: 100%;
+  padding: 24px 40px;
+  @include flex-align;
+  gap: 10px;
+
+  @include below-mobile {
+    padding: 24px;
+  }
+}
+
+.alch-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-md;
+  background: linear-gradient(135deg, $blue-600 0%, #4338ca 100%);
+  @include flex-center;
+  color: #ffffff;
+  box-shadow: $shadow-xs;
+  @include lucide-icon-fix;
+}
+
+.alch-info {
+  line-height: 1;
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: $gray-900;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  p {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: $gray-500;
+    font-weight: 600;
+    margin: 4px 0 0;
+  }
+}
+
+.alc-content {
+  flex: 1;
+  @include flex-center;
+  padding: 40px 24px;
+}
+
+.alc-footer {
+  width: 100%;
+  padding: 24px 40px;
+  border-top: 1px solid rgba($gray-200, 0.8);
+  background-color: rgba(#ffffff, 0.6);
+  @include flex-align;
+  justify-content: flex-end;
+  gap: 12px;
+  font-size: 11.5px;
+  color: $gray-500;
+
+  span + span::before {
+    content: '·';
+    color: $gray-300;
+    margin-right: 12px;
+  }
+
+  @include below-mobile {
+    padding: 24px;
+  }
+}

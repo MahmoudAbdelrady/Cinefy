@@ -11,8 +11,8 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AtSign, KeyRound, LucideAngularModule, User } from 'lucide-angular';
-import { CheckIcon, EmailIcon, PhoneIcon } from '../../../shared/icons';
+import { LucideAngularModule, User } from 'lucide-angular';
+import { AtSignIcon, CheckIcon, EmailIcon, PasswordIcon, PhoneIcon } from '../../../shared/icons';
 import {
   getCountries,
   getCountryCallingCode,
@@ -40,12 +40,12 @@ import { StaffService, ToastService } from '../../../services';
 import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
 import { TimePicker } from '../../date-time/time-picker/time-picker';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
-
-const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-const NAME_PATTERN = /^\p{L}+([ '\-]\p{L}+)*$/u;
-const USERNAME_PATTERN = /^[a-z](?:[a-z0-9]|[._-](?=[a-z0-9]))*$/;
-const EMAIL_PATTERN =
-  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+import {
+  EMAIL_PATTERN,
+  NAME_PATTERN,
+  PASSWORD_PATTERN,
+  USERNAME_PATTERN,
+} from '../../../shared/validation';
 
 interface CountryOption {
   code: CountryCode;
@@ -85,8 +85,8 @@ export class ManageStaffModalComponent {
     EmailIcon,
     PhoneIcon,
     NameIcon: User,
-    UsernameIcon: AtSign,
-    KeyIcon: KeyRound,
+    UsernameIcon: AtSignIcon,
+    KeyIcon: PasswordIcon,
   };
 
   private readonly staffService = inject(StaffService);

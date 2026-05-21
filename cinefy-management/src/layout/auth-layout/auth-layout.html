@@ -1,0 +1,18 @@
+<div class="auth-layout-container">
+  <div class="alc-header">
+    <div class="alch-icon">
+      <lucide-icon [img]="icons.FilmIcon" [size]="17" [strokeWidth]="2.3"></lucide-icon>
+    </div>
+    <div class="alch-info">
+      <h3>Cinefy</h3>
+      <p>Management Console</p>
+    </div>
+  </div>
+  <div class="alc-content">
+    <router-outlet />
+  </div>
+  <div class="alc-footer">
+    <span>v1.0.0</span>
+    <span>© Cinefy {{ currentYear }}</span>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="otp-step-container">
+  <div class="fp-heading">
+    <h1>Enter the code we sent</h1>
+    <p>We emailed a 6-digit code to the email address for your account.</p>
+  </div>
+
+  <div class="fp-card">
+    <form (ngSubmit)="onSubmit()">
+      <label class="fp-otp-label">Verification code</label>
+
+      <input-otp
+        [(value)]="code"
+        [error]="error()"
+        (valueChange)="onCodeChange($event)"
+        (completeChange)="complete.set($event)"
+      />
+
+      @if (error(); as errorText) {
+        <p class="fp-otp-error">
+          <lucide-icon [img]="icons.AlertIcon" [size]="14" [strokeWidth]="2.2" />
+          {{ errorText }}
+        </p>
+      }
+
+      <p class="fp-otp-meta">
+        Didn't get a code?
+        <!-- Todo: disable the button and show "Resend in 14:32" while a cooldown is active -->
+        <button type="button" class="fp-otp-resend">Resend</button>
+      </p>
+
+      <button ngpButton type="submit" class="fp-submit" [disabled]="!complete() || verifying()">
+        @if (verifying()) {
+          <loading-spinner variant="sm" />
+          <span>Verifying…</span>
+        } @else {
+          <span>Verify code</span>
+          <lucide-icon class="fp-submit-arrow" [img]="icons.ArrowRightIcon" [size]="16" />
+        }
+      </button>
+    </form>
+  </div>
+
+  <button type="button" class="fp-back-link" (click)="onBack()">
+    <lucide-icon [img]="icons.ArrowLeftIcon" [size]="14" [strokeWidth]="2" />
+    Use a different username
+  </button>
+</div>

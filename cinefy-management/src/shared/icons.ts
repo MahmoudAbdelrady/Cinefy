@@ -2,6 +2,7 @@
 // Add icons here once they're used in multiple components; one-off icons
 // stay imported directly from 'lucide-angular' in the component that needs them.
 export {
+  AtSign as AtSignIcon,
   Calendar as CalendarIcon,
   Check as CheckIcon,
   ChevronDown as ChevronDownIcon,
@@ -12,6 +13,7 @@ export {
   DollarSign as DollarSignIcon,
   Eye as EyeIcon,
   Film as FilmIcon,
+  KeyRound as PasswordIcon,
   LayoutDashboard as LayoutIcon,
   Mail as EmailIcon,
   Phone as PhoneIcon,

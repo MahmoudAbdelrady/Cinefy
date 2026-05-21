@@ -1,0 +1,59 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
+@use '../../../components/auth/auth-card' as *;
+
+:host {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+}
+
+.login-page {
+  width: 100%;
+}
+
+.lp-heading {
+  @include auth-heading;
+}
+
+.lp-card {
+  @include auth-card;
+}
+
+.lp-form {
+  @include auth-form;
+}
+
+.lp-password {
+  @include flex-column;
+  gap: 8px;
+}
+
+.lp-forgot {
+  display: flex;
+  justify-content: flex-end;
+
+  a {
+    font-size: 12px;
+    font-weight: 500;
+    color: $blue-600;
+    text-decoration: none;
+    transition: color 150ms ease;
+
+    &:hover {
+      color: $blue-700;
+    }
+  }
+}
+
+.lp-submit {
+  @include auth-submit-btn;
+
+  .lp-submit-arrow {
+    @include auth-submit-arrow;
+  }
+
+  &:not(:disabled):hover .lp-submit-arrow {
+    @include auth-submit-arrow-hover;
+  }
+}
