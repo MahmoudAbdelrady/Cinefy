@@ -6,6 +6,7 @@ import {
   input,
   model,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/input-otp';
@@ -22,9 +23,10 @@ export class InputOtp {
   readonly length = input(6);
   readonly value = model('');
   readonly error = input<string | null>(null);
-  readonly shake = input(false);
 
   readonly completeChange = output<boolean>();
+
+  protected readonly shake = signal(false);
 
   protected readonly slotIndices = computed(() =>
     Array.from({ length: this.length() }, (_, i) => i),
@@ -41,15 +43,35 @@ export class InputOtp {
         this.completeChange.emit(complete);
       }
     });
+
+    // NgpInputOtp doesn't reset its native <input> when the bound value clears, so wipe it here.
+    let wasFilled = false;
+    effect(() => {
+      const empty = this.value().length === 0;
+      if (empty && wasFilled) this.clear();
+      wasFilled = !empty;
+    });
+
+    // Shake once on each transition into an error state; auto-clears after the animation.
+    let wasErrored = false;
+    effect(() => {
+      const hasError = this.error() !== null;
+      if (hasError && !wasErrored) this.triggerShake();
+      wasErrored = hasError;
+    });
   }
 
   protected onValueChange(next: string) {
     this.value.set(next);
   }
 
-  clear() {
+  private clear() {
     this.inputEl().nativeElement.value = '';
-    this.value.set('');
     this.inputEl().nativeElement.focus();
+  }
+
+  private triggerShake() {
+    this.shake.set(true);
+    setTimeout(() => this.shake.set(false), 350);
   }
 }

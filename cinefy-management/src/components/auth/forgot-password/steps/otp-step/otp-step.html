@@ -9,10 +9,8 @@
       <label class="fp-otp-label">Verification code</label>
 
       <input-otp
-        #otp
-        [value]="code()"
+        [(value)]="code"
         [error]="error()"
-        [shake]="shake()"
         (valueChange)="onCodeChange($event)"
         (completeChange)="complete.set($event)"
       />

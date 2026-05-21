@@ -1,4 +1,4 @@
-import { Component, input, output, signal, viewChild } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ArrowLeft, ArrowRight, CircleAlert, LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
@@ -20,8 +20,6 @@ export class OtpStep {
     AlertIcon: CircleAlert,
   };
 
-  private readonly otp = viewChild.required<InputOtp>('otp');
-
   readonly username = input<string>('');
 
   readonly verified = output<void>();
@@ -30,7 +28,6 @@ export class OtpStep {
   protected readonly code = signal('');
   protected readonly error = signal<string | null>(null);
   protected readonly verifying = signal(false);
-  protected readonly shake = signal(false);
   protected readonly complete = signal(false);
 
   protected onCodeChange(next: string) {
@@ -45,9 +42,8 @@ export class OtpStep {
     setTimeout(() => {
       this.verifying.set(false);
       if (code === INVALID_TEST_CODE) {
-        this.otp().clear();
+        this.code.set('');
         this.error.set('That code is invalid or has expired.');
-        this.triggerShake();
         return;
       }
       this.verified.emit();
@@ -56,10 +52,5 @@ export class OtpStep {
 
   protected onBack() {
     this.back.emit();
-  }
-
-  private triggerShake() {
-    this.shake.set(true);
-    setTimeout(() => this.shake.set(false), 350);
   }
 }
