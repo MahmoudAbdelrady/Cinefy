@@ -17,7 +17,8 @@ public interface StaffMemberRepository extends BaseRepository<StaffMember> {
     Optional<StaffMember> findByUsername(String username);
 
     @Query("SELECT s FROM StaffMember s " +
-            "WHERE (:name IS NULL OR LOWER(s.fullName) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%'))) "
+            "WHERE s.position != 'ADMIN' "
+            + "AND (:name IS NULL OR LOWER(s.fullName) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%'))) "
             + "AND (:position IS NULL OR s.position = :position) ORDER BY s.createdAt")
     Page<StaffMember> findAllFiltered(@Param("name") String name, @Param("position") StaffPosition position, Pageable pageable);
 

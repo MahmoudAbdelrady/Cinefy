@@ -93,6 +93,30 @@ public class StaffMemberService implements UserDetailsService {
     }
 
     @Transactional
+    public void ensureAdminExists(String username, String rawPassword) {
+        if (staffMemberRepository.existsByUsername(username)) {
+            return;
+        }
+
+        StaffMember admin = new StaffMember();
+        admin.setFirstName("System");
+        admin.setLastName("Administrator");
+        admin.setFullName(User.toFullName(admin.getFirstName(), admin.getLastName()));
+        admin.setUsername(username);
+        admin.setEmail("admin@cinefy.local");
+        admin.setPhoneNumber("0000000000");
+        admin.setPassword(passwordEncoder.encode(rawPassword));
+        admin.setPosition(StaffPosition.ADMIN);
+        admin.setEmploymentType(EmploymentType.FULL_TIME);
+        admin.setWorkingDayStart(DayOfWeek.MONDAY);
+        admin.setWorkingDayEnd(DayOfWeek.FRIDAY);
+        admin.setWorkingHourStart(LocalTime.MIDNIGHT);
+        admin.setWorkingHourEnd(LocalTime.MIDNIGHT);
+
+        staffMemberRepository.save(admin);
+    }
+
+    @Transactional
     public StaffMemberSummaryDTO updateStaffMember(String uuid, StaffMemberDTO dto) {
         StaffMember staffMember = findStaffMember(uuid);
         String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
@@ -122,7 +146,7 @@ public class StaffMemberService implements UserDetailsService {
     }
 
     private void validateStaffMember(StaffMemberDTO dto, String normalizedPhoneNumber, StaffPosition position, Long excludeId) {
-        if (position.equals(StaffPosition.ADMIN)) { // @ TODO: update the condition to check if the current user isn't admin
+        if (position.equals(StaffPosition.ADMIN)) {
             throw new BusinessException("Assigning the admin position is not allowed");
         }
         if (dto.getWorkingHourStart().equals(dto.getWorkingHourEnd())) {
