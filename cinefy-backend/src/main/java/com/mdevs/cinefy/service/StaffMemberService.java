@@ -16,10 +16,14 @@ import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.StaffMemberRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +35,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class StaffMemberService {
+public class StaffMemberService implements UserDetailsService {
 
     private final StaffMemberRepository staffMemberRepository;
 
@@ -61,6 +65,13 @@ public class StaffMemberService {
                 new PositionCoverageItemDTO(StaffPosition.CASHIER.name(), countResult.getCashierCount()),
                 new PositionCoverageItemDTO(StaffPosition.USHER.name(), countResult.getUsherCount())));
         return dto;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        StaffMember staffMember = staffMemberRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Staff member not found with username: " + username));
+        return UserPrincipal.fromStaffMember(staffMember);
     }
 
     @Transactional
