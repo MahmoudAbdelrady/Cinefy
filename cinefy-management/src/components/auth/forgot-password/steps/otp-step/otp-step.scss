@@ -55,15 +55,12 @@
     &:hover {
       color: $blue-700;
     }
-  }
 
-  .fp-otp-meta-sep {
-    color: $gray-300;
-    margin: 0 6px;
-  }
-
-  .fp-otp-meta-expiry {
-    font-variant-numeric: tabular-nums;
+    &:disabled {
+      color: $gray-400;
+      cursor: default;
+      font-variant-numeric: tabular-nums;
+    }
   }
 }
 

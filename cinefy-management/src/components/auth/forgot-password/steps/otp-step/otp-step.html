@@ -26,10 +26,8 @@
 
       <p class="fp-otp-meta">
         Didn't get a code?
+        <!-- Todo: disable the button and show "Resend in 14:32" while a cooldown is active -->
         <button type="button" class="fp-otp-resend">Resend</button>
-        <span class="fp-otp-meta-sep">·</span>
-        <!-- Todo: add condition to prevent sending again for some time -->
-        <span class="fp-otp-meta-expiry">Can resend after 14:32</span>
       </p>
 
       <button ngpButton type="submit" class="fp-submit" [disabled]="!complete() || verifying()">
