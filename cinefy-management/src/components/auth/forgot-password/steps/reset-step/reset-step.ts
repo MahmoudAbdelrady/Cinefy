@@ -16,6 +16,13 @@ import { LoadingSpinnerComponent } from '../../../../loading-spinner/loading-spi
 import { PasswordIcon } from '../../../../../shared/icons';
 import { PASSWORD_PATTERN } from '../../../../../shared/validation';
 
+function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
+  const newPassword = group.get('newPassword')?.value;
+  const confirmPassword = group.get('confirmPassword')?.value;
+  if (!confirmPassword) return null;
+  return newPassword === confirmPassword ? null : { mismatch: true };
+}
+
 @Component({
   selector: 'fp-reset-step',
   imports: [
@@ -83,11 +90,4 @@ export class ResetStep {
       this.reset.emit();
     }, 1200);
   }
-}
-
-function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
-  const newPassword = group.get('newPassword')?.value;
-  const confirmPassword = group.get('confirmPassword')?.value;
-  if (!confirmPassword) return null;
-  return newPassword === confirmPassword ? null : { mismatch: true };
 }
