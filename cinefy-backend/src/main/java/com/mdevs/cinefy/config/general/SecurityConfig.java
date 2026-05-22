@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.config.general;
 
+import com.mdevs.cinefy.filter.JwtAuthenticationFilter;
 import com.mdevs.cinefy.service.StaffMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +10,10 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
@@ -22,6 +25,8 @@ public class SecurityConfig {
     private final StaffMemberService staffMemberService;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public AuthenticationManager managementAuthenticationManager() {
@@ -43,7 +48,9 @@ public class SecurityConfig {
                         corsConfiguration.setAllowCredentials(true);
                         return corsConfiguration;
                     }))
-                    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
             return httpSecurity.build();
         } catch (Exception e) {

@@ -14,6 +14,10 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    public static final String ACCESS_TOKEN_COOKIE = "accessToken";
+
+    public static final String REFRESH_TOKEN_COOKIE = "refreshToken";
+
     public static final String CLAIM_POSITION = "position";
 
     public static final String CLAIM_TYPE = "type";

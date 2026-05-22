@@ -3,6 +3,7 @@ package com.mdevs.cinefy.controller;
 import com.mdevs.cinefy.dto.auth.ManagementLoginDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.service.ManagementAuthService;
+import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.utils.CookieUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ManagementAuthController {
 
-    private static final String ACCESS_TOKEN_COOKIE = "accessToken";
-
-    private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
-
     private final ManagementAuthService managementAuthService;
 
     private final CookieUtil cookieUtil;
@@ -38,8 +35,8 @@ public class ManagementAuthController {
     public ResponseEntity<Void> login(@Valid @RequestBody ManagementLoginDTO dto) {
         TokenPairDTO tokens = managementAuthService.login(dto);
 
-        ResponseCookie accessTokenCookie = cookieUtil.buildTokenCookie(ACCESS_TOKEN_COOKIE, tokens.accessToken(), accessTokenExpiration, false);
-        ResponseCookie refreshTokenCookie = cookieUtil.buildTokenCookie(REFRESH_TOKEN_COOKIE, tokens.refreshToken(), refreshTokenExpiration, true);
+        ResponseCookie accessTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.ACCESS_TOKEN_COOKIE, tokens.accessToken(), accessTokenExpiration, false);
+        ResponseCookie refreshTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.REFRESH_TOKEN_COOKIE, tokens.refreshToken(), refreshTokenExpiration, true);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
