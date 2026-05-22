@@ -27,6 +27,6 @@ public class HallType extends BaseEntity {
     }
 
     public static String toCode(String name) {
-        return name.toLowerCase().replace(" ", "_");
+        return name.trim().toLowerCase().replace(" ", "_");
     }
 }
