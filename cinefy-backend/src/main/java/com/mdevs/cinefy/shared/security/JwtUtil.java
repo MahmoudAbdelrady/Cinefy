@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtUtil {
@@ -38,6 +41,7 @@ public class JwtUtil {
         long now = System.currentTimeMillis();
         long expiration = tokenType.equals(TokenType.ACCESS) ? accessTokenExpiration : refreshTokenExpiration;
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(uuid)
                 .claim(CLAIM_POSITION, position)
                 .claim(CLAIM_TYPE, tokenType.name())
@@ -52,5 +56,13 @@ public class JwtUtil {
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token);
+    }
+
+    public TokenType getTokenType(Claims claims) {
+        return TokenType.valueOf(claims.get(CLAIM_TYPE, String.class));
+    }
+
+    public LocalDateTime getExpiration(Claims claims) {
+        return LocalDateTime.ofInstant(claims.getExpiration().toInstant(), ZoneId.systemDefault());
     }
 }

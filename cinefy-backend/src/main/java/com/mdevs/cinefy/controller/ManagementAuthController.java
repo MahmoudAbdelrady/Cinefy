@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/management/auth")
@@ -41,6 +38,20 @@ public class ManagementAuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@CookieValue(value = JwtUtil.ACCESS_TOKEN_COOKIE) String accessToken,
+                                       @CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE) String refreshToken) {
+        managementAuthService.logout(accessToken, refreshToken);
+
+        ResponseCookie clearedAccessTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.ACCESS_TOKEN_COOKIE, "", 0, false);
+        ResponseCookie clearedRefreshTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.REFRESH_TOKEN_COOKIE, "", 0, true);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, clearedAccessTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, clearedRefreshTokenCookie.toString())
                 .build();
     }
 }

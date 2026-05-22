@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.filter;
 
+import com.mdevs.cinefy.repository.InvalidJwtRepository;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -26,6 +27,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
+    private final InvalidJwtRepository invalidJwtRepository;
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
@@ -51,6 +54,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void authenticate(String token) {
         try {
             Claims claims = jwtUtil.parseToken(token).getPayload();
+            if (invalidJwtRepository.existsByJti(claims.getId())) {
+                SecurityContextHolder.clearContext();
+                return;
+            }
+
             String uuid = claims.getSubject();
             String position = claims.get(JwtUtil.CLAIM_POSITION, String.class);
 
