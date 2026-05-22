@@ -65,4 +65,8 @@ public class JwtUtil {
     public LocalDateTime getExpiration(Claims claims) {
         return LocalDateTime.ofInstant(claims.getExpiration().toInstant(), ZoneId.systemDefault());
     }
+
+    public long getRemainingValidity(Claims claims) {
+        return claims.getExpiration().getTime() - System.currentTimeMillis();
+    }
 }

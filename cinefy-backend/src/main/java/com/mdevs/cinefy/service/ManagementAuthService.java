@@ -3,15 +3,16 @@ package com.mdevs.cinefy.service;
 import com.mdevs.cinefy.dto.auth.ManagementLoginDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.entity.InvalidJwt;
-import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.repository.InvalidJwtRepository;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
+import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,11 +28,10 @@ public class ManagementAuthService {
 
     private final JwtUtil jwtUtil;
 
-    private final StaffMemberService staffMemberService;
-
     private final InvalidJwtRepository invalidJwtRepository;
 
-    private static final String USER_TYPE_STAFF = "STAFF";
+    @Value("${cinefy.jwt.refresh-token-rotation-threshold}")
+    private long refreshTokenRotationThreshold;
 
     // ========================= Public API =========================
 
@@ -46,14 +46,35 @@ public class ManagementAuthService {
 
     @Transactional
     public void logout(String accessToken, String refreshToken) {
-        StaffMember currentStaffMember = staffMemberService.getCurrentlyLoggedInStaffMember();
-        blocklist(accessToken, currentStaffMember);
-        blocklist(refreshToken, currentStaffMember);
+        blocklist(accessToken);
+        blocklist(refreshToken);
+    }
+
+    @Transactional
+    public TokenPairDTO refresh(String refreshToken) {
+        Claims claims = jwtUtil.parseToken(refreshToken).getPayload();
+        if (!jwtUtil.getTokenType(claims).equals(TokenType.REFRESH)) {
+            throw new UnauthorizedException("Invalid refresh token");
+        }
+        if (invalidJwtRepository.existsByJti(claims.getId())) {
+            throw new UnauthorizedException("Invalid refresh token");
+        }
+
+        String uuid = claims.getSubject();
+        String position = claims.get(JwtUtil.CLAIM_POSITION, String.class);
+        String newAccessToken = jwtUtil.generateToken(TokenType.ACCESS, uuid, position);
+
+        String newRefreshToken = null;
+        if (jwtUtil.getRemainingValidity(claims) < refreshTokenRotationThreshold) {
+            newRefreshToken = jwtUtil.generateToken(TokenType.REFRESH, uuid, position);
+            blocklist(refreshToken);
+        }
+        return new TokenPairDTO(newAccessToken, newRefreshToken);
     }
 
     // =========================== Helpers ===========================
 
-    private void blocklist(String token, StaffMember staffMember) {
+    private void blocklist(String token) {
         Claims claims;
         try {
             claims = jwtUtil.parseToken(token).getPayload();
@@ -68,10 +89,6 @@ public class ManagementAuthService {
         invalidJwt.setJti(claims.getId());
         invalidJwt.setType(jwtUtil.getTokenType(claims));
         invalidJwt.setExpirationDate(jwtUtil.getExpiration(claims));
-        if (staffMember != null) {
-            invalidJwt.setUserId(staffMember.getId());
-            invalidJwt.setUserType(USER_TYPE_STAFF);
-        }
         invalidJwtRepository.save(invalidJwt);
     }
 }

@@ -41,6 +41,22 @@ public class ManagementAuthController {
                 .build();
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<Void> refresh(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE) String refreshToken) {
+        TokenPairDTO tokens = managementAuthService.refresh(refreshToken);
+
+        ResponseCookie accessTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.ACCESS_TOKEN_COOKIE, tokens.accessToken(), accessTokenExpiration, false);
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+
+        if (tokens.refreshToken() != null) {
+            ResponseCookie refreshTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.REFRESH_TOKEN_COOKIE, tokens.refreshToken(), refreshTokenExpiration, true);
+            responseBuilder.header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        }
+
+        return responseBuilder.build();
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(value = JwtUtil.ACCESS_TOKEN_COOKIE) String accessToken,
                                        @CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE) String refreshToken) {

@@ -18,8 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(indexes = {
-        @Index(columnList = "EXPIRATION_DATE"),
-        @Index(columnList = "USER_ID, USER_TYPE")
+        @Index(columnList = "EXPIRATION_DATE")
 })
 public class InvalidJwt extends BaseEntity {
 
@@ -32,8 +31,4 @@ public class InvalidJwt extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime expirationDate;
-
-    private Long userId;
-
-    private String userType;
 }
