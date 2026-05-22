@@ -22,14 +22,18 @@ public class UserPrincipal implements UserDetails {
 
     private final String password;
 
+    private final String position;
+
     private final Collection<? extends GrantedAuthority> authorities;
 
     public static UserPrincipal fromStaffMember(StaffMember staffMember) {
+        String position = staffMember.getPosition().name();
         return new UserPrincipal(
                 staffMember.getId(),
                 staffMember.getUuid(),
                 staffMember.getUsername(),
                 staffMember.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + staffMember.getPosition().name())));
+                position,
+                List.of(new SimpleGrantedAuthority("ROLE_" + position)));
     }
 }
