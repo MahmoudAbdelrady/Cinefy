@@ -4,6 +4,7 @@ import com.mdevs.cinefy.dto.auth.ManagementLoginDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.service.ManagementAuthService;
 import com.mdevs.cinefy.shared.security.JwtUtil;
+import com.mdevs.cinefy.shared.annotation.PublicApi;
 import com.mdevs.cinefy.utils.CookieUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class ManagementAuthController {
     @Value("${cinefy.jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
+    @PublicApi
     @PostMapping("/login")
     public ResponseEntity<Void> login(@Valid @RequestBody ManagementLoginDTO dto) {
         TokenPairDTO tokens = managementAuthService.login(dto);
@@ -41,6 +43,7 @@ public class ManagementAuthController {
                 .build();
     }
 
+    @PublicApi
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE) String refreshToken) {
         TokenPairDTO tokens = managementAuthService.refresh(refreshToken);

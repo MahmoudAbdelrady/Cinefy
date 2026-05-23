@@ -2,12 +2,16 @@ package com.mdevs.cinefy.config.general;
 
 import com.mdevs.cinefy.filter.JwtAuthenticationFilter;
 import com.mdevs.cinefy.service.StaffMemberService;
+import com.mdevs.cinefy.shared.security.CinefyAccessDeniedHandler;
+import com.mdevs.cinefy.shared.security.CinefyAuthenticationEntryPoint;
+import com.mdevs.cinefy.shared.security.CinefyApiAuthorizationManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import java.util.List;
 
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -27,6 +32,12 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private final CinefyApiAuthorizationManager apiAuthorizationManager;
+
+    private final CinefyAuthenticationEntryPoint authenticationEntryPoint;
+
+    private final CinefyAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public AuthenticationManager managementAuthenticationManager() {
@@ -49,7 +60,10 @@ public class SecurityConfig {
                         return corsConfiguration;
                     }))
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                    .authorizeHttpRequests(auth -> auth.anyRequest().access(apiAuthorizationManager))
+                    .exceptionHandling(handling -> handling
+                            .authenticationEntryPoint(authenticationEntryPoint)
+                            .accessDeniedHandler(accessDeniedHandler))
                     .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
             return httpSecurity.build();
