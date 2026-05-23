@@ -2,6 +2,7 @@ package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.auth.ManagementLoginDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
+import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
 import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
@@ -35,9 +36,10 @@ public class ManagementAuthService {
     public TokenPairDTO login(ManagementLoginDTO dto) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        JwtClaims jwtClaims = JwtClaims.fromPrincipal(principal);
 
-        String accessToken = jwtUtil.generateToken(TokenType.ACCESS, principal.getUuid(), principal.getPosition());
-        String refreshToken = jwtUtil.generateToken(TokenType.REFRESH, principal.getUuid(), principal.getPosition());
+        String accessToken = jwtUtil.generateToken(TokenType.ACCESS, jwtClaims);
+        String refreshToken = jwtUtil.generateToken(TokenType.REFRESH, jwtClaims);
         return new TokenPairDTO(accessToken, refreshToken);
     }
 
@@ -57,9 +59,8 @@ public class ManagementAuthService {
             throw new UnauthorizedException("Invalid refresh token");
         }
 
-        String uuid = claims.getSubject();
-        String position = claims.get(JwtUtil.CLAIM_POSITION, String.class);
-        String newAccessToken = jwtUtil.generateToken(TokenType.ACCESS, uuid, position);
+        JwtClaims jwtClaims = JwtClaims.from(claims);
+        String newAccessToken = jwtUtil.generateToken(TokenType.ACCESS, jwtClaims);
 
         String newRefreshToken = null;
         if (jwtUtil.getRemainingValidity(claims) < refreshTokenRotationThreshold) {
@@ -67,7 +68,7 @@ public class ManagementAuthService {
             if (!invalidJwtService.tryInvalidate(refreshToken)) {
                 throw new UnauthorizedException("Invalid refresh token");
             }
-            newRefreshToken = jwtUtil.generateToken(TokenType.REFRESH, uuid, position);
+            newRefreshToken = jwtUtil.generateToken(TokenType.REFRESH, jwtClaims);
         }
         return new TokenPairDTO(newAccessToken, newRefreshToken);
     }

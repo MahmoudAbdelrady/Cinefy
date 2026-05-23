@@ -25,6 +25,8 @@ public class JwtUtil {
 
     public static final String CLAIM_TYPE = "type";
 
+    public static final String CLAIM_USER_TYPE = "userType";
+
     private final SecretKey secretKey;
 
     @Value("${cinefy.jwt.access-token-expiration}")
@@ -37,14 +39,15 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
     }
 
-    public String generateToken(TokenType tokenType, String uuid, String position) {
+    public String generateToken(TokenType tokenType, JwtClaims jwtClaims) {
         long now = System.currentTimeMillis();
         long expiration = tokenType.equals(TokenType.ACCESS) ? accessTokenExpiration : refreshTokenExpiration;
         return Jwts.builder()
                 .id(UUID.randomUUID().toString())
-                .subject(uuid)
-                .claim(CLAIM_POSITION, position)
+                .subject(jwtClaims.uuid())
+                .claim(CLAIM_POSITION, jwtClaims.position())
                 .claim(CLAIM_TYPE, tokenType.name())
+                .claim(CLAIM_USER_TYPE, jwtClaims.userType().name())
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + expiration))
                 .signWith(secretKey)

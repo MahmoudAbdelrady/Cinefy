@@ -16,14 +16,13 @@ import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.StaffMemberRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import com.mdevs.cinefy.shared.security.SecurityUtil;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,7 +34,6 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +50,7 @@ public class StaffMemberService implements UserDetailsService {
     public Page<StaffMemberSummaryDTO> getStaffMembers(String name, String position, Pageable pageable) {
         StaffPosition positionFilter = StringUtils.isEmpty(position) ? null : StaffPosition.fromString(position);
         String nameFilter = StringUtils.isEmpty(name) ? null : name;
-        return staffMemberRepository.findAllFiltered(nameFilter, positionFilter, pageable)
+        return staffMemberRepository.findAllFiltered(SecurityUtil.getCurrentUserUuid(), nameFilter, positionFilter, pageable)
                 .map(this::toSummaryDTO);
     }
 
@@ -63,11 +61,11 @@ public class StaffMemberService implements UserDetailsService {
     public PositionCoverageDTO getPositionCoverage() {
         PositionCoverageProjection countResult = staffMemberRepository.getPositionCoverage();
         PositionCoverageDTO dto = new PositionCoverageDTO();
-        dto.setTotal(countResult.getTotal());
+        dto.setTotal(countResult.total());
         dto.setPositions(List.of(
-                new PositionCoverageItemDTO(StaffPosition.MANAGER.name(), countResult.getManagerCount()),
-                new PositionCoverageItemDTO(StaffPosition.CASHIER.name(), countResult.getCashierCount()),
-                new PositionCoverageItemDTO(StaffPosition.USHER.name(), countResult.getUsherCount())));
+                new PositionCoverageItemDTO(StaffPosition.MANAGER.name(), countResult.managerCount()),
+                new PositionCoverageItemDTO(StaffPosition.CASHIER.name(), countResult.cashierCount()),
+                new PositionCoverageItemDTO(StaffPosition.USHER.name(), countResult.usherCount())));
         return dto;
     }
 
@@ -76,14 +74,6 @@ public class StaffMemberService implements UserDetailsService {
         StaffMember staffMember = staffMemberRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Staff member not found with username: " + username));
         return UserPrincipal.fromStaffMember(staffMember);
-    }
-
-    public StaffMember getCurrentlyLoggedInStaffMember() {
-        Object principal = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).map(Authentication::getPrincipal).orElse(null);
-        if (principal instanceof String) {
-            return staffMemberRepository.findByUuid((String) principal).orElse(null);
-        }
-        return null;
     }
 
     @Transactional

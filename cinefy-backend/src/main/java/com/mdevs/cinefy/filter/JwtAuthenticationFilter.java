@@ -1,7 +1,9 @@
 package com.mdevs.cinefy.filter;
 
 import com.mdevs.cinefy.service.InvalidJwtService;
+import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
+import com.mdevs.cinefy.shared.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -12,14 +14,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -59,11 +59,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            String uuid = claims.getSubject();
-            String position = claims.get(JwtUtil.CLAIM_POSITION, String.class);
-
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    uuid, null, List.of(new SimpleGrantedAuthority("ROLE_" + position)));
+            UserPrincipal principal = UserPrincipal.fromJwtClaims(JwtClaims.from(claims));
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (JwtException ex) {
             SecurityContextHolder.clearContext();

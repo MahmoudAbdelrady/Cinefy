@@ -2,7 +2,6 @@ package com.mdevs.cinefy.shared.security;
 
 import com.mdevs.cinefy.shared.exception.CinefyExceptionResponse;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NoArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,8 +12,10 @@ import java.io.IOException;
 /**
  * Shared helper for the security entry point / access-denied handler.
  */
-@NoArgsConstructor
 public final class SecurityResponseWriter {
+
+    private SecurityResponseWriter() {
+    }
 
     public static void write(HttpServletResponse response, ObjectMapper objectMapper, HttpStatus status, String message) throws IOException {
         response.setStatus(status.value());
