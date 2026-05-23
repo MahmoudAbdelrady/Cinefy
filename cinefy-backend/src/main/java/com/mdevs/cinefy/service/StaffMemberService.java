@@ -176,7 +176,7 @@ public class StaffMemberService {
         if (!PHONE_NUMBER_UTIL.isValidNumber(parsed)) {
             throw new BusinessException("Invalid phone number");
         }
-        // Canonical E.164 (e.g. "+201001234567"); store digits-only — the frontend owns the leading '+'.
+        // Canonical E.164 (e.g. "+201001234567"); store digits-only.
         return PHONE_NUMBER_UTIL.format(parsed, PhoneNumberUtil.PhoneNumberFormat.E164).substring(1);
     }
 
