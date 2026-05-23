@@ -10,8 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(indexes = {
-        @Index(columnList = "CODE"),
-        @Index(columnList = "_UUID")
+        @Index(columnList = "CODE")
 })
 public class HallType extends BaseEntity {
 
