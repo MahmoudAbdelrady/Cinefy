@@ -18,12 +18,8 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Entity
 @Table(indexes = {
-        @Index(columnList = "USERNAME"),
-        @Index(columnList = "EMAIL"),
-        @Index(columnList = "PHONE_NUMBER"),
         @Index(columnList = "FULL_NAME"),
         @Index(columnList = "POSITION"),
-        @Index(columnList = "_UUID"),
         @Index(columnList = "CREATED_AT")
 })
 public class StaffMember extends User {

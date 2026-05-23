@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(indexes = {
-        @Index(columnList = "_UUID"),
         @Index(columnList = "CREATED_AT"),
         @Index(columnList = "TYPE"),
         @Index(columnList = "STATUS"),

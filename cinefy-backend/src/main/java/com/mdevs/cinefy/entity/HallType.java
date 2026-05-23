@@ -10,8 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(indexes = {
-        @Index(columnList = "CODE"),
-        @Index(columnList = "_UUID")
+        @Index(columnList = "CODE")
 })
 public class HallType extends BaseEntity {
 
@@ -27,6 +26,6 @@ public class HallType extends BaseEntity {
     }
 
     public static String toCode(String name) {
-        return name.toLowerCase().replace(" ", "_");
+        return name.trim().toLowerCase().replace(" ", "_");
     }
 }
