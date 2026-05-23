@@ -42,8 +42,9 @@ public class ManagementAuthService {
     }
 
     public void logout(String accessToken, String refreshToken) {
-        invalidJwtService.blocklist(accessToken);
-        invalidJwtService.blocklist(refreshToken);
+        // Losing the blocklist race here IS success
+        invalidJwtService.tryInvalidate(accessToken);
+        invalidJwtService.tryInvalidate(refreshToken);
     }
 
     @Transactional
@@ -62,8 +63,11 @@ public class ManagementAuthService {
 
         String newRefreshToken = null;
         if (jwtUtil.getRemainingValidity(claims) < refreshTokenRotationThreshold) {
+            // Claim the old token first. If a concurrent refresh already consumed it, reject.
+            if (!invalidJwtService.tryInvalidate(refreshToken)) {
+                throw new UnauthorizedException("Invalid refresh token");
+            }
             newRefreshToken = jwtUtil.generateToken(TokenType.REFRESH, uuid, position);
-            invalidJwtService.blocklist(refreshToken);
         }
         return new TokenPairDTO(newAccessToken, newRefreshToken);
     }
