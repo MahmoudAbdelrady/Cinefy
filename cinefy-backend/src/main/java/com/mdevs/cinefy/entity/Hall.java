@@ -15,7 +15,6 @@ import java.util.Set;
 @Table(indexes = {
         @Index(columnList = "CODE"),
         @Index(columnList = "TYPE_ID"),
-        @Index(columnList = "_UUID"),
         @Index(columnList = "STATUS"),
         @Index(columnList = "CREATED_AT")
 })
@@ -58,6 +57,6 @@ public class Hall extends BaseEntity {
     }
 
     public static String toCode(String name) {
-        return name.toLowerCase().replace(" ", "_");
+        return name.trim().toLowerCase().replace(" ", "_");
     }
 }

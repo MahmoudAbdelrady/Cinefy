@@ -88,16 +88,12 @@ public class StaffMemberService implements UserDetailsService {
 
     @Transactional
     public StaffMemberSummaryDTO createStaffMember(StaffMemberDTO dto) {
-        String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
-        StaffPosition position = StaffPosition.fromString(dto.getPosition());
-        validateStaffMember(dto, normalizedPhoneNumber, position, null);
-
         if (StringUtils.isEmpty(dto.getPassword())) {
             throw new BusinessException("Password is required");
         }
 
         StaffMember staffMember = new StaffMember();
-        applyDtoToStaffMember(staffMember, dto, normalizedPhoneNumber, position);
+        populateFromDto(staffMember, dto, null);
         staffMember.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         staffMemberRepository.save(staffMember);
@@ -131,11 +127,7 @@ public class StaffMemberService implements UserDetailsService {
     @Transactional
     public StaffMemberSummaryDTO updateStaffMember(String uuid, StaffMemberDTO dto) {
         StaffMember staffMember = findStaffMember(uuid);
-        String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
-        StaffPosition position = StaffPosition.fromString(dto.getPosition());
-        validateStaffMember(dto, normalizedPhoneNumber, position, staffMember.getId());
-
-        applyDtoToStaffMember(staffMember, dto, normalizedPhoneNumber, position);
+        populateFromDto(staffMember, dto, staffMember.getId());
         if (StringUtils.isNotEmpty(dto.getPassword())) {
             staffMember.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
@@ -157,14 +149,13 @@ public class StaffMemberService implements UserDetailsService {
                 .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + uuid));
     }
 
-    private void validateStaffMember(StaffMemberDTO dto, String normalizedPhoneNumber, StaffPosition position, Long excludeId) {
+    private void validateStaffMember(StaffMemberDTO dto, String normalizedEmail, String normalizedPhoneNumber, StaffPosition position, Long excludeId) {
         if (position.equals(StaffPosition.ADMIN)) {
             throw new BusinessException("Assigning the admin position is not allowed");
         }
         if (dto.getWorkingHourStart().equals(dto.getWorkingHourEnd())) {
             throw new BusinessException("Working hour end must be different from working hour start");
         }
-        validatePhoneNumber(normalizedPhoneNumber);
         boolean usernameExists = excludeId == null
                 ? staffMemberRepository.existsByUsername(dto.getUsername())
                 : staffMemberRepository.existsByUsernameAndIdNot(dto.getUsername(), excludeId);
@@ -172,8 +163,8 @@ public class StaffMemberService implements UserDetailsService {
             throw new BusinessException("Username already in use");
         }
         boolean emailExists = excludeId == null
-                ? staffMemberRepository.existsByEmail(dto.getEmail())
-                : staffMemberRepository.existsByEmailAndIdNot(dto.getEmail(), excludeId);
+                ? staffMemberRepository.existsByEmail(normalizedEmail)
+                : staffMemberRepository.existsByEmailAndIdNot(normalizedEmail, excludeId);
         if (emailExists) {
             throw new BusinessException("Email already in use");
         }
@@ -185,16 +176,24 @@ public class StaffMemberService implements UserDetailsService {
         }
     }
 
-    private void validatePhoneNumber(String normalizedPhoneNumber) {
-        PhoneNumber parsed;
-        try {
-            parsed = PHONE_NUMBER_UTIL.parse("+" + normalizedPhoneNumber, null);
-        } catch (NumberParseException ex) {
-            throw new BusinessException("Invalid phone number");
-        }
-        if (!PHONE_NUMBER_UTIL.isValidNumber(parsed)) {
-            throw new BusinessException("Invalid phone number");
-        }
+    private void populateFromDto(StaffMember staffMember, StaffMemberDTO dto, Long excludeId) {
+        String normalizedEmail = dto.getEmail().trim().toLowerCase();
+        String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
+        StaffPosition position = StaffPosition.fromString(dto.getPosition());
+        validateStaffMember(dto, normalizedEmail, normalizedPhoneNumber, position, excludeId);
+
+        staffMember.setFirstName(dto.getFirstName());
+        staffMember.setLastName(dto.getLastName());
+        staffMember.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
+        staffMember.setUsername(dto.getUsername());
+        staffMember.setEmail(normalizedEmail);
+        staffMember.setPhoneNumber(normalizedPhoneNumber);
+        staffMember.setPosition(position);
+        staffMember.setEmploymentType(EmploymentType.fromString(dto.getEmploymentType()));
+        staffMember.setWorkingDayStart(parseDayOfWeek(dto.getWorkingDayStart(), "workingDayStart"));
+        staffMember.setWorkingDayEnd(parseDayOfWeek(dto.getWorkingDayEnd(), "workingDayEnd"));
+        staffMember.setWorkingHourStart(parseTime(dto.getWorkingHourStart(), "workingHourStart"));
+        staffMember.setWorkingHourEnd(parseTime(dto.getWorkingHourEnd(), "workingHourEnd"));
     }
 
     private DayOfWeek parseDayOfWeek(String value, String fieldName) {
@@ -214,22 +213,18 @@ public class StaffMemberService implements UserDetailsService {
     }
 
     private String normalizePhoneNumber(String phoneNumber) {
-        return phoneNumber.trim().replaceAll("\\D", "");
-    }
-
-    private void applyDtoToStaffMember(StaffMember staffMember, StaffMemberDTO dto, String normalizedPhoneNumber, StaffPosition position) {
-        staffMember.setFirstName(dto.getFirstName());
-        staffMember.setLastName(dto.getLastName());
-        staffMember.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
-        staffMember.setUsername(dto.getUsername());
-        staffMember.setPhoneNumber(normalizedPhoneNumber);
-        staffMember.setEmail(dto.getEmail());
-        staffMember.setPosition(position);
-        staffMember.setEmploymentType(EmploymentType.fromString(dto.getEmploymentType()));
-        staffMember.setWorkingDayStart(parseDayOfWeek(dto.getWorkingDayStart(), "workingDayStart"));
-        staffMember.setWorkingDayEnd(parseDayOfWeek(dto.getWorkingDayEnd(), "workingDayEnd"));
-        staffMember.setWorkingHourStart(parseTime(dto.getWorkingHourStart(), "workingHourStart"));
-        staffMember.setWorkingHourEnd(parseTime(dto.getWorkingHourEnd(), "workingHourEnd"));
+        String digits = phoneNumber.trim().replaceAll("\\D", "");
+        PhoneNumber parsed;
+        try {
+            parsed = PHONE_NUMBER_UTIL.parse("+" + digits, null);
+        } catch (NumberParseException ex) {
+            throw new BusinessException("Invalid phone number");
+        }
+        if (!PHONE_NUMBER_UTIL.isValidNumber(parsed)) {
+            throw new BusinessException("Invalid phone number");
+        }
+        // Canonical E.164 (e.g. "+201001234567"); store digits-only.
+        return PHONE_NUMBER_UTIL.format(parsed, PhoneNumberUtil.PhoneNumberFormat.E164).substring(1);
     }
 
     private StaffMemberSummaryDTO toSummaryDTO(StaffMember staffMember) {
