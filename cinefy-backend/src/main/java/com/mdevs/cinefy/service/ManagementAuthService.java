@@ -2,14 +2,11 @@ package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.auth.ManagementLoginDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
-import com.mdevs.cinefy.entity.InvalidJwt;
-import com.mdevs.cinefy.repository.InvalidJwtRepository;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
 import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +25,7 @@ public class ManagementAuthService {
 
     private final JwtUtil jwtUtil;
 
-    private final InvalidJwtRepository invalidJwtRepository;
+    private final InvalidJwtService invalidJwtService;
 
     @Value("${cinefy.jwt.refresh-token-rotation-threshold}")
     private long refreshTokenRotationThreshold;
@@ -44,10 +41,9 @@ public class ManagementAuthService {
         return new TokenPairDTO(accessToken, refreshToken);
     }
 
-    @Transactional
     public void logout(String accessToken, String refreshToken) {
-        blocklist(accessToken);
-        blocklist(refreshToken);
+        invalidJwtService.blocklist(accessToken);
+        invalidJwtService.blocklist(refreshToken);
     }
 
     @Transactional
@@ -56,7 +52,7 @@ public class ManagementAuthService {
         if (!jwtUtil.getTokenType(claims).equals(TokenType.REFRESH)) {
             throw new UnauthorizedException("Invalid refresh token");
         }
-        if (invalidJwtRepository.existsByJti(claims.getId())) {
+        if (invalidJwtService.isBlocklisted(claims.getId())) {
             throw new UnauthorizedException("Invalid refresh token");
         }
 
@@ -67,28 +63,8 @@ public class ManagementAuthService {
         String newRefreshToken = null;
         if (jwtUtil.getRemainingValidity(claims) < refreshTokenRotationThreshold) {
             newRefreshToken = jwtUtil.generateToken(TokenType.REFRESH, uuid, position);
-            blocklist(refreshToken);
+            invalidJwtService.blocklist(refreshToken);
         }
         return new TokenPairDTO(newAccessToken, newRefreshToken);
-    }
-
-    // =========================== Helpers ===========================
-
-    private void blocklist(String token) {
-        Claims claims;
-        try {
-            claims = jwtUtil.parseToken(token).getPayload();
-        } catch (JwtException ex) {
-            return;
-        }
-        if (invalidJwtRepository.existsByJti(claims.getId())) {
-            return;
-        }
-
-        InvalidJwt invalidJwt = new InvalidJwt();
-        invalidJwt.setJti(claims.getId());
-        invalidJwt.setType(jwtUtil.getTokenType(claims));
-        invalidJwt.setExpirationDate(jwtUtil.getExpiration(claims));
-        invalidJwtRepository.save(invalidJwt);
     }
 }
