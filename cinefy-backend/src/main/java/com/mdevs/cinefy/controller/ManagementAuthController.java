@@ -1,7 +1,10 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
 import com.mdevs.cinefy.dto.auth.ManagementLoginDTO;
+import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
+import com.mdevs.cinefy.dto.auth.VerifyResetCodeDTO;
 import com.mdevs.cinefy.service.ManagementAuthService;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
@@ -81,5 +84,26 @@ public class ManagementAuthController {
                 .header(HttpHeaders.SET_COOKIE, clearedAccessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, clearedRefreshTokenCookie.toString())
                 .build();
+    }
+
+    @PublicApi
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordDTO dto) {
+        managementAuthService.forgotPassword(dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PublicApi
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<Void> verifyResetCode(@Valid @RequestBody VerifyResetCodeDTO dto) {
+        managementAuthService.verifyResetCode(dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PublicApi
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordDTO dto) {
+        managementAuthService.resetPassword(dto);
+        return ResponseEntity.noContent().build();
     }
 }

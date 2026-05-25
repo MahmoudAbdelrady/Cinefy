@@ -1,0 +1,73 @@
+package com.mdevs.cinefy.service;
+
+import com.mdevs.cinefy.entity.Otp;
+import com.mdevs.cinefy.entity.enums.OtpType;
+import com.mdevs.cinefy.entity.enums.UserType;
+import com.mdevs.cinefy.repository.OtpRepository;
+import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+@Service
+@RequiredArgsConstructor
+public class OtpService {
+
+    private final OtpRepository otpRepository;
+
+    @Value("${cinefy.otp.expiration}")
+    private long expirationMillis;
+
+    private static final SecureRandom RANDOM = new SecureRandom();
+
+    // ========================= Public API =========================
+
+    public int getExpiryMinutes() {
+        return (int) Duration.ofMillis(expirationMillis).toMinutes();
+    }
+
+    public Otp validate(String code, OtpType type) {
+        Otp otp = otpRepository.findByCodeAndType(code, type)
+                .orElseThrow(() -> new BusinessException("Invalid code"));
+        if (otp.getExpirationDate().isBefore(LocalDateTime.now())) {
+            throw new BusinessException("Code has expired");
+        }
+        return otp;
+    }
+
+    /**
+     * @throws org.springframework.dao.DataIntegrityViolationException if a concurrent caller already issued an OTP
+     */
+    @Transactional
+    public Otp create(Long userId, UserType userType, OtpType type) {
+        otpRepository.deleteByUserIdAndUserTypeAndType(userId, userType, type);
+
+        Otp otp = new Otp();
+        otp.setCode(generateUniqueCode());
+        otp.setType(type);
+        otp.setUserId(userId);
+        otp.setUserType(userType);
+        otp.setExpirationDate(LocalDateTime.now().plusMinutes(getExpiryMinutes()));
+        return otpRepository.saveAndFlush(otp);
+    }
+
+    @Transactional
+    public void consume(Otp otp) {
+        otpRepository.delete(otp);
+    }
+
+    // =========================== Helpers ===========================
+
+    private String generateUniqueCode() {
+        String code;
+        do {
+            code = String.format("%06d", RANDOM.nextInt(1_000_000));
+        } while (otpRepository.existsByCode(code));
+        return code;
+    }
+}

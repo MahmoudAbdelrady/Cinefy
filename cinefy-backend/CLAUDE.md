@@ -57,12 +57,13 @@ com.mdevs.cinefy
 │   └── payment/    — PaymentMethodDTO, PaymentMethodDetailDTO, PaymentMethodSummaryDTO,
 │                      PaymentMethodStatusRequestDTO, PaymentMethodTestResultDTO,
 │                      TestConnectionRequestDTO
-├── entity/         — JPA entities + enums
-│                     Hall, HallType, HallCategoryPrice, Seat, SeatCategory, HallStatus
-│                     Showtime, ShowtimeStatus, TmdbMovie
-│                     User (MappedSuperclass), StaffMember, StaffPosition, EmploymentType
-│                     PaymentMethod, PaymentMethodStatus, PaymentMethodTestStatus,
-│                     PaymentMethodType, PaymentProvider
+├── entity/         — JPA entities (@Entity / @MappedSuperclass)
+│                     Hall, HallType, HallCategoryPrice, Seat, Showtime, TmdbMovie,
+│                     User (MappedSuperclass), StaffMember, PaymentMethod, InvalidJwt, Otp
+│   └── enums/      — domain enums (all enums live here, not beside their entity)
+│                     HallStatus, SeatCategory, ShowtimeStatus, StaffPosition,
+│                     EmploymentType, PaymentMethodStatus, PaymentMethodTestStatus,
+│                     PaymentMethodType, PaymentProvider, UserType, OtpType
 ├── repository/     — Spring Data JPA repositories (extend BaseRepository)
 ├── service/        — Business logic (HallService, ShowtimeService, StaffMemberService,
 │                     PaymentMethodService, TmdbMovieService)

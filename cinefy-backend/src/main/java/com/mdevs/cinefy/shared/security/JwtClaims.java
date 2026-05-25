@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.shared.security;
 
+import com.mdevs.cinefy.entity.enums.UserType;
 import io.jsonwebtoken.Claims;
 
 public record JwtClaims(String uuid, UserType userType, String position) {

@@ -2,7 +2,7 @@ package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.dto.staff.PositionCoverageProjection;
 import com.mdevs.cinefy.entity.StaffMember;
-import com.mdevs.cinefy.entity.StaffPosition;
+import com.mdevs.cinefy.entity.enums.StaffPosition;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
