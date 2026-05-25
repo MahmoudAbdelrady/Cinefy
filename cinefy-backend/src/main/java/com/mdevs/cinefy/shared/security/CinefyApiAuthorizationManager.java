@@ -19,10 +19,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import java.util.function.Supplier;
 
-/**
- * Wall 1 authorization: default-deny. A request is granted only if its handler is annotated
- * {@link PublicApi} (anonymous allowed) or the caller is an authenticated, non-anonymous user.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor

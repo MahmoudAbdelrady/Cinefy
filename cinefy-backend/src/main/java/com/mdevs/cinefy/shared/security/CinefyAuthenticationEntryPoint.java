@@ -14,9 +14,6 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-/**
- * Returns 401 in the {@code CinefyExceptionResponse} shape when an unauthenticated request hits a secured endpoint.
- */
 @Component
 @RequiredArgsConstructor
 public class CinefyAuthenticationEntryPoint implements AuthenticationEntryPoint {
