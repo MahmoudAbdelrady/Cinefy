@@ -8,6 +8,7 @@ import com.mdevs.cinefy.shared.annotation.PublicApi;
 import com.mdevs.cinefy.utils.CookieUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -52,7 +53,7 @@ public class ManagementAuthController {
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
-        if (tokens.refreshToken() != null) {
+        if (StringUtils.isNotEmpty(tokens.refreshToken())) {
             ResponseCookie refreshTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.REFRESH_TOKEN_COOKIE, tokens.refreshToken(), refreshTokenExpiration, true);
             responseBuilder.header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         }
