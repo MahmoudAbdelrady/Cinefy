@@ -8,6 +8,7 @@ import com.mdevs.cinefy.shared.security.TokenType;
 import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +33,16 @@ public class ManagementAuthService {
     private long refreshTokenRotationThreshold;
 
     // ========================= Public API =========================
+
+    public boolean isRefreshTokenValid(String refreshToken) {
+        Claims claims;
+        try {
+            claims = jwtUtil.parseToken(refreshToken).getPayload();
+        } catch (JwtException ex) {
+            return false;
+        }
+        return jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) && !invalidJwtService.isBlocklisted(claims.getId());
+    }
 
     public TokenPairDTO login(ManagementLoginDTO dto) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
