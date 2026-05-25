@@ -1,3 +1,4 @@
+import { AuthService } from './auth';
 import { HeaderActionsService } from './header-actions';
 import { HallsService } from './halls';
 import { MoviesService } from './movies';
@@ -9,6 +10,7 @@ import { StaffService } from './staff';
 import { ToastService } from './toast';
 
 export {
+  AuthService,
   HeaderActionsService,
   HallsService,
   MoviesService,

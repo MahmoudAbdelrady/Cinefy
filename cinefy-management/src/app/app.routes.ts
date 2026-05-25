@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from '../layout/app-layout/app-layout';
 import { AuthLayout } from '../layout/auth-layout/auth-layout';
+import { authGuard, guestGuard } from '../shared/guards';
 import {
   DashboardPage,
   HallsPage,
@@ -13,27 +14,9 @@ import {
 
 export const routes: Routes = [
   {
-    path: 'auth',
-    component: AuthLayout,
-    children: [
-      {
-        path: '',
-        redirectTo: 'login',
-        pathMatch: 'full',
-      },
-      {
-        path: 'login',
-        component: LoginPage,
-      },
-      {
-        path: 'forgot-password',
-        component: ForgotPasswordPage,
-      },
-    ],
-  },
-  {
     path: '',
     component: AppLayout,
+    canActivate: [authGuard],
     children: [
       {
         path: '',
@@ -54,6 +37,21 @@ export const routes: Routes = [
       {
         path: 'staff',
         component: StaffPage,
+      },
+    ],
+  },
+  {
+    path: '',
+    component: AuthLayout,
+    canActivate: [guestGuard],
+    children: [
+      {
+        path: 'login',
+        component: LoginPage,
+      },
+      {
+        path: 'forgot-password',
+        component: ForgotPasswordPage,
       },
     ],
   },
