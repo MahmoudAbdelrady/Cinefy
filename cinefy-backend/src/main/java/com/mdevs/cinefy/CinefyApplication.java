@@ -28,7 +28,7 @@ public class CinefyApplication {
                                               @Value("${cinefy.admin.username}") String adminUsername,
                                               @Value("${cinefy.admin.password:}") String adminPassword) {
         return _ -> {
-            if (StringUtils.isBlank(adminPassword)) {
+            if (StringUtils.isEmpty(adminPassword)) {
                 log.warn("Skipping admin account seed: cinefy.admin.password is not set");
                 return;
             }
