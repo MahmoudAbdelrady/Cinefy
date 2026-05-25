@@ -7,6 +7,7 @@ import com.mdevs.cinefy.dto.payment.PaymentMethodSummaryDTO;
 import com.mdevs.cinefy.dto.payment.PaymentMethodTestResultDTO;
 import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
 import com.mdevs.cinefy.entity.*;
+import com.mdevs.cinefy.entity.enums.*;
 import com.mdevs.cinefy.repository.PaymentMethodRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;

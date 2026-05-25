@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.entity;
 
+import com.mdevs.cinefy.entity.enums.SeatCategory;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.shared.security;
 
 import com.mdevs.cinefy.entity.StaffMember;
+import com.mdevs.cinefy.entity.enums.UserType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

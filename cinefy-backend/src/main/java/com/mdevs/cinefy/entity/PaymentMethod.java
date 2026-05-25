@@ -1,5 +1,9 @@
 package com.mdevs.cinefy.entity;
 
+import com.mdevs.cinefy.entity.enums.PaymentMethodStatus;
+import com.mdevs.cinefy.entity.enums.PaymentMethodTestStatus;
+import com.mdevs.cinefy.entity.enums.PaymentMethodType;
+import com.mdevs.cinefy.entity.enums.PaymentProvider;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

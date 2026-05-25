@@ -1,5 +1,7 @@
 package com.mdevs.cinefy.entity;
 
+import com.mdevs.cinefy.entity.enums.EmploymentType;
+import com.mdevs.cinefy.entity.enums.StaffPosition;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

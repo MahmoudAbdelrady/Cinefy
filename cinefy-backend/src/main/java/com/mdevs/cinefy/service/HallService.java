@@ -9,6 +9,7 @@ import com.mdevs.cinefy.dto.hall.HallTypeDTO;
 import com.mdevs.cinefy.dto.hall.SeatLayoutDTO;
 import com.mdevs.cinefy.dto.hall.TicketPricingDTO;
 import com.mdevs.cinefy.entity.*;
+import com.mdevs.cinefy.entity.enums.*;
 import com.mdevs.cinefy.repository.HallRepository;
 import com.mdevs.cinefy.repository.HallTypeRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
