@@ -154,6 +154,9 @@ public class StaffMemberService implements UserDetailsService {
     public void updatePassword(Long id, String rawPassword) {
         StaffMember staffMember = staffMemberRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + id));
+        if (passwordEncoder.matches(rawPassword, staffMember.getPassword())) {
+            throw new BusinessException("New password must be different from the current password");
+        }
         staffMember.setPassword(passwordEncoder.encode(rawPassword));
         staffMemberRepository.save(staffMember);
     }
