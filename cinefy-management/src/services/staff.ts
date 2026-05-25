@@ -1,7 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import type {
+  CurrentStaffMember,
   PaginatedResponse,
   PositionCoverage,
   StaffMemberDetail,
@@ -13,6 +14,13 @@ import type {
 @Injectable({ providedIn: 'root' })
 export class StaffService {
   private readonly http = inject(HttpClient);
+
+  private currentStaffMember$?: Observable<CurrentStaffMember>;
+
+  getCurrentStaffMember(): Observable<CurrentStaffMember> {
+    this.currentStaffMember$ ??= this.http.get<CurrentStaffMember>('/staff/me');
+    return this.currentStaffMember$;
+  }
 
   getStaffMembers(
     name?: string,

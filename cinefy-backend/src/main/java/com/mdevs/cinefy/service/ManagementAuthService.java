@@ -10,6 +10,7 @@ import com.mdevs.cinefy.shared.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -62,6 +63,9 @@ public class ManagementAuthService {
 
     @Transactional
     public TokenPairDTO refresh(String refreshToken) {
+        if (StringUtils.isEmpty(refreshToken)) {
+            throw new UnauthorizedException("Invalid refresh token");
+        }
         Claims claims = jwtUtil.parseToken(refreshToken).getPayload();
         if (!jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) || invalidJwtService.isBlocklisted(claims.getId())) {
             throw new UnauthorizedException("Invalid refresh token");

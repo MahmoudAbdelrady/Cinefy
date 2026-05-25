@@ -178,6 +178,11 @@
       @include icon-box(36px);
       background: linear-gradient(135deg, #3b82f6, $blue-600, $purple-600);
       box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.025em;
+      user-select: none;
     }
 
     .info-box {

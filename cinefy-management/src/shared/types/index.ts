@@ -70,6 +70,7 @@ export type {
   StaffMember,
   StaffMemberSummary,
   StaffMemberDetail,
+  CurrentStaffMember,
   StaffMemberPayload,
   StaffPosition,
   EmploymentType,

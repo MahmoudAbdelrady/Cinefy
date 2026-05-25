@@ -38,14 +38,12 @@ export class AuthService {
 
   // Single-flight: concurrent 401s share ONE /refresh execution.
   refresh(): Observable<void> {
-    if (!this.refresh$) {
-      this.refresh$ = this.http.post<void>('/management/auth/refresh', null).pipe(
-        // Clear the slot once it settles so the next expiry starts a fresh refresh.
-        finalize(() => (this.refresh$ = null)),
-        // Default refCount (false) + finalize keeps the single execution alive across subscribers.
-        shareReplay(1),
-      );
-    }
+    this.refresh$ ??= this.http.post<void>('/management/auth/refresh', null).pipe(
+      // Clear the slot once it settles so the next expiry starts a fresh refresh.
+      finalize(() => (this.refresh$ = null)),
+      // Default refCount (false) + finalize keeps the single execution alive across subscribers.
+      shareReplay(1),
+    );
     return this.refresh$;
   }
 

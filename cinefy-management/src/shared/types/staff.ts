@@ -68,6 +68,14 @@ interface StaffMemberDetail {
   workingHourEnd: string;
 }
 
+interface CurrentStaffMember {
+  id: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  position: StaffPosition | 'ADMIN';
+}
+
 interface StaffMemberPayload {
   firstName: string;
   lastName: string;
@@ -103,6 +111,7 @@ export type {
   StaffMember,
   StaffMemberSummary,
   StaffMemberDetail,
+  CurrentStaffMember,
   StaffMemberPayload,
   StaffPosition,
   EmploymentType,

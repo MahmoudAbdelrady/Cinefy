@@ -21,10 +21,10 @@
       }
       <div class="user-info-container">
         <button [ngpMenuTrigger]="userInfoMenu" ngpButton>
-          <div class="avatar-box"></div>
+          <div class="avatar-box">{{ initials() }}</div>
           <div class="info-box">
-            <h5>Admin User</h5>
-            <p>Administrator</p>
+            <h5>{{ currentStaffMember()?.fullName }}</h5>
+            <p>{{ positionLabel() }}</p>
           </div>
           <lucide-icon [img]="icons.ChevronDownIcon" [size]="14"></lucide-icon>
         </button>

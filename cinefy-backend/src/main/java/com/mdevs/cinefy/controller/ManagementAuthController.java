@@ -47,7 +47,7 @@ public class ManagementAuthController {
 
     @PublicApi
     @PostMapping("/refresh")
-    public ResponseEntity<Void> refresh(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE) String refreshToken) {
+    public ResponseEntity<Void> refresh(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
         TokenPairDTO tokens = managementAuthService.refresh(refreshToken);
 
         ResponseCookie accessTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.ACCESS_TOKEN_COOKIE, tokens.accessToken(), accessTokenExpiration, false);

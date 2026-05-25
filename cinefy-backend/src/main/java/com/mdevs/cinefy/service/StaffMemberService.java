@@ -72,7 +72,12 @@ public class StaffMemberService implements UserDetailsService {
 
     public CurrentStaffMemberDTO getCurrentStaffMember() {
         StaffMember staffMember = findStaffMember(SecurityUtil.getCurrentUserUuid());
-        return new CurrentStaffMemberDTO(staffMember.getUuid(), staffMember.getFullName(), staffMember.getPosition().name());
+        return new CurrentStaffMemberDTO(
+                staffMember.getUuid(),
+                staffMember.getFirstName(),
+                staffMember.getLastName(),
+                staffMember.getFullName(),
+                staffMember.getPosition().name());
     }
 
     @Override
