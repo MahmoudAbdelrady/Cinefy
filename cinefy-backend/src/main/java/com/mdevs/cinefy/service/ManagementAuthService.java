@@ -17,6 +17,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -97,11 +98,16 @@ public class ManagementAuthService {
         return new TokenPairDTO(newAccessToken, newRefreshToken);
     }
 
-    @Transactional
     public void forgotPassword(ForgotPasswordDTO dto) {
         staffMemberService.findByUsername(dto.getUsername()).ifPresent(staffMember -> {
-            otpService.deleteActiveFor(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);
-            Otp otp = otpService.generate(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);
+            Otp otp;
+            try {
+                otp = otpService.create(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);
+            } catch (DataIntegrityViolationException ex) {
+                // A concurrent request already issued an active reset code for this user
+                return;
+            }
+
             emailService.sendPasswordResetOtp(
                     staffMember.getEmail(),
                     staffMember.getFirstName(),

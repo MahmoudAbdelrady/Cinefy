@@ -7,7 +7,6 @@ import com.mdevs.cinefy.repository.OtpRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +25,6 @@ public class OtpService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private static final int MAX_CODE_GENERATION_ATTEMPTS = 5;
-
     // ========================= Public API =========================
 
     public int getExpiryMinutes() {
@@ -43,28 +40,20 @@ public class OtpService {
         return otp;
     }
 
+    /**
+     * @throws org.springframework.dao.DataIntegrityViolationException if a concurrent caller already issued an OTP
+     */
     @Transactional
-    public Otp generate(Long userId, UserType userType, OtpType type) {
+    public Otp create(Long userId, UserType userType, OtpType type) {
+        otpRepository.deleteByUserIdAndUserTypeAndType(userId, userType, type);
+
         Otp otp = new Otp();
+        otp.setCode(generateUniqueCode());
         otp.setType(type);
         otp.setUserId(userId);
         otp.setUserType(userType);
         otp.setExpirationDate(LocalDateTime.now().plusMinutes(getExpiryMinutes()));
-
-        for (int attempt = 0; attempt < MAX_CODE_GENERATION_ATTEMPTS; attempt++) {
-            otp.setCode(generateCode());
-            try {
-                return otpRepository.saveAndFlush(otp);
-            } catch (DataIntegrityViolationException ex) {
-                // Unique-code collision; retry with a fresh code.
-            }
-        }
-        throw new BusinessException("Could not generate a unique code");
-    }
-
-    @Transactional
-    public void deleteActiveFor(Long userId, UserType userType, OtpType type) {
-        otpRepository.deleteByUserIdAndUserTypeAndTypeAndExpirationDateAfter(userId, userType, type, LocalDateTime.now());
+        return otpRepository.saveAndFlush(otp);
     }
 
     @Transactional
@@ -74,7 +63,11 @@ public class OtpService {
 
     // =========================== Helpers ===========================
 
-    private String generateCode() {
-        return String.format("%06d", RANDOM.nextInt(1_000_000));
+    private String generateUniqueCode() {
+        String code;
+        do {
+            code = String.format("%06d", RANDOM.nextInt(1_000_000));
+        } while (otpRepository.existsByCode(code));
+        return code;
     }
 }

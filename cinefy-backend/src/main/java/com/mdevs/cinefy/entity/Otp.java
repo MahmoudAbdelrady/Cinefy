@@ -8,6 +8,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,11 +19,13 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(indexes = {
-        @Index(columnList = "USER_ID, USER_TYPE"),
-        @Index(columnList = "EXPIRATION_DATE"),
-        @Index(columnList = "CODE, TYPE")
-})
+@Table(
+        uniqueConstraints = @UniqueConstraint(columnNames = {"USER_ID", "USER_TYPE", "TYPE"}),
+        indexes = {
+                @Index(columnList = "EXPIRATION_DATE"),
+                @Index(columnList = "CODE, TYPE")
+        }
+)
 public class Otp extends BaseEntity {
 
     @Column(nullable = false, unique = true)

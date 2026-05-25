@@ -14,8 +14,13 @@ public interface OtpRepository extends BaseRepository<Otp> {
 
     Optional<Otp> findByCodeAndType(String code, OtpType type);
 
+    boolean existsByCode(String code);
+
     @Modifying
-    void deleteByUserIdAndUserTypeAndTypeAndExpirationDateAfter(Long userId, UserType userType, OtpType type, LocalDateTime now);
+    @Query("DELETE FROM Otp o WHERE o.userId = :userId AND o.userType = :userType AND o.type = :type")
+    void deleteByUserIdAndUserTypeAndType(@Param("userId") Long userId,
+                                          @Param("userType") UserType userType,
+                                          @Param("type") OtpType type);
 
     @Modifying
     @Query(
