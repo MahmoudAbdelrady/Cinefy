@@ -109,7 +109,9 @@ Entities with user-facing names (Hall, HallType) derive a `code` field via a sta
   - `*SummaryDTO` — list/table views
   - `*DetailDTO` — full entity details
   - `*LayoutDTO` — domain-specific projections
-- DTOs are plain Lombok `@Getter`/`@Setter` classes, no records
+- **Class vs. record** is decided by binding/mutability needs, not a blanket ban:
+  - Use a Lombok `@Getter`/`@Setter` class when the DTO is deserialized by Jackson (request bodies), carries Bean Validation annotations, or is populated field-by-field with setters in a service mapper. This covers all input DTOs and the large `*SummaryDTO`/`*DetailDTO`/`*LayoutDTO` outputs.
+  - Use a `record` for small, immutable, read-only projections constructed in one shot (e.g. `CurrentStaffMemberDTO`, `TokenPairDTO`, `*Projection`).
 - Procedural validation in services for business rules beyond annotation capabilities
 
 ### Controller Conventions

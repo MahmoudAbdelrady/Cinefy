@@ -1,18 +1,47 @@
 package com.mdevs.cinefy.config.general;
 
+import com.mdevs.cinefy.filter.JwtAuthenticationFilter;
+import com.mdevs.cinefy.service.StaffMemberService;
+import com.mdevs.cinefy.shared.security.CinefyAuthenticationEntryPoint;
+import com.mdevs.cinefy.shared.security.CinefyApiAuthorizationManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
 
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final StaffMemberService staffMemberService;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private final CinefyApiAuthorizationManager apiAuthorizationManager;
+
+    private final CinefyAuthenticationEntryPoint authenticationEntryPoint;
+
+    @Bean
+    public AuthenticationManager managementAuthenticationManager() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(staffMemberService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return new ProviderManager(provider);
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
@@ -27,7 +56,10 @@ public class SecurityConfig {
                         corsConfiguration.setAllowCredentials(true);
                         return corsConfiguration;
                     }))
-                    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .authorizeHttpRequests(auth -> auth.anyRequest().access(apiAuthorizationManager))
+                    .exceptionHandling(handling -> handling.authenticationEntryPoint(authenticationEntryPoint))
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
             return httpSecurity.build();
         } catch (Exception e) {

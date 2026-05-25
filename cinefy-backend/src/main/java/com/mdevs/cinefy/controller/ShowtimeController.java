@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -20,16 +21,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/showtimes")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
 public class ShowtimeController {
 
     private final ShowtimeService showtimeService;
 
     @GetMapping("/movie-dates")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
     public ResponseEntity<MovieShowtimeDatesDTO> getMovieShowtimeDates(@RequestParam Long movieId) {
         return ResponseEntity.ok(showtimeService.getMovieShowtimeDates(movieId));
     }
 
     @GetMapping("/movie-day")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
     public ResponseEntity<MovieShowtimesDTO> getMovieShowtimesForDate(@RequestParam Long movieId, @RequestParam LocalDate date) {
         return ResponseEntity.ok(showtimeService.getMovieShowtimesForDate(movieId, date));
     }
@@ -40,6 +44,7 @@ public class ShowtimeController {
     }
 
     @GetMapping("/movies")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
     public ResponseEntity<List<MovieWithShowtimesDTO>> getMovies() {
         return ResponseEntity.ok(showtimeService.getMoviesWithShowtimes());
     }

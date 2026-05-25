@@ -3,6 +3,7 @@ package com.mdevs.cinefy.service;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+import com.mdevs.cinefy.dto.staff.CurrentStaffMemberDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageItemDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageProjection;
@@ -16,10 +17,16 @@ import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.StaffMemberRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import com.mdevs.cinefy.shared.security.SecurityUtil;
+import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +38,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class StaffMemberService {
+public class StaffMemberService implements UserDetailsService {
 
     private final StaffMemberRepository staffMemberRepository;
 
@@ -44,7 +51,7 @@ public class StaffMemberService {
     public Page<StaffMemberSummaryDTO> getStaffMembers(String name, String position, Pageable pageable) {
         StaffPosition positionFilter = StringUtils.isEmpty(position) ? null : StaffPosition.fromString(position);
         String nameFilter = StringUtils.isEmpty(name) ? null : name;
-        return staffMemberRepository.findAllFiltered(nameFilter, positionFilter, pageable)
+        return staffMemberRepository.findAllFiltered(SecurityUtil.getCurrentUserUuid(), nameFilter, positionFilter, pageable)
                 .map(this::toSummaryDTO);
     }
 
@@ -55,12 +62,24 @@ public class StaffMemberService {
     public PositionCoverageDTO getPositionCoverage() {
         PositionCoverageProjection countResult = staffMemberRepository.getPositionCoverage();
         PositionCoverageDTO dto = new PositionCoverageDTO();
-        dto.setTotal(countResult.getTotal());
+        dto.setTotal(countResult.total());
         dto.setPositions(List.of(
-                new PositionCoverageItemDTO(StaffPosition.MANAGER.name(), countResult.getManagerCount()),
-                new PositionCoverageItemDTO(StaffPosition.CASHIER.name(), countResult.getCashierCount()),
-                new PositionCoverageItemDTO(StaffPosition.USHER.name(), countResult.getUsherCount())));
+                new PositionCoverageItemDTO(StaffPosition.MANAGER.name(), countResult.managerCount()),
+                new PositionCoverageItemDTO(StaffPosition.CASHIER.name(), countResult.cashierCount()),
+                new PositionCoverageItemDTO(StaffPosition.USHER.name(), countResult.usherCount())));
         return dto;
+    }
+
+    public CurrentStaffMemberDTO getCurrentStaffMember() {
+        StaffMember staffMember = findStaffMember(SecurityUtil.getCurrentUserUuid());
+        return new CurrentStaffMemberDTO(staffMember.getUuid(), staffMember.getFullName(), staffMember.getPosition().name());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
+        StaffMember staffMember = staffMemberRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Staff member not found with username: " + username));
+        return UserPrincipal.fromStaffMember(staffMember);
     }
 
     @Transactional
@@ -78,8 +97,33 @@ public class StaffMemberService {
     }
 
     @Transactional
+    public void ensureAdminExists(String username, String rawPassword) {
+        if (staffMemberRepository.existsByUsername(username)) {
+            return;
+        }
+
+        StaffMember admin = new StaffMember();
+        admin.setFirstName("System");
+        admin.setLastName("Administrator");
+        admin.setFullName(User.toFullName(admin.getFirstName(), admin.getLastName()));
+        admin.setUsername(username);
+        admin.setEmail("admin@cinefy.local");
+        admin.setPhoneNumber("0000000000");
+        admin.setPassword(passwordEncoder.encode(rawPassword));
+        admin.setPosition(StaffPosition.ADMIN);
+        admin.setEmploymentType(EmploymentType.FULL_TIME);
+        admin.setWorkingDayStart(DayOfWeek.MONDAY);
+        admin.setWorkingDayEnd(DayOfWeek.FRIDAY);
+        admin.setWorkingHourStart(LocalTime.MIDNIGHT);
+        admin.setWorkingHourEnd(LocalTime.MIDNIGHT);
+
+        staffMemberRepository.save(admin);
+    }
+
+    @Transactional
     public StaffMemberSummaryDTO updateStaffMember(String uuid, StaffMemberDTO dto) {
         StaffMember staffMember = findStaffMember(uuid);
+        validateNotAdminAccount(staffMember);
         populateFromDto(staffMember, dto, staffMember.getId());
         if (StringUtils.isNotEmpty(dto.getPassword())) {
             staffMember.setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -92,6 +136,7 @@ public class StaffMemberService {
     @Transactional
     public void deleteStaffMember(String uuid) {
         StaffMember staffMember = findStaffMember(uuid);
+        validateNotAdminAccount(staffMember);
         staffMemberRepository.delete(staffMember);
     }
 
@@ -102,8 +147,14 @@ public class StaffMemberService {
                 .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + uuid));
     }
 
+    private void validateNotAdminAccount(StaffMember staffMember) {
+        if (staffMember.getPosition().equals(StaffPosition.ADMIN)) {
+            throw new BusinessException("The admin account cannot be modified");
+        }
+    }
+
     private void validateStaffMember(StaffMemberDTO dto, String normalizedEmail, String normalizedPhoneNumber, StaffPosition position, Long excludeId) {
-        if (position.equals(StaffPosition.ADMIN)) { // @ TODO: update the condition to check if the current user isn't admin
+        if (position.equals(StaffPosition.ADMIN)) {
             throw new BusinessException("Assigning the admin position is not allowed");
         }
         if (dto.getWorkingHourStart().equals(dto.getWorkingHourEnd())) {
