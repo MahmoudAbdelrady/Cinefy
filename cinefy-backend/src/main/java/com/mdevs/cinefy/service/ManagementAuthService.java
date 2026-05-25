@@ -1,7 +1,13 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
 import com.mdevs.cinefy.dto.auth.ManagementLoginDTO;
+import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
+import com.mdevs.cinefy.dto.auth.VerifyResetCodeDTO;
+import com.mdevs.cinefy.entity.Otp;
+import com.mdevs.cinefy.entity.enums.OtpType;
+import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
@@ -29,6 +35,10 @@ public class ManagementAuthService {
     private final JwtUtil jwtUtil;
 
     private final InvalidJwtService invalidJwtService;
+
+    private final OtpService otpService;
+
+    private final StaffMemberService staffMemberService;
 
     @Value("${cinefy.jwt.refresh-token-rotation-threshold}")
     private long refreshTokenRotationThreshold;
@@ -83,5 +93,25 @@ public class ManagementAuthService {
             newRefreshToken = jwtUtil.generateToken(TokenType.REFRESH, jwtClaims);
         }
         return new TokenPairDTO(newAccessToken, newRefreshToken);
+    }
+
+    @Transactional
+    public void forgotPassword(ForgotPasswordDTO dto) {
+        staffMemberService.findByUsername(dto.getUsername()).ifPresent(staffMember -> {
+            otpService.deleteActiveFor(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);
+            Otp otp = otpService.generate(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);
+            // TODO: send the reset code (otp.getCode()) to staffMember.getEmail() via email.
+        });
+    }
+
+    public void verifyResetCode(VerifyResetCodeDTO dto) {
+        otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordDTO dto) {
+        Otp otp = otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
+        staffMemberService.updatePassword(otp.getUserId(), dto.getNewPassword());
+        otpService.consume(otp);
     }
 }

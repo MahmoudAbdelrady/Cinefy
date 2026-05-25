@@ -35,6 +35,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -80,9 +81,13 @@ public class StaffMemberService implements UserDetailsService {
                 staffMember.getPosition().name());
     }
 
+    public Optional<StaffMember> findByUsername(String username) {
+        return staffMemberRepository.findByUsername(username);
+    }
+
     @Override
     public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
-        StaffMember staffMember = staffMemberRepository.findByUsername(username)
+        StaffMember staffMember = findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Staff member not found with username: " + username));
         return UserPrincipal.fromStaffMember(staffMember);
     }
@@ -143,6 +148,14 @@ public class StaffMemberService implements UserDetailsService {
         StaffMember staffMember = findStaffMember(uuid);
         validateNotAdminAccount(staffMember);
         staffMemberRepository.delete(staffMember);
+    }
+
+    @Transactional
+    public void updatePassword(Long id, String rawPassword) {
+        StaffMember staffMember = staffMemberRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + id));
+        staffMember.setPassword(passwordEncoder.encode(rawPassword));
+        staffMemberRepository.save(staffMember);
     }
 
     // =========================== Helpers ===========================
