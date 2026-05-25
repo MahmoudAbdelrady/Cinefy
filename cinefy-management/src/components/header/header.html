@@ -31,10 +31,10 @@
         <ng-template #userInfoMenu>
           <div class="user-info-menu-items" ngpMenu>
             @for (item of userInfoMenuItems; track item.label) {
-              <div class="uim-item" ngpMenuItem>
+              <button class="uim-item" ngpMenuItem (click)="item.action()">
                 <lucide-icon [img]="item.icon" [size]="16"></lucide-icon>
                 <span>{{ item.label }}</span>
-              </div>
+              </button>
             }
           </div>
         </ng-template>

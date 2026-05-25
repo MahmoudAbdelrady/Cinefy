@@ -236,7 +236,11 @@
   gap: 12px;
   width: 100%;
   padding: 10px 16px;
+  border: none;
+  background: none;
+  font-family: inherit;
   font-size: 14px;
+  text-align: left;
   color: $gray-700;
   transition: background-color 150ms ease;
   cursor: pointer;
