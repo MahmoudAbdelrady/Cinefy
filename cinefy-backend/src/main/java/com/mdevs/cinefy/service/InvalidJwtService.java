@@ -30,11 +30,6 @@ public class InvalidJwtService {
         return invalidJwtRepository.existsByJti(jti);
     }
 
-    /**
-     * Blocklists a token, returning whether THIS caller won (false = already invalidated by a concurrent
-     * request). Non-transactional on purpose: a lost race poisons blocklist()'s REQUIRES_NEW tx and throws
-     * {@link UnexpectedRollbackException} at its commit, which must be caught out here, outside that boundary.
-     */
     public boolean tryInvalidate(String token) {
         try {
             return self.blocklist(token);
