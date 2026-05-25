@@ -3,6 +3,7 @@ package com.mdevs.cinefy.service;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+import com.mdevs.cinefy.dto.staff.CurrentStaffMemberDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageItemDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageProjection;
@@ -69,6 +70,11 @@ public class StaffMemberService implements UserDetailsService {
         return dto;
     }
 
+    public CurrentStaffMemberDTO getCurrentStaffMember() {
+        StaffMember staffMember = findStaffMember(SecurityUtil.getCurrentUserUuid());
+        return new CurrentStaffMemberDTO(staffMember.getUuid(), staffMember.getFullName(), staffMember.getPosition().name());
+    }
+
     @Override
     public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
         StaffMember staffMember = staffMemberRepository.findByUsername(username)
@@ -117,6 +123,7 @@ public class StaffMemberService implements UserDetailsService {
     @Transactional
     public StaffMemberSummaryDTO updateStaffMember(String uuid, StaffMemberDTO dto) {
         StaffMember staffMember = findStaffMember(uuid);
+        validateNotAdminAccount(staffMember);
         populateFromDto(staffMember, dto, staffMember.getId());
         if (StringUtils.isNotEmpty(dto.getPassword())) {
             staffMember.setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -129,6 +136,7 @@ public class StaffMemberService implements UserDetailsService {
     @Transactional
     public void deleteStaffMember(String uuid) {
         StaffMember staffMember = findStaffMember(uuid);
+        validateNotAdminAccount(staffMember);
         staffMemberRepository.delete(staffMember);
     }
 
@@ -137,6 +145,12 @@ public class StaffMemberService implements UserDetailsService {
     private StaffMember findStaffMember(String uuid) {
         return staffMemberRepository.findByUuid(uuid)
                 .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + uuid));
+    }
+
+    private void validateNotAdminAccount(StaffMember staffMember) {
+        if (staffMember.getPosition().equals(StaffPosition.ADMIN)) {
+            throw new BusinessException("The admin account cannot be modified");
+        }
     }
 
     private void validateStaffMember(StaffMemberDTO dto, String normalizedEmail, String normalizedPhoneNumber, StaffPosition position, Long excludeId) {
