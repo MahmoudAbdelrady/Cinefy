@@ -2,7 +2,6 @@ package com.mdevs.cinefy.config.general;
 
 import com.mdevs.cinefy.filter.JwtAuthenticationFilter;
 import com.mdevs.cinefy.service.StaffMemberService;
-import com.mdevs.cinefy.shared.security.CinefyAccessDeniedHandler;
 import com.mdevs.cinefy.shared.security.CinefyAuthenticationEntryPoint;
 import com.mdevs.cinefy.shared.security.CinefyApiAuthorizationManager;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +36,6 @@ public class SecurityConfig {
 
     private final CinefyAuthenticationEntryPoint authenticationEntryPoint;
 
-    private final CinefyAccessDeniedHandler accessDeniedHandler;
-
     @Bean
     public AuthenticationManager managementAuthenticationManager() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(staffMemberService);
@@ -62,8 +59,7 @@ public class SecurityConfig {
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .authorizeHttpRequests(auth -> auth.anyRequest().access(apiAuthorizationManager))
                     .exceptionHandling(handling -> handling
-                            .authenticationEntryPoint(authenticationEntryPoint)
-                            .accessDeniedHandler(accessDeniedHandler))
+                            .authenticationEntryPoint(authenticationEntryPoint))
                     .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
             return httpSecurity.build();
