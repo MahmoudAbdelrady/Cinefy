@@ -38,6 +38,8 @@ public class ManagementAuthService {
 
     private final OtpService otpService;
 
+    private final EmailService emailService;
+
     private final StaffMemberService staffMemberService;
 
     @Value("${cinefy.jwt.refresh-token-rotation-threshold}")
@@ -100,7 +102,11 @@ public class ManagementAuthService {
         staffMemberService.findByUsername(dto.getUsername()).ifPresent(staffMember -> {
             otpService.deleteActiveFor(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);
             Otp otp = otpService.generate(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);
-            // TODO: send the reset code (otp.getCode()) to staffMember.getEmail() via email.
+            emailService.sendPasswordResetOtp(
+                    staffMember.getEmail(),
+                    staffMember.getFirstName(),
+                    otp.getCode(),
+                    otpService.getExpiryMinutes());
         });
     }
 

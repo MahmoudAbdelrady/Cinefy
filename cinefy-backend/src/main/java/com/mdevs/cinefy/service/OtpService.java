@@ -30,6 +30,10 @@ public class OtpService {
 
     // ========================= Public API =========================
 
+    public int getExpiryMinutes() {
+        return (int) Duration.ofMillis(expirationMillis).toMinutes();
+    }
+
     public Otp validate(String code, OtpType type) {
         Otp otp = otpRepository.findByCodeAndType(code, type)
                 .orElseThrow(() -> new BusinessException("Invalid code"));
@@ -45,7 +49,7 @@ public class OtpService {
         otp.setType(type);
         otp.setUserId(userId);
         otp.setUserType(userType);
-        otp.setExpirationDate(LocalDateTime.now().plus(Duration.ofMillis(expirationMillis)));
+        otp.setExpirationDate(LocalDateTime.now().plusMinutes(getExpiryMinutes()));
 
         for (int attempt = 0; attempt < MAX_CODE_GENERATION_ATTEMPTS; attempt++) {
             otp.setCode(generateCode());
