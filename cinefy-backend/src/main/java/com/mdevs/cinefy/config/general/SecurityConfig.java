@@ -58,8 +58,7 @@ public class SecurityConfig {
                     }))
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .authorizeHttpRequests(auth -> auth.anyRequest().access(apiAuthorizationManager))
-                    .exceptionHandling(handling -> handling
-                            .authenticationEntryPoint(authenticationEntryPoint))
+                    .exceptionHandling(handling -> handling.authenticationEntryPoint(authenticationEntryPoint))
                     .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
             return httpSecurity.build();
