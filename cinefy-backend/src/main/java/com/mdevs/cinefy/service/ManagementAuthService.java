@@ -52,10 +52,7 @@ public class ManagementAuthService {
     @Transactional
     public TokenPairDTO refresh(String refreshToken) {
         Claims claims = jwtUtil.parseToken(refreshToken).getPayload();
-        if (!jwtUtil.getTokenType(claims).equals(TokenType.REFRESH)) {
-            throw new UnauthorizedException("Invalid refresh token");
-        }
-        if (invalidJwtService.isBlocklisted(claims.getId())) {
+        if (!jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) || invalidJwtService.isBlocklisted(claims.getId())) {
             throw new UnauthorizedException("Invalid refresh token");
         }
 
