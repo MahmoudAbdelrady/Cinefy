@@ -15,7 +15,7 @@ import type {
 export class StaffService {
   private readonly http = inject(HttpClient);
 
-  private currentStaffMember$?: Observable<CurrentStaffMember>;
+  private currentStaffMember$: Observable<CurrentStaffMember> | null = null;
 
   getCurrentStaffMember(): Observable<CurrentStaffMember> {
     this.currentStaffMember$ ??= this.http
@@ -25,7 +25,7 @@ export class StaffService {
   }
 
   clearCurrentStaffMember(): void {
-    this.currentStaffMember$ = undefined;
+    this.currentStaffMember$ = null;
   }
 
   getStaffMembers(
