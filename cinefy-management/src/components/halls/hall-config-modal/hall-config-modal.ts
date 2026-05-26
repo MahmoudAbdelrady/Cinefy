@@ -122,7 +122,9 @@ export class HallConfigModalComponent {
 
   readonly isEditMode = signal(false);
   private readonly selectedHallData = signal<HallDetail | null>(null);
-  readonly hallTypes = signal<HallType[]>([]);
+  readonly hallTypes = toSignal(this.hallsService.getHallTypes(), {
+    initialValue: [] as HallType[],
+  });
   protected readonly saving = signal(false);
   private readonly layoutBaseline = signal<LayoutBaseline | null>(null);
   protected readonly loadingHall = signal(false);
@@ -248,8 +250,6 @@ export class HallConfigModalComponent {
     });
 
     afterNextRender(() => {
-      this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
-
       const hallId = this.selectedHallId();
       if (hallId) {
         this.loadHallData(hallId);
