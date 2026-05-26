@@ -25,6 +25,7 @@
           [leadingIcon]="icons.PasswordIcon"
           [control]="resetForm.controls.confirmPassword"
           [errorMessages]="{ required: 'Please confirm your password.' }"
+          [blockClipboard]="true"
         />
         @if (resetForm.hasError('mismatch')) {
           <p class="fp-mismatch">
