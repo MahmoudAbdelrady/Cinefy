@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.dto.staff;
 
+import com.mdevs.cinefy.shared.validation.ValidationPatterns;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -44,10 +45,7 @@ public class StaffMemberDTO {
     )
     private String email;
 
-    @Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$",
-            message = "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a symbol"
-    )
+    @Pattern(regexp = ValidationPatterns.PASSWORD, message = ValidationPatterns.PASSWORD_MESSAGE)
     private String password;
 
     @NotBlank(message = "Position is required")

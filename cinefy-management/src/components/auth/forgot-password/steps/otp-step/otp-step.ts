@@ -1,11 +1,16 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { interval, takeWhile } from 'rxjs';
 import { ArrowLeft, ArrowRight, CircleAlert, LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { LoadingSpinnerComponent } from '../../../../loading-spinner/loading-spinner';
 import { InputOtp } from '../../../input-otp/input-otp';
+import { AuthService } from '../../../../../services/auth';
+import { ToastService } from '../../../../../services/toast';
 
-const INVALID_TEST_CODE = '000000';
+const RESEND_COOLDOWN_SECONDS = 10 * 60;
 
 @Component({
   selector: 'fp-otp-step',
@@ -20,34 +25,83 @@ export class OtpStep {
     AlertIcon: CircleAlert,
   };
 
+  private readonly authService = inject(AuthService);
+  private readonly toast = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly username = input<string>('');
 
-  readonly verified = output<void>();
+  readonly verified = output<string>();
   readonly back = output<void>();
 
   protected readonly code = signal('');
   protected readonly error = signal<string | null>(null);
   protected readonly verifying = signal(false);
   protected readonly complete = signal(false);
+  protected readonly resending = signal(false);
+  protected readonly resendCountdown = signal(0);
+
+  protected readonly resendLabel = computed(() => {
+    const seconds = this.resendCountdown();
+    const minutes = Math.floor(seconds / 60);
+    const remainder = seconds % 60;
+    return `You can resend in ${minutes}:${String(remainder).padStart(2, '0')}`;
+  });
 
   protected onCodeChange(next: string) {
     this.code.set(next);
     if (this.error()) this.error.set(null);
   }
 
+  protected onResend() {
+    if (this.resending() || this.resendCountdown() > 0) return;
+    this.resending.set(true);
+    this.authService
+      .forgotPassword({ username: this.username() })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.resending.set(false);
+          this.startResendCooldown();
+          this.code.set('');
+          this.error.set(null);
+          this.toast.success('We sent a new code to your email.');
+        },
+        error: () => {
+          this.resending.set(false);
+          this.toast.error('Could not resend the code. Please try again.');
+        },
+      });
+  }
+
   protected onSubmit() {
     if (!this.complete() || this.verifying()) return;
     this.verifying.set(true);
     const code = this.code();
-    setTimeout(() => {
-      this.verifying.set(false);
-      if (code === INVALID_TEST_CODE) {
-        this.code.set('');
-        this.error.set('That code is invalid or has expired.');
-        return;
-      }
-      this.verified.emit();
-    }, 1000);
+    this.authService
+      .verifyResetCode({ code })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.verifying.set(false);
+          this.verified.emit(code);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.verifying.set(false);
+          this.code.set('');
+          this.error.set(err.error?.message ?? 'That code is invalid or has expired.');
+        },
+      });
+  }
+
+  private startResendCooldown() {
+    this.resendCountdown.set(RESEND_COOLDOWN_SECONDS);
+    interval(1000)
+      .pipe(
+        takeWhile(() => this.resendCountdown() > 0),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.resendCountdown.update((seconds) => seconds - 1));
   }
 
   protected onBack() {

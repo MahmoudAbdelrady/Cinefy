@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { baseUrlInterceptor } from './core/interceptors/base-url';
+import { baseUrlInterceptor, csrfInterceptor, authRetryInterceptor } from './core/interceptors';
 import { provideToastConfig } from 'ng-primitives/toast';
 import { provideMenuConfig } from 'ng-primitives/menu';
 
@@ -11,7 +11,10 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withFetch(), withInterceptors([baseUrlInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([baseUrlInterceptor, csrfInterceptor, authRetryInterceptor]),
+    ),
     provideToastConfig({
       placement: 'top-center',
       duration: 4000,

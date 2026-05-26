@@ -15,7 +15,7 @@
     </button>
   </div>
   <div class="pages">
-    @for (tab of tabs; track tab.path) {
+    @for (tab of tabs(); track tab.path) {
       <a
         class="page-item"
         [routerLink]="tab.path"

@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.shared.security;
+package com.mdevs.cinefy.entity.enums;
 
 public enum UserType {
     STAFF_MEMBER,

@@ -39,8 +39,10 @@
               <span class="si-img-glow"></span>
               <span class="si-img-initials">
                 {{
-                  staffNameParts[0].charAt(0).toUpperCase() +
-                    staffNameParts[staffNameParts.length - 1].charAt(0).toUpperCase()
+                  (
+                    staffNameParts[0].charAt(0) +
+                    staffNameParts[staffNameParts.length - 1].charAt(0)
+                  ).toUpperCase()
                 }}
               </span>
             </div>

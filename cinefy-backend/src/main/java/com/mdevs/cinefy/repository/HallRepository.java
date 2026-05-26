@@ -2,7 +2,7 @@ package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.dto.hall.HallStatisticsDTO;
 import com.mdevs.cinefy.entity.Hall;
-import com.mdevs.cinefy.entity.HallStatus;
+import com.mdevs.cinefy.entity.enums.HallStatus;
 import com.mdevs.cinefy.entity.HallType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -10,11 +10,12 @@ import com.mdevs.cinefy.dto.staff.PositionCoverageProjection;
 import com.mdevs.cinefy.dto.staff.StaffMemberDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberDetailDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberSummaryDTO;
-import com.mdevs.cinefy.entity.EmploymentType;
+import com.mdevs.cinefy.entity.enums.EmploymentType;
 import com.mdevs.cinefy.entity.StaffMember;
-import com.mdevs.cinefy.entity.StaffPosition;
+import com.mdevs.cinefy.entity.enums.StaffPosition;
 import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.StaffMemberRepository;
+import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.security.SecurityUtil;
@@ -35,6 +36,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -72,12 +74,21 @@ public class StaffMemberService implements UserDetailsService {
 
     public CurrentStaffMemberDTO getCurrentStaffMember() {
         StaffMember staffMember = findStaffMember(SecurityUtil.getCurrentUserUuid());
-        return new CurrentStaffMemberDTO(staffMember.getUuid(), staffMember.getFullName(), staffMember.getPosition().name());
+        return new CurrentStaffMemberDTO(
+                staffMember.getUuid(),
+                staffMember.getFirstName(),
+                staffMember.getLastName(),
+                staffMember.getFullName(),
+                staffMember.getPosition().name());
+    }
+
+    public Optional<StaffMember> findByUsername(String username) {
+        return staffMemberRepository.findByUsername(username);
     }
 
     @Override
     public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
-        StaffMember staffMember = staffMemberRepository.findByUsername(username)
+        StaffMember staffMember = findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Staff member not found with username: " + username));
         return UserPrincipal.fromStaffMember(staffMember);
     }
@@ -138,6 +149,17 @@ public class StaffMemberService implements UserDetailsService {
         StaffMember staffMember = findStaffMember(uuid);
         validateNotAdminAccount(staffMember);
         staffMemberRepository.delete(staffMember);
+    }
+
+    @Transactional
+    public void updatePassword(Long id, String rawPassword) {
+        StaffMember staffMember = staffMemberRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + id));
+        if (passwordEncoder.matches(rawPassword, staffMember.getPassword())) {
+            throw new BusinessException("New password must be different from the current password", ErrorCode.PASSWORD_REUSED);
+        }
+        staffMember.setPassword(passwordEncoder.encode(rawPassword));
+        staffMemberRepository.save(staffMember);
     }
 
     // =========================== Helpers ===========================

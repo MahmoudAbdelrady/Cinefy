@@ -4,13 +4,6 @@
       <button class="hamburger-btn" (click)="openSidebar()">
         <lucide-icon [img]="icons.MenuIcon" [size]="22"></lucide-icon>
       </button>
-      <div class="hl-icon">
-        <lucide-icon [img]="icons.CalendarIcon" [size]="18"></lucide-icon>
-      </div>
-      <div class="hl-info">
-        <h3>{{ currentDate | date: 'EEEE, MMM d, yyyy' }}</h3>
-        <p>Welcome back, Admin</p>
-      </div>
     </div>
     <div class="header-right">
       @if (headerActionsTemplate()) {
@@ -21,20 +14,20 @@
       }
       <div class="user-info-container">
         <button [ngpMenuTrigger]="userInfoMenu" ngpButton>
-          <div class="avatar-box"></div>
+          <div class="avatar-box">{{ initials() }}</div>
           <div class="info-box">
-            <h5>Admin User</h5>
-            <p>Administrator</p>
+            <h5>{{ currentStaffMember()?.fullName }}</h5>
+            <p>{{ positionLabel() }}</p>
           </div>
           <lucide-icon [img]="icons.ChevronDownIcon" [size]="14"></lucide-icon>
         </button>
         <ng-template #userInfoMenu>
           <div class="user-info-menu-items" ngpMenu>
             @for (item of userInfoMenuItems; track item.label) {
-              <div class="uim-item" ngpMenuItem>
+              <button class="uim-item" ngpMenuItem (click)="item.action()">
                 <lucide-icon [img]="item.icon" [size]="16"></lucide-icon>
                 <span>{{ item.label }}</span>
-              </div>
+              </button>
             }
           </div>
         </ng-template>

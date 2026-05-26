@@ -26,6 +26,7 @@ export class InputField {
   readonly leadingIcon = input<LucideIconData | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
   readonly monospace = input<boolean>(false);
+  readonly blockClipboard = input<boolean>(false);
 
   protected readonly showPassword = signal(false);
 
@@ -41,5 +42,11 @@ export class InputField {
 
   protected toggleShowPassword() {
     this.showPassword.update((v) => !v);
+  }
+
+  protected onClipboardEvent(event: ClipboardEvent) {
+    if (this.blockClipboard()) {
+      event.preventDefault();
+    }
   }
 }

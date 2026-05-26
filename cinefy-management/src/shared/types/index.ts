@@ -28,6 +28,15 @@ export type {
   Hall,
 } from './halls';
 
+export type { ApiError, ApiErrorCode } from './api';
+
+export type {
+  LoginPayload,
+  ForgotPasswordPayload,
+  VerifyResetCodePayload,
+  ResetPasswordPayload,
+} from './auth';
+
 export type { Movie, MovieSearchResult, MovieDetail } from './movies';
 
 export {
@@ -63,13 +72,20 @@ export type {
 
 export type { StatsCard } from './stats';
 
-export { STAFF_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS } from './staff';
+export {
+  STAFF_POSITION_LABELS,
+  USER_POSITION_LABELS,
+  EMPLOYMENT_TYPE_LABELS,
+  WEEK_DAY_LABELS,
+} from './staff';
 export type {
   StaffMember,
   StaffMemberSummary,
   StaffMemberDetail,
+  CurrentStaffMember,
   StaffMemberPayload,
   StaffPosition,
+  UserPosition,
   EmploymentType,
   WeekDay,
   PositionCoverage,

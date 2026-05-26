@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
@@ -32,9 +31,7 @@ public class CinefyApiAuthorizationManager implements AuthorizationManager<Reque
         if (isPublic(context.getRequest())) {
             return new AuthorizationDecision(true);
         }
-        Authentication auth = authentication.get();
-        boolean authenticated = auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken);
-        return new AuthorizationDecision(authenticated);
+        return new AuthorizationDecision(SecurityUtil.isAuthenticated(authentication.get()));
     }
 
     private boolean isPublic(HttpServletRequest request) {

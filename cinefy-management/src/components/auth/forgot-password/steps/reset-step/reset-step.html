@@ -25,6 +25,7 @@
           [leadingIcon]="icons.PasswordIcon"
           [control]="resetForm.controls.confirmPassword"
           [errorMessages]="{ required: 'Please confirm your password.' }"
+          [blockClipboard]="true"
         />
         @if (resetForm.hasError('mismatch')) {
           <p class="fp-mismatch">
@@ -52,6 +53,12 @@
           <lucide-icon class="fp-submit-arrow" [img]="icons.ArrowRightIcon" [size]="16" />
         }
       </button>
+
+      @if (codeRejected()) {
+        <button type="button" class="fp-request-code" (click)="onRequestNewCode()">
+          Request a new code
+        </button>
+      }
     </form>
   </div>
 </div>

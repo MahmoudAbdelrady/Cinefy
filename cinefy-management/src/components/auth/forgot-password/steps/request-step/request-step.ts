@@ -1,4 +1,5 @@
-import { Component, output, signal } from '@angular/core';
+import { Component, DestroyRef, inject, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ArrowLeft, ArrowRight, LucideAngularModule } from 'lucide-angular';
@@ -6,6 +7,8 @@ import { NgpButton } from 'ng-primitives/button';
 import { InputField } from '../../../../input-field/input-field';
 import { LoadingSpinnerComponent } from '../../../../loading-spinner/loading-spinner';
 import { AtSignIcon } from '../../../../../shared/icons';
+import { AuthService } from '../../../../../services/auth';
+import { ToastService } from '../../../../../services/toast';
 
 @Component({
   selector: 'fp-request-step',
@@ -27,6 +30,10 @@ export class RequestStep {
     ArrowLeftIcon: ArrowLeft,
   };
 
+  private readonly authService = inject(AuthService);
+  private readonly toast = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly requested = output<string>();
 
   protected readonly submitting = signal(false);
@@ -41,10 +48,19 @@ export class RequestStep {
   protected onSubmit() {
     if (this.requestForm.invalid || this.submitting()) return;
     this.submitting.set(true);
-    const value = this.requestForm.controls.username.value;
-    setTimeout(() => {
-      this.submitting.set(false);
-      this.requested.emit(value);
-    }, 1100);
+    const username = this.requestForm.controls.username.value;
+    this.authService
+      .forgotPassword({ username })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.submitting.set(false);
+          this.requested.emit(username);
+        },
+        error: () => {
+          this.submitting.set(false);
+          this.toast.error('Could not send the reset code. Please try again.');
+        },
+      });
   }
 }

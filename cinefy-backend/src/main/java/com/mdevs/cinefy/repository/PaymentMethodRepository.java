@@ -1,8 +1,8 @@
 package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.entity.PaymentMethod;
-import com.mdevs.cinefy.entity.PaymentMethodStatus;
-import com.mdevs.cinefy.entity.PaymentMethodType;
+import com.mdevs.cinefy.entity.enums.PaymentMethodStatus;
+import com.mdevs.cinefy.entity.enums.PaymentMethodType;
 
 import java.util.List;
 import java.util.Optional;

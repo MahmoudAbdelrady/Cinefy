@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.entity;
+package com.mdevs.cinefy.entity.enums;
 
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 

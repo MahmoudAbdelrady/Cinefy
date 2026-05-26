@@ -1,14 +1,23 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
 import com.mdevs.cinefy.dto.auth.ManagementLoginDTO;
+import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
+import com.mdevs.cinefy.dto.auth.VerifyResetCodeDTO;
+import com.mdevs.cinefy.entity.Otp;
+import com.mdevs.cinefy.entity.enums.OtpType;
+import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
 import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,10 +37,26 @@ public class ManagementAuthService {
 
     private final InvalidJwtService invalidJwtService;
 
+    private final OtpService otpService;
+
+    private final EmailService emailService;
+
+    private final StaffMemberService staffMemberService;
+
     @Value("${cinefy.jwt.refresh-token-rotation-threshold}")
     private long refreshTokenRotationThreshold;
 
     // ========================= Public API =========================
+
+    public boolean isRefreshTokenValid(String refreshToken) {
+        Claims claims;
+        try {
+            claims = jwtUtil.parseToken(refreshToken).getPayload();
+        } catch (JwtException ex) {
+            return false;
+        }
+        return jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) && !invalidJwtService.isBlocklisted(claims.getId());
+    }
 
     public TokenPairDTO login(ManagementLoginDTO dto) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
@@ -51,6 +76,9 @@ public class ManagementAuthService {
 
     @Transactional
     public TokenPairDTO refresh(String refreshToken) {
+        if (StringUtils.isEmpty(refreshToken)) {
+            throw new UnauthorizedException("Invalid refresh token");
+        }
         Claims claims = jwtUtil.parseToken(refreshToken).getPayload();
         if (!jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) || invalidJwtService.isBlocklisted(claims.getId())) {
             throw new UnauthorizedException("Invalid refresh token");
@@ -68,5 +96,34 @@ public class ManagementAuthService {
             newRefreshToken = jwtUtil.generateToken(TokenType.REFRESH, jwtClaims);
         }
         return new TokenPairDTO(newAccessToken, newRefreshToken);
+    }
+
+    public void forgotPassword(ForgotPasswordDTO dto) {
+        staffMemberService.findByUsername(dto.getUsername()).ifPresent(staffMember -> {
+            Otp otp;
+            try {
+                otp = otpService.create(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);
+            } catch (DataIntegrityViolationException ex) {
+                // A concurrent request already issued an active reset code for this user
+                return;
+            }
+
+            emailService.sendPasswordResetOtp(
+                    staffMember.getEmail(),
+                    staffMember.getFirstName(),
+                    otp.getCode(),
+                    otpService.getExpiryMinutes());
+        });
+    }
+
+    public void verifyResetCode(VerifyResetCodeDTO dto) {
+        otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordDTO dto) {
+        Otp otp = otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
+        staffMemberService.updatePassword(otp.getUserId(), dto.getNewPassword());
+        otpService.consume(otp);
     }
 }

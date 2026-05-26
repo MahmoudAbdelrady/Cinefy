@@ -17,6 +17,9 @@
       [type]="resolvedType()"
       [placeholder]="placeholder()"
       [class.monospace]="monospace()"
+      (copy)="onClipboardEvent($event)"
+      (cut)="onClipboardEvent($event)"
+      (paste)="onClipboardEvent($event)"
     />
     @if (type() === 'password') {
       <button ngpButton type="button" class="if-toggle" (click)="toggleShowPassword()">

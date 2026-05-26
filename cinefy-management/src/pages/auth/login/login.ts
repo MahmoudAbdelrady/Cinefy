@@ -1,10 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ArrowRight, LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { InputField } from '../../../components/input-field/input-field';
 import { LoadingSpinnerComponent } from '../../../components/loading-spinner/loading-spinner';
+import { AuthService, ToastService } from '../../../services';
 import { AtSignIcon, PasswordIcon } from '../../../shared/icons';
 
 @Component({
@@ -27,6 +29,11 @@ export class LoginPage {
     ArrowRightIcon: ArrowRight,
   };
 
+  private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly submitting = signal(false);
 
   protected readonly loginForm = new FormGroup({
@@ -43,6 +50,17 @@ export class LoginPage {
   protected onSubmit() {
     if (this.loginForm.invalid || this.submitting()) return;
     this.submitting.set(true);
-    setTimeout(() => this.submitting.set(false), 1400);
+
+    this.authService
+      .login(this.loginForm.getRawValue())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.router.navigateByUrl('/'),
+        error: () => {
+          this.submitting.set(false);
+          this.loginForm.controls.password.reset();
+          this.toastService.error('Invalid username or password');
+        },
+      });
   }
 }

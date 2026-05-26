@@ -25,7 +25,7 @@ public class CinefyExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<?> handleBusinessException(BusinessException ex) {
-        return ExceptionResponseMaker.makeResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return ExceptionResponseMaker.makeResponse(ex.getMessage(), ex.getErrorCode(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundException.class)
