@@ -1,9 +1,9 @@
-import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { LogOut, LucideAngularModule, LucideIconData, Menu, User } from 'lucide-angular';
-import { CalendarIcon, ChevronDownIcon } from '../../shared/icons';
+import { ChevronDownIcon } from '../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import {
@@ -23,21 +23,12 @@ interface DropDownMenuItem {
 
 @Component({
   selector: 'header-component',
-  imports: [
-    LucideAngularModule,
-    NgpButton,
-    NgpMenu,
-    NgpMenuItem,
-    NgpMenuTrigger,
-    DatePipe,
-    NgTemplateOutlet,
-  ],
+  imports: [LucideAngularModule, NgpButton, NgpMenu, NgpMenuItem, NgpMenuTrigger, NgTemplateOutlet],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
 export class HeaderComponent {
   protected readonly icons = {
-    CalendarIcon,
     ChevronDownIcon,
     MenuIcon: Menu,
   };
@@ -56,7 +47,6 @@ export class HeaderComponent {
   ];
 
   protected headerActionsTemplate = this.headerActionsService.template;
-  protected currentDate = new Date();
 
   protected readonly currentStaffMember = toSignal(this.staffService.getCurrentStaffMember());
   protected readonly positionLabel = computed(() => {
