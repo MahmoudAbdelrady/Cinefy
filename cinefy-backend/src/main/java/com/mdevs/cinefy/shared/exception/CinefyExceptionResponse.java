@@ -14,5 +14,7 @@ import lombok.Setter;
 public class CinefyExceptionResponse {
     private String message;
 
+    private ErrorCode errorCode;
+
     private Object data;
 }

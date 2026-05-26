@@ -28,6 +28,8 @@ export type {
   Hall,
 } from './halls';
 
+export type { ApiError, ApiErrorCode } from './api';
+
 export type {
   LoginPayload,
   ForgotPasswordPayload,

@@ -16,6 +16,7 @@ import { InputField } from '../../../../input-field/input-field';
 import { LoadingSpinnerComponent } from '../../../../loading-spinner/loading-spinner';
 import { PasswordIcon } from '../../../../../shared/icons';
 import { PASSWORD_PATTERN } from '../../../../../shared/validation';
+import type { ApiError } from '../../../../../shared/types';
 import { AuthService } from '../../../../../services/auth';
 import { ToastService } from '../../../../../services/toast';
 
@@ -53,8 +54,10 @@ export class ResetStep {
   readonly code = input.required<string>();
 
   readonly reset = output<void>();
+  readonly requestNewCode = output<void>();
 
   protected readonly submitting = signal(false);
+  protected readonly codeRejected = signal(false);
 
   protected readonly resetForm = new FormGroup(
     {
@@ -104,8 +107,15 @@ export class ResetStep {
         },
         error: (err: HttpErrorResponse) => {
           this.submitting.set(false);
-          this.toast.error(err.error?.message ?? 'Could not reset your password. Please try again.');
+          const body = err.error as ApiError | null;
+          this.toast.error(body?.message ?? 'Could not reset your password. Please try again.');
+          if (body?.errorCode === 'OTP_INVALID') this.codeRejected.set(true);
+          if (body?.errorCode === 'PASSWORD_REUSED') this.resetForm.reset();
         },
       });
+  }
+
+  protected onRequestNewCode() {
+    this.requestNewCode.emit();
   }
 }

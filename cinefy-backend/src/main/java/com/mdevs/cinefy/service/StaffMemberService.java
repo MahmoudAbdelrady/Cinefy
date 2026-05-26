@@ -15,6 +15,7 @@ import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.entity.enums.StaffPosition;
 import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.StaffMemberRepository;
+import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.security.SecurityUtil;
@@ -155,7 +156,7 @@ public class StaffMemberService implements UserDetailsService {
         StaffMember staffMember = staffMemberRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + id));
         if (passwordEncoder.matches(rawPassword, staffMember.getPassword())) {
-            throw new BusinessException("New password must be different from the current password");
+            throw new BusinessException("New password must be different from the current password", ErrorCode.PASSWORD_REUSED);
         }
         staffMember.setPassword(passwordEncoder.encode(rawPassword));
         staffMemberRepository.save(staffMember);

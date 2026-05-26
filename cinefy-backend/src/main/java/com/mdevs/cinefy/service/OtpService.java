@@ -4,6 +4,7 @@ import com.mdevs.cinefy.entity.Otp;
 import com.mdevs.cinefy.entity.enums.OtpType;
 import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.OtpRepository;
+import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,9 +34,9 @@ public class OtpService {
 
     public Otp validate(String code, OtpType type) {
         Otp otp = otpRepository.findByCodeAndType(code, type)
-                .orElseThrow(() -> new BusinessException("Invalid code"));
+                .orElseThrow(() -> new BusinessException("Invalid or expired code", ErrorCode.OTP_INVALID));
         if (otp.getExpirationDate().isBefore(LocalDateTime.now())) {
-            throw new BusinessException("Code has expired");
+            throw new BusinessException("Invalid or expired code", ErrorCode.OTP_INVALID);
         }
         return otp;
     }

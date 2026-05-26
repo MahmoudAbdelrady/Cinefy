@@ -63,6 +63,9 @@ export class OtpStep {
         next: () => {
           this.resending.set(false);
           this.startResendCooldown();
+          this.code.set('');
+          this.error.set(null);
+          this.toast.success('We sent a new code to your email.');
         },
         error: () => {
           this.resending.set(false);

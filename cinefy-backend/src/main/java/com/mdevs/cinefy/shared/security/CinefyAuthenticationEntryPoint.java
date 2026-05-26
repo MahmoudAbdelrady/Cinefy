@@ -24,6 +24,6 @@ public class CinefyAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull AuthenticationException ex) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(response.getWriter(), new CinefyExceptionResponse("Authentication required", null));
+        objectMapper.writeValue(response.getWriter(), new CinefyExceptionResponse("Authentication required", null, null));
     }
 }
