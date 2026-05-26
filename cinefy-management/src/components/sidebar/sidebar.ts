@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   ChartColumn,
   CreditCard,
@@ -11,7 +12,8 @@ import {
   X,
 } from 'lucide-angular';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { SidebarService } from '../../services';
+import { SidebarService, StaffService } from '../../services';
+import { canAccessRoute } from '../../shared/access';
 
 interface SidebarTab {
   label: string;
@@ -30,8 +32,9 @@ export class SidebarComponent {
     XIcon: X,
   };
   protected sidebarService = inject(SidebarService);
+  private readonly staffService = inject(StaffService);
 
-  protected readonly tabs: SidebarTab[] = [
+  private static readonly ALL_TABS: SidebarTab[] = [
     { label: 'Dashboard', icon: House, path: '/' },
     { label: 'Halls', icon: LayoutDashboard, path: '/halls' },
     { label: 'Movies', icon: Film, path: '/movies' },
@@ -39,4 +42,12 @@ export class SidebarComponent {
     { label: 'Payment', icon: CreditCard, path: '/payment' },
     { label: 'Staff', icon: Users, path: '/staff' },
   ];
+
+  private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
+
+  protected readonly tabs = computed(() => {
+    const user = this.currentUser();
+    if (!user) return [];
+    return SidebarComponent.ALL_TABS.filter((tab) => canAccessRoute(tab.path, user.position));
+  });
 }
