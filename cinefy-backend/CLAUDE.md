@@ -24,7 +24,7 @@ The app won't boot without these (typically set in `application-local.properties
 - **Hibernate Envers** for entity auditing (all entities via `BaseEntity`); configured with `store_data_at_delete=true` and `global_with_modified_flag=true`
 - **Jakarta Validation** for request DTOs
 - **commons-lang3** for string utilities (`StringUtils`)
-- **Spring Security** — wired in `SecurityConfig`; currently `anyRequest().permitAll()` (CSRF off, CORS allow-list of `app.frontend.url`). `BCryptPasswordEncoder` bean exists and is used to hash staff passwords. Auth/authorization is **not yet enforced** — endpoints are open.
+- **Spring Security** — wired in `SecurityConfig` (CSRF off, CORS allow-list of `app.frontend.url`, stateless sessions, `@EnableMethodSecurity`). Authentication is JWT-in-cookie: `JwtAuthenticationFilter` reads the access-token cookie, validates it (with an `InvalidJwtService` blocklist check), and populates a `UserPrincipal`. `CinefyApiAuthorizationManager` gates `anyRequest()` — every endpoint requires an authenticated user **unless** the controller/handler is annotated `@PublicApi` (e.g. login, forgot-password). Position/role authorization is enforced per-endpoint via `@PreAuthorize("hasAnyRole(...)")` on controllers (roles map to the `StaffPosition` enum: ADMIN/MANAGER/CASHIER/USHER). Login uses a `DaoAuthenticationProvider` over `StaffMemberService` + `BCryptPasswordEncoder`.
 - **Spring Mail + Thymeleaf** starters present (mail bean wired in `AppConfig`, no email flows yet)
 - **Scheduling** — `@EnableScheduling` on `CinefyApplication`; jobs live under `job/` (`ShowtimeStatusJob` every 60s; `TmdbSyncJob` cron `0 0 3 * * *`)
 - **AOP** — `RequestLoggingAspect` (around any `@RestController`) and `TransactionLoggingAspect` (around any `@Transactional`) under `aspect/`, both delegating to `LoggingUtil`
@@ -42,7 +42,8 @@ com.mdevs.cinefy
 │   ├── database/   — CinefyTableNamingStrategy
 │   └── general/    — AppConfig (mail, env, password encoder), SecurityConfig (CORS + filter chain)
 ├── controller/     — REST controllers (@RestController)
-│                     Hall, Showtime, StaffMember, PaymentMethod, TmdbMovie
+│                     Hall, Showtime, StaffMember, PaymentMethod, TmdbMovie, ManagementAuth
+├── filter/         — JwtAuthenticationFilter (cookie JWT → SecurityContext)
 ├── dto/            — Request/response DTOs, grouped per domain
 │   ├── hall/       — HallDTO, HallDetailDTO, HallLayoutDTO, HallSummaryDTO,
 │   │                  HallReferenceDTO, HallTypeDTO, HallStatisticsDTO,
@@ -54,9 +55,11 @@ com.mdevs.cinefy
 │   │                  ShowtimesStatisticsDTO, PublishShowtimesDTO
 │   ├── staff/      — StaffMemberDTO, StaffMemberDetailDTO, StaffMemberSummaryDTO,
 │   │                  PositionCoverageDTO, PositionCoverageItemDTO, PositionCoverageProjection
-│   └── payment/    — PaymentMethodDTO, PaymentMethodDetailDTO, PaymentMethodSummaryDTO,
-│                      PaymentMethodStatusRequestDTO, PaymentMethodTestResultDTO,
-│                      TestConnectionRequestDTO
+│   ├── payment/    — PaymentMethodDTO, PaymentMethodDetailDTO, PaymentMethodSummaryDTO,
+│   │                  PaymentMethodStatusRequestDTO, PaymentMethodTestResultDTO,
+│   │                  TestConnectionRequestDTO
+│   └── auth/       — ManagementLoginDTO, ForgotPasswordDTO, VerifyResetCodeDTO,
+│                      ResetPasswordDTO, TokenPairDTO
 ├── entity/         — JPA entities (@Entity / @MappedSuperclass)
 │                     Hall, HallType, HallCategoryPrice, Seat, Showtime, TmdbMovie,
 │                     User (MappedSuperclass), StaffMember, PaymentMethod, InvalidJwt, Otp
@@ -66,15 +69,20 @@ com.mdevs.cinefy
 │                     PaymentMethodType, PaymentProvider, UserType, OtpType
 ├── repository/     — Spring Data JPA repositories (extend BaseRepository)
 ├── service/        — Business logic (HallService, ShowtimeService, StaffMemberService,
-│                     PaymentMethodService, TmdbMovieService)
+│                     PaymentMethodService, TmdbMovieService, ManagementAuthService,
+│                     OtpService, EmailService, InvalidJwtService)
 ├── aspect/         — RequestLoggingAspect, TransactionLoggingAspect
 ├── job/            — Scheduled jobs: ShowtimeStatusJob, TmdbSyncJob
 ├── shared/
+│   ├── annotation/ — @PublicApi (marks endpoints that skip authentication)
 │   ├── exception/  — Global @RestControllerAdvice + exception types
-│   │                 (Business, NotFound, Forbidden, Unauthorized)
+│   │                 (Business, NotFound, Forbidden, Unauthorized) + ErrorCode
 │   ├── payment/    — PaymobClient (RestClient wrapper for Paymob test-connection)
-│   └── security/   — CredentialCipher (AES-256-GCM for payment secrets)
-└── utils/          — ExceptionResponseMaker, LoggingUtil, TmdbGenres
+│   ├── security/   — JwtUtil, JwtClaims, TokenType, UserPrincipal, SecurityUtil,
+│   │                 CinefyApiAuthorizationManager, CinefyAuthenticationEntryPoint,
+│   │                 CredentialCipher (AES-256-GCM for payment secrets)
+│   └── validation/ — ValidationPatterns (shared regex constants for DTO @Pattern)
+└── utils/          — ExceptionResponseMaker, LoggingUtil, TmdbGenres, CookieUtil
 ```
 
 ## Key Patterns
@@ -160,7 +168,10 @@ Both delegate to `LoggingUtil.proceedWithLogging(...)`. Don't add ad-hoc `log.in
 
 ### Security & Encryption
 
-- `SecurityConfig` builds the `SecurityFilterChain`: CSRF disabled, CORS allow-list bound to `AppConfig.getFrontendUrl()`, `anyRequest().permitAll()` (no auth gate yet). When endpoint-level authorization is introduced, replace `permitAll()` with explicit rules and add `@PreAuthorize` on services.
+- `SecurityConfig` builds the `SecurityFilterChain`: CSRF disabled, CORS allow-list bound to `AppConfig.getFrontendUrl()`, stateless sessions, `@EnableMethodSecurity`, a custom `JwtAuthenticationFilter` before `UsernamePasswordAuthenticationFilter`, and `anyRequest().access(apiAuthorizationManager)`.
+- `CinefyApiAuthorizationManager` (`AuthorizationManager<RequestAuthorizationContext>`) resolves the target handler and allows the request when it (or its controller) carries `@PublicApi`; otherwise it requires a non-anonymous authenticated principal. Mark new unauthenticated endpoints with `@PublicApi`.
+- `JwtAuthenticationFilter` extracts the access token from the `ACCESS_TOKEN_COOKIE`, parses it via `JwtUtil`, skips blocklisted tokens (`InvalidJwtService`), and sets a `UserPrincipal` authentication. Auth is stateless — no server session.
+- Endpoint authorization uses `@PreAuthorize("hasAnyRole(...)")` on controllers, keyed to `StaffPosition` (`ADMIN`, `MANAGER`, `CASHIER`, `USHER`). When adding an endpoint, put the role rule on the controller method/class (not the service) to match the existing pattern. `CinefyAuthenticationEntryPoint` returns the 401 body for unauthenticated requests.
 - `BCryptPasswordEncoder` bean (in `AppConfig`) — used by `StaffMemberService` when storing/updating `password`.
 - `CredentialCipher` (AES-256-GCM, `cinefy.encryption.key` required, Base64-encoded 32-byte key) — encrypts payment-method secrets (`secretKey`, `hmacKey`) at rest. The cipher output prepends a fresh IV per call and tags the value with the GCM authentication tag.
 
@@ -261,6 +272,20 @@ Enums expose a static `fromString(String)` for parsing from API input — use it
 Seat positions are strings matching `^([A-Z]+)([0-9]+)$` (e.g. `A1`, `AA15`). `HallService` defines `POSITION_PATTERN`, `toRowIndex(label)`, and `toRowLabel(index)` for converting between Excel-style row labels and 1-based indices. `mergeSeats` and `mergeCategoryPrices` perform in-place upserts (mutate matching rows, add new ones, `removeIf` the leftovers) so Envers doesn't record delete+insert churn on every update.
 
 ## API Endpoints
+
+### `/management/auth` — ManagementAuthController
+
+All endpoints `@PublicApi` (skip authentication) **except** `/logout`. Tokens are set/cleared as HTTP-only cookies (`ACCESS_TOKEN_COOKIE`, `REFRESH_TOKEN_COOKIE`).
+
+| Method | Path                                 | Input                  | Output / Effect                                  |
+| ------ | ------------------------------------ | ---------------------- | ------------------------------------------------ |
+| POST   | `/management/auth/login`             | ManagementLoginDTO     | 200 + sets access/refresh cookies                |
+| POST   | `/management/auth/refresh`           | refresh cookie         | 200 + new access cookie (rotates refresh if any) |
+| GET    | `/management/auth/session`           | refresh cookie         | 200 if valid, else 401                           |
+| POST   | `/management/auth/logout`            | access/refresh cookies | 200 + clears cookies (blocklists tokens)         |
+| POST   | `/management/auth/forgot-password`   | ForgotPasswordDTO      | 204 (emails reset OTP)                           |
+| POST   | `/management/auth/verify-reset-code` | VerifyResetCodeDTO     | 204 (validates OTP)                              |
+| POST   | `/management/auth/reset-password`    | ResetPasswordDTO       | 204 (consumes OTP, sets new password)            |
 
 ### `/halls` — HallController
 

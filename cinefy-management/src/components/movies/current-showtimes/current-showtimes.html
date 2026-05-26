@@ -34,32 +34,36 @@
                 <h5>{{ item.totalShowtimes }}</h5>
                 <span>{{ item.totalShowtimes === 1 ? 'Showtime' : 'Showtimes' }}</span>
               </div>
-              <div class="shias-drafts">
-                {{ item.totalDraftShowtimes }}
-                {{
-                  item.totalDraftShowtimes > 1 || item.totalDraftShowtimes === 0
-                    ? 'Drafts'
-                    : 'Draft'
-                }}
-              </div>
+              @if (canManage()) {
+                <div class="shias-drafts">
+                  {{ item.totalDraftShowtimes }}
+                  {{
+                    item.totalDraftShowtimes > 1 || item.totalDraftShowtimes === 0
+                      ? 'Drafts'
+                      : 'Draft'
+                  }}
+                </div>
+              }
             </div>
             <div class="shia-buttons">
               <button ngpButton [ngpDialogTrigger]="viewShowtimesDialog">View Showtimes</button>
-              <button ngpButton [ngpDialogTrigger]="addShowtimeDialog">
-                <lucide-icon [img]="icons.PlusIcon"></lucide-icon>
-                <span>Add Showtime</span>
-              </button>
-              <button
-                ngpButton
-                [ngpDialogTrigger]="deleteDialog"
-                [disabled]="deletingShowtimeIds().has(shMovie.id)"
-              >
-                @if (deletingShowtimeIds().has(shMovie.id)) {
-                  <loading-spinner variant="sm" />
-                } @else {
-                  <lucide-icon [img]="icons.DeleteIcon" [size]="18"></lucide-icon>
-                }
-              </button>
+              @if (canManage()) {
+                <button ngpButton [ngpDialogTrigger]="addShowtimeDialog">
+                  <lucide-icon [img]="icons.PlusIcon"></lucide-icon>
+                  <span>Add Showtime</span>
+                </button>
+                <button
+                  ngpButton
+                  [ngpDialogTrigger]="deleteDialog"
+                  [disabled]="deletingShowtimeIds().has(shMovie.id)"
+                >
+                  @if (deletingShowtimeIds().has(shMovie.id)) {
+                    <loading-spinner variant="sm" />
+                  } @else {
+                    <lucide-icon [img]="icons.DeleteIcon" [size]="18"></lucide-icon>
+                  }
+                </button>
+              }
             </div>
           </div>
 

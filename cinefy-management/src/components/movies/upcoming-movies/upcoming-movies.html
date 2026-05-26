@@ -39,9 +39,11 @@
                 <span>{{ releaseDate }}</span>
               </div>
             }
-            <div class="mc-actions">
-              <button ngpButton [ngpDialogTrigger]="scheduleDialog">Schedule Showtimes</button>
-            </div>
+            @if (canManage()) {
+              <div class="mc-actions">
+                <button ngpButton [ngpDialogTrigger]="scheduleDialog">Schedule Showtimes</button>
+              </div>
+            }
 
             <ng-template #scheduleDialog let-close="close">
               <manage-showtime-modal

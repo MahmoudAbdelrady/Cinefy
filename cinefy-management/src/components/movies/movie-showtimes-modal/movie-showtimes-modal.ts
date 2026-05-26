@@ -13,7 +13,7 @@ import {
   viewChildren,
   WritableSignal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ModalComponent } from '../../modal/modal';
@@ -33,7 +33,13 @@ import { LucideAngularModule, MapPin, Send, StickyNote } from 'lucide-angular';
 import { DeleteIcon, EditIcon, PlusIcon, WarningIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { ShowtimeEventsService, ShowtimesService, ToastService } from '../../../services';
+import {
+  ShowtimeEventsService,
+  ShowtimesService,
+  StaffService,
+  ToastService,
+} from '../../../services';
+import { canManage as canManagePosition } from '../../../shared/access';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 
 @Component({
@@ -68,8 +74,15 @@ export class MovieShowtimesModal {
 
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
+  private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
+  protected readonly canManage = computed(() => {
+    const user = this.currentUser();
+    return user ? canManagePosition(user.position) : false;
+  });
 
   private readonly noteEls = viewChildren<ElementRef<HTMLElement>>('noteText');
 

@@ -42,43 +42,47 @@
                       <lucide-icon [img]="icons.LocationIcon" [size]="14"></lucide-icon>
                       <span>{{ showtimeDetail.hall.name }}</span>
                     </div>
-                    <span class="dsid-status" [attr.data-status]="showtimeDetail.status">
-                      {{ statusLabels[showtimeDetail.status] }}
-                    </span>
+                    @if (canManage()) {
+                      <span class="dsid-status" [attr.data-status]="showtimeDetail.status">
+                        {{ statusLabels[showtimeDetail.status] }}
+                      </span>
+                    }
                   </div>
-                  <div class="dsi-actions">
-                    @if (showtimeDetail.status === 'DRAFT') {
+                  @if (canManage()) {
+                    <div class="dsi-actions">
+                      @if (showtimeDetail.status === 'DRAFT') {
+                        <button
+                          ngpButton
+                          class="dsi-action dsi-action-publish"
+                          title="Publish"
+                          [disabled]="publishingShowtimeIds().has(showtimeDetail.id)"
+                          (click)="onPublishShowtime(showtimeDetail.id)"
+                        >
+                          @if (publishingShowtimeIds().has(showtimeDetail.id)) {
+                            <loading-spinner variant="xs" />
+                          } @else {
+                            <lucide-icon [img]="icons.PublishIcon" [size]="14"></lucide-icon>
+                          }
+                        </button>
+                      }
                       <button
                         ngpButton
-                        class="dsi-action dsi-action-publish"
-                        title="Publish"
-                        [disabled]="publishingShowtimeIds().has(showtimeDetail.id)"
-                        (click)="onPublishShowtime(showtimeDetail.id)"
+                        class="dsi-action dsi-action-edit"
+                        title="Edit"
+                        (click)="onEditShowtime(showtimeDetail)"
                       >
-                        @if (publishingShowtimeIds().has(showtimeDetail.id)) {
-                          <loading-spinner variant="xs" />
-                        } @else {
-                          <lucide-icon [img]="icons.PublishIcon" [size]="14"></lucide-icon>
-                        }
+                        <lucide-icon [img]="icons.EditIcon" [size]="14"></lucide-icon>
                       </button>
-                    }
-                    <button
-                      ngpButton
-                      class="dsi-action dsi-action-edit"
-                      title="Edit"
-                      (click)="onEditShowtime(showtimeDetail)"
-                    >
-                      <lucide-icon [img]="icons.EditIcon" [size]="14"></lucide-icon>
-                    </button>
-                    <button
-                      ngpButton
-                      class="dsi-action dsi-action-delete"
-                      title="Delete"
-                      [ngpDialogTrigger]="deleteDialog"
-                    >
-                      <lucide-icon [img]="icons.DeleteIcon" [size]="14"></lucide-icon>
-                    </button>
-                  </div>
+                      <button
+                        ngpButton
+                        class="dsi-action dsi-action-delete"
+                        title="Delete"
+                        [ngpDialogTrigger]="deleteDialog"
+                      >
+                        <lucide-icon [img]="icons.DeleteIcon" [size]="14"></lucide-icon>
+                      </button>
+                    </div>
+                  }
 
                   <ng-template #deleteDialog let-close="close">
                     <app-modal modalTitle="Delete Showtime" [close]="close" width="448px">
@@ -171,7 +175,7 @@
       </div>
     </div>
   }
-  @if (!loadingDates() && movieShowtimes(); as data) {
+  @if (canManage() && !loadingDates() && movieShowtimes(); as data) {
     <div
       modal-footer
       class="movie-showtimes-footer"

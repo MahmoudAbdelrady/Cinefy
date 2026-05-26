@@ -1,15 +1,17 @@
 import {
   afterNextRender,
   Component,
+  computed,
   DestroyRef,
   effect,
   inject,
   signal,
   untracked,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { EditableShowtime, MovieWithShowtimes, Showtime } from '../../../shared/types';
+import { canManage as canManagePosition } from '../../../shared/access';
 import { LucideAngularModule } from 'lucide-angular';
 import { DeleteIcon, PlusIcon, WarningIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
@@ -18,7 +20,12 @@ import { ModalComponent } from '../../modal/modal';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
-import { ShowtimeEventsService, ShowtimesService, ToastService } from '../../../services';
+import {
+  ShowtimeEventsService,
+  ShowtimesService,
+  StaffService,
+  ToastService,
+} from '../../../services';
 
 @Component({
   selector: 'current-showtimes',
@@ -43,8 +50,15 @@ export class CurrentShowtimesComponent {
 
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
+  private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
+  protected readonly canManage = computed(() => {
+    const user = this.currentUser();
+    return user ? canManagePosition(user.position) : false;
+  });
 
   protected readonly loading = signal(true);
   protected readonly editingShowtime = signal<EditableShowtime | null>(null);
