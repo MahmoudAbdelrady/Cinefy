@@ -39,8 +39,8 @@ public class ManagementAuthController {
     public ResponseEntity<Void> login(@Valid @RequestBody ManagementLoginDTO dto) {
         TokenPairDTO tokens = managementAuthService.login(dto);
 
-        ResponseCookie accessTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.ACCESS_TOKEN_COOKIE, tokens.accessToken(), accessTokenExpiration, false);
-        ResponseCookie refreshTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.REFRESH_TOKEN_COOKIE, tokens.refreshToken(), refreshTokenExpiration, true);
+        ResponseCookie accessTokenCookie = cookieUtil.buildAccessTokenCookie(tokens.accessToken(), accessTokenExpiration);
+        ResponseCookie refreshTokenCookie = cookieUtil.buildRefreshTokenCookie(tokens.refreshToken(), refreshTokenExpiration);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
@@ -53,12 +53,12 @@ public class ManagementAuthController {
     public ResponseEntity<Void> refresh(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
         TokenPairDTO tokens = managementAuthService.refresh(refreshToken);
 
-        ResponseCookie accessTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.ACCESS_TOKEN_COOKIE, tokens.accessToken(), accessTokenExpiration, false);
+        ResponseCookie accessTokenCookie = cookieUtil.buildAccessTokenCookie(tokens.accessToken(), accessTokenExpiration);
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
         if (StringUtils.isNotEmpty(tokens.refreshToken())) {
-            ResponseCookie refreshTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.REFRESH_TOKEN_COOKIE, tokens.refreshToken(), refreshTokenExpiration, true);
+            ResponseCookie refreshTokenCookie = cookieUtil.buildRefreshTokenCookie(tokens.refreshToken(), refreshTokenExpiration);
             responseBuilder.header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         }
 
@@ -77,8 +77,8 @@ public class ManagementAuthController {
                                        @CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE) String refreshToken) {
         managementAuthService.logout(accessToken, refreshToken);
 
-        ResponseCookie clearedAccessTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.ACCESS_TOKEN_COOKIE, "", 0, false);
-        ResponseCookie clearedRefreshTokenCookie = cookieUtil.buildTokenCookie(JwtUtil.REFRESH_TOKEN_COOKIE, "", 0, true);
+        ResponseCookie clearedAccessTokenCookie = cookieUtil.buildAccessTokenCookie("", 0);
+        ResponseCookie clearedRefreshTokenCookie = cookieUtil.buildRefreshTokenCookie("", 0);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, clearedAccessTokenCookie.toString())
