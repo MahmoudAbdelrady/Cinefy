@@ -6,6 +6,10 @@ const STAFF_POSITION_LABELS = {
 
 type StaffPosition = keyof typeof STAFF_POSITION_LABELS;
 
+const USER_POSITION_LABELS = { ADMIN: 'Administrator', ...STAFF_POSITION_LABELS } as const;
+
+type UserPosition = keyof typeof USER_POSITION_LABELS;
+
 const EMPLOYMENT_TYPE_LABELS = {
   FULL_TIME: 'Full-time',
   PART_TIME: 'Part-time',
@@ -73,7 +77,7 @@ interface CurrentStaffMember {
   firstName: string;
   lastName: string;
   fullName: string;
-  position: StaffPosition | 'ADMIN';
+  position: UserPosition;
 }
 
 interface StaffMemberPayload {
@@ -106,7 +110,7 @@ type CoverageChange =
   | { action: 'delete'; position: StaffPosition }
   | { action: 'reassign'; from: StaffPosition; to: StaffPosition };
 
-export { STAFF_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS };
+export { STAFF_POSITION_LABELS, USER_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS };
 export type {
   StaffMember,
   StaffMemberSummary,
@@ -114,6 +118,7 @@ export type {
   CurrentStaffMember,
   StaffMemberPayload,
   StaffPosition,
+  UserPosition,
   EmploymentType,
   WeekDay,
   PositionCoverage,

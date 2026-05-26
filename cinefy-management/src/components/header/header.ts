@@ -13,9 +13,7 @@ import {
   StaffService,
   ToastService,
 } from '../../services';
-import { STAFF_POSITION_LABELS } from '../../shared/types';
-
-const POSITION_LABELS = { ADMIN: 'Administrator', ...STAFF_POSITION_LABELS } as const;
+import { USER_POSITION_LABELS } from '../../shared/types';
 
 interface DropDownMenuItem {
   icon: LucideIconData;
@@ -63,7 +61,7 @@ export class HeaderComponent {
   protected readonly currentStaffMember = toSignal(this.staffService.getCurrentStaffMember());
   protected readonly positionLabel = computed(() => {
     const position = this.currentStaffMember()?.position;
-    return position ? POSITION_LABELS[position] : '';
+    return position ? USER_POSITION_LABELS[position] : '';
   });
   protected readonly initials = computed(() => {
     const user = this.currentStaffMember();
