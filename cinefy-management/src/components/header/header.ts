@@ -78,7 +78,10 @@ export class HeaderComponent {
       .logout()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.router.navigateByUrl('/login'),
+        next: () => {
+          this.staffService.clearCurrentStaffMember();
+          this.router.navigateByUrl('/login');
+        },
         error: () => this.toastService.error('Failed to log out'),
       });
   }

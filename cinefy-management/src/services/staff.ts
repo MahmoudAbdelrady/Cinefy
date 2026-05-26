@@ -18,8 +18,14 @@ export class StaffService {
   private currentStaffMember$?: Observable<CurrentStaffMember>;
 
   getCurrentStaffMember(): Observable<CurrentStaffMember> {
-    this.currentStaffMember$ ??= this.http.get<CurrentStaffMember>('/staff/me');
+    this.currentStaffMember$ ??= this.http
+      .get<CurrentStaffMember>('/staff/me')
+      .pipe(shareReplay(1));
     return this.currentStaffMember$;
+  }
+
+  clearCurrentStaffMember(): void {
+    this.currentStaffMember$ = undefined;
   }
 
   getStaffMembers(
