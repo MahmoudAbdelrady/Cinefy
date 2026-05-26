@@ -19,6 +19,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/management/auth")
 @RequiredArgsConstructor
@@ -41,10 +43,12 @@ public class ManagementAuthController {
 
         ResponseCookie accessTokenCookie = cookieUtil.buildAccessTokenCookie(tokens.accessToken(), accessTokenExpiration);
         ResponseCookie refreshTokenCookie = cookieUtil.buildRefreshTokenCookie(tokens.refreshToken(), refreshTokenExpiration);
+        ResponseCookie csrfTokenCookie = cookieUtil.buildCsrfTokenCookie(UUID.randomUUID().toString(), refreshTokenExpiration);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, csrfTokenCookie.toString())
                 .build();
     }
 
@@ -79,10 +83,12 @@ public class ManagementAuthController {
 
         ResponseCookie clearedAccessTokenCookie = cookieUtil.buildAccessTokenCookie("", 0);
         ResponseCookie clearedRefreshTokenCookie = cookieUtil.buildRefreshTokenCookie("", 0);
+        ResponseCookie clearedCsrfTokenCookie = cookieUtil.buildCsrfTokenCookie("", 0);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, clearedAccessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, clearedRefreshTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, clearedCsrfTokenCookie.toString())
                 .build();
     }
 

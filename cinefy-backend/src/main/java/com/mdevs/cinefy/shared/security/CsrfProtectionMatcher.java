@@ -4,34 +4,35 @@ import com.mdevs.cinefy.shared.annotation.PublicApi;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.AuthorizationResult;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import java.util.function.Supplier;
+import java.util.Set;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CinefyApiAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
+public class CsrfProtectionMatcher implements RequestMatcher {
+
+    public static final String CSRF_TOKEN_COOKIE = "XSRF-TOKEN";
+
+    public static final String CSRF_TOKEN_HEADER = "X-XSRF-TOKEN";
+
+    private static final Set<String> SAFE_METHODS = Set.of("GET", "HEAD", "OPTIONS", "TRACE");
 
     @Qualifier("requestMappingHandlerMapping")
     private final RequestMappingHandlerMapping handlerMapping;
 
     @Override
-    public AuthorizationResult authorize(@NonNull Supplier<? extends Authentication> authentication, @NonNull RequestAuthorizationContext context) {
-        if (isPublic(context.getRequest())) {
-            return new AuthorizationDecision(true);
+    public boolean matches(HttpServletRequest request) {
+        if (SAFE_METHODS.contains(request.getMethod())) {
+            return false;
         }
-        return new AuthorizationDecision(SecurityUtil.isAuthenticated(authentication.get()));
+        return !isPublic(request);
     }
 
     private boolean isPublic(HttpServletRequest request) {
@@ -41,7 +42,7 @@ public class CinefyApiAuthorizationManager implements AuthorizationManager<Reque
                 return handlerMethod.hasMethodAnnotation(PublicApi.class) || handlerMethod.getBeanType().isAnnotationPresent(PublicApi.class);
             }
         } catch (Exception ex) {
-            log.warn("Could not resolve handler for {} — treating as non-public", request.getRequestURI(), ex);
+            log.warn("Could not resolve handler for {} — requiring CSRF protection", request.getRequestURI(), ex);
         }
         return false;
     }

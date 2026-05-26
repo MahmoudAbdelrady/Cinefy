@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.config.general;
 
+import com.mdevs.cinefy.filter.CsrfValidationFilter;
 import com.mdevs.cinefy.filter.JwtAuthenticationFilter;
 import com.mdevs.cinefy.service.StaffMemberService;
 import com.mdevs.cinefy.shared.security.CinefyAuthenticationEntryPoint;
@@ -36,6 +37,8 @@ public class SecurityConfig {
 
     private final CinefyAuthenticationEntryPoint authenticationEntryPoint;
 
+    private final CsrfValidationFilter csrfValidationFilter;
+
     @Bean
     public AuthenticationManager managementAuthenticationManager() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(staffMemberService);
@@ -59,7 +62,8 @@ public class SecurityConfig {
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .authorizeHttpRequests(auth -> auth.anyRequest().access(apiAuthorizationManager))
                     .exceptionHandling(handling -> handling.authenticationEntryPoint(authenticationEntryPoint))
-                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                    .addFilterAfter(csrfValidationFilter, UsernamePasswordAuthenticationFilter.class);
 
             return httpSecurity.build();
         } catch (Exception e) {
