@@ -28,7 +28,12 @@ export type {
   Hall,
 } from './halls';
 
-export type { LoginPayload } from './auth';
+export type {
+  LoginPayload,
+  ForgotPasswordPayload,
+  VerifyResetCodePayload,
+  ResetPasswordPayload,
+} from './auth';
 
 export type { Movie, MovieSearchResult, MovieDetail } from './movies';
 

@@ -23,9 +23,18 @@
       }
 
       <p class="fp-otp-meta">
-        Didn't get a code?
-        <!-- Todo: disable the button and show "Resend in 14:32" while a cooldown is active -->
-        <button type="button" class="fp-otp-resend">Resend</button>
+        <span>Didn't get a code?</span>
+        @if (resendCountdown() > 0) {
+          <span class="fp-otp-cooldown">{{ resendLabel() }}</span>
+        } @else {
+          <button type="button" class="fp-otp-resend" [disabled]="resending()" (click)="onResend()">
+            @if (resending()) {
+              Sending…
+            } @else {
+              Resend code
+            }
+          </button>
+        }
       </p>
 
       <button ngpButton type="submit" class="fp-submit" [disabled]="!complete() || verifying()">

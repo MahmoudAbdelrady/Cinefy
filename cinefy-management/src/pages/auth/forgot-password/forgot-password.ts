@@ -17,13 +17,15 @@ import {
 export class ForgotPasswordPage {
   protected readonly stage = signal<ForgotPasswordStage>('request');
   protected readonly username = signal('');
+  protected readonly code = signal('');
 
   protected onRequested(username: string) {
     this.username.set(username);
     this.stage.set('otp');
   }
 
-  protected onVerified() {
+  protected onVerified(code: string) {
+    this.code.set(code);
     this.stage.set('reset');
   }
 

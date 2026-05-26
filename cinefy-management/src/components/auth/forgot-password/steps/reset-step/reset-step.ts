@@ -1,4 +1,5 @@
-import { Component, computed, output, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   AbstractControl,
   FormControl,
@@ -7,7 +8,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ArrowRight, CircleAlert, CircleCheck, LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
@@ -15,6 +16,8 @@ import { InputField } from '../../../../input-field/input-field';
 import { LoadingSpinnerComponent } from '../../../../loading-spinner/loading-spinner';
 import { PasswordIcon } from '../../../../../shared/icons';
 import { PASSWORD_PATTERN } from '../../../../../shared/validation';
+import { AuthService } from '../../../../../services/auth';
+import { ToastService } from '../../../../../services/toast';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const newPassword = group.get('newPassword')?.value;
@@ -42,6 +45,12 @@ export class ResetStep {
     CheckIcon: CircleCheck,
     AlertIcon: CircleAlert,
   };
+
+  private readonly authService = inject(AuthService);
+  private readonly toast = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly code = input.required<string>();
 
   readonly reset = output<void>();
 
@@ -85,9 +94,18 @@ export class ResetStep {
   protected onSubmit() {
     if (!this.canSubmit()) return;
     this.submitting.set(true);
-    setTimeout(() => {
-      this.submitting.set(false);
-      this.reset.emit();
-    }, 1200);
+    this.authService
+      .resetPassword({ code: this.code(), newPassword: this.resetForm.controls.newPassword.value })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.submitting.set(false);
+          this.reset.emit();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.submitting.set(false);
+          this.toast.error(err.error?.message ?? 'Could not reset your password. Please try again.');
+        },
+      });
   }
 }

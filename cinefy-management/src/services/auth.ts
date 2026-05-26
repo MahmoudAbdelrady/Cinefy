@@ -1,7 +1,12 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
-import type { LoginPayload } from '../shared/types';
+import type {
+  LoginPayload,
+  ForgotPasswordPayload,
+  VerifyResetCodePayload,
+  ResetPasswordPayload,
+} from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -23,6 +28,18 @@ export class AuthService {
     return this.http
       .post<void>('/management/auth/logout', null)
       .pipe(tap(() => this.authStatus.set(false)));
+  }
+
+  forgotPassword(data: ForgotPasswordPayload): Observable<void> {
+    return this.http.post<void>('/management/auth/forgot-password', data);
+  }
+
+  verifyResetCode(data: VerifyResetCodePayload): Observable<void> {
+    return this.http.post<void>('/management/auth/verify-reset-code', data);
+  }
+
+  resetPassword(data: ResetPasswordPayload): Observable<void> {
+    return this.http.post<void>('/management/auth/reset-password', data);
   }
 
   isAuthenticated(): Observable<boolean> {
