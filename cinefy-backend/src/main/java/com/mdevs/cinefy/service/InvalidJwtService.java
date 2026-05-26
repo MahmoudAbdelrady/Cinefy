@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +32,8 @@ public class InvalidJwtService {
     public boolean tryInvalidate(String token) {
         try {
             return self.blocklist(token);
-        } catch (UnexpectedRollbackException ex) {
+        } catch (DataIntegrityViolationException ex) {
+            // A concurrent request may blocklist the same jti and the token is already invalidated
             return false;
         }
     }
@@ -54,12 +54,7 @@ public class InvalidJwtService {
         invalidJwt.setJti(claims.getId());
         invalidJwt.setType(jwtUtil.getTokenType(claims));
         invalidJwt.setExpirationDate(jwtUtil.getExpiration(claims));
-        try {
-            invalidJwtRepository.saveAndFlush(invalidJwt);
-            return true;
-        } catch (DataIntegrityViolationException ex) {
-            // A concurrent request blocklisted the same jti and the token is already invalidated.
-            return false;
-        }
+        invalidJwtRepository.saveAndFlush(invalidJwt);
+        return true;
     }
 }
