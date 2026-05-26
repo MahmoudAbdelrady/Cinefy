@@ -6,6 +6,7 @@ import { StaffPage } from './staff/staff';
 import { AccessDeniedPage } from './access-denied/access-denied';
 import { LoginPage } from './auth/login/login';
 import { ForgotPasswordPage } from './auth/forgot-password/forgot-password';
+import { ProfilePage } from './profile/profile';
 
 export {
   DashboardPage,
@@ -16,4 +17,5 @@ export {
   AccessDeniedPage,
   LoginPage,
   ForgotPasswordPage,
+  ProfilePage,
 };

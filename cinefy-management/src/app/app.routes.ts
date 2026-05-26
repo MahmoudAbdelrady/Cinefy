@@ -11,6 +11,7 @@ import {
   LoginPage,
   ForgotPasswordPage,
   AccessDeniedPage,
+  ProfilePage,
 } from '../pages';
 
 export const routes: Routes = [
@@ -59,6 +60,14 @@ export const routes: Routes = [
       },
       {
         path: 'staff',
+        component: AccessDeniedPage,
+      },
+      {
+        path: 'profile',
+        component: ProfilePage,
+      },
+      {
+        path: 'profile',
         component: AccessDeniedPage,
       },
     ],
