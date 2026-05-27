@@ -54,7 +54,8 @@ com.mdevs.cinefy
 │   │                  MovieShowtimeCountProjection, MovieWithShowtimesDTO,
 │   │                  ShowtimesStatisticsDTO, PublishShowtimesDTO
 │   ├── staff/      — StaffMemberDTO, StaffMemberDetailDTO, StaffMemberSummaryDTO,
-│   │                  PositionCoverageDTO, PositionCoverageItemDTO, PositionCoverageProjection
+│   │                  PositionCoverageDTO, PositionCoverageItemDTO, PositionCoverageProjection,
+│   │                  CurrentStaffMemberDTO, UpdateProfileDTO, ChangePasswordDTO (self-service /staff/me)
 │   ├── payment/    — PaymentMethodDTO, PaymentMethodDetailDTO, PaymentMethodSummaryDTO,
 │   │                  PaymentMethodStatusRequestDTO, PaymentMethodTestResultDTO,
 │   │                  TestConnectionRequestDTO
@@ -346,16 +347,21 @@ Note: `{id}` is the raw TMDB id, **not** a uuid — `TmdbMovie` isn't a `BaseEnt
 
 ### `/staff` — StaffMemberController
 
-| Method | Path                       | Input          | Output                      |
-| ------ | -------------------------- | -------------- | --------------------------- |
-| GET    | `/staff`                   | ?search, page  | Page<StaffMemberSummaryDTO> |
-| GET    | `/staff/position-coverage` |                | PositionCoverageDTO         |
-| GET    | `/staff/{uuid}`            |                | StaffMemberDetailDTO        |
-| POST   | `/staff`                   | StaffMemberDTO | StaffMemberSummaryDTO       |
-| PUT    | `/staff/{uuid}`            | StaffMemberDTO | StaffMemberSummaryDTO       |
-| DELETE | `/staff/{uuid}`            |                | 204                         |
+Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. The self-service `/staff/me` endpoints and `GET /staff/{uuid}` override it with `@PreAuthorize("isAuthenticated()")` so any logged-in staff member can reach them (the per-row view/edit rules are then enforced in the service — see _Admin Account Policy_).
 
-Phone numbers in `StaffMemberDTO` are validated/normalized with Google libphonenumber before persistence.
+| Method | Path                       | Input             | Output / Effect                                    |
+| ------ | -------------------------- | ----------------- | -------------------------------------------------- |
+| GET    | `/staff`                   | ?search, page     | Page<StaffMemberSummaryDTO> (ADMIN/MANAGER)        |
+| GET    | `/staff/me`                | —                 | CurrentStaffMemberDTO (any authenticated staff)    |
+| PUT    | `/staff/me`                | UpdateProfileDTO  | StaffMemberDetailDTO (own name/phone)              |
+| PUT    | `/staff/me/password`       | ChangePasswordDTO | 204 (own password; `updatePassword`)               |
+| GET    | `/staff/position-coverage` |                   | PositionCoverageDTO (ADMIN/MANAGER)                |
+| GET    | `/staff/{uuid}`            |                   | StaffMemberDetailDTO (isAuthenticated + view rule) |
+| POST   | `/staff`                   | StaffMemberDTO    | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
+| PUT    | `/staff/{uuid}`            | StaffMemberDTO    | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
+| DELETE | `/staff/{uuid}`            |                   | 204 (ADMIN/MANAGER)                                |
+
+Phone numbers in `StaffMemberDTO` / `UpdateProfileDTO` are validated/normalized with Google libphonenumber before persistence. The `/staff/me` mutations (`updateProfile`, `updatePassword`) still call `validateNotAdminAccount(...)` — the admin row is not self-editable even by the admin.
 
 ### `/payment-methods` — PaymentMethodController
 

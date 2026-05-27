@@ -19,11 +19,16 @@ pnpm test                                     # Run tests (Karma)
 ```
 src/
 ├── app/
-│   ├── core/interceptors/base-url.ts   # Prepends environment apiUrl to HTTP requests
+│   ├── core/interceptors/              # HTTP interceptors (registered in app.config.ts, in order)
+│   │   ├── base-url.ts                 # Prepends environment apiUrl to relative HTTP requests
+│   │   ├── csrf.ts                     # Attaches CSRF token to mutating requests
+│   │   └── auth-retry.ts               # On 401, refreshes the access token and retries once
 │   ├── app.ts                          # Root component
-│   ├── app.routes.ts                   # Route definitions
-│   └── app.config.ts                   # Providers (router, HTTP, toast)
+│   ├── app.routes.ts                   # Route definitions (AppLayout + AuthLayout, guarded)
+│   └── app.config.ts                   # Providers (router, HTTP + interceptors, toast, menu)
 ├── components/                         # Reusable UI components
+│   ├── auth/                           # forgot-password (progress-dots + steps: request/otp/reset/done),
+│   │                                   #   input-otp
 │   ├── dashboard/                      # now-showing, today-schedule, upcoming-movies-widget
 │   ├── date-time/                      # date-picker, time-picker, date-time-picker
 │   ├── drop-down/
@@ -42,12 +47,14 @@ src/
 │   │   ├── manage-payment-modal/       # Wizard for create/edit payment method
 │   │   ├── payment-method-list/        # List + status toggles
 │   │   └── steps/                      # identity, credentials, integration, review
+│   ├── profile/                        # profile-identity, profile-personal-details, profile-password
 │   ├── staff/
 │   │   ├── manage-staff-modal/         # Create/edit staff member form
 │   │   ├── staff-details/              # Read-only staff detail view
 │   │   ├── staff-list/                 # Paginated searchable staff table
 │   │   └── staff-position-coverage/    # Position coverage stats
 │   ├── field-error/                    # Form validation error display
+│   ├── phone-input/                    # Country-code phone entry (libphonenumber)
 │   ├── header/                         # Top navigation bar
 │   ├── help-hint/                      # Inline help tooltip
 │   ├── input-field/                    # Wrapped text input + leading icon + validation
@@ -59,27 +66,35 @@ src/
 │   ├── stepper/                        # Wizard step indicator
 │   └── toast/                          # Success/error notifications
 ├── pages/                              # Route-level components
+│   ├── auth/                           # login (/login), forgot-password (/forgot-password)
 │   ├── dashboard/                      # Dashboard page (/)
 │   ├── halls/                          # Hall management page (/halls)
 │   ├── movies/                         # Movies / showtimes page (/movies)
 │   ├── payment/                        # Payment methods page (/payment)
-│   └── staff/                          # Staff management page (/staff)
+│   ├── staff/                          # Staff management page (/staff)
+│   ├── profile/                        # Current-user profile page (/profile)
+│   └── access-denied/                  # Shown when a route's position check fails
 ├── layout/
-│   └── app-layout.ts                   # Root layout: sidebar + header + <router-outlet>
+│   ├── app-layout/                     # Authed shell: sidebar + header + <router-outlet>
+│   └── auth-layout/                    # Guest shell for /login + /forgot-password
 ├── services/
+│   ├── auth.ts                         # Login, logout, refresh, forgot/verify/reset password
 │   ├── halls.ts                        # Hall & hall-type CRUD (HttpClient)
 │   ├── movies.ts                       # Movie search + detail
 │   ├── showtimes.ts                    # Showtime CRUD + publish + stats
 │   ├── showtime-events.ts              # Cross-component showtime update signals
-│   ├── staff.ts                        # Staff CRUD + position coverage
+│   ├── staff.ts                        # Staff CRUD + position coverage + current-user (/staff/me) cache
 │   ├── payment-method.ts               # Payment method CRUD + connection testing
 │   ├── header-actions.ts               # Signal-based template injection for header
 │   ├── sidebar.ts                      # Sidebar open/close state (signal)
 │   └── toast.ts                        # Toast notification manager
 ├── shared/
-│   ├── icons.ts                        # Re-exports of lucide icons used in the app
+│   ├── icons.ts                        # Re-exports of lucide icons used in the app — sole source of glyphs
+│   ├── access.ts                       # Position → allowed-route/action rules (canAccessRoute, canManage, ...)
+│   ├── validation.ts                   # Shared form regexes (password/email/name/username patterns)
+│   ├── guards/                         # auth-guard, guest-guard, position-guard (route CanActivate/CanMatch)
 │   ├── pipes/                          # phone-format, relative-time, time-12h
-│   ├── types/                          # halls, movies, showtimes, staff, payment, stats
+│   ├── types/                          # halls, movies, showtimes, staff, payment, stats, auth, api
 │   └── styles/
 │       ├── _colors.scss                # Full color palette + dark theme vars
 │       ├── _mixins.scss                # flex-*, icon-box, lucide-icon-fix, text-truncate, empty-state-block
@@ -92,18 +107,27 @@ src/
 └── styles.scss                         # Global reset + ng-primitives overrides (tooltip, dialog overlay)
 ```
 
-Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, and `shared/pipes/index.ts` — always import through them.
+Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, `shared/pipes/index.ts`, and `shared/guards/index.ts` — always import through them.
 
 ## Routes
 
+Two layout shells, each gated by a guard:
+
 ```
-/ (AppLayout)
-├── /           → DashboardPage
-├── /halls      → HallsPage
-├── /movies     → MoviesPage      (movie search + showtimes scheduling)
-├── /payment    → PaymentPage     (payment methods)
-└── /staff      → StaffPage       (staff management)
+'' (AppLayout, canActivate: authGuard)        # redirects to /login if not authenticated
+├── /           → DashboardPage     (canMatch: positionCanMatch)
+├── /halls      → HallsPage         (canMatch: positionCanMatch)
+├── /movies     → MoviesPage        (canMatch: positionCanMatch)   movie search + showtimes scheduling
+├── /payment    → PaymentPage       (canMatch: positionCanMatch)   payment methods
+├── /staff      → StaffPage         (canMatch: positionCanMatch)   staff management
+└── /profile    → ProfilePage       (current-user profile; no position gate)
+
+'' (AuthLayout, canActivate: guestGuard)       # redirects away if already authenticated
+├── /login           → LoginPage
+└── /forgot-password → ForgotPasswordPage
 ```
+
+**Position-based access:** each protected route is declared twice — once with `canMatch: [positionCanMatch]` (renders the real page if the current staff position may access it) and once falling through to `AccessDeniedPage`. The position → route mapping lives in [`shared/access.ts`](src/shared/access.ts) (`canAccessRoute`), and `positionCanMatch` ([`shared/guards/position-guard.ts`](src/shared/guards/position-guard.ts)) reads it. `authGuard` / `guestGuard` ([`shared/guards/`](src/shared/guards/)) gate the two shells on authentication state.
 
 Planned but not yet implemented: `/statistics`, `/settings`.
 
@@ -183,7 +207,8 @@ Reference: [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-
 
 ### HTTP & API
 
-- `baseUrlInterceptor` prepends `environment.apiUrl` to relative URLs.
+- Three functional interceptors run in order (registered in [`app.config.ts`](src/app/app.config.ts)): `baseUrlInterceptor` (prepends `environment.apiUrl` to relative URLs) → `csrfInterceptor` (attaches the CSRF token to mutating requests) → `authRetryInterceptor` (on a 401, calls the refresh endpoint once and retries the original request).
+- **Auth is JWT-in-cookie** — tokens are HTTP-only cookies set/cleared by the backend; the frontend never reads or stores them. `AuthService` exposes login/logout/refresh/forgot-verify-reset; the refresh call is de-duplicated (`refresh$ ??= …`).
 - Services return `Observable<T>` — components subscribe or convert with `toSignal()`.
 - API uses **zero-indexed pages**; UI displays **1-indexed**.
 - Backend entity IDs exposed via API are UUIDs (strings), not numeric.
@@ -229,6 +254,20 @@ GET    /staff/:id                        # Staff detail
 POST   /staff                            # Create
 PUT    /staff/:id                        # Update
 DELETE /staff/:id                        # Delete
+
+# Staff (self-service — any authenticated staff)
+GET    /staff/me                         # Current user (cached BehaviorSubject in StaffService)
+PUT    /staff/me                         # Update own profile (name/phone)
+PUT    /staff/me/password                # Change own password
+
+# Auth (management — JWT cookies, mostly @PublicApi)
+POST   /management/auth/login            # Sets access/refresh cookies
+POST   /management/auth/logout           # Clears cookies (requires auth)
+POST   /management/auth/refresh          # Rotates access cookie
+GET    /management/auth/session          # Validates current session
+POST   /management/auth/forgot-password  # Emails reset OTP
+POST   /management/auth/verify-reset-code
+POST   /management/auth/reset-password
 
 # Payment methods
 GET    /payment-methods
