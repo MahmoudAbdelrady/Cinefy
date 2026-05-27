@@ -2,8 +2,8 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { LogOut, LucideAngularModule, LucideIconData, Menu, User } from 'lucide-angular';
-import { ChevronDownIcon } from '../../shared/icons';
+import { LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { ChevronDownIcon, LogoutIcon, MenuIcon, UserIcon } from '../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import {
@@ -30,7 +30,7 @@ interface DropDownMenuItem {
 export class HeaderComponent {
   protected readonly icons = {
     ChevronDownIcon,
-    MenuIcon: Menu,
+    MenuIcon,
   };
 
   private readonly sidebarService = inject(SidebarService);
@@ -42,8 +42,8 @@ export class HeaderComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly userInfoMenuItems: DropDownMenuItem[] = [
-    { icon: User, label: 'Profile', action: () => this.router.navigateByUrl('/profile') },
-    { icon: LogOut, label: 'Logout', action: () => this.logout() },
+    { icon: UserIcon, label: 'Profile', action: () => this.router.navigateByUrl('/profile') },
+    { icon: LogoutIcon, label: 'Logout', action: () => this.logout() },
   ];
 
   protected headerActionsTemplate = this.headerActionsService.template;

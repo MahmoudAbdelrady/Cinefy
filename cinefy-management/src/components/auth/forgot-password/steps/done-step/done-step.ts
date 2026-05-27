@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ArrowRight, LucideAngularModule, ShieldCheck } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { ArrowRightIcon, ShieldCheckIcon } from '../../../../../shared/icons';
 
 @Component({
   selector: 'fp-done-step',
@@ -10,7 +11,7 @@ import { ArrowRight, LucideAngularModule, ShieldCheck } from 'lucide-angular';
 })
 export class DoneStep {
   protected readonly icons = {
-    ShieldIcon: ShieldCheck,
-    ArrowRightIcon: ArrowRight,
+    ShieldCheckIcon,
+    ArrowRightIcon,
   };
 }

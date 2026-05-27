@@ -106,7 +106,7 @@
           <label>Special Notes (Optional)</label>
           <textarea
             ngpTextarea
-            placeholder="Add any special notes about this showtime..."
+            placeholder="Add any special notes about this showtime…"
             maxlength="255"
             formControlName="specialNotes"
           ></textarea>
@@ -130,6 +130,7 @@
       >
         @if (submitting()) {
           <loading-spinner variant="sm" />
+          <span>{{ isEditMode() ? 'Saving…' : 'Creating…' }}</span>
         } @else {
           {{ submitLabel() }}
         }

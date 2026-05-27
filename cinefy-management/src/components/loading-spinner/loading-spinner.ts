@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
-import { Loader, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { LoaderIcon } from '../../shared/icons';
 
 export type LoadingSpinnerVariant = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -14,7 +15,11 @@ const VARIANT_PRESETS: Record<LoadingSpinnerVariant, { size: number; strokeWidth
 @Component({
   selector: 'loading-spinner',
   imports: [LucideAngularModule],
-  template: `<div class="spinner" [style.width.px]="resolvedSize()" [style.height.px]="resolvedSize()">
+  template: `<div
+    class="spinner"
+    [style.width.px]="resolvedSize()"
+    [style.height.px]="resolvedSize()"
+  >
     <lucide-icon
       [img]="icons.LoaderIcon"
       [size]="resolvedSize()"
@@ -37,7 +42,7 @@ const VARIANT_PRESETS: Record<LoadingSpinnerVariant, { size: number; strokeWidth
 })
 export class LoadingSpinnerComponent {
   protected readonly icons = {
-    LoaderIcon: Loader,
+    LoaderIcon,
   };
 
   readonly variant = input<LoadingSpinnerVariant | null>(null);

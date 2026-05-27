@@ -8,13 +8,15 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { Loader, LucideAngularModule, X } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   CheckIcon,
   DeleteIcon,
   EditIcon,
+  LoaderIcon,
   PlusIcon,
   WarningIcon,
+  XIcon,
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
@@ -54,8 +56,8 @@ export class ManageHallTypesModalComponent {
     EditIcon,
     PlusIcon,
     WarningIcon,
-    XIcon: X,
-    LoaderIcon: Loader,
+    XIcon,
+    LoaderIcon,
   };
 
   private readonly hallsService = inject(HallsService);

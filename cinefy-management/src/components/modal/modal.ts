@@ -5,7 +5,8 @@ import {
   NgpDialogOverlay,
   NgpDialogTitle,
 } from 'ng-primitives/dialog';
-import { LucideAngularModule, X } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { XIcon } from '../../shared/icons';
 
 @Component({
   selector: 'app-modal',
@@ -15,7 +16,7 @@ import { LucideAngularModule, X } from 'lucide-angular';
 })
 export class ModalComponent {
   protected readonly icons = {
-    XIcon: X,
+    XIcon,
   };
 
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');

@@ -1,8 +1,8 @@
 import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ChevronUp, LucideAngularModule } from 'lucide-angular';
-import { ChevronDownIcon, ClockIcon } from '../../../shared/icons';
+import { LucideAngularModule } from 'lucide-angular';
+import { ChevronDownIcon, ChevronUpIcon, ClockIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { FieldErrorComponent } from '../../field-error/field-error';
@@ -21,7 +21,7 @@ export class TimePicker {
   protected readonly icons = {
     ChevronDownIcon,
     ClockIcon,
-    ChevronUpIcon: ChevronUp,
+    ChevronUpIcon,
   };
 
   private readonly destroyRef = inject(DestroyRef);

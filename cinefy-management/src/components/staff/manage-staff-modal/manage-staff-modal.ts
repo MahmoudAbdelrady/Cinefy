@@ -11,8 +11,15 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule, User } from 'lucide-angular';
-import { AtSignIcon, CheckIcon, EmailIcon, PasswordIcon, PhoneIcon } from '../../../shared/icons';
+import { LucideAngularModule } from 'lucide-angular';
+import {
+  AtSignIcon,
+  CheckIcon,
+  EmailIcon,
+  KeyIcon,
+  PhoneIcon,
+  UserIcon,
+} from '../../../shared/icons';
 import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import { ModalComponent } from '../../modal/modal';
@@ -68,9 +75,9 @@ export class ManageStaffModalComponent {
     CheckIcon,
     EmailIcon,
     PhoneIcon,
-    NameIcon: User,
-    UsernameIcon: AtSignIcon,
-    KeyIcon: PasswordIcon,
+    UserIcon,
+    AtSignIcon,
+    KeyIcon,
   };
 
   private readonly staffService = inject(StaffService);

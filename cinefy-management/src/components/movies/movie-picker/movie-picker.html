@@ -7,7 +7,7 @@
         (input)="movieSearchQuery.set($event.target.value)"
         ngpInput
         type="search"
-        placeholder="Search for a movie..."
+        placeholder="Search for a movie…"
       />
       <button ngpSearchClear ngpButton>Clear</button>
     </div>
@@ -67,7 +67,7 @@
       >
         @if (loadingMore()) {
           <loading-spinner variant="sm" />
-          <span>Loading...</span>
+          <span>Loading…</span>
         } @else {
           <span>Load more</span>
         }

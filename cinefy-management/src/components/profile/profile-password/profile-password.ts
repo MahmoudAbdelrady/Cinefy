@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { PasswordIcon, SaveIcon } from '../../../shared/icons';
+import { KeyIcon, SaveIcon } from '../../../shared/icons';
 import { InputField } from '../../input-field/input-field';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { PASSWORD_PATTERN } from '../../../shared/validation';
@@ -19,7 +19,7 @@ import type { ApiError } from '../../../shared/types';
 export class ProfilePasswordComponent {
   protected readonly icons = {
     SaveIcon,
-    KeyIcon: PasswordIcon,
+    KeyIcon,
   };
 
   private readonly staffService = inject(StaffService);

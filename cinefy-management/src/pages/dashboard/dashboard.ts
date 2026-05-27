@@ -1,22 +1,18 @@
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
+import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 import {
-  ArrowDown,
-  ArrowUp,
-  Clock,
-  Film,
-  LayoutTemplate,
-  LucideAngularModule,
-  LucideIconData,
-  TrendingUp,
-} from 'lucide-angular';
-import {
+  ArrowDownIcon,
+  ArrowUpIcon,
   ChevronDownIcon,
+  ClockIcon,
   DollarSignIcon,
   FilmIcon,
   LayoutIcon,
+  LayoutTemplateIcon,
   PlusIcon,
   TicketIcon,
+  TrendingUpIcon,
 } from '../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
@@ -57,9 +53,9 @@ export class DashboardPage implements OnInit {
     LayoutIcon,
     PlusIcon,
     TicketIcon,
-    ArrowUpIcon: ArrowUp,
-    ArrowDownIcon: ArrowDown,
-    TrendingUpIcon: TrendingUp,
+    ArrowUpIcon,
+    ArrowDownIcon,
+    TrendingUpIcon,
   };
   private headerActions = inject(HeaderActionsService);
   private destroyRef = inject(DestroyRef);
@@ -69,9 +65,9 @@ export class DashboardPage implements OnInit {
   protected currentDate = new Date();
 
   protected readonly quickAddMenuItems: DropDownMenuItem[] = [
-    { icon: Film, label: 'Movie', code: 'movie' },
-    { icon: LayoutTemplate, label: 'Hall', code: 'hall' },
-    { icon: Clock, label: 'Showtime', code: 'showtime' },
+    { icon: FilmIcon, label: 'Movie', code: 'movie' },
+    { icon: LayoutTemplateIcon, label: 'Hall', code: 'hall' },
+    { icon: ClockIcon, label: 'Showtime', code: 'showtime' },
   ];
 
   ngOnInit() {

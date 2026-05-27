@@ -2,11 +2,11 @@ import { Component, DestroyRef, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ArrowLeft, ArrowRight, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { InputField } from '../../../../input-field/input-field';
 import { LoadingSpinnerComponent } from '../../../../loading-spinner/loading-spinner';
-import { AtSignIcon } from '../../../../../shared/icons';
+import { ArrowLeftIcon, ArrowRightIcon, AtSignIcon } from '../../../../../shared/icons';
 import { AuthService } from '../../../../../services/auth';
 import { ToastService } from '../../../../../services/toast';
 
@@ -26,8 +26,8 @@ import { ToastService } from '../../../../../services/toast';
 export class RequestStep {
   protected readonly icons = {
     AtSignIcon,
-    ArrowRightIcon: ArrowRight,
-    ArrowLeftIcon: ArrowLeft,
+    ArrowRightIcon,
+    ArrowLeftIcon,
   };
 
   private readonly authService = inject(AuthService);

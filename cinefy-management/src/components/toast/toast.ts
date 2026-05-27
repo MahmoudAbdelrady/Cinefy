@@ -1,5 +1,6 @@
 import { Component, inject, viewChild } from '@angular/core';
-import { LucideAngularModule, CircleCheckBig, CircleX, X } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { CircleCheckBigIcon, CircleXIcon, XIcon } from '../../shared/icons';
 import { NgpToast, NgpToastManager, injectToastContext } from 'ng-primitives/toast';
 import { ToastContext } from '../../services/toast';
 
@@ -15,9 +16,9 @@ import { ToastContext } from '../../services/toast';
 })
 export class ToastComponent {
   protected readonly icons = {
-    SuccessIcon: CircleCheckBig,
-    ErrorIcon: CircleX,
-    CloseIcon: X,
+    CircleCheckBigIcon,
+    CircleXIcon,
+    XIcon,
   };
 
   private readonly manager = inject(NgpToastManager);

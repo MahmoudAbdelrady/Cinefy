@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
-import { Info, LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { InfoIcon } from '../../shared/icons';
 
 @Component({
   selector: 'help-hint',
@@ -9,5 +10,5 @@ import { Info, LucideAngularModule, LucideIconData } from 'lucide-angular';
 })
 export class HelpHint {
   readonly title = input.required<string>();
-  readonly icon = input<LucideIconData>(Info);
+  readonly icon = input<LucideIconData>(InfoIcon);
 }

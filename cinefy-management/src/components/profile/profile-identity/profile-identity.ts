@@ -1,7 +1,14 @@
 import { Component, computed, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { CalendarClock, LucideAngularModule, ShieldCheck } from 'lucide-angular';
-import { BriefCaseIcon, CalendarIcon, ClockIcon, LockIcon } from '../../../shared/icons';
+import { LucideAngularModule } from 'lucide-angular';
+import {
+  BriefCaseIcon,
+  CalendarClockIcon,
+  CalendarIcon,
+  ClockIcon,
+  LockIcon,
+  ShieldCheckIcon,
+} from '../../../shared/icons';
 import { Time12hPipe } from '../../../shared/pipes';
 import {
   EMPLOYMENT_TYPE_LABELS,
@@ -22,8 +29,8 @@ export class ProfileIdentityComponent {
     ClockIcon,
     BriefCaseIcon,
     LockIcon,
-    ShieldIcon: ShieldCheck,
-    CalendarClockIcon: CalendarClock,
+    ShieldCheckIcon,
+    CalendarClockIcon,
   };
 
   protected readonly employmentTypeLabels = EMPLOYMENT_TYPE_LABELS;

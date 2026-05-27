@@ -14,8 +14,8 @@ import {
 import { NgpNativeDateAdapter, provideDateAdapter } from 'ng-primitives/date-time';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { ChevronLeft, LucideAngularModule } from 'lucide-angular';
-import { CalendarIcon, ChevronRightIcon } from '../../../shared/icons';
+import { LucideAngularModule } from 'lucide-angular';
+import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '../../../shared/icons';
 
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -51,7 +51,7 @@ export class DatePicker implements ControlValueAccessor {
   protected readonly icons = {
     CalendarIcon,
     ChevronRightIcon,
-    ChevronLeftIcon: ChevronLeft,
+    ChevronLeftIcon,
   };
 
   protected readonly weekdays = WEEKDAY_LABELS;

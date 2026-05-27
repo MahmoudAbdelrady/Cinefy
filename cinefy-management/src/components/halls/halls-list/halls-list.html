@@ -8,7 +8,7 @@
       <input-field
         [control]="searchControl"
         [leadingIcon]="icons.SearchIcon"
-        placeholder="Search halls..."
+        placeholder="Search halls…"
       />
     </div>
   </div>
@@ -117,6 +117,7 @@
                   >
                     @if (deletingHallId() === hall.id) {
                       <loading-spinner variant="sm" />
+                      <span>Deleting…</span>
                     } @else {
                       <span>Delete Hall</span>
                     }

@@ -10,11 +10,16 @@ import {
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
-import { ArrowRight, CircleAlert, CircleCheck, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { InputField } from '../../../../input-field/input-field';
 import { LoadingSpinnerComponent } from '../../../../loading-spinner/loading-spinner';
-import { PasswordIcon } from '../../../../../shared/icons';
+import {
+  AlertIcon,
+  ArrowRightIcon,
+  CircleCheckIcon,
+  PasswordIcon,
+} from '../../../../../shared/icons';
 import { PASSWORD_PATTERN } from '../../../../../shared/validation';
 import type { ApiError } from '../../../../../shared/types';
 import { AuthService } from '../../../../../services/auth';
@@ -42,9 +47,9 @@ function passwordsMatchValidator(group: AbstractControl): ValidationErrors | nul
 export class ResetStep {
   protected readonly icons = {
     PasswordIcon,
-    ArrowRightIcon: ArrowRight,
-    CheckIcon: CircleCheck,
-    AlertIcon: CircleAlert,
+    ArrowRightIcon,
+    CircleCheckIcon,
+    AlertIcon,
   };
 
   private readonly authService = inject(AuthService);
