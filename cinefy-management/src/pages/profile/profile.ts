@@ -1,6 +1,6 @@
 import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { switchMap } from 'rxjs';
+import { switchMap, take } from 'rxjs';
 import {
   LoadingSpinnerComponent,
   ProfileIdentityComponent,
@@ -38,7 +38,10 @@ export class ProfilePage {
     this.loading.set(true);
     this.staffService
       .getCurrentStaffMember()
-      .pipe(switchMap((current) => this.staffService.getStaffMember(current.id)))
+      .pipe(
+        take(1),
+        switchMap((current) => this.staffService.getStaffMember(current.id)),
+      )
       .subscribe({
         next: (profile) => {
           this.profile.set(profile);

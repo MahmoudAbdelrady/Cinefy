@@ -1,5 +1,6 @@
-import { Component, computed, input, output, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule, User } from 'lucide-angular';
 import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
@@ -22,6 +23,7 @@ import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { PhoneFormatPipe } from '../../../shared/pipes';
 import type { StaffMemberDetail } from '../../../shared/types';
 import { NAME_PATTERN } from '../../../shared/validation';
+import { StaffService, ToastService } from '../../../services';
 
 @Component({
   selector: 'profile-personal-details',
@@ -46,6 +48,10 @@ export class ProfilePersonalDetailsComponent {
     NameIcon: User,
     LockIcon,
   };
+
+  private readonly staffService = inject(StaffService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly profile = input.required<StaffMemberDetail>();
 
@@ -125,11 +131,32 @@ export class ProfilePersonalDetailsComponent {
     if (this.personalForm.invalid || this.saving() || !this.hasChanges()) return;
 
     const value = this.personalForm.getRawValue();
-    // TODO(profile-backend): call the profile update endpoint (PATCH /staff/me) with
-    // { firstName, lastName, phoneNumber } and on success emit `updated` with the
-    // returned StaffMemberDetail, clear `saving`, exit editing, and toast. On error
-    // clear `saving` and toast err.error?.message. Use takeUntilDestroyed(this.destroyRef)
-    // since the response emits an output and toast.
-    // toE164Digits(this.personalForm.controls.phoneCountry, value.phoneNumber);
+    this.saving.set(true);
+    this.staffService
+      .updateCurrentStaffMember({
+        firstName: value.firstName,
+        lastName: value.lastName,
+        phoneNumber: toE164Digits(this.personalForm.controls.phoneCountry, value.phoneNumber),
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (profile) => {
+          this.staffService.setCurrentStaffMember({
+            id: profile.id,
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            fullName: `${profile.firstName} ${profile.lastName}`,
+            position: profile.position,
+          });
+          this.updated.emit(profile);
+          this.saving.set(false);
+          this.isEditing.set(false);
+          this.toastService.success('Profile updated');
+        },
+        error: (err: HttpErrorResponse) => {
+          this.saving.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to update profile');
+        },
+      });
   }
 }

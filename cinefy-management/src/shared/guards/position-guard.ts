@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanMatchFn, UrlSegment } from '@angular/router';
-import { map, of, switchMap } from 'rxjs';
+import { map, of, switchMap, take } from 'rxjs';
 import { AuthService, StaffService } from '../../services';
 import { canAccessRoute } from '../access';
 
@@ -16,9 +16,10 @@ export const positionCanMatch: CanMatchFn = (_route, segments) => {
     switchMap((authenticated) => {
       if (!authenticated) return of(true);
 
-      return staffService
-        .getCurrentStaffMember()
-        .pipe(map((user) => canAccessRoute(routePath(segments), user.position)));
+      return staffService.getCurrentStaffMember().pipe(
+        take(1),
+        map((user) => canAccessRoute(routePath(segments), user.position)),
+      );
     }),
   );
 };
