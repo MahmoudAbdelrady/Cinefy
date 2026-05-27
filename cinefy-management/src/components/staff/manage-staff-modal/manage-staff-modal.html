@@ -84,6 +84,7 @@
         [hint]="isEdit() ? 'Leave empty to keep the current password' : ''"
         [leadingIcon]="icons.KeyIcon"
         [control]="staffForm.controls.password"
+        [blockClipboard]="true"
         [errorMessages]="{
           required: 'Password is required',
           pattern:
