@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
@@ -37,15 +37,16 @@ import { StaffDetailsComponent } from '../staff-details/staff-details';
 import { ManageStaffModalComponent } from '../manage-staff-modal/manage-staff-modal';
 import {
   PaginatedResponse,
-  STAFF_POSITION_LABELS,
+  USER_POSITION_LABELS,
   WEEK_DAY_LABELS,
   type CoverageChange,
   type StaffMemberDetail,
   type StaffMemberSummary,
-  type StaffPosition,
+  type UserPosition,
 } from '../../../shared/types';
 import { StaffService, ToastService } from '../../../services';
 import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
+import { canManageStaffMember } from '../../../shared/access';
 
 @Component({
   selector: 'staff-list',
@@ -87,9 +88,11 @@ export class StaffListComponent {
 
   protected readonly editTemplate = viewChild.required<TemplateRef<unknown>>('editDialog');
 
-  protected readonly positionLabels = STAFF_POSITION_LABELS;
+  protected readonly positionLabels = USER_POSITION_LABELS;
   protected readonly weekDayLabels = WEEK_DAY_LABELS;
-  protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
+  protected readonly staffPositions = (Object.keys(USER_POSITION_LABELS) as UserPosition[]).filter(
+    (position) => position !== 'ADMIN',
+  );
   protected readonly pageSize = 10;
 
   readonly coverageChanged = output<CoverageChange>();
@@ -98,7 +101,7 @@ export class StaffListComponent {
   protected readonly pendingEditMember = signal<StaffMemberDetail | null>(null);
   protected readonly deletingStaffIds = signal<ReadonlySet<string>>(new Set());
 
-  protected readonly positionFilter = signal<StaffPosition | undefined>(undefined);
+  protected readonly positionFilter = signal<UserPosition | undefined>(undefined);
   protected readonly page = signal(1);
 
   protected readonly loading = signal(true);
@@ -106,11 +109,18 @@ export class StaffListComponent {
 
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
 
+  private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
+
   protected readonly staffMembers = computed(() => this.staffPage()?.content ?? []);
   protected readonly totalItems = computed(() => this.staffPage()?.page.totalElements ?? 0);
   protected readonly pageCount = computed(() =>
     Math.max(1, this.staffPage()?.page.totalPages ?? 1),
   );
+
+  protected readonly canManageRow = (member: StaffMemberSummary): boolean => {
+    const user = this.currentUser();
+    return user ? canManageStaffMember(user.position, member.position) : false;
+  };
 
   private readonly staff$ = combineLatest([
     this.searchControl.valueChanges.pipe(
@@ -123,8 +133,8 @@ export class StaffListComponent {
     toObservable(this.page),
   ]);
 
-  protected readonly positionDisplayFn = (position: StaffPosition): string =>
-    STAFF_POSITION_LABELS[position];
+  protected readonly positionDisplayFn = (position: UserPosition): string =>
+    USER_POSITION_LABELS[position];
 
   constructor() {
     afterNextRender(() => {
@@ -186,7 +196,7 @@ export class StaffListComponent {
     this.coverageChanged.emit({ action: 'add', position: member.position });
   }
 
-  protected onPositionFilterChange(position: StaffPosition): void {
+  protected onPositionFilterChange(position: UserPosition): void {
     this.positionFilter.set(position);
     this.page.set(1);
   }

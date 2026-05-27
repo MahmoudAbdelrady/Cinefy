@@ -72,12 +72,7 @@ export type {
 
 export type { StatsCard } from './stats';
 
-export {
-  STAFF_POSITION_LABELS,
-  USER_POSITION_LABELS,
-  EMPLOYMENT_TYPE_LABELS,
-  WEEK_DAY_LABELS,
-} from './staff';
+export { USER_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS } from './staff';
 export type {
   StaffMember,
   StaffMemberSummary,
@@ -86,7 +81,6 @@ export type {
   StaffMemberPayload,
   UpdateProfilePayload,
   ChangePasswordPayload,
-  StaffPosition,
   UserPosition,
   EmploymentType,
   WeekDay,

@@ -1,12 +1,9 @@
-const STAFF_POSITION_LABELS = {
+const USER_POSITION_LABELS = {
+  ADMIN: 'Administrator',
   MANAGER: 'Manager',
   CASHIER: 'Cashier',
   USHER: 'Usher',
 } as const;
-
-type StaffPosition = keyof typeof STAFF_POSITION_LABELS;
-
-const USER_POSITION_LABELS = { ADMIN: 'Administrator', ...STAFF_POSITION_LABELS } as const;
 
 type UserPosition = keyof typeof USER_POSITION_LABELS;
 
@@ -35,7 +32,7 @@ interface StaffMember {
   fullName: string;
   email: string;
   phoneNumber: string;
-  position: StaffPosition;
+  position: UserPosition;
   workingDayStart: WeekDay;
   workingDayEnd: WeekDay;
   workingHourStart: string;
@@ -49,7 +46,7 @@ interface StaffMemberSummary {
   fullName: string;
   phoneNumber: string;
   email: string;
-  position: StaffPosition;
+  position: UserPosition;
   workingDayStart: WeekDay;
   workingDayEnd: WeekDay;
   workingHourStart: string;
@@ -87,7 +84,7 @@ interface StaffMemberPayload {
   phoneNumber: string;
   email: string;
   password?: string;
-  position: StaffPosition;
+  position: UserPosition;
   employmentType: EmploymentType;
   workingDayStart: WeekDay;
   workingDayEnd: WeekDay;
@@ -107,7 +104,7 @@ interface ChangePasswordPayload {
 }
 
 interface PositionCoverageItem {
-  position: StaffPosition;
+  position: UserPosition;
   count: number;
 }
 
@@ -117,11 +114,11 @@ interface PositionCoverage {
 }
 
 type CoverageChange =
-  | { action: 'add'; position: StaffPosition }
-  | { action: 'delete'; position: StaffPosition }
-  | { action: 'reassign'; from: StaffPosition; to: StaffPosition };
+  | { action: 'add'; position: UserPosition }
+  | { action: 'delete'; position: UserPosition }
+  | { action: 'reassign'; from: UserPosition; to: UserPosition };
 
-export { STAFF_POSITION_LABELS, USER_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS };
+export { USER_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS };
 export type {
   StaffMember,
   StaffMemberSummary,
@@ -130,7 +127,6 @@ export type {
   StaffMemberPayload,
   UpdateProfilePayload,
   ChangePasswordPayload,
-  StaffPosition,
   UserPosition,
   EmploymentType,
   WeekDay,

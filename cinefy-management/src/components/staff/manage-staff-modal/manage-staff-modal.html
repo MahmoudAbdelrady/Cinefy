@@ -95,7 +95,7 @@
     <div class="input-group">
       <custom-select
         label="Position"
-        [items]="staffPositions"
+        [items]="staffPositions()"
         [displayFn]="positionDisplayFn"
         [control]="staffForm.controls.position"
         [errorMessages]="{ required: 'Position is required' }"

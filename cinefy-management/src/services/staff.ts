@@ -9,8 +9,8 @@ import type {
   StaffMemberDetail,
   StaffMemberPayload,
   StaffMemberSummary,
-  StaffPosition,
   UpdateProfilePayload,
+  UserPosition,
 } from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
@@ -49,7 +49,7 @@ export class StaffService {
 
   getStaffMembers(
     name?: string,
-    position?: StaffPosition,
+    position?: UserPosition,
     pageable?: { page?: number; size?: number },
   ): Observable<PaginatedResponse<StaffMemberSummary>> {
     const params = {

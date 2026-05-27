@@ -184,6 +184,14 @@ The `ADMIN` `StaffMember` (the bootstrap account seeded by `ensureAdminExists`) 
 
 When adding a new read of a single staff member, fetch the entity first and pass it to `validateCanViewStaffMember` (don't validate by uuid alone — the rule depends on the _target's_ position).
 
+### Staff Position Hierarchy (manager tier)
+
+Authority is tiered: `ADMIN` > `MANAGER` > `CASHIER`/`USHER`. A `MANAGER` may manage staff **below** them (cashiers/ushers) but **not** the manager tier — only an `ADMIN` can create, edit, delete, promote-to, or demote-from `MANAGER`.
+
+- Enforced by `StaffMemberService.validateCanManageManagerTier(currentPosition, resultingPosition)`, called from `createStaffMember` (resulting only), `updateStaffMember` (current + resulting), and `deleteStaffMember` (current only). It throws `ForbiddenException` (403) when a non-admin caller touches a row whose **current** or **resulting** position is `MANAGER`.
+- Covering both current and resulting position is what closes the backdoors: a manager can't promote a cashier to manager (resulting = MANAGER), can't edit a peer manager (current = MANAGER), and can't demote a peer to hide the change (current = MANAGER). Self-edits via `/staff/me` (`updateProfile`) are unaffected — a manager may still edit their own name/phone.
+- When adding any new staff mutation, decide whether it can change or target the manager tier and call `validateCanManageManagerTier(...)` accordingly, passing the pre-mutation position as `currentPosition` (capture it before `populateFromDto` overwrites it).
+
 ### Naming Strategy
 
 `CinefyTableNamingStrategy` maps:

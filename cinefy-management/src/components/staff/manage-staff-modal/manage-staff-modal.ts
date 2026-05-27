@@ -25,13 +25,13 @@ import {
 } from '../../phone-input/phone-input';
 import {
   EMPLOYMENT_TYPE_LABELS,
-  STAFF_POSITION_LABELS,
+  USER_POSITION_LABELS,
   WEEK_DAY_LABELS,
   type EmploymentType,
   type StaffMemberDetail,
   type StaffMemberPayload,
   type StaffMemberSummary,
-  type StaffPosition,
+  type UserPosition,
   type WeekDay,
 } from '../../../shared/types';
 import { StaffService, ToastService } from '../../../services';
@@ -44,6 +44,7 @@ import {
   PASSWORD_PATTERN,
   USERNAME_PATTERN,
 } from '../../../shared/validation';
+import { assignableStaffPositions } from '../../../shared/access';
 
 @Component({
   selector: 'manage-staff-modal',
@@ -77,7 +78,6 @@ export class ManageStaffModalComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
-  protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
   protected readonly weekDays = Object.keys(WEEK_DAY_LABELS) as WeekDay[];
   protected readonly employmentTypeEntries = Object.entries(EMPLOYMENT_TYPE_LABELS).map(
     ([value, label]) => ({ value: value as EmploymentType, label }),
@@ -94,6 +94,12 @@ export class ManageStaffModalComponent {
   protected readonly loading = signal(false);
   protected readonly saving = signal(false);
   private readonly initialFormSnapshot = signal<string | null>(null);
+
+  private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
+  protected readonly staffPositions = computed<UserPosition[]>(() => {
+    const user = this.currentUser();
+    return user ? assignableStaffPositions(user.position) : [];
+  });
 
   protected readonly staffForm = new FormGroup({
     firstName: new FormControl('', {
@@ -139,7 +145,7 @@ export class ManageStaffModalComponent {
       nonNullable: true,
       validators: [Validators.pattern(PASSWORD_PATTERN)],
     }),
-    position: new FormControl<StaffPosition | null>(null, {
+    position: new FormControl<UserPosition | null>(null, {
       validators: [Validators.required],
     }),
     employmentType: new FormControl<EmploymentType | null>(null, {
@@ -188,8 +194,8 @@ export class ManageStaffModalComponent {
     return JSON.stringify(this.staffForm.getRawValue()) !== snapshot;
   });
 
-  protected readonly positionDisplayFn = (position: StaffPosition): string =>
-    STAFF_POSITION_LABELS[position];
+  protected readonly positionDisplayFn = (position: UserPosition): string =>
+    USER_POSITION_LABELS[position];
 
   protected readonly weekDayDisplayFn = (day: WeekDay): string => WEEK_DAY_LABELS[day];
 
@@ -250,8 +256,7 @@ export class ManageStaffModalComponent {
         email: member.email,
         phoneCountry: parsedPhone?.country ?? DEFAULT_COUNTRY,
         phoneNumber: parsedPhone?.nationalNumber ?? member.phoneNumber,
-        position:
-          member.position in STAFF_POSITION_LABELS ? (member.position as StaffPosition) : null,
+        position: member.position,
         employmentType: member.employmentType,
         workingDayStart: member.workingDayStart,
         workingDayEnd: member.workingDayEnd,
@@ -262,7 +267,7 @@ export class ManageStaffModalComponent {
     });
   }
 
-  protected onPositionChange(position: StaffPosition): void {
+  protected onPositionChange(position: UserPosition): void {
     this.staffForm.controls.position.setValue(position);
   }
 

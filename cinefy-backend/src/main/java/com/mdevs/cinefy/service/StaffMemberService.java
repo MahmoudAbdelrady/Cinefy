@@ -103,6 +103,7 @@ public class StaffMemberService implements UserDetailsService {
         if (StringUtils.isEmpty(dto.getPassword())) {
             throw new BusinessException("Password is required");
         }
+        validateCanManageManagerTier(null, StaffPosition.fromString(dto.getPosition()));
 
         StaffMember staffMember = new StaffMember();
         populateFromDto(staffMember, dto, null);
@@ -140,6 +141,7 @@ public class StaffMemberService implements UserDetailsService {
     public StaffMemberSummaryDTO updateStaffMember(String uuid, StaffMemberDTO dto) {
         StaffMember staffMember = findStaffMember(uuid);
         validateNotAdminAccount(staffMember);
+        validateCanManageManagerTier(staffMember.getPosition(), StaffPosition.fromString(dto.getPosition()));
         populateFromDto(staffMember, dto, staffMember.getId());
         if (StringUtils.isNotEmpty(dto.getPassword())) {
             staffMember.setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -171,6 +173,7 @@ public class StaffMemberService implements UserDetailsService {
     public void deleteStaffMember(String uuid) {
         StaffMember staffMember = findStaffMember(uuid);
         validateNotAdminAccount(staffMember);
+        validateCanManageManagerTier(staffMember.getPosition(), null);
         staffMemberRepository.delete(staffMember);
     }
 
@@ -219,6 +222,17 @@ public class StaffMemberService implements UserDetailsService {
     private void validateNotAdminAccount(StaffMember staffMember) {
         if (staffMember.getPosition().equals(StaffPosition.ADMIN)) {
             throw new ForbiddenException("The admin account cannot be modified");
+        }
+    }
+
+    private void validateCanManageManagerTier(StaffPosition currentPosition, StaffPosition resultingPosition) {
+        boolean touchesManager = StaffPosition.MANAGER.equals(currentPosition) || StaffPosition.MANAGER.equals(resultingPosition);
+        if (!touchesManager) {
+            return;
+        }
+        boolean isAdmin = SecurityUtil.getCurrentUser().getPosition().equals(StaffPosition.ADMIN.name());
+        if (!isAdmin) {
+            throw new ForbiddenException("Only an administrator can manage manager accounts");
         }
     }
 
