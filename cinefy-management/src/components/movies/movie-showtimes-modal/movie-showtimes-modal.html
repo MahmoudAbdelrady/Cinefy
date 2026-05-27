@@ -127,8 +127,10 @@
                         >
                           @if (deletingShowtimeIds().has(showtimeDetail.id)) {
                             <loading-spinner variant="sm" />
+                            <span>Deleting…</span>
+                          } @else {
+                            <span>Delete Showtime</span>
                           }
-                          <span>Delete Showtime</span>
                         </button>
                       </div>
                     </app-modal>
@@ -163,7 +165,7 @@
                         class="dsn-toggle"
                         (click)="toggleNote(showtimeDetail.id)"
                       >
-                        {{ expanded ? 'View less' : 'View more...' }}
+                        {{ expanded ? 'View less' : 'View more…' }}
                       </button>
                     }
                   </div>

@@ -169,7 +169,7 @@ export class HallConfigModalComponent {
   );
   protected readonly modalTitle = computed(() => {
     if (!this.selectedHallId()) return 'Add New Hall';
-    return this.isEditMode() ? 'Edit Hall' : (this.selectedHallData()?.name ?? 'Loading...');
+    return this.isEditMode() ? 'Edit Hall' : (this.selectedHallData()?.name ?? 'Loading…');
   });
   private readonly rawNumRows = toSignal(this.hallForm.controls.numberOfRows.valueChanges, {
     initialValue: null,

@@ -284,6 +284,7 @@
         >
           @if (saving()) {
             <loading-spinner variant="sm" />
+            <span>{{ selectedHallId() ? 'Saving…' : 'Creating…' }}</span>
           } @else {
             {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}
           }
