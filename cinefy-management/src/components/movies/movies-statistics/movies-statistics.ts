@@ -8,7 +8,7 @@ import {
   untracked,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Calendar, Clock, Film } from 'lucide-angular';
+import { CalendarIcon, ClockIcon, FilmIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { StatsComponent } from '../../stats/stats';
 import { ShowtimeEventsService, ShowtimesService, ToastService } from '../../../services';
@@ -31,9 +31,9 @@ export class MoviesStatisticsComponent {
   protected readonly cards = computed<StatsCard[]>(() => {
     const s = this.statistics();
     return [
-      { label: 'Total Movies', value: s?.totalMovies?.toString() ?? '—', icon: Film },
-      { label: 'Total Showtimes', value: s?.totalShowtimes?.toString() ?? '—', icon: Calendar },
-      { label: "Today's Showtimes", value: s?.todayShowtimes?.toString() ?? '—', icon: Clock },
+      { label: 'Total Movies', value: s?.totalMovies?.toString() ?? '—', icon: FilmIcon },
+      { label: 'Total Showtimes', value: s?.totalShowtimes?.toString() ?? '—', icon: CalendarIcon },
+      { label: "Today's Showtimes", value: s?.todayShowtimes?.toString() ?? '—', icon: ClockIcon },
     ];
   });
 

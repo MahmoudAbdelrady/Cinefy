@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
-import { LucideAngularModule, UserPlus } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { UserPlusIcon } from '../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { HeaderActionsService } from '../../services';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
@@ -24,7 +25,7 @@ import {
 })
 export class StaffPage implements OnInit {
   protected readonly icons = {
-    UserPlusIcon: UserPlus,
+    UserPlusIcon,
   };
 
   private headerActions = inject(HeaderActionsService);

@@ -2,12 +2,12 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ArrowRight, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { InputField } from '../../../components/input-field/input-field';
 import { LoadingSpinnerComponent } from '../../../components/loading-spinner/loading-spinner';
 import { AuthService, ToastService } from '../../../services';
-import { AtSignIcon, PasswordIcon } from '../../../shared/icons';
+import { ArrowRightIcon, AtSignIcon, PasswordIcon } from '../../../shared/icons';
 
 @Component({
   selector: 'login-page',
@@ -26,7 +26,7 @@ export class LoginPage {
   protected readonly icons = {
     AtSignIcon,
     PasswordIcon,
-    ArrowRightIcon: ArrowRight,
+    ArrowRightIcon,
   };
 
   private readonly authService = inject(AuthService);

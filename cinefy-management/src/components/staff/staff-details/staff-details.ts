@@ -42,7 +42,7 @@ export class StaffDetailsComponent {
     EditIcon,
     EmailIcon,
     PhoneIcon,
-    UsernameIcon: AtSignIcon,
+    AtSignIcon,
     BriefCaseIcon,
   };
 

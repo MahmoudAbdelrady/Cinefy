@@ -11,7 +11,7 @@
           >
             <div class="sci-num">
               @if ($index < currentStep()) {
-                <lucide-icon [img]="Check" [size]="15" />
+                <lucide-icon [img]="CheckIcon" [size]="15" />
               } @else {
                 {{ $index + 1 }}
               }
@@ -28,7 +28,7 @@
     </div>
     @let tip = noteTip();
     @if (tip) {
-      <help-hint [title]="tip.title" [icon]="CircleQuestionMark">
+      <help-hint [title]="tip.title" [icon]="CircleQuestionIcon">
         @if (noteTipTpl(); as tpl) {
           <ng-container [ngTemplateOutlet]="tpl" />
         } @else {

@@ -2,7 +2,7 @@ import { Component, computed, DestroyRef, inject, input, output, signal } from '
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule, User } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
 import {
   AtSignIcon,
@@ -11,6 +11,7 @@ import {
   EmailIcon,
   PhoneIcon,
   LockIcon,
+  UserIcon,
 } from '../../../shared/icons';
 import { InputField } from '../../input-field/input-field';
 import {
@@ -44,8 +45,8 @@ export class ProfilePersonalDetailsComponent {
     PhoneIcon,
     EditIcon,
     SaveIcon,
-    UsernameIcon: AtSignIcon,
-    NameIcon: User,
+    AtSignIcon,
+    UserIcon,
     LockIcon,
   };
 

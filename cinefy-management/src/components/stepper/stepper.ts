@@ -1,6 +1,7 @@
 import { Component, computed, input, TemplateRef } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { Check, CircleQuestionMark, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { CheckIcon, CircleQuestionIcon } from '../../shared/icons';
 import { HelpHint } from '../help-hint/help-hint';
 
 export interface StepperStep {
@@ -21,8 +22,8 @@ export interface StepperNoteTip {
   styleUrl: './stepper.scss',
 })
 export class Stepper {
-  protected readonly Check = Check;
-  protected readonly CircleQuestionMark = CircleQuestionMark;
+  protected readonly CheckIcon = CheckIcon;
+  protected readonly CircleQuestionIcon = CircleQuestionIcon;
 
   readonly steps = input.required<StepperStep[]>();
   readonly noteTip = input<StepperNoteTip | null>(null);

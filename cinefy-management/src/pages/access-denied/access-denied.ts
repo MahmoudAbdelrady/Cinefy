@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, ShieldX } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { ShieldXIcon } from '../../shared/icons';
 
 @Component({
   selector: 'access-denied-page',
@@ -10,6 +11,6 @@ import { LucideAngularModule, ShieldX } from 'lucide-angular';
 })
 export class AccessDeniedPage {
   protected readonly icons = {
-    ShieldXIcon: ShieldX,
+    ShieldXIcon,
   };
 }

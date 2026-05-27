@@ -1,13 +1,14 @@
 import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
-import { LucideAngularModule, Tag } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   AlertIcon,
   DeleteIcon,
   EyeIcon,
   LayoutIcon,
   SearchIcon,
+  TagIcon,
   UsersIcon,
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
@@ -45,7 +46,7 @@ export class HallsListComponent {
     EyeIcon,
     DeleteIcon,
     AlertIcon,
-    TagIcon: Tag,
+    TagIcon,
   };
 
   private readonly hallsService = inject(HallsService);

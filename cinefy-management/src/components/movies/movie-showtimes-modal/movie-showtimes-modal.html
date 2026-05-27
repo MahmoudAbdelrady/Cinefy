@@ -39,7 +39,7 @@
                   <div class="dsi-details">
                     <span class="dsid-time">{{ showtimeDetail.time | time12h }}</span>
                     <div class="dsid-location">
-                      <lucide-icon [img]="icons.LocationIcon" [size]="14"></lucide-icon>
+                      <lucide-icon [img]="icons.MapPinIcon" [size]="14"></lucide-icon>
                       <span>{{ showtimeDetail.hall.name }}</span>
                     </div>
                     @if (canManage()) {
@@ -61,7 +61,7 @@
                           @if (publishingShowtimeIds().has(showtimeDetail.id)) {
                             <loading-spinner variant="xs" />
                           } @else {
-                            <lucide-icon [img]="icons.PublishIcon" [size]="14"></lucide-icon>
+                            <lucide-icon [img]="icons.SendIcon" [size]="14"></lucide-icon>
                           }
                         </button>
                       }
@@ -153,7 +153,7 @@
                 @if (showtimeDetail.specialNotes) {
                   @let expanded = expandedNotes().has(showtimeDetail.id);
                   <div class="ds-notes" [class.expanded]="expanded">
-                    <lucide-icon [img]="icons.NotesIcon" [size]="12"></lucide-icon>
+                    <lucide-icon [img]="icons.StickyNoteIcon" [size]="12"></lucide-icon>
                     <span #noteText class="dsn-text" [attr.data-note-id]="showtimeDetail.id">{{
                       showtimeDetail.specialNotes
                     }}</span>
@@ -201,7 +201,7 @@
             @if (publishingAll()) {
               <loading-spinner variant="sm" />
             } @else if (!hasDayDrafts()) {
-              <lucide-icon [img]="icons.PublishIcon" [size]="16"></lucide-icon>
+              <lucide-icon [img]="icons.SendIcon" [size]="16"></lucide-icon>
             }
             <span>Publish all ({{ data.numberOfDrafts }})</span>
           </button>
@@ -216,7 +216,7 @@
             @if (publishingDay()) {
               <loading-spinner variant="sm" />
             } @else {
-              <lucide-icon [img]="icons.PublishIcon" [size]="16"></lucide-icon>
+              <lucide-icon [img]="icons.SendIcon" [size]="16"></lucide-icon>
             }
             <span>Publish Drafts ({{ dayDrafts() }})</span>
           </button>

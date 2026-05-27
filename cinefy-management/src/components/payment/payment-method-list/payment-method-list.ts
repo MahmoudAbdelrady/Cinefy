@@ -9,19 +9,22 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LucideAngularModule } from 'lucide-angular';
 import {
-  CircleCheck,
-  EllipsisVertical,
-  Info,
-  LucideAngularModule,
-  Power,
-  PowerOff,
-  Rocket,
-  Sparkles,
-  Webhook,
-  Zap,
-} from 'lucide-angular';
-import { AlertIcon, CreditCardIcon, DeleteIcon, EditIcon } from '../../../shared/icons';
+  AlertIcon,
+  CircleCheckIcon,
+  CreditCardIcon,
+  DeleteIcon,
+  EditIcon,
+  EllipsisIcon,
+  InfoIcon,
+  PowerIcon,
+  PowerOffIcon,
+  RocketIcon,
+  SparklesIcon,
+  WebhookIcon,
+  ZapIcon,
+} from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
@@ -65,15 +68,15 @@ export class PaymentMethodListComponent {
     CreditCardIcon,
     DeleteIcon,
     EditIcon,
-    WalletIcon: Webhook,
-    InstallmentIcon: Sparkles,
-    MenuIcon: EllipsisVertical,
-    PowerIcon: Power,
-    PowerOffIcon: PowerOff,
-    ZapIcon: Zap,
-    CheckIcon: CircleCheck,
-    InfoIcon: Info,
-    RocketIcon: Rocket,
+    WebhookIcon,
+    SparklesIcon,
+    EllipsisIcon,
+    PowerIcon,
+    PowerOffIcon,
+    ZapIcon,
+    CircleCheckIcon,
+    InfoIcon,
+    RocketIcon,
   };
 
   private readonly paymentMethodService = inject(PaymentMethodService);
@@ -204,9 +207,9 @@ export class PaymentMethodListComponent {
       case 'CARD':
         return this.icons.CreditCardIcon;
       case 'WALLET':
-        return this.icons.WalletIcon;
+        return this.icons.WebhookIcon;
       case 'INSTALLMENT':
-        return this.icons.InstallmentIcon;
+        return this.icons.SparklesIcon;
     }
   }
 

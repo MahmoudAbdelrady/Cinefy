@@ -1,6 +1,6 @@
 import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Eye, LayoutDashboard, TrendingUp, Users } from 'lucide-angular';
+import { EyeIcon, LayoutIcon, TrendingUpIcon, UsersIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { StatsComponent } from '../../stats/stats';
 import { HallsService, ToastService } from '../../../services';
@@ -22,10 +22,10 @@ export class HallsStatisticsComponent {
   protected readonly cards = computed<StatsCard[]>(() => {
     const s = this.statistics();
     return [
-      { label: 'Total Halls', value: s?.totalHalls?.toString() ?? '—', icon: LayoutDashboard },
-      { label: 'Active Halls', value: s?.activeHalls?.toString() ?? '—', icon: Eye },
-      { label: 'Total Capacity', value: s?.totalCapacity?.toString() ?? '—', icon: Users },
-      { label: 'Occupancy Rate', value: '44%', icon: TrendingUp },
+      { label: 'Total Halls', value: s?.totalHalls?.toString() ?? '—', icon: LayoutIcon },
+      { label: 'Active Halls', value: s?.activeHalls?.toString() ?? '—', icon: EyeIcon },
+      { label: 'Total Capacity', value: s?.totalCapacity?.toString() ?? '—', icon: UsersIcon },
+      { label: 'Occupancy Rate', value: '44%', icon: TrendingUpIcon },
     ];
   });
 

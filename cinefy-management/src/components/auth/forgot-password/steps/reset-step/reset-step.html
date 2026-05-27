@@ -39,7 +39,7 @@
       <ul class="fp-checklist">
         @for (check of checks(); track $index) {
           <li class="fp-check" [class.fp-check--ok]="check.ok">
-            <lucide-icon [img]="icons.CheckIcon" [size]="12" [strokeWidth]="2.4" />
+            <lucide-icon [img]="icons.CircleCheckIcon" [size]="12" [strokeWidth]="2.4" />
             {{ check.label }}
           </li>
         }

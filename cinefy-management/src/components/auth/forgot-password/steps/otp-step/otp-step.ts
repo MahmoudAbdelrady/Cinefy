@@ -3,7 +3,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { interval, takeWhile } from 'rxjs';
-import { ArrowLeft, ArrowRight, CircleAlert, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { AlertIcon, ArrowLeftIcon, ArrowRightIcon } from '../../../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { LoadingSpinnerComponent } from '../../../../loading-spinner/loading-spinner';
 import { InputOtp } from '../../../input-otp/input-otp';
@@ -20,9 +21,9 @@ const RESEND_COOLDOWN_SECONDS = 10 * 60;
 })
 export class OtpStep {
   protected readonly icons = {
-    ArrowRightIcon: ArrowRight,
-    ArrowLeftIcon: ArrowLeft,
-    AlertIcon: CircleAlert,
+    ArrowRightIcon,
+    ArrowLeftIcon,
+    AlertIcon,
   };
 
   private readonly authService = inject(AuthService);

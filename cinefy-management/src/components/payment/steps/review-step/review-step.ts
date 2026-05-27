@@ -1,7 +1,14 @@
 import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { EyeOff, LucideAngularModule, X, Zap } from 'lucide-angular';
-import { CheckIcon, CreditCardIcon, EyeIcon } from '../../../../shared/icons';
+import { LucideAngularModule } from 'lucide-angular';
+import {
+  CheckIcon,
+  CreditCardIcon,
+  EyeIcon,
+  EyeOffIcon,
+  XIcon,
+  ZapIcon,
+} from '../../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { LoadingSpinnerComponent } from '../../../loading-spinner/loading-spinner';
 import { RelativeTimePipe } from '../../../../shared/pipes';
@@ -30,9 +37,9 @@ export class ReviewStep {
     CheckIcon,
     CreditCardIcon,
     EyeIcon,
-    XIcon: X,
-    ZapIcon: Zap,
-    EyeOffIcon: EyeOff,
+    XIcon,
+    ZapIcon,
+    EyeOffIcon,
   };
 
   private readonly paymentMethodService = inject(PaymentMethodService);

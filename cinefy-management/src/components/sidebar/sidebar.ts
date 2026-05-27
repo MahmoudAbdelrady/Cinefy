@@ -1,16 +1,15 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 import {
-  ChartColumn,
-  CreditCard,
-  Film,
-  House,
-  LayoutDashboard,
-  LucideAngularModule,
-  LucideIconData,
-  Users,
-  X,
-} from 'lucide-angular';
+  ChartColumnIcon,
+  CreditCardIcon,
+  FilmIcon,
+  HouseIcon,
+  LayoutIcon,
+  UsersIcon,
+  XIcon,
+} from '../../shared/icons';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { SidebarService, StaffService } from '../../services';
 import { canAccessRoute } from '../../shared/access';
@@ -29,18 +28,18 @@ interface SidebarTab {
 })
 export class SidebarComponent {
   protected readonly icons = {
-    XIcon: X,
+    XIcon,
   };
   protected sidebarService = inject(SidebarService);
   private readonly staffService = inject(StaffService);
 
   private static readonly ALL_TABS: SidebarTab[] = [
-    { label: 'Dashboard', icon: House, path: '/' },
-    { label: 'Halls', icon: LayoutDashboard, path: '/halls' },
-    { label: 'Movies', icon: Film, path: '/movies' },
-    { label: 'Statistics', icon: ChartColumn, path: '/statistics' },
-    { label: 'Payment', icon: CreditCard, path: '/payment' },
-    { label: 'Staff', icon: Users, path: '/staff' },
+    { label: 'Dashboard', icon: HouseIcon, path: '/' },
+    { label: 'Halls', icon: LayoutIcon, path: '/halls' },
+    { label: 'Movies', icon: FilmIcon, path: '/movies' },
+    { label: 'Statistics', icon: ChartColumnIcon, path: '/statistics' },
+    { label: 'Payment', icon: CreditCardIcon, path: '/payment' },
+    { label: 'Staff', icon: UsersIcon, path: '/staff' },
   ];
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());

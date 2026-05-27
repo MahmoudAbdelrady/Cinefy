@@ -29,8 +29,16 @@ import {
   Showtime,
 } from '../../../shared/types';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
-import { LucideAngularModule, MapPin, Send, StickyNote } from 'lucide-angular';
-import { DeleteIcon, EditIcon, PlusIcon, WarningIcon } from '../../../shared/icons';
+import { LucideAngularModule } from 'lucide-angular';
+import {
+  DeleteIcon,
+  EditIcon,
+  MapPinIcon,
+  PlusIcon,
+  SendIcon,
+  StickyNoteIcon,
+  WarningIcon,
+} from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
@@ -67,9 +75,9 @@ export class MovieShowtimesModal {
     EditIcon,
     PlusIcon,
     WarningIcon,
-    LocationIcon: MapPin,
-    PublishIcon: Send,
-    NotesIcon: StickyNote,
+    MapPinIcon,
+    SendIcon,
+    StickyNoteIcon,
   };
 
   private readonly showtimesService = inject(ShowtimesService);

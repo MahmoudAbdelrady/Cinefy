@@ -1,7 +1,7 @@
 import { Component, computed, input, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { EyeOff, LucideAngularModule, LucideIconData } from 'lucide-angular';
-import { EyeIcon } from '../../shared/icons';
+import { LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { EyeIcon, EyeOffIcon } from '../../shared/icons';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpButton } from 'ng-primitives/button';
 import { FieldErrorComponent } from '../field-error/field-error';
@@ -15,7 +15,7 @@ import { FieldErrorComponent } from '../field-error/field-error';
 export class InputField {
   protected readonly icons = {
     EyeIcon,
-    EyeOffIcon: EyeOff,
+    EyeOffIcon,
   };
 
   readonly control = input.required<FormControl>();

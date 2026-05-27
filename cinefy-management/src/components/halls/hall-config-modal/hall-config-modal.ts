@@ -15,8 +15,15 @@ import { NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { LucideAngularModule, Star } from 'lucide-angular';
-import { DollarSignIcon, EditIcon, EyeIcon, LayoutIcon, SettingsIcon } from '../../../shared/icons';
+import { LucideAngularModule } from 'lucide-angular';
+import {
+  DollarSignIcon,
+  EditIcon,
+  EyeIcon,
+  LayoutIcon,
+  SettingsIcon,
+  StarIcon,
+} from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
@@ -78,7 +85,7 @@ export class HallConfigModalComponent {
     EyeIcon,
     LayoutIcon,
     SettingsIcon,
-    StarIcon: Star,
+    StarIcon,
   };
 
   private readonly hallsService = inject(HallsService);

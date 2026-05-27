@@ -39,7 +39,7 @@
             </div>
             <div class="mih-actions">
               <button [ngpMenuTrigger]="paymentActionsMenu" ngpButton>
-                <lucide-icon [img]="icons.MenuIcon" size="16"></lucide-icon>
+                <lucide-icon [img]="icons.EllipsisIcon" size="16"></lucide-icon>
               </button>
 
               <ng-template #paymentActionsMenu>
@@ -168,7 +168,7 @@
                     @switch (paymentMethod.testStatus) {
                       @case ('SUCCESS') {
                         <span class="mics-test-badge" data-test-status="success">
-                          <lucide-icon [img]="icons.CheckIcon" size="14"></lucide-icon>
+                          <lucide-icon [img]="icons.CircleCheckIcon" size="14"></lucide-icon>
                           Passed
                         </span>
                       }
