@@ -1,7 +1,14 @@
 import { afterNextRender, Component, inject, input, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AtSign, BriefcaseBusiness, LucideAngularModule } from 'lucide-angular';
-import { CalendarIcon, EditIcon, EmailIcon, PhoneIcon } from '../../../shared/icons';
+import { LucideAngularModule } from 'lucide-angular';
+import {
+  BriefCaseIcon,
+  CalendarIcon,
+  EditIcon,
+  EmailIcon,
+  PhoneIcon,
+  AtSignIcon,
+} from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
 import { ModalComponent } from '../../modal/modal';
 import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
@@ -33,8 +40,8 @@ export class StaffDetailsComponent {
     EditIcon,
     EmailIcon,
     PhoneIcon,
-    UsernameIcon: AtSign,
-    BriefCaseIcon: BriefcaseBusiness,
+    UsernameIcon: AtSignIcon,
+    BriefCaseIcon,
   };
 
   private readonly staffService = inject(StaffService);

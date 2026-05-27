@@ -1,5 +1,6 @@
 export {
   AtSign as AtSignIcon,
+  BriefcaseBusiness as BriefCaseIcon,
   Calendar as CalendarIcon,
   Check as CheckIcon,
   ChevronDown as ChevronDownIcon,
