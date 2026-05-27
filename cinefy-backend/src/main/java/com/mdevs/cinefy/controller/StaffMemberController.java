@@ -1,8 +1,10 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.dto.staff.ChangePasswordDTO;
 import com.mdevs.cinefy.dto.staff.CurrentStaffMemberDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberDTO;
+import com.mdevs.cinefy.dto.staff.UpdateProfileDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberDetailDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberSummaryDTO;
 import com.mdevs.cinefy.service.StaffMemberService;
@@ -42,6 +44,19 @@ public class StaffMemberController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CurrentStaffMemberDTO> getCurrentStaffMember() {
         return ResponseEntity.ok(staffMemberService.getCurrentStaffMember());
+    }
+
+    @PutMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<StaffMemberDetailDTO> updateProfile(@Valid @RequestBody UpdateProfileDTO dto) {
+        return ResponseEntity.ok(staffMemberService.updateProfile(dto));
+    }
+
+    @PutMapping("/me/password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordDTO dto) {
+        staffMemberService.changePassword(dto);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/position-coverage")

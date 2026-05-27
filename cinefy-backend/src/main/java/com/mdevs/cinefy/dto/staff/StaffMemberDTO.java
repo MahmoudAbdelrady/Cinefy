@@ -13,18 +13,12 @@ public class StaffMemberDTO {
 
     @NotBlank(message = "First name is required")
     @Size(min = 2, max = 50, message = "First name must be 2-50 characters")
-    @Pattern(
-            regexp = "^\\p{L}+([ '\\-]\\p{L}+)*$",
-            message = "First name may only contain letters, spaces, hyphens, and apostrophes"
-    )
+    @Pattern(regexp = ValidationPatterns.NAME, message = ValidationPatterns.NAME_MESSAGE)
     private String firstName;
 
     @NotBlank(message = "Last name is required")
     @Size(min = 2, max = 50, message = "Last name must be 2-50 characters")
-    @Pattern(
-            regexp = "^\\p{L}+([ '\\-]\\p{L}+)*$",
-            message = "Last name may only contain letters, spaces, hyphens, and apostrophes"
-    )
+    @Pattern(regexp = ValidationPatterns.NAME, message = ValidationPatterns.NAME_MESSAGE)
     private String lastName;
 
     @NotBlank(message = "Username is required")

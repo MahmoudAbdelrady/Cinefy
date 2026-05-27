@@ -3,11 +3,13 @@ package com.mdevs.cinefy.service;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+import com.mdevs.cinefy.dto.staff.ChangePasswordDTO;
 import com.mdevs.cinefy.dto.staff.CurrentStaffMemberDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageItemDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageProjection;
 import com.mdevs.cinefy.dto.staff.StaffMemberDTO;
+import com.mdevs.cinefy.dto.staff.UpdateProfileDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberDetailDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberSummaryDTO;
 import com.mdevs.cinefy.entity.enums.EmploymentType;
@@ -147,6 +149,23 @@ public class StaffMemberService implements UserDetailsService {
     }
 
     @Transactional
+    public StaffMemberDetailDTO updateProfile(UpdateProfileDTO dto) {
+        StaffMember staffMember = findStaffMember(SecurityUtil.getCurrentUserUuid());
+        String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
+        if (staffMemberRepository.existsByPhoneNumberAndIdNot(normalizedPhoneNumber, staffMember.getId())) {
+            throw new BusinessException("Phone number already in use");
+        }
+
+        staffMember.setFirstName(dto.getFirstName());
+        staffMember.setLastName(dto.getLastName());
+        staffMember.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
+        staffMember.setPhoneNumber(normalizedPhoneNumber);
+
+        staffMemberRepository.save(staffMember);
+        return toDetailDTO(staffMember);
+    }
+
+    @Transactional
     public void deleteStaffMember(String uuid) {
         StaffMember staffMember = findStaffMember(uuid);
         validateNotAdminAccount(staffMember);
@@ -157,11 +176,16 @@ public class StaffMemberService implements UserDetailsService {
     public void updatePassword(Long id, String rawPassword) {
         StaffMember staffMember = staffMemberRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + id));
-        if (passwordEncoder.matches(rawPassword, staffMember.getPassword())) {
-            throw new BusinessException("New password must be different from the current password", ErrorCode.PASSWORD_REUSED);
+        applyNewPassword(staffMember, rawPassword);
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordDTO dto) {
+        StaffMember staffMember = findStaffMember(SecurityUtil.getCurrentUserUuid());
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), staffMember.getPassword())) {
+            throw new BusinessException("Current password is incorrect", ErrorCode.PASSWORD_INCORRECT);
         }
-        staffMember.setPassword(passwordEncoder.encode(rawPassword));
-        staffMemberRepository.save(staffMember);
+        applyNewPassword(staffMember, dto.getNewPassword());
     }
 
     // =========================== Helpers ===========================
@@ -210,6 +234,14 @@ public class StaffMemberService implements UserDetailsService {
         if (phoneNumberExists) {
             throw new BusinessException("Phone number already in use");
         }
+    }
+
+    private void applyNewPassword(StaffMember staffMember, String rawPassword) {
+        if (passwordEncoder.matches(rawPassword, staffMember.getPassword())) {
+            throw new BusinessException("New password must be different from the current password", ErrorCode.PASSWORD_REUSED);
+        }
+        staffMember.setPassword(passwordEncoder.encode(rawPassword));
+        staffMemberRepository.save(staffMember);
     }
 
     private void populateFromDto(StaffMember staffMember, StaffMemberDTO dto, Long excludeId) {
