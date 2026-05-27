@@ -1,0 +1,108 @@
+@use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
+@use '../../shared/styles/shadows' as *;
+@use '../../shared/styles/breakpoints' as *;
+
+@mixin profile-panel {
+  .profile-panel {
+    background-color: #ffffff;
+    border: 1px solid $gray-200;
+    border-radius: $radius-xl;
+    box-shadow: $shadow-sm;
+  }
+
+  .panel-header {
+    @include flex-between;
+    gap: 12px;
+    padding: 16px 24px;
+    border-bottom: 1px solid $gray-100;
+  }
+
+  .ph-title {
+    @include flex-align;
+    gap: 10px;
+
+    h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: $gray-900;
+    }
+
+    p {
+      margin-top: 2px;
+      font-size: 12px;
+      color: $gray-500;
+    }
+  }
+
+  .ph-icon {
+    @include icon-box(32px);
+    border-radius: $radius-md;
+    border: 1px solid;
+
+    &.ph-icon-blue {
+      background-color: $blue-50;
+      border-color: $blue-100;
+      color: $blue-600;
+    }
+
+    &.ph-icon-amber {
+      background-color: $amber-50;
+      border-color: $amber-100;
+      color: $amber-700;
+    }
+  }
+
+  .panel-body {
+    @include flex-column;
+    gap: 20px;
+    padding: 24px;
+  }
+
+  .form-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+
+    @include below-phone {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .panel-footer {
+    @include flex-align;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .btn-save {
+    @include flex-center;
+    gap: 8px;
+    @include lucide-icon-fix;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: $blue-600;
+    border-radius: $radius-md;
+    box-shadow: $shadow-xs;
+    transition: background-color 150ms ease;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background-color: $blue-700;
+    }
+
+    &:disabled {
+      background-color: $gray-300;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@mixin profile-mono {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+}

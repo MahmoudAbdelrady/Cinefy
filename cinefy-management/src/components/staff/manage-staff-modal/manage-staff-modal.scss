@@ -164,19 +164,3 @@
     box-shadow: $shadow-focus-ring;
   }
 }
-
-.phone-row {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-
-  .phone-country {
-    flex: 0 0 110px;
-    min-width: 0;
-  }
-
-  .phone-national {
-    flex: 1;
-    min-width: 0;
-  }
-}

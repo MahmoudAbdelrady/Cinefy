@@ -1,6 +1,3 @@
-// Shared icon re-exports with consistent aliases across the app.
-// Add icons here once they're used in multiple components; one-off icons
-// stay imported directly from 'lucide-angular' in the component that needs them.
 export {
   AtSign as AtSignIcon,
   Calendar as CalendarIcon,
@@ -25,4 +22,5 @@ export {
   Trash2 as DeleteIcon,
   TriangleAlert as WarningIcon,
   Users as UsersIcon,
+  Save as SaveIcon,
 } from 'lucide-angular';

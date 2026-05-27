@@ -8,7 +8,7 @@ import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import {
   EMPLOYMENT_TYPE_LABELS,
-  STAFF_POSITION_LABELS,
+  USER_POSITION_LABELS,
   WEEK_DAY_LABELS,
   type StaffMemberDetail,
 } from '../../../shared/types';
@@ -41,7 +41,7 @@ export class StaffDetailsComponent {
   private readonly toastService = inject(ToastService);
 
   protected readonly employmentTypeLabels = EMPLOYMENT_TYPE_LABELS;
-  protected readonly positionLabels = STAFF_POSITION_LABELS;
+  protected readonly positionLabels = USER_POSITION_LABELS;
   protected readonly weekDayLabels = WEEK_DAY_LABELS;
 
   readonly close = input.required<() => void>();

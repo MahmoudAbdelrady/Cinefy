@@ -84,6 +84,8 @@ export type {
   StaffMemberDetail,
   CurrentStaffMember,
   StaffMemberPayload,
+  UpdateProfilePayload,
+  ChangePasswordPayload,
   StaffPosition,
   UserPosition,
   EmploymentType,

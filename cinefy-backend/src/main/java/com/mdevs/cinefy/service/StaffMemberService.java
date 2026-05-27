@@ -17,6 +17,7 @@ import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.StaffMemberRepository;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.security.SecurityUtil;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
@@ -58,6 +59,7 @@ public class StaffMemberService implements UserDetailsService {
     }
 
     public StaffMemberDetailDTO getStaffMember(String uuid) {
+        validateCanViewStaffMember(uuid);
         return toDetailDTO(findStaffMember(uuid));
     }
 
@@ -167,6 +169,14 @@ public class StaffMemberService implements UserDetailsService {
     private StaffMember findStaffMember(String uuid) {
         return staffMemberRepository.findByUuid(uuid)
                 .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + uuid));
+    }
+
+    private void validateCanViewStaffMember(String uuid) {
+        UserPrincipal currentUser = SecurityUtil.getCurrentUser();
+        boolean privileged = currentUser.getPosition().equals(StaffPosition.ADMIN.name()) || currentUser.getPosition().equals(StaffPosition.MANAGER.name());
+        if (!privileged && !currentUser.getUuid().equals(uuid)) {
+            throw new ForbiddenException("You are not allowed to view this staff member");
+        }
     }
 
     private void validateNotAdminAccount(StaffMember staffMember) {
