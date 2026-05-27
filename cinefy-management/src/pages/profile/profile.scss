@@ -1,0 +1,54 @@
+@use '../../shared/styles/mixins' as *;
+@use '../../shared/styles/colors' as *;
+@use '../../shared/styles/breakpoints' as *;
+
+.profile-loading {
+  @include flex-center;
+  min-height: 320px;
+}
+
+.profile-page {
+  @include flex-column;
+  gap: 24px;
+  max-width: 1152px;
+  margin: 0 auto;
+}
+
+.profile-intro {
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: $gray-900;
+  }
+
+  p {
+    margin-top: 4px;
+    font-size: 14px;
+    color: $gray-600;
+  }
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+
+  @include below-desktop {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-rail {
+  position: sticky;
+  top: 24px;
+
+  @include below-desktop {
+    position: static;
+  }
+}
+
+.profile-panels {
+  @include flex-column;
+  gap: 24px;
+}

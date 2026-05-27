@@ -13,18 +13,16 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule, User } from 'lucide-angular';
 import { AtSignIcon, CheckIcon, EmailIcon, PasswordIcon, PhoneIcon } from '../../../shared/icons';
-import {
-  getCountries,
-  getCountryCallingCode,
-  getExampleNumber,
-  isValidPhoneNumber,
-  parsePhoneNumberFromString,
-  type CountryCode,
-} from 'libphonenumber-js';
-import examples from 'libphonenumber-js/examples.mobile.json';
+import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import { ModalComponent } from '../../modal/modal';
 import { InputField } from '../../input-field/input-field';
+import {
+  DEFAULT_COUNTRY,
+  PhoneInput,
+  phoneNumberValidator,
+  toE164Digits,
+} from '../../phone-input/phone-input';
 import {
   EMPLOYMENT_TYPE_LABELS,
   STAFF_POSITION_LABELS,
@@ -47,27 +45,12 @@ import {
   USERNAME_PATTERN,
 } from '../../../shared/validation';
 
-interface CountryOption {
-  code: CountryCode;
-  name: string;
-  dialCode: string;
-}
-
-const COUNTRY_NAMES = new Intl.DisplayNames(['en'], { type: 'region' });
-const COUNTRY_OPTIONS: CountryOption[] = getCountries()
-  .map((code) => ({
-    code,
-    name: COUNTRY_NAMES.of(code) ?? code,
-    dialCode: getCountryCallingCode(code),
-  }))
-  .sort((a, b) => a.name.localeCompare(b.name));
-const DEFAULT_COUNTRY: CountryCode = 'EG';
-
 @Component({
   selector: 'manage-staff-modal',
   imports: [
     ModalComponent,
     InputField,
+    PhoneInput,
     CustomSelectComponent,
     LucideAngularModule,
     NgpRadioGroup,
@@ -96,7 +79,6 @@ export class ManageStaffModalComponent {
   protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
   protected readonly staffPositions = Object.keys(STAFF_POSITION_LABELS) as StaffPosition[];
   protected readonly weekDays = Object.keys(WEEK_DAY_LABELS) as WeekDay[];
-  protected readonly countryOptions = COUNTRY_OPTIONS;
   protected readonly employmentTypeEntries = Object.entries(EMPLOYMENT_TYPE_LABELS).map(
     ([value, label]) => ({ value: value as EmploymentType, label }),
   );
@@ -199,26 +181,12 @@ export class ManageStaffModalComponent {
     initialValue: this.staffForm.getRawValue(),
   });
 
-  protected readonly phonePlaceholder = computed(() => {
-    this.currentFormValue();
-    const country = this.staffForm.controls.phoneCountry.value;
-    const example = getExampleNumber(country, examples);
-    return example ? `e.g. ${example.nationalNumber}` : 'Phone number';
-  });
-
   protected readonly hasChanges = computed(() => {
     const snapshot = this.initialFormSnapshot();
     if (snapshot === null) return true;
     this.currentFormValue();
     return JSON.stringify(this.staffForm.getRawValue()) !== snapshot;
   });
-
-  protected readonly countryDisplayFn = (option: CountryOption): string =>
-    `+${option.dialCode} ${option.name}`;
-  protected readonly countryTriggerDisplayFn = (option: CountryOption): string =>
-    `+${option.dialCode}`;
-  protected readonly countryCompareFn = (a: CountryOption, b: CountryOption): boolean =>
-    a.code === b.code;
 
   protected readonly positionDisplayFn = (position: StaffPosition): string =>
     STAFF_POSITION_LABELS[position];
@@ -236,15 +204,9 @@ export class ManageStaffModalComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.staffForm.controls.workingHourEnd.updateValueAndValidity());
 
-    this.staffForm.controls.phoneNumber.addValidators((control) => {
-      const national = control.value;
-      const country = this.staffForm.controls.phoneCountry.value;
-      if (!national || !country) return null;
-      return isValidPhoneNumber(national, country) ? null : { invalidPhone: true };
-    });
-    this.staffForm.controls.phoneCountry.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.staffForm.controls.phoneNumber.updateValueAndValidity());
+    this.staffForm.controls.phoneNumber.addValidators(
+      phoneNumberValidator(this.staffForm.controls.phoneCountry),
+    );
 
     effect(() => {
       if (this.isEdit()) return;
@@ -288,7 +250,8 @@ export class ManageStaffModalComponent {
         email: member.email,
         phoneCountry: parsedPhone?.country ?? DEFAULT_COUNTRY,
         phoneNumber: parsedPhone?.nationalNumber ?? member.phoneNumber,
-        position: member.position,
+        position:
+          member.position in STAFF_POSITION_LABELS ? (member.position as StaffPosition) : null,
         employmentType: member.employmentType,
         workingDayStart: member.workingDayStart,
         workingDayEnd: member.workingDayEnd,
@@ -323,15 +286,6 @@ export class ManageStaffModalComponent {
     this.staffForm.controls.workingDayEnd.setValue(null);
   }
 
-  protected onPhoneCountryChange(option: CountryOption): void {
-    this.staffForm.controls.phoneCountry.setValue(option.code);
-  }
-
-  protected get selectedCountryOption(): CountryOption | null {
-    const code = this.staffForm.controls.phoneCountry.value;
-    return COUNTRY_OPTIONS.find((opt) => opt.code === code) ?? null;
-  }
-
   protected saveMember() {
     if (this.staffForm.invalid || this.saving()) return;
 
@@ -341,7 +295,7 @@ export class ManageStaffModalComponent {
       lastName: value.lastName,
       username: value.username,
       email: value.email,
-      phoneNumber: `${getCountryCallingCode(value.phoneCountry)}${value.phoneNumber}`,
+      phoneNumber: toE164Digits(this.staffForm.controls.phoneCountry, value.phoneNumber),
       position: value.position!,
       employmentType: value.employmentType!,
       workingDayStart: value.workingDayStart!,

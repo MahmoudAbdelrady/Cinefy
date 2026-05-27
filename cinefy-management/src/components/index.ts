@@ -13,6 +13,7 @@ import { ManageHallTypesModalComponent } from './halls/manage-hall-types-modal/m
 import { ToastComponent } from './toast/toast';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner';
 import { FieldErrorComponent } from './field-error/field-error';
+import { PhoneInput } from './phone-input/phone-input';
 import { CustomSelectComponent } from './drop-down/custom-select/custom-select';
 import { PaginatedSelectComponent } from './drop-down/paginated-select/paginated-select';
 import { MoviePickerComponent } from './movies/movie-picker/movie-picker';
@@ -31,6 +32,9 @@ import { StaffListComponent } from './staff/staff-list/staff-list';
 import { ManageStaffModalComponent } from './staff/manage-staff-modal/manage-staff-modal';
 import { StaffDetailsComponent } from './staff/staff-details/staff-details';
 import { StaffPositionCoverageComponent } from './staff/staff-position-coverage/staff-position-coverage';
+import { ProfileIdentityComponent } from './profile/profile-identity/profile-identity';
+import { ProfilePersonalDetailsComponent } from './profile/profile-personal-details/profile-personal-details';
+import { ProfilePasswordComponent } from './profile/profile-password/profile-password';
 
 export {
   HeaderComponent,
@@ -48,6 +52,7 @@ export {
   ToastComponent,
   LoadingSpinnerComponent,
   FieldErrorComponent,
+  PhoneInput,
   CustomSelectComponent,
   PaginatedSelectComponent,
   MoviePickerComponent,
@@ -66,4 +71,9 @@ export {
   ManageStaffModalComponent,
   StaffDetailsComponent,
   StaffPositionCoverageComponent,
+  ProfileIdentityComponent,
+  ProfilePersonalDetailsComponent,
+  ProfilePasswordComponent,
 };
+
+export { DEFAULT_COUNTRY, phoneNumberValidator, toE164Digits } from './phone-input/phone-input';

@@ -1,0 +1,53 @@
+@let profile = this.profile();
+
+<div class="identity-card" [attr.data-position]="profile.position">
+  <span class="ic-glow ic-glow-1" aria-hidden="true"></span>
+  <span class="ic-glow ic-glow-2" aria-hidden="true"></span>
+  <div class="ic-inner">
+    <div class="ic-avatar">{{ initials() }}</div>
+    <h3 class="ic-name">{{ fullName() }}</h3>
+    <div class="ic-position">
+      <lucide-icon [img]="icons.BriefCaseIcon" [size]="11" [strokeWidth]="2.5" />
+      <span>{{ positionLabels[profile.position] }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="employment-card">
+  <div class="ec-header">
+    <div class="ec-title">
+      <lucide-icon [img]="icons.BriefCaseIcon" [size]="15" />
+      <h4>Employment</h4>
+    </div>
+    <span class="ec-readonly">
+      <lucide-icon [img]="icons.LockIcon" [size]="11" />
+      Read-only
+    </span>
+  </div>
+  <div class="ec-list">
+    <div class="ec-row">
+      <lucide-icon [img]="icons.ShieldIcon" [size]="15" />
+      <span class="ec-label">Employment type</span>
+      <span class="ec-value">{{ employmentTypeLabels[profile.employmentType] }}</span>
+    </div>
+    <div class="ec-row">
+      <lucide-icon [img]="icons.CalendarIcon" [size]="15" />
+      <span class="ec-label">Hired on</span>
+      <span class="ec-value">{{ profile.hiredAt | date: 'mediumDate' }}</span>
+    </div>
+    <div class="ec-row">
+      <lucide-icon [img]="icons.CalendarClockIcon" [size]="15" />
+      <span class="ec-label">Working days</span>
+      <span class="ec-value">
+        {{ weekDayLabels[profile.workingDayStart] }} – {{ weekDayLabels[profile.workingDayEnd] }}
+      </span>
+    </div>
+    <div class="ec-row">
+      <lucide-icon [img]="icons.ClockIcon" [size]="15" />
+      <span class="ec-label">Working hours</span>
+      <span class="ec-value mono">
+        {{ profile.workingHourStart | time12h }} – {{ profile.workingHourEnd | time12h }}
+      </span>
+    </div>
+  </div>
+</div>

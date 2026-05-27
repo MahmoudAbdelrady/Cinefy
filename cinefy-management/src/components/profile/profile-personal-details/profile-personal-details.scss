@@ -1,0 +1,120 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
+@use '../../../shared/styles/shadows' as *;
+@use '../../../shared/styles/breakpoints' as *;
+@use '../panel' as *;
+
+@include profile-panel;
+
+.ph-edit-btn {
+  @include flex-center;
+  gap: 8px;
+  @include lucide-icon-fix;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: $blue-600;
+  border-radius: $radius-md;
+  box-shadow: $shadow-xs;
+  transition: background-color 150ms ease;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $blue-700;
+  }
+}
+
+.panel-note {
+  @include flex-align;
+  align-items: flex-start;
+  gap: 10px;
+  @include lucide-icon-fix;
+  padding: 12px 16px;
+  background-color: $gray-50;
+  border: 1px solid $gray-100;
+  border-radius: $radius-lg;
+
+  lucide-icon {
+    color: $gray-400;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    font-size: 12px;
+    line-height: 1.5;
+    color: $gray-500;
+  }
+}
+
+.btn-cancel {
+  padding: 8px 20px;
+  font-size: 14px;
+  color: $gray-700;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  transition: background-color 150ms ease;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $gray-200;
+  }
+}
+
+// ─── Read-only info grid ───────────────────────────────────────────────────────
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @include below-mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-item {
+  @include flex-align;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: $gray-50;
+  border: 1px solid $gray-100;
+  border-radius: $radius-md;
+  min-width: 0;
+}
+
+.ii-icon {
+  @include flex-center;
+  @include lucide-icon-fix;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  color: $gray-500;
+}
+
+.ii-info {
+  @include flex-column;
+  gap: 2px;
+  min-width: 0;
+
+  .ii-title {
+    font-size: 12px;
+    color: $gray-500;
+  }
+
+  .ii-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-900;
+    @include text-truncate;
+  }
+}
+
+.mono {
+  @include profile-mono;
+}

@@ -1,14 +1,21 @@
-import { afterNextRender, Component, inject, input, output, signal } from '@angular/core';
+import { afterNextRender, Component, computed, inject, input, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AtSign, BriefcaseBusiness, LucideAngularModule } from 'lucide-angular';
-import { CalendarIcon, EditIcon, EmailIcon, PhoneIcon } from '../../../shared/icons';
+import { LucideAngularModule } from 'lucide-angular';
+import {
+  BriefCaseIcon,
+  CalendarIcon,
+  EditIcon,
+  EmailIcon,
+  PhoneIcon,
+  AtSignIcon,
+} from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
 import { ModalComponent } from '../../modal/modal';
 import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import {
   EMPLOYMENT_TYPE_LABELS,
-  STAFF_POSITION_LABELS,
+  USER_POSITION_LABELS,
   WEEK_DAY_LABELS,
   type StaffMemberDetail,
 } from '../../../shared/types';
@@ -33,15 +40,15 @@ export class StaffDetailsComponent {
     EditIcon,
     EmailIcon,
     PhoneIcon,
-    UsernameIcon: AtSign,
-    BriefCaseIcon: BriefcaseBusiness,
+    UsernameIcon: AtSignIcon,
+    BriefCaseIcon,
   };
 
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
 
   protected readonly employmentTypeLabels = EMPLOYMENT_TYPE_LABELS;
-  protected readonly positionLabels = STAFF_POSITION_LABELS;
+  protected readonly positionLabels = USER_POSITION_LABELS;
   protected readonly weekDayLabels = WEEK_DAY_LABELS;
 
   readonly close = input.required<() => void>();
@@ -51,6 +58,12 @@ export class StaffDetailsComponent {
 
   protected readonly staffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
+
+  protected readonly initials = computed(() => {
+    const member = this.staffMember();
+    if (!member) return '';
+    return (member.firstName.charAt(0) + member.lastName.charAt(0)).toUpperCase();
+  });
 
   constructor() {
     afterNextRender(() => {

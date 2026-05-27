@@ -63,7 +63,7 @@ interface StaffMemberDetail {
   username: string;
   email: string;
   phoneNumber: string;
-  position: StaffPosition;
+  position: UserPosition;
   hiredAt: string;
   employmentType: EmploymentType;
   workingDayStart: WeekDay;
@@ -95,6 +95,17 @@ interface StaffMemberPayload {
   workingHourEnd: string;
 }
 
+interface UpdateProfilePayload {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+}
+
+interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
 interface PositionCoverageItem {
   position: StaffPosition;
   count: number;
@@ -117,6 +128,8 @@ export type {
   StaffMemberDetail,
   CurrentStaffMember,
   StaffMemberPayload,
+  UpdateProfilePayload,
+  ChangePasswordPayload,
   StaffPosition,
   UserPosition,
   EmploymentType,

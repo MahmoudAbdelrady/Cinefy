@@ -50,6 +50,7 @@ public class StaffMemberController {
     }
 
     @GetMapping("/{uuid}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<StaffMemberDetailDTO> getStaffMember(@PathVariable String uuid) {
         return ResponseEntity.ok(staffMemberService.getStaffMember(uuid));
     }

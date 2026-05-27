@@ -1,8 +1,6 @@
-// Shared icon re-exports with consistent aliases across the app.
-// Add icons here once they're used in multiple components; one-off icons
-// stay imported directly from 'lucide-angular' in the component that needs them.
 export {
   AtSign as AtSignIcon,
+  BriefcaseBusiness as BriefCaseIcon,
   Calendar as CalendarIcon,
   Check as CheckIcon,
   ChevronDown as ChevronDownIcon,
@@ -15,6 +13,7 @@ export {
   Film as FilmIcon,
   KeyRound as PasswordIcon,
   LayoutDashboard as LayoutIcon,
+  Lock as LockIcon,
   Mail as EmailIcon,
   Phone as PhoneIcon,
   Plus as PlusIcon,
@@ -25,4 +24,5 @@ export {
   Trash2 as DeleteIcon,
   TriangleAlert as WarningIcon,
   Users as UsersIcon,
+  Save as SaveIcon,
 } from 'lucide-angular';

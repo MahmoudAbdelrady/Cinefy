@@ -70,36 +70,11 @@
           }"
         />
       </div>
-      <div class="input-group">
-        <label data-required>Phone number</label>
-        <div class="phone-row">
-          <div class="phone-country">
-            <custom-select
-              [items]="countryOptions"
-              [displayFn]="countryDisplayFn"
-              [triggerDisplayFn]="countryTriggerDisplayFn"
-              [compareWith]="countryCompareFn"
-              [value]="selectedCountryOption"
-              [searchable]="true"
-              [container]="modal.panelEl()"
-              dropdownWidth="matchContent"
-              placeholder="Country"
-              (selectionChange)="onPhoneCountryChange($event)"
-            />
-          </div>
-          <div class="phone-national">
-            <input-field
-              [placeholder]="phonePlaceholder()"
-              [leadingIcon]="icons.PhoneIcon"
-              [control]="staffForm.controls.phoneNumber"
-              [errorMessages]="{
-                required: 'Phone number is required',
-                invalidPhone: 'Phone number is invalid for the selected country',
-              }"
-            />
-          </div>
-        </div>
-      </div>
+      <phone-input
+        [countryControl]="staffForm.controls.phoneCountry"
+        [numberControl]="staffForm.controls.phoneNumber"
+        [container]="modal.panelEl()"
+      />
     </div>
     <div class="input-group">
       <input-field
@@ -109,6 +84,7 @@
         [hint]="isEdit() ? 'Leave empty to keep the current password' : ''"
         [leadingIcon]="icons.KeyIcon"
         [control]="staffForm.controls.password"
+        [blockClipboard]="true"
         [errorMessages]="{
           required: 'Password is required',
           pattern:

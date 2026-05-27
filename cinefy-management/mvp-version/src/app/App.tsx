@@ -50,6 +50,8 @@ import {
   AtSign,
   CalendarClock,
   ContactRound,
+  User,
+  Save,
 } from 'lucide-react';
 import { ImageWithFallback } from './components/figma/ImageWithFallback';
 
@@ -578,7 +580,6 @@ function PaymentSection() {
                   dim ? 'opacity-95' : ''
                 }`}
               >
-
                 <div className="p-5">
                   {/* Header */}
                   <div className="flex items-start justify-between gap-3 mb-4">
@@ -674,9 +675,7 @@ function PaymentSection() {
                             >
                               <button
                                 type="button"
-                                onClick={() =>
-                                  setOpenError(openError === m.id ? null : m.id)
-                                }
+                                onClick={() => setOpenError(openError === m.id ? null : m.id)}
                                 className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-700 text-[11px] font-semibold border border-red-200/80 transition-colors"
                               >
                                 <Info size={11} strokeWidth={2.5} />
@@ -1897,6 +1896,506 @@ function formatScheduleRange(
   return `${range} · ${startTime} – ${endTime}`;
 }
 
+// ============================================================================
+// Profile Section — the signed-in user's own account
+// ============================================================================
+
+type CurrentUser = {
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  phone: string;
+  hiredAt: string;
+  employmentType: EmploymentType;
+  position: StaffPosition;
+  startDay: Weekday;
+  endDay: Weekday;
+  startTime: string;
+  endTime: string;
+};
+
+const CURRENT_USER: CurrentUser = {
+  firstName: 'Yara',
+  lastName: 'El-Sayed',
+  username: 'yara.elsayed',
+  email: 'yara.elsayed@cinefy.eg',
+  phone: '+20 100 422 8841',
+  hiredAt: '2024-03-11',
+  employmentType: 'Full-time',
+  position: 'Manager',
+  startDay: 'Mon',
+  endDay: 'Fri',
+  startTime: '10:00',
+  endTime: '19:00',
+};
+
+function ReadOnlyField({
+  icon: Icon,
+  label,
+  value,
+  mono,
+}: {
+  icon: typeof User;
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
+      <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+        <Icon size={16} className="text-gray-500" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs text-gray-500">{label}</p>
+        <p className={`text-sm font-medium text-gray-900 truncate ${mono ? 'font-mono' : ''}`}>
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function EmploymentRow({
+  icon: Icon,
+  label,
+  value,
+  mono,
+}: {
+  icon: typeof User;
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-3 px-5 py-3">
+      <Icon size={15} className="text-gray-400 flex-shrink-0" />
+      <dt className="text-xs text-gray-500 flex-shrink-0">{label}</dt>
+      <dd
+        className={`ml-auto text-sm font-semibold text-gray-900 text-right truncate ${
+          mono ? 'font-mono' : ''
+        }`}
+      >
+        {value}
+      </dd>
+    </div>
+  );
+}
+
+function EditableField({
+  icon: Icon,
+  label,
+  value,
+  onChange,
+  type = 'text',
+  placeholder,
+}: {
+  icon: typeof User;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+      <div className="relative">
+        <Icon
+          size={16}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+        />
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+    </div>
+  );
+}
+
+function PasswordField({
+  label,
+  value,
+  onChange,
+  show,
+  onToggleShow,
+  placeholder,
+  error,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  show: boolean;
+  onToggleShow: () => void;
+  placeholder?: string;
+  error?: string | null;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+      <div className="relative">
+        <KeyRound
+          size={16}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+        />
+        <input
+          type={show ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoComplete="new-password"
+          className={`w-full pl-9 pr-10 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
+            error ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+          }`}
+        />
+        <button
+          type="button"
+          onClick={onToggleShow}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+        >
+          {show ? <EyeOff size={16} /> : <EyeIcon size={16} />}
+        </button>
+      </div>
+      {error && <p className="text-xs text-red-600 mt-1.5">{error}</p>}
+    </div>
+  );
+}
+
+function ProfileSection() {
+  const [user, setUser] = useState<CurrentUser>(CURRENT_USER);
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phone: user.phone,
+  });
+
+  const startEditing = () => {
+    setDraft({ firstName: user.firstName, lastName: user.lastName, phone: user.phone });
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setDraft({ firstName: user.firstName, lastName: user.lastName, phone: user.phone });
+    setIsEditing(false);
+  };
+
+  const isDirty =
+    draft.firstName !== user.firstName ||
+    draft.lastName !== user.lastName ||
+    draft.phone !== user.phone;
+
+  const canSave = isDirty && draft.firstName.trim().length > 0 && draft.lastName.trim().length > 0;
+
+  const saveProfile = () => {
+    if (!canSave) return;
+    setUser((u) => ({
+      ...u,
+      firstName: draft.firstName.trim(),
+      lastName: draft.lastName.trim(),
+      phone: draft.phone.trim(),
+    }));
+    setIsEditing(false);
+  };
+
+  const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' });
+  const [showPasswords, setShowPasswords] = useState(false);
+  const [passwordSaved, setPasswordSaved] = useState(false);
+
+  const passwordMismatch = passwords.confirm.length > 0 && passwords.next !== passwords.confirm;
+  const newTooShort = passwords.next.length > 0 && passwords.next.length < 8;
+
+  const canChangePassword =
+    passwords.current.length > 0 &&
+    passwords.next.length >= 8 &&
+    passwords.confirm.length > 0 &&
+    passwords.next === passwords.confirm;
+
+  const changePassword = () => {
+    if (!canChangePassword) return;
+    setPasswords({ current: '', next: '', confirm: '' });
+    setShowPasswords(false);
+    setPasswordSaved(true);
+  };
+
+  const fullName = `${user.firstName} ${user.lastName}`.trim();
+  const meta = POSITION_META[user.position];
+
+  return (
+    <>
+      {/* Top Bar */}
+      <div className="bg-white border-b border-gray-200 px-8 py-4 sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900">My Profile</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Your account details. Update your name and phone — the rest is managed by your
+              administrator.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-[340px_minmax(0,1fr)] gap-6 items-start">
+          {/* Left rail — identity (sticky, independent of right column height) */}
+          <aside className="lg:sticky lg:top-28 space-y-6">
+            <div
+              className={`relative rounded-2xl bg-gradient-to-br ${meta.gradient} p-7 text-white overflow-hidden shadow-[0_18px_40px_-18px_rgba(30,41,59,0.55)]`}
+            >
+              <span
+                className="absolute -top-10 -right-8 w-44 h-44 rounded-full bg-white/10 blur-2xl"
+                aria-hidden
+              />
+              <span
+                className="absolute bottom-0 left-1/3 w-32 h-32 rounded-full bg-white/10 blur-2xl"
+                aria-hidden
+              />
+              <div className="relative flex flex-col items-center text-center">
+                <div className="w-24 h-24 rounded-2xl bg-white/15 backdrop-blur-sm ring-1 ring-white/30 flex items-center justify-center text-3xl font-bold">
+                  {getInitials(fullName)}
+                </div>
+                <h3 className="mt-4 text-xl font-bold truncate max-w-full">{fullName}</h3>
+                <span className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/20 backdrop-blur-sm text-[11px] font-bold uppercase tracking-[0.1em]">
+                  <Briefcase size={11} />
+                  {user.position}
+                </span>
+              </div>
+            </div>
+
+            {/* Employment — compact divided list, fixed natural height */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Briefcase size={15} className="text-indigo-600" />
+                  <h4 className="text-sm font-semibold text-gray-900">Employment</h4>
+                </div>
+              </div>
+              <dl className="divide-y divide-gray-100">
+                <EmploymentRow icon={Briefcase} label="Position" value={user.position} />
+                <EmploymentRow
+                  icon={ContactRound}
+                  label="Employment type"
+                  value={user.employmentType}
+                />
+                <EmploymentRow
+                  icon={Calendar}
+                  label="Hired on"
+                  value={formatStaffDate(user.hiredAt)}
+                />
+                <EmploymentRow
+                  icon={Calendar}
+                  label="Working days"
+                  value={
+                    user.startDay === user.endDay
+                      ? user.startDay
+                      : `${user.startDay} – ${user.endDay}`
+                  }
+                  mono
+                />
+                <EmploymentRow
+                  icon={Clock}
+                  label="Working hours"
+                  value={`${user.startTime} – ${user.endTime}`}
+                  mono
+                />
+              </dl>
+            </div>
+          </aside>
+
+          {/* Right column — editable panels, each sized to its own content */}
+          <div className="space-y-6">
+            {/* Personal details */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center">
+                    <User size={16} className="text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900">Personal details</h4>
+                    <p className="text-xs text-gray-500">
+                      {isEditing
+                        ? 'Editable — these are yours to change'
+                        : 'Your contact information'}
+                    </p>
+                  </div>
+                </div>
+                {!isEditing && (
+                  <button
+                    onClick={startEditing}
+                    className="px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 shadow-sm text-sm font-semibold"
+                  >
+                    <Edit size={15} />
+                    <span>Edit</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="p-6">
+                {isEditing ? (
+                  <div className="space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <EditableField
+                        icon={User}
+                        label="First name"
+                        value={draft.firstName}
+                        onChange={(v) => setDraft((d) => ({ ...d, firstName: v }))}
+                        placeholder="e.g., Yara"
+                      />
+                      <EditableField
+                        icon={User}
+                        label="Last name"
+                        value={draft.lastName}
+                        onChange={(v) => setDraft((d) => ({ ...d, lastName: v }))}
+                        placeholder="e.g., El-Sayed"
+                      />
+                    </div>
+                    <EditableField
+                      icon={Phone}
+                      label="Phone number"
+                      value={draft.phone}
+                      onChange={(v) => setDraft((d) => ({ ...d, phone: v }))}
+                      type="tel"
+                      placeholder="+20 100 000 0000"
+                    />
+
+                    <div className="rounded-lg bg-gray-50 border border-gray-100 px-4 py-3 flex items-start gap-2.5">
+                      <Info size={15} className="text-gray-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-gray-500 leading-relaxed">
+                        Username, email, and employment information can only be changed by an
+                        administrator.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <ReadOnlyField icon={User} label="First name" value={user.firstName} />
+                    <ReadOnlyField icon={User} label="Last name" value={user.lastName} />
+                    <ReadOnlyField icon={AtSign} label="Username" value={user.username} mono />
+                    <ReadOnlyField icon={Mail} label="Email" value={user.email} />
+                    <ReadOnlyField icon={Phone} label="Phone" value={user.phone} />
+                  </div>
+                )}
+              </div>
+
+              {isEditing && (
+                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex items-center justify-end gap-3">
+                  <button
+                    onClick={cancelEditing}
+                    className="px-5 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors border border-gray-300 text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={saveProfile}
+                    disabled={!canSave}
+                    className="px-5 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors shadow-sm flex items-center gap-2 text-sm font-semibold"
+                  >
+                    <Save size={16} />
+                    Save changes
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Password */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center">
+                    <Lock size={16} className="text-amber-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900">Password</h4>
+                    <p className="text-xs text-gray-500">
+                      Choose a strong password you don't use elsewhere
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPasswords((s) => !s)}
+                  className="px-3 py-1.5 rounded-lg border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                >
+                  {showPasswords ? <EyeOff size={15} /> : <EyeIcon size={15} />}
+                  {showPasswords ? 'Hide' : 'Show'}
+                </button>
+              </div>
+
+              <div className="p-6">
+                {passwordSaved && (
+                  <div className="mb-5 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 flex items-start gap-2.5">
+                    <CircleCheck size={16} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-emerald-800">
+                      Your password has been updated. Use it next time you sign in.
+                    </p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="md:col-span-2">
+                    <PasswordField
+                      label="Current password"
+                      value={passwords.current}
+                      onChange={(v) => {
+                        setPasswords((p) => ({ ...p, current: v }));
+                        setPasswordSaved(false);
+                      }}
+                      show={showPasswords}
+                      onToggleShow={() => setShowPasswords((s) => !s)}
+                      placeholder="Enter your current password"
+                    />
+                  </div>
+                  <PasswordField
+                    label="New password"
+                    value={passwords.next}
+                    onChange={(v) => {
+                      setPasswords((p) => ({ ...p, next: v }));
+                      setPasswordSaved(false);
+                    }}
+                    show={showPasswords}
+                    onToggleShow={() => setShowPasswords((s) => !s)}
+                    placeholder="At least 8 characters"
+                    error={newTooShort ? 'Use at least 8 characters.' : null}
+                  />
+                  <PasswordField
+                    label="Confirm new password"
+                    value={passwords.confirm}
+                    onChange={(v) => {
+                      setPasswords((p) => ({ ...p, confirm: v }));
+                      setPasswordSaved(false);
+                    }}
+                    show={showPasswords}
+                    onToggleShow={() => setShowPasswords((s) => !s)}
+                    placeholder="Re-enter the new password"
+                    error={passwordMismatch ? "Passwords don't match." : null}
+                  />
+                </div>
+              </div>
+
+              <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex items-center justify-end">
+                <button
+                  onClick={changePassword}
+                  disabled={!canChangePassword}
+                  className="px-5 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors shadow-sm flex items-center gap-2 text-sm font-semibold"
+                >
+                  <Save size={16} />
+                  Update password
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export default function App() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [showAddHallModal, setShowAddHallModal] = useState(false);
@@ -2087,10 +2586,7 @@ export default function App() {
     'Concessions',
     'Usher',
   ];
-  const STAFF_POSITION_COLORS: Record<
-    StaffPosition,
-    { bar: string; dot: string; text: string }
-  > = {
+  const STAFF_POSITION_COLORS: Record<StaffPosition, { bar: string; dot: string; text: string }> = {
     Manager: { bar: 'bg-violet-500', dot: 'bg-violet-500', text: 'text-violet-700' },
     Projectionist: { bar: 'bg-indigo-500', dot: 'bg-indigo-500', text: 'text-indigo-700' },
     Cashier: { bar: 'bg-blue-500', dot: 'bg-blue-500', text: 'text-blue-700' },
@@ -2970,6 +3466,18 @@ export default function App() {
               <span className="flex-1 text-left font-medium">Staff</span>
             </button>
 
+            <button
+              onClick={() => setActiveSection('profile')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                activeSection === 'profile'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <User size={20} />
+              <span className="flex-1 text-left font-medium">Profile</span>
+            </button>
+
             <div className="pt-4 mt-4 border-t border-gray-200">
               <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-all">
                 <Settings size={20} />
@@ -2980,18 +3488,23 @@ export default function App() {
         </nav>
 
         <div className="p-4 border-t border-gray-200 bg-gray-50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-sm">
-              <span className="text-white text-sm font-semibold">AU</span>
+          <button
+            onClick={() => setActiveSection('profile')}
+            className="w-full flex items-center gap-3 text-left rounded-lg p-1 -m-1 hover:bg-gray-100 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-sm flex-shrink-0">
+              <span className="text-white text-sm font-semibold">
+                {getInitials(`${CURRENT_USER.firstName} ${CURRENT_USER.lastName}`)}
+              </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">Admin User</p>
-              <p className="text-xs text-gray-500 truncate">admin@cinema.com</p>
+              <p className="text-sm font-semibold text-gray-900 truncate">
+                {CURRENT_USER.firstName} {CURRENT_USER.lastName}
+              </p>
+              <p className="text-xs text-gray-500 truncate">{CURRENT_USER.email}</p>
             </div>
-            <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
-              <MoreVertical size={18} />
-            </button>
-          </div>
+            <ChevronRight size={18} className="text-gray-400 flex-shrink-0" />
+          </button>
         </div>
       </aside>
 
@@ -3879,6 +4392,8 @@ export default function App() {
 
         {activeSection === 'payment' && <PaymentSection />}
 
+        {activeSection === 'profile' && <ProfileSection />}
+
         {/* Staff Management Section */}
         {activeSection === 'staff' && (
           <>
@@ -3944,7 +4459,9 @@ export default function App() {
                                 : 'hover:bg-gray-50 cursor-pointer'
                             }`}
                             disabled={count === 0}
-                            title={count === 0 ? 'No staff in this position' : `Filter by ${position}`}
+                            title={
+                              count === 0 ? 'No staff in this position' : `Filter by ${position}`
+                            }
                           >
                             <span className={`w-2 h-2 rounded-full ${colors.dot}`} />
                             <span className="text-gray-700">{position}</span>
@@ -4016,10 +4533,7 @@ export default function App() {
                 ) : (
                   <div className="divide-y divide-gray-200">
                     {paginatedStaff.map((member) => (
-                      <div
-                        key={member.id}
-                        className="p-6 hover:bg-gray-50/80 transition-colors"
-                      >
+                      <div key={member.id} className="p-6 hover:bg-gray-50/80 transition-colors">
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-4 flex-1 min-w-0">
                             <StaffMonogram member={member} />
@@ -4137,35 +4651,34 @@ export default function App() {
                         </button>
 
                         <div className="flex items-center gap-1 px-1">
-                          {buildStaffPageItems(currentStaffPage, staffTotalPages).map((item, idx) =>
-                            item === 'gap' ? (
-                              <span
-                                key={`gap-${idx}`}
-                                className="w-9 h-9 flex items-center justify-center text-gray-400 select-none"
-                              >
-                                …
-                              </span>
-                            ) : (
-                              <button
-                                key={item}
-                                onClick={() => setStaffPage(item)}
-                                aria-current={item === currentStaffPage ? 'page' : undefined}
-                                className={
-                                  item === currentStaffPage
-                                    ? 'w-9 h-9 flex items-center justify-center text-sm font-semibold rounded-lg bg-gray-900 text-white shadow-sm ring-1 ring-gray-900/10 tabular-nums'
-                                    : 'w-9 h-9 flex items-center justify-center text-sm font-medium rounded-lg text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent hover:border-gray-200 transition-all tabular-nums'
-                                }
-                              >
-                                {item}
-                              </button>
-                            ),
+                          {buildStaffPageItems(currentStaffPage, staffTotalPages).map(
+                            (item, idx) =>
+                              item === 'gap' ? (
+                                <span
+                                  key={`gap-${idx}`}
+                                  className="w-9 h-9 flex items-center justify-center text-gray-400 select-none"
+                                >
+                                  …
+                                </span>
+                              ) : (
+                                <button
+                                  key={item}
+                                  onClick={() => setStaffPage(item)}
+                                  aria-current={item === currentStaffPage ? 'page' : undefined}
+                                  className={
+                                    item === currentStaffPage
+                                      ? 'w-9 h-9 flex items-center justify-center text-sm font-semibold rounded-lg bg-gray-900 text-white shadow-sm ring-1 ring-gray-900/10 tabular-nums'
+                                      : 'w-9 h-9 flex items-center justify-center text-sm font-medium rounded-lg text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent hover:border-gray-200 transition-all tabular-nums'
+                                  }
+                                >
+                                  {item}
+                                </button>
+                              ),
                           )}
                         </div>
 
                         <button
-                          onClick={() =>
-                            setStaffPage((p) => Math.min(staffTotalPages, p + 1))
-                          }
+                          onClick={() => setStaffPage((p) => Math.min(staffTotalPages, p + 1))}
                           disabled={currentStaffPage === staffTotalPages}
                           className="px-2.5 h-9 text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent hover:border-gray-200 rounded-lg transition-all flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-600 disabled:hover:border-transparent disabled:hover:shadow-none"
                           title="Next page"
@@ -5561,24 +6074,18 @@ export default function App() {
 
             <div className="flex-1 overflow-y-auto p-6 space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Full name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full name</label>
                 <input
                   type="text"
                   value={staffForm.fullName}
-                  onChange={(e) =>
-                    setStaffForm((f) => ({ ...f, fullName: e.target.value }))
-                  }
+                  onChange={(e) => setStaffForm((f) => ({ ...f, fullName: e.target.value }))}
                   placeholder="e.g., Yara El-Sayed"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Username
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
                 <div className="relative">
                   <AtSign
                     size={16}
@@ -5587,9 +6094,7 @@ export default function App() {
                   <input
                     type="text"
                     value={staffForm.username}
-                    onChange={(e) =>
-                      setStaffForm((f) => ({ ...f, username: e.target.value }))
-                    }
+                    onChange={(e) => setStaffForm((f) => ({ ...f, username: e.target.value }))}
                     placeholder="e.g., yara.elsayed"
                     className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -5607,9 +6112,7 @@ export default function App() {
                     <input
                       type="email"
                       value={staffForm.email}
-                      onChange={(e) =>
-                        setStaffForm((f) => ({ ...f, email: e.target.value }))
-                      }
+                      onChange={(e) => setStaffForm((f) => ({ ...f, email: e.target.value }))}
                       placeholder="name@cinefy.eg"
                       className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -5628,9 +6131,7 @@ export default function App() {
                     <input
                       type="tel"
                       value={staffForm.phone}
-                      onChange={(e) =>
-                        setStaffForm((f) => ({ ...f, phone: e.target.value }))
-                      }
+                      onChange={(e) => setStaffForm((f) => ({ ...f, phone: e.target.value }))}
                       placeholder="+20 100 000 0000"
                       className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -5642,7 +6143,13 @@ export default function App() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                   {(
-                    ['Manager', 'Cashier', 'Projectionist', 'Usher', 'Concessions'] as StaffPosition[]
+                    [
+                      'Manager',
+                      'Cashier',
+                      'Projectionist',
+                      'Usher',
+                      'Concessions',
+                    ] as StaffPosition[]
                   ).map((pos) => {
                     const meta = POSITION_META[pos];
                     const active = staffForm.position === pos;
@@ -5690,9 +6197,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Working days
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Working days</label>
                 <div className="grid grid-cols-2 gap-3">
                   <select
                     value={staffForm.startDay}
@@ -5737,22 +6242,17 @@ export default function App() {
                   <input
                     type="time"
                     value={staffForm.startTime}
-                    onChange={(e) =>
-                      setStaffForm((f) => ({ ...f, startTime: e.target.value }))
-                    }
+                    onChange={(e) => setStaffForm((f) => ({ ...f, startTime: e.target.value }))}
                     className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <input
                     type="time"
                     value={staffForm.endTime}
-                    onChange={(e) =>
-                      setStaffForm((f) => ({ ...f, endTime: e.target.value }))
-                    }
+                    onChange={(e) => setStaffForm((f) => ({ ...f, endTime: e.target.value }))}
                     className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
-
             </div>
 
             <div className="p-6 border-t border-gray-200 bg-gray-50 flex items-center gap-3">
@@ -5910,7 +6410,6 @@ export default function App() {
                   </div>
                 </div>
               </div>
-
             </div>
 
             <div className="p-5 border-t border-gray-200 bg-gray-50 flex items-center gap-3">
@@ -5951,9 +6450,8 @@ export default function App() {
                 Remove staff member
               </h3>
               <p className="text-gray-600 text-center mb-6">
-                Are you sure you want to remove{' '}
-                <strong>{selectedStaff.fullName}</strong> from the roster? This action cannot be
-                undone.
+                Are you sure you want to remove <strong>{selectedStaff.fullName}</strong> from the
+                roster? This action cannot be undone.
               </p>
 
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
