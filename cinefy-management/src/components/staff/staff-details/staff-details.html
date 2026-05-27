@@ -1,9 +1,7 @@
 <app-modal [close]="close()" width="640px" [customHeader]="true">
   @if (staffMember(); as member) {
     <div modal-header class="sd-header" [attr.data-position]="member.position">
-      <div class="sdh-img">
-        {{ member.firstName.charAt(0).toUpperCase() + member.lastName.charAt(0).toUpperCase() }}
-      </div>
+      <div class="sdh-img">{{ initials() }}</div>
       <div class="sdh-info">
         <div class="sdhi-name">{{ member.firstName }} {{ member.lastName }}</div>
         <div class="sdhi-position">

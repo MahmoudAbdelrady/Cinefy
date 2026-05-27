@@ -1,4 +1,4 @@
-import { afterNextRender, Component, inject, input, output, signal } from '@angular/core';
+import { afterNextRender, Component, computed, inject, input, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -58,6 +58,12 @@ export class StaffDetailsComponent {
 
   protected readonly staffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
+
+  protected readonly initials = computed(() => {
+    const member = this.staffMember();
+    if (!member) return '';
+    return (member.firstName.charAt(0) + member.lastName.charAt(0)).toUpperCase();
+  });
 
   constructor() {
     afterNextRender(() => {
