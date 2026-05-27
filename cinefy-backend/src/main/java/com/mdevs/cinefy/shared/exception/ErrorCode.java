@@ -2,5 +2,6 @@ package com.mdevs.cinefy.shared.exception;
 
 public enum ErrorCode {
     OTP_INVALID,
-    PASSWORD_REUSED;
+    PASSWORD_REUSED,
+    PASSWORD_INCORRECT;
 }
