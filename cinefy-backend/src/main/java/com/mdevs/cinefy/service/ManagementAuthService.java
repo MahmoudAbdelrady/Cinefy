@@ -7,6 +7,7 @@ import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.auth.VerifyResetCodeDTO;
 import com.mdevs.cinefy.entity.Otp;
 import com.mdevs.cinefy.entity.enums.OtpType;
+import com.mdevs.cinefy.entity.enums.StaffPosition;
 import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
@@ -100,6 +101,10 @@ public class ManagementAuthService {
 
     public void forgotPassword(ForgotPasswordDTO dto) {
         staffMemberService.findByUsername(dto.getUsername()).ifPresent(staffMember -> {
+            if (staffMember.getPosition().equals(StaffPosition.ADMIN)) {
+                return;
+            }
+
             Otp otp;
             try {
                 otp = otpService.create(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);

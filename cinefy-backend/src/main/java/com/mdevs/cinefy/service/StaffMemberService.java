@@ -61,8 +61,9 @@ public class StaffMemberService implements UserDetailsService {
     }
 
     public StaffMemberDetailDTO getStaffMember(String uuid) {
-        validateCanViewStaffMember(uuid);
-        return toDetailDTO(findStaffMember(uuid));
+        StaffMember staffMember = findStaffMember(uuid);
+        validateCanViewStaffMember(staffMember);
+        return toDetailDTO(staffMember);
     }
 
     public PositionCoverageDTO getPositionCoverage() {
@@ -151,6 +152,7 @@ public class StaffMemberService implements UserDetailsService {
     @Transactional
     public StaffMemberDetailDTO updateProfile(UpdateProfileDTO dto) {
         StaffMember staffMember = findStaffMember(SecurityUtil.getCurrentUserUuid());
+        validateNotAdminAccount(staffMember);
         String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
         if (staffMemberRepository.existsByPhoneNumberAndIdNot(normalizedPhoneNumber, staffMember.getId())) {
             throw new BusinessException("Phone number already in use");
@@ -176,12 +178,14 @@ public class StaffMemberService implements UserDetailsService {
     public void updatePassword(Long id, String rawPassword) {
         StaffMember staffMember = staffMemberRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + id));
+        validateNotAdminAccount(staffMember);
         applyNewPassword(staffMember, rawPassword);
     }
 
     @Transactional
     public void changePassword(ChangePasswordDTO dto) {
         StaffMember staffMember = findStaffMember(SecurityUtil.getCurrentUserUuid());
+        validateNotAdminAccount(staffMember);
         if (!passwordEncoder.matches(dto.getCurrentPassword(), staffMember.getPassword())) {
             throw new BusinessException("Current password is incorrect", ErrorCode.PASSWORD_INCORRECT);
         }
@@ -195,17 +199,26 @@ public class StaffMemberService implements UserDetailsService {
                 .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + uuid));
     }
 
-    private void validateCanViewStaffMember(String uuid) {
+    private void validateCanViewStaffMember(StaffMember staffMember) {
         UserPrincipal currentUser = SecurityUtil.getCurrentUser();
+        boolean isSelf = currentUser.getUuid().equals(staffMember.getUuid());
+
+        if (staffMember.getPosition().equals(StaffPosition.ADMIN)) {
+            if (!isSelf) {
+                throw new ForbiddenException("You are not allowed to view this staff member");
+            }
+            return;
+        }
+
         boolean privileged = currentUser.getPosition().equals(StaffPosition.ADMIN.name()) || currentUser.getPosition().equals(StaffPosition.MANAGER.name());
-        if (!privileged && !currentUser.getUuid().equals(uuid)) {
+        if (!privileged && !isSelf) {
             throw new ForbiddenException("You are not allowed to view this staff member");
         }
     }
 
     private void validateNotAdminAccount(StaffMember staffMember) {
         if (staffMember.getPosition().equals(StaffPosition.ADMIN)) {
-            throw new BusinessException("The admin account cannot be modified");
+            throw new ForbiddenException("The admin account cannot be modified");
         }
     }
 

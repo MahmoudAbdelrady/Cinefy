@@ -101,6 +101,18 @@
   }
 }
 
+@mixin profile-readonly-badge {
+  @include flex-align;
+  gap: 4px;
+  @include lucide-icon-fix;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $gray-400;
+}
+
 @mixin profile-mono {
   font-family:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
