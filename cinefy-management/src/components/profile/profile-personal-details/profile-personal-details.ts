@@ -141,12 +141,10 @@ export class ProfilePersonalDetailsComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (profile) => {
-          this.staffService.setCurrentStaffMember({
-            id: profile.id,
+          this.staffService.patchCurrentStaffMember({
             firstName: profile.firstName,
             lastName: profile.lastName,
             fullName: `${profile.firstName} ${profile.lastName}`,
-            position: profile.position,
           });
           this.updated.emit(profile);
           this.saving.set(false);

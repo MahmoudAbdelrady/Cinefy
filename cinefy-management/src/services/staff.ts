@@ -38,8 +38,10 @@ export class StaffService {
     return this.http.put<void>('/staff/me/password', data);
   }
 
-  setCurrentStaffMember(member: CurrentStaffMember): void {
-    this.currentStaffMember.next(member);
+  patchCurrentStaffMember(partial: Partial<CurrentStaffMember>): void {
+    const current = this.currentStaffMember.value;
+    if (!current) return;
+    this.currentStaffMember.next({ ...current, ...partial });
   }
 
   clearCurrentStaffMember(): void {
