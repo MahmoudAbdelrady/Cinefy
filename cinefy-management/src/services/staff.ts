@@ -1,36 +1,57 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, shareReplay } from 'rxjs';
+import { BehaviorSubject, filter, Observable } from 'rxjs';
 import type {
+  ChangePasswordPayload,
   CurrentStaffMember,
   PaginatedResponse,
   PositionCoverage,
   StaffMemberDetail,
   StaffMemberPayload,
   StaffMemberSummary,
-  StaffPosition,
+  UpdateProfilePayload,
+  UserPosition,
 } from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class StaffService {
   private readonly http = inject(HttpClient);
 
-  private currentStaffMember$: Observable<CurrentStaffMember> | null = null;
+  private readonly currentStaffMember = new BehaviorSubject<CurrentStaffMember | null>(null);
+  private currentStaffMemberRequested = false;
 
   getCurrentStaffMember(): Observable<CurrentStaffMember> {
-    this.currentStaffMember$ ??= this.http
-      .get<CurrentStaffMember>('/staff/me')
-      .pipe(shareReplay(1));
-    return this.currentStaffMember$;
+    if (!this.currentStaffMemberRequested) {
+      this.currentStaffMemberRequested = true;
+      this.http
+        .get<CurrentStaffMember>('/staff/me')
+        .subscribe((member) => this.currentStaffMember.next(member));
+    }
+    return this.currentStaffMember.pipe(filter((member) => member !== null));
+  }
+
+  updateCurrentStaffMember(data: UpdateProfilePayload): Observable<StaffMemberDetail> {
+    return this.http.put<StaffMemberDetail>('/staff/me', data);
+  }
+
+  changeCurrentStaffMemberPassword(data: ChangePasswordPayload): Observable<void> {
+    return this.http.put<void>('/staff/me/password', data);
+  }
+
+  patchCurrentStaffMember(partial: Partial<CurrentStaffMember>): void {
+    const current = this.currentStaffMember.value;
+    if (!current) return;
+    this.currentStaffMember.next({ ...current, ...partial });
   }
 
   clearCurrentStaffMember(): void {
-    this.currentStaffMember$ = null;
+    this.currentStaffMember.next(null);
+    this.currentStaffMemberRequested = false;
   }
 
   getStaffMembers(
     name?: string,
-    position?: StaffPosition,
+    position?: UserPosition,
     pageable?: { page?: number; size?: number },
   ): Observable<PaginatedResponse<StaffMemberSummary>> {
     const params = {

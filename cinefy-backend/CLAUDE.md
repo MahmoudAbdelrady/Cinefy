@@ -175,6 +175,23 @@ Both delegate to `LoggingUtil.proceedWithLogging(...)`. Don't add ad-hoc `log.in
 - `BCryptPasswordEncoder` bean (in `AppConfig`) — used by `StaffMemberService` when storing/updating `password`.
 - `CredentialCipher` (AES-256-GCM, `cinefy.encryption.key` required, Base64-encoded 32-byte key) — encrypts payment-method secrets (`secretKey`, `hmacKey`) at rest. The cipher output prepends a fresh IV per call and tags the value with the GCM authentication tag.
 
+### Admin Account Policy
+
+The `ADMIN` `StaffMember` (the bootstrap account seeded by `ensureAdminExists`) is invisible and untouchable to everyone but itself. Enforce both rules whenever you add an endpoint or query that reads or writes staff members:
+
+- **Not editable by anyone — including the admin itself.** Any mutation targeting an `ADMIN` row must throw `ForbiddenException` (403). Reuse `StaffMemberService.validateNotAdminAccount(...)` — call it at **every** staff-mutation entry point (currently `updateStaffMember`, `deleteStaffMember`, `updateProfile`, `changePassword`, and `updatePassword`), not just the ones reachable today. The guard belongs at the mutation site so the invariant doesn't depend on an upstream caller's check. `forgotPassword` additionally skips an admin target early (no OTP, no email), so the reset-password chain can't reach an admin — but `updatePassword` still guards independently as defense-in-depth.
+- **Not viewable or retrievable by anyone except the admin itself.** A `MANAGER` (otherwise privileged) must **not** be able to view the admin's details. `validateCanViewStaffMember(StaffMember)` loads the target first, then: if the target is `ADMIN`, only the admin themselves may view it; otherwise admin/manager/self may view. List/aggregate queries exclude the admin at the SQL level (`findAllFiltered` has `WHERE s.position != 'ADMIN'`; `getPositionCoverage` excludes `ADMIN` from totals) — apply the same exclusion to any new staff-listing query.
+
+When adding a new read of a single staff member, fetch the entity first and pass it to `validateCanViewStaffMember` (don't validate by uuid alone — the rule depends on the _target's_ position).
+
+### Staff Position Hierarchy (manager tier)
+
+Authority is tiered: `ADMIN` > `MANAGER` > `CASHIER`/`USHER`. A `MANAGER` may manage staff **below** them (cashiers/ushers) but **not** the manager tier — only an `ADMIN` can create, edit, delete, promote-to, or demote-from `MANAGER`.
+
+- Enforced by `StaffMemberService.validateCanManageManagerTier(currentPosition, resultingPosition)`, called from `createStaffMember` (resulting only), `updateStaffMember` (current + resulting), and `deleteStaffMember` (current only). It throws `ForbiddenException` (403) when a non-admin caller touches a row whose **current** or **resulting** position is `MANAGER`.
+- Covering both current and resulting position is what closes the backdoors: a manager can't promote a cashier to manager (resulting = MANAGER), can't edit a peer manager (current = MANAGER), and can't demote a peer to hide the change (current = MANAGER). Self-edits via `/staff/me` (`updateProfile`) are unaffected — a manager may still edit their own name/phone.
+- When adding any new staff mutation, decide whether it can change or target the manager tier and call `validateCanManageManagerTier(...)` accordingly, passing the pre-mutation position as `currentPosition` (capture it before `populateFromDto` overwrites it).
+
 ### Naming Strategy
 
 `CinefyTableNamingStrategy` maps:

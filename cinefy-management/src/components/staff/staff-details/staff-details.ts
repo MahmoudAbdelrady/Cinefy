@@ -1,4 +1,5 @@
 import { afterNextRender, Component, computed, inject, input, output, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -20,6 +21,7 @@ import {
   type StaffMemberDetail,
 } from '../../../shared/types';
 import { StaffService, ToastService } from '../../../services';
+import { canManageStaffMember } from '../../../shared/access';
 
 @Component({
   selector: 'staff-details',
@@ -59,10 +61,18 @@ export class StaffDetailsComponent {
   protected readonly staffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
 
+  private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
+
   protected readonly initials = computed(() => {
     const member = this.staffMember();
     if (!member) return '';
     return (member.firstName.charAt(0) + member.lastName.charAt(0)).toUpperCase();
+  });
+
+  protected readonly canManage = computed(() => {
+    const user = this.currentUser();
+    const member = this.staffMember();
+    return user && member ? canManageStaffMember(user.position, member.position) : false;
   });
 
   constructor() {

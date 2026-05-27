@@ -6,6 +6,10 @@
 
 @include profile-panel;
 
+.ph-readonly {
+  @include profile-readonly-badge;
+}
+
 .ph-edit-btn {
   @include flex-center;
   gap: 8px;
@@ -113,8 +117,4 @@
     color: $gray-900;
     @include text-truncate;
   }
-}
-
-.mono {
-  @include profile-mono;
 }

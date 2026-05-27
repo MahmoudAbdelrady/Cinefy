@@ -19,3 +19,17 @@ export function canAccessRoute(path: string, position: UserPosition): boolean {
 export function canManage(position: UserPosition): boolean {
   return MANAGEMENT_POSITIONS.includes(position);
 }
+
+export function canManageStaffMember(
+  userPosition: UserPosition,
+  targetPosition: UserPosition,
+): boolean {
+  if (!canManage(userPosition)) return false;
+  if (targetPosition === 'MANAGER') return userPosition === 'ADMIN';
+  return true;
+}
+
+export function assignableStaffPositions(userPosition: UserPosition): UserPosition[] {
+  const all: UserPosition[] = ['MANAGER', 'CASHIER', 'USHER'];
+  return userPosition === 'ADMIN' ? all : all.filter((position) => position !== 'MANAGER');
+}

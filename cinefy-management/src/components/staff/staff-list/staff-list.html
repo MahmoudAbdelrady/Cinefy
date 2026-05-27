@@ -85,14 +85,16 @@
               <lucide-icon [img]="icons.EyeIcon" [size]="16"></lucide-icon>
               <span>View</span>
             </button>
-            <button ngpButton class="sa-btn sa-btn-edit" (click)="openEditDialog(member.id)">
-              <lucide-icon [img]="icons.EditIcon" [size]="16"></lucide-icon>
-              <span>Edit</span>
-            </button>
-            <button ngpButton class="sa-btn sa-btn-delete" [ngpDialogTrigger]="deleteDialog">
-              <lucide-icon [img]="icons.DeleteIcon" [size]="16"></lucide-icon>
-              <span>Delete</span>
-            </button>
+            @if (canManageRow(member)) {
+              <button ngpButton class="sa-btn sa-btn-edit" (click)="openEditDialog(member.id)">
+                <lucide-icon [img]="icons.EditIcon" [size]="16"></lucide-icon>
+                <span>Edit</span>
+              </button>
+              <button ngpButton class="sa-btn sa-btn-delete" [ngpDialogTrigger]="deleteDialog">
+                <lucide-icon [img]="icons.DeleteIcon" [size]="16"></lucide-icon>
+                <span>Delete</span>
+              </button>
+            }
 
             <ng-template #viewDialog let-close="close">
               <staff-details

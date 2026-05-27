@@ -11,7 +11,7 @@
       </div>
     </div>
   }
-  @if (staffMember()) {
+  @if (canManage()) {
     <div modal-header-actions>
       <button ngpButton title="Edit Info" (click)="requestEdit()">
         <lucide-icon [img]="icons.EditIcon" [size]="20" [strokeWidth]="2"></lucide-icon>

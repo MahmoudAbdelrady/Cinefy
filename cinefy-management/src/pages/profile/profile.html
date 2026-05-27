@@ -19,7 +19,9 @@
 
       <div class="profile-panels">
         <profile-personal-details [profile]="currentProfile" (updated)="profile.set($event)" />
-        <profile-password />
+        @if (currentProfile.position !== 'ADMIN') {
+          <profile-password />
+        }
       </div>
     </div>
   </div>

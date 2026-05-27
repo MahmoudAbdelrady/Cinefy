@@ -1,11 +1,11 @@
 import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
-  STAFF_POSITION_LABELS,
+  USER_POSITION_LABELS,
   type CoverageChange,
   type PositionCoverage,
   type PositionCoverageItem,
-  type StaffPosition,
+  type UserPosition,
 } from '../../../shared/types';
 import { StaffService, ToastService } from '../../../services';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
@@ -20,7 +20,7 @@ export class StaffPositionCoverageComponent {
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
 
-  protected readonly positionLabels = STAFF_POSITION_LABELS;
+  protected readonly positionLabels = USER_POSITION_LABELS;
 
   protected readonly loading = signal(true);
   protected readonly positionCoverageItems = signal<PositionCoverage | null>(null);
@@ -69,7 +69,7 @@ export class StaffPositionCoverageComponent {
 
   private adjustPositionCount(
     positions: PositionCoverageItem[],
-    position: StaffPosition,
+    position: UserPosition,
     delta: number,
   ): void {
     const entry = positions.find((p) => p.position === position);

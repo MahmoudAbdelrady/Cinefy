@@ -48,13 +48,13 @@ public class StaffMemberController {
 
     @PutMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<StaffMemberDetailDTO> updateProfile(@Valid @RequestBody UpdateProfileDTO dto) {
+    public ResponseEntity<StaffMemberDetailDTO> updateCurrentStaffMember(@Valid @RequestBody UpdateProfileDTO dto) {
         return ResponseEntity.ok(staffMemberService.updateProfile(dto));
     }
 
     @PutMapping("/me/password")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordDTO dto) {
+    public ResponseEntity<Void> changeCurrentStaffMemberPassword(@Valid @RequestBody ChangePasswordDTO dto) {
         staffMemberService.changePassword(dto);
         return ResponseEntity.noContent().build();
     }
