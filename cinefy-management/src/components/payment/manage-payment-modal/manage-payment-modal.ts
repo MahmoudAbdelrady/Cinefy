@@ -28,7 +28,8 @@ import {
   type Currency,
   type TestResultState,
 } from '../steps';
-import { Lock, LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
+import { LockIcon } from '../../../shared/icons';
 import { PaymentMethodService, ToastService } from '../../../services';
 import type { PaymentMethod, PaymentMethodSummary } from '../../../shared/types';
 
@@ -49,7 +50,7 @@ import type { PaymentMethod, PaymentMethodSummary } from '../../../shared/types'
 })
 export class ManagePaymentModalComponent {
   protected readonly icons = {
-    LockIcon: Lock,
+    LockIcon,
   };
 
   private readonly destroyRef = inject(DestroyRef);

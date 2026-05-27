@@ -1,6 +1,7 @@
 import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { KeyRound, Lock, LucideAngularModule } from 'lucide-angular';
+import { KeyRound, LucideAngularModule } from 'lucide-angular';
+import { LockIcon } from '../../../../shared/icons';
 import { InputField } from '../../../input-field/input-field';
 import { HelpHint } from '../../../help-hint/help-hint';
 
@@ -31,7 +32,7 @@ export type CredentialsForm = ReturnType<typeof buildCredentialsForm>;
 })
 export class CredentialsStep {
   protected readonly icons = {
-    LockIcon: Lock,
+    LockIcon,
     KeyIcon: KeyRound,
   };
 

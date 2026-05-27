@@ -1,9 +1,16 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Lock, LucideAngularModule, User } from 'lucide-angular';
+import { LucideAngularModule, User } from 'lucide-angular';
 import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
-import { AtSignIcon, SaveIcon, EditIcon, EmailIcon, PhoneIcon } from '../../../shared/icons';
+import {
+  AtSignIcon,
+  SaveIcon,
+  EditIcon,
+  EmailIcon,
+  PhoneIcon,
+  LockIcon,
+} from '../../../shared/icons';
 import { InputField } from '../../input-field/input-field';
 import {
   DEFAULT_COUNTRY,
@@ -37,7 +44,7 @@ export class ProfilePersonalDetailsComponent {
     SaveIcon,
     UsernameIcon: AtSignIcon,
     NameIcon: User,
-    LockIcon: Lock,
+    LockIcon,
   };
 
   readonly profile = input.required<StaffMemberDetail>();

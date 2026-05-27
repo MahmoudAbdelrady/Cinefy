@@ -13,6 +13,7 @@ export {
   Film as FilmIcon,
   KeyRound as PasswordIcon,
   LayoutDashboard as LayoutIcon,
+  Lock as LockIcon,
   Mail as EmailIcon,
   Phone as PhoneIcon,
   Plus as PlusIcon,
