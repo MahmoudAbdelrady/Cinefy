@@ -4,8 +4,8 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { baseUrlInterceptor, csrfInterceptor, authRetryInterceptor } from './core/interceptors';
-import { provideToastConfig } from 'ng-primitives/toast';
 import { provideMenuConfig } from 'ng-primitives/menu';
+import { provideCinefyToast } from 'cinefy-ui/services';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,16 +15,7 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([baseUrlInterceptor, csrfInterceptor, authRetryInterceptor]),
     ),
-    provideToastConfig({
-      placement: 'top-center',
-      duration: 4000,
-      offsetBottom: 24,
-      offsetRight: 24,
-      dismissible: true,
-      maxToasts: 5,
-      gap: 8,
-      zIndex: 9999,
-    }),
+    provideCinefyToast(),
     provideMenuConfig({ scrollBehavior: 'reposition' }),
   ],
 };
