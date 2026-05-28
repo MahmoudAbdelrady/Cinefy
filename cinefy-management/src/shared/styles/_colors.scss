@@ -1,3 +1,5 @@
+@forward 'cinefy-ui/styles/radii';
+
 // Core
 $color-background: #ffffff;
 $color-foreground: #242424;
@@ -103,14 +105,6 @@ $red-900: #7f1d1d;
 // ─── Card border ─────────────────────────────────────────────────────────────
 $card-border: rgba(229, 231, 235, 0.8);
 $card-border-subtle: rgba(229, 231, 235, 0.6);
-
-// ─── Radii ───────────────────────────────────────────────────────────────────
-$radius-sm: 4px;
-$radius-md: 8px;
-$radius-lg: 12px;
-$radius-xl: 16px;
-$radius-full: 9999px;
-$radius-pill: 50%;
 
 // Charts
 $color-chart-1: #d96a27;

@@ -1,7 +1,76 @@
-@use 'cinefy-ui/styles/tokens-fallback';
-@use 'shared/styles/colors' as *;
 @use 'cinefy-ui/styles/mixins' as *;
-@use 'shared/styles/buttons';
+@use 'cinefy-ui/styles/buttons';
+@use 'shared/styles/colors' as *;
+@use 'shared/styles/shadows' as *;
+
+// Bridge: maps management's SCSS palette to cinefy-ui's --cui-* token contract.
+:root {
+  // Surfaces
+  --cui-surface-base: #ffffff;
+  --cui-surface-input: #ffffff;
+  --cui-surface-overlay: #ffffff;
+  --cui-surface-hover: #{$gray-100};
+  --cui-surface-disabled: #{$gray-50};
+  --cui-surface-disabled-strong: #{$gray-300};
+  --cui-surface-active: #{$gray-50};
+
+  // Text
+  --cui-text-primary: #{$gray-900};
+  --cui-text-emphasis: #{$gray-800};
+  --cui-text-muted: #{$gray-400};
+  --cui-text-hint: #{$gray-500};
+  --cui-text-strong: #{$gray-600};
+  --cui-text-error: #{$red-500};
+  --cui-text-on-accent: #ffffff;
+
+  // Borders & focus
+  --cui-border-default: #{$gray-300};
+  --cui-border-subtle: #{$gray-200};
+  --cui-border-strong: #{$gray-400};
+  --cui-icon-disabled: #{$gray-300};
+  --cui-ring: #{$blue-500};
+  --cui-ring-error: #{$red-500};
+
+  // Accent / status
+  --cui-accent: #{$blue-600};
+  --cui-accent-hover: #{$blue-700};
+  --cui-accent-subtle: #{$blue-200};
+  --cui-danger: #{$red-600};
+  --cui-danger-hover: #{$red-700};
+  --cui-success: #{$green-600};
+  --cui-success-hover: #{$green-700};
+
+  // Misc
+  --cui-scrollbar-thumb: #{$gray-300};
+
+  // Elevation (lib still uses purpose-specific shadow tokens; map from $shadow-*)
+  --cui-overlay-shadow: #{$shadow-md};
+  --cui-popover-shadow: #{$shadow-lg};
+  --cui-button-shadow: #{$shadow-xs};
+  --cui-button-shadow-strong: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  // Option rows (selects)
+  --cui-option-text: #{$gray-700};
+  --cui-option-selected-surface: #{$blue-50};
+  --cui-option-selected-text: #{$blue-600};
+
+  // Modal
+  --cui-modal-backdrop: rgba(0, 0, 0, 0.5);
+  --cui-modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --cui-modal-header-bg: linear-gradient(to right, #{$blue-50}, #{$purple-50});
+  --cui-modal-footer-bg: #{$gray-50};
+
+  // Toast
+  --cui-toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --cui-toast-success-surface: #{$green-50};
+  --cui-toast-success-border: #{$green-100};
+  --cui-toast-success-text: #{$green-700};
+  --cui-toast-success-icon: #{$green-500};
+  --cui-toast-error-surface: #{$red-50};
+  --cui-toast-error-border: rgba(239, 68, 68, 0.2);
+  --cui-toast-error-text: #{$red-600};
+  --cui-toast-error-icon: #{$red-500};
+}
 
 *,
 *::before,
