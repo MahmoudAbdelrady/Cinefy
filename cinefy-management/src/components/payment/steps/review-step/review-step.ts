@@ -10,7 +10,8 @@ import {
   ZapIcon,
 } from '../../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
-import { LoadingSpinnerComponent, RelativeTimePipe } from 'cinefy-ui';
+import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { RelativeTimePipe } from 'cinefy-ui/pipes';
 import { PaymentMethodService } from '../../../../services';
 import {
   PAYMENT_METHOD_TYPE_LABELS,

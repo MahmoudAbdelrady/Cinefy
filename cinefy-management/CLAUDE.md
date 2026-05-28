@@ -57,6 +57,11 @@ src/
 │                                       # Shared UI (input-field, field-error, loading-spinner,
 │                                       # custom-select, paginated-select, phone-input, toast,
 │                                       # modal, pagination, date-picker, time-picker) lives in cinefy-ui.
+│                                       # Imports are grouped by subpath:
+│                                       #   from 'cinefy-ui/components' — component classes
+│                                       #   from 'cinefy-ui/services'   — ToastService
+│                                       #   from 'cinefy-ui/pipes'      — PhoneFormat/RelativeTime/Time12h
+│                                       #   from 'cinefy-ui/types'      — PaginatedResponse, PageFields, ToastContext
 ├── pages/                              # Route-level components
 │   ├── auth/                           # login (/login), forgot-password (/forgot-password)
 │   ├── dashboard/                      # Dashboard page (/)

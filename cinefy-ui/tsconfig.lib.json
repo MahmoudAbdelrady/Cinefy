@@ -2,7 +2,6 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
-    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -10,5 +9,5 @@
     "types": []
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "components/**/*.ts", "services/**/*.ts", "pipes/**/*.ts", "types/**/*.ts"]
 }

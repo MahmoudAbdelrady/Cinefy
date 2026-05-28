@@ -25,8 +25,8 @@ import {
   PaginatedSelectComponent,
   FieldErrorComponent,
   LoadingSpinnerComponent,
-  ToastService,
-} from 'cinefy-ui';
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import {
   HallsService,
   MoviesService,

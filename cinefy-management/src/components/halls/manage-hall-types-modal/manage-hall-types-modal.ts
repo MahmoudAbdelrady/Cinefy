@@ -20,12 +20,8 @@ import {
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import {
-  ModalComponent,
-  LoadingSpinnerComponent,
-  FieldErrorComponent,
-  ToastService,
-} from 'cinefy-ui';
+import { ModalComponent, LoadingSpinnerComponent, FieldErrorComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import { HallsService } from '../../../services';
 import { HallType } from '../../../shared/types';
 

@@ -8,7 +8,8 @@ import {
 } from '../../components';
 import type { StaffMemberDetail } from '../../shared/types';
 import { StaffService } from '../../services';
-import { LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
+import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 
 @Component({
   selector: 'profile-page',

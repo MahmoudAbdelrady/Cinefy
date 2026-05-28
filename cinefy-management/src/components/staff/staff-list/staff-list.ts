@@ -34,11 +34,10 @@ import {
   CustomSelectComponent,
   InputField,
   LoadingSpinnerComponent,
-  ToastService,
-  PhoneFormatPipe,
-  Time12hPipe,
-  type PaginatedResponse,
-} from 'cinefy-ui';
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
+import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
+import type { PaginatedResponse } from 'cinefy-ui/types';
 import { StaffDetailsComponent } from '../staff-details/staff-details';
 import { ManageStaffModalComponent } from '../manage-staff-modal/manage-staff-modal';
 import {

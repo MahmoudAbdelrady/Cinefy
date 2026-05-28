@@ -20,9 +20,9 @@ import {
   PhoneInput,
   phoneNumberValidator,
   toE164Digits,
-  ToastService,
-  PhoneFormatPipe,
-} from 'cinefy-ui';
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
+import { PhoneFormatPipe } from 'cinefy-ui/pipes';
 import type { StaffMemberDetail } from '../../../shared/types';
 import { NAME_PATTERN } from '../../../shared/validation';
 import { StaffService } from '../../../services';

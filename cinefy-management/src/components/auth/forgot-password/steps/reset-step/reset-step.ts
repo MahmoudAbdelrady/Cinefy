@@ -12,7 +12,8 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
-import { InputField, LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
+import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import {
   AlertIcon,
   ArrowRightIcon,

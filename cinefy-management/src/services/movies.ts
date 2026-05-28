@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type { MovieSearchResult, MovieDetail } from '../shared/types';
-import type { PaginatedResponse } from 'cinefy-ui';
+import type { PaginatedResponse } from 'cinefy-ui/types';
 
 @Injectable({ providedIn: 'root' })
 export class MoviesService {

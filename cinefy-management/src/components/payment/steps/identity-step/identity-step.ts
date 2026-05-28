@@ -3,7 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import { LucideAngularModule } from 'lucide-angular';
 import { CheckIcon } from '../../../../shared/icons';
-import { InputField, CustomSelectComponent } from 'cinefy-ui';
+import { InputField, CustomSelectComponent } from 'cinefy-ui/components';
 import { PAYMENT_METHOD_TYPE_LABELS, type PaymentMethodType } from '../../../../shared/types';
 
 export function buildIdentityForm() {

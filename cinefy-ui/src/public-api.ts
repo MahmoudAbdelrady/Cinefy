@@ -1,16 +1,8 @@
-export * from "./lib/loading-spinner/loading-spinner";
-export * from "./lib/field-error/field-error";
-export * from "./lib/input-field/input-field";
-export * from "./lib/toast/toast-service";
-export * from "./lib/toast/toast";
-export * from "./lib/modal/modal";
-export * from "./lib/pagination/pagination-types";
-export * from "./lib/pagination/pagination";
-export * from "./lib/drop-down/custom-select/custom-select";
-export * from "./lib/drop-down/paginated-select/paginated-select";
-export * from "./lib/phone-input/phone-input";
-export * from "./lib/date-time/date-picker/date-picker";
-export * from "./lib/date-time/time-picker/time-picker";
-export * from "./lib/pipes/phone-format";
-export * from "./lib/pipes/relative-time";
-export * from "./lib/pipes/time-12h";
+// cinefy-ui — primary entry point.
+// Code exports live in secondary entry points:
+//   - cinefy-ui/components
+//   - cinefy-ui/services
+//   - cinefy-ui/pipes
+//   - cinefy-ui/types
+// SCSS partials (tokens-fallback, mixins, breakpoints, radii) ship at cinefy-ui/styles/*.
+export {};

@@ -7,7 +7,7 @@ import { ChevronDownIcon, LogoutIcon, MenuIcon, UserIcon } from '../../shared/ic
 import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { AuthService, HeaderActionsService, SidebarService, StaffService } from '../../services';
-import { ToastService } from 'cinefy-ui';
+import { ToastService } from 'cinefy-ui/services';
 import { USER_POSITION_LABELS } from '../../shared/types';
 
 interface DropDownMenuItem {

@@ -40,7 +40,9 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
-import { ModalComponent, ToastService, LoadingSpinnerComponent, Time12hPipe } from 'cinefy-ui';
+import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
+import { Time12hPipe } from 'cinefy-ui/pipes';
 import { canManage as canManagePosition } from '../../../shared/access';
 
 @Component({

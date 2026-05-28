@@ -15,7 +15,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormGroup, Validators } from '@angular/forms';
 import { merge, startWith } from 'rxjs';
 import { Stepper, StepperNoteTip, StepperStep } from '../../stepper/stepper';
-import { ModalComponent, LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
+import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import {
   IdentityStep,
   CredentialsStep,

@@ -9,7 +9,7 @@ import {
   ResetStep,
 } from '../../../components/auth/forgot-password';
 import { AuthService } from '../../../services/auth';
-import { ToastService } from 'cinefy-ui';
+import { ToastService } from 'cinefy-ui/services';
 
 @Component({
   selector: 'forgot-password-page',

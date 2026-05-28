@@ -31,9 +31,9 @@ import {
   PhoneInput,
   phoneNumberValidator,
   toE164Digits,
-  ToastService,
   TimePicker,
-} from 'cinefy-ui';
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import {
   EMPLOYMENT_TYPE_LABELS,
   USER_POSITION_LABELS,

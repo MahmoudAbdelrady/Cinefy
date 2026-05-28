@@ -18,7 +18,8 @@ import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
 import { LucideAngularModule } from 'lucide-angular';
 import { ChevronRightIcon, FilmIcon, SearchIcon } from '../../../shared/icons';
-import { LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
+import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import { MovieSearchResult } from '../../../shared/types';
 import { MoviesService } from '../../../services';
 

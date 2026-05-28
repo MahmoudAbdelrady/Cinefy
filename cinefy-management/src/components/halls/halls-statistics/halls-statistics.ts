@@ -1,7 +1,8 @@
 import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { EyeIcon, LayoutIcon, TrendingUpIcon, UsersIcon } from '../../../shared/icons';
-import { LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
+import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import { StatsComponent } from '../../stats/stats';
 import { HallsService } from '../../../services';
 import type { HallStatistics, StatsCard } from '../../../shared/types';

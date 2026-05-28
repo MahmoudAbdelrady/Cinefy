@@ -4,7 +4,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
-import { InputField, LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
+import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
 import { ArrowRightIcon, AtSignIcon, PasswordIcon } from '../../../shared/icons';
 

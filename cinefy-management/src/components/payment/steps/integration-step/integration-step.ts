@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputField, CustomSelectComponent } from 'cinefy-ui';
+import { InputField, CustomSelectComponent } from 'cinefy-ui/components';
 import { LucideAngularModule } from 'lucide-angular';
 import { WebhookIcon } from '../../../../shared/icons';
 import { HelpHint } from '../../../help-hint/help-hint';

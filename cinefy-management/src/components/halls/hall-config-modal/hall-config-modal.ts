@@ -33,8 +33,8 @@ import {
   InputField,
   CustomSelectComponent,
   PaginatedSelectComponent,
-  ToastService,
-} from 'cinefy-ui';
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import {
   HALL_STATUS_LABELS,
   SEAT_CATEGORY_LABELS,

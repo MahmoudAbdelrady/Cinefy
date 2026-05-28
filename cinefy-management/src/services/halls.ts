@@ -10,7 +10,7 @@ import type {
   HallSummary,
   HallType,
 } from '../shared/types';
-import type { PaginatedResponse } from 'cinefy-ui';
+import type { PaginatedResponse } from 'cinefy-ui/types';
 
 @Injectable({ providedIn: 'root' })
 export class HallsService {
