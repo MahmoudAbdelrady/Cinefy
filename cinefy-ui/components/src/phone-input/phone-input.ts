@@ -8,9 +8,12 @@ import {
   getCountryCallingCode,
   getExampleNumber,
   isValidPhoneNumber,
+  parsePhoneNumberFromString,
   type CountryCode,
 } from "libphonenumber-js";
 import examples from "libphonenumber-js/examples.mobile.json";
+
+export type PhoneCountryCode = CountryCode;
 import { PhoneIcon } from "../icons";
 import { CustomSelectComponent } from "../drop-down/custom-select/custom-select";
 import { InputField } from "../input-field/input-field";
@@ -44,6 +47,14 @@ export function phoneNumberValidator(countryControl: FormControl<CountryCode>) {
 
 export function toE164Digits(countryControl: FormControl<CountryCode>, national: string): string {
   return `${getCountryCallingCode(countryControl.value)}${national}`;
+}
+
+export function parsePhoneDigits(phoneNumber: string): { country: CountryCode; nationalNumber: string } {
+  const parsed = parsePhoneNumberFromString(`+${phoneNumber}`);
+  return {
+    country: parsed?.country ?? DEFAULT_COUNTRY,
+    nationalNumber: parsed?.nationalNumber ?? phoneNumber,
+  };
 }
 
 @Component({

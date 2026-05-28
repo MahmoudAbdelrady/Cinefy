@@ -20,7 +20,6 @@ import {
   PhoneIcon,
   UserIcon,
 } from '../../../shared/icons';
-import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import {
   ModalComponent,
@@ -31,6 +30,8 @@ import {
   PhoneInput,
   phoneNumberValidator,
   toE164Digits,
+  parsePhoneDigits,
+  type PhoneCountryCode,
   TimePicker,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -141,7 +142,7 @@ export class ManageStaffModalComponent {
       nonNullable: true,
       validators: [Validators.required, Validators.pattern(EMAIL_PATTERN)],
     }),
-    phoneCountry: new FormControl<CountryCode>(DEFAULT_COUNTRY, {
+    phoneCountry: new FormControl<PhoneCountryCode>(DEFAULT_COUNTRY, {
       nonNullable: true,
       validators: [Validators.required],
     }),
@@ -256,14 +257,14 @@ export class ManageStaffModalComponent {
     effect(() => {
       const member = this.resolvedStaffMember();
       if (!member) return;
-      const parsedPhone = parsePhoneNumberFromString(`+${member.phoneNumber}`);
+      const { country, nationalNumber } = parsePhoneDigits(member.phoneNumber);
       this.staffForm.patchValue({
         firstName: member.firstName,
         lastName: member.lastName,
         username: member.username,
         email: member.email,
-        phoneCountry: parsedPhone?.country ?? DEFAULT_COUNTRY,
-        phoneNumber: parsedPhone?.nationalNumber ?? member.phoneNumber,
+        phoneCountry: country,
+        phoneNumber: nationalNumber,
         position: member.position,
         employmentType: member.employmentType,
         workingDayStart: member.workingDayStart,

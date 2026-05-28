@@ -34,9 +34,6 @@ importers:
       cinefy-ui:
         specifier: file:../cinefy-ui/dist
         version: file:cinefy-ui/dist(469ecda14da45bfd964d2d59f3667f49)
-      libphonenumber-js:
-        specifier: ^1.13.2
-        version: 1.13.3
       lucide-angular:
         specifier: ^1.0.0
         version: 1.0.0(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))
