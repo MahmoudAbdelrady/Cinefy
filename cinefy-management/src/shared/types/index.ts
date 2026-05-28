@@ -1,15 +1,3 @@
-export interface PageFields {
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-}
-
-export interface PaginatedResponse<T> {
-  content: T[];
-  page: PageFields;
-}
-
 export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS, ACTIVE_HALL_STATUSES } from './halls';
 export type {
   HallStatus,

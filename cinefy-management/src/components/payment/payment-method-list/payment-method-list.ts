@@ -30,10 +30,10 @@ import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { ModalComponent } from '../../modal/modal';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
 import { ManagePaymentModalComponent } from '../manage-payment-modal/manage-payment-modal';
 import { RelativeTimePipe } from '../../../shared/pipes';
-import { PaymentMethodService, ToastService } from '../../../services';
+import { PaymentMethodService } from '../../../services';
 import {
   PAYMENT_METHOD_STATUS_LABELS,
   PAYMENT_METHOD_TYPE_LABELS,

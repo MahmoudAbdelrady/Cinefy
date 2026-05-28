@@ -7,8 +7,8 @@ import {
   type PositionCoverageItem,
   type UserPosition,
 } from '../../../shared/types';
-import { StaffService, ToastService } from '../../../services';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { StaffService } from '../../../services';
+import { LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
 
 @Component({
   selector: 'staff-position-coverage',

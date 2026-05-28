@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
-  PaginatedResponse,
   Hall,
   HallDetail,
   HallLayout,
@@ -11,6 +10,7 @@ import type {
   HallSummary,
   HallType,
 } from '../shared/types';
+import type { PaginatedResponse } from 'cinefy-ui';
 
 @Injectable({ providedIn: 'root' })
 export class HallsService {

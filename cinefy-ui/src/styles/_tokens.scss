@@ -1,0 +1,33 @@
+// Semantic token contract for cinefy-ui components.
+//
+// Components reference these roles via `var(--cui-*)` only — never literal
+// colors. Each consuming app maps the roles to its own palette in :root.
+// See `tokens-fallback.scss` for the default (light) values used when an app
+// hasn't defined a role.
+//
+// ─── Surfaces ──────────────────────────────────────────────────────────────
+// --cui-surface-input        input/select field background
+// --cui-surface-overlay      popover/dropdown panel background
+// --cui-surface-hover        hover background for interactive rows/toggles
+//
+// ─── Text ──────────────────────────────────────────────────────────────────
+// --cui-text-primary         field values, labels
+// --cui-text-muted           placeholders, leading icons
+// --cui-text-hint            hint/help text below fields
+// --cui-text-strong          hover-emphasis text
+// --cui-text-error           validation messages, required asterisk
+//
+// ─── Borders & focus ─────────────────────────────────────────────────────────
+// --cui-border-default       resting field/panel border
+// --cui-ring                 focus ring color
+//
+// ─── Toast (success / error variants) ───────────────────────────────────────
+// --cui-toast-shadow                          toast elevation
+// --cui-toast-{success,error}-surface         toast background
+// --cui-toast-{success,error}-border          toast border
+// --cui-toast-{success,error}-text            toast text
+// --cui-toast-{success,error}-icon            toast leading icon
+
+@use "radii" as *;
+@use "mixins" as *;
+@use "breakpoints" as *;

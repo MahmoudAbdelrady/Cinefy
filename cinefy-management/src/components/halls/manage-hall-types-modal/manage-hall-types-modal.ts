@@ -21,9 +21,8 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { ModalComponent } from '../../modal/modal';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
-import { FieldErrorComponent } from '../../field-error/field-error';
-import { HallsService, ToastService } from '../../../services';
+import { LoadingSpinnerComponent, FieldErrorComponent, ToastService } from 'cinefy-ui';
+import { HallsService } from '../../../services';
 import { HallType } from '../../../shared/types';
 
 function notBlankValidator(control: AbstractControl): ValidationErrors | null {

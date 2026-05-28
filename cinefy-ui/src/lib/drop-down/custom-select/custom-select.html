@@ -1,0 +1,48 @@
+@if (label(); as labelText) {
+<label class="cs-label" [attr.data-required]="required() ? '' : null">{{ labelText }}</label>
+}
+<div
+  ngpCombobox
+  [ngpComboboxValue]="currentValue()"
+  (ngpComboboxValueChange)="onValueChange($event)"
+  [ngpComboboxDisabled]="disabled()"
+  [ngpComboboxCompareWith]="compareWith()"
+  (ngpComboboxOpenChange)="onOpenChange($event)"
+  [ngpComboboxDropdownContainer]="container()"
+  ngpComboboxDropdownPlacement="bottom-start"
+>
+  <button
+    type="button"
+    ngpComboboxButton
+    class="cs-trigger"
+    [class.cs-error]="isError() || !!(control()?.touched && control()?.invalid)"
+    [disabled]="disabled()"
+  >
+    @if (displayValue(); as display) { {{ display }} } @else {
+    <span class="cs-placeholder">{{ placeholder() }}</span>
+    } @if (clearable() && displayValue()) {
+    <lucide-icon class="cs-clear" [img]="icons.XIcon" [size]="16" [strokeWidth]="2" (click)="clear($event)" />
+    } @else {
+    <lucide-icon class="cs-chevron" [img]="icons.ChevronDownIcon" [size]="16" [strokeWidth]="2" />
+    }
+  </button>
+
+  <div *ngpComboboxPortal ngpComboboxDropdown class="cs-dropdown" [attr.data-width]="dropdownWidth()">
+    @if (searchable()) {
+    <input ngpComboboxInput type="text" class="cs-search" placeholder="Search…" (input)="onSearchInput($event)" />
+    }
+    <div class="cs-options" (mousedown)="onOptionsAreaMousedown($event)">
+      @for (item of filteredItems(); track valueFn()(item)) {
+      <div ngpComboboxOption class="cs-option" [ngpComboboxOptionValue]="item">{{ displayFn()(item) }}</div>
+      } @empty {
+      <div class="cs-empty">No results</div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (hint(); as hintText) {
+<p class="cs-hint">{{ hintText }}</p>
+} @if (control(); as ctrl) { @if (ctrl.touched && ctrl.errors) {
+<field-error [control]="ctrl" [messages]="errorMessages()" />
+} }

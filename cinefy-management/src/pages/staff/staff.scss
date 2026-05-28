@@ -1,4 +1,4 @@
-@use '../../shared/styles/mixins' as *;
+@use 'cinefy-ui/styles/mixins' as *;
 
 .staff-container {
   @include flex-column;

@@ -5,7 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { ChevronDownIcon, ChevronUpIcon, ClockIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { FieldErrorComponent } from '../../field-error/field-error';
+import { FieldErrorComponent } from 'cinefy-ui';
 
 type Period = 'AM' | 'PM';
 

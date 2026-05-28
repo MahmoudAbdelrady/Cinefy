@@ -1,10 +1,9 @@
 import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputField } from '../../../input-field/input-field';
+import { InputField, CustomSelectComponent } from 'cinefy-ui';
 import { LucideAngularModule } from 'lucide-angular';
 import { WebhookIcon } from '../../../../shared/icons';
 import { HelpHint } from '../../../help-hint/help-hint';
-import { CustomSelectComponent } from '../../../drop-down/custom-select/custom-select';
 
 const CURRENCY_LABELS = {
   EGP: 'EGP',

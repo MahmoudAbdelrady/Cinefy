@@ -143,6 +143,7 @@
               [container]="modal.panelEl()"
               (selectionChange)="copyLayoutFrom($event)"
               (cleared)="restoreOriginalLayout()"
+              (loadError)="onLoadError($event)"
             />
           </div>
         }

@@ -4,11 +4,9 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
-import { InputField } from '../../../../input-field/input-field';
-import { LoadingSpinnerComponent } from '../../../../loading-spinner/loading-spinner';
+import { InputField, LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
 import { ArrowLeftIcon, ArrowRightIcon, AtSignIcon } from '../../../../../shared/icons';
 import { AuthService } from '../../../../../services/auth';
-import { ToastService } from '../../../../../services/toast';
 
 @Component({
   selector: 'fp-request-step',

@@ -1,0 +1,67 @@
+@use "../select" as *;
+@use "../../../styles/mixins" as *;
+
+custom-select {
+  @include flex-column;
+  gap: 8px;
+
+  .cs-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cui-text-primary);
+
+    &[data-required]::after {
+      content: "*";
+      color: var(--cui-text-error);
+      margin-left: 3px;
+    }
+  }
+
+  .cs-trigger {
+    @include select-trigger;
+  }
+
+  .cs-placeholder {
+    @include select-placeholder;
+  }
+
+  .cs-chevron {
+    @include select-chevron;
+  }
+
+  .cs-clear {
+    @include select-clear;
+  }
+}
+
+.cs-dropdown {
+  @include select-dropdown;
+
+  &[data-width="matchContent"] {
+    width: max-content;
+    min-width: var(--ngp-combobox-width);
+  }
+}
+
+.cs-hint {
+  font-size: 12px;
+  color: var(--cui-text-hint);
+  line-height: 1.5;
+}
+
+.cs-options {
+  @include select-options;
+}
+
+.cs-option {
+  @include select-option;
+}
+
+.cs-search {
+  @include select-search;
+}
+
+.cs-empty {
+  @include select-empty;
+}

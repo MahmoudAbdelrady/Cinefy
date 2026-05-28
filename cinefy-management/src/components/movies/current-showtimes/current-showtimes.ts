@@ -17,15 +17,10 @@ import { DeleteIcon, PlusIcon, WarningIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ModalComponent } from '../../modal/modal';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
-import {
-  ShowtimeEventsService,
-  ShowtimesService,
-  StaffService,
-  ToastService,
-} from '../../../services';
+import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
 
 @Component({
   selector: 'current-showtimes',

@@ -23,13 +23,16 @@ import {
 import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import { ModalComponent } from '../../modal/modal';
-import { InputField } from '../../input-field/input-field';
 import {
+  InputField,
+  CustomSelectComponent,
+  LoadingSpinnerComponent,
   DEFAULT_COUNTRY,
   PhoneInput,
   phoneNumberValidator,
   toE164Digits,
-} from '../../phone-input/phone-input';
+  ToastService,
+} from 'cinefy-ui';
 import {
   EMPLOYMENT_TYPE_LABELS,
   USER_POSITION_LABELS,
@@ -41,10 +44,8 @@ import {
   type UserPosition,
   type WeekDay,
 } from '../../../shared/types';
-import { StaffService, ToastService } from '../../../services';
-import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
+import { StaffService } from '../../../services';
 import { TimePicker } from '../../date-time/time-picker/time-picker';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import {
   EMAIL_PATTERN,
   NAME_PATTERN,

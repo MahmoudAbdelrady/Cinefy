@@ -1,6 +1,6 @@
 @use '../../shared/styles/colors' as *;
-@use '../../shared/styles/mixins' as *;
-@use '../../shared/styles/breakpoints' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
 
 .pagination {
   @include flex-align;
@@ -42,7 +42,6 @@
     background-color: $color-background;
     text-align: center;
     transition: border-color 150ms ease;
-    -moz-appearance: textfield;
 
     &::-webkit-inner-spin-button,
     &::-webkit-outer-spin-button {

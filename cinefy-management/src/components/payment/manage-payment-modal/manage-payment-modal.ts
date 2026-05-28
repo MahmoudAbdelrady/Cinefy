@@ -16,7 +16,7 @@ import { FormGroup, Validators } from '@angular/forms';
 import { merge, startWith } from 'rxjs';
 import { ModalComponent } from '../../modal/modal';
 import { Stepper, StepperNoteTip, StepperStep } from '../../stepper/stepper';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
 import {
   IdentityStep,
   CredentialsStep,
@@ -30,7 +30,7 @@ import {
 } from '../steps';
 import { LucideAngularModule } from 'lucide-angular';
 import { LockIcon } from '../../../shared/icons';
-import { PaymentMethodService, ToastService } from '../../../services';
+import { PaymentMethodService } from '../../../services';
 import type { PaymentMethod, PaymentMethodSummary } from '../../../shared/types';
 
 @Component({

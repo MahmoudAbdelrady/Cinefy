@@ -28,15 +28,18 @@ import {
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
-import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
-import { InputField } from '../../input-field/input-field';
+import {
+  CustomSelectComponent,
+  InputField,
+  LoadingSpinnerComponent,
+  ToastService,
+  type PaginatedResponse,
+} from 'cinefy-ui';
 import { ModalComponent } from '../../modal/modal';
 import { PaginationComponent } from '../../pagination/pagination';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 import { StaffDetailsComponent } from '../staff-details/staff-details';
 import { ManageStaffModalComponent } from '../manage-staff-modal/manage-staff-modal';
 import {
-  PaginatedResponse,
   USER_POSITION_LABELS,
   WEEK_DAY_LABELS,
   type CoverageChange,
@@ -44,7 +47,7 @@ import {
   type StaffMemberSummary,
   type UserPosition,
 } from '../../../shared/types';
-import { StaffService, ToastService } from '../../../services';
+import { StaffService } from '../../../services';
 import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
 import { canManageStaffMember } from '../../../shared/access';
 

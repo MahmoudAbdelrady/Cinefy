@@ -6,13 +6,8 @@ import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 import { ChevronDownIcon, LogoutIcon, MenuIcon, UserIcon } from '../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
-import {
-  AuthService,
-  HeaderActionsService,
-  SidebarService,
-  StaffService,
-  ToastService,
-} from '../../services';
+import { AuthService, HeaderActionsService, SidebarService, StaffService } from '../../services';
+import { ToastService } from 'cinefy-ui';
 import { USER_POSITION_LABELS } from '../../shared/types';
 
 interface DropDownMenuItem {

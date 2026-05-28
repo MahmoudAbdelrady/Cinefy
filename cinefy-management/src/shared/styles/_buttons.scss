@@ -1,6 +1,6 @@
 @use 'colors' as *;
 @use 'shadows' as *;
-@use 'mixins' as *;
+@use 'cinefy-ui/styles/mixins' as *;
 
 %btn-base {
   @include flex-center;

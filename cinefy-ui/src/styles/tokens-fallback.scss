@@ -1,0 +1,45 @@
+// Default (light) values for the cinefy-ui semantic token contract.
+//
+// Consuming apps import this once globally to get a working light theme, then
+// override any roles in their own :root for a different identity (e.g. a dark
+// theme). Values mirror cinefy-management's original palette so importing this
+// reproduces its look exactly.
+
+:root {
+  --cui-surface-input: #ffffff;
+  --cui-surface-overlay: #ffffff;
+  --cui-surface-hover: #f3f4f6;
+
+  --cui-text-primary: #111827;
+  --cui-text-muted: #9ca3af;
+  --cui-text-hint: #6b7280;
+  --cui-text-strong: #4b5563;
+  --cui-text-error: #ef4444;
+
+  --cui-border-default: #d1d5db;
+  --cui-border-subtle: #e5e7eb;
+  --cui-ring: #3b82f6;
+  --cui-ring-error: #ef4444;
+
+  --cui-surface-disabled: #f9fafb;
+  --cui-surface-active: #f9fafb;
+  --cui-scrollbar-thumb: #d1d5db;
+
+  --cui-overlay-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+
+  --cui-option-text: #374151;
+  --cui-option-selected-surface: #eff6ff;
+  --cui-option-selected-text: #2563eb;
+
+  --cui-toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+  --cui-toast-success-surface: #f0fdf4;
+  --cui-toast-success-border: #dcfce7;
+  --cui-toast-success-text: #15803d;
+  --cui-toast-success-icon: #22c55e;
+
+  --cui-toast-error-surface: #fef2f2;
+  --cui-toast-error-border: rgba(239, 68, 68, 0.2);
+  --cui-toast-error-text: #dc2626;
+  --cui-toast-error-icon: #ef4444;
+}

@@ -1,7 +1,8 @@
 @use '../../shared/styles/colors' as *;
 @use '../../shared/styles/shadows' as *;
 @use '../../shared/styles/mixins' as *;
-@use '../../shared/styles/breakpoints' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
 
 // ─── Header Actions: Quick Add Menu ─────────────────────────────────────────────
 

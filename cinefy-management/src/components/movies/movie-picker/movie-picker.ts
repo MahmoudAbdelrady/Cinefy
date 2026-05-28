@@ -18,9 +18,9 @@ import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
 import { LucideAngularModule } from 'lucide-angular';
 import { ChevronRightIcon, FilmIcon, SearchIcon } from '../../../shared/icons';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
 import { MovieSearchResult } from '../../../shared/types';
-import { MoviesService, ToastService } from '../../../services';
+import { MoviesService } from '../../../services';
 
 @Component({
   selector: 'movie-picker',

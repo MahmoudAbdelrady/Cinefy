@@ -28,8 +28,13 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { ModalComponent } from '../../modal/modal';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
-import { InputField } from '../../input-field/input-field';
+import {
+  LoadingSpinnerComponent,
+  InputField,
+  CustomSelectComponent,
+  PaginatedSelectComponent,
+  ToastService,
+} from 'cinefy-ui';
 import {
   HALL_STATUS_LABELS,
   SEAT_CATEGORY_LABELS,
@@ -45,10 +50,8 @@ import {
   SeatLayout,
   TicketPricing,
 } from '../../../shared/types';
-import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
-import { PaginatedSelectComponent } from '../../drop-down/paginated-select/paginated-select';
 import { HallLayoutEditorComponent } from '../hall-layout-editor/hall-layout-editor';
-import { HallsService, ToastService } from '../../../services';
+import { HallsService } from '../../../services';
 
 interface LayoutBaseline {
   numberOfRows: number;
@@ -361,6 +364,10 @@ export class HallConfigModalComponent {
         this.toastService.error(err.error?.message ?? 'Failed to copy layout');
       },
     });
+  }
+
+  protected onLoadError(message: string) {
+    this.toastService.error(message);
   }
 
   protected saveHall() {

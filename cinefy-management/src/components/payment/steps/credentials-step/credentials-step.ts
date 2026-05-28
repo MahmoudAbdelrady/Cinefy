@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { KeyIcon, LockIcon } from '../../../../shared/icons';
-import { InputField } from '../../../input-field/input-field';
+import { InputField } from 'cinefy-ui';
 import { HelpHint } from '../../../help-hint/help-hint';
 
 export function buildCredentialsForm() {

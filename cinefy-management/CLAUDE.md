@@ -97,10 +97,10 @@ src/
 │   ├── types/                          # halls, movies, showtimes, staff, payment, stats, auth, api
 │   └── styles/
 │       ├── _colors.scss                # Full color palette + dark theme vars
-│       ├── _mixins.scss                # flex-*, icon-box, lucide-icon-fix, text-truncate, empty-state-block
+│       ├── _mixins.scss                # Management-only mixins: icon-box, empty-state-block. Shared flex-*/lucide-icon-fix/text-truncate come from cinefy-ui.
 │       ├── _shadows.scss               # $shadow-xs/sm/md/lg + focus-ring tokens
-│       ├── _buttons.scss               # Button base + primary/secondary mixins
-│       └── _breakpoints.scss           # $bp-phone/mobile/tablet/desktop + below-* / from-* mixins
+│       └── _buttons.scss               # Button base + primary/secondary mixins
+│                                       # Breakpoints + shared mixins live in cinefy-ui/styles/ (consume via `@use 'cinefy-ui/styles/...'`).
 ├── environments/
 │   ├── environment.ts                  # Dev: apiUrl = http://localhost:8080
 │   └── environment.prod.ts             # Prod: apiUrl = /api
@@ -292,16 +292,18 @@ POST   /payment-methods/:id/status       # Toggle active/inactive
 ### SCSS Conventions
 
 - Import colors: `@use 'shared/styles/colors' as *;`
-- Import mixins: `@use 'shared/styles/mixins' as *;`
 - Import shadows: `@use 'shared/styles/shadows' as *;`
 - Import buttons: `@use 'shared/styles/buttons' as *;`
-- Import breakpoints: `@use 'shared/styles/breakpoints' as *;`
+- Import management-only mixins (`icon-box`, `empty-state-block`): `@use 'shared/styles/mixins' as *;`
+- Import shared mixins (`flex-*`, `lucide-icon-fix`, `text-truncate`): `@use 'cinefy-ui/styles/mixins' as *;`
+- Import breakpoints (`below-*` / `from-*`): `@use 'cinefy-ui/styles/breakpoints' as *;`
+- A file may `@use` both `shared/styles/mixins` and `cinefy-ui/styles/mixins` when it needs both project-specific and shared mixins.
 - Use `$color-*` variables from `_colors.scss` — never hardcode colors.
 - Use `$radius-sm/md/lg/xl/full` for border-radius.
 - Use `$shadow-xs/sm/md/lg` and `$shadow-focus-ring[-error]` from `_shadows.scss` — never hardcode `box-shadow` values.
-- Layout mixins: `flex-center`, `flex-align`, `flex-between`, `flex-column`.
-- Icon mixins: `icon-box($size)`, `lucide-icon-fix` (applied on the **parent** of `<lucide-icon>`, never inside a `lucide-icon { }` block).
-- Other mixins: `text-truncate`, `empty-state-block`.
+- Layout mixins: `flex-center`, `flex-align`, `flex-between`, `flex-column` (cinefy-ui).
+- Icon mixins: `icon-box($size)` (management), `lucide-icon-fix` (cinefy-ui, applied on the **parent** of `<lucide-icon>`, never inside a `lucide-icon { }` block).
+- Other mixins: `text-truncate` (cinefy-ui), `empty-state-block` (management).
 - Responsive mixins: `below-phone/mobile/tablet/desktop` and `from-phone/mobile/tablet/desktop` (mobile-first by default).
 - **Flag new raw values before adding them** — if a color, shadow, gradient, or other "designed" value is not already in `src/shared/styles/`, surface it before writing: name the value, the closest existing token, and how they differ, then wait for the user to choose keep / replace with token / extract to shared. Doesn't apply to plain layout numbers (paddings, gaps, line-heights).
 

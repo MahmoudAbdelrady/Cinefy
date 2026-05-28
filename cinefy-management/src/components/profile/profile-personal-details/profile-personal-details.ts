@@ -13,18 +13,19 @@ import {
   LockIcon,
   UserIcon,
 } from '../../../shared/icons';
-import { InputField } from '../../input-field/input-field';
 import {
+  InputField,
+  LoadingSpinnerComponent,
   DEFAULT_COUNTRY,
   PhoneInput,
   phoneNumberValidator,
   toE164Digits,
-} from '../../phone-input/phone-input';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+  ToastService,
+} from 'cinefy-ui';
 import { PhoneFormatPipe } from '../../../shared/pipes';
 import type { StaffMemberDetail } from '../../../shared/types';
 import { NAME_PATTERN } from '../../../shared/validation';
-import { StaffService, ToastService } from '../../../services';
+import { StaffService } from '../../../services';
 
 @Component({
   selector: 'profile-personal-details',

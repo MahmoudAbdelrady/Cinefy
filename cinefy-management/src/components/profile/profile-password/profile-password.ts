@@ -4,10 +4,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { KeyIcon, SaveIcon } from '../../../shared/icons';
-import { InputField } from '../../input-field/input-field';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { InputField, LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
 import { PASSWORD_PATTERN } from '../../../shared/validation';
-import { StaffService, ToastService } from '../../../services';
+import { StaffService } from '../../../services';
 import type { ApiError } from '../../../shared/types';
 
 @Component({

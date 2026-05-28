@@ -4,7 +4,6 @@ import { BehaviorSubject, filter, Observable } from 'rxjs';
 import type {
   ChangePasswordPayload,
   CurrentStaffMember,
-  PaginatedResponse,
   PositionCoverage,
   StaffMemberDetail,
   StaffMemberPayload,
@@ -12,6 +11,7 @@ import type {
   UpdateProfilePayload,
   UserPosition,
 } from '../shared/types';
+import type { PaginatedResponse } from 'cinefy-ui';
 
 @Injectable({ providedIn: 'root' })
 export class StaffService {

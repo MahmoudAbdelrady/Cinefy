@@ -20,13 +20,17 @@ import {
 } from '../../../shared/types';
 import { DatePicker } from '../../date-time/date-picker/date-picker';
 import { TimePicker } from '../../date-time/time-picker/time-picker';
-import { PaginatedSelectComponent } from '../../drop-down/paginated-select/paginated-select';
+import {
+  PaginatedSelectComponent,
+  FieldErrorComponent,
+  LoadingSpinnerComponent,
+  ToastService,
+} from 'cinefy-ui';
 import {
   HallsService,
   MoviesService,
   ShowtimeEventsService,
   ShowtimesService,
-  ToastService,
 } from '../../../services';
 import { NgpTextarea } from 'ng-primitives/textarea';
 import { NgpButton } from 'ng-primitives/button';
@@ -35,8 +39,6 @@ import { FilmIcon } from '../../../shared/icons';
 import { ModalComponent } from '../../modal/modal';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
-import { FieldErrorComponent } from '../../field-error/field-error';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 
 function notInPastValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value as Date | null;
@@ -205,6 +207,10 @@ export class ManageShowtimeModalComponent {
     const hallIdCtrl = this.showtimeForm.controls.hallId;
     hallIdCtrl.setValue(hall?.id ?? null);
     hallIdCtrl.markAsTouched();
+  }
+
+  protected onLoadError(message: string) {
+    this.toastService.error(message);
   }
 
   protected onSubmit() {

@@ -1,0 +1,29 @@
+<div class="phone-input">
+  @if (label(); as labelText) {
+  <label class="pi-label" [attr.data-required]="required() ? '' : null">{{ labelText }}</label>
+  }
+  <div class="phone-row">
+    <div class="phone-country">
+      <custom-select
+        [items]="countryOptions"
+        [displayFn]="countryDisplayFn"
+        [triggerDisplayFn]="countryTriggerDisplayFn"
+        [compareWith]="countryCompareFn"
+        [value]="selectedCountryOption()"
+        [searchable]="true"
+        [container]="container()"
+        dropdownWidth="matchContent"
+        placeholder="Country"
+        (selectionChange)="onCountryChange($event)"
+      />
+    </div>
+    <div class="phone-national">
+      <input-field
+        [control]="numberControl()"
+        [placeholder]="placeholder()"
+        [leadingIcon]="icons.PhoneIcon"
+        [errorMessages]="errorMessages()"
+      />
+    </div>
+  </div>
+</div>

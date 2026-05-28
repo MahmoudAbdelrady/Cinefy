@@ -41,14 +41,9 @@ import {
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import {
-  ShowtimeEventsService,
-  ShowtimesService,
-  StaffService,
-  ToastService,
-} from '../../../services';
+import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
+import { ToastService, LoadingSpinnerComponent } from 'cinefy-ui';
 import { canManage as canManagePosition } from '../../../shared/access';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 
 @Component({
   selector: 'movie-showtimes-modal',
