@@ -12,8 +12,8 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
-import { InputField } from '../../../../input-field/input-field';
-import { LoadingSpinnerComponent } from '../../../../loading-spinner/loading-spinner';
+import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import {
   AlertIcon,
   ArrowRightIcon,
@@ -23,7 +23,6 @@ import {
 import { PASSWORD_PATTERN } from '../../../../../shared/validation';
 import type { ApiError } from '../../../../../shared/types';
 import { AuthService } from '../../../../../services/auth';
-import { ToastService } from '../../../../../services/toast';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const newPassword = group.get('newPassword')?.value;

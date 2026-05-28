@@ -3,7 +3,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
 import {
   AtSignIcon,
   SaveIcon,
@@ -13,18 +12,21 @@ import {
   LockIcon,
   UserIcon,
 } from '../../../shared/icons';
-import { InputField } from '../../input-field/input-field';
 import {
+  InputField,
+  LoadingSpinnerComponent,
   DEFAULT_COUNTRY,
   PhoneInput,
   phoneNumberValidator,
   toE164Digits,
-} from '../../phone-input/phone-input';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
-import { PhoneFormatPipe } from '../../../shared/pipes';
+  parsePhoneDigits,
+  type PhoneCountryCode,
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
+import { PhoneFormatPipe } from 'cinefy-ui/pipes';
 import type { StaffMemberDetail } from '../../../shared/types';
 import { NAME_PATTERN } from '../../../shared/validation';
-import { StaffService, ToastService } from '../../../services';
+import { StaffService } from '../../../services';
 
 @Component({
   selector: 'profile-personal-details',
@@ -80,7 +82,7 @@ export class ProfilePersonalDetailsComponent {
         Validators.pattern(NAME_PATTERN),
       ],
     }),
-    phoneCountry: new FormControl<CountryCode>(DEFAULT_COUNTRY, {
+    phoneCountry: new FormControl<PhoneCountryCode>(DEFAULT_COUNTRY, {
       nonNullable: true,
       validators: [Validators.required],
     }),
@@ -114,12 +116,12 @@ export class ProfilePersonalDetailsComponent {
 
   protected startEditing(): void {
     const profile = this.profile();
-    const parsedPhone = parsePhoneNumberFromString(`+${profile.phoneNumber}`);
+    const { country, nationalNumber } = parsePhoneDigits(profile.phoneNumber);
     this.personalForm.reset({
       firstName: profile.firstName,
       lastName: profile.lastName,
-      phoneCountry: parsedPhone?.country ?? DEFAULT_COUNTRY,
-      phoneNumber: parsedPhone?.nationalNumber ?? profile.phoneNumber,
+      phoneCountry: country,
+      phoneNumber: nationalNumber,
     });
     this.isEditing.set(true);
   }

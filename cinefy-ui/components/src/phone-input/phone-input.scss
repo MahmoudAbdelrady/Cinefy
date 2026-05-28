@@ -1,0 +1,39 @@
+@use "../../../src/styles/mixins" as *;
+
+.phone-input {
+  @include flex-column;
+  gap: 8px;
+}
+
+.pi-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cui-text-primary);
+
+  &[data-required]::after {
+    content: "*";
+    color: var(--cui-text-error);
+    margin-left: 3px;
+  }
+}
+
+.phone-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+
+  .phone-country {
+    flex: 0 0 110px;
+    min-width: 0;
+
+    // Stretch the select trigger to fill the fixed-width cell.
+    > * {
+      width: 100%;
+    }
+  }
+
+  .phone-national {
+    flex: 1;
+    min-width: 0;
+  }
+}

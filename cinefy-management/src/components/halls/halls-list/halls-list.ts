@@ -15,13 +15,17 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
-import { InputField } from '../../input-field/input-field';
-import { PaginationComponent } from '../../pagination/pagination';
-import { ModalComponent } from '../../modal/modal';
+import {
+  InputField,
+  LoadingSpinnerComponent,
+  PaginationComponent,
+  ModalComponent,
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
+import type { PaginatedResponse } from 'cinefy-ui/types';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
-import { HALL_STATUS_LABELS, HallSummary, PaginatedResponse } from '../../../shared/types';
-import { HallsService, ToastService } from '../../../services';
+import { HALL_STATUS_LABELS, HallSummary } from '../../../shared/types';
+import { HallsService } from '../../../services';
 
 @Component({
   selector: 'halls-list',

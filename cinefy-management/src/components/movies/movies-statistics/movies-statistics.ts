@@ -9,9 +9,10 @@ import {
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CalendarIcon, ClockIcon, FilmIcon } from '../../../shared/icons';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import { StatsComponent } from '../../stats/stats';
-import { ShowtimeEventsService, ShowtimesService, ToastService } from '../../../services';
+import { ShowtimeEventsService, ShowtimesService } from '../../../services';
 import type { ShowtimesStatistics, StatsCard } from '../../../shared/types';
 
 @Component({

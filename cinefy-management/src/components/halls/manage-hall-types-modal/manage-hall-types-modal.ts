@@ -20,10 +20,9 @@ import {
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { ModalComponent } from '../../modal/modal';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
-import { FieldErrorComponent } from '../../field-error/field-error';
-import { HallsService, ToastService } from '../../../services';
+import { ModalComponent, LoadingSpinnerComponent, FieldErrorComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
+import { HallsService } from '../../../services';
 import { HallType } from '../../../shared/types';
 
 function notBlankValidator(control: AbstractControl): ValidationErrors | null {

@@ -1,0 +1,31 @@
+<div ngpDialogOverlay class="modal-overlay">
+  <div #panel ngpDialog class="modal-panel" [style.--modal-max-width]="width()">
+    <div class="modal-header" [attr.data-custom]="customHeader() ? '' : null">
+      @if (customHeader()) {
+      <ng-content select="[modal-header]" />
+      } @else {
+      <div class="modal-header-text">
+        @if (modalTitle()) {
+        <h2 ngpDialogTitle>{{ modalTitle() }}</h2>
+        } @if (description()) {
+        <p ngpDialogDescription>{{ description() }}</p>
+        }
+      </div>
+      }
+      <div class="modal-header-actions">
+        <ng-content select="[modal-header-actions]" />
+        <button title="Close" class="modal-close-btn" (click)="close()()">
+          <lucide-icon [img]="icons.XIcon" [size]="20" [strokeWidth]="2"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-body" [style.padding]="bodyPadding()">
+      <ng-content />
+    </div>
+
+    <div class="modal-footer">
+      <ng-content select="[modal-footer]" />
+    </div>
+  </div>
+</div>

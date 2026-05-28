@@ -20,16 +20,21 @@ import {
   PhoneIcon,
   UserIcon,
 } from '../../../shared/icons';
-import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
-import { ModalComponent } from '../../modal/modal';
-import { InputField } from '../../input-field/input-field';
 import {
+  ModalComponent,
+  InputField,
+  CustomSelectComponent,
+  LoadingSpinnerComponent,
   DEFAULT_COUNTRY,
   PhoneInput,
   phoneNumberValidator,
   toE164Digits,
-} from '../../phone-input/phone-input';
+  parsePhoneDigits,
+  type PhoneCountryCode,
+  TimePicker,
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import {
   EMPLOYMENT_TYPE_LABELS,
   USER_POSITION_LABELS,
@@ -41,10 +46,7 @@ import {
   type UserPosition,
   type WeekDay,
 } from '../../../shared/types';
-import { StaffService, ToastService } from '../../../services';
-import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
-import { TimePicker } from '../../date-time/time-picker/time-picker';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { StaffService } from '../../../services';
 import {
   EMAIL_PATTERN,
   NAME_PATTERN,
@@ -140,7 +142,7 @@ export class ManageStaffModalComponent {
       nonNullable: true,
       validators: [Validators.required, Validators.pattern(EMAIL_PATTERN)],
     }),
-    phoneCountry: new FormControl<CountryCode>(DEFAULT_COUNTRY, {
+    phoneCountry: new FormControl<PhoneCountryCode>(DEFAULT_COUNTRY, {
       nonNullable: true,
       validators: [Validators.required],
     }),
@@ -255,14 +257,14 @@ export class ManageStaffModalComponent {
     effect(() => {
       const member = this.resolvedStaffMember();
       if (!member) return;
-      const parsedPhone = parsePhoneNumberFromString(`+${member.phoneNumber}`);
+      const { country, nationalNumber } = parsePhoneDigits(member.phoneNumber);
       this.staffForm.patchValue({
         firstName: member.firstName,
         lastName: member.lastName,
         username: member.username,
         email: member.email,
-        phoneCountry: parsedPhone?.country ?? DEFAULT_COUNTRY,
-        phoneNumber: parsedPhone?.nationalNumber ?? member.phoneNumber,
+        phoneCountry: country,
+        phoneNumber: nationalNumber,
         position: member.position,
         employmentType: member.employmentType,
         workingDayStart: member.workingDayStart,

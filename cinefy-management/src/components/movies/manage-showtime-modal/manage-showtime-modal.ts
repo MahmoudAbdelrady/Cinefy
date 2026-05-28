@@ -18,25 +18,27 @@ import {
   MovieSearchResult,
   ShowtimeDraft,
 } from '../../../shared/types';
-import { DatePicker } from '../../date-time/date-picker/date-picker';
-import { TimePicker } from '../../date-time/time-picker/time-picker';
-import { PaginatedSelectComponent } from '../../drop-down/paginated-select/paginated-select';
+import {
+  ModalComponent,
+  DatePicker,
+  TimePicker,
+  PaginatedSelectComponent,
+  FieldErrorComponent,
+  LoadingSpinnerComponent,
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import {
   HallsService,
   MoviesService,
   ShowtimeEventsService,
   ShowtimesService,
-  ToastService,
 } from '../../../services';
 import { NgpTextarea } from 'ng-primitives/textarea';
 import { NgpButton } from 'ng-primitives/button';
 import { LucideAngularModule } from 'lucide-angular';
 import { FilmIcon } from '../../../shared/icons';
-import { ModalComponent } from '../../modal/modal';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
-import { FieldErrorComponent } from '../../field-error/field-error';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 
 function notInPastValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value as Date | null;

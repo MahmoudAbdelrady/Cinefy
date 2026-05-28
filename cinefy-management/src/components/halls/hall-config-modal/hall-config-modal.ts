@@ -27,9 +27,14 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
-import { ModalComponent } from '../../modal/modal';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
-import { InputField } from '../../input-field/input-field';
+import {
+  ModalComponent,
+  LoadingSpinnerComponent,
+  InputField,
+  CustomSelectComponent,
+  PaginatedSelectComponent,
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import {
   HALL_STATUS_LABELS,
   SEAT_CATEGORY_LABELS,
@@ -45,10 +50,8 @@ import {
   SeatLayout,
   TicketPricing,
 } from '../../../shared/types';
-import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
-import { PaginatedSelectComponent } from '../../drop-down/paginated-select/paginated-select';
 import { HallLayoutEditorComponent } from '../hall-layout-editor/hall-layout-editor';
-import { HallsService, ToastService } from '../../../services';
+import { HallsService } from '../../../services';
 
 interface LayoutBaseline {
   numberOfRows: number;

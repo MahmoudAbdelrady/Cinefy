@@ -30,10 +30,6 @@ src/
 │   ├── auth/                           # forgot-password (progress-dots + steps: request/otp/reset/done),
 │   │                                   #   input-otp
 │   ├── dashboard/                      # now-showing, today-schedule, upcoming-movies-widget
-│   ├── date-time/                      # date-picker, time-picker, date-time-picker
-│   ├── drop-down/
-│   │   ├── custom-select/              # Generic single-select dropdown
-│   │   └── paginated-select/           # Lazy-loading paginated dropdown
 │   ├── halls/
 │   │   ├── hall-config-modal/          # Create/edit hall form + layout editor
 │   │   ├── hall-layout-editor/         # Interactive seat grid editor
@@ -53,18 +49,19 @@ src/
 │   │   ├── staff-details/              # Read-only staff detail view
 │   │   ├── staff-list/                 # Paginated searchable staff table
 │   │   └── staff-position-coverage/    # Position coverage stats
-│   ├── field-error/                    # Form validation error display
-│   ├── phone-input/                    # Country-code phone entry (libphonenumber)
 │   ├── header/                         # Top navigation bar
 │   ├── help-hint/                      # Inline help tooltip
-│   ├── input-field/                    # Wrapped text input + leading icon + validation
-│   ├── loading-spinner/                # Animated loader
-│   ├── modal/                          # ng-primitives dialog wrapper
-│   ├── pagination/                     # Pagination with jump-to
 │   ├── sidebar/                        # Navigation sidebar
 │   ├── stats/                          # Generic stat-card component
-│   ├── stepper/                        # Wizard step indicator
-│   └── toast/                          # Success/error notifications
+│   └── stepper/                        # Wizard step indicator
+│                                       # Shared UI (input-field, field-error, loading-spinner,
+│                                       # custom-select, paginated-select, phone-input, toast,
+│                                       # modal, pagination, date-picker, time-picker) lives in cinefy-ui.
+│                                       # Imports are grouped by subpath:
+│                                       #   from 'cinefy-ui/components' — component classes
+│                                       #   from 'cinefy-ui/services'   — ToastService
+│                                       #   from 'cinefy-ui/pipes'      — PhoneFormat/RelativeTime/Time12h
+│                                       #   from 'cinefy-ui/types'      — PaginatedResponse, PageFields, ToastContext
 ├── pages/                              # Route-level components
 │   ├── auth/                           # login (/login), forgot-password (/forgot-password)
 │   ├── dashboard/                      # Dashboard page (/)
@@ -93,21 +90,20 @@ src/
 │   ├── access.ts                       # Position → allowed-route/action rules (canAccessRoute, canManage, ...)
 │   ├── validation.ts                   # Shared form regexes (password/email/name/username patterns)
 │   ├── guards/                         # auth-guard, guest-guard, position-guard (route CanActivate/CanMatch)
-│   ├── pipes/                          # phone-format, relative-time, time-12h
 │   ├── types/                          # halls, movies, showtimes, staff, payment, stats, auth, api
 │   └── styles/
-│       ├── _colors.scss                # Full color palette + dark theme vars
-│       ├── _mixins.scss                # flex-*, icon-box, lucide-icon-fix, text-truncate, empty-state-block
-│       ├── _shadows.scss               # $shadow-xs/sm/md/lg + focus-ring tokens
-│       ├── _buttons.scss               # Button base + primary/secondary mixins
-│       └── _breakpoints.scss           # $bp-phone/mobile/tablet/desktop + below-* / from-* mixins
+│       ├── _colors.scss                # Full color palette ($gray-*, $blue-*, etc.) — project-owned
+│       ├── _shadows.scss                # $shadow-xs/sm/md/lg + focus-ring tokens — project-owned
+│       └── _mixins.scss                # Management-only mixins: icon-box, empty-state-block. Shared flex-*/lucide-icon-fix/text-truncate come from cinefy-ui.
+│                                       # Breakpoints, shared mixins, and button styles come from cinefy-ui via @use.
+│                                       # src/styles.scss bridges $colors/$shadows → var(--cui-*) for the lib's components.
 ├── environments/
 │   ├── environment.ts                  # Dev: apiUrl = http://localhost:8080
 │   └── environment.prod.ts             # Prod: apiUrl = /api
 └── styles.scss                         # Global reset + ng-primitives overrides (tooltip, dialog overlay)
 ```
 
-Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, `shared/pipes/index.ts`, and `shared/guards/index.ts` — always import through them.
+Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, and `shared/guards/index.ts` — always import through them.
 
 ## Routes
 
@@ -292,16 +288,19 @@ POST   /payment-methods/:id/status       # Toggle active/inactive
 ### SCSS Conventions
 
 - Import colors: `@use 'shared/styles/colors' as *;`
-- Import mixins: `@use 'shared/styles/mixins' as *;`
 - Import shadows: `@use 'shared/styles/shadows' as *;`
-- Import buttons: `@use 'shared/styles/buttons' as *;`
-- Import breakpoints: `@use 'shared/styles/breakpoints' as *;`
-- Use `$color-*` variables from `_colors.scss` — never hardcode colors.
+- Button styles (`btn-primary`, `btn-secondary`, `btn-danger`, `btn-success`) are emitted globally by `@use 'cinefy-ui/styles/buttons';` in `src/styles.scss` — apply via `class="btn-*"`, no per-file import needed.
+- Import management-only mixins (`icon-box`, `empty-state-block`): `@use 'shared/styles/mixins' as *;`
+- Import shared mixins (`flex-*`, `lucide-icon-fix`, `text-truncate`): `@use 'cinefy-ui/styles/mixins' as *;`
+- Import breakpoints (`below-*` / `from-*`): `@use 'cinefy-ui/styles/breakpoints' as *;`
+- A file may `@use` both `shared/styles/mixins` and `cinefy-ui/styles/mixins` when it needs both project-specific and shared mixins.
+- Use `$color-*` and `$gray/blue/red/etc-*` from `_colors.scss` — never hardcode colors.
 - Use `$radius-sm/md/lg/xl/full` for border-radius.
 - Use `$shadow-xs/sm/md/lg` and `$shadow-focus-ring[-error]` from `_shadows.scss` — never hardcode `box-shadow` values.
-- Layout mixins: `flex-center`, `flex-align`, `flex-between`, `flex-column`.
-- Icon mixins: `icon-box($size)`, `lucide-icon-fix` (applied on the **parent** of `<lucide-icon>`, never inside a `lucide-icon { }` block).
-- Other mixins: `text-truncate`, `empty-state-block`.
+- cinefy-ui's components consume runtime `var(--cui-*)` tokens (theming contract). Management's `src/styles.scss` maps its SCSS palette to those tokens once in a `:root { ... }` block — that's the single bridge. Component SCSS in management uses plain `$variables`, not `var()`.
+- Layout mixins: `flex-center`, `flex-align`, `flex-between`, `flex-column` (cinefy-ui).
+- Icon mixins: `icon-box($size)` (management), `lucide-icon-fix` (cinefy-ui, applied on the **parent** of `<lucide-icon>`, never inside a `lucide-icon { }` block).
+- Other mixins: `text-truncate` (cinefy-ui), `empty-state-block` (management).
 - Responsive mixins: `below-phone/mobile/tablet/desktop` and `from-phone/mobile/tablet/desktop` (mobile-first by default).
 - **Flag new raw values before adding them** — if a color, shadow, gradient, or other "designed" value is not already in `src/shared/styles/`, surface it before writing: name the value, the closest existing token, and how they differ, then wait for the user to choose keep / replace with token / extract to shared. Doesn't apply to plain layout numbers (paddings, gaps, line-heights).
 
@@ -350,7 +349,7 @@ LSP coverage in this repo: TypeScript files (Angular components, services, types
 1. Always use **pnpm**.
 2. Always use **standalone components** with `inject()`.
 3. Prefer **signals** over RxJS for UI state.
-4. Use **barrel exports** — import from `../components`, `../services`, `../shared/types`, `../shared/pipes`.
+4. Use **barrel exports** — import from `../components`, `../services`, `../shared/types`.
 5. Keep types in `shared/types/` with barrel re-exports.
 6. Use the existing **color palette, shadows, and mixins** — don't introduce new color or shadow values.
 7. Use **ng-primitives** directives for interactive UI (buttons, dialogs, selects, etc.).

@@ -1,32 +1,4 @@
-@use 'colors' as *;
-
-@mixin flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@mixin flex-align {
-  display: flex;
-  align-items: center;
-}
-
-@mixin flex-between {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-@mixin flex-column {
-  display: flex;
-  flex-direction: column;
-}
-
-@mixin lucide-icon-fix {
-  lucide-icon {
-    display: flex;
-  }
-}
+@use 'cinefy-ui/styles/mixins' as *;
 
 @mixin icon-box($size: 40px) {
   width: $size;
@@ -35,34 +7,4 @@
   @include flex-center;
   flex-shrink: 0;
   @include lucide-icon-fix;
-}
-
-@mixin text-truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@mixin empty-state-block {
-  @include flex-center;
-  flex-direction: column;
-  gap: 8px;
-  padding: 64px 24px;
-  color: $gray-400;
-
-  lucide-icon {
-    display: flex;
-    margin-bottom: 4px;
-  }
-
-  p {
-    font-size: 16px;
-    font-weight: 500;
-    color: $gray-500;
-  }
-
-  span {
-    font-size: 14px;
-    color: $gray-400;
-  }
 }

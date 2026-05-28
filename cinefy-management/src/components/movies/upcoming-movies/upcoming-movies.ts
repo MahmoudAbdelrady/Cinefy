@@ -7,9 +7,10 @@ import type { MovieSearchResult } from '../../../shared/types';
 import { canManage as canManagePosition } from '../../../shared/access';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
-import { MoviesService, StaffService, ToastService } from '../../../services';
+import { MoviesService, StaffService } from '../../../services';
 
 @Component({
   selector: 'upcoming-movies',

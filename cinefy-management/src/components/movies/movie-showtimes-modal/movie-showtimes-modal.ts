@@ -16,8 +16,6 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ModalComponent } from '../../modal/modal';
-import { Time12hPipe } from '../../../shared/pipes';
 import {
   EditableShowtime,
   MovieDetail,
@@ -41,14 +39,11 @@ import {
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import {
-  ShowtimeEventsService,
-  ShowtimesService,
-  StaffService,
-  ToastService,
-} from '../../../services';
+import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
+import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
+import { Time12hPipe } from 'cinefy-ui/pipes';
 import { canManage as canManagePosition } from '../../../shared/access';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
 
 @Component({
   selector: 'movie-showtimes-modal',

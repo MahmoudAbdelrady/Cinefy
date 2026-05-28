@@ -14,9 +14,9 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormGroup, Validators } from '@angular/forms';
 import { merge, startWith } from 'rxjs';
-import { ModalComponent } from '../../modal/modal';
 import { Stepper, StepperNoteTip, StepperStep } from '../../stepper/stepper';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import {
   IdentityStep,
   CredentialsStep,
@@ -30,7 +30,7 @@ import {
 } from '../steps';
 import { LucideAngularModule } from 'lucide-angular';
 import { LockIcon } from '../../../shared/icons';
-import { PaymentMethodService, ToastService } from '../../../services';
+import { PaymentMethodService } from '../../../services';
 import type { PaymentMethod, PaymentMethodSummary } from '../../../shared/types';
 
 @Component({

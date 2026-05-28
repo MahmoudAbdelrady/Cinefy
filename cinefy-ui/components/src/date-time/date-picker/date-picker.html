@@ -1,0 +1,56 @@
+<button
+  type="button"
+  ngpButton
+  class="dp-trigger"
+  [ngpPopoverTrigger]="calendarPopover"
+  [ngpPopoverTriggerContainer]="container()"
+  ngpPopoverTriggerPlacement="bottom-start"
+  [ngpPopoverTriggerOffset]="6"
+  [disabled]="isDisabled() || disabled()"
+  [attr.data-empty]="formatted() ? null : ''"
+>
+  <lucide-icon [img]="icons.CalendarIcon" [size]="16"></lucide-icon>
+  <span class="dp-trigger-label"> {{ formatted() || placeholder() }} </span>
+</button>
+
+<ng-template #calendarPopover>
+  <div
+    ngpPopover
+    class="dp-popover"
+    ngpDatePicker
+    [ngpDatePickerDate]="value()"
+    [ngpDatePickerMin]="min()"
+    [ngpDatePickerMax]="max()"
+    (ngpDatePickerDateChange)="onDateChange($event)"
+  >
+    <div class="dp-header">
+      <button type="button" ngpButton ngpDatePickerPreviousMonth class="dp-nav-btn">
+        <lucide-icon [img]="icons.ChevronLeftIcon" [size]="16"></lucide-icon>
+      </button>
+      <div ngpDatePickerLabel class="dp-label"></div>
+      <button type="button" ngpButton ngpDatePickerNextMonth class="dp-nav-btn">
+        <lucide-icon [img]="icons.ChevronRightIcon" [size]="16"></lucide-icon>
+      </button>
+    </div>
+
+    <div ngpDatePickerGrid class="dp-grid">
+      <div class="dp-weekdays">
+        @for (day of weekdays; track day) {
+        <span class="dp-weekday">{{ day }}</span>
+        }
+      </div>
+
+      <div class="dp-weeks">
+        <ng-template ngpDatePickerRowRender>
+          <div class="dp-week">
+            <ng-template ngpDatePickerCellRender let-date>
+              <div ngpDatePickerCell class="dp-cell">
+                <button type="button" ngpButton ngpDatePickerDateButton class="dp-day">{{ date.getDate() }}</button>
+              </div>
+            </ng-template>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</ng-template>

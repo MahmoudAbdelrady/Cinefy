@@ -11,16 +11,16 @@ import {
   AtSignIcon,
 } from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
-import { ModalComponent } from '../../modal/modal';
-import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
+import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
 import {
   EMPLOYMENT_TYPE_LABELS,
   USER_POSITION_LABELS,
   WEEK_DAY_LABELS,
   type StaffMemberDetail,
 } from '../../../shared/types';
-import { StaffService, ToastService } from '../../../services';
+import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
 
 @Component({

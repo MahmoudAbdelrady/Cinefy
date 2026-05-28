@@ -5,21 +5,11 @@ import { UpcomingMoviesWidgetComponent } from './dashboard/upcoming-movies-widge
 import { TodayScheduleComponent } from './dashboard/today-schedule/today-schedule';
 import { HallsStatisticsComponent } from './halls/halls-statistics/halls-statistics';
 import { HallsListComponent } from './halls/halls-list/halls-list';
-import { PaginationComponent } from './pagination/pagination';
-import { ModalComponent } from './modal/modal';
 import { HallLayoutEditorComponent } from './halls/hall-layout-editor/hall-layout-editor';
 import { HallConfigModalComponent } from './halls/hall-config-modal/hall-config-modal';
 import { ManageHallTypesModalComponent } from './halls/manage-hall-types-modal/manage-hall-types-modal';
-import { ToastComponent } from './toast/toast';
-import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner';
-import { FieldErrorComponent } from './field-error/field-error';
-import { PhoneInput } from './phone-input/phone-input';
-import { CustomSelectComponent } from './drop-down/custom-select/custom-select';
-import { PaginatedSelectComponent } from './drop-down/paginated-select/paginated-select';
 import { MoviePickerComponent } from './movies/movie-picker/movie-picker';
 import { ManageShowtimeModalComponent } from './movies/manage-showtime-modal/manage-showtime-modal';
-import { DatePicker } from './date-time/date-picker/date-picker';
-import { TimePicker } from './date-time/time-picker/time-picker';
 import { StatsComponent } from './stats/stats';
 import { MoviesStatisticsComponent } from './movies/movies-statistics/movies-statistics';
 import { CurrentShowtimesComponent } from './movies/current-showtimes/current-showtimes';
@@ -44,21 +34,11 @@ export {
   TodayScheduleComponent,
   HallsStatisticsComponent,
   HallsListComponent,
-  PaginationComponent,
-  ModalComponent,
   HallLayoutEditorComponent,
   HallConfigModalComponent,
   ManageHallTypesModalComponent,
-  ToastComponent,
-  LoadingSpinnerComponent,
-  FieldErrorComponent,
-  PhoneInput,
-  CustomSelectComponent,
-  PaginatedSelectComponent,
   MoviePickerComponent,
   ManageShowtimeModalComponent,
-  DatePicker,
-  TimePicker,
   StatsComponent,
   MoviesStatisticsComponent,
   CurrentShowtimesComponent,
@@ -75,5 +55,3 @@ export {
   ProfilePersonalDetailsComponent,
   ProfilePasswordComponent,
 };
-
-export { DEFAULT_COUNTRY, phoneNumberValidator, toE164Digits } from './phone-input/phone-input';

@@ -2,13 +2,14 @@ import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { switchMap, take } from 'rxjs';
 import {
-  LoadingSpinnerComponent,
   ProfileIdentityComponent,
   ProfilePasswordComponent,
   ProfilePersonalDetailsComponent,
 } from '../../components';
 import type { StaffMemberDetail } from '../../shared/types';
-import { StaffService, ToastService } from '../../services';
+import { StaffService } from '../../services';
+import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 
 @Component({
   selector: 'profile-page',

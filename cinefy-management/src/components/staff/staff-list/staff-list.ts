@@ -28,15 +28,19 @@ import {
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
-import { CustomSelectComponent } from '../../drop-down/custom-select/custom-select';
-import { InputField } from '../../input-field/input-field';
-import { ModalComponent } from '../../modal/modal';
-import { PaginationComponent } from '../../pagination/pagination';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import {
+  ModalComponent,
+  PaginationComponent,
+  CustomSelectComponent,
+  InputField,
+  LoadingSpinnerComponent,
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
+import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
+import type { PaginatedResponse } from 'cinefy-ui/types';
 import { StaffDetailsComponent } from '../staff-details/staff-details';
 import { ManageStaffModalComponent } from '../manage-staff-modal/manage-staff-modal';
 import {
-  PaginatedResponse,
   USER_POSITION_LABELS,
   WEEK_DAY_LABELS,
   type CoverageChange,
@@ -44,8 +48,7 @@ import {
   type StaffMemberSummary,
   type UserPosition,
 } from '../../../shared/types';
-import { StaffService, ToastService } from '../../../services';
-import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
+import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
 
 @Component({

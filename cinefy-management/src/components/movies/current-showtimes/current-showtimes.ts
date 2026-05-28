@@ -16,16 +16,11 @@ import { LucideAngularModule } from 'lucide-angular';
 import { DeleteIcon, PlusIcon, WarningIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { ModalComponent } from '../../modal/modal';
-import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner';
+import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
-import {
-  ShowtimeEventsService,
-  ShowtimesService,
-  StaffService,
-  ToastService,
-} from '../../../services';
+import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
 
 @Component({
   selector: 'current-showtimes',
