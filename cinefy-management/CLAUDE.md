@@ -30,10 +30,6 @@ src/
 │   ├── auth/                           # forgot-password (progress-dots + steps: request/otp/reset/done),
 │   │                                   #   input-otp
 │   ├── dashboard/                      # now-showing, today-schedule, upcoming-movies-widget
-│   ├── date-time/                      # date-picker, time-picker, date-time-picker
-│   ├── drop-down/
-│   │   ├── custom-select/              # Generic single-select dropdown
-│   │   └── paginated-select/           # Lazy-loading paginated dropdown
 │   ├── halls/
 │   │   ├── hall-config-modal/          # Create/edit hall form + layout editor
 │   │   ├── hall-layout-editor/         # Interactive seat grid editor
@@ -53,18 +49,14 @@ src/
 │   │   ├── staff-details/              # Read-only staff detail view
 │   │   ├── staff-list/                 # Paginated searchable staff table
 │   │   └── staff-position-coverage/    # Position coverage stats
-│   ├── field-error/                    # Form validation error display
-│   ├── phone-input/                    # Country-code phone entry (libphonenumber)
 │   ├── header/                         # Top navigation bar
 │   ├── help-hint/                      # Inline help tooltip
-│   ├── input-field/                    # Wrapped text input + leading icon + validation
-│   ├── loading-spinner/                # Animated loader
-│   ├── modal/                          # ng-primitives dialog wrapper
-│   ├── pagination/                     # Pagination with jump-to
 │   ├── sidebar/                        # Navigation sidebar
 │   ├── stats/                          # Generic stat-card component
-│   ├── stepper/                        # Wizard step indicator
-│   └── toast/                          # Success/error notifications
+│   └── stepper/                        # Wizard step indicator
+│                                       # Shared UI (input-field, field-error, loading-spinner,
+│                                       # custom-select, paginated-select, phone-input, toast,
+│                                       # modal, pagination, date-picker, time-picker) lives in cinefy-ui.
 ├── pages/                              # Route-level components
 │   ├── auth/                           # login (/login), forgot-password (/forgot-password)
 │   ├── dashboard/                      # Dashboard page (/)

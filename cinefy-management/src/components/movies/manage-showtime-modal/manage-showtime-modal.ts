@@ -18,9 +18,10 @@ import {
   MovieSearchResult,
   ShowtimeDraft,
 } from '../../../shared/types';
-import { DatePicker } from '../../date-time/date-picker/date-picker';
-import { TimePicker } from '../../date-time/time-picker/time-picker';
 import {
+  ModalComponent,
+  DatePicker,
+  TimePicker,
   PaginatedSelectComponent,
   FieldErrorComponent,
   LoadingSpinnerComponent,
@@ -36,7 +37,6 @@ import { NgpTextarea } from 'ng-primitives/textarea';
 import { NgpButton } from 'ng-primitives/button';
 import { LucideAngularModule } from 'lucide-angular';
 import { FilmIcon } from '../../../shared/icons';
-import { ModalComponent } from '../../modal/modal';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 

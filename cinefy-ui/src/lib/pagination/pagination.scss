@@ -1,6 +1,6 @@
-@use '../../shared/styles/colors' as *;
-@use 'cinefy-ui/styles/mixins' as *;
-@use 'cinefy-ui/styles/breakpoints' as *;
+@use "../../styles/mixins" as *;
+@use "../../styles/breakpoints" as *;
+@use "../../styles/radii" as *;
 
 .pagination {
   @include flex-align;
@@ -17,7 +17,7 @@
 
 .pagination-label {
   font-size: 14px;
-  color: $gray-500;
+  color: var(--cui-text-hint);
   white-space: nowrap;
 }
 
@@ -27,7 +27,7 @@
 
   label {
     font-size: 14px;
-    color: $gray-500;
+    color: var(--cui-text-hint);
     white-space: nowrap;
   }
 
@@ -35,11 +35,11 @@
     width: 56px;
     height: 36px;
     padding: 0 8px;
-    border: 1px solid $gray-200;
+    border: 1px solid var(--cui-border-subtle);
     border-radius: $radius-md;
     font-size: 14px;
-    color: $gray-700;
-    background-color: $color-background;
+    color: var(--cui-option-text);
+    background-color: var(--cui-surface-base);
     text-align: center;
     transition: border-color 150ms ease;
 
@@ -51,7 +51,7 @@
 
     &:focus {
       outline: none;
-      border-color: $blue-600;
+      border-color: var(--cui-accent);
     }
   }
 }
@@ -65,24 +65,24 @@
     @include lucide-icon-fix;
     width: 36px;
     height: 36px;
-    border: 1px solid $gray-200;
+    border: 1px solid var(--cui-border-subtle);
     border-radius: $radius-md;
-    color: $gray-600;
-    background-color: $color-background;
+    color: var(--cui-text-strong);
+    background-color: var(--cui-surface-base);
     transition: all 150ms ease;
 
     &:hover:not([data-disabled]) {
-      background-color: $gray-50;
-      border-color: $gray-300;
-      color: $gray-900;
+      background-color: var(--cui-surface-disabled);
+      border-color: var(--cui-border-default);
+      color: var(--cui-text-primary);
     }
 
     &:active:not([data-disabled]) {
-      background-color: $gray-100;
+      background-color: var(--cui-surface-hover);
     }
 
     &[data-focus-visible] {
-      outline: 2px solid $blue-600;
+      outline: 2px solid var(--cui-accent);
       outline-offset: 2px;
     }
 

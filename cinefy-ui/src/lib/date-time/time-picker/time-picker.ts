@@ -1,21 +1,21 @@
-import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LucideAngularModule } from 'lucide-angular';
-import { ChevronDownIcon, ChevronUpIcon, ClockIcon } from '../../../shared/icons';
-import { NgpButton } from 'ng-primitives/button';
-import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { FieldErrorComponent } from 'cinefy-ui';
+import { Component, computed, DestroyRef, effect, inject, input, type InputSignal, signal } from "@angular/core";
+import { FormControl, Validators } from "@angular/forms";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { LucideAngularModule } from "lucide-angular";
+import { ChevronDownIcon, ChevronUpIcon, ClockIcon } from "../../icons";
+import { NgpButton } from "ng-primitives/button";
+import { NgpPopover, NgpPopoverTrigger } from "ng-primitives/popover";
+import { FieldErrorComponent } from "../../field-error/field-error";
 
-type Period = 'AM' | 'PM';
+type Period = "AM" | "PM";
 
-const pad = (n: number) => n.toString().padStart(2, '0');
+const pad = (n: number) => n.toString().padStart(2, "0");
 
 @Component({
-  selector: 'time-picker',
+  selector: "time-picker",
   imports: [LucideAngularModule, NgpButton, NgpPopover, NgpPopoverTrigger, FieldErrorComponent],
-  templateUrl: './time-picker.html',
-  styleUrl: './time-picker.scss',
+  templateUrl: "./time-picker.html",
+  styleUrl: "./time-picker.scss",
 })
 export class TimePicker {
   protected readonly icons = {
@@ -26,8 +26,8 @@ export class TimePicker {
 
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly control = input.required<FormControl<string | null>>();
-  readonly hint = input<string | null>(null);
+  readonly control: InputSignal<FormControl<string | null>> = input.required<FormControl<string | null>>();
+  readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
 
   private readonly value = signal<string | null>(null);
@@ -35,7 +35,7 @@ export class TimePicker {
   protected readonly parts = computed(() => {
     const value = this.value();
     if (!value) return { hour24: 0, minute: 0, hasValue: false };
-    const [h, m] = value.split(':').map(Number);
+    const [h, m] = value.split(":").map(Number);
     return { hour24: h, minute: m, hasValue: true };
   });
 
@@ -45,14 +45,14 @@ export class TimePicker {
     return mod === 0 ? 12 : mod;
   });
 
-  protected readonly period = computed<Period>(() => (this.parts().hour24 < 12 ? 'AM' : 'PM'));
+  protected readonly period = computed<Period>(() => (this.parts().hour24 < 12 ? "AM" : "PM"));
 
   protected readonly displayLabel = computed(() => {
     const { hour24, minute, hasValue } = this.parts();
-    if (!hasValue) return '';
+    if (!hasValue) return "";
     const mod = hour24 % 12;
     const h12 = mod === 0 ? 12 : mod;
-    return `${h12}:${pad(minute)} ${hour24 < 12 ? 'AM' : 'PM'}`;
+    return `${h12}:${pad(minute)} ${hour24 < 12 ? "AM" : "PM"}`;
   });
 
   protected get required(): boolean {
@@ -73,7 +73,7 @@ export class TimePicker {
 
   protected onHourInput(event: Event) {
     const el = event.target as HTMLInputElement;
-    const digits = el.value.replace(/\D/g, '').slice(0, 2);
+    const digits = el.value.replace(/\D/g, "").slice(0, 2);
     if (el.value !== digits) {
       el.value = digits;
     }
@@ -81,9 +81,9 @@ export class TimePicker {
 
   protected onHourBlur(event: Event) {
     const el = event.target as HTMLInputElement;
-    const digits = el.value.replace(/\D/g, '');
+    const digits = el.value.replace(/\D/g, "");
     if (!digits) {
-      el.value = this.hour12().toString().padStart(2, '0');
+      el.value = this.hour12().toString().padStart(2, "0");
       return;
     }
     const h12 = Math.max(1, Math.min(12, Number(digits)));
@@ -92,7 +92,7 @@ export class TimePicker {
 
   protected onMinuteInput(event: Event) {
     const el = event.target as HTMLInputElement;
-    const digits = el.value.replace(/\D/g, '').slice(0, 2);
+    const digits = el.value.replace(/\D/g, "").slice(0, 2);
     if (el.value !== digits) {
       el.value = digits;
     }
@@ -100,9 +100,9 @@ export class TimePicker {
 
   protected onMinuteBlur(event: Event) {
     const el = event.target as HTMLInputElement;
-    const digits = el.value.replace(/\D/g, '');
+    const digits = el.value.replace(/\D/g, "");
     if (!digits) {
-      el.value = this.parts().minute.toString().padStart(2, '0');
+      el.value = this.parts().minute.toString().padStart(2, "0");
       return;
     }
     const minute = Math.max(0, Math.min(59, Number(digits)));
@@ -122,7 +122,7 @@ export class TimePicker {
   protected setPeriod(next: Period) {
     if (next === this.period()) return;
     const h = this.parts().hour24;
-    this.commit(next === 'AM' ? h - 12 : h + 12, this.parts().minute);
+    this.commit(next === "AM" ? h - 12 : h + 12, this.parts().minute);
   }
 
   private commit(hour24: number, minute: number) {
@@ -134,7 +134,7 @@ export class TimePicker {
   }
 
   private to24(h12: number, period: Period): number {
-    if (period === 'AM') return h12 === 12 ? 0 : h12;
+    if (period === "AM") return h12 === 12 ? 0 : h12;
     return h12 === 12 ? 12 : h12 + 12;
   }
 }

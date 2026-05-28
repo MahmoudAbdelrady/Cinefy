@@ -29,14 +29,14 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
+  ModalComponent,
+  PaginationComponent,
   CustomSelectComponent,
   InputField,
   LoadingSpinnerComponent,
   ToastService,
   type PaginatedResponse,
 } from 'cinefy-ui';
-import { ModalComponent } from '../../modal/modal';
-import { PaginationComponent } from '../../pagination/pagination';
 import { StaffDetailsComponent } from '../staff-details/staff-details';
 import { ManageStaffModalComponent } from '../manage-staff-modal/manage-staff-modal';
 import {

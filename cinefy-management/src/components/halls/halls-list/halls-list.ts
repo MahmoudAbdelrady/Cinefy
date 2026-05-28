@@ -19,10 +19,10 @@ import {
   InputField,
   LoadingSpinnerComponent,
   ToastService,
+  PaginationComponent,
+  ModalComponent,
   type PaginatedResponse,
 } from 'cinefy-ui';
-import { PaginationComponent } from '../../pagination/pagination';
-import { ModalComponent } from '../../modal/modal';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
 import { HALL_STATUS_LABELS, HallSummary } from '../../../shared/types';
 import { HallsService } from '../../../services';

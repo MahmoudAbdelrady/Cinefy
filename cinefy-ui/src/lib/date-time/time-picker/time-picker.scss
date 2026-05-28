@@ -1,6 +1,5 @@
-@use '../../../shared/styles/colors' as *;
-@use '../../../shared/styles/shadows' as *;
-@use 'cinefy-ui/styles/mixins' as *;
+@use "../../../styles/mixins" as *;
+@use "../../../styles/radii" as *;
 
 :host {
   display: inline-block;
@@ -17,10 +16,10 @@
   @include lucide-icon-fix;
   gap: 8px;
   width: 100%;
-  border: 1px solid $gray-300;
-  background: #ffffff;
+  border: 1px solid var(--cui-border-default);
+  background: var(--cui-surface-input);
   font-size: 14px;
-  color: $gray-900;
+  color: var(--cui-text-primary);
   padding: 12px 16px;
   border-radius: $radius-lg;
   cursor: pointer;
@@ -29,7 +28,7 @@
     box-shadow 150ms ease;
 
   lucide-icon {
-    color: $gray-500;
+    color: var(--cui-text-hint);
     flex-shrink: 0;
   }
 
@@ -40,40 +39,40 @@
   }
 
   &[data-empty] .tp-trigger-label {
-    color: $gray-400;
+    color: var(--cui-text-muted);
   }
 
   &:hover:not(:disabled) {
-    border-color: $gray-400;
+    border-color: var(--cui-border-strong);
   }
 
   &:focus-visible,
   &[data-focus-visible] {
     outline: none;
     border-color: transparent;
-    box-shadow: $shadow-focus-ring;
+    box-shadow: 0 0 0 2px var(--cui-ring);
   }
 
   &:disabled {
-    background: $gray-50;
-    color: $gray-400;
+    background: var(--cui-surface-disabled);
+    color: var(--cui-text-muted);
     cursor: not-allowed;
   }
 
   &.has-error {
-    border-color: $red-500;
+    border-color: var(--cui-ring-error);
 
     &:focus-visible,
     &[data-focus-visible] {
       border-color: transparent;
-      box-shadow: $shadow-focus-ring-error;
+      box-shadow: 0 0 0 2px var(--cui-ring-error);
     }
   }
 }
 
 .tp-hint {
   font-size: 12px;
-  color: $gray-500;
+  color: var(--cui-text-hint);
   line-height: 1.5;
 }
 
@@ -82,10 +81,10 @@
   z-index: 1001;
   width: 220px;
   padding: 12px;
-  background: #ffffff;
-  border: 1px solid $gray-200;
+  background: var(--cui-surface-overlay);
+  border: 1px solid var(--cui-border-subtle);
   border-radius: $radius-lg;
-  box-shadow: $shadow-lg;
+  box-shadow: var(--cui-popover-shadow);
 
   &[data-enter] {
     animation: tp-fade-in 150ms ease-out;
@@ -115,7 +114,7 @@
   height: 20px;
   border: none;
   background: transparent;
-  color: $gray-500;
+  color: var(--cui-text-hint);
   border-radius: $radius-sm;
   cursor: pointer;
   transition:
@@ -123,12 +122,12 @@
     color 120ms ease;
 
   &:hover:not(:disabled) {
-    background: $gray-100;
-    color: $gray-900;
+    background: var(--cui-surface-hover);
+    color: var(--cui-text-primary);
   }
 
   &:disabled {
-    color: $gray-300;
+    color: var(--cui-icon-disabled);
     cursor: not-allowed;
   }
 }
@@ -139,10 +138,10 @@
   text-align: center;
   font-size: 18px;
   font-weight: 600;
-  color: $gray-900;
-  border: 1px solid $gray-200;
+  color: var(--cui-text-primary);
+  border: 1px solid var(--cui-border-subtle);
   border-radius: $radius-md;
-  background: #ffffff;
+  background: var(--cui-surface-input);
   appearance: textfield;
   transition:
     border-color 150ms ease,
@@ -157,14 +156,14 @@
   &:focus {
     outline: none;
     border-color: transparent;
-    box-shadow: $shadow-focus-ring;
+    box-shadow: 0 0 0 2px var(--cui-ring);
   }
 }
 
 .tp-colon {
   font-size: 18px;
   font-weight: 700;
-  color: $gray-700;
+  color: var(--cui-option-text);
   margin-top: 4px;
 }
 
@@ -180,7 +179,7 @@
   height: 20px;
   border: none;
   background: transparent;
-  color: $gray-500;
+  color: var(--cui-text-hint);
   font-size: 12px;
   font-weight: 500;
   border-radius: $radius-sm;
@@ -190,13 +189,13 @@
     color 120ms ease;
 
   &:hover:not([data-active]) {
-    background: $gray-100;
-    color: $gray-900;
+    background: var(--cui-surface-hover);
+    color: var(--cui-text-primary);
   }
 
   &[data-active] {
-    background: $blue-50;
-    color: $blue-600;
+    background: var(--cui-option-selected-surface);
+    color: var(--cui-option-selected-text);
     font-weight: 600;
   }
 }

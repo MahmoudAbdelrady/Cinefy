@@ -1,22 +1,17 @@
-import { Component, computed, input, model } from '@angular/core';
+import { Component, computed, input, model } from "@angular/core";
 import {
   NgpPagination,
   NgpPaginationFirst,
   NgpPaginationLast,
   NgpPaginationNext,
   NgpPaginationPrevious,
-} from 'ng-primitives/pagination';
-import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
-import { LucideAngularModule } from 'lucide-angular';
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
-} from '../../shared/icons';
+} from "ng-primitives/pagination";
+import { NgpTooltip, NgpTooltipTrigger } from "ng-primitives/tooltip";
+import { LucideAngularModule } from "lucide-angular";
+import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon } from "../icons";
 
 @Component({
-  selector: 'pagination-component',
+  selector: "pagination-component",
   imports: [
     LucideAngularModule,
     NgpPagination,
@@ -27,8 +22,8 @@ import {
     NgpTooltip,
     NgpTooltipTrigger,
   ],
-  templateUrl: './pagination.html',
-  styleUrl: './pagination.scss',
+  templateUrl: "./pagination.html",
+  styleUrl: "./pagination.scss",
 })
 export class PaginationComponent {
   protected readonly icons = {
@@ -48,9 +43,7 @@ export class PaginationComponent {
     return (this.page() - 1) * this.pageSize() + 1;
   });
 
-  protected readonly endItem = computed(() =>
-    Math.min(this.page() * this.pageSize(), this.totalItems()),
-  );
+  protected readonly endItem = computed(() => Math.min(this.page() * this.pageSize(), this.totalItems()));
 
   protected goToPage(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -60,6 +53,6 @@ export class PaginationComponent {
       this.page.set(value);
     }
 
-    input.value = '';
+    input.value = "";
   }
 }

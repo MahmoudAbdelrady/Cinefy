@@ -16,7 +16,6 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ModalComponent } from '../../modal/modal';
 import { Time12hPipe } from '../../../shared/pipes';
 import {
   EditableShowtime,
@@ -42,7 +41,7 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
-import { ToastService, LoadingSpinnerComponent } from 'cinefy-ui';
+import { ModalComponent, ToastService, LoadingSpinnerComponent } from 'cinefy-ui';
 import { canManage as canManagePosition } from '../../../shared/access';
 
 @Component({

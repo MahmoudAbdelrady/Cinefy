@@ -10,9 +10,7 @@
   [attr.data-empty]="formatted() ? null : ''"
 >
   <lucide-icon [img]="icons.CalendarIcon" [size]="16"></lucide-icon>
-  <span class="dp-trigger-label">
-    {{ formatted() || placeholder() }}
-  </span>
+  <span class="dp-trigger-label"> {{ formatted() || placeholder() }} </span>
 </button>
 
 <ng-template #calendarPopover>
@@ -38,7 +36,7 @@
     <div ngpDatePickerGrid class="dp-grid">
       <div class="dp-weekdays">
         @for (day of weekdays; track day) {
-          <span class="dp-weekday">{{ day }}</span>
+        <span class="dp-weekday">{{ day }}</span>
         }
       </div>
 
@@ -47,9 +45,7 @@
           <div class="dp-week">
             <ng-template ngpDatePickerCellRender let-date>
               <div ngpDatePickerCell class="dp-cell">
-                <button type="button" ngpButton ngpDatePickerDateButton class="dp-day">
-                  {{ date.getDate() }}
-                </button>
+                <button type="button" ngpButton ngpDatePickerDateButton class="dp-day">{{ date.getDate() }}</button>
               </div>
             </ng-template>
           </div>

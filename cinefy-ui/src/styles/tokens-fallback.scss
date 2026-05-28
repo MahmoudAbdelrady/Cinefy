@@ -6,30 +6,44 @@
 // reproduces its look exactly.
 
 :root {
+  --cui-surface-base: #ffffff;
   --cui-surface-input: #ffffff;
   --cui-surface-overlay: #ffffff;
   --cui-surface-hover: #f3f4f6;
+  --cui-surface-disabled: #f9fafb;
+  --cui-surface-active: #f9fafb;
 
   --cui-text-primary: #111827;
+  --cui-text-emphasis: #1f2937;
   --cui-text-muted: #9ca3af;
   --cui-text-hint: #6b7280;
   --cui-text-strong: #4b5563;
   --cui-text-error: #ef4444;
+  --cui-text-on-accent: #ffffff;
 
   --cui-border-default: #d1d5db;
   --cui-border-subtle: #e5e7eb;
+  --cui-border-strong: #9ca3af;
+  --cui-icon-disabled: #d1d5db;
   --cui-ring: #3b82f6;
   --cui-ring-error: #ef4444;
 
-  --cui-surface-disabled: #f9fafb;
-  --cui-surface-active: #f9fafb;
+  --cui-accent: #2563eb;
+  --cui-accent-subtle: #bfdbfe;
+
   --cui-scrollbar-thumb: #d1d5db;
 
   --cui-overlay-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --cui-popover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 
   --cui-option-text: #374151;
   --cui-option-selected-surface: #eff6ff;
   --cui-option-selected-text: #2563eb;
+
+  --cui-modal-backdrop: rgba(0, 0, 0, 0.5);
+  --cui-modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --cui-modal-header-bg: linear-gradient(to right, #eff6ff, #faf5ff);
+  --cui-modal-footer-bg: #f9fafb;
 
   --cui-toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 

@@ -27,8 +27,8 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
-import { ModalComponent } from '../../modal/modal';
 import {
+  ModalComponent,
   LoadingSpinnerComponent,
   InputField,
   CustomSelectComponent,

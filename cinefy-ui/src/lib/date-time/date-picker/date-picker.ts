@@ -1,5 +1,5 @@
-import { Component, computed, forwardRef, input, signal } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, computed, forwardRef, input, type InputSignal, signal } from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import {
   NgpDatePicker,
   NgpDatePickerCell,
@@ -10,17 +10,17 @@ import {
   NgpDatePickerNextMonth,
   NgpDatePickerPreviousMonth,
   NgpDatePickerRowRender,
-} from 'ng-primitives/date-picker';
-import { NgpNativeDateAdapter, provideDateAdapter } from 'ng-primitives/date-time';
-import { NgpButton } from 'ng-primitives/button';
-import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { LucideAngularModule } from 'lucide-angular';
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '../../../shared/icons';
+} from "ng-primitives/date-picker";
+import { NgpNativeDateAdapter, provideDateAdapter } from "ng-primitives/date-time";
+import { NgpButton } from "ng-primitives/button";
+import { NgpPopover, NgpPopoverTrigger } from "ng-primitives/popover";
+import { LucideAngularModule } from "lucide-angular";
+import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from "../../icons";
 
-const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 @Component({
-  selector: 'date-picker',
+  selector: "date-picker",
   imports: [
     NgpDatePicker,
     NgpDatePickerCell,
@@ -44,8 +44,8 @@ const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       multi: true,
     },
   ],
-  templateUrl: './date-picker.html',
-  styleUrl: './date-picker.scss',
+  templateUrl: "./date-picker.html",
+  styleUrl: "./date-picker.scss",
 })
 export class DatePicker implements ControlValueAccessor {
   protected readonly icons = {
@@ -56,22 +56,22 @@ export class DatePicker implements ControlValueAccessor {
 
   protected readonly weekdays = WEEKDAY_LABELS;
 
-  readonly placeholder = input<string>('Select a date');
+  readonly placeholder = input<string>("Select a date");
   readonly min = input<Date | undefined>(undefined);
   readonly max = input<Date | undefined>(undefined);
   readonly disabled = input<boolean>(false);
-  readonly container = input<string | HTMLElement | null>(null);
+  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>(null);
 
   protected readonly value = signal<Date | undefined>(undefined);
   protected readonly isDisabled = signal(false);
 
   protected readonly formatted = computed(() => {
     const date = this.value();
-    if (!date) return '';
+    if (!date) return "";
     return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   });
 
@@ -85,7 +85,7 @@ export class DatePicker implements ControlValueAccessor {
   }
 
   writeValue(value: Date | string | null | undefined): void {
-    if (value == null || value === '') {
+    if (value == null || value === "") {
       this.value.set(undefined);
       return;
     }

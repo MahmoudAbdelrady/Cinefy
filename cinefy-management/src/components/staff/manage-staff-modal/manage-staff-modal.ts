@@ -22,8 +22,8 @@ import {
 } from '../../../shared/icons';
 import { parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
-import { ModalComponent } from '../../modal/modal';
 import {
+  ModalComponent,
   InputField,
   CustomSelectComponent,
   LoadingSpinnerComponent,
@@ -32,6 +32,7 @@ import {
   phoneNumberValidator,
   toE164Digits,
   ToastService,
+  TimePicker,
 } from 'cinefy-ui';
 import {
   EMPLOYMENT_TYPE_LABELS,
@@ -45,7 +46,6 @@ import {
   type WeekDay,
 } from '../../../shared/types';
 import { StaffService } from '../../../services';
-import { TimePicker } from '../../date-time/time-picker/time-picker';
 import {
   EMAIL_PATTERN,
   NAME_PATTERN,

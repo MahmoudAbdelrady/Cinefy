@@ -1,13 +1,6 @@
-<nav
-  [(ngpPaginationPage)]="page"
-  ngpPagination
-  [ngpPaginationPageCount]="pageCount()"
-  class="pagination"
->
+<nav [(ngpPaginationPage)]="page" ngpPagination [ngpPaginationPageCount]="pageCount()" class="pagination">
   <div class="pagination-info-group">
-    <span class="pagination-label">
-      Showing {{ startItem() }}–{{ endItem() }} of {{ totalItems() }} items
-    </span>
+    <span class="pagination-label"> Showing {{ startItem() }}–{{ endItem() }} of {{ totalItems() }} items </span>
 
     <div class="pagination-goto">
       <label for="goto-page">Go to page:</label>

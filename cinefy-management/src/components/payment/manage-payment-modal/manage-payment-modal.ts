@@ -14,9 +14,8 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormGroup, Validators } from '@angular/forms';
 import { merge, startWith } from 'rxjs';
-import { ModalComponent } from '../../modal/modal';
 import { Stepper, StepperNoteTip, StepperStep } from '../../stepper/stepper';
-import { LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
+import { ModalComponent, LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
 import {
   IdentityStep,
   CredentialsStep,
