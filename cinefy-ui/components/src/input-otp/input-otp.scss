@@ -1,6 +1,5 @@
-@use '../../../shared/styles/colors' as *;
-@use 'cinefy-ui/styles/mixins' as *;
-@use '../../../shared/styles/shadows' as *;
+@use "../../../src/styles/mixins" as *;
+@use "../../../src/styles/radii" as *;
 
 :host {
   display: block;
@@ -42,9 +41,9 @@
   @include flex-center;
   font-size: 20px;
   font-weight: 600;
-  color: $gray-900;
-  background-color: #ffffff;
-  border: 1px solid $gray-200;
+  color: var(--cui-text-primary);
+  background-color: var(--cui-surface-base);
+  border: 1px solid var(--cui-border-subtle);
   border-radius: $radius-md;
   cursor: text;
   user-select: none;
@@ -54,26 +53,26 @@
     background-color 150ms ease;
 
   &:hover {
-    border-color: $gray-300;
+    border-color: var(--cui-border-default);
   }
 
   &[data-filled] {
-    background-color: $gray-50;
-    border-color: $gray-300;
+    background-color: var(--cui-surface-disabled);
+    border-color: var(--cui-border-default);
   }
 
   &[data-active] {
-    border-color: $blue-500;
-    box-shadow: $shadow-focus-ring;
-    background-color: #ffffff;
+    border-color: var(--cui-ring);
+    box-shadow: 0 0 0 2px var(--cui-ring);
+    background-color: var(--cui-surface-base);
   }
 
   &--error {
-    border-color: $red-600;
+    border-color: var(--cui-danger);
 
     &[data-active] {
-      border-color: $red-600;
-      box-shadow: $shadow-focus-ring-error;
+      border-color: var(--cui-danger);
+      box-shadow: 0 0 0 2px var(--cui-ring-error);
     }
   }
 }

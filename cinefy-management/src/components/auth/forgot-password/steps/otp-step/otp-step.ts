@@ -6,9 +6,8 @@ import { interval, takeWhile } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { AlertIcon, ArrowLeftIcon, ArrowRightIcon } from '../../../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { LoadingSpinnerComponent, InputOtp } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
-import { InputOtp } from '../../../input-otp/input-otp';
 import { AuthService } from '../../../../../services/auth';
 
 const RESEND_COOLDOWN_SECONDS = 10 * 60;
