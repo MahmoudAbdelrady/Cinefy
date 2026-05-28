@@ -366,10 +366,6 @@ export class HallConfigModalComponent {
     });
   }
 
-  protected onLoadError(message: string) {
-    this.toastService.error(message);
-  }
-
   protected saveHall() {
     if (this.hallForm.invalid) return;
 

@@ -25,6 +25,7 @@ import {
 } from "ng-primitives/combobox";
 import { LoadingSpinnerComponent } from "../../loading-spinner/loading-spinner";
 import { FieldErrorComponent } from "../../field-error/field-error";
+import { ToastService } from "cinefy-ui/services";
 import type { PaginatedResponse } from "cinefy-ui/types";
 
 @Component({
@@ -50,6 +51,7 @@ export class PaginatedSelectComponent<T> {
     XIcon,
   };
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toastService = inject(ToastService);
 
   readonly label: InputSignal<string | null> = input<string | null>(null);
   readonly hint: InputSignal<string | null> = input<string | null>(null);
@@ -70,7 +72,6 @@ export class PaginatedSelectComponent<T> {
 
   readonly selectionChange = output<T>();
   readonly cleared = output<void>();
-  readonly loadError = output<string>();
 
   protected readonly items = signal<T[]>([]);
   protected readonly loading = signal(false);
@@ -153,7 +154,7 @@ export class PaginatedSelectComponent<T> {
         },
         error: (err: HttpErrorResponse) => {
           this.loading.set(false);
-          this.loadError.emit(err.error?.message ?? "Failed to load items");
+          this.toastService.error(err.error?.message ?? "Failed to load items");
         },
       });
   }

@@ -209,10 +209,6 @@ export class ManageShowtimeModalComponent {
     hallIdCtrl.markAsTouched();
   }
 
-  protected onLoadError(message: string) {
-    this.toastService.error(message);
-  }
-
   protected onSubmit() {
     if (this.submitting()) return;
     const draft = this.submit();

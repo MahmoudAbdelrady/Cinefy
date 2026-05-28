@@ -85,7 +85,6 @@
             [container]="modal.panelEl()"
             (selectionChange)="onHallChange($event)"
             (cleared)="onHallChange(null)"
-            (loadError)="onLoadError($event)"
           />
           <field-error
             [control]="showtimeForm.controls.hallId"

@@ -2,7 +2,6 @@ export * from "./loading-spinner/loading-spinner";
 export * from "./field-error/field-error";
 export * from "./input-field/input-field";
 export * from "./input-otp/input-otp";
-export * from "./toast/toast";
 export * from "./modal/modal";
 export * from "./pagination/pagination";
 export * from "./drop-down/custom-select/custom-select";

@@ -1,2 +1,1 @@
-export * from "./toast-service";
-export * from "./provide-cinefy-toast";
+export { ToastService, provideCinefyToast } from "./toast/toast";
