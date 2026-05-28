@@ -34,8 +34,8 @@ importers:
         specifier: ^1.6.0
         version: 1.7.6
       cinefy-ui:
-        specifier: file:../cinefy-ui/dist
-        version: file:cinefy-ui/dist(469ecda14da45bfd964d2d59f3667f49)
+        specifier: link:../cinefy-ui/dist
+        version: link:../cinefy-ui/dist
       lucide-angular:
         specifier: ^1.0.0
         version: 1.0.0(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))
@@ -1920,17 +1920,6 @@ packages:
     resolution:
       { integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g== }
     engines: { node: ">=18" }
-
-  cinefy-ui@file:cinefy-ui/dist:
-    resolution: { directory: cinefy-ui/dist, type: directory }
-    peerDependencies:
-      "@angular/common": ^21.1.0
-      "@angular/core": ^21.1.0
-      "@angular/forms": ^21.1.0
-      libphonenumber-js: ^1.13.2
-      lucide-angular: ^1.0.0
-      ng-primitives: ^0.112.1
-      rxjs: ~7.8.0
 
   cli-cursor@5.0.0:
     resolution:
@@ -4733,17 +4722,6 @@ snapshots:
       readdirp: 5.0.0
 
   chownr@3.0.0: {}
-
-  cinefy-ui@file:cinefy-ui/dist(469ecda14da45bfd964d2d59f3667f49):
-    dependencies:
-      "@angular/common": 21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2)
-      "@angular/core": 21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)
-      "@angular/forms": 21.2.14(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/platform-browser@21.2.14(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(rxjs@7.8.2)
-      libphonenumber-js: 1.13.3
-      lucide-angular: 1.0.0(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))
-      ng-primitives: 0.112.3(@angular/cdk@21.2.12(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/platform-browser@21.2.14(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(rxjs@7.8.2))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/forms@21.2.14(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/platform-browser@21.2.14(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(rxjs@7.8.2))(@floating-ui/dom@1.7.6)(rxjs@7.8.2)(typescript@5.9.3)
-      rxjs: 7.8.2
-      tslib: 2.8.1
 
   cli-cursor@5.0.0:
     dependencies:
