@@ -9,7 +9,7 @@ import {
   LockIcon,
   ShieldCheckIcon,
 } from '../../../shared/icons';
-import { Time12hPipe } from '../../../shared/pipes';
+import { Time12hPipe } from 'cinefy-ui';
 import {
   EMPLOYMENT_TYPE_LABELS,
   USER_POSITION_LABELS,

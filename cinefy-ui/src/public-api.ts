@@ -11,3 +11,6 @@ export * from "./lib/drop-down/paginated-select/paginated-select";
 export * from "./lib/phone-input/phone-input";
 export * from "./lib/date-time/date-picker/date-picker";
 export * from "./lib/date-time/time-picker/time-picker";
+export * from "./lib/pipes/phone-format";
+export * from "./lib/pipes/relative-time";
+export * from "./lib/pipes/time-12h";

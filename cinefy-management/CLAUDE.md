@@ -85,7 +85,6 @@ src/
 │   ├── access.ts                       # Position → allowed-route/action rules (canAccessRoute, canManage, ...)
 │   ├── validation.ts                   # Shared form regexes (password/email/name/username patterns)
 │   ├── guards/                         # auth-guard, guest-guard, position-guard (route CanActivate/CanMatch)
-│   ├── pipes/                          # phone-format, relative-time, time-12h
 │   ├── types/                          # halls, movies, showtimes, staff, payment, stats, auth, api
 │   └── styles/
 │       ├── _colors.scss                # Full color palette + dark theme vars
@@ -99,7 +98,7 @@ src/
 └── styles.scss                         # Global reset + ng-primitives overrides (tooltip, dialog overlay)
 ```
 
-Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, `shared/pipes/index.ts`, and `shared/guards/index.ts` — always import through them.
+Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, and `shared/guards/index.ts` — always import through them.
 
 ## Routes
 
@@ -344,7 +343,7 @@ LSP coverage in this repo: TypeScript files (Angular components, services, types
 1. Always use **pnpm**.
 2. Always use **standalone components** with `inject()`.
 3. Prefer **signals** over RxJS for UI state.
-4. Use **barrel exports** — import from `../components`, `../services`, `../shared/types`, `../shared/pipes`.
+4. Use **barrel exports** — import from `../components`, `../services`, `../shared/types`.
 5. Keep types in `shared/types/` with barrel re-exports.
 6. Use the existing **color palette, shadows, and mixins** — don't introduce new color or shadow values.
 7. Use **ng-primitives** directives for interactive UI (buttons, dialogs, selects, etc.).

@@ -21,8 +21,8 @@ import {
   phoneNumberValidator,
   toE164Digits,
   ToastService,
+  PhoneFormatPipe,
 } from 'cinefy-ui';
-import { PhoneFormatPipe } from '../../../shared/pipes';
 import type { StaffMemberDetail } from '../../../shared/types';
 import { NAME_PATTERN } from '../../../shared/validation';
 import { StaffService } from '../../../services';

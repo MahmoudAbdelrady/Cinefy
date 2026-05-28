@@ -11,8 +11,13 @@ import {
   AtSignIcon,
 } from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
-import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
-import { ModalComponent, LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
+import {
+  ModalComponent,
+  LoadingSpinnerComponent,
+  ToastService,
+  PhoneFormatPipe,
+  Time12hPipe,
+} from 'cinefy-ui';
 import {
   EMPLOYMENT_TYPE_LABELS,
   USER_POSITION_LABELS,

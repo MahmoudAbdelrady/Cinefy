@@ -35,6 +35,8 @@ import {
   InputField,
   LoadingSpinnerComponent,
   ToastService,
+  PhoneFormatPipe,
+  Time12hPipe,
   type PaginatedResponse,
 } from 'cinefy-ui';
 import { StaffDetailsComponent } from '../staff-details/staff-details';
@@ -48,7 +50,6 @@ import {
   type UserPosition,
 } from '../../../shared/types';
 import { StaffService } from '../../../services';
-import { PhoneFormatPipe, Time12hPipe } from '../../../shared/pipes';
 import { canManageStaffMember } from '../../../shared/access';
 
 @Component({

@@ -29,9 +29,8 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { ModalComponent, LoadingSpinnerComponent, ToastService } from 'cinefy-ui';
+import { ModalComponent, LoadingSpinnerComponent, ToastService, RelativeTimePipe } from 'cinefy-ui';
 import { ManagePaymentModalComponent } from '../manage-payment-modal/manage-payment-modal';
-import { RelativeTimePipe } from '../../../shared/pipes';
 import { PaymentMethodService } from '../../../services';
 import {
   PAYMENT_METHOD_STATUS_LABELS,
