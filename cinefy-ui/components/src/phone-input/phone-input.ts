@@ -1,4 +1,3 @@
-/// <reference lib="es2020.intl" />
 import { Component, computed, DestroyRef, inject, input, type InputSignal } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
