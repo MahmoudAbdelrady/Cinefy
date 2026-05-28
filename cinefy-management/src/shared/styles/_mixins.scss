@@ -1,4 +1,3 @@
-@use 'colors' as *;
 @use 'cinefy-ui/styles/mixins' as *;
 
 @mixin icon-box($size: 40px) {
@@ -8,28 +7,4 @@
   @include flex-center;
   flex-shrink: 0;
   @include lucide-icon-fix;
-}
-
-@mixin empty-state-block {
-  @include flex-center;
-  flex-direction: column;
-  gap: 8px;
-  padding: 64px 24px;
-  color: $gray-400;
-
-  lucide-icon {
-    display: flex;
-    margin-bottom: 4px;
-  }
-
-  p {
-    font-size: 16px;
-    font-weight: 500;
-    color: $gray-500;
-  }
-
-  span {
-    font-size: 14px;
-    color: $gray-400;
-  }
 }
