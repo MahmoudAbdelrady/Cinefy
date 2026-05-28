@@ -7,6 +7,6 @@
     "ui:watch": "pnpm --filter cinefy-ui watch",
     "mgmt:dev": "pnpm --filter cinefy-management start",
     "mgmt:build": "pnpm --filter cinefy-management build",
-    "build": "pnpm ui:build && pnpm mgmt:build"
+    "app:build": "pnpm ui:build && pnpm mgmt:build"
   }
 }
