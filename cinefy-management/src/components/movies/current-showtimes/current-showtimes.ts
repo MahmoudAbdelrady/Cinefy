@@ -153,7 +153,7 @@ export class CurrentShowtimesComponent {
         totalShowtimes: 1,
         totalDraftShowtimes: isDraft ? 1 : 0,
       };
-      return [newRow, ...list];
+      return [...list, newRow];
     });
   }
 
