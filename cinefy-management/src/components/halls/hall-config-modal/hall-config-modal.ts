@@ -15,6 +15,7 @@ import { NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   DollarSignIcon,
@@ -32,6 +33,7 @@ import {
   LoadingSpinnerComponent,
   InputField,
   CustomSelectComponent,
+  AsyncSelectComponent,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import {
@@ -74,6 +76,7 @@ interface LayoutBaseline {
     LoadingSpinnerComponent,
     InputField,
     CustomSelectComponent,
+    AsyncSelectComponent,
     HallLayoutEditorComponent,
   ],
   templateUrl: './hall-config-modal.html',
@@ -138,7 +141,6 @@ export class HallConfigModalComponent {
   protected readonly loadingHall = signal(false);
   private readonly initialSnapshot = signal<string | null>(null);
   protected readonly selectedHallType = signal<HallType | null>(null);
-  protected readonly halls = signal<HallSummary[]>([]);
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems[0]);
   private readonly onSiteOnlyPreference = signal(false);
 
@@ -226,7 +228,8 @@ export class HallConfigModalComponent {
   protected readonly compareHallTypes = (a: HallType, b: HallType) => a?.id === b?.id;
   protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
   protected readonly hallValueFn = (hall: HallSummary) => hall.id;
-  protected readonly compareHalls = (a: HallSummary, b: HallSummary) => a?.id === b?.id;
+  protected readonly fetchHalls = (): Observable<HallSummary[]> =>
+    this.hallsService.getHalls(this.selectedHallId() ?? undefined);
 
   constructor() {
     effect(() => {
@@ -262,16 +265,6 @@ export class HallConfigModalComponent {
       if (hallId) {
         this.loadHallData(hallId);
       }
-      this.loadSelectableHalls(hallId);
-    });
-  }
-
-  private loadSelectableHalls(excludeHallId: string | null) {
-    this.hallsService.getHalls(excludeHallId ?? undefined).subscribe({
-      next: (halls) => this.halls.set(halls),
-      error: (err: HttpErrorResponse) => {
-        this.toastService.error(err.error?.message ?? 'Failed to load halls');
-      },
     });
   }
 

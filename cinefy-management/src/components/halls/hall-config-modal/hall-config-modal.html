@@ -132,15 +132,14 @@
         </div>
         @if (!isViewMode()) {
           <div class="input-group">
-            <custom-select
+            <async-select
               label="Copy Layout From Existing Hall"
               placeholder="None"
               [clearable]="true"
               [searchable]="true"
-              [items]="halls()"
+              [fetchFn]="fetchHalls"
               [displayFn]="hallDisplayFn"
               [valueFn]="hallValueFn"
-              [compareWith]="compareHalls"
               [container]="modal.panelEl()"
               (selectionChange)="copyLayoutFrom($event)"
               (cleared)="restoreOriginalLayout()"

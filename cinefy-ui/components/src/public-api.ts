@@ -7,7 +7,7 @@ export * from "./input-otp/input-otp";
 export * from "./modal/modal";
 export * from "./pagination/pagination";
 export * from "./drop-down/custom-select/custom-select";
-export * from "./drop-down/paginated-select/paginated-select";
+export * from "./drop-down/async-select/async-select";
 export * from "./phone-input/phone-input";
 export * from "./date-time/date-picker/date-picker";
 export * from "./date-time/time-picker/time-picker";
