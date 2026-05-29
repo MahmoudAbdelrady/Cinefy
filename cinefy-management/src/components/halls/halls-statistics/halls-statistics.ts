@@ -52,18 +52,22 @@ export class HallsStatisticsComponent {
     let activeHallsDelta = 0;
     let capacityDelta = 0;
 
-    if (change.action === 'add') {
-      totalHallsDelta = 1;
-      activeHallsDelta = this.activeContribution(change.status);
-      capacityDelta = change.capacity;
-    } else if (change.action === 'delete') {
-      totalHallsDelta = -1;
-      activeHallsDelta = -this.activeContribution(change.status);
-      capacityDelta = -change.capacity;
-    } else {
-      activeHallsDelta =
-        this.activeContribution(change.to.status) - this.activeContribution(change.from.status);
-      capacityDelta = change.to.capacity - change.from.capacity;
+    switch (change.action) {
+      case 'add':
+        totalHallsDelta = 1;
+        activeHallsDelta = this.activeContribution(change.status);
+        capacityDelta = change.capacity;
+        break;
+      case 'update':
+        activeHallsDelta =
+          this.activeContribution(change.to.status) - this.activeContribution(change.from.status);
+        capacityDelta = change.to.capacity - change.from.capacity;
+        break;
+      case 'delete':
+        totalHallsDelta = -1;
+        activeHallsDelta = -this.activeContribution(change.status);
+        capacityDelta = -change.capacity;
+        break;
     }
 
     this.statistics.set({
