@@ -183,16 +183,14 @@ export class ManageShowtimeModalComponent {
     });
 
     effect(() => {
-      const base = this.activeMovie();
+      const pickedMovie = this.pickedMovie();
+      if (!pickedMovie) return;
       this.activeMovieDetail.set(null);
-      if (!base) return;
-      const targetId = base.id;
       this.moviesService
-        .getMovieDetails(targetId)
+        .getMovieDetails(pickedMovie.id)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (detail) => {
-            if (this.activeMovie()?.id !== targetId) return;
             this.activeMovieDetail.set(detail);
           },
           error: (err: HttpErrorResponse) => {
