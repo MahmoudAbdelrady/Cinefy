@@ -1,13 +1,4 @@
-import {
-  afterNextRender,
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -31,7 +22,7 @@ import {
   ModalComponent,
   DatePicker,
   TimePicker,
-  CustomSelectComponent,
+  AsyncSelectComponent,
   FieldErrorComponent,
   LoadingSpinnerComponent,
 } from 'cinefy-ui/components';
@@ -76,7 +67,7 @@ function timeNotInPastValidator(control: AbstractControl): ValidationErrors | nu
     ReactiveFormsModule,
     DatePicker,
     TimePicker,
-    CustomSelectComponent,
+    AsyncSelectComponent,
     NgpTextarea,
     NgpButton,
     LucideAngularModule,
@@ -109,7 +100,6 @@ export class ManageShowtimeModalComponent {
   readonly editingShowtime = input<EditableShowtime | null>(null);
 
   protected readonly submitting = signal(false);
-  protected readonly halls = signal<HallSummary[]>([]);
   protected readonly selectedHall = signal<HallSummary | null>(null);
   protected pickedMovie = signal<MovieSearchResult | null>(null);
   protected readonly activeMovieDetail = signal<MovieDetail | null>(null);
@@ -168,11 +158,9 @@ export class ManageShowtimeModalComponent {
 
   protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
   protected readonly hallValueFn = (hall: HallSummary) => hall.id;
-  protected readonly compareHalls = (a: HallSummary, b: HallSummary) => a?.id === b?.id;
+  protected readonly fetchHalls = () => this.hallsService.getHalls(undefined, ACTIVE_HALL_STATUSES);
 
   constructor() {
-    afterNextRender(() => this.loadActiveHalls());
-
     this.showtimeForm.controls.date.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -224,15 +212,6 @@ export class ManageShowtimeModalComponent {
             this.toastService.error(err.error?.message ?? 'Failed to load movie details');
           },
         });
-    });
-  }
-
-  private loadActiveHalls() {
-    this.hallsService.getHalls(undefined, ACTIVE_HALL_STATUSES).subscribe({
-      next: (halls) => this.halls.set(halls),
-      error: (err: HttpErrorResponse) => {
-        this.toastService.error(err.error?.message ?? 'Failed to load halls');
-      },
     });
   }
 

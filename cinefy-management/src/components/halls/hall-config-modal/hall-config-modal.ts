@@ -15,7 +15,6 @@ import { NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   DollarSignIcon,
@@ -228,7 +227,7 @@ export class HallConfigModalComponent {
   protected readonly compareHallTypes = (a: HallType, b: HallType) => a?.id === b?.id;
   protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
   protected readonly hallValueFn = (hall: HallSummary) => hall.id;
-  protected readonly fetchHalls = (): Observable<HallSummary[]> =>
+  protected readonly fetchHalls = () =>
     this.hallsService.getHalls(this.selectedHallId() ?? undefined);
 
   constructor() {

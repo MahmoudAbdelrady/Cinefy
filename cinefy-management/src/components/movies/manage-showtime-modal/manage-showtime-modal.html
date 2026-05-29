@@ -72,14 +72,13 @@
         </div>
         <div class="input-group">
           <label>Hall</label>
-          <custom-select
+          <async-select
             placeholder="Select a hall"
             [searchable]="true"
-            [items]="halls()"
+            [fetchFn]="fetchHalls"
             [displayFn]="hallDisplayFn"
             [valueFn]="hallValueFn"
-            [compareWith]="compareHalls"
-            [value]="selectedHall()"
+            [initialValue]="selectedHall()"
             [container]="modal.panelEl()"
             (selectionChange)="onHallChange($event)"
             (cleared)="onHallChange(null)"
