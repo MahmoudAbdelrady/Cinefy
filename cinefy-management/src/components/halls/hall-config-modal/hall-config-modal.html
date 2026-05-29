@@ -132,14 +132,15 @@
         </div>
         @if (!isViewMode()) {
           <div class="input-group">
-            <paginated-select
+            <custom-select
               label="Copy Layout From Existing Hall"
               placeholder="None"
               [clearable]="true"
               [searchable]="true"
-              [fetchFn]="fetchHalls"
+              [items]="halls()"
               [displayFn]="hallDisplayFn"
               [valueFn]="hallValueFn"
+              [compareWith]="compareHalls"
               [container]="modal.panelEl()"
               (selectionChange)="copyLayoutFrom($event)"
               (cleared)="restoreOriginalLayout()"

@@ -8,7 +8,7 @@ const HALL_STATUS_LABELS = {
 
 type HallStatus = keyof typeof HALL_STATUS_LABELS;
 
-const ACTIVE_HALL_STATUSES: HallStatus[] = ['SCHEDULED', 'NOW_SHOWING', 'ACTIVE'];
+const ACTIVE_HALL_STATUSES: HallStatus[] = ['ACTIVE', 'SCHEDULED', 'NOW_SHOWING'];
 
 const SEAT_CATEGORY_LABELS = {
   NORMAL: 'Normal',

@@ -72,13 +72,14 @@
         </div>
         <div class="input-group">
           <label>Hall</label>
-          <paginated-select
+          <custom-select
             placeholder="Select a hall"
             [searchable]="true"
-            [fetchFn]="fetchHalls"
+            [items]="halls()"
             [displayFn]="hallDisplayFn"
             [valueFn]="hallValueFn"
-            [initialValue]="selectedHall()"
+            [compareWith]="compareHalls"
+            [value]="selectedHall()"
             [container]="modal.panelEl()"
             (selectionChange)="onHallChange($event)"
             (cleared)="onHallChange(null)"

@@ -4,8 +4,6 @@ import com.mdevs.cinefy.dto.hall.HallStatisticsDTO;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.enums.HallStatus;
 import com.mdevs.cinefy.entity.HallType;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,10 +17,9 @@ public interface HallRepository extends BaseRepository<Hall> {
     Optional<Hall> findByUuid(String uuid);
 
     @Query("SELECT h FROM Hall h JOIN FETCH h.type " +
-            "WHERE (:search IS NULL OR h.code LIKE CONCAT('%', CAST(:search AS string), '%')) " +
-            "AND (:excludeHallId IS NULL OR h.uuid != :excludeHallId) " +
+            "WHERE (:excludeHallId IS NULL OR h.uuid != :excludeHallId) " +
             "AND (:statuses IS NULL OR h.status IN :statuses) ORDER BY h.createdAt")
-    Page<Hall> findAllFiltered(@Param("search") String search, @Param("excludeHallId") String excludeHallId, @Param("statuses") List<HallStatus> statuses, Pageable pageable);
+    List<Hall> findAllFiltered(@Param("excludeHallId") String excludeHallId, @Param("statuses") List<HallStatus> statuses);
 
     @Query("SELECT new com.mdevs.cinefy.dto.hall.HallStatisticsDTO(" +
             "COUNT(h), " +

@@ -1,4 +1,4 @@
-import { afterNextRender, Component, DestroyRef, inject, output, signal } from '@angular/core';
+import { afterNextRender, Component, computed, inject, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
@@ -13,19 +13,22 @@ import {
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   InputField,
   LoadingSpinnerComponent,
-  PaginationComponent,
   ModalComponent,
   EmptyStateComponent,
+  CustomSelectComponent,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
-import type { PaginatedResponse } from 'cinefy-ui/types';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
-import { HALL_STATUS_LABELS, HallSummary, StatisticsChange } from '../../../shared/types';
+import {
+  HALL_STATUS_LABELS,
+  HallStatus,
+  HallSummary,
+  StatisticsChange,
+} from '../../../shared/types';
 import { HallsService } from '../../../services';
 
 @Component({
@@ -35,7 +38,7 @@ import { HallsService } from '../../../services';
     NgpButton,
     NgpDialogTrigger,
     InputField,
-    PaginationComponent,
+    CustomSelectComponent,
     ModalComponent,
     HallConfigModalComponent,
     LoadingSpinnerComponent,
@@ -57,66 +60,50 @@ export class HallsListComponent {
 
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly statusLabels = HALL_STATUS_LABELS;
+  protected readonly hallStatuses = Object.keys(HALL_STATUS_LABELS) as HallStatus[];
 
-  protected readonly page = signal(1);
-  protected readonly pageSize = 10;
   protected readonly loading = signal(true);
   protected readonly deletingHallId = signal<string | null>(null);
-  protected readonly hallPage = signal<PaginatedResponse<HallSummary> | null>(null);
+  protected readonly halls = signal<HallSummary[]>([]);
 
   readonly statisticsChanged = output<StatisticsChange>();
 
-  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+  protected readonly statusFilter = signal<HallStatus | undefined>(undefined);
 
-  private readonly halls$ = combineLatest([
-    this.searchControl.valueChanges.pipe(
-      startWith(''),
-      debounceTime(300),
-      distinctUntilChanged(),
-      tap(() => this.page.set(1)),
-    ),
-    toObservable(this.page),
-  ]);
+  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+  private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: '' });
+
+  protected readonly filteredHalls = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    const status = this.statusFilter();
+    return this.halls().filter((hall) => {
+      const matchesSearch = !term || hall.name.toLowerCase().includes(term);
+      const matchesStatus = !status || hall.status === status;
+      return matchesSearch && matchesStatus;
+    });
+  });
+
+  protected readonly statusDisplayFn = (status: HallStatus): string => HALL_STATUS_LABELS[status];
 
   constructor() {
     afterNextRender(() => {
-      this.halls$
-        .pipe(
-          tap(() => this.loading.set(true)),
-          switchMap(([search, page]) =>
-            this.hallsService.getHalls(search || undefined, {
-              page: page - 1,
-              size: this.pageSize,
-            }),
-          ),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe({
-          next: (hallPage) => {
-            this.hallPage.set(hallPage);
-            this.loading.set(false);
-          },
-          error: (err: HttpErrorResponse) => {
-            this.loading.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to load halls');
-          },
-        });
+      this.hallsService.getHalls().subscribe({
+        next: (halls) => {
+          this.halls.set(halls);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load halls');
+        },
+      });
     });
   }
 
   addHall(hall: HallSummary): void {
-    this.hallPage.update((page) =>
-      page
-        ? {
-            ...page,
-            content: [...page.content, hall],
-            page: { ...page.page, totalElements: page.page.totalElements + 1 },
-          }
-        : page,
-    );
+    this.halls.update((halls) => [...halls, hall]);
     this.statisticsChanged.emit({
       action: 'add',
       status: hall.status,
@@ -124,16 +111,17 @@ export class HallsListComponent {
     });
   }
 
+  protected onStatusFilterChange(status: HallStatus): void {
+    this.statusFilter.set(status);
+  }
+
+  protected onStatusFilterCleared(): void {
+    this.statusFilter.set(undefined);
+  }
+
   protected updateHall(updated: HallSummary): void {
-    const previous = this.hallPage()?.content.find((h) => h.id === updated.id);
-    this.hallPage.update((page) =>
-      page
-        ? {
-            ...page,
-            content: page.content.map((h) => (h.id === updated.id ? updated : h)),
-          }
-        : page,
-    );
+    const previous = this.halls().find((h) => h.id === updated.id);
+    this.halls.update((halls) => halls.map((h) => (h.id === updated.id ? updated : h)));
     if (!previous) return;
     this.statisticsChanged.emit({
       action: 'update',
@@ -146,15 +134,7 @@ export class HallsListComponent {
     this.deletingHallId.set(hall.id);
     this.hallsService.deleteHall(hall.id).subscribe({
       next: () => {
-        this.hallPage.update((page) =>
-          page
-            ? {
-                ...page,
-                content: page.content.filter((h) => h.id !== hall.id),
-                page: { ...page.page, totalElements: page.page.totalElements - 1 },
-              }
-            : page,
-        );
+        this.halls.update((halls) => halls.filter((h) => h.id !== hall.id));
         this.statisticsChanged.emit({
           action: 'delete',
           status: hall.status,

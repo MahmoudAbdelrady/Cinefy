@@ -38,7 +38,27 @@
 }
 
 .ah-header-right {
+  @include flex-align;
+  gap: 12px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+
+  @include below-mobile {
+    width: 100%;
+  }
+}
+
+.search-filter {
   width: 288px;
+  max-width: 100%;
+
+  @include below-mobile {
+    width: 100%;
+  }
+}
+
+.drop-down-filter {
+  min-width: 180px;
 
   @include below-mobile {
     width: 100%;
@@ -49,6 +69,12 @@
 
 .ah-items {
   @include flex-column;
+}
+
+.ah-items-container {
+  @include flex-column;
+  max-height: 680px;
+  overflow-y: auto;
 }
 
 .ah-item {

@@ -5,11 +5,23 @@
       <p>Manage your cinema halls and seating arrangements</p>
     </div>
     <div class="ah-header-right">
-      <input-field
-        [control]="searchControl"
-        [leadingIcon]="icons.SearchIcon"
-        placeholder="Search halls…"
-      />
+      <div class="search-filter">
+        <input-field
+          [control]="searchControl"
+          [leadingIcon]="icons.SearchIcon"
+          placeholder="Search halls…"
+        />
+      </div>
+      <div class="drop-down-filter">
+        <custom-select
+          [items]="hallStatuses"
+          [displayFn]="statusDisplayFn"
+          [clearable]="true"
+          placeholder="All statuses"
+          (selectionChange)="onStatusFilterChange($event)"
+          (cleared)="onStatusFilterCleared()"
+        />
+      </div>
     </div>
   </div>
   <div class="ah-items">
@@ -18,128 +30,130 @@
         <loading-spinner variant="xl" />
       </div>
     } @else {
-      @for (hall of hallPage()?.content ?? []; track hall.id) {
-        <div class="ah-item">
-          <div class="ahi-info">
-            <div class="ahi-info-icon">
-              <lucide-icon [img]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
-            </div>
-            <div class="ahi-info-details">
-              <div class="ahid-header">
-                <h4>{{ hall.name }}</h4>
-                @if (hall.status && hall.status !== 'ACTIVE') {
-                  <p class="ahidh-status" [attr.data-status]="hall.status">
-                    {{ statusLabels[hall.status] }}
-                  </p>
-                }
+      <div class="ah-items-container">
+        @for (hall of filteredHalls(); track hall.id) {
+          <div class="ah-item">
+            <div class="ahi-info">
+              <div class="ahi-info-icon">
+                <lucide-icon [img]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
               </div>
-              <div class="ahid-content">
-                <div class="ahidc-item">
-                  <lucide-icon
-                    [img]="icons.UsersIcon"
-                    [size]="16"
-                    [strokeWidth]="2.5"
-                  ></lucide-icon>
-                  <span>{{ hall.totalRows * hall.totalColumns }} seats</span>
+              <div class="ahi-info-details">
+                <div class="ahid-header">
+                  <h4>{{ hall.name }}</h4>
+                  @if (hall.status && hall.status !== 'ACTIVE') {
+                    <p class="ahidh-status" [attr.data-status]="hall.status">
+                      {{ statusLabels[hall.status] }}
+                    </p>
+                  }
                 </div>
-                <div class="ahidc-item">
-                  <lucide-icon
-                    [img]="icons.LayoutIcon"
-                    [size]="16"
-                    [strokeWidth]="2.5"
-                  ></lucide-icon>
-                  <span>{{ hall.totalRows }} rows × {{ hall.totalColumns }} seats</span>
-                </div>
-                <div class="ahidc-item">
-                  <lucide-icon [img]="icons.TagIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
-                  <span>{{ hall.typeName }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="ahi-actions">
-            <button ngpButton [ngpDialogTrigger]="viewDialog">
-              <lucide-icon [img]="icons.EyeIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
-              <span>View</span>
-            </button>
-            <button ngpButton [ngpDialogTrigger]="deleteDialog">
-              <lucide-icon [img]="icons.DeleteIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
-              <span>Delete</span>
-            </button>
-
-            <ng-template #viewDialog let-close="close">
-              <hall-config-modal
-                [close]="close"
-                [selectedHallId]="hall.id"
-                (hallUpdated)="updateHall($event)"
-              />
-            </ng-template>
-
-            <ng-template #deleteDialog let-close="close">
-              <app-modal modalTitle="Delete Hall" [close]="close" width="448px">
-                <div class="delete-modal-content">
-                  <div class="dmc-icon">
+                <div class="ahid-content">
+                  <div class="ahidc-item">
                     <lucide-icon
-                      [img]="icons.AlertIcon"
-                      [size]="24"
-                      [strokeWidth]="2"
-                    ></lucide-icon>
-                  </div>
-                  <p class="dmc-message">
-                    Are you sure you want to delete <strong>{{ hall.name }}</strong
-                    >? This action cannot be undone and will remove all seat configurations and
-                    associated data.
-                  </p>
-                  <div class="dmc-warning">
-                    <lucide-icon
-                      [img]="icons.AlertIcon"
+                      [img]="icons.UsersIcon"
                       [size]="16"
-                      [strokeWidth]="2"
+                      [strokeWidth]="2.5"
                     ></lucide-icon>
-                    <div>
-                      <p><strong>Warning:</strong></p>
-                      <ul>
-                        <li>All seat reservations will be cancelled</li>
-                        <li>Scheduled showtimes will be removed</li>
-                        <li>Historical data will be archived</li>
-                      </ul>
+                    <span>{{ hall.totalRows * hall.totalColumns }} seats</span>
+                  </div>
+                  <div class="ahidc-item">
+                    <lucide-icon
+                      [img]="icons.LayoutIcon"
+                      [size]="16"
+                      [strokeWidth]="2.5"
+                    ></lucide-icon>
+                    <span>{{ hall.totalRows }} rows × {{ hall.totalColumns }} seats</span>
+                  </div>
+                  <div class="ahidc-item">
+                    <lucide-icon
+                      [img]="icons.TagIcon"
+                      [size]="16"
+                      [strokeWidth]="2.5"
+                    ></lucide-icon>
+                    <span>{{ hall.typeName }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ahi-actions">
+              <button ngpButton [ngpDialogTrigger]="viewDialog">
+                <lucide-icon [img]="icons.EyeIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <span>View</span>
+              </button>
+              <button ngpButton [ngpDialogTrigger]="deleteDialog">
+                <lucide-icon [img]="icons.DeleteIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <span>Delete</span>
+              </button>
+
+              <ng-template #viewDialog let-close="close">
+                <hall-config-modal
+                  [close]="close"
+                  [selectedHallId]="hall.id"
+                  (hallUpdated)="updateHall($event)"
+                />
+              </ng-template>
+
+              <ng-template #deleteDialog let-close="close">
+                <app-modal modalTitle="Delete Hall" [close]="close" width="448px">
+                  <div class="delete-modal-content">
+                    <div class="dmc-icon">
+                      <lucide-icon
+                        [img]="icons.AlertIcon"
+                        [size]="24"
+                        [strokeWidth]="2"
+                      ></lucide-icon>
+                    </div>
+                    <p class="dmc-message">
+                      Are you sure you want to delete <strong>{{ hall.name }}</strong
+                      >? This action cannot be undone and will remove all seat configurations and
+                      associated data.
+                    </p>
+                    <div class="dmc-warning">
+                      <lucide-icon
+                        [img]="icons.AlertIcon"
+                        [size]="16"
+                        [strokeWidth]="2"
+                      ></lucide-icon>
+                      <div>
+                        <p><strong>Warning:</strong></p>
+                        <ul>
+                          <li>All seat reservations will be cancelled</li>
+                          <li>Scheduled showtimes will be removed</li>
+                          <li>Historical data will be archived</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div modal-footer class="delete-modal-footer">
-                  <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
-                  <button
-                    ngpButton
-                    class="btn-danger"
-                    [disabled]="deletingHallId() === hall.id"
-                    (click)="deleteHall(hall, close)"
-                  >
-                    @if (deletingHallId() === hall.id) {
-                      <loading-spinner variant="sm" />
-                      <span>Deleting…</span>
-                    } @else {
-                      <span>Delete Hall</span>
-                    }
-                  </button>
-                </div>
-              </app-modal>
-            </ng-template>
+                  <div modal-footer class="delete-modal-footer">
+                    <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+                    <button
+                      ngpButton
+                      class="btn-danger"
+                      [disabled]="deletingHallId() === hall.id"
+                      (click)="deleteHall(hall, close)"
+                    >
+                      @if (deletingHallId() === hall.id) {
+                        <loading-spinner variant="sm" />
+                        <span>Deleting…</span>
+                      } @else {
+                        <span>Delete Hall</span>
+                      }
+                    </button>
+                  </div>
+                </app-modal>
+              </ng-template>
+            </div>
           </div>
-        </div>
-      } @empty {
-        <empty-state
-          [icon]="icons.LayoutIcon"
-          title="No halls found"
-          [description]="searchControl.value ? 'Try adjusting your search term' : null"
-        />
-      }
+        } @empty {
+          <empty-state
+            [icon]="icons.LayoutIcon"
+            title="No halls found"
+            [description]="
+              searchControl.value || statusFilter() ? 'Try adjusting your search or filters' : null
+            "
+          />
+        }
+      </div>
     }
   </div>
-  <pagination-component
-    [(page)]="page"
-    [pageCount]="hallPage()?.page?.totalPages ?? 0"
-    [totalItems]="hallPage()?.page?.totalElements ?? 0"
-    [pageSize]="pageSize"
-  />
 </div>

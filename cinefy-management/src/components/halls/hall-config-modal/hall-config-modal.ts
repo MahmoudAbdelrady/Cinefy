@@ -32,7 +32,6 @@ import {
   LoadingSpinnerComponent,
   InputField,
   CustomSelectComponent,
-  PaginatedSelectComponent,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import {
@@ -75,7 +74,6 @@ interface LayoutBaseline {
     LoadingSpinnerComponent,
     InputField,
     CustomSelectComponent,
-    PaginatedSelectComponent,
     HallLayoutEditorComponent,
   ],
   templateUrl: './hall-config-modal.html',
@@ -140,6 +138,7 @@ export class HallConfigModalComponent {
   protected readonly loadingHall = signal(false);
   private readonly initialSnapshot = signal<string | null>(null);
   protected readonly selectedHallType = signal<HallType | null>(null);
+  protected readonly halls = signal<HallSummary[]>([]);
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems[0]);
   private readonly onSiteOnlyPreference = signal(false);
 
@@ -225,10 +224,9 @@ export class HallConfigModalComponent {
   protected readonly hallTypeDisplayFn = (type: HallType) => type.name;
   protected readonly hallTypeValueFn = (type: HallType) => type.id;
   protected readonly compareHallTypes = (a: HallType, b: HallType) => a?.id === b?.id;
-  protected readonly fetchHalls = (page: number, size: number, search?: string) =>
-    this.hallsService.getHalls(search, { page, size }, this.selectedHallId() ?? undefined);
   protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
   protected readonly hallValueFn = (hall: HallSummary) => hall.id;
+  protected readonly compareHalls = (a: HallSummary, b: HallSummary) => a?.id === b?.id;
 
   constructor() {
     effect(() => {
@@ -264,6 +262,16 @@ export class HallConfigModalComponent {
       if (hallId) {
         this.loadHallData(hallId);
       }
+      this.loadSelectableHalls(hallId);
+    });
+  }
+
+  private loadSelectableHalls(excludeHallId: string | null) {
+    this.hallsService.getHalls(excludeHallId ?? undefined).subscribe({
+      next: (halls) => this.halls.set(halls),
+      error: (err: HttpErrorResponse) => {
+        this.toastService.error(err.error?.message ?? 'Failed to load halls');
+      },
     });
   }
 
