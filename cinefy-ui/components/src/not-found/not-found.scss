@@ -1,0 +1,39 @@
+@use "../../../src/styles/mixins" as *;
+
+:host {
+  @include flex-center;
+  min-height: 60vh;
+  padding: 24px;
+}
+
+.nf-content {
+  @include flex-column;
+  align-items: center;
+  gap: 8px;
+  max-width: 420px;
+  text-align: center;
+}
+
+.nf-code {
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--cui-accent);
+  letter-spacing: -2px;
+}
+
+.nf-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--cui-text-strong);
+}
+
+.nf-message {
+  font-size: 14px;
+  color: var(--cui-text-muted);
+  line-height: 1.6;
+}
+
+.nf-action {
+  margin-top: 12px;
+}

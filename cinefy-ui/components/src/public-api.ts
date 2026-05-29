@@ -1,5 +1,6 @@
 export * from "./loading-spinner/loading-spinner";
 export * from "./empty-state/empty-state";
+export * from "./not-found/not-found";
 export * from "./field-error/field-error";
 export * from "./input-field/input-field";
 export * from "./input-otp/input-otp";
