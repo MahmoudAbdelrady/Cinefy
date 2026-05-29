@@ -76,7 +76,6 @@
           <label>Hall</label>
           <paginated-select
             placeholder="Select a hall"
-            [clearable]="true"
             [searchable]="true"
             [fetchFn]="fetchHalls"
             [displayFn]="hallDisplayFn"
@@ -125,7 +124,7 @@
       <button
         ngpButton
         class="btn-primary"
-        [disabled]="showtimeForm.invalid || submitting()"
+        [disabled]="showtimeForm.invalid || submitting() || (isEditMode() && !hasChanges())"
         (click)="onSubmit()"
       >
         @if (submitting()) {

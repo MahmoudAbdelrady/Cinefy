@@ -75,6 +75,7 @@ interface EditableShowtime {
   date: Date;
   time: string;
   hall: HallRef;
+  is3D: boolean;
   specialNotes: string;
 }
 

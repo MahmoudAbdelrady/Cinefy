@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   ACTIVE_HALL_STATUSES,
   EditableShowtime,
@@ -103,6 +103,7 @@ export class ManageShowtimeModalComponent {
   protected readonly selectedHall = signal<HallSummary | null>(null);
   protected pickedMovie = signal<MovieSearchResult | null>(null);
   protected readonly activeMovieDetail = signal<MovieDetail | null>(null);
+  private readonly initialFormSnapshot = signal<string | null>(null);
 
   protected readonly showtimeForm = new FormGroup({
     date: new FormControl<Date | null>(null, {
@@ -125,6 +126,17 @@ export class ManageShowtimeModalComponent {
     () => this.selectedMovie() ?? this.pickedMovie(),
   );
   protected readonly isEditMode = computed(() => this.editingShowtime() !== null);
+
+  private readonly currentFormValue = toSignal(this.showtimeForm.valueChanges, {
+    initialValue: this.showtimeForm.getRawValue(),
+  });
+
+  protected readonly hasChanges = computed(() => {
+    const snapshot = this.initialFormSnapshot();
+    if (snapshot === null) return true;
+    this.currentFormValue();
+    return JSON.stringify(this.showtimeForm.getRawValue()) !== snapshot;
+  });
 
   protected readonly modalTitle = computed(() => {
     if (this.isEditMode()) return 'Edit Showtime';
@@ -165,8 +177,10 @@ export class ManageShowtimeModalComponent {
         date: editing.date,
         time: editing.time,
         hallId: editing.hall.id,
+        is3D: editing.is3D,
         specialNotes: editing.specialNotes,
       });
+      this.initialFormSnapshot.set(JSON.stringify(this.showtimeForm.getRawValue()));
     });
 
     effect(() => {
@@ -183,14 +197,17 @@ export class ManageShowtimeModalComponent {
     });
 
     effect(() => {
-      const pickedMovie = this.pickedMovie();
-      if (!pickedMovie) return;
+      if (!this.showSelectedMovie()) return;
+      const base = this.activeMovie();
       this.activeMovieDetail.set(null);
+      if (!base) return;
+      const targetId = base.id;
       this.moviesService
-        .getMovieDetails(pickedMovie.id)
+        .getMovieDetails(targetId)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (detail) => {
+            if (this.activeMovie()?.id !== targetId) return;
             this.activeMovieDetail.set(detail);
           },
           error: (err: HttpErrorResponse) => {
