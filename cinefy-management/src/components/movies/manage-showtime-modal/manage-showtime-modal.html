@@ -62,6 +62,7 @@
             <label>Time</label>
             <time-picker
               [control]="showtimeForm.controls.time"
+              [container]="modal.panelEl()"
               [errorMessages]="{
                 required: 'Time is required',
                 pastTime: 'Time cannot be in the past',

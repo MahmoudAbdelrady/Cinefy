@@ -156,11 +156,15 @@
       <label data-required>Working hours</label>
       <div class="fields">
         <div class="input-group">
-          <time-picker [control]="staffForm.controls.workingHourStart" />
+          <time-picker
+            [control]="staffForm.controls.workingHourStart"
+            [container]="modal.panelEl()"
+          />
         </div>
         <div class="input-group">
           <time-picker
             [control]="staffForm.controls.workingHourEnd"
+            [container]="modal.panelEl()"
             [errorMessages]="{ sameAsStart: 'End time must be different from start time' }"
           />
         </div>

@@ -28,6 +28,7 @@ export class TimePicker {
   readonly control: InputSignal<FormControl<string | null>> = input.required<FormControl<string | null>>();
   readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
+  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>(null);
 
   private readonly controlValue = toSignal(
     toObservable(this.control).pipe(switchMap((c) => c.valueChanges.pipe(startWith(c.value)))),

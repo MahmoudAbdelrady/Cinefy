@@ -5,6 +5,7 @@
     class="tp-trigger"
     [class.has-error]="control().touched && control().errors"
     [ngpPopoverTrigger]="timePopover"
+    [ngpPopoverTriggerContainer]="container()"
     ngpPopoverTriggerPlacement="bottom-start"
     [ngpPopoverTriggerOffset]="6"
     (ngpPopoverTriggerOpenChange)="onOpenChange($event)"
