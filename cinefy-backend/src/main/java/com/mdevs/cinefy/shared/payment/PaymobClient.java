@@ -2,8 +2,6 @@ package com.mdevs.cinefy.shared.payment;
 
 import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
-import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
-import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,9 +60,6 @@ public class PaymobClient {
         } catch (HttpClientErrorException e) {
             log.warn("Paymob connection test failed: status={} body={}", e.getStatusCode(), e.getResponseBodyAsString());
             String message = extractErrorDetail(e.getResponseBodyAsString());
-            int status = e.getStatusCode().value();
-            if (status == 401) throw new UnauthorizedException(message);
-            if (status == 403) throw new ForbiddenException(message);
             throw new BusinessException(message);
         } catch (RestClientException e) {
             log.warn("Paymob connection test failed: {}", e.getMessage());
