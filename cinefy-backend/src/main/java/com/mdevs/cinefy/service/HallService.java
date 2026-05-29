@@ -3,7 +3,6 @@ package com.mdevs.cinefy.service;
 import com.mdevs.cinefy.dto.hall.HallDTO;
 import com.mdevs.cinefy.dto.hall.HallDetailDTO;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
-import com.mdevs.cinefy.dto.hall.HallStatisticsDTO;
 import com.mdevs.cinefy.dto.hall.HallSummaryDTO;
 import com.mdevs.cinefy.dto.hall.HallTypeDTO;
 import com.mdevs.cinefy.dto.hall.SeatLayoutDTO;
@@ -86,10 +85,6 @@ public class HallService {
         return hallRepository.findAllFiltered(excludeHallId, hallStatuses).stream()
                 .map(this::toSummaryDTO)
                 .toList();
-    }
-
-    public HallStatisticsDTO getHallsStatistics() {
-        return hallRepository.getStatistics();
     }
 
     public HallDetailDTO getHall(String uuid) {

@@ -105,6 +105,8 @@ interface Hall {
 }
 
 type StatisticsChange =
+  | { action: 'set'; totalHalls: number; activeHalls: number; totalCapacity: number }
+  | { action: 'reset' }
   | { action: 'add'; status: HallStatus; capacity: number }
   | { action: 'delete'; status: HallStatus; capacity: number }
   | {

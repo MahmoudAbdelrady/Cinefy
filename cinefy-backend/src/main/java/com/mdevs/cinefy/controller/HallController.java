@@ -3,7 +3,6 @@ package com.mdevs.cinefy.controller;
 import com.mdevs.cinefy.dto.hall.HallDTO;
 import com.mdevs.cinefy.dto.hall.HallDetailDTO;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
-import com.mdevs.cinefy.dto.hall.HallStatisticsDTO;
 import com.mdevs.cinefy.dto.hall.HallSummaryDTO;
 import com.mdevs.cinefy.dto.hall.HallTypeDTO;
 import com.mdevs.cinefy.service.HallService;
@@ -53,11 +52,6 @@ public class HallController {
     public ResponseEntity<List<HallSummaryDTO>> getHalls(@RequestParam(required = false) String excludeHallId,
                                                          @RequestParam(required = false) List<String> statuses) {
         return ResponseEntity.ok(hallService.getHalls(excludeHallId, statuses));
-    }
-
-    @GetMapping("/statistics")
-    public ResponseEntity<HallStatisticsDTO> getHallsStatistics() {
-        return ResponseEntity.ok(hallService.getHallsStatistics());
     }
 
     @GetMapping("/{uuid}")

@@ -23,7 +23,6 @@ import {
     ManageHallTypesModalComponent,
   ],
   templateUrl: './halls.html',
-  styleUrl: './halls.scss',
 })
 export class HallsPage implements OnInit {
   protected readonly icons = {

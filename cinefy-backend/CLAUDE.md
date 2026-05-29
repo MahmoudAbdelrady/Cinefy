@@ -46,7 +46,7 @@ com.mdevs.cinefy
 ├── filter/         — JwtAuthenticationFilter (cookie JWT → SecurityContext)
 ├── dto/            — Request/response DTOs, grouped per domain
 │   ├── hall/       — HallDTO, HallDetailDTO, HallLayoutDTO, HallSummaryDTO,
-│   │                  HallReferenceDTO, HallTypeDTO, HallStatisticsDTO,
+│   │                  HallReferenceDTO, HallTypeDTO,
 │   │                  SeatLayoutDTO, TicketPricingDTO
 │   ├── movie/      — MovieSearchResultDTO, MovieDetailDTO
 │   ├── showtime/   — ShowtimeDTO, ShowtimeSummaryDTO, MovieShowtimesDTO,
@@ -307,19 +307,18 @@ All endpoints `@PublicApi` (skip authentication) **except** `/logout`. Tokens ar
 
 ### `/halls` — HallController
 
-| Method | Path                   | Input                         | Output                                                     |
-| ------ | ---------------------- | ----------------------------- | ---------------------------------------------------------- |
-| GET    | `/halls`               | ?search, ?excludeHallId, page | Page<HallSummaryDTO>                                       |
-| GET    | `/halls/statistics`    |                               | HallStatisticsDTO (totalHalls, activeHalls, totalCapacity) |
-| GET    | `/halls/{uuid}`        |                               | HallDetailDTO                                              |
-| GET    | `/halls/{uuid}/layout` |                               | HallLayoutDTO                                              |
-| POST   | `/halls`               | HallDTO                       | HallSummaryDTO                                             |
-| PUT    | `/halls/{uuid}`        | HallDTO                       | HallSummaryDTO                                             |
-| DELETE | `/halls/{uuid}`        |                               | 204                                                        |
-| GET    | `/halls/types`         |                               | List<HallTypeDTO>                                          |
-| POST   | `/halls/types`         | HallTypeDTO                   | HallTypeDTO                                                |
-| PUT    | `/halls/types/{uuid}`  | HallTypeDTO                   | HallTypeDTO                                                |
-| DELETE | `/halls/types/{uuid}`  |                               | 204                                                        |
+| Method | Path                   | Input                     | Output                         |
+| ------ | ---------------------- | ------------------------- | ------------------------------ |
+| GET    | `/halls`               | ?excludeHallId, ?statuses | List<HallSummaryDTO> (unpaged) |
+| GET    | `/halls/{uuid}`        |                           | HallDetailDTO                  |
+| GET    | `/halls/{uuid}/layout` |                           | HallLayoutDTO                  |
+| POST   | `/halls`               | HallDTO                   | HallSummaryDTO                 |
+| PUT    | `/halls/{uuid}`        | HallDTO                   | HallSummaryDTO                 |
+| DELETE | `/halls/{uuid}`        |                           | 204                            |
+| GET    | `/halls/types`         |                           | List<HallTypeDTO>              |
+| POST   | `/halls/types`         | HallTypeDTO               | HallTypeDTO                    |
+| PUT    | `/halls/types/{uuid}`  | HallTypeDTO               | HallTypeDTO                    |
+| DELETE | `/halls/types/{uuid}`  |                           | 204                            |
 
 ### `/movies` — TmdbMovieController
 

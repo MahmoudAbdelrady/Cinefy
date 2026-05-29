@@ -5,7 +5,6 @@ import type {
   Hall,
   HallDetail,
   HallLayout,
-  HallStatistics,
   HallStatus,
   HallSummary,
   HallType,
@@ -41,10 +40,6 @@ export class HallsService {
       ...(statuses && statuses.length > 0 && { statuses: statuses.join(',') }),
     };
     return this.http.get<HallSummary[]>('/halls', { params });
-  }
-
-  getHallsStatistics(): Observable<HallStatistics> {
-    return this.http.get<HallStatistics>('/halls/statistics');
   }
 
   getHall(id: string): Observable<HallDetail> {

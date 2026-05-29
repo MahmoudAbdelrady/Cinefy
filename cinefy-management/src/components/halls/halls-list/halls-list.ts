@@ -92,10 +92,17 @@ export class HallsListComponent {
       this.hallsService.getHalls().subscribe({
         next: (halls) => {
           this.halls.set(halls);
+          this.statisticsChanged.emit({
+            action: 'set',
+            totalHalls: halls.length,
+            activeHalls: halls.filter((hall) => hall.status === 'ACTIVE').length,
+            totalCapacity: halls.reduce((sum, hall) => sum + hall.totalRows * hall.totalColumns, 0),
+          });
           this.loading.set(false);
         },
         error: (err: HttpErrorResponse) => {
           this.loading.set(false);
+          this.statisticsChanged.emit({ action: 'reset' });
           this.toastService.error(err.error?.message ?? 'Failed to load halls');
         },
       });
