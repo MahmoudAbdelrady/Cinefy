@@ -128,13 +128,11 @@
           </div>
         </div>
       } @empty {
-        <div class="ah-empty">
-          <lucide-icon [img]="icons.LayoutIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
-          <p>No halls found</p>
-          @if (searchControl.value) {
-            <span>Try adjusting your search term</span>
-          }
-        </div>
+        <empty-state
+          [icon]="icons.LayoutIcon"
+          title="No halls found"
+          [description]="searchControl.value ? 'Try adjusting your search term' : null"
+        />
       }
     }
   </div>

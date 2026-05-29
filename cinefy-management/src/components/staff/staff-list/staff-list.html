@@ -162,11 +162,11 @@
           </div>
         </div>
       } @empty {
-        <div class="sl-empty">
-          <lucide-icon [img]="icons.UsersIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
-          <p>No staff members yet</p>
-          <span>Add a staff member to start building your cinema team.</span>
-        </div>
+        <empty-state
+          [icon]="icons.UsersIcon"
+          title="No staff members yet"
+          description="Add a staff member to start building your cinema team."
+        />
       }
     }
   </div>

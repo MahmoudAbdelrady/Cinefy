@@ -161,9 +161,11 @@
           </ng-template>
         </div>
       } @empty {
-        <div class="cs-empty">
-          <p>No showtimes scheduled yet.</p>
-        </div>
+        <empty-state
+          [icon]="icons.CalendarClockIcon"
+          title="No showtimes scheduled yet"
+          description="Schedule a showtime to start selling tickets for this movie."
+        />
       }
     }
   </div>

@@ -55,9 +55,11 @@
           </div>
         </div>
       } @empty {
-        <div class="um-empty">
-          <p>No upcoming movies available.</p>
-        </div>
+        <empty-state
+          class="um-empty"
+          [icon]="icons.CalendarIcon"
+          title="No upcoming movies available"
+        />
       }
     }
   </div>

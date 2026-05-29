@@ -13,10 +13,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { EditableShowtime, MovieWithShowtimes, Showtime } from '../../../shared/types';
 import { canManage as canManagePosition } from '../../../shared/access';
 import { LucideAngularModule } from 'lucide-angular';
-import { DeleteIcon, PlusIcon, WarningIcon } from '../../../shared/icons';
+import { CalendarClockIcon, DeleteIcon, PlusIcon, WarningIcon } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ModalComponent, LoadingSpinnerComponent, EmptyStateComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
@@ -29,6 +29,7 @@ import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../
     NgpDialogTrigger,
     ModalComponent,
     LoadingSpinnerComponent,
+    EmptyStateComponent,
     ManageShowtimeModalComponent,
     MovieShowtimesModal,
     LucideAngularModule,
@@ -41,6 +42,7 @@ export class CurrentShowtimesComponent {
     DeleteIcon,
     PlusIcon,
     WarningIcon,
+    CalendarClockIcon,
   };
 
   private readonly showtimesService = inject(ShowtimesService);

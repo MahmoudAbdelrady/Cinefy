@@ -20,6 +20,7 @@ import {
   LoadingSpinnerComponent,
   PaginationComponent,
   ModalComponent,
+  EmptyStateComponent,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import type { PaginatedResponse } from 'cinefy-ui/types';
@@ -38,6 +39,7 @@ import { HallsService } from '../../../services';
     ModalComponent,
     HallConfigModalComponent,
     LoadingSpinnerComponent,
+    EmptyStateComponent,
   ],
   templateUrl: './halls-list.html',
   styleUrl: './halls-list.scss',

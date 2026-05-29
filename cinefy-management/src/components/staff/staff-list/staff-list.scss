@@ -97,10 +97,6 @@
   }
 }
 
-.sl-empty {
-  @include empty-state-block;
-}
-
 .sl-loading {
   @include flex-center;
   min-height: 100px;
