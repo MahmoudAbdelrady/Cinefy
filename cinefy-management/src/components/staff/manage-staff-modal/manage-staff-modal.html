@@ -57,19 +57,19 @@
         }"
       />
     </div>
-    <div class="input-groups">
-      <div class="input-group">
-        <input-field
-          label="Email"
-          placeholder="e.g. mohamed.ahmed@gmail.com"
-          [leadingIcon]="icons.EmailIcon"
-          [control]="staffForm.controls.email"
-          [errorMessages]="{
-            required: 'Email is required',
-            pattern: 'Email must be a valid address',
-          }"
-        />
-      </div>
+    <div class="input-group">
+      <input-field
+        label="Email"
+        placeholder="e.g. mohamed.ahmed@gmail.com"
+        [leadingIcon]="icons.EmailIcon"
+        [control]="staffForm.controls.email"
+        [errorMessages]="{
+          required: 'Email is required',
+          pattern: 'Email must be a valid address',
+        }"
+      />
+    </div>
+    <div class="input-group">
       <phone-input
         [countryControl]="staffForm.controls.phoneCountry"
         [numberControl]="staffForm.controls.phoneNumber"
