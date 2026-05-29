@@ -1,6 +1,7 @@
 import {
   Component,
   DestroyRef,
+  computed,
   effect,
   inject,
   input,
@@ -11,8 +12,8 @@ import {
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { HttpErrorResponse } from "@angular/common/http";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Observable, Subject, debounceTime, distinctUntilChanged } from "rxjs";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { Observable, debounceTime, distinctUntilChanged, skip } from "rxjs";
 import { LucideAngularModule } from "lucide-angular";
 import { ChevronDownIcon, XIcon } from "../../icons";
 import {
@@ -29,7 +30,7 @@ import { ToastService } from "cinefy-ui/services";
 import type { PaginatedResponse } from "cinefy-ui/types";
 
 @Component({
-  selector: "paginated-select",
+  selector: "async-select",
   imports: [
     NgpCombobox,
     NgpComboboxButton,
@@ -41,11 +42,11 @@ import type { PaginatedResponse } from "cinefy-ui/types";
     LoadingSpinnerComponent,
     FieldErrorComponent,
   ],
-  templateUrl: "./paginated-select.html",
-  styleUrl: "./paginated-select.scss",
+  templateUrl: "./async-select.html",
+  styleUrl: "./async-select.scss",
   encapsulation: ViewEncapsulation.None,
 })
-export class PaginatedSelectComponent<T> {
+export class AsyncSelectComponent<T> {
   protected readonly icons = {
     ChevronDownIcon,
     XIcon,
@@ -66,7 +67,7 @@ export class PaginatedSelectComponent<T> {
   readonly control: InputSignal<FormControl | null> = input<FormControl | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
   readonly fetchFn =
-    input.required<(page: number, size: number, search?: string) => Observable<PaginatedResponse<T>>>();
+    input.required<(page: number, size: number, search?: string) => Observable<PaginatedResponse<T> | T[]>>();
   readonly displayFn = input.required<(item: T) => string>();
   readonly valueFn = input.required<(item: T) => string>();
 
@@ -80,11 +81,21 @@ export class PaginatedSelectComponent<T> {
 
   private currentPage = 0;
   private totalPages = 1;
-  private readonly search$ = new Subject<string>();
+  private isFlat = false;
+  private loadedOnce = false;
+  private readonly searchInput = signal("");
+
+  protected readonly visibleItems = computed(() => {
+    if (!this.isFlat) return this.items();
+    const term = this.searchTerm().trim().toLowerCase();
+    if (!term) return this.items();
+    const displayFn = this.displayFn();
+    return this.items().filter((item) => displayFn(item).toLowerCase().includes(term));
+  });
 
   constructor() {
-    this.search$
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+    toObservable(this.searchInput)
+      .pipe(skip(1), debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe((term) => {
         this.searchTerm.set(term);
         this.resetAndFetch();
@@ -99,8 +110,20 @@ export class PaginatedSelectComponent<T> {
   protected onOpenChange(open: boolean) {
     if (open) {
       this.searchTerm.set("");
-      this.resetAndFetch();
+      if (!this.isFlat || !this.loadedOnce) {
+        this.resetAndFetch();
+      }
+    } else {
+      this.control()?.markAsTouched();
     }
+  }
+
+  protected onTriggerBlur(event: FocusEvent) {
+    const next = event.relatedTarget as HTMLElement | null;
+    if (next?.closest(".as-dropdown")) {
+      return;
+    }
+    this.control()?.markAsTouched();
   }
 
   protected onValueChange(value: T) {
@@ -109,7 +132,12 @@ export class PaginatedSelectComponent<T> {
   }
 
   protected onSearchInput(event: Event) {
-    this.search$.next((event.target as HTMLInputElement).value);
+    const value = (event.target as HTMLInputElement).value;
+    if (this.isFlat) {
+      this.searchTerm.set(value);
+    } else {
+      this.searchInput.set(value);
+    }
   }
 
   protected clear(event: MouseEvent) {
@@ -119,6 +147,7 @@ export class PaginatedSelectComponent<T> {
   }
 
   protected onScroll(event: Event) {
+    if (this.isFlat) return;
     const el = event.target as HTMLElement;
     const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 32;
     if (nearBottom && !this.loading() && this.currentPage + 1 < this.totalPages) {
@@ -147,9 +176,15 @@ export class PaginatedSelectComponent<T> {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.items.update((prev) => [...prev, ...response.content]);
-          this.currentPage = response.page.number;
-          this.totalPages = response.page.totalPages;
+          if (Array.isArray(response)) {
+            this.isFlat = true;
+            this.items.set(response);
+          } else {
+            this.items.update((prev) => [...prev, ...response.content]);
+            this.currentPage = response.page.number;
+            this.totalPages = response.page.totalPages;
+          }
+          this.loadedOnce = true;
           this.loading.set(false);
         },
         error: (err: HttpErrorResponse) => {

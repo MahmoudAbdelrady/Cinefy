@@ -215,6 +215,7 @@ export class MovieShowtimesModal {
       date: new Date(tab),
       time: showtime.time,
       hall: showtime.hall,
+      is3D: showtime.is3D,
       specialNotes: showtime.specialNotes,
     });
   }

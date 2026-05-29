@@ -11,6 +11,7 @@ import {
   LoginPage,
   ForgotPasswordPage,
   AccessDeniedPage,
+  NotFoundPage,
   ProfilePage,
 } from '../pages';
 
@@ -86,5 +87,10 @@ export const routes: Routes = [
         component: ForgotPasswordPage,
       },
     ],
+  },
+  {
+    path: '**',
+    component: NotFoundPage,
+    canActivate: [authGuard],
   },
 ];

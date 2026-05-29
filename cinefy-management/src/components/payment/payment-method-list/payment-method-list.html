@@ -261,11 +261,12 @@
           }
         </div>
       } @empty {
-        <div class="pm-empty">
-          <lucide-icon [img]="icons.CreditCardIcon" [size]="32" [strokeWidth]="1.5"></lucide-icon>
-          <p>No payment methods yet</p>
-          <span>Add a method to start accepting payments.</span>
-        </div>
+        <empty-state
+          class="pm-empty"
+          [icon]="icons.CreditCardIcon"
+          title="No payment methods yet"
+          description="Add a method to start accepting payments."
+        />
       }
     }
   </div>

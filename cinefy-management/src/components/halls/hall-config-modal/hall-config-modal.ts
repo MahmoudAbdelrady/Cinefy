@@ -32,7 +32,7 @@ import {
   LoadingSpinnerComponent,
   InputField,
   CustomSelectComponent,
-  PaginatedSelectComponent,
+  AsyncSelectComponent,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import {
@@ -75,7 +75,7 @@ interface LayoutBaseline {
     LoadingSpinnerComponent,
     InputField,
     CustomSelectComponent,
-    PaginatedSelectComponent,
+    AsyncSelectComponent,
     HallLayoutEditorComponent,
   ],
   templateUrl: './hall-config-modal.html',
@@ -225,10 +225,10 @@ export class HallConfigModalComponent {
   protected readonly hallTypeDisplayFn = (type: HallType) => type.name;
   protected readonly hallTypeValueFn = (type: HallType) => type.id;
   protected readonly compareHallTypes = (a: HallType, b: HallType) => a?.id === b?.id;
-  protected readonly fetchHalls = (page: number, size: number, search?: string) =>
-    this.hallsService.getHalls(search, { page, size }, this.selectedHallId() ?? undefined);
   protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
   protected readonly hallValueFn = (hall: HallSummary) => hall.id;
+  protected readonly fetchHalls = () =>
+    this.hallsService.getHalls(this.selectedHallId() ?? undefined);
 
   constructor() {
     effect(() => {

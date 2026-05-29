@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   ACTIVE_HALL_STATUSES,
   EditableShowtime,
@@ -22,7 +22,7 @@ import {
   ModalComponent,
   DatePicker,
   TimePicker,
-  PaginatedSelectComponent,
+  AsyncSelectComponent,
   FieldErrorComponent,
   LoadingSpinnerComponent,
 } from 'cinefy-ui/components';
@@ -67,7 +67,7 @@ function timeNotInPastValidator(control: AbstractControl): ValidationErrors | nu
     ReactiveFormsModule,
     DatePicker,
     TimePicker,
-    PaginatedSelectComponent,
+    AsyncSelectComponent,
     NgpTextarea,
     NgpButton,
     LucideAngularModule,
@@ -103,6 +103,7 @@ export class ManageShowtimeModalComponent {
   protected readonly selectedHall = signal<HallSummary | null>(null);
   protected pickedMovie = signal<MovieSearchResult | null>(null);
   protected readonly activeMovieDetail = signal<MovieDetail | null>(null);
+  private readonly initialFormSnapshot = signal<string | null>(null);
 
   protected readonly showtimeForm = new FormGroup({
     date: new FormControl<Date | null>(null, {
@@ -126,6 +127,17 @@ export class ManageShowtimeModalComponent {
   );
   protected readonly isEditMode = computed(() => this.editingShowtime() !== null);
 
+  private readonly currentFormValue = toSignal(this.showtimeForm.valueChanges, {
+    initialValue: this.showtimeForm.getRawValue(),
+  });
+
+  protected readonly hasChanges = computed(() => {
+    const snapshot = this.initialFormSnapshot();
+    if (snapshot === null) return true;
+    this.currentFormValue();
+    return JSON.stringify(this.showtimeForm.getRawValue()) !== snapshot;
+  });
+
   protected readonly modalTitle = computed(() => {
     if (this.isEditMode()) return 'Edit Showtime';
     return this.activeMovie() ? 'Schedule Showtime' : 'Schedule a Movie';
@@ -144,11 +156,9 @@ export class ManageShowtimeModalComponent {
     this.isEditMode() ? 'Save Changes' : 'Create Showtime',
   );
 
-  protected readonly fetchHalls = (page: number, size: number, search?: string) =>
-    this.hallsService.getHalls(search, { page, size }, undefined, ACTIVE_HALL_STATUSES);
-
   protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
   protected readonly hallValueFn = (hall: HallSummary) => hall.id;
+  protected readonly fetchHalls = () => this.hallsService.getHalls(undefined, ACTIVE_HALL_STATUSES);
 
   constructor() {
     this.showtimeForm.controls.date.valueChanges
@@ -165,8 +175,10 @@ export class ManageShowtimeModalComponent {
         date: editing.date,
         time: editing.time,
         hallId: editing.hall.id,
+        is3D: editing.is3D,
         specialNotes: editing.specialNotes,
       });
+      this.initialFormSnapshot.set(JSON.stringify(this.showtimeForm.getRawValue()));
     });
 
     effect(() => {
@@ -183,6 +195,7 @@ export class ManageShowtimeModalComponent {
     });
 
     effect(() => {
+      if (!this.showSelectedMovie()) return;
       const base = this.activeMovie();
       this.activeMovieDetail.set(null);
       if (!base) return;

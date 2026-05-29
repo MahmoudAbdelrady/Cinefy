@@ -1,78 +1,200 @@
 @use '../../shared/styles/colors' as *;
+@use '../../shared/styles/shadows' as *;
 @use '../../shared/styles/mixins' as *;
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
 .statistics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-
-  @include below-desktop {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
 
   @include below-mobile {
     grid-template-columns: 1fr;
   }
 }
 
+// ─── Card ───────────────────────────────────────────────────────────────────────
+
 .stat-card {
-  @include flex-align;
-  gap: 12px;
-  background-color: #ffffff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  min-height: 140px;
+  padding: 22px 24px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, $gray-50 140%);
   border: 1px solid $card-border;
   border-radius: $radius-lg;
-  padding: 24px;
+  box-shadow: $shadow-xs;
+  transition:
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+
+  // entrance
+  opacity: 0;
+  transform: translateY(8px);
+  animation: sc-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: $shadow-md;
+    border-color: $gray-300;
+
+    .sc-rule {
+      transform: scaleX(1);
+    }
+
+    .sc-icon {
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// ─── Top accent rule ──────────────────────────────────────────────────────────────
+// Pinned to the top edge; partially shown at rest, fills on hover.
+
+.sc-rule {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transform: scaleX(0.34);
+  transform-origin: left;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+// ─── Header: label + demoted icon ─────────────────────────────────────────────────
+
+.sc-head {
+  @include flex-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sc-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $gray-500;
+  line-height: 1.4;
 }
 
 .sc-icon {
-  @include icon-box(48px);
+  @include flex-center;
+  @include lucide-icon-fix;
+  width: 34px;
+  height: 34px;
+  border-radius: $radius-md;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+  transition:
+    transform 200ms ease,
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
 
-  &.blue {
-    background-color: $blue-100;
+// ─── Hero value ───────────────────────────────────────────────────────────────────
+// Big tabular figure. Clip-mask wrapper slides the number up on load.
 
-    lucide-icon {
-      color: $blue-600;
-    }
+.sc-value {
+  overflow: hidden;
+}
+
+.sc-value-inner {
+  display: block;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: $gray-900;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  transform: translateY(110%);
+  animation: sc-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) 120ms forwards;
+}
+
+// ─── Per-variant color identity ───────────────────────────────────────────────────
+// Accent rule + icon tint. Icon stays outlined/subtle, not a filled blob.
+
+.stat-card.blue {
+  .sc-rule {
+    background: linear-gradient(90deg, $blue-500, $blue-600);
   }
-
-  &.green {
-    background-color: $green-100;
-
-    lucide-icon {
-      color: $green-600;
-    }
-  }
-
-  &.purple {
-    background-color: $purple-100;
-
-    lucide-icon {
-      color: $purple-600;
-    }
-  }
-
-  &.orange {
-    background-color: $orange-100;
-
-    lucide-icon {
-      color: $orange-600;
-    }
+  .sc-icon {
+    background-color: $blue-50;
+    border-color: rgba($blue-500, 0.18);
+    color: $blue-600;
   }
 }
 
-.sc-info {
-  h3 {
-    font-size: 24px;
-    font-weight: 700;
-    color: $gray-900;
-    line-height: 1.2;
+.stat-card.green {
+  .sc-rule {
+    background: linear-gradient(90deg, $green-500, $green-600);
+  }
+  .sc-icon {
+    background-color: $green-50;
+    border-color: rgba($green-500, 0.18);
+    color: $green-600;
+  }
+}
+
+.stat-card.purple {
+  .sc-rule {
+    background: linear-gradient(90deg, $purple-500, $purple-600);
+  }
+  .sc-icon {
+    background-color: $purple-50;
+    border-color: rgba($purple-500, 0.18);
+    color: $purple-600;
+  }
+}
+
+.stat-card.orange {
+  .sc-rule {
+    background: linear-gradient(90deg, $orange-400, $orange-600);
+  }
+  .sc-icon {
+    background-color: $orange-50;
+    border-color: rgba($orange-500, 0.2);
+    color: $orange-600;
+  }
+}
+
+// ─── Motion ─────────────────────────────────────────────────────────────────────
+
+@keyframes sc-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sc-rise {
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-card {
+    opacity: 1;
+    transform: none;
+    animation: none;
   }
 
-  p {
-    font-size: 14px;
-    color: $gray-500;
-    margin-top: 2px;
+  .sc-value-inner {
+    transform: none;
+    animation: none;
+  }
+
+  .stat-card:hover {
+    transform: none;
   }
 }

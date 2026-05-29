@@ -49,13 +49,10 @@
           <div class="input-group">
             <label>Date</label>
             <date-picker
-              formControlName="date"
+              [control]="showtimeForm.controls.date"
               placeholder="Select a date"
               [container]="modal.panelEl()"
-            />
-            <field-error
-              [control]="showtimeForm.controls.date"
-              [messages]="{
+              [errorMessages]="{
                 required: 'Date is required',
                 pastDate: 'Date cannot be in the past',
               }"
@@ -65,6 +62,7 @@
             <label>Time</label>
             <time-picker
               [control]="showtimeForm.controls.time"
+              [container]="modal.panelEl()"
               [errorMessages]="{
                 required: 'Time is required',
                 pastTime: 'Time cannot be in the past',
@@ -74,9 +72,8 @@
         </div>
         <div class="input-group">
           <label>Hall</label>
-          <paginated-select
+          <async-select
             placeholder="Select a hall"
-            [clearable]="true"
             [searchable]="true"
             [fetchFn]="fetchHalls"
             [displayFn]="hallDisplayFn"
@@ -125,7 +122,7 @@
       <button
         ngpButton
         class="btn-primary"
-        [disabled]="showtimeForm.invalid || submitting()"
+        [disabled]="showtimeForm.invalid || submitting() || (isEditMode() && !hasChanges())"
         (click)="onSubmit()"
       >
         @if (submitting()) {

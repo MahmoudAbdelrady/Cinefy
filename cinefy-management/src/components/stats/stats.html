@@ -1,12 +1,17 @@
 <div class="statistics">
   @for (card of cards(); track card.label; let i = $index) {
-    <div class="stat-card">
-      <div class="sc-icon" [class]="VARIANTS[i % VARIANTS.length]">
-        <lucide-icon [img]="card.icon" [size]="24"></lucide-icon>
+    <div class="stat-card" [class]="VARIANTS[i % VARIANTS.length]">
+      <span class="sc-rule"></span>
+
+      <div class="sc-head">
+        <p class="sc-label">{{ card.label }}</p>
+        <span class="sc-icon">
+          <lucide-icon [img]="card.icon" [size]="18" [strokeWidth]="2"></lucide-icon>
+        </span>
       </div>
-      <div class="sc-info">
-        <h3>{{ card.value }}</h3>
-        <p>{{ card.label }}</p>
+
+      <div class="sc-value">
+        <span class="sc-value-inner">{{ card.value }}</span>
       </div>
     </div>
   }

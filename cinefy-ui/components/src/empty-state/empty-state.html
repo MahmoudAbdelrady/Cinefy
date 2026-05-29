@@ -1,0 +1,7 @@
+@if (icon(); as iconData) {
+<lucide-icon [img]="iconData" [size]="32" [strokeWidth]="1.5"></lucide-icon>
+}
+<p>{{ title() }}</p>
+@if (description(); as descriptionText) {
+<span>{{ descriptionText }}</span>
+}

@@ -14,13 +14,13 @@
     >. If a field is missing, ask your account manager — every Paymob account has these.
   </ng-template>
   <ng-template #identity>
-    <identity-step [form]="form.controls.identity" />
+    <identity-step [form]="form.controls.identity" [container]="modal.panelEl()" />
   </ng-template>
   <ng-template #credentials>
     <credentials-step [form]="form.controls.credentials" [isEditMode]="isEditMode()" />
   </ng-template>
   <ng-template #integration>
-    <integration-step [form]="form.controls.integration" />
+    <integration-step [form]="form.controls.integration" [container]="modal.panelEl()" />
   </ng-template>
   <ng-template #review>
     <review-step

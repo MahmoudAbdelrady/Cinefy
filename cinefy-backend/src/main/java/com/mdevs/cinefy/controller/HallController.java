@@ -3,14 +3,11 @@ package com.mdevs.cinefy.controller;
 import com.mdevs.cinefy.dto.hall.HallDTO;
 import com.mdevs.cinefy.dto.hall.HallDetailDTO;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
-import com.mdevs.cinefy.dto.hall.HallStatisticsDTO;
 import com.mdevs.cinefy.dto.hall.HallSummaryDTO;
 import com.mdevs.cinefy.dto.hall.HallTypeDTO;
 import com.mdevs.cinefy.service.HallService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,16 +49,9 @@ public class HallController {
     // ============================= Halls ===========================
 
     @GetMapping
-    public ResponseEntity<Page<HallSummaryDTO>> getHalls(@RequestParam(required = false) String search,
-                                                         @RequestParam(required = false) String excludeHallId,
-                                                         @RequestParam(required = false) List<String> statuses,
-                                                         Pageable pageable) {
-        return ResponseEntity.ok(hallService.getHalls(search, excludeHallId, statuses, pageable));
-    }
-
-    @GetMapping("/statistics")
-    public ResponseEntity<HallStatisticsDTO> getHallsStatistics() {
-        return ResponseEntity.ok(hallService.getHallsStatistics());
+    public ResponseEntity<List<HallSummaryDTO>> getHalls(@RequestParam(required = false) String excludeHallId,
+                                                         @RequestParam(required = false) List<String> statuses) {
+        return ResponseEntity.ok(hallService.getHalls(excludeHallId, statuses));
     }
 
     @GetMapping("/{uuid}")

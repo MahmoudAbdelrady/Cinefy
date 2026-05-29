@@ -1,11 +1,4 @@
-import {
-  Component,
-  DestroyRef,
-  inject,
-  OnInit,
-  TemplateRef,
-  viewChild,
-} from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { PlusIcon, SettingsIcon } from '../../shared/icons';
 import { HeaderActionsService } from '../../services';
@@ -30,7 +23,6 @@ import {
     ManageHallTypesModalComponent,
   ],
   templateUrl: './halls.html',
-  styleUrl: './halls.scss',
 })
 export class HallsPage implements OnInit {
   protected readonly icons = {
@@ -42,6 +34,7 @@ export class HallsPage implements OnInit {
   private destroyRef = inject(DestroyRef);
   private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
   protected readonly hallsList = viewChild.required(HallsListComponent);
+  protected readonly hallsStatistics = viewChild.required(HallsStatisticsComponent);
 
   ngOnInit() {
     this.headerActions.template.set(this.headerActionsTemplate());

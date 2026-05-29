@@ -213,8 +213,7 @@ Reference: [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-
 
 ```
 # Halls
-GET    /halls                            # Paginated list (search, page, size)
-GET    /halls/statistics                 # Aggregate stats for halls-statistics cards
+GET    /halls                            # Unpaged list (filters: excludeHallId, statuses)
 GET    /halls/:id                        # Hall detail
 GET    /halls/:id/layout                 # Hall layout (seats + pricing)
 POST   /halls                            # Create hall

@@ -1,16 +1,6 @@
-import {
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  inject,
-  input,
-  type InputSignal,
-  output,
-  signal,
-  ViewEncapsulation,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, computed, input, type InputSignal, output, signal, ViewEncapsulation } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { of, startWith, switchMap } from "rxjs";
 import { FormControl } from "@angular/forms";
 import { LucideAngularModule } from "lucide-angular";
 import { ChevronDownIcon, XIcon } from "../../icons";
@@ -46,8 +36,6 @@ export class CustomSelectComponent<T> {
     XIcon,
   };
 
-  private readonly destroyRef = inject(DestroyRef);
-
   readonly items = input.required<T[]>();
   readonly displayFn = input.required<(item: T) => string>();
   readonly triggerDisplayFn: InputSignal<((item: T) => string) | null> = input<((item: T) => string) | null>(null);
@@ -74,7 +62,12 @@ export class CustomSelectComponent<T> {
   protected readonly searchTerm = signal("");
   private readonly wasCleared = signal(false);
 
-  private readonly controlValue = signal<unknown>(null);
+  private readonly controlValue = toSignal(
+    toObservable(this.control).pipe(
+      switchMap((ctrl) => (ctrl ? ctrl.valueChanges.pipe(startWith(ctrl.value)) : of(null))),
+    ),
+    { initialValue: null },
+  );
 
   private readonly itemFromControl = computed<T | null>(() => {
     if (!this.control()) return null;
@@ -104,27 +97,20 @@ export class CustomSelectComponent<T> {
     return this.items().filter((item) => displayFn(item).toLowerCase().includes(term));
   });
 
-  constructor() {
-    effect((onCleanup) => {
-      const ctrl = this.control();
-      if (!ctrl) {
-        this.controlValue.set(null);
-        return;
-      }
-      this.controlValue.set(ctrl.value);
-      const sub = ctrl.valueChanges
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((v) => this.controlValue.set(v));
-      onCleanup(() => sub.unsubscribe());
-    });
-  }
-
   protected onOpenChange(open: boolean) {
     if (open) {
       this.searchTerm.set("");
     } else {
       this.control()?.markAsTouched();
     }
+  }
+
+  protected onTriggerBlur(event: FocusEvent) {
+    const next = event.relatedTarget as HTMLElement | null;
+    if (next?.closest(".cs-dropdown")) {
+      return;
+    }
+    this.control()?.markAsTouched();
   }
 
   protected onValueChange(value: T) {

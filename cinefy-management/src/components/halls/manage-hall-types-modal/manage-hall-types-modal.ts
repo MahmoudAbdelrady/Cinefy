@@ -15,12 +15,18 @@ import {
   EditIcon,
   LoaderIcon,
   PlusIcon,
+  TagIcon,
   WarningIcon,
   XIcon,
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { ModalComponent, LoadingSpinnerComponent, FieldErrorComponent } from 'cinefy-ui/components';
+import {
+  ModalComponent,
+  LoadingSpinnerComponent,
+  FieldErrorComponent,
+  EmptyStateComponent,
+} from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { HallsService } from '../../../services';
 import { HallType } from '../../../shared/types';
@@ -44,6 +50,7 @@ function notBlankValidator(control: AbstractControl): ValidationErrors | null {
     ModalComponent,
     LoadingSpinnerComponent,
     FieldErrorComponent,
+    EmptyStateComponent,
   ],
   templateUrl: './manage-hall-types-modal.html',
   styleUrl: './manage-hall-types-modal.scss',
@@ -57,6 +64,7 @@ export class ManageHallTypesModalComponent {
     WarningIcon,
     XIcon,
     LoaderIcon,
+    TagIcon,
   };
 
   private readonly hallsService = inject(HallsService);

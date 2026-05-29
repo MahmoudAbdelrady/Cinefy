@@ -108,10 +108,11 @@
               }
             </div>
           } @empty {
-            <div class="empty-types">
-              <span>No hall types yet</span>
-              <p>Add your first type below to get started</p>
-            </div>
+            <empty-state
+              [icon]="icons.TagIcon"
+              title="No hall types yet"
+              description="Add your first type below to get started"
+            />
           }
         </div>
       }

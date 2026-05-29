@@ -3,7 +3,6 @@ package com.mdevs.cinefy.service;
 import com.mdevs.cinefy.dto.hall.HallDTO;
 import com.mdevs.cinefy.dto.hall.HallDetailDTO;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
-import com.mdevs.cinefy.dto.hall.HallStatisticsDTO;
 import com.mdevs.cinefy.dto.hall.HallSummaryDTO;
 import com.mdevs.cinefy.dto.hall.HallTypeDTO;
 import com.mdevs.cinefy.dto.hall.SeatLayoutDTO;
@@ -16,12 +15,8 @@ import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -85,15 +80,11 @@ public class HallService {
 
     // ============================= Halls ===========================
 
-    public Page<HallSummaryDTO> getHalls(String search, String excludeHallId, List<String> statuses, Pageable pageable) {
-        String code = StringUtils.isEmpty(search) ? null : Hall.toCode(search);
+    public List<HallSummaryDTO> getHalls(String excludeHallId, List<String> statuses) {
         List<HallStatus> hallStatuses = statuses != null && !statuses.isEmpty() ? statuses.stream().map(HallStatus::fromString).toList() : null;
-        Page<Hall> page = hallRepository.findAllFiltered(code, excludeHallId, hallStatuses, pageable);
-        return page.map(this::toSummaryDTO);
-    }
-
-    public HallStatisticsDTO getHallsStatistics() {
-        return hallRepository.getStatistics();
+        return hallRepository.findAllFiltered(excludeHallId, hallStatuses).stream()
+                .map(this::toSummaryDTO)
+                .toList();
     }
 
     public HallDetailDTO getHall(String uuid) {

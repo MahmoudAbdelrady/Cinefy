@@ -34,6 +34,7 @@ import {
   CustomSelectComponent,
   InputField,
   LoadingSpinnerComponent,
+  EmptyStateComponent,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
@@ -59,6 +60,7 @@ import { canManageStaffMember } from '../../../shared/access';
     InputField,
     PaginationComponent,
     LoadingSpinnerComponent,
+    EmptyStateComponent,
     NgpButton,
     NgpDialogTrigger,
     ModalComponent,

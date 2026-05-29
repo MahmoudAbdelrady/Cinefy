@@ -17,6 +17,7 @@
     class="cs-trigger"
     [class.cs-error]="isError() || !!(control()?.touched && control()?.invalid)"
     [disabled]="disabled()"
+    (blur)="onTriggerBlur($event)"
   >
     @if (displayValue(); as display) { {{ display }} } @else {
     <span class="cs-placeholder">{{ placeholder() }}</span>

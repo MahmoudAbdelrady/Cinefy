@@ -7,6 +7,13 @@
       </div>
       <p>Movies releasing soon that you can schedule</p>
     </div>
+    <div class="h-search">
+      <input-field
+        [control]="searchControl"
+        [leadingIcon]="icons.SearchIcon"
+        placeholder="Search movies…"
+      />
+    </div>
   </div>
   <div class="content">
     @if (loading()) {
@@ -14,51 +21,56 @@
         <loading-spinner variant="md" />
       </div>
     } @else {
-      @for (upcomingMovie of movies(); track upcomingMovie.id) {
-        <div class="movie-card">
-          <div class="mc-img">
-            <img [src]="upcomingMovie.posterUrl" [alt]="upcomingMovie.title" />
-          </div>
-          <div class="mc-body">
-            <div class="mc-info">
-              <div class="mci-title">
-                <h4>{{ upcomingMovie.title }}</h4>
-                @if (isComingSoon(upcomingMovie.releaseDate)) {
-                  <span class="mci-badge">Coming Soon</span>
-                }
-              </div>
-              <div class="mci-items">
-                @if (upcomingMovie.genre) {
-                  <span class="mci-item">{{ upcomingMovie.genre }}</span>
-                }
-              </div>
+      <div class="um-list">
+        @for (upcomingMovie of filteredMovies(); track upcomingMovie.id) {
+          <div class="movie-card">
+            <div class="mc-img">
+              <img [src]="upcomingMovie.posterUrl" [alt]="upcomingMovie.title" />
             </div>
-            @if (upcomingMovie.releaseDate; as releaseDate) {
-              <div class="mc-date">
-                <lucide-icon [img]="icons.CalendarIcon" [size]="14"></lucide-icon>
-                <span>{{ releaseDate }}</span>
+            <div class="mc-body">
+              <div class="mc-info">
+                <div class="mci-title">
+                  <h4>{{ upcomingMovie.title }}</h4>
+                  @if (isComingSoon(upcomingMovie.releaseDate)) {
+                    <span class="mci-badge">Coming Soon</span>
+                  }
+                </div>
+                <div class="mci-items">
+                  @if (upcomingMovie.genre) {
+                    <span class="mci-item">{{ upcomingMovie.genre }}</span>
+                  }
+                </div>
               </div>
-            }
-            @if (canManage()) {
-              <div class="mc-actions">
-                <button ngpButton [ngpDialogTrigger]="scheduleDialog">Schedule Showtimes</button>
-              </div>
-            }
+              @if (upcomingMovie.releaseDate; as releaseDate) {
+                <div class="mc-date">
+                  <lucide-icon [img]="icons.CalendarIcon" [size]="14"></lucide-icon>
+                  <span>{{ releaseDate }}</span>
+                </div>
+              }
+              @if (canManage()) {
+                <div class="mc-actions">
+                  <button ngpButton [ngpDialogTrigger]="scheduleDialog">Schedule Showtimes</button>
+                </div>
+              }
 
-            <ng-template #scheduleDialog let-close="close">
-              <manage-showtime-modal
-                [close]="close"
-                [selectedMovie]="upcomingMovie"
-                [showSelectedMovie]="false"
-              />
-            </ng-template>
+              <ng-template #scheduleDialog let-close="close">
+                <manage-showtime-modal
+                  [close]="close"
+                  [selectedMovie]="upcomingMovie"
+                  [showSelectedMovie]="true"
+                />
+              </ng-template>
+            </div>
           </div>
-        </div>
-      } @empty {
-        <div class="um-empty">
-          <p>No upcoming movies available.</p>
-        </div>
-      }
+        } @empty {
+          <empty-state
+            class="um-empty"
+            [icon]="icons.CalendarIcon"
+            [title]="searchControl.value ? 'No movies found' : 'No upcoming movies available'"
+            [description]="searchControl.value ? 'Try adjusting your search term' : null"
+          />
+        }
+      </div>
     }
   </div>
 </div>

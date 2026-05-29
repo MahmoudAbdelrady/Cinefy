@@ -8,13 +8,6 @@
   color: $gray-400;
 }
 
-.cs-empty {
-  text-align: center;
-  padding: 48px 16px;
-  color: $gray-500;
-  font-size: 14px;
-}
-
 :host {
   display: block;
   margin-bottom: 32px;
@@ -27,8 +20,15 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
   > .header {
+    @include flex-between;
+    gap: 16px;
     padding: 24px;
     border-bottom: 1px solid $color-border;
+
+    @include below-mobile {
+      flex-direction: column;
+      align-items: stretch;
+    }
 
     h4 {
       font-size: 16px;
@@ -42,6 +42,20 @@
       margin-top: 4px;
     }
   }
+}
+
+.h-search {
+  width: 288px;
+  flex-shrink: 0;
+
+  @include below-mobile {
+    width: 100%;
+  }
+}
+
+.cs-list {
+  max-height: 680px;
+  overflow-y: auto;
 }
 
 .showtime-item {

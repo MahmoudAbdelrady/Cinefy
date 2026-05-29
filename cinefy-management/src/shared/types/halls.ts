@@ -8,7 +8,7 @@ const HALL_STATUS_LABELS = {
 
 type HallStatus = keyof typeof HALL_STATUS_LABELS;
 
-const ACTIVE_HALL_STATUSES: HallStatus[] = ['SCHEDULED', 'NOW_SHOWING', 'ACTIVE'];
+const ACTIVE_HALL_STATUSES: HallStatus[] = ['ACTIVE', 'SCHEDULED', 'NOW_SHOWING'];
 
 const SEAT_CATEGORY_LABELS = {
   NORMAL: 'Normal',
@@ -104,6 +104,17 @@ interface Hall {
   ticketPricing: TicketPricing[];
 }
 
+type StatisticsChange =
+  | { action: 'set'; totalHalls: number; activeHalls: number; totalCapacity: number }
+  | { action: 'reset' }
+  | { action: 'add'; status: HallStatus; capacity: number }
+  | { action: 'delete'; status: HallStatus; capacity: number }
+  | {
+      action: 'update';
+      from: { status: HallStatus; capacity: number };
+      to: { status: HallStatus; capacity: number };
+    };
+
 export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS, ACTIVE_HALL_STATUSES };
 export type {
   HallStatus,
@@ -120,4 +131,5 @@ export type {
   HallLayout,
   HallStatistics,
   Hall,
+  StatisticsChange,
 };

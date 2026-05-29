@@ -10,13 +10,25 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
+import { FormControl } from '@angular/forms';
 import { EditableShowtime, MovieWithShowtimes, Showtime } from '../../../shared/types';
 import { canManage as canManagePosition } from '../../../shared/access';
 import { LucideAngularModule } from 'lucide-angular';
-import { DeleteIcon, PlusIcon, WarningIcon } from '../../../shared/icons';
+import {
+  CalendarClockIcon,
+  DeleteIcon,
+  PlusIcon,
+  SearchIcon,
+  WarningIcon,
+} from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import {
+  ModalComponent,
+  LoadingSpinnerComponent,
+  EmptyStateComponent,
+  InputField,
+} from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
@@ -29,6 +41,8 @@ import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../
     NgpDialogTrigger,
     ModalComponent,
     LoadingSpinnerComponent,
+    EmptyStateComponent,
+    InputField,
     ManageShowtimeModalComponent,
     MovieShowtimesModal,
     LucideAngularModule,
@@ -41,6 +55,8 @@ export class CurrentShowtimesComponent {
     DeleteIcon,
     PlusIcon,
     WarningIcon,
+    CalendarClockIcon,
+    SearchIcon,
   };
 
   private readonly showtimesService = inject(ShowtimesService);
@@ -59,6 +75,17 @@ export class CurrentShowtimesComponent {
   protected readonly editingShowtime = signal<EditableShowtime | null>(null);
   protected readonly deletingShowtimeIds = signal<Set<number>>(new Set());
   protected readonly moviesWithShowtimes = signal<MovieWithShowtimes[]>([]);
+
+  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+  private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: '' });
+
+  protected readonly filteredMovies = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    if (!term) return this.moviesWithShowtimes();
+    return this.moviesWithShowtimes().filter((item) =>
+      item.movieDetails.title.toLowerCase().includes(term),
+    );
+  });
 
   constructor() {
     afterNextRender(() => {
@@ -126,7 +153,7 @@ export class CurrentShowtimesComponent {
         totalShowtimes: 1,
         totalDraftShowtimes: isDraft ? 1 : 0,
       };
-      return [newRow, ...list];
+      return [...list, newRow];
     });
   }
 

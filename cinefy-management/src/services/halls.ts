@@ -5,12 +5,10 @@ import type {
   Hall,
   HallDetail,
   HallLayout,
-  HallStatistics,
   HallStatus,
   HallSummary,
   HallType,
 } from '../shared/types';
-import type { PaginatedResponse } from 'cinefy-ui/types';
 
 @Injectable({ providedIn: 'root' })
 export class HallsService {
@@ -36,23 +34,12 @@ export class HallsService {
 
   // ============================= Halls ===========================
 
-  getHalls(
-    search?: string,
-    pageable?: { page?: number; size?: number },
-    excludeHallId?: string,
-    statuses?: HallStatus[],
-  ): Observable<PaginatedResponse<HallSummary>> {
+  getHalls(excludeHallId?: string, statuses?: HallStatus[]): Observable<HallSummary[]> {
     const params = {
-      ...(search && { search }),
-      ...pageable,
       ...(excludeHallId && { excludeHallId }),
       ...(statuses && statuses.length > 0 && { statuses: statuses.join(',') }),
     };
-    return this.http.get<PaginatedResponse<HallSummary>>('/halls', { params });
-  }
-
-  getHallsStatistics(): Observable<HallStatistics> {
-    return this.http.get<HallStatistics>('/halls/statistics');
+    return this.http.get<HallSummary[]>('/halls', { params });
   }
 
   getHall(id: string): Observable<HallDetail> {

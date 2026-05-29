@@ -12,10 +12,6 @@
 
 .um-empty {
   grid-column: 1 / -1;
-  text-align: center;
-  padding: 48px 16px;
-  color: $gray-500;
-  font-size: 14px;
 }
 
 .upcoming-movies-container {
@@ -39,6 +35,15 @@
 
 .h-info {
   min-width: 0;
+}
+
+.h-search {
+  width: 288px;
+  flex-shrink: 0;
+
+  @include below-tablet {
+    width: 100%;
+  }
 }
 
 .hi-details {
@@ -110,21 +115,25 @@
 }
 
 .content {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  padding: 24px;
-
-  @include from-tablet {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  padding: 10px;
 
   > p {
-    grid-column: 1 / -1;
     text-align: center;
     padding: 48px 0;
     color: $gray-600;
     font-size: 14px;
+  }
+}
+
+.um-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  max-height: 680px;
+  overflow-y: auto;
+
+  @include from-tablet {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

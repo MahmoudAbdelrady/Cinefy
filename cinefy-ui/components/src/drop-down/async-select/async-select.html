@@ -1,0 +1,52 @@
+@if (label(); as labelText) {
+<label class="as-label" [attr.data-required]="required() ? '' : null">{{ labelText }}</label>
+}
+<div
+  ngpCombobox
+  [ngpComboboxValue]="selectedItem()"
+  (ngpComboboxValueChange)="onValueChange($event)"
+  (ngpComboboxOpenChange)="onOpenChange($event)"
+  [ngpComboboxDisabled]="disabled()"
+  [ngpComboboxDropdownContainer]="container()"
+  ngpComboboxDropdownPlacement="bottom-start"
+>
+  <button
+    type="button"
+    ngpComboboxButton
+    class="as-trigger"
+    [class.as-error]="!!(control()?.touched && control()?.invalid)"
+    [disabled]="disabled()"
+    (blur)="onTriggerBlur($event)"
+  >
+    @if (selectedItem(); as item) { {{ displayFn()(item) }} } @else {
+    <span class="as-placeholder">{{ placeholder() }}</span>
+    } @if (clearable() && selectedItem()) {
+    <lucide-icon class="as-clear" [img]="icons.XIcon" [size]="16" [strokeWidth]="2" (click)="clear($event)" />
+    } @else {
+    <lucide-icon class="as-chevron" [img]="icons.ChevronDownIcon" [size]="16" [strokeWidth]="2" />
+    }
+  </button>
+
+  <div *ngpComboboxPortal ngpComboboxDropdown class="as-dropdown">
+    @if (searchable()) {
+    <input ngpComboboxInput type="text" class="as-search" placeholder="Search…" (input)="onSearchInput($event)" />
+    }
+    <div class="as-options" (scroll)="onScroll($event)" (mousedown)="onOptionsAreaMousedown($event)">
+      @for (item of visibleItems(); track valueFn()(item)) {
+      <div ngpComboboxOption class="as-option" [ngpComboboxOptionValue]="item">{{ displayFn()(item) }}</div>
+      } @empty { @if (!loading()) {
+      <div class="as-empty">No items available</div>
+      } } @if (loading()) {
+      <div class="as-loading">
+        <loading-spinner variant="sm" />
+      </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (hint(); as hintText) {
+<p class="as-hint">{{ hintText }}</p>
+} @if (control(); as ctrl) { @if (ctrl.touched && ctrl.errors) {
+<field-error [control]="ctrl" [messages]="errorMessages()" />
+} }
