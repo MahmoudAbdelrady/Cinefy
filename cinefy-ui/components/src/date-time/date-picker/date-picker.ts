@@ -1,5 +1,7 @@
-import { Component, computed, forwardRef, input, type InputSignal, signal } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { Component, computed, input, type InputSignal } from "@angular/core";
+import { FormControl, Validators } from "@angular/forms";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { startWith, switchMap } from "rxjs";
 import {
   NgpDatePicker,
   NgpDatePickerCell,
@@ -16,6 +18,7 @@ import { NgpButton } from "ng-primitives/button";
 import { NgpPopover, NgpPopoverTrigger } from "ng-primitives/popover";
 import { LucideAngularModule } from "lucide-angular";
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from "../../icons";
+import { FieldErrorComponent } from "../../field-error/field-error";
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -35,19 +38,13 @@ const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     NgpPopover,
     NgpPopoverTrigger,
     LucideAngularModule,
+    FieldErrorComponent,
   ],
-  providers: [
-    provideDateAdapter(NgpNativeDateAdapter),
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DatePicker),
-      multi: true,
-    },
-  ],
+  providers: [provideDateAdapter(NgpNativeDateAdapter)],
   templateUrl: "./date-picker.html",
   styleUrl: "./date-picker.scss",
 })
-export class DatePicker implements ControlValueAccessor {
+export class DatePicker {
   protected readonly icons = {
     CalendarIcon,
     ChevronRightIcon,
@@ -56,14 +53,19 @@ export class DatePicker implements ControlValueAccessor {
 
   protected readonly weekdays = WEEKDAY_LABELS;
 
+  readonly control: InputSignal<FormControl<Date | null>> = input.required<FormControl<Date | null>>();
   readonly placeholder = input<string>("Select a date");
+  readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly min = input<Date | undefined>(undefined);
   readonly max = input<Date | undefined>(undefined);
-  readonly disabled = input<boolean>(false);
+  readonly errorMessages = input<Record<string, string>>({});
   readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>(null);
 
-  protected readonly value = signal<Date | undefined>(undefined);
-  protected readonly isDisabled = signal(false);
+  private readonly controlValue = toSignal(
+    toObservable(this.control).pipe(switchMap((c) => c.valueChanges.pipe(startWith(c.value)))),
+  );
+
+  protected readonly value = computed(() => this.controlValue() ?? undefined);
 
   protected readonly formatted = computed(() => {
     const date = this.value();
@@ -75,32 +77,29 @@ export class DatePicker implements ControlValueAccessor {
     });
   });
 
-  private onChange: (value: Date | undefined) => void = () => {};
-  private onTouched: () => void = () => {};
+  protected get required(): boolean {
+    const c = this.control();
+    return c.hasValidator(Validators.required) && c.enabled;
+  }
 
   protected onDateChange(date: Date | undefined) {
-    this.value.set(date);
-    this.onChange(date);
-    this.onTouched();
+    const c = this.control();
+    c.setValue(date ?? null);
+    c.markAsDirty();
+    c.markAsTouched();
   }
 
-  writeValue(value: Date | string | null | undefined): void {
-    if (value == null || value === "") {
-      this.value.set(undefined);
+  protected onOpenChange(open: boolean) {
+    if (!open) {
+      this.control().markAsTouched();
+    }
+  }
+
+  protected onTriggerBlur(event: FocusEvent) {
+    const next = event.relatedTarget as HTMLElement | null;
+    if (next?.closest(".dp-popover")) {
       return;
     }
-    this.value.set(value instanceof Date ? value : new Date(value));
-  }
-
-  registerOnChange(fn: (value: Date | undefined) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.isDisabled.set(isDisabled);
+    this.control().markAsTouched();
   }
 }

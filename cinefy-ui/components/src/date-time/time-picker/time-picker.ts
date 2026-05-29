@@ -1,6 +1,7 @@
-import { Component, computed, DestroyRef, effect, inject, input, type InputSignal, signal } from "@angular/core";
+import { Component, computed, input, type InputSignal } from "@angular/core";
 import { FormControl, Validators } from "@angular/forms";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { startWith, switchMap } from "rxjs";
 import { LucideAngularModule } from "lucide-angular";
 import { ChevronDownIcon, ChevronUpIcon, ClockIcon } from "../../icons";
 import { NgpButton } from "ng-primitives/button";
@@ -24,13 +25,15 @@ export class TimePicker {
     ChevronUpIcon,
   };
 
-  private readonly destroyRef = inject(DestroyRef);
-
   readonly control: InputSignal<FormControl<string | null>> = input.required<FormControl<string | null>>();
   readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
 
-  private readonly value = signal<string | null>(null);
+  private readonly controlValue = toSignal(
+    toObservable(this.control).pipe(switchMap((c) => c.valueChanges.pipe(startWith(c.value)))),
+  );
+
+  private readonly value = computed(() => this.controlValue() ?? null);
 
   protected readonly parts = computed(() => {
     const value = this.value();
@@ -60,15 +63,18 @@ export class TimePicker {
     return c.hasValidator(Validators.required) && c.enabled;
   }
 
-  constructor() {
-    effect((onCleanup) => {
-      const c = this.control();
-      this.value.set(c.value);
-      const sub = c.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((v) => {
-        this.value.set(v);
-      });
-      onCleanup(() => sub.unsubscribe());
-    });
+  protected onOpenChange(open: boolean) {
+    if (!open) {
+      this.control().markAsTouched();
+    }
+  }
+
+  protected onTriggerBlur(event: FocusEvent) {
+    const next = event.relatedTarget as HTMLElement | null;
+    if (next?.closest(".tp-popover")) {
+      return;
+    }
+    this.control().markAsTouched();
   }
 
   protected onHourInput(event: Event) {

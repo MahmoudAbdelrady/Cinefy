@@ -1,17 +1,28 @@
-<button
-  type="button"
-  ngpButton
-  class="dp-trigger"
-  [ngpPopoverTrigger]="calendarPopover"
-  [ngpPopoverTriggerContainer]="container()"
-  ngpPopoverTriggerPlacement="bottom-start"
-  [ngpPopoverTriggerOffset]="6"
-  [disabled]="isDisabled() || disabled()"
-  [attr.data-empty]="formatted() ? null : ''"
->
-  <lucide-icon [img]="icons.CalendarIcon" [size]="16"></lucide-icon>
-  <span class="dp-trigger-label"> {{ formatted() || placeholder() }} </span>
-</button>
+<div class="date-picker-wrapper">
+  <button
+    type="button"
+    ngpButton
+    class="dp-trigger"
+    [class.dp-error]="control().touched && control().errors"
+    [ngpPopoverTrigger]="calendarPopover"
+    [ngpPopoverTriggerContainer]="container()"
+    ngpPopoverTriggerPlacement="bottom-start"
+    [ngpPopoverTriggerOffset]="6"
+    (ngpPopoverTriggerOpenChange)="onOpenChange($event)"
+    (blur)="onTriggerBlur($event)"
+    [disabled]="control().disabled"
+    [attr.data-empty]="formatted() ? null : ''"
+  >
+    <lucide-icon [img]="icons.CalendarIcon" [size]="16"></lucide-icon>
+    <span class="dp-trigger-label"> {{ formatted() || placeholder() }} </span>
+  </button>
+
+  @if (hint(); as hintText) {
+  <p class="dp-hint">{{ hintText }}</p>
+  } @if (control().touched && control().errors) {
+  <field-error [control]="control()" [messages]="errorMessages()" />
+  }
+</div>
 
 <ng-template #calendarPopover>
   <div
