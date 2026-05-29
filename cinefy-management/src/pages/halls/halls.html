@@ -26,5 +26,5 @@
 
 <div class="halls-container">
   <halls-statistics />
-  <halls-list />
+  <halls-list (statisticsChanged)="hallsStatistics().applyChange($event)" />
 </div>

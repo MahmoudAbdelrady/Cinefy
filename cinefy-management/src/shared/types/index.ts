@@ -14,6 +14,7 @@ export type {
   HallLayout,
   HallStatistics,
   Hall,
+  StatisticsChange,
 } from './halls';
 
 export type { ApiError, ApiErrorCode } from './api';

@@ -1,4 +1,4 @@
-import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, inject, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
@@ -24,7 +24,7 @@ import {
 import { ToastService } from 'cinefy-ui/services';
 import type { PaginatedResponse } from 'cinefy-ui/types';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
-import { HALL_STATUS_LABELS, HallSummary } from '../../../shared/types';
+import { HALL_STATUS_LABELS, HallSummary, StatisticsChange } from '../../../shared/types';
 import { HallsService } from '../../../services';
 
 @Component({
@@ -64,6 +64,8 @@ export class HallsListComponent {
   protected readonly loading = signal(true);
   protected readonly deletingHallId = signal<string | null>(null);
   protected readonly hallPage = signal<PaginatedResponse<HallSummary> | null>(null);
+
+  readonly statisticsChanged = output<StatisticsChange>();
 
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
 
@@ -113,9 +115,15 @@ export class HallsListComponent {
           }
         : page,
     );
+    this.statisticsChanged.emit({
+      action: 'add',
+      status: hall.status,
+      capacity: hall.totalRows * hall.totalColumns,
+    });
   }
 
   protected updateHall(updated: HallSummary): void {
+    const previous = this.hallPage()?.content.find((h) => h.id === updated.id);
     this.hallPage.update((page) =>
       page
         ? {
@@ -124,6 +132,12 @@ export class HallsListComponent {
           }
         : page,
     );
+    if (!previous) return;
+    this.statisticsChanged.emit({
+      action: 'update',
+      from: { status: previous.status, capacity: previous.totalRows * previous.totalColumns },
+      to: { status: updated.status, capacity: updated.totalRows * updated.totalColumns },
+    });
   }
 
   protected deleteHall(hall: HallSummary, close: () => void): void {
@@ -139,6 +153,11 @@ export class HallsListComponent {
               }
             : page,
         );
+        this.statisticsChanged.emit({
+          action: 'delete',
+          status: hall.status,
+          capacity: hall.totalRows * hall.totalColumns,
+        });
         this.deletingHallId.set(null);
         this.toastService.success('Hall deleted');
         close();

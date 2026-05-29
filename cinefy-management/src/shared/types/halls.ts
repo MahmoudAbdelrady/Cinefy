@@ -104,6 +104,15 @@ interface Hall {
   ticketPricing: TicketPricing[];
 }
 
+type StatisticsChange =
+  | { action: 'add'; status: HallStatus; capacity: number }
+  | { action: 'delete'; status: HallStatus; capacity: number }
+  | {
+      action: 'update';
+      from: { status: HallStatus; capacity: number };
+      to: { status: HallStatus; capacity: number };
+    };
+
 export { HALL_STATUS_LABELS, SEAT_CATEGORY_LABELS, ACTIVE_HALL_STATUSES };
 export type {
   HallStatus,
@@ -120,4 +129,5 @@ export type {
   HallLayout,
   HallStatistics,
   Hall,
+  StatisticsChange,
 };

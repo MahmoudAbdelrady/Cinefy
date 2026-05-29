@@ -5,7 +5,12 @@ import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { StatsComponent } from '../../stats/stats';
 import { HallsService } from '../../../services';
-import type { HallStatistics, StatsCard } from '../../../shared/types';
+import {
+  type HallStatus,
+  type HallStatistics,
+  type StatisticsChange,
+  type StatsCard,
+} from '../../../shared/types';
 
 @Component({
   selector: 'halls-statistics',
@@ -43,5 +48,38 @@ export class HallsStatisticsComponent {
         },
       });
     });
+  }
+
+  applyChange(change: StatisticsChange): void {
+    const stats = this.statistics();
+    if (!stats) return;
+
+    let totalHallsDelta = 0;
+    let activeHallsDelta = 0;
+    let capacityDelta = 0;
+
+    if (change.action === 'add') {
+      totalHallsDelta = 1;
+      activeHallsDelta = this.activeContribution(change.status);
+      capacityDelta = change.capacity;
+    } else if (change.action === 'delete') {
+      totalHallsDelta = -1;
+      activeHallsDelta = -this.activeContribution(change.status);
+      capacityDelta = -change.capacity;
+    } else {
+      activeHallsDelta =
+        this.activeContribution(change.to.status) - this.activeContribution(change.from.status);
+      capacityDelta = change.to.capacity - change.from.capacity;
+    }
+
+    this.statistics.set({
+      totalHalls: Math.max(0, stats.totalHalls + totalHallsDelta),
+      activeHalls: Math.max(0, stats.activeHalls + activeHallsDelta),
+      totalCapacity: Math.max(0, stats.totalCapacity + capacityDelta),
+    });
+  }
+
+  private activeContribution(status: HallStatus): number {
+    return status === 'ACTIVE' ? 1 : 0;
   }
 }
