@@ -37,6 +37,7 @@ export class IntegrationStep {
   };
 
   readonly form = input.required<IntegrationForm>();
+  readonly container = input<string | HTMLElement | null>(null);
 
   protected readonly currencyOptions = Object.keys(CURRENCY_LABELS) as Currency[];
 

@@ -24,6 +24,7 @@
       [items]="typeOptions"
       [control]="form().controls.type"
       [displayFn]="typeDisplayFn"
+      [container]="container()"
       placeholder="Select a type"
       [errorMessages]="{ required: 'Type is required' }"
       (selectionChange)="onTypeChange($event)"

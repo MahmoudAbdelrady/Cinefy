@@ -42,6 +42,7 @@ export class IdentityStep {
     CheckIcon,
   };
   readonly form = input.required<IdentityForm>();
+  readonly container = input<string | HTMLElement | null>(null);
 
   protected readonly typeOptions = Object.keys(PAYMENT_METHOD_TYPE_LABELS) as PaymentMethodType[];
 

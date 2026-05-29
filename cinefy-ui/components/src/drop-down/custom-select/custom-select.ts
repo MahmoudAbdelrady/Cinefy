@@ -127,6 +127,14 @@ export class CustomSelectComponent<T> {
     }
   }
 
+  protected onTriggerBlur(event: FocusEvent) {
+    const next = event.relatedTarget as HTMLElement | null;
+    if (next?.closest(".cs-dropdown")) {
+      return;
+    }
+    this.control()?.markAsTouched();
+  }
+
   protected onValueChange(value: T) {
     this.wasCleared.set(false);
     this.selectedItem.set(value);

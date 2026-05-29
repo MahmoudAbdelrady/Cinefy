@@ -100,7 +100,17 @@ export class PaginatedSelectComponent<T> {
     if (open) {
       this.searchTerm.set("");
       this.resetAndFetch();
+    } else {
+      this.control()?.markAsTouched();
     }
+  }
+
+  protected onTriggerBlur(event: FocusEvent) {
+    const next = event.relatedTarget as HTMLElement | null;
+    if (next?.closest(".ps-dropdown")) {
+      return;
+    }
+    this.control()?.markAsTouched();
   }
 
   protected onValueChange(value: T) {

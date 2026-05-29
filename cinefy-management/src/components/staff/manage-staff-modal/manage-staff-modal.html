@@ -101,6 +101,7 @@
         [errorMessages]="{ required: 'Position is required' }"
         [required]="true"
         placeholder="Select a position"
+        [container]="modal.panelEl()"
         (selectionChange)="onPositionChange($event)"
         (cleared)="onPositionCleared()"
       />
@@ -131,6 +132,7 @@
             [errorMessages]="{ required: 'Start day is required' }"
             [required]="true"
             placeholder="Select start day"
+            [container]="modal.panelEl()"
             (selectionChange)="onWorkingDayStartChange($event)"
             (cleared)="onWorkingDayStartCleared()"
           />
@@ -143,6 +145,7 @@
             [errorMessages]="{ required: 'End day is required' }"
             [required]="true"
             placeholder="Select end day"
+            [container]="modal.panelEl()"
             (selectionChange)="onWorkingDayEndChange($event)"
             (cleared)="onWorkingDayEndCleared()"
           />

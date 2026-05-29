@@ -16,6 +16,7 @@
     class="ps-trigger"
     [class.ps-error]="!!(control()?.touched && control()?.invalid)"
     [disabled]="disabled()"
+    (blur)="onTriggerBlur($event)"
   >
     @if (selectedItem(); as item) { {{ displayFn()(item) }} } @else {
     <span class="ps-placeholder">{{ placeholder() }}</span>

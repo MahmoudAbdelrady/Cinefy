@@ -31,6 +31,7 @@
         [items]="currencyOptions"
         [control]="form().controls.currency"
         [displayFn]="currencyDisplayFn"
+        [container]="container()"
         placeholder="Select a currency"
         [errorMessages]="{ required: 'Currency is required' }"
         (selectionChange)="onCurrencyChange($event)"
