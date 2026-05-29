@@ -1,13 +1,14 @@
 import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
+import { FormControl } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { CalendarIcon } from '../../../shared/icons';
+import { CalendarIcon, SearchIcon } from '../../../shared/icons';
 import type { MovieSearchResult } from '../../../shared/types';
 import { canManage as canManagePosition } from '../../../shared/access';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { LoadingSpinnerComponent, EmptyStateComponent } from 'cinefy-ui/components';
+import { LoadingSpinnerComponent, EmptyStateComponent, InputField } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MoviesService, StaffService } from '../../../services';
@@ -20,6 +21,7 @@ import { MoviesService, StaffService } from '../../../services';
     NgpDialogTrigger,
     LoadingSpinnerComponent,
     EmptyStateComponent,
+    InputField,
     ManageShowtimeModalComponent,
   ],
   templateUrl: './upcoming-movies.html',
@@ -28,6 +30,7 @@ import { MoviesService, StaffService } from '../../../services';
 export class UpcomingMoviesComponent {
   protected readonly icons = {
     CalendarIcon,
+    SearchIcon,
   };
 
   private readonly moviesService = inject(MoviesService);
@@ -42,6 +45,15 @@ export class UpcomingMoviesComponent {
 
   protected readonly loading = signal(true);
   protected readonly movies = signal<MovieSearchResult[]>([]);
+
+  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+  private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: '' });
+
+  protected readonly filteredMovies = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    if (!term) return this.movies();
+    return this.movies().filter((movie) => movie.title.toLowerCase().includes(term));
+  });
 
   constructor() {
     afterNextRender(() => {

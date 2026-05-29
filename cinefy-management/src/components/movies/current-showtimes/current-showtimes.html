@@ -1,7 +1,16 @@
 <div class="current-showtimes-container">
   <div class="header">
-    <h4>Current Movies & Showtimes</h4>
-    <p>Manage movies currently showing in your cinema</p>
+    <div class="h-info">
+      <h4>Current Movies & Showtimes</h4>
+      <p>Manage movies currently showing in your cinema</p>
+    </div>
+    <div class="h-search">
+      <input-field
+        [control]="searchControl"
+        [leadingIcon]="icons.SearchIcon"
+        placeholder="Search movies…"
+      />
+    </div>
   </div>
   <div class="content">
     @if (loading()) {
@@ -9,164 +18,170 @@
         <loading-spinner variant="md" />
       </div>
     } @else {
-      @for (item of moviesWithShowtimes(); track item.movieDetails.id) {
-        @let shMovie = item.movieDetails;
-        <div class="showtime-item">
-          <div class="shi-info">
-            <div class="shi-img">
-              <img [src]="shMovie.posterUrl" alt="{{ shMovie.title }} Poster" />
-            </div>
-            <div class="shi-details">
-              <div class="shid-title">
-                <h4>{{ shMovie.title }}</h4>
-                <span class="shid-tag">{{ shMovie.genre }}</span>
+      <div class="cs-list">
+        @for (item of filteredMovies(); track item.movieDetails.id) {
+          @let shMovie = item.movieDetails;
+          <div class="showtime-item">
+            <div class="shi-info">
+              <div class="shi-img">
+                <img [src]="shMovie.posterUrl" alt="{{ shMovie.title }} Poster" />
               </div>
-              <div class="shid-items">
-                <div class="shid-item">{{ shMovie.contentRating }}</div>
-                <div class="shid-item">{{ shMovie.duration }} min</div>
-                <div class="shid-item">{{ shMovie.releaseDate }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="shi-actions">
-            <div class="shia-stats">
-              <div class="shias-total">
-                <h5>{{ item.totalShowtimes }}</h5>
-                <span>{{ item.totalShowtimes === 1 ? 'Showtime' : 'Showtimes' }}</span>
-              </div>
-              @if (canManage()) {
-                <div class="shias-drafts">
-                  {{ item.totalDraftShowtimes }}
-                  {{
-                    item.totalDraftShowtimes > 1 || item.totalDraftShowtimes === 0
-                      ? 'Drafts'
-                      : 'Draft'
-                  }}
+              <div class="shi-details">
+                <div class="shid-title">
+                  <h4>{{ shMovie.title }}</h4>
+                  <span class="shid-tag">{{ shMovie.genre }}</span>
                 </div>
-              }
-            </div>
-            <div class="shia-buttons">
-              <button ngpButton [ngpDialogTrigger]="viewShowtimesDialog">View Showtimes</button>
-              @if (canManage()) {
-                <button ngpButton [ngpDialogTrigger]="addShowtimeDialog">
-                  <lucide-icon [img]="icons.PlusIcon"></lucide-icon>
-                  <span>Add Showtime</span>
-                </button>
-                <button
-                  ngpButton
-                  [ngpDialogTrigger]="deleteDialog"
-                  [disabled]="deletingShowtimeIds().has(shMovie.id)"
-                >
-                  @if (deletingShowtimeIds().has(shMovie.id)) {
-                    <loading-spinner variant="sm" />
-                  } @else {
-                    <lucide-icon [img]="icons.DeleteIcon" [size]="18"></lucide-icon>
-                  }
-                </button>
-              }
-            </div>
-          </div>
-
-          <ng-template #viewShowtimesDialog let-close="close">
-            <movie-showtimes-modal
-              [close]="close"
-              [selectedMovie]="shMovie"
-              (addShowtimeRequested)="openAddTrigger.click()"
-              (editShowtimeRequested)="editingShowtime.set($event); openEditTrigger.click()"
-            />
-          </ng-template>
-
-          <button
-            #openAddTrigger
-            type="button"
-            [ngpDialogTrigger]="addShowtimeDialog"
-            hidden
-          ></button>
-
-          <ng-template #addShowtimeDialog let-close="close">
-            <manage-showtime-modal
-              [close]="close"
-              [selectedMovie]="shMovie"
-              [showSelectedMovie]="false"
-            />
-          </ng-template>
-
-          <button
-            #openEditTrigger
-            type="button"
-            [ngpDialogTrigger]="editShowtimeDialog"
-            hidden
-          ></button>
-
-          <ng-template #editShowtimeDialog let-close="close">
-            <manage-showtime-modal
-              [close]="close"
-              [selectedMovie]="shMovie"
-              [showSelectedMovie]="false"
-              [editingShowtime]="editingShowtime()"
-            />
-          </ng-template>
-
-          <ng-template #deleteDialog let-close="close">
-            <app-modal modalTitle="Delete All Showtimes" [close]="close" width="500px">
-              <div class="delete-modal-content">
-                <div class="dmc-icon">
-                  <lucide-icon
-                    [img]="icons.WarningIcon"
-                    [size]="24"
-                    [strokeWidth]="2"
-                  ></lucide-icon>
+                <div class="shid-items">
+                  <div class="shid-item">{{ shMovie.contentRating }}</div>
+                  <div class="shid-item">{{ shMovie.duration }} min</div>
+                  <div class="shid-item">{{ shMovie.releaseDate }}</div>
                 </div>
-                <p class="dmc-message">
-                  Are you sure you want to delete <strong>all showtimes</strong> for
-                  <strong>{{ shMovie.title }}</strong
-                  >? This action cannot be undone.
-                </p>
-                <div class="dmc-warning">
-                  <lucide-icon
-                    [img]="icons.WarningIcon"
-                    [size]="16"
-                    [strokeWidth]="2"
-                  ></lucide-icon>
-                  <div>
-                    <p><strong>Critical Warning:</strong></p>
-                    <ul>
-                      <li>
-                        {{ item.totalShowtimes }}
-                        {{ item.totalShowtimes === 1 ? 'showtime' : 'showtimes' }} will be deleted
-                      </li>
-                      <li>Showtimes with active reservations cannot be deleted</li>
-                      <li>Historical showtime data will be permanently removed</li>
-                    </ul>
+              </div>
+            </div>
+            <div class="shi-actions">
+              <div class="shia-stats">
+                <div class="shias-total">
+                  <h5>{{ item.totalShowtimes }}</h5>
+                  <span>{{ item.totalShowtimes === 1 ? 'Showtime' : 'Showtimes' }}</span>
+                </div>
+                @if (canManage()) {
+                  <div class="shias-drafts">
+                    {{ item.totalDraftShowtimes }}
+                    {{
+                      item.totalDraftShowtimes > 1 || item.totalDraftShowtimes === 0
+                        ? 'Drafts'
+                        : 'Draft'
+                    }}
+                  </div>
+                }
+              </div>
+              <div class="shia-buttons">
+                <button ngpButton [ngpDialogTrigger]="viewShowtimesDialog">View Showtimes</button>
+                @if (canManage()) {
+                  <button ngpButton [ngpDialogTrigger]="addShowtimeDialog">
+                    <lucide-icon [img]="icons.PlusIcon"></lucide-icon>
+                    <span>Add Showtime</span>
+                  </button>
+                  <button
+                    ngpButton
+                    [ngpDialogTrigger]="deleteDialog"
+                    [disabled]="deletingShowtimeIds().has(shMovie.id)"
+                  >
+                    @if (deletingShowtimeIds().has(shMovie.id)) {
+                      <loading-spinner variant="sm" />
+                    } @else {
+                      <lucide-icon [img]="icons.DeleteIcon" [size]="18"></lucide-icon>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+
+            <ng-template #viewShowtimesDialog let-close="close">
+              <movie-showtimes-modal
+                [close]="close"
+                [selectedMovie]="shMovie"
+                (addShowtimeRequested)="openAddTrigger.click()"
+                (editShowtimeRequested)="editingShowtime.set($event); openEditTrigger.click()"
+              />
+            </ng-template>
+
+            <button
+              #openAddTrigger
+              type="button"
+              [ngpDialogTrigger]="addShowtimeDialog"
+              hidden
+            ></button>
+
+            <ng-template #addShowtimeDialog let-close="close">
+              <manage-showtime-modal
+                [close]="close"
+                [selectedMovie]="shMovie"
+                [showSelectedMovie]="false"
+              />
+            </ng-template>
+
+            <button
+              #openEditTrigger
+              type="button"
+              [ngpDialogTrigger]="editShowtimeDialog"
+              hidden
+            ></button>
+
+            <ng-template #editShowtimeDialog let-close="close">
+              <manage-showtime-modal
+                [close]="close"
+                [selectedMovie]="shMovie"
+                [showSelectedMovie]="false"
+                [editingShowtime]="editingShowtime()"
+              />
+            </ng-template>
+
+            <ng-template #deleteDialog let-close="close">
+              <app-modal modalTitle="Delete All Showtimes" [close]="close" width="500px">
+                <div class="delete-modal-content">
+                  <div class="dmc-icon">
+                    <lucide-icon
+                      [img]="icons.WarningIcon"
+                      [size]="24"
+                      [strokeWidth]="2"
+                    ></lucide-icon>
+                  </div>
+                  <p class="dmc-message">
+                    Are you sure you want to delete <strong>all showtimes</strong> for
+                    <strong>{{ shMovie.title }}</strong
+                    >? This action cannot be undone.
+                  </p>
+                  <div class="dmc-warning">
+                    <lucide-icon
+                      [img]="icons.WarningIcon"
+                      [size]="16"
+                      [strokeWidth]="2"
+                    ></lucide-icon>
+                    <div>
+                      <p><strong>Critical Warning:</strong></p>
+                      <ul>
+                        <li>
+                          {{ item.totalShowtimes }}
+                          {{ item.totalShowtimes === 1 ? 'showtime' : 'showtimes' }} will be deleted
+                        </li>
+                        <li>Showtimes with active reservations cannot be deleted</li>
+                        <li>Historical showtime data will be permanently removed</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div modal-footer class="delete-modal-footer">
-                <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
-                <button
-                  ngpButton
-                  class="btn-danger"
-                  [disabled]="deletingShowtimeIds().has(shMovie.id)"
-                  (click)="deleteShowtime(shMovie.id, close)"
-                >
-                  @if (deletingShowtimeIds().has(shMovie.id)) {
-                    <loading-spinner variant="sm" />
-                  } @else {
-                    <span>Delete All</span>
-                  }
-                </button>
-              </div>
-            </app-modal>
-          </ng-template>
-        </div>
-      } @empty {
-        <empty-state
-          [icon]="icons.CalendarClockIcon"
-          title="No showtimes scheduled yet"
-          description="Schedule a showtime to start selling tickets for this movie."
-        />
-      }
+                <div modal-footer class="delete-modal-footer">
+                  <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+                  <button
+                    ngpButton
+                    class="btn-danger"
+                    [disabled]="deletingShowtimeIds().has(shMovie.id)"
+                    (click)="deleteShowtime(shMovie.id, close)"
+                  >
+                    @if (deletingShowtimeIds().has(shMovie.id)) {
+                      <loading-spinner variant="sm" />
+                    } @else {
+                      <span>Delete All</span>
+                    }
+                  </button>
+                </div>
+              </app-modal>
+            </ng-template>
+          </div>
+        } @empty {
+          <empty-state
+            [icon]="icons.CalendarClockIcon"
+            [title]="searchControl.value ? 'No movies found' : 'No showtimes scheduled yet'"
+            [description]="
+              searchControl.value
+                ? 'Try adjusting your search term'
+                : 'Schedule a showtime to start selling tickets for this movie.'
+            "
+          />
+        }
+      </div>
     }
   </div>
 </div>
