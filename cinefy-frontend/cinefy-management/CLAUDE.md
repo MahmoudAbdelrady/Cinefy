@@ -4,15 +4,25 @@
 
 Angular 21 management dashboard for the Cinefy cinema platform. Standalone components, signal-based state, client-side rendered (no SSR — admin app behind auth), custom SCSS design system with ng-primitives for accessible headless UI.
 
+## Workspace Layout
+
+This app lives in a pnpm workspace rooted at `cinefy-frontend/` (a sibling of `cinefy-backend/` at the repo root). The workspace holds two packages today — `cinefy-management` (this app) and `cinefy-ui` (the shared component library) — and the planned `cinefy-client` app will join the same workspace. Run `pnpm install` from `cinefy-frontend/`. `cinefy-management` consumes the **built** library via `"cinefy-ui": "link:../cinefy-ui/dist"`, so the library must be built before/alongside the app.
+
 ## Commands
 
 ```bash
+# from cinefy-frontend/ (workspace root):
+pnpm ui:build                                 # Build cinefy-ui (ng-packagr → cinefy-ui/dist)
+pnpm mgmt:dev                                 # Dev server on :4200
+pnpm app:build                                # Build library, then the app
+
+# from cinefy-management/:
 pnpm start                                    # Dev server on :4200
 pnpm build                                    # Production build (browser only)
 pnpm test                                     # Run tests (Karma)
 ```
 
-> **pnpm only** (v10.28.1) — do not use npm or yarn.
+> **pnpm only** (v11.4.0) — do not use npm or yarn.
 
 ## Project Structure
 
@@ -33,8 +43,8 @@ src/
 │   ├── halls/
 │   │   ├── hall-config-modal/          # Create/edit hall form + layout editor
 │   │   ├── hall-layout-editor/         # Interactive seat grid editor
-│   │   ├── halls-list/                 # Paginated searchable hall table
-│   │   ├── halls-statistics/           # Stats cards
+│   │   ├── halls-list/                 # Unpaged hall list (client-side search + status filter)
+│   │   ├── halls-statistics/           # Stats cards (derived from halls-list, not a separate fetch)
 │   │   └── manage-hall-types-modal/    # Hall type CRUD
 │   ├── movies/                         # movie-picker, current-showtimes, upcoming-movies,
 │   │                                   #   movie-showtimes-modal, manage-showtime-modal,
@@ -55,8 +65,11 @@ src/
 │   ├── stats/                          # Generic stat-card component
 │   └── stepper/                        # Wizard step indicator
 │                                       # Shared UI (input-field, field-error, loading-spinner,
-│                                       # custom-select, paginated-select, phone-input, toast,
+│                                       # custom-select, async-select, phone-input, toast,
 │                                       # modal, pagination, date-picker, time-picker) lives in cinefy-ui.
+│                                       #   custom-select: static items[] + client-side search.
+│                                       #   async-select: lazy fetchFn (loads on first open, spinner);
+│                                       #     accepts a paged (PaginatedResponse) or flat (T[]) source.
 │                                       # Imports are grouped by subpath:
 │                                       #   from 'cinefy-ui/components' — component classes
 │                                       #   from 'cinefy-ui/services'   — ToastService
@@ -181,7 +194,7 @@ Always use `inject()` — never constructor injection.
 
 - `FormControl.valueChanges` / `FormGroup.valueChanges` (never completes).
 - `toObservable(signal)` derived streams.
-- Custom `Subject` / `BehaviorSubject` (e.g., a debounced search subject in a paginated select).
+- Custom `Subject` / `BehaviorSubject` (e.g., the current-user cache in `StaffService`).
 - Combinators (`merge`, `combineLatest`, `switchMap`, ...) over any of the above.
 - `fromEvent`, `interval`, `timer`, websockets — anything continuous.
 

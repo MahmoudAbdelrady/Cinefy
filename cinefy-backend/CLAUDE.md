@@ -106,11 +106,11 @@ All repositories extend `BaseRepository<T extends BaseEntity>` which extends `Jp
 
 `TmdbMovieRepository` is the one exception: `TmdbMovie` uses its TMDB id as the primary key (no UUID, no audit columns, no `BaseEntity`), so the repository extends `JpaRepository<TmdbMovie, Long>` directly.
 
-`HallRepository` uses `@EntityGraph(attributePaths = {"type", "categoryPrices", "seats"})` on `findByUuid` and `JOIN FETCH` in its custom paged query to avoid N+1 on hall loads. Apply the same pattern when adding new finders that need associations.
+`HallRepository` uses `@EntityGraph(attributePaths = {"type", "categoryPrices", "seats"})` on `findByUuid` and `JOIN FETCH` in `findAllFiltered` (an **unpaged** `List<Hall>` query filtered by `excludeHallId` / `statuses`) to avoid N+1 on hall loads. Apply the same pattern when adding new finders that need associations.
 
 ### Entity Code Pattern
 
-Entities with user-facing names (Hall, HallType) derive a `code` field via a static `toCode(String name)` method (lowercased, spaces → underscores). Used for uniqueness checks and search.
+Entities with user-facing names (Hall, HallType) derive a `code` field via a static `toCode(String name)` method (lowercased, spaces → underscores). Used for uniqueness checks (`existsByCode` / `existsByCodeAndIdNot`).
 
 ### DTOs
 
