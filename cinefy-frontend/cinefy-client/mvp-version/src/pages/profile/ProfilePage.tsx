@@ -47,31 +47,38 @@ export function ProfilePage() {
         </div>
       </header>
 
-      <Tabs defaultValue="account" className="reveal" style={{ animationDelay: '90ms' }}>
-        <TabsList className="mb-6">
-          <TabsTrigger value="account">
+      <Tabs
+        defaultValue="account"
+        orientation="vertical"
+        className="reveal flex-col gap-6 sm:flex-row sm:gap-8"
+        style={{ animationDelay: '90ms' }}
+      >
+        <TabsList className="h-fit w-full shrink-0 flex-col gap-1 rounded-xl border border-border/50 bg-card p-2 sm:w-52">
+          <TabsTrigger value="account" className="justify-start px-3 py-2">
             <UserRound className="size-4" />
             Account
           </TabsTrigger>
-          <TabsTrigger value="billing">
+          <TabsTrigger value="billing" className="justify-start px-3 py-2">
             <CreditCard className="size-4" />
             Billing
           </TabsTrigger>
-          <TabsTrigger value="history">
+          <TabsTrigger value="history" className="justify-start px-3 py-2">
             <Ticket className="size-4" />
             Bookings
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="account">
-          <AccountPanel />
-        </TabsContent>
-        <TabsContent value="billing">
-          <BillingPanel />
-        </TabsContent>
-        <TabsContent value="history">
-          <HistoryPanel active={active} completed={completed} />
-        </TabsContent>
+        <div className="min-w-0 flex-1">
+          <TabsContent value="account" className="mt-0">
+            <AccountPanel />
+          </TabsContent>
+          <TabsContent value="billing" className="mt-0">
+            <BillingPanel />
+          </TabsContent>
+          <TabsContent value="history" className="mt-0">
+            <HistoryPanel active={active} completed={completed} />
+          </TabsContent>
+        </div>
       </Tabs>
     </div>
   )

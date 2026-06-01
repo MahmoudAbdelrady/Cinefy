@@ -8,9 +8,9 @@ import {
   dateWindow,
   dayLabel,
   dayNumber,
-  formatPrice,
   formatReleaseDate,
   formatRuntime,
+  formatTime12h,
   getMovie,
   monthShort,
   type Movie,
@@ -215,12 +215,9 @@ function FormatGroup({
             key={st.id}
             variant="outline"
             onClick={() => navigate(`/movies/${movieId}/seats?showtime=${st.id}`)}
-            className="flex h-auto flex-col items-center gap-1 border-border/50 px-4 py-3 hover:border-amber hover:text-amber"
+            className="h-auto border-border/50 px-4 py-3 font-mono text-base font-semibold hover:border-amber hover:text-amber"
           >
-            <span className="font-mono text-lg font-semibold">{st.time}</span>
-            <span className="font-mono text-xs text-muted-foreground">
-              {formatPrice(st.priceCents)}
-            </span>
+            {formatTime12h(st.time)}
           </Button>
         ))}
       </div>

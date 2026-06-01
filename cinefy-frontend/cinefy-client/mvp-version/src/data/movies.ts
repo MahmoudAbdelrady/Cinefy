@@ -18,9 +18,12 @@ export interface Movie {
   durationMins: number
   rating: number
   certificate: string
+  language: string
   year: number
   status: MovieStatus
   releaseDate: string
+  /** optional short tag shown next to the card title (e.g. "3D", "IMAX") */
+  badge?: string
   /** real poster image (TMDB). When absent, the gradient below is used. */
   posterUrl?: string
   /** real backdrop image (TMDB) for hero/detail headers. */
@@ -74,9 +77,11 @@ export const MOVIES: Movie[] = [
     durationMins: 166,
     rating: 8.8,
     certificate: 'PG-13',
+    language: 'English',
     year: 2024,
     status: 'now-showing',
     releaseDate: '2024-03-01',
+    badge: '3D',
     posterUrl: poster('/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg'),
     backdropUrl: backdrop('/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg'),
     poster: ['oklch(0.55 0.13 65)', 'oklch(0.28 0.06 45)'],
@@ -105,6 +110,7 @@ export const MOVIES: Movie[] = [
     durationMins: 180,
     rating: 8.4,
     certificate: 'R',
+    language: 'English',
     year: 2023,
     status: 'now-showing',
     releaseDate: '2023-07-21',
@@ -132,6 +138,7 @@ export const MOVIES: Movie[] = [
     durationMins: 148,
     rating: 7.9,
     certificate: 'R',
+    language: 'Spanish',
     year: 2024,
     status: 'now-showing',
     releaseDate: '2024-05-24',
@@ -160,6 +167,7 @@ export const MOVIES: Movie[] = [
     durationMins: 127,
     rating: 8.2,
     certificate: 'R',
+    language: 'English',
     year: 2024,
     status: 'now-showing',
     releaseDate: '2024-07-26',
@@ -190,6 +198,7 @@ export const MOVIES: Movie[] = [
     durationMins: 96,
     rating: 8.0,
     certificate: 'PG',
+    language: 'French',
     year: 2024,
     status: 'now-showing',
     releaseDate: '2024-06-14',
@@ -218,6 +227,7 @@ export const MOVIES: Movie[] = [
     durationMins: 145,
     rating: 7.2,
     certificate: 'PG-13',
+    language: 'English',
     year: 2024,
     status: 'now-showing',
     releaseDate: '2024-05-10',
@@ -246,6 +256,7 @@ export const MOVIES: Movie[] = [
     durationMins: 150,
     rating: 0,
     certificate: 'R',
+    language: 'English',
     year: 2024,
     status: 'upcoming',
     releaseDate: '2026-08-14',
@@ -267,6 +278,7 @@ export const MOVIES: Movie[] = [
     durationMins: 160,
     rating: 0,
     certificate: 'PG',
+    language: 'English',
     year: 2024,
     status: 'upcoming',
     releaseDate: '2026-07-03',
@@ -294,10 +306,26 @@ export const nowShowing = () => MOVIES.filter((m) => m.status === 'now-showing')
 export const upcoming = () => MOVIES.filter((m) => m.status === 'upcoming')
 export const featured = () => MOVIES[0]
 
+/** Distinct languages across now-showing movies, sorted, for the filter dropdown. */
+export const nowShowingLanguages = (): string[] =>
+  [...new Set(nowShowing().map((m) => m.language))].sort()
+
+/** Distinct genres across now-showing movies, sorted, for the filter dropdown. */
+export const nowShowingGenres = (): string[] =>
+  [...new Set(nowShowing().flatMap((m) => m.genres))].sort()
+
 export const formatPrice = (cents: number) => `$${(cents / 100).toFixed(2)}`
 
 export const formatRuntime = (mins: number) =>
   `${Math.floor(mins / 60)}h ${mins % 60}m`
+
+/** "18:00" → "6:00 PM" */
+export function formatTime12h(time: string): string {
+  const [h, m] = time.split(':').map(Number)
+  const period = h < 12 ? 'AM' : 'PM'
+  const hour12 = h % 12 === 0 ? 12 : h % 12
+  return `${hour12}:${m.toString().padStart(2, '0')} ${period}`
+}
 
 export const formatReleaseDate = (iso: string) =>
   new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {

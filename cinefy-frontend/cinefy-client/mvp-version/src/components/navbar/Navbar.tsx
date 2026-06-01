@@ -1,11 +1,20 @@
-import { Link, NavLink } from 'react-router'
-import { Clapperboard, Search, Ticket } from 'lucide-react'
+import { Link, NavLink, useNavigate } from 'react-router'
+import { Clapperboard, LogOut, Ticket, UserRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { useBookings } from '@/app/BookingsProvider'
 
 export function Navbar() {
   const { active, setTicketsOpen } = useBookings()
+  const navigate = useNavigate()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -16,16 +25,23 @@ export function Navbar() {
             <span className="text-xl font-bold tracking-tight">Cinefy</span>
           </Link>
 
-          <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-            <HeaderLink to="/" label="Home" />
-            <HeaderLink to="/profile" label="Profile" />
+          <nav className="flex items-center gap-6 text-sm font-medium">
+            <NavLink
+              to="/movies"
+              end
+              className={({ isActive }) =>
+                cn(
+                  'transition-colors hover:text-foreground/80',
+                  isActive ? 'text-foreground' : 'text-foreground/60',
+                )
+              }
+            >
+              Movies
+            </NavLink>
           </nav>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="text-foreground/60 hover:text-foreground">
-            <Search className="size-5" />
-          </Button>
           <Button
             onClick={() => setTicketsOpen(true)}
             className="relative gap-2 bg-amber font-medium text-primary-foreground hover:bg-amber/90"
@@ -38,25 +54,34 @@ export function Navbar() {
               </span>
             )}
           </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full text-foreground/70 hover:text-foreground"
+              >
+                <UserRound className="size-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/profile">
+                  <UserRound className="size-4" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => navigate('/')}>
+                <LogOut className="size-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
-  )
-}
-
-function HeaderLink({ to, label }: { to: string; label: string }) {
-  return (
-    <NavLink
-      to={to}
-      end
-      className={({ isActive }) =>
-        cn(
-          'transition-colors hover:text-foreground/80',
-          isActive ? 'text-foreground' : 'text-foreground/60',
-        )
-      }
-    >
-      {label}
-    </NavLink>
   )
 }

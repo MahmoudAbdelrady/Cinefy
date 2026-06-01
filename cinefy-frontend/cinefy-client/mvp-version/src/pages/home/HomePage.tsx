@@ -18,11 +18,13 @@ export function HomePage() {
       <Hero movie={featured()} />
 
       <section className="mx-auto w-full max-w-6xl px-4 py-16">
-        <SectionHeading title="Now Showing" action="View All" />
+        <SectionHeading title="Now Showing" action="View All" actionTo="/movies" />
         <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {nowShowing().map((movie, i) => (
-            <MovieCard key={movie.id} movie={movie} index={i} />
-          ))}
+          {nowShowing()
+            .slice(0, 5)
+            .map((movie, i) => (
+              <MovieCard key={movie.id} movie={movie} index={i} />
+            ))}
         </div>
       </section>
 
