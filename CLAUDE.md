@@ -9,8 +9,8 @@ Cinefy/
 ├── cinefy-backend/      # Spring Boot 4 REST API (Java 25, Maven, PostgreSQL)
 └── cinefy-frontend/     # pnpm workspace (the frontend monorepo)
     ├── cinefy-management/   # Angular 21 admin/staff dashboard (the app behind /login)
-    └── cinefy-ui/           # Shared Angular component library (ng-packagr)
-    # cinefy-client (planned) — public-facing booking app — will join this workspace
+    ├── cinefy-ui/           # Shared Angular component library (ng-packagr)
+    └── cinefy-client/       # Angular 21 public-facing booking app (SSR)
 ```
 
 Each subtree has its own detailed `CLAUDE.md` — read the one for the area you're working in:
@@ -28,10 +28,11 @@ Each subtree has its own detailed `CLAUDE.md` — read the one for the area you'
 - **Frontend** — pnpm, from the workspace root `cinefy-frontend/`:
   ```bash
   pnpm install        # restores all workspace packages
-  pnpm ui:build       # build cinefy-ui (cinefy-management links its built dist)
+  pnpm ui:build       # build cinefy-ui (both apps link its built dist)
   pnpm mgmt:dev       # management dev server on :4200
+  pnpm client:dev     # client dev server (also defaults to :4200 — pass --port to run alongside mgmt)
   ```
-  `cinefy-management` depends on `cinefy-ui` via `"cinefy-ui": "link:../cinefy-ui/dist"`, so build the library before running the app. **pnpm only** (v11.4.0).
+  Both `cinefy-management` and `cinefy-client` depend on `cinefy-ui` via `"cinefy-ui": "link:../cinefy-ui/dist"`, so build the library before running either app. **pnpm only** (v11.4.0).
 
 ## Conventions
 
