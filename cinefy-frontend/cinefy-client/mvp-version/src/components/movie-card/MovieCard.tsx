@@ -1,34 +1,56 @@
 import { Link } from 'react-router'
-import { Clock, Star } from 'lucide-react'
-import type { Movie } from '@/data/movies'
+import { Star } from 'lucide-react'
+import { Poster } from '@/components/poster/Poster'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { formatReleaseDate, monthShort, dayNumber, type Movie } from '@/data/movies'
 
-export function MovieCard({ movie }: { movie: Movie }) {
+export function MovieCard({ movie, index = 0 }: { movie: Movie; index?: number }) {
+  const upcoming = movie.status === 'upcoming'
   return (
     <Link
       to={`/movies/${movie.id}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-lg"
+      className="reveal group block h-full"
+      style={{ animationDelay: `${index * 70}ms` }}
     >
-      <div
-        className="aspect-2/3 w-full"
-        style={{ background: movie.posterColor }}
-      />
-      <div className="flex flex-col gap-1 p-4">
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="font-semibold leading-tight group-hover:text-primary">
-            {movie.title}
-          </h3>
-          <span className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
-            <Star className="size-3.5 fill-current text-amber-500" />
-            {movie.rating.toFixed(1)}
-          </span>
-        </div>
-        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          <span>{movie.genre}</span>
-          <span className="flex items-center gap-1">
-            <Clock className="size-3.5" />
-            {movie.durationMins}m
-          </span>
-        </div>
+      <div className="relative mb-3 aspect-2/3 overflow-hidden rounded-xl">
+        <Poster
+          movie={movie}
+          className="size-full"
+          artClassName="transition-transform duration-500 ease-out group-hover:scale-110"
+        />
+
+        {upcoming ? (
+          <div className="absolute right-2 top-2 z-10">
+            <Badge className="bg-background/80 font-mono text-foreground backdrop-blur-sm hover:bg-background/80">
+              {monthShort(movie.releaseDate)} {dayNumber(movie.releaseDate)}
+            </Badge>
+          </div>
+        ) : (
+          <div className="absolute right-2 top-2 z-10">
+            <Badge className="flex items-center gap-1 bg-background/80 font-mono text-foreground backdrop-blur-sm hover:bg-background/80">
+              <Star className="size-3 fill-amber text-amber" />
+              {movie.rating.toFixed(1)}
+            </Badge>
+          </div>
+        )}
+
+        {!upcoming && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <Button className="bg-amber text-primary-foreground hover:bg-amber/90">
+              Get Tickets
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-1">
+        <h3 className="truncate font-semibold leading-tight transition-colors group-hover:text-amber">
+          {movie.title}
+        </h3>
+        <p className="truncate text-sm text-muted-foreground">
+          {upcoming ? formatReleaseDate(movie.releaseDate) : movie.genres.join(', ')}
+        </p>
       </div>
     </Link>
   )

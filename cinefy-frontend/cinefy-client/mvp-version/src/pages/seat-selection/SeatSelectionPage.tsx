@@ -1,0 +1,261 @@
+import { useMemo, useState } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
+import { ArrowLeft, Info } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import {
+  AISLE_AFTER_COLS,
+  buildHall,
+  tierLabel,
+  type Seat,
+} from '@/data/hall'
+import {
+  formatLongDate,
+  formatPrice,
+  getMovie,
+  getShowtime,
+} from '@/data/movies'
+
+const FEE_CENTS = 150
+
+export function SeatSelectionPage() {
+  const { movieId } = useParams()
+  const [params] = useSearchParams()
+  const navigate = useNavigate()
+
+  const movie = getMovie(movieId)
+  const showtime = getShowtime(movie, params.get('showtime'))
+  const hall = useMemo(() => buildHall(), [])
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+
+  if (!movie || !showtime) return <Missing movieId={movieId} />
+
+  const toggle = (seat: Seat) => {
+    if (seat.taken) return
+    setSelected((prev) => {
+      const next = new Set(prev)
+      next.has(seat.id) ? next.delete(seat.id) : next.add(seat.id)
+      return next
+    })
+  }
+
+  const seatById = new Map(hall.flat().map((s) => [s.id, s]))
+  const selectedSeats = [...selected]
+    .map((id) => seatById.get(id)!)
+    .sort((a, b) => a.id.localeCompare(b.id))
+  const seatsSubtotal = selectedSeats.reduce(
+    (sum, s) => sum + showtime.priceCents + s.surchargeCents,
+    0,
+  )
+  const fees = selectedSeats.length * FEE_CENTS
+  const total = seatsSubtotal + fees
+
+  const proceed = () =>
+    navigate('/checkout', {
+      state: {
+        movieId: movie.id,
+        showtimeId: showtime.id,
+        seats: selectedSeats.map((s) => s.id),
+      },
+    })
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      {/* sub-header */}
+      <div className="sticky top-16 z-20 border-b border-border/40 bg-background/95 backdrop-blur">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-4">
+          <Button asChild variant="ghost" size="icon">
+            <Link to={`/movies/${movie.id}`}>
+              <ArrowLeft className="size-5" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="font-bold leading-tight">{movie.title}</h1>
+            <p className="font-mono text-xs text-muted-foreground">
+              {formatLongDate(showtime.date)} • {showtime.time} • {showtime.hall} ({showtime.format})
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 py-8 lg:flex-row">
+        {/* seat map */}
+        <div className="flex flex-1 flex-col items-center">
+          {/* screen */}
+          <div className="relative mb-16 w-full max-w-3xl">
+            <div className="absolute top-0 h-2 w-full bg-gradient-to-r from-transparent via-amber/50 to-transparent blur-sm" />
+            <div className="h-1 w-full rounded-full bg-gradient-to-r from-transparent via-amber to-transparent" />
+            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
+              Screen
+            </div>
+          </div>
+
+          {/* grid */}
+          <div className="w-full overflow-x-auto pb-8 scrollbar-hide">
+            <div className="mx-auto flex min-w-max flex-col gap-3">
+              {hall.map((row) => (
+                <div key={row[0].row} className="flex items-center justify-center gap-4">
+                  <RowLabel label={row[0].row} />
+                  <div className="flex gap-2">
+                    {row.map((seat) => (
+                      <SeatButton
+                        key={seat.id}
+                        seat={seat}
+                        selected={selected.has(seat.id)}
+                        onToggle={() => toggle(seat)}
+                        aisle={AISLE_AFTER_COLS.includes(seat.number)}
+                      />
+                    ))}
+                  </div>
+                  <RowLabel label={row[0].row} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Legend />
+        </div>
+
+        {/* summary sidebar */}
+        <div className="w-full shrink-0 lg:w-80">
+          <div className="sticky top-36 rounded-xl border border-border/50 bg-card p-6">
+            <h3 className="mb-4 text-lg font-semibold">Booking Summary</h3>
+
+            {selectedSeats.length === 0 ? (
+              <div className="flex flex-col items-center gap-2 py-8 text-center text-muted-foreground">
+                <Info className="size-8 opacity-50" />
+                <p className="text-sm">Please select your seats to proceed.</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="max-h-48 space-y-3 overflow-y-auto pr-2">
+                  {selectedSeats.map((seat) => (
+                    <div key={seat.id} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-medium text-amber">{seat.id}</span>
+                        <span className="capitalize text-muted-foreground">
+                          ({tierLabel[seat.tier]})
+                        </span>
+                      </div>
+                      <span className="font-mono">
+                        {formatPrice(showtime.priceCents + seat.surchargeCents)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-2 border-t border-border/50 pt-4">
+                  <SummaryRow
+                    label={`Tickets (${selectedSeats.length})`}
+                    value={formatPrice(seatsSubtotal)}
+                  />
+                  <SummaryRow label="Convenience Fee" value={formatPrice(fees)} />
+                  <div className="flex items-center justify-between pt-2 text-lg font-bold">
+                    <span>Total</span>
+                    <span className="font-mono">{formatPrice(total)}</span>
+                  </div>
+                </div>
+
+                <Button
+                  size="lg"
+                  onClick={proceed}
+                  className="w-full bg-amber font-semibold text-primary-foreground hover:bg-amber/90"
+                >
+                  Proceed to Payment
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SeatButton({
+  seat,
+  selected,
+  onToggle,
+  aisle,
+}: {
+  seat: Seat
+  selected: boolean
+  onToggle: () => void
+  aisle: boolean
+}) {
+  const tierClass =
+    seat.tier === 'premium'
+      ? 'bg-seat-premium/40 border-seat-premium/60 hover:border-blue-400'
+      : seat.tier === 'recliner'
+        ? 'bg-seat-recliner/40 border-seat-recliner/60 hover:border-purple-400'
+        : 'bg-seat-standard/50 border-seat-standard hover:border-zinc-400'
+
+  return (
+    <button
+      onClick={onToggle}
+      disabled={seat.taken}
+      title={`${seat.id} · ${tierLabel[seat.tier]}`}
+      className={cn(
+        'flex size-8 items-center justify-center rounded-t-lg rounded-b-sm border text-[10px] font-medium transition-all duration-200',
+        aisle && 'mr-6',
+        seat.taken && 'cursor-not-allowed border-zinc-700 bg-zinc-800 opacity-50',
+        !seat.taken && !selected && tierClass,
+        selected && 'border-amber bg-amber text-primary-foreground',
+      )}
+    >
+      {selected ? seat.number : ''}
+    </button>
+  )
+}
+
+function RowLabel({ label }: { label: string }) {
+  return (
+    <span className="w-6 text-center text-sm font-medium text-muted-foreground">
+      {label}
+    </span>
+  )
+}
+
+function Legend() {
+  return (
+    <div className="mt-8 flex flex-wrap items-center justify-center gap-6 rounded-full border border-border/50 bg-card/50 px-6 py-4 text-sm text-muted-foreground">
+      <LegendItem className="border-seat-standard bg-seat-standard/50" label="Standard" />
+      <LegendItem className="border-seat-premium/60 bg-seat-premium/40" label="Premium" />
+      <LegendItem className="border-seat-recliner/60 bg-seat-recliner/40" label="Recliner" />
+      <LegendItem className="border-amber bg-amber" label="Selected" />
+      <LegendItem className="border-zinc-700 bg-zinc-800 opacity-50" label="Taken" />
+    </div>
+  )
+}
+
+function LegendItem({ className, label }: { className: string; label: string }) {
+  return (
+    <span className="flex items-center gap-2">
+      <span className={cn('size-4 rounded-t border', className)} />
+      {label}
+    </span>
+  )
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <span>{label}</span>
+      <span className="font-mono">{value}</span>
+    </div>
+  )
+}
+
+function Missing({ movieId }: { movieId?: string }) {
+  return (
+    <div className="mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 py-24">
+      <p className="text-4xl font-bold">Showtime not found</p>
+      <p className="text-muted-foreground">
+        Pick a showtime from the movie page to choose seats.
+      </p>
+      <Button asChild className="bg-amber text-primary-foreground hover:bg-amber/90">
+        <Link to={movieId ? `/movies/${movieId}` : '/'}>Back</Link>
+      </Button>
+    </div>
+  )
+}

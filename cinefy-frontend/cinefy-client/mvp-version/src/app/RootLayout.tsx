@@ -1,13 +1,21 @@
-import { Outlet } from 'react-router'
+import { Outlet, ScrollRestoration } from 'react-router'
+import { BookingsProvider } from './BookingsProvider'
 import { Navbar } from '@/components/navbar/Navbar'
+import { MyTicketsOverlay } from '@/components/my-tickets/MyTicketsOverlay'
+import { Footer } from '@/components/footer/Footer'
 
 export function RootLayout() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
-      <main className="mx-auto w-full max-w-6xl px-4 py-8">
-        <Outlet />
-      </main>
-    </div>
+    <BookingsProvider>
+      <div className="flex min-h-screen flex-col bg-background text-foreground">
+        <Navbar />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <Footer />
+        <MyTicketsOverlay />
+        <ScrollRestoration />
+      </div>
+    </BookingsProvider>
   )
 }
