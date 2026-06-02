@@ -44,6 +44,7 @@ $max-width: 1152px;
   text-decoration: none;
   cursor: pointer;
   transition: opacity 150ms ease;
+  user-select: none;
 
   &:hover {
     opacity: 0.8;
@@ -89,22 +90,9 @@ $max-width: 1152px;
 
 .alh-tickets-btn {
   position: relative;
-  @include flex-align;
   @include lucide-icon-fix;
-  gap: 8px;
   height: 36px;
   padding: 0 16px;
-  border-radius: $radius-md;
-  background-color: $color-amber;
-  color: $color-primary-foreground;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 150ms ease;
-
-  &:hover {
-    background-color: rgba(242, 160, 41, 0.9);
-  }
 }
 
 .tb-count {
@@ -150,9 +138,11 @@ $max-width: 1152px;
 
 // ─── Dropdown menu (ng-primitives) ───────────────────────────────────────────
 .user-info-menu-items {
+  position: absolute;
   width: 176px;
   margin-top: 8px;
   padding: 6px;
+  right: 0;
   background-color: $color-popover;
   color: $color-popover-foreground;
   border: 1px solid $color-border;
@@ -216,6 +206,7 @@ $max-width: 1152px;
   @include flex-align;
   @include lucide-icon-fix;
   gap: 8px;
+  user-select: none;
 
   lucide-icon {
     color: $color-amber;

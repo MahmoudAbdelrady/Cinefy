@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { ClapperboardIcon, LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { UserIcon, TicketIcon, LogoutIcon } from '../../shared/icons';
 
@@ -13,7 +14,15 @@ interface DropDownMenuItem {
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet, RouterLink, LucideAngularModule, NgpMenu, NgpMenuItem, NgpMenuTrigger],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    LucideAngularModule,
+    NgpButton,
+    NgpMenu,
+    NgpMenuItem,
+    NgpMenuTrigger,
+  ],
   templateUrl: './app-layout.html',
   styleUrl: './app-layout.scss',
 })

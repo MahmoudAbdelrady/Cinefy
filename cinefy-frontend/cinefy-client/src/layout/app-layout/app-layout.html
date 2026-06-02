@@ -11,10 +11,13 @@
         </div>
       </div>
       <div class="alh-info">
-        <button class="alh-tickets-btn" [ngpMenuTrigger]="userInfoMenu">
+        <button class="alh-tickets-btn btn-primary" ngpButton>
           <lucide-icon [img]="icons.TicketIcon" [size]="16" />
           <span class="tb-text">My Tickets</span>
           <span class="tb-count">2</span>
+        </button>
+        <button class="alh-user-info" ngpButton [ngpMenuTrigger]="userInfoMenu">
+          <lucide-icon [img]="icons.UserIcon" [size]="20" />
         </button>
         <ng-template #userInfoMenu>
           <div class="user-info-menu-items" ngpMenu>
@@ -26,9 +29,6 @@
             }
           </div>
         </ng-template>
-        <div class="alh-user-info">
-          <lucide-icon [img]="icons.UserIcon" [size]="20" />
-        </div>
       </div>
     </div>
   </header>
