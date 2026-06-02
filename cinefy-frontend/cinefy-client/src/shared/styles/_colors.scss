@@ -1,0 +1,48 @@
+@forward 'cinefy-ui/styles/radii';
+
+// ─── Cinefy client palette ───────────────────────────────────────────────────
+// Ported from mvp-version/src/styles/index.css (oklch tokens converted to hex).
+// Pure neutral grayscale with a single amber-500 accent. Dark theme only.
+
+// Core surfaces
+$color-background: #0a0a0a;
+$color-foreground: #fafafa;
+$color-card: #131313;
+$color-card-foreground: #fafafa;
+$color-popover: #131313;
+$color-popover-foreground: #fafafa;
+
+// Primary (amber accent, near-black text sits on top)
+$color-primary: #f2a029;
+$color-primary-foreground: #171717;
+
+// Secondary / muted / accent
+$color-secondary: #262626;
+$color-secondary-foreground: #fafafa;
+$color-muted: #262626;
+$color-muted-foreground: #a1a1a1;
+$color-accent: #262626;
+$color-accent-foreground: #fafafa;
+
+// Destructive
+$color-destructive: #e7000b;
+$color-destructive-foreground: #fafafa;
+
+// Borders, inputs, focus ring
+$color-border: #262626;
+$color-input: #262626;
+$color-ring: #f2a029;
+
+// Amber, reused directly where the accent needs explicit control
+$color-amber: #f2a029;
+
+// Seat tiers
+$color-seat-standard: #333333;
+$color-seat-premium: #2a5885;
+$color-seat-recliner: #684d92;
+$color-seat-selected: #f2a029;
+$color-seat-taken: #222222;
+
+// ─── Typography ──────────────────────────────────────────────────────────────
+$font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+$font-mono: 'Geist Mono', ui-monospace, monospace;
