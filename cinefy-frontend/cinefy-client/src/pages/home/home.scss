@@ -2,13 +2,21 @@
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
-.now-showing-movies {
+.now-showing-movies,
+.upcoming-movies {
   width: min(100%, 1152px);
   margin: 0 auto;
+}
+
+.now-showing-movies {
   padding: 64px 16px;
 }
 
-.nsm-header {
+.upcoming-movies {
+  padding: 32px 16px;
+}
+
+.ms-header {
   @include flex-between;
   gap: 16px;
   margin-bottom: 32px;
@@ -32,7 +40,7 @@
   }
 }
 
-.nsm-content {
+.ms-content {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
@@ -48,6 +56,10 @@
   @media (min-width: 1280px) {
     grid-template-columns: repeat(5, 1fr);
   }
+}
+
+.ms-empty {
+  grid-column: 1 / -1;
 }
 
 .movie-card {
@@ -128,7 +140,7 @@
   color: $color-amber;
 }
 
-.mc-genre p {
+.mc-subtitle p {
   @include text-truncate;
   font-size: 14px;
   color: $color-muted-foreground;
