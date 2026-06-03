@@ -11,11 +11,14 @@
         </div>
       </div>
       <div class="alh-info">
-        <button class="alh-tickets-btn btn-primary" ngpButton>
+        <button class="alh-tickets-btn btn-primary" ngpButton [ngpDialogTrigger]="myTicketsDialog">
           <lucide-icon [img]="icons.TicketIcon" [size]="16" />
           <span class="tb-text">My Tickets</span>
           <span class="tb-count">2</span>
         </button>
+        <ng-template #myTicketsDialog let-close="close">
+          <my-tickets-list [close]="close" />
+        </ng-template>
         <button class="alh-user-info" ngpButton [ngpMenuTrigger]="userInfoMenu">
           <lucide-icon [img]="icons.UserIcon" [size]="20" />
         </button>

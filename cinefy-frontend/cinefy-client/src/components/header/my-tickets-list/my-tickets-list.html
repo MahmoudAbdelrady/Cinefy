@@ -1,0 +1,46 @@
+<app-modal modalTitle="My Tickets" [description]="description()" width="512px" [close]="close()">
+  <div class="bookings-list">
+    @for (booking of myBookings; track booking.id) {
+      <div class="booking-item">
+        <div class="bi-movie-poster">
+          <img [src]="booking.moviePosterUrl" alt="{{ booking.movieTitle }} poster" />
+        </div>
+        <div class="bi-data">
+          <div class="bi-info">
+            <h3>{{ booking.movieTitle }}</h3>
+            <div class="place-info">
+              <div class="pi-item">
+                <lucide-icon [img]="icons.CalendarIcon" [size]="16" />
+                <span>{{ booking.bookingDate }} at {{ booking.bookingTime }}</span>
+              </div>
+              <div class="pi-item">
+                <lucide-icon [img]="icons.GlassesIcon" [size]="16" />
+                <span>{{ booking.is3D ? '3D' : '2D' }}</span>
+              </div>
+            </div>
+            <div class="pricing-info">
+              <div class="ticket-count">
+                <lucide-icon [img]="icons.TicketIcon" [size]="16" />
+                <span>x{{ booking.totalTickets }}</span>
+              </div>
+              <div class="total-price">
+                <span>${{ booking.totalPrice.toFixed(2) }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="bi-actions">
+            <button class="btn-primary">
+              <span>Proceed</span>
+              <lucide-icon [img]="icons.ArrowRightIcon" [size]="16" />
+            </button>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <empty-state
+        [icon]="icons.TicketIcon"
+        title="Bookings you start will wait here until you complete them."
+      />
+    }
+  </div>
+</app-modal>

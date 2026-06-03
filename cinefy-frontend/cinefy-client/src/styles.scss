@@ -39,6 +39,10 @@
   --cui-success: #{$color-amber};
   --cui-success-hover: #{$color-amber};
 
+  // Modal (MVP dialog uses the lighter `popover` surface, a black scrim, and a soft shadow)
+  --cui-modal-backdrop: #{rgba(0, 0, 0, 0.5)};
+  --cui-modal-shadow: 0 10px 15px -3px #{rgba(0, 0, 0, 0.5)}, 0 4px 6px -4px #{rgba(0, 0, 0, 0.5)};
+
   // Misc
   --cui-scrollbar-thumb: #{$color-secondary};
 }

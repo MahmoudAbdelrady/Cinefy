@@ -35,6 +35,7 @@ pnpm serve:ssr:cinefy-client   # Run the built SSR server (node dist/cinefy-clie
 `cinefy-client` ships browser **and** server bundles. `src/server.ts` is the Express host; `src/app/app.routes.server.ts` declares render modes (currently `RenderMode.Server` for `**`); `src/app/app.config.server.ts` merges server providers onto the shared `appConfig`. Hydration is enabled with event replay (`provideClientHydration(withEventReplay())`).
 
 When writing or porting components, **be SSR-safe**:
+
 - Guard browser-only APIs (`window`, `document`, `localStorage`, `IntersectionObserver`) — use `afterNextRender`/`afterRender`, `isPlatformBrowser`, or `@angular/ssr` patterns so they don't execute during server render.
 - Prefer CSS-driven effects over JS measurement (hover, reveal, scrims) — they SSR cleanly.
 - Remote poster/backdrop images stay as plain `<img>` (with `loading`) so they render server-side without client-only image libraries.
@@ -67,7 +68,7 @@ mvp-version/                    # React 19 + Vite + Tailwind v4 + shadcn/ui desi
 
 `mvp-version/` is a **multi-folder React 19 + Vite + Tailwind v4 + shadcn/ui** mock (`pages/`, `components/`, `components/ui/` shadcn primitives, `data/` mock arrays, `styles/index.css` tokens). It is the design source of truth. When the user asks to map/migrate a page or component, invoke the **`mvp-to-real`** skill and follow its rules. Key constraints:
 
-- **No Tailwind in output** — translate every utility to hand-written SCSS in the component's `.scss`; translate the underlying *token*, not the literal class string.
+- **No Tailwind in output** — translate every utility to hand-written SCSS in the component's `.scss`; translate the underlying _token_, not the literal class string.
 - **Visual & behavioral parity** — colors, spacing, radius, shadows, gradients, hover/zoom, reveal animations, dialogs must match. The MVP is **dark-theme only**.
 - **Use pixels, not rems.** Always consider **responsive** design — translate `sm/md/lg/xl` (640/768/1024/1280) prefixes to SCSS media queries; add responsive behavior where the MVP lacks it.
 - **Icons:** `LucideAngularModule`, size via the `[size]` input — never via SCSS `svg { width/height }`.
@@ -80,6 +81,7 @@ mvp-version/                    # React 19 + Vite + Tailwind v4 + shadcn/ui desi
 These hold across the Cinefy frontend — see `cinefy-management/CLAUDE.md` for the full treatment:
 
 - **Standalone components**, signal-based state (`signal`/`computed`/`effect`), `input()`/`output()` — **no `@Input`/`@Output` decorators**.
+- **Class member order** — component classes follow the canonical order documented in [`../cinefy-management/CLAUDE.md`](../cinefy-management/CLAUDE.md#class-member-order) (modeled on `hall-config-modal.ts`): `icons` map → injected services (`inject`) → `viewChild`/`ElementRef` → static constants + their derived computeds → signal **inputs** then **outputs** → signal **state** → reactive **forms** → **computeds**/`toSignal` (kept adjacent to the state they consume) → arrow-fn template helpers → `constructor()` (`effect`/`afterNextRender`) → private init methods → protected event handlers → private helpers. Within a bucket, preserve existing order — don't alphabetize. New components match it; touching an existing one is a good time to bring it in line.
 - New components default to **SCSS styles** and **skip tests** (per `angular.json` schematics).
 - **Reactive forms** (`FormGroup` + `[formGroup]`) for any `<form (ngSubmit)>`; signal/template forms must import `FormsModule` so `<form>` has a directive.
 - **No accessibility attributes** (`aria-*`, `role`, `title`) and **no explanatory comments** unless explicitly requested. Write self-documenting code.

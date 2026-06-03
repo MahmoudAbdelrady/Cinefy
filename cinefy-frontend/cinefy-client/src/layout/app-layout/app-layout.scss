@@ -106,7 +106,7 @@ $max-width: 1152px;
   border-radius: $radius-full;
   background-color: $color-foreground;
   color: $color-background;
-  font-family: #{$font-mono};
+  font-family: $font-mono;
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
