@@ -1,5 +1,37 @@
 <div class="home-container">
   <highlighted-movie />
-  <div class="now-showing-movies"></div>
+  <div class="now-showing-movies">
+    <div class="nsm-header">
+      <h3>Now Showing</h3>
+      <a routerLink="/movies">View All</a>
+    </div>
+    <div class="nsm-content">
+      @for (movie of nowShowingMovies.slice(0, 5); track $index) {
+        <a
+          class="movie-card reveal"
+          routerLink="/movies/{{ movie.code }}"
+          [style.animation-delay.ms]="$index * 70"
+        >
+          <div class="mc-poster">
+            <img [src]="movie.posterUrl" alt="{{ movie.title }} poster" loading="lazy" />
+            <div class="mc-poster-overlay">
+              <button class="mc-tickets-btn btn-primary">Get Tickets</button>
+            </div>
+          </div>
+          <div class="mc-meta">
+            <div class="mc-title">
+              <h4>{{ movie.title }}</h4>
+              @if (movie.is3D) {
+                <span>3D</span>
+              }
+            </div>
+            <div class="mc-genre">
+              <p>{{ movie.genre }}</p>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  </div>
   <div class="upcoming-movies"></div>
 </div>
