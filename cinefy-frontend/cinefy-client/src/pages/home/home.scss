@@ -30,12 +30,12 @@
   a {
     font-size: 14px;
     font-weight: 500;
-    color: $color-amber;
+    color: $color-primary;
     transition: color 150ms ease;
     text-decoration: none;
 
     &:hover {
-      color: rgba(242, 160, 41, 0.8);
+      color: rgba($color-primary, 0.8);
     }
   }
 }
@@ -97,7 +97,7 @@
   position: absolute;
   inset: 0;
   z-index: 10;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba($color-black, 0.6);
   opacity: 0;
   transition: opacity 300ms ease;
 }
@@ -127,17 +127,17 @@
   span {
     flex-shrink: 0;
     padding: 0 6px;
-    border: 1px solid rgba(242, 160, 41, 0.4);
+    border: 1px solid rgba($color-primary, 0.4);
     border-radius: $radius-md;
     font-family: $font-mono;
     font-size: 10px;
     font-weight: 600;
-    color: $color-amber;
+    color: $color-primary;
   }
 }
 
 .movie-card:hover .mc-title h4 {
-  color: $color-amber;
+  color: $color-primary;
 }
 
 .mc-subtitle p {

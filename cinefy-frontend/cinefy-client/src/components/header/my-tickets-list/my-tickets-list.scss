@@ -10,7 +10,7 @@
 .booking-item {
   display: flex;
   overflow: hidden;
-  border: 1px solid rgba(38, 38, 38, 0.5);
+  border: 1px solid rgba($color-border, 0.5);
   border-radius: $radius-lg;
   background-color: $color-card;
 }
@@ -90,7 +90,7 @@
     border-radius: $radius-sm;
     background-color: $color-secondary;
     font-weight: 500;
-    color: $color-amber;
+    color: $color-primary;
   }
 
   .total-price {

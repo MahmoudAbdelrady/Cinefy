@@ -27,11 +27,16 @@
 }
 
 .hm-scrim-bottom {
-  background: linear-gradient(to top, $color-background, rgba(10, 10, 10, 0.6), transparent);
+  background: linear-gradient(to top, $color-background, rgba($color-background, 0.6), transparent);
 }
 
 .hm-scrim-left {
-  background: linear-gradient(to right, $color-background, rgba(10, 10, 10, 0.4), transparent);
+  background: linear-gradient(
+    to right,
+    $color-background,
+    rgba($color-background, 0.4),
+    transparent
+  );
 }
 
 .hm-content {
@@ -57,14 +62,14 @@
   gap: 12px;
   font-size: 14px;
   font-weight: 500;
-  color: $color-amber;
+  color: $color-primary;
 }
 
 .hm-badge {
   padding: 2px 10px;
-  border: 1px solid $color-amber;
+  border: 1px solid $color-primary;
   border-radius: 9999px;
-  background-color: rgba(242, 160, 41, 0.1);
+  background-color: rgba($color-primary, 0.1);
   font-size: 12px;
 }
 
@@ -90,6 +95,7 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow: hidden;
   max-width: 576px;
   font-size: 18px;
@@ -123,7 +129,7 @@
   padding: 0 24px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: $radius-md;
-  background-color: rgba(10, 10, 10, 0.2);
+  background-color: rgba($color-background, 0.2);
   backdrop-filter: blur(4px);
   font-size: 16px;
   font-weight: 600;

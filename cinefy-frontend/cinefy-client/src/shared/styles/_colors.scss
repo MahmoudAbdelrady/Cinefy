@@ -7,6 +7,7 @@
 // Core surfaces
 $color-background: #0a0a0a;
 $color-foreground: #fafafa;
+$color-black: #000000;
 $color-card: #131313;
 $color-card-foreground: #fafafa;
 $color-popover: #131313;
@@ -28,23 +29,24 @@ $color-accent-foreground: #fafafa;
 $color-destructive: #e7000b;
 $color-destructive-foreground: #fafafa;
 
-// Borders, inputs, focus ring
+// Borders, inputs
 $color-border: #262626;
 $color-input: #262626;
-$color-ring: #f2a029;
-
-// Amber, reused directly where the accent needs explicit control
-$color-amber: #f2a029;
 
 // Neutral grays (Tailwind scale) — dim-white text over backdrops/scrims
 $color-gray-300: #d1d5db;
 
-// Seat tiers
+// Seat tiers (selected uses the theme accent — see $color-primary)
 $color-seat-standard: #333333;
 $color-seat-premium: #2a5885;
 $color-seat-recliner: #684d92;
-$color-seat-selected: #f2a029;
 $color-seat-taken: #222222;
+
+// ─── Shadows ─────────────────────────────────────────────────────────────────
+// Overlay shadow shared by the modal bridge and the user-info dropdown.
+$shadow-overlay:
+  0 10px 15px -3px rgba($color-black, 0.5),
+  0 4px 6px -4px rgba($color-black, 0.5);
 
 // ─── Typography ──────────────────────────────────────────────────────────────
 $font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
