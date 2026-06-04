@@ -122,19 +122,15 @@
 }
 
 .hm-trailer-btn {
-  @include flex-center;
   @include lucide-icon-fix;
-  gap: 8px;
   height: 44px;
   padding: 0 24px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: $radius-md;
   background-color: rgba($color-background, 0.2);
   backdrop-filter: blur(4px);
   font-size: 16px;
   font-weight: 600;
   color: $color-foreground;
-  transition: background-color 150ms ease;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);

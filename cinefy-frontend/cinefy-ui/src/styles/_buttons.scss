@@ -1,7 +1,7 @@
 @use "radii" as *;
 @use "mixins" as *;
 
-%btn-base {
+.btn-base {
   @include flex-center;
   gap: 8px;
   padding: 10px 24px;
@@ -13,7 +13,7 @@
 }
 
 .btn-primary {
-  @extend %btn-base;
+  @extend .btn-base;
   color: var(--cui-text-on-accent);
   background-color: var(--cui-accent);
   box-shadow: var(--cui-button-shadow);
@@ -30,7 +30,7 @@
 }
 
 .btn-secondary {
-  @extend %btn-base;
+  @extend .btn-base;
   color: var(--cui-option-text);
   background-color: var(--cui-surface-base);
   border: 1px solid var(--cui-border-default);
@@ -46,7 +46,7 @@
 }
 
 .btn-danger {
-  @extend %btn-base;
+  @extend .btn-base;
   color: var(--cui-text-on-accent);
   background-color: var(--cui-danger);
   box-shadow: var(--cui-button-shadow-strong);
@@ -62,7 +62,7 @@
 }
 
 .btn-success {
-  @extend %btn-base;
+  @extend .btn-base;
   color: var(--cui-text-on-accent);
   background-color: var(--cui-success);
   box-shadow: var(--cui-button-shadow);
