@@ -1,1 +1,114 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/buttons';
+@use 'shared/styles/colors' as *;
+
+// Bridge: maps the client's dark SCSS palette to cinefy-ui's --cui-* token contract.
+:root {
+  // Surfaces
+  --cui-surface-base: #{$color-background};
+  --cui-surface-input: #{$color-input};
+  --cui-surface-overlay: #{$color-popover};
+  --cui-surface-hover: #{$color-secondary};
+  --cui-surface-disabled: #{$color-muted};
+  --cui-surface-disabled-strong: #{$color-secondary};
+  --cui-surface-active: #{$color-accent};
+
+  // Text
+  --cui-text-primary: #{$color-foreground};
+  --cui-text-emphasis: #{$color-foreground};
+  --cui-text-muted: #{$color-muted-foreground};
+  --cui-text-hint: #{$color-muted-foreground};
+  --cui-text-strong: #{$color-foreground};
+  --cui-text-error: #{$color-destructive};
+  --cui-text-on-accent: #{$color-primary-foreground};
+
+  // Borders & focus
+  --cui-border-default: #{$color-border};
+  --cui-border-subtle: #{$color-border};
+  --cui-border-strong: #{$color-muted-foreground};
+  --cui-icon-disabled: #{$color-muted};
+  --cui-ring: #{$color-primary};
+  --cui-ring-error: #{$color-destructive};
+
+  // Accent / status
+  --cui-accent: #{$color-primary};
+  --cui-accent-hover: #{rgba($color-primary, 0.9)};
+  --cui-accent-subtle: #{$color-secondary};
+  --cui-danger: #{$color-destructive};
+  --cui-danger-hover: #{$color-destructive};
+  --cui-success: #{$color-primary};
+  --cui-success-hover: #{$color-primary};
+
+  // Modal (MVP dialog uses the lighter `popover` surface, a black scrim, and a soft shadow)
+  --cui-modal-backdrop: #{rgba($color-black, 0.5)};
+  --cui-modal-shadow: #{$shadow-overlay};
+
+  // Misc
+  --cui-scrollbar-thumb: #{$color-secondary};
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  font-family: #{$font-sans};
+  font-size: 16px;
+  color: $color-foreground;
+  background-color: $color-background;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: rgba($color-primary, 0.3);
+}
+
+// ─── Hide scrollbars on horizontal rails (date picker, seat grid) ─────────────
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// ─── Lightweight page-load reveal ────────────────────────────────────────────
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  opacity: 0;
+  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+    opacity: 1;
+  }
+}

@@ -1,0 +1,222 @@
+@use '../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+$max-width: 1152px;
+
+.app-layout-container {
+  @include flex-column;
+  min-height: 100vh;
+  background-color: $color-background;
+  color: $color-foreground;
+}
+
+// ─── Header ──────────────────────────────────────────────────────────────────
+.app-layout-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  border-bottom: 1px solid rgba($color-border, 0.4);
+  background-color: rgba($color-background, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.alh-inner {
+  @include flex-between;
+  gap: 16px;
+  height: 64px;
+  width: min(100%, #{$max-width});
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.alh-tabs {
+  @include flex-align;
+  gap: 24px;
+}
+
+.alh-main-tab {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 8px;
+  color: $color-foreground;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+  user-select: none;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  lucide-icon {
+    color: $color-primary;
+  }
+}
+
+.alh-main-tab-text {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.alh-sub-tabs {
+  @include flex-align;
+  gap: 24px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sub-tab {
+  color: rgba($color-foreground, 0.6);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 150ms ease;
+
+  &:hover {
+    color: rgba($color-foreground, 0.8);
+  }
+
+  &.active {
+    color: $color-foreground;
+  }
+}
+
+.alh-info {
+  @include flex-align;
+  gap: 8px;
+}
+
+.alh-tickets-btn {
+  position: relative;
+  @include lucide-icon-fix;
+  height: 36px;
+  padding: 0 16px;
+}
+
+.tb-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  @include flex-center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: $radius-full;
+  background-color: $color-foreground;
+  color: $color-background;
+  font-family: $font-mono;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.tb-text {
+  @include below-mobile {
+    display: none;
+  }
+}
+
+.alh-user-info {
+  @include flex-center;
+  @include lucide-icon-fix;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-full;
+  color: rgba($color-foreground, 0.7);
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+
+  &:hover {
+    color: $color-foreground;
+    background-color: $color-accent;
+  }
+}
+
+// ─── Dropdown menu (ng-primitives) ───────────────────────────────────────────
+.user-info-menu-items {
+  position: absolute;
+  width: 176px;
+  margin-top: 8px;
+  padding: 6px;
+  right: 0;
+  background-color: $color-popover;
+  color: $color-popover-foreground;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  box-shadow: $shadow-overlay;
+  z-index: 50;
+}
+
+.uim-item {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: $radius-sm;
+  font-size: 14px;
+  text-align: left;
+  color: $color-popover-foreground;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background-color: $color-accent;
+  }
+
+  lucide-icon {
+    color: $color-muted-foreground;
+  }
+}
+
+// ─── Content ─────────────────────────────────────────────────────────────────
+.app-layout-content {
+  flex: 1;
+  width: 100%;
+}
+
+// ─── Footer ──────────────────────────────────────────────────────────────────
+.app-layout-footer {
+  margin-top: 64px;
+  border-top: 1px solid rgba($color-border, 0.4);
+}
+
+.alf-inner {
+  @include flex-between;
+  gap: 12px;
+  width: min(100%, #{$max-width});
+  margin: 0 auto;
+  padding: 32px 16px;
+  font-size: 14px;
+  color: $color-muted-foreground;
+
+  @include below-mobile {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.alf-site-name {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 8px;
+  user-select: none;
+
+  lucide-icon {
+    color: $color-primary;
+  }
+}
+
+.alf-site-name-text {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: $color-foreground;
+}
+
+.alf-site-info {
+  font-size: 12px;
+}
