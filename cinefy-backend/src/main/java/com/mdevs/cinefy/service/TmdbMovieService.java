@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,6 +55,10 @@ public class TmdbMovieService {
     private String imageBaseUrl;
 
     private RestClient restClient;
+
+    private static final int TMDB_RELEASE_TYPE_THEATRICAL = 3;
+
+    private static final int TMDB_RELEASE_TYPE_THEATRICAL_LIMITED = 2;
 
     @PostConstruct
     private void init() {
@@ -81,8 +86,8 @@ public class TmdbMovieService {
         LocalDate today = LocalDate.now();
         List<MovieSearchResultDTO> upcoming = page.getContent().stream()
                 .filter(dto -> StringUtils.isNotEmpty(dto.getReleaseDate()) && !LocalDate.parse(dto.getReleaseDate()).isBefore(today))
-                .limit(Math.min(limit, 20))
                 .sorted(Comparator.comparing(MovieSearchResultDTO::getReleaseDate))
+                .limit(Math.min(limit, 20))
                 .toList();
 
         List<Long> movieIds = upcoming.stream().map(MovieSearchResultDTO::getId).toList();
@@ -285,7 +290,6 @@ public class TmdbMovieService {
         dto.setId(node.get("id").longValue());
         dto.setTitle(node.get("title").stringValue());
         dto.setSynopsis(node.path("overview").stringValue());
-        dto.setReleaseDate(node.path("release_date").stringValue());
         dto.setDuration(node.path("runtime").intValue());
 
         String posterPath = node.path("poster_path").stringValue();
@@ -297,9 +301,14 @@ public class TmdbMovieService {
         List<String> genreNames = StreamSupport.stream(node.path("genres").spliterator(), false).map(g -> g.path("name").stringValue()).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
 
-        String contentRating = StreamSupport.stream(node.path("release_dates").path("results").spliterator(), false)
+        List<JsonNode> usReleaseDates = StreamSupport.stream(node.path("release_dates").path("results").spliterator(), false)
                 .filter(r -> "US".equals(r.path("iso_3166_1").stringValue()))
                 .flatMap(r -> StreamSupport.stream(r.path("release_dates").spliterator(), false))
+                .toList();
+
+        dto.setReleaseDate(resolveUsReleaseDate(usReleaseDates, node.path("release_date").stringValue()));
+
+        String contentRating = usReleaseDates.stream()
                 .map(r -> r.path("certification").stringValue())
                 .filter(StringUtils::isNotEmpty)
                 .findFirst()
@@ -321,5 +330,23 @@ public class TmdbMovieService {
         dto.setPosterUrl(m.getPosterUrl());
         dto.setBackdropUrl(m.getBackdropUrl());
         return dto;
+    }
+
+    private String resolveUsReleaseDate(List<JsonNode> usReleaseDates, String primaryReleaseDate) {
+        String resolved = Optional.ofNullable(firstUsDateOfType(usReleaseDates, TMDB_RELEASE_TYPE_THEATRICAL))
+                .or(() -> Optional.ofNullable(firstUsDateOfType(usReleaseDates, TMDB_RELEASE_TYPE_THEATRICAL_LIMITED)))
+                .orElse(primaryReleaseDate);
+
+        // Trim TMDB's full timestamp to yyyy-MM-dd so it matches the upcoming list's format.
+        return StringUtils.isNotEmpty(resolved) && resolved.length() >= 10 ? resolved.substring(0, 10) : resolved;
+    }
+
+    private String firstUsDateOfType(List<JsonNode> usReleaseDates, int releaseType) {
+        return usReleaseDates.stream()
+                .filter(r -> r.path("type").asInt() == releaseType)
+                .map(r -> r.path("release_date").stringValue())
+                .filter(StringUtils::isNotEmpty)
+                .findFirst()
+                .orElse(null);
     }
 }
