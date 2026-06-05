@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,5 +41,6 @@ public class TmdbMovie {
     private LocalDateTime lastSyncedAt;
 
     @Column(nullable = false)
+    @ColumnDefault("false")
     private boolean isAnnounced = false;
 }
