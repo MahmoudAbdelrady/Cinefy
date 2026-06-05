@@ -24,43 +24,81 @@
       <div class="um-list">
         @for (upcomingMovie of filteredMovies(); track upcomingMovie.id) {
           <div class="movie-card">
-            <div class="mc-img">
-              <img [src]="upcomingMovie.posterUrl" [alt]="upcomingMovie.title" />
-            </div>
-            <div class="mc-body">
-              <div class="mc-info">
-                <div class="mci-title">
-                  <h4>{{ upcomingMovie.title }}</h4>
-                  @if (isComingSoon(upcomingMovie.releaseDate)) {
-                    <span class="mci-badge">Coming Soon</span>
-                  }
+            <div class="mc-main">
+              <div class="mc-img">
+                <img [src]="upcomingMovie.posterUrl" [alt]="upcomingMovie.title" />
+              </div>
+              <div class="mc-body">
+                <div class="mc-info">
+                  <div class="mci-title">
+                    <h4>{{ upcomingMovie.title }}</h4>
+                    @if (isComingSoon(upcomingMovie.releaseDate)) {
+                      <span class="mci-badge">Coming Soon</span>
+                    }
+                  </div>
+                  <div class="mci-items">
+                    @if (upcomingMovie.genre) {
+                      <span class="mci-item">{{ upcomingMovie.genre }}</span>
+                    }
+                  </div>
                 </div>
-                <div class="mci-items">
-                  @if (upcomingMovie.genre) {
-                    <span class="mci-item">{{ upcomingMovie.genre }}</span>
-                  }
+                @if (upcomingMovie.releaseDate; as releaseDate) {
+                  <div class="mc-date">
+                    <lucide-icon [img]="icons.CalendarIcon" [size]="14"></lucide-icon>
+                    <span>{{ releaseDate }}</span>
+                  </div>
+                }
+                @if (canManage()) {
+                  <div class="mc-actions">
+                    <button ngpButton [ngpDialogTrigger]="scheduleDialog">
+                      Schedule Showtimes
+                    </button>
+                  </div>
+                }
+
+                <ng-template #scheduleDialog let-close="close">
+                  <manage-showtime-modal
+                    [close]="close"
+                    [selectedMovie]="upcomingMovie"
+                    [showSelectedMovie]="true"
+                  />
+                </ng-template>
+              </div>
+            </div>
+
+            @if (canManage()) {
+              <div class="mc-visibility">
+                <div class="mcv-row" [class.mcv-row--disabled]="isCommitted(upcomingMovie.id)">
+                  <div class="mcv-label">
+                    <lucide-icon
+                      class="mcv-icon"
+                      [class.mcv-icon--on]="isAnnounced(upcomingMovie.id)"
+                      [img]="icons.MegaphoneIcon"
+                      [size]="16"
+                    ></lucide-icon>
+                    <div class="mcv-text">
+                      <p class="mcv-title">Announce to clients</p>
+                      <p class="mcv-subtitle">
+                        @if (isCommitted(upcomingMovie.id)) {
+                          Already scheduled
+                        } @else {
+                          Show in the “Coming Soon” rail
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    ngpSwitch
+                    class="mcv-switch"
+                    [ngpSwitchChecked]="isAnnounced(upcomingMovie.id)"
+                    [ngpSwitchDisabled]="isCommitted(upcomingMovie.id)"
+                    (ngpSwitchCheckedChange)="toggleAnnounced(upcomingMovie.id, $event)"
+                  >
+                    <span ngpSwitchThumb></span>
+                  </button>
                 </div>
               </div>
-              @if (upcomingMovie.releaseDate; as releaseDate) {
-                <div class="mc-date">
-                  <lucide-icon [img]="icons.CalendarIcon" [size]="14"></lucide-icon>
-                  <span>{{ releaseDate }}</span>
-                </div>
-              }
-              @if (canManage()) {
-                <div class="mc-actions">
-                  <button ngpButton [ngpDialogTrigger]="scheduleDialog">Schedule Showtimes</button>
-                </div>
-              }
-
-              <ng-template #scheduleDialog let-close="close">
-                <manage-showtime-modal
-                  [close]="close"
-                  [selectedMovie]="upcomingMovie"
-                  [showSelectedMovie]="true"
-                />
-              </ng-template>
-            </div>
+            }
           </div>
         } @empty {
           <empty-state
