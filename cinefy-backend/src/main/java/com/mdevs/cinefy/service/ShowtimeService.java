@@ -159,13 +159,15 @@ public class ShowtimeService {
             throw new BusinessException("Cannot delete a showtime that's not draft or published");
         }
         Hall hall = showtime.getHall();
+        TmdbMovie movie = showtime.getTmdbMovie();
         showtimeRepository.delete(showtime);
         flipHallIfNoActiveShowtimes(hall, showtime.getId());
+        tmdbMovieService.reannounceIfEligible(movie);
     }
 
     @Transactional
     public void deleteMovieShowtimes(Long movieId) {
-        TmdbMovie movie = findTmdbMovie(movieId);
+        TmdbMovie movie = tmdbMovieService.findTmdbMovie(movieId);
 
         List<Showtime> showtimes = showtimeRepository.findByTmdbMovieIdAndStatusIn(movie.getId(), Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED, ShowtimeStatus.RUNNING));
 
@@ -183,6 +185,7 @@ public class ShowtimeService {
         showtimeRepository.deleteAll(showtimes);
 
         affectedHalls.forEach(hall -> flipHallIfNoActiveShowtimes(hall, null));
+        tmdbMovieService.reannounceIfEligible(movie);
     }
 
     @Transactional
@@ -201,10 +204,6 @@ public class ShowtimeService {
 
     private Showtime findShowtime(String uuid) {
         return showtimeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Showtime not found: " + uuid));
-    }
-
-    private TmdbMovie findTmdbMovie(Long id) {
-        return tmdbMovieRepository.findById(id).orElseThrow(() -> new NotFoundException("Movie not found: " + id));
     }
 
     private void validateShowtime(Hall hall, TmdbMovie movie, ShowtimeDTO dto, Long showtimeId) {
@@ -242,6 +241,7 @@ public class ShowtimeService {
     }
 
     private void flipHallIfNoActiveShowtimes(Hall hall, Long excludeId) {
+        // @TODO --> This should be changed to check other statuses
         boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndIdNot(hall, ShowtimeStatus.ACTIVE_STATUSES, excludeId);
         if (!stillHasShowtimes) {
             hallService.updateHallStatus(hall, HallStatus.ACTIVE);
@@ -259,6 +259,7 @@ public class ShowtimeService {
         validateShowtimeNotInPast(showtime);
         showtime.setStatus(ShowtimeStatus.PUBLISHED);
         showtimeRepository.save(showtime);
+        tmdbMovieService.clearAnnouncement(showtime.getTmdbMovie());
     }
 
     private void publishDraftsForMovie(Long movieId, LocalDate date) {
@@ -273,6 +274,7 @@ public class ShowtimeService {
             showtime.setStatus(ShowtimeStatus.PUBLISHED);
             showtimeRepository.save(showtime);
         }
+        tmdbMovieService.clearAnnouncement(tmdbMovieService.findTmdbMovie(movieId));
     }
 
     private Showtime applyDtoToShowtime(Showtime showtime, Hall hall, TmdbMovie movie, ShowtimeDTO dto) {

@@ -46,9 +46,12 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
             AND s.status IN :statuses
             ORDER BY CAST(s.startDateTime AS LocalDate) ASC
             """)
-    List<LocalDate> findDistinctShowtimeDatesByMovieAndStatuses(@Param("movieId") Long movieId, @Param("statuses") Set<ShowtimeStatus> statuses);
+    List<LocalDate> findDistinctShowtimeDatesByMovieAndStatuses(@Param("movieId") Long movieId,
+                                                                @Param("statuses") Set<ShowtimeStatus> statuses);
 
     long countByTmdbMovieIdAndStatus(Long tmdbMovieId, ShowtimeStatus status);
+
+    boolean existsByTmdbMovieIdAndStatusNot(Long tmdbMovieId, ShowtimeStatus status);
 
     List<Showtime> findByTmdbMovieIdAndStatusIn(Long tmdbMovieId, Set<ShowtimeStatus> statuses);
 

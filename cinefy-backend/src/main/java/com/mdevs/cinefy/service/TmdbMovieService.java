@@ -4,8 +4,12 @@ import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.JsonNode;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
+import com.mdevs.cinefy.dto.movie.UpcomingMovieDTO;
 import com.mdevs.cinefy.entity.TmdbMovie;
+import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
+import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
+import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.utils.TmdbGenres;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Slf4j
@@ -33,6 +41,8 @@ import java.util.stream.StreamSupport;
 public class TmdbMovieService {
 
     private final TmdbMovieRepository tmdbMovieRepository;
+
+    private final ShowtimeRepository showtimeRepository;
 
     @Value("${app.tmdb.api-base-url}")
     private String apiBaseUrl;
@@ -66,14 +76,32 @@ public class TmdbMovieService {
                 .orElseGet(() -> fetchMovieDetailsFromTmdb(tmdbId));
     }
 
-    public List<MovieSearchResultDTO> getUpcomingMovies(int limit) {
+    public List<UpcomingMovieDTO> getUpcomingMovies(int limit) {
         Page<MovieSearchResultDTO> page = fetchMoviePage("/movie/upcoming?language=en-US&region=us&page={page}", Pageable.unpaged(), 1);
         LocalDate today = LocalDate.now();
-        return page.getContent().stream()
+        List<MovieSearchResultDTO> upcoming = page.getContent().stream()
                 .filter(dto -> StringUtils.isNotEmpty(dto.getReleaseDate()) && !LocalDate.parse(dto.getReleaseDate()).isBefore(today))
                 .limit(Math.min(limit, 20))
                 .sorted(Comparator.comparing(MovieSearchResultDTO::getReleaseDate))
                 .toList();
+
+        List<Long> movieIds = upcoming.stream().map(MovieSearchResultDTO::getId).toList();
+        Map<Long, TmdbMovie> localById = tmdbMovieRepository.findAllById(movieIds).stream().collect(Collectors.toMap(TmdbMovie::getId, Function.identity()));
+        Set<Long> committedMovieIds = tmdbMovieRepository.findMovieIdsWithShowtimeStatusNot(movieIds, ShowtimeStatus.DRAFT);
+
+        return upcoming.stream()
+                .map(dto -> toUpcomingMovie(dto, localById.get(dto.getId()), committedMovieIds.contains(dto.getId())))
+                .toList();
+    }
+
+    public List<MovieSearchResultDTO> getAnnouncedUpcoming() {
+        return tmdbMovieRepository.findAnnouncedUpcoming(LocalDate.now()).stream()
+                .map(this::toMovieSearchResult)
+                .toList();
+    }
+
+    public TmdbMovie findTmdbMovie(long tmdbId) {
+        return tmdbMovieRepository.findById(tmdbId).orElseThrow(() -> new NotFoundException("Movie not found: " + tmdbId));
     }
 
     public TmdbMovie fetchAndCache(long tmdbId) {
@@ -84,6 +112,47 @@ public class TmdbMovieService {
             applyDetailsToMovie(movie, details);
             return tmdbMovieRepository.save(movie);
         });
+    }
+
+    @Transactional
+    public void setAnnouncement(long tmdbId, boolean announced) {
+        if (announced) {
+            TmdbMovie movie = fetchAndCache(tmdbId);
+            validateAnnounceable(movie);
+            movie.setAnnounced(true);
+            tmdbMovieRepository.save(movie);
+            return;
+        }
+
+        TmdbMovie movie = findTmdbMovie(tmdbId);
+        if (showtimeRepository.existsByTmdbMovieIdAndStatusNot(movie.getId(), ShowtimeStatus.DRAFT)) {
+            throw new BusinessException("'" + movie.getTitle() + "' already has scheduled showtimes");
+        }
+        movie.setAnnounced(false);
+        tmdbMovieRepository.save(movie);
+    }
+
+    @Transactional
+    public void clearAnnouncement(TmdbMovie movie) {
+        if (movie.isAnnounced()) {
+            movie.setAnnounced(false);
+            tmdbMovieRepository.save(movie);
+        }
+    }
+
+    @Transactional
+    public void reannounceIfEligible(TmdbMovie movie) {
+        if (movie.isAnnounced()) {
+            return;
+        }
+        if (movie.getReleaseDate() == null || !movie.getReleaseDate().isAfter(LocalDate.now())) {
+            return;
+        }
+        if (showtimeRepository.existsByTmdbMovieIdAndStatusNot(movie.getId(), ShowtimeStatus.DRAFT)) {
+            return;
+        }
+        movie.setAnnounced(true);
+        tmdbMovieRepository.save(movie);
     }
 
     @Transactional
@@ -102,10 +171,22 @@ public class TmdbMovieService {
 
     @Transactional
     public int deleteOrphans() {
-        return tmdbMovieRepository.deleteOrphans();
+        return tmdbMovieRepository.deleteOrphans(LocalDate.now());
     }
 
     // =========================== Helpers ===========================
+
+    private void validateAnnounceable(TmdbMovie movie) {
+        if (movie.getReleaseDate() == null) {
+            throw new BusinessException("'" + movie.getTitle() + "' has no release date yet and cannot be announced");
+        }
+        if (!movie.getReleaseDate().isAfter(LocalDate.now())) {
+            throw new BusinessException("'" + movie.getTitle() + "' has already been released");
+        }
+        if (showtimeRepository.existsByTmdbMovieIdAndStatusNot(movie.getId(), ShowtimeStatus.DRAFT)) {
+            throw new BusinessException("'" + movie.getTitle() + "' already has scheduled showtimes");
+        }
+    }
 
     private Page<MovieSearchResultDTO> fetchMoviePage(String uriTemplate, Pageable pageable, Object... uriVars) {
         JsonNode root = restClient.get()
@@ -172,6 +253,30 @@ public class TmdbMovieService {
         List<String> genreNames = StreamSupport.stream(node.path("genre_ids").spliterator(), false).map(g -> TmdbGenres.resolve(g.asInt())).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
 
+        return dto;
+    }
+
+    private UpcomingMovieDTO toUpcomingMovie(MovieSearchResultDTO source, TmdbMovie local, boolean hasCommittedShowtimes) {
+        UpcomingMovieDTO dto = new UpcomingMovieDTO();
+        dto.setId(source.getId());
+        dto.setTitle(source.getTitle());
+        dto.setGenre(source.getGenre());
+        dto.setReleaseDate(source.getReleaseDate());
+        dto.setPosterUrl(source.getPosterUrl());
+        dto.setBackdropUrl(source.getBackdropUrl());
+        dto.setAnnounced(local != null && local.isAnnounced());
+        dto.setHasCommittedShowtimes(hasCommittedShowtimes);
+        return dto;
+    }
+
+    private MovieSearchResultDTO toMovieSearchResult(TmdbMovie movie) {
+        MovieSearchResultDTO dto = new MovieSearchResultDTO();
+        dto.setId(movie.getId());
+        dto.setTitle(movie.getTitle());
+        dto.setGenre(movie.getGenres());
+        dto.setReleaseDate(movie.getReleaseDate() != null ? movie.getReleaseDate().toString() : null);
+        dto.setPosterUrl(movie.getPosterUrl());
+        dto.setBackdropUrl(movie.getBackdropUrl());
         return dto;
     }
 

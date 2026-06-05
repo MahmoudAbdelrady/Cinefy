@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(indexes = @Index(columnList = "IS_ANNOUNCED, RELEASE_DATE"))
 public class TmdbMovie {
 
     @Id
@@ -37,4 +38,7 @@ public class TmdbMovie {
 
     @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime lastSyncedAt;
+
+    @Column(nullable = false)
+    private boolean isAnnounced = false;
 }
