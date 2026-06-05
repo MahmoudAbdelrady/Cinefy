@@ -26,7 +26,7 @@ export type {
   ResetPasswordPayload,
 } from './auth';
 
-export type { Movie, MovieSearchResult, MovieDetail } from './movies';
+export type { Movie, MovieSearchResult, UpcomingMovie, MovieDetail } from './movies';
 
 export {
   PAYMENT_METHOD_TYPE_LABELS,

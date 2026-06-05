@@ -91,7 +91,9 @@
                     ngpSwitch
                     class="mcv-switch"
                     [ngpSwitchChecked]="isAnnounced(upcomingMovie.id)"
-                    [ngpSwitchDisabled]="isCommitted(upcomingMovie.id)"
+                    [ngpSwitchDisabled]="
+                      isCommitted(upcomingMovie.id) || isPending(upcomingMovie.id)
+                    "
                     (ngpSwitchCheckedChange)="toggleAnnounced(upcomingMovie.id, $event)"
                   >
                     <span ngpSwitchThumb></span>
