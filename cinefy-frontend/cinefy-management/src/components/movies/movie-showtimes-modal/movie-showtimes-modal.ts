@@ -414,7 +414,16 @@ export class MovieShowtimesModal {
     if (wasDraft) {
       this.dayDrafts.update((n) => n - 1);
       this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: m.numberOfDrafts - 1 } : m));
+    } else {
+      this.movieShowtimes.update((m) =>
+        m ? { ...m, numberOfCommitted: m.numberOfCommitted - 1 } : m,
+      );
     }
+
+    this.showtimeEvents.notifyCommittedChanged(
+      this.selectedMovie().id,
+      (this.movieShowtimes()?.numberOfCommitted ?? 0) > 0,
+    );
 
     if (this.movieShowtimeDetails().length === 0) {
       this.dropDateAndPickNeighbour(this.selectedTab());
@@ -429,7 +438,11 @@ export class MovieShowtimesModal {
       list.map((s) => (s.id === id ? { ...s, status: 'PUBLISHED' } : s)),
     );
     this.dayDrafts.update((n) => n - 1);
-    this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: m.numberOfDrafts - 1 } : m));
+    this.movieShowtimes.update((m) =>
+      m
+        ? { ...m, numberOfDrafts: m.numberOfDrafts - 1, numberOfCommitted: m.numberOfCommitted + 1 }
+        : m,
+    );
   }
 
   private applyLocalBulkPublish(remainingDrafts: number): void {
@@ -437,7 +450,15 @@ export class MovieShowtimesModal {
       list.map((s) => (s.status === 'DRAFT' ? { ...s, status: 'PUBLISHED' } : s)),
     );
     this.dayDrafts.set(0);
-    this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: remainingDrafts } : m));
+    this.movieShowtimes.update((m) =>
+      m
+        ? {
+            ...m,
+            numberOfCommitted: m.numberOfCommitted + (m.numberOfDrafts - remainingDrafts),
+            numberOfDrafts: remainingDrafts,
+          }
+        : m,
+    );
   }
 
   private dropDateAndPickNeighbour(date: string | undefined): void {

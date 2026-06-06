@@ -62,6 +62,7 @@ interface MovieShowtimeListItem {
 
 interface MovieShowtimeDatesResponse {
   numberOfDrafts: number;
+  numberOfCommitted: number;
   dates: string[];
 }
 

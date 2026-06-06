@@ -1,4 +1,13 @@
-import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
@@ -12,7 +21,7 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { LoadingSpinnerComponent, EmptyStateComponent, InputField } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
-import { MoviesService, StaffService } from '../../../services';
+import { MoviesService, ShowtimeEventsService, StaffService } from '../../../services';
 
 @Component({
   selector: 'upcoming-movies',
@@ -40,6 +49,7 @@ export class UpcomingMoviesComponent {
   private readonly moviesService = inject(MoviesService);
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
+  private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
@@ -80,6 +90,18 @@ export class UpcomingMoviesComponent {
           this.toastService.error(err.error?.message ?? 'Failed to load upcoming movies');
         },
       });
+    });
+
+    effect(() => {
+      const event = this.showtimeEvents.published();
+      if (!event) return;
+      untracked(() => this.markCommitted(event.movieId));
+    });
+
+    effect(() => {
+      const event = this.showtimeEvents.committedChanged();
+      if (!event) return;
+      untracked(() => this.setCommitted(event.movieId, event.hasCommittedShowtimes));
     });
   }
 
@@ -139,6 +161,20 @@ export class UpcomingMoviesComponent {
     this.pendingIds.update((ids) => {
       const next = new Set(ids);
       pending ? next.add(movieId) : next.delete(movieId);
+      return next;
+    });
+  }
+
+  private markCommitted(movieId: number): void {
+    this.setCommitted(movieId, true);
+    this.setAnnounced(movieId, false);
+  }
+
+  private setCommitted(movieId: number, committed: boolean): void {
+    if (!this.movies().some((movie) => movie.id === movieId)) return;
+    this.committedIds.update((ids) => {
+      const next = new Set(ids);
+      committed ? next.add(movieId) : next.delete(movieId);
       return next;
     });
   }

@@ -51,6 +51,8 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
 
     long countByTmdbMovieIdAndStatus(Long tmdbMovieId, ShowtimeStatus status);
 
+    long countByTmdbMovieIdAndStatusNot(Long tmdbMovieId, ShowtimeStatus status);
+
     boolean existsByTmdbMovieIdAndStatusNot(Long tmdbMovieId, ShowtimeStatus status);
 
     List<Showtime> findByTmdbMovieIdAndStatusIn(Long tmdbMovieId, Set<ShowtimeStatus> statuses);

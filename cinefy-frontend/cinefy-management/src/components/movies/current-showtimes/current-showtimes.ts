@@ -168,6 +168,7 @@ export class CurrentShowtimesComponent {
           this.markDeleting(id, false);
           this.toastService.success('Showtimes deleted');
           this.showtimeEvents.notifyDeleted(id);
+          this.showtimeEvents.notifyCommittedChanged(id, false);
           close();
         },
         error: (err: HttpErrorResponse) => {

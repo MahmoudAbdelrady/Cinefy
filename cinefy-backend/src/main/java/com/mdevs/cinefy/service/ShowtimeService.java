@@ -60,9 +60,11 @@ public class ShowtimeService {
         }
 
         long numberOfDrafts = showtimeRepository.countByTmdbMovieIdAndStatus(movieId, ShowtimeStatus.DRAFT);
+        long numberOfCommitted = showtimeRepository.countByTmdbMovieIdAndStatusNot(movieId, ShowtimeStatus.DRAFT);
 
         MovieShowtimeDatesDTO dto = new MovieShowtimeDatesDTO();
         dto.setNumberOfDrafts(numberOfDrafts);
+        dto.setNumberOfCommitted(numberOfCommitted);
         dto.setDates(dates.stream().map(LocalDate::toString).toList());
         return dto;
     }
