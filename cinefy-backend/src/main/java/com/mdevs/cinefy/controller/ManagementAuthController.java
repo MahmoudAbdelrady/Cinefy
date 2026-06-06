@@ -63,7 +63,9 @@ public class ManagementAuthController {
 
         if (StringUtils.isNotEmpty(tokens.refreshToken())) {
             ResponseCookie refreshTokenCookie = cookieUtil.buildRefreshTokenCookie(tokens.refreshToken(), refreshTokenExpiration);
+            ResponseCookie csrfTokenCookie = cookieUtil.buildCsrfTokenCookie(UUID.randomUUID().toString(), refreshTokenExpiration);
             responseBuilder.header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+            responseBuilder.header(HttpHeaders.SET_COOKIE, csrfTokenCookie.toString());
         }
 
         return responseBuilder.build();
