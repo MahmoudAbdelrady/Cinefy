@@ -167,9 +167,7 @@ public class ShowtimeService {
 
     @Transactional
     public void deleteMovieShowtimes(Long movieId) {
-        TmdbMovie movie = tmdbMovieService.findTmdbMovie(movieId);
-
-        List<Showtime> showtimes = showtimeRepository.findByTmdbMovieIdAndStatusIn(movie.getId(), Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED, ShowtimeStatus.RUNNING));
+        List<Showtime> showtimes = showtimeRepository.findByTmdbMovieIdAndStatusIn(movieId, Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED, ShowtimeStatus.RUNNING));
 
         if (showtimes.isEmpty()) {
             throw new NotFoundException("No showtimes found for the provided movie");
