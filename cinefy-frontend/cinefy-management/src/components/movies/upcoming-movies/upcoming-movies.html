@@ -48,13 +48,9 @@
                     <span>{{ releaseDate }}</span>
                   </div>
                 }
-                @if (canManage()) {
-                  <div class="mc-actions">
-                    <button ngpButton [ngpDialogTrigger]="scheduleDialog">
-                      Schedule Showtimes
-                    </button>
-                  </div>
-                }
+                <div class="mc-actions">
+                  <button ngpButton [ngpDialogTrigger]="scheduleDialog">Schedule Showtimes</button>
+                </div>
 
                 <ng-template #scheduleDialog let-close="close">
                   <manage-showtime-modal
@@ -66,41 +62,37 @@
               </div>
             </div>
 
-            @if (canManage()) {
-              <div class="mc-visibility">
-                <div class="mcv-row" [class.mcv-row--disabled]="isCommitted(upcomingMovie.id)">
-                  <div class="mcv-label">
-                    <lucide-icon
-                      class="mcv-icon"
-                      [class.mcv-icon--on]="isAnnounced(upcomingMovie.id)"
-                      [img]="icons.MegaphoneIcon"
-                      [size]="16"
-                    ></lucide-icon>
-                    <div class="mcv-text">
-                      <p class="mcv-title">Announce to clients</p>
-                      <p class="mcv-subtitle">
-                        @if (isCommitted(upcomingMovie.id)) {
-                          Already scheduled
-                        } @else {
-                          Show in the “Coming Soon” rail
-                        }
-                      </p>
-                    </div>
+            <div class="mc-visibility">
+              <div class="mcv-row" [class.mcv-row--disabled]="isCommitted(upcomingMovie.id)">
+                <div class="mcv-label">
+                  <lucide-icon
+                    class="mcv-icon"
+                    [class.mcv-icon--on]="isAnnounced(upcomingMovie.id)"
+                    [img]="icons.MegaphoneIcon"
+                    [size]="16"
+                  ></lucide-icon>
+                  <div class="mcv-text">
+                    <p class="mcv-title">Announce to clients</p>
+                    <p class="mcv-subtitle">
+                      @if (isCommitted(upcomingMovie.id)) {
+                        Already scheduled
+                      } @else {
+                        Show in the “Coming Soon” rail
+                      }
+                    </p>
                   </div>
-                  <button
-                    ngpSwitch
-                    class="mcv-switch"
-                    [ngpSwitchChecked]="isAnnounced(upcomingMovie.id)"
-                    [ngpSwitchDisabled]="
-                      isCommitted(upcomingMovie.id) || isPending(upcomingMovie.id)
-                    "
-                    (ngpSwitchCheckedChange)="toggleAnnounced(upcomingMovie.id, $event)"
-                  >
-                    <span ngpSwitchThumb></span>
-                  </button>
                 </div>
+                <button
+                  ngpSwitch
+                  class="mcv-switch"
+                  [ngpSwitchChecked]="isAnnounced(upcomingMovie.id)"
+                  [ngpSwitchDisabled]="isCommitted(upcomingMovie.id) || isPending(upcomingMovie.id)"
+                  (ngpSwitchCheckedChange)="toggleAnnounced(upcomingMovie.id, $event)"
+                >
+                  <span ngpSwitchThumb></span>
+                </button>
               </div>
-            }
+            </div>
           </div>
         } @empty {
           <empty-state

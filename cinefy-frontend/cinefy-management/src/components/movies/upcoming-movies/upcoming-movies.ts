@@ -14,14 +14,13 @@ import { FormControl } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { CalendarIcon, MegaphoneIcon, SearchIcon } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
-import { canManage as canManagePosition } from '../../../shared/access';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { LoadingSpinnerComponent, EmptyStateComponent, InputField } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
-import { MoviesService, ShowtimeEventsService, StaffService } from '../../../services';
+import { MoviesService, ShowtimeEventsService } from '../../../services';
 
 @Component({
   selector: 'upcoming-movies',
@@ -47,16 +46,9 @@ export class UpcomingMoviesComponent {
   };
 
   private readonly moviesService = inject(MoviesService);
-  private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly destroyRef = inject(DestroyRef);
-
-  private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
-  protected readonly canManage = computed(() => {
-    const user = this.currentUser();
-    return user ? canManagePosition(user.position) : false;
-  });
 
   protected readonly loading = signal(true);
   protected readonly movies = signal<UpcomingMovie[]>([]);
