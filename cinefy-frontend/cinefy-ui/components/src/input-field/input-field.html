@@ -3,11 +3,17 @@
   <label class="if-label" [attr.data-required]="required ? '' : null">{{ labelText }}</label>
   }
 
-  <div class="if-input" [class.has-leading]="!!leadingIcon()" [class.has-trailing]="type() === 'password'">
+  <div
+    class="if-input"
+    [attr.data-size]="size()"
+    [class.has-leading]="!!leadingIcon()"
+    [class.has-trailing]="type() === 'password'"
+  >
     @if (leadingIcon(); as icon) {
     <lucide-icon class="if-leading" [img]="icon" [size]="18" />
     }
     <input
+      #inputEl
       ngpInput
       [formControl]="control()"
       [type]="resolvedType()"

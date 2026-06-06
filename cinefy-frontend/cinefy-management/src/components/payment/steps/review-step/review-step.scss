@@ -203,8 +203,7 @@
 }
 
 .rsct-row {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 16px;
 
   @include below-mobile {
@@ -234,8 +233,7 @@
 }
 
 .rsct-result {
-  display: flex;
-  align-items: center;
+  @include flex-align;
   gap: 12px;
   padding: 12px;
   border-radius: $radius-lg;

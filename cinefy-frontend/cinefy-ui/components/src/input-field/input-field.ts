@@ -1,10 +1,21 @@
-import { Component, computed, input, type InputSignal, signal } from "@angular/core";
+import {
+  afterNextRender,
+  Component,
+  computed,
+  ElementRef,
+  input,
+  type InputSignal,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { LucideAngularModule, LucideIconData } from "lucide-angular";
 import { EyeIcon, EyeOffIcon } from "../icons";
 import { NgpInput } from "ng-primitives/input";
 import { NgpButton } from "ng-primitives/button";
 import { FieldErrorComponent } from "../field-error/field-error";
+
+type InputFieldSize = "sm" | "md";
 
 @Component({
   selector: "input-field",
@@ -18,6 +29,8 @@ export class InputField {
     EyeOffIcon,
   };
 
+  private readonly inputEl = viewChild<ElementRef<HTMLInputElement>>("inputEl");
+
   readonly control = input.required<FormControl>();
   readonly label: InputSignal<string | null> = input<string | null>(null);
   readonly type = input<"text" | "number" | "password">("text");
@@ -27,8 +40,16 @@ export class InputField {
   readonly errorMessages = input<Record<string, string>>({});
   readonly monospace = input<boolean>(false);
   readonly blockClipboard = input<boolean>(false);
+  readonly size: InputSignal<InputFieldSize> = input<InputFieldSize>("md");
+  readonly autoFocus = input<boolean>(false);
 
   protected readonly showPassword = signal(false);
+
+  constructor() {
+    afterNextRender(() => {
+      if (this.autoFocus()) this.inputEl()?.nativeElement.focus();
+    });
+  }
 
   protected readonly resolvedType = computed(() => {
     if (this.type() !== "password") return this.type();

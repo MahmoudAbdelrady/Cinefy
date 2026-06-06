@@ -17,6 +17,7 @@
   --cui-text-primary: #{$color-foreground};
   --cui-text-emphasis: #{$color-foreground};
   --cui-text-muted: #{$color-muted-foreground};
+  --cui-text-faint: #{rgba($color-foreground, 0.4)};
   --cui-text-hint: #{$color-muted-foreground};
   --cui-text-strong: #{$color-foreground};
   --cui-text-error: #{$color-destructive};
@@ -34,10 +35,17 @@
   --cui-accent: #{$color-primary};
   --cui-accent-hover: #{rgba($color-primary, 0.9)};
   --cui-accent-subtle: #{$color-secondary};
+  --cui-highlight: #{$color-primary};
+  --cui-highlight-ring: #{$color-primary};
   --cui-danger: #{$color-destructive};
   --cui-danger-hover: #{$color-destructive};
   --cui-success: #{$color-primary};
   --cui-success-hover: #{$color-primary};
+
+  // Switch
+  --cui-switch-track: #{$color-secondary};
+  --cui-switch-thumb: #{$color-foreground};
+  --cui-switch-thumb-shadow: #{$shadow-overlay};
 
   // Modal (MVP dialog uses the lighter `popover` surface, a black scrim, and a soft shadow)
   --cui-modal-backdrop: #{rgba($color-black, 0.5)};

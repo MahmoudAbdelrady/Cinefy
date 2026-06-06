@@ -66,7 +66,9 @@ src/
 │   └── stepper/                        # Wizard step indicator
 │                                       # Shared UI (input-field, field-error, loading-spinner,
 │                                       # custom-select, async-select, phone-input, toast,
-│                                       # modal, pagination, date-picker, time-picker) lives in cinefy-ui.
+│                                       # modal, pagination, date-picker, time-picker, switch) lives in cinefy-ui.
+│                                       #   switch (<cui-switch>): size md|sm, color accent|highlight;
+│                                       #     [checked]/[disabled] inputs, (checkedChange) output.
 │                                       #   custom-select: static items[] + client-side search.
 │                                       #   async-select: lazy fetchFn (loads on first open, spinner);
 │                                       #     accepts a paged (PaginatedResponse) or flat (T[]) source.

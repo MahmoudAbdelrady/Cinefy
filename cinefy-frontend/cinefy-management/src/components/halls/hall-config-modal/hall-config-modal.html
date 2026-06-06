@@ -119,15 +119,11 @@
           />
           <div class="switch-group">
             <span>Supports 3D</span>
-            <button
-              ngpSwitch
-              class="switch-button"
-              [ngpSwitchChecked]="supports3DValue()"
-              (ngpSwitchCheckedChange)="hallForm.controls.supports3D.setValue($event)"
-              [ngpSwitchDisabled]="isViewMode()"
-            >
-              <span ngpSwitchThumb></span>
-            </button>
+            <cui-switch
+              [checked]="supports3DValue()"
+              [disabled]="isViewMode()"
+              (checkedChange)="hallForm.controls.supports3D.setValue($event)"
+            />
           </div>
         </div>
         @if (!isViewMode()) {
@@ -180,15 +176,12 @@
                       <span class="sg-label-icon">S</span>
                       <span class="sg-label-text">On-Site Only</span>
                     </div>
-                    <button
-                      ngpSwitch
-                      class="switch-button onsite-switch"
-                      [ngpSwitchChecked]="onSiteOnly()"
-                      (ngpSwitchCheckedChange)="setOnSiteOnly($event)"
-                      [ngpSwitchDisabled]="selectedSeatCategory().type === 'AISLE'"
-                    >
-                      <span ngpSwitchThumb></span>
-                    </button>
+                    <cui-switch
+                      color="highlight"
+                      [checked]="onSiteOnly()"
+                      [disabled]="selectedSeatCategory().type === 'AISLE'"
+                      (checkedChange)="setOnSiteOnly($event)"
+                    />
                   </label>
                 </div>
                 <div class="tip-container">

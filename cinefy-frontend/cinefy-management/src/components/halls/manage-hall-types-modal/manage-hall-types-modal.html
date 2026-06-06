@@ -6,7 +6,13 @@
 >
   <div class="manage-types-modal-content">
     <div class="existing-types-container">
-      <h3>Existing Types</h3>
+      <div class="section-head">
+        <h3>Existing Types</h3>
+        <span class="sh-rule"></span>
+        @if (!loadingTypes() && hallTypes().length) {
+          <span class="sh-count">{{ hallTypes().length }}</span>
+        }
+      </div>
       @if (loadingTypes()) {
         <div class="loading-types">
           <loading-spinner variant="lg" />
@@ -16,37 +22,51 @@
           @for (type of hallTypes(); track type.id) {
             <div class="existing-type-item">
               @if (editingTypeId() === type.id) {
-                <div class="edit-type-field">
-                  <input
-                    type="text"
-                    class="edit-type-input"
-                    [formControl]="editNameControl"
-                    (keydown)="onEditTypeKeydown($event, type)"
-                    (blur)="editNameControl.markAsTouched()"
-                    autofocus
-                  />
-                  <field-error [control]="editNameControl" [messages]="nameErrorMessages" />
-                </div>
-                <div class="action-buttons editing">
-                  <button
-                    ngpButton
-                    (click)="confirmEditType(type)"
-                    title="Save"
-                    [disabled]="editNameControl.invalid || savingTypeId() === type.id"
-                  >
-                    <lucide-icon
-                      [img]="savingTypeId() === type.id ? icons.LoaderIcon : icons.CheckIcon"
-                      [size]="14"
-                      [strokeWidth]="2.5"
-                      [class.spin]="savingTypeId() === type.id"
-                    ></lucide-icon>
-                  </button>
-                  <button ngpButton (click)="cancelEditType()" title="Cancel">
-                    <lucide-icon [img]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></lucide-icon>
-                  </button>
-                </div>
+                <form
+                  class="edit-type-form"
+                  [formGroup]="editTypeForm"
+                  (ngSubmit)="confirmEditType(type)"
+                  (keydown.escape)="cancelEditType()"
+                >
+                  <div class="type-tile">
+                    <lucide-icon [img]="icons.TagIcon" [size]="17" [strokeWidth]="2"></lucide-icon>
+                  </div>
+                  <div class="inline-edit-field">
+                    <input-field
+                      size="sm"
+                      [control]="editTypeForm.controls.name"
+                      [errorMessages]="nameErrorMessages"
+                      [autoFocus]="true"
+                    />
+                  </div>
+                  <div class="action-buttons editing">
+                    <button
+                      ngpButton
+                      type="submit"
+                      title="Save"
+                      [disabled]="editTypeForm.invalid || savingTypeId() === type.id"
+                    >
+                      <lucide-icon
+                        [img]="savingTypeId() === type.id ? icons.LoaderIcon : icons.CheckIcon"
+                        [size]="14"
+                        [strokeWidth]="2.5"
+                        [class.spin]="savingTypeId() === type.id"
+                      ></lucide-icon>
+                    </button>
+                    <button ngpButton type="button" (click)="cancelEditType()" title="Cancel">
+                      <lucide-icon
+                        [img]="icons.XIcon"
+                        [size]="14"
+                        [strokeWidth]="2.5"
+                      ></lucide-icon>
+                    </button>
+                  </div>
+                </form>
               } @else {
-                <span>{{ type.name }}</span>
+                <div class="type-tile">
+                  <lucide-icon [img]="icons.TagIcon" [size]="17" [strokeWidth]="2"></lucide-icon>
+                </div>
+                <span class="type-name">{{ type.name }}</span>
                 <div class="action-buttons">
                   <button ngpButton (click)="startEditingType(type)">
                     <lucide-icon
@@ -119,24 +139,30 @@
     </div>
     <div class="new-type-container">
       @if (showNewTypeForm()) {
-        <div class="new-type-form">
-          <div class="new-type-field">
-            <input
-              type="text"
+        <form
+          class="new-type-form"
+          [formGroup]="newTypeForm"
+          (ngSubmit)="addType()"
+          (keydown.escape)="cancelAddType()"
+        >
+          <div class="type-tile">
+            <lucide-icon [img]="icons.TagIcon" [size]="17" [strokeWidth]="2"></lucide-icon>
+          </div>
+          <div class="inline-edit-field">
+            <input-field
+              size="sm"
               placeholder="e.g. ScreenX, Dolby Atmos"
-              [formControl]="newTypeControl"
-              (keydown)="onNewTypeKeydown($event)"
-              (blur)="newTypeControl.markAsTouched()"
-              autofocus
+              [control]="newTypeForm.controls.name"
+              [errorMessages]="nameErrorMessages"
+              [autoFocus]="true"
             />
-            <field-error [control]="newTypeControl" [messages]="nameErrorMessages" />
           </div>
           <div class="action-buttons editing">
             <button
               ngpButton
-              (click)="addType()"
+              type="submit"
               title="Save"
-              [disabled]="newTypeControl.invalid || addingType()"
+              [disabled]="newTypeForm.invalid || addingType()"
             >
               <lucide-icon
                 [img]="addingType() ? icons.LoaderIcon : icons.CheckIcon"
@@ -145,11 +171,11 @@
                 [class.spin]="addingType()"
               ></lucide-icon>
             </button>
-            <button ngpButton (click)="cancelAddType()" title="Cancel">
+            <button ngpButton type="button" (click)="cancelAddType()" title="Cancel">
               <lucide-icon [img]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></lucide-icon>
             </button>
           </div>
-        </div>
+        </form>
       } @else {
         <button ngpButton class="btn-add-new-type" (click)="startAddingType()">
           <lucide-icon [img]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>

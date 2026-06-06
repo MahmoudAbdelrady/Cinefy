@@ -119,8 +119,7 @@ $sidebar-width: 256px;
   }
 
   lucide-icon {
-    display: flex;
-    align-items: center;
+    @include flex-align;
     flex-shrink: 0;
   }
 

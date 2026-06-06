@@ -90,14 +90,10 @@
         </div>
         <div class="switch-group">
           <span>Show in 3D</span>
-          <button
-            ngpSwitch
-            class="switch-button"
-            [ngpSwitchChecked]="showtimeForm.controls.is3D.value"
-            (ngpSwitchCheckedChange)="showtimeForm.controls.is3D.setValue($event)"
-          >
-            <span ngpSwitchThumb></span>
-          </button>
+          <cui-switch
+            [checked]="showtimeForm.controls.is3D.value"
+            (checkedChange)="showtimeForm.controls.is3D.setValue($event)"
+          />
         </div>
         <div class="input-group">
           <label>Special Notes (Optional)</label>

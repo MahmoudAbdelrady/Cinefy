@@ -1,5 +1,6 @@
 import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   USER_POSITION_LABELS,
   type CoverageChange,
@@ -8,16 +9,19 @@ import {
   type UserPosition,
 } from '../../../shared/types';
 import { StaffService } from '../../../services';
+import { InfoIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 
 @Component({
   selector: 'staff-position-coverage',
-  imports: [LoadingSpinnerComponent],
+  imports: [LoadingSpinnerComponent, LucideAngularModule],
   templateUrl: './staff-position-coverage.html',
   styleUrl: './staff-position-coverage.scss',
 })
 export class StaffPositionCoverageComponent {
+  protected readonly icons = { info: InfoIcon };
+
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
 

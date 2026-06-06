@@ -175,17 +175,13 @@ export class MovieShowtimesModal {
       onCleanup(() => sub.unsubscribe());
     });
 
-    effect(() => {
-      const created = this.showtimeEvents.created();
-      if (!created) return;
-      untracked(() => this.applyCreatedShowtime(created));
-    });
+    this.showtimeEvents.created$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((created) => this.applyCreatedShowtime(created));
 
-    effect(() => {
-      const updated = this.showtimeEvents.updated();
-      if (!updated) return;
-      untracked(() => this.applyUpdatedShowtime(updated));
-    });
+    this.showtimeEvents.updated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((updated) => this.applyUpdatedShowtime(updated));
 
     afterRenderEffect(() => {
       const els = this.noteEls();

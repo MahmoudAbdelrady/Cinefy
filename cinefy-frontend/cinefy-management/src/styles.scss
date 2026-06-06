@@ -18,6 +18,7 @@
   --cui-text-primary: #{$gray-900};
   --cui-text-emphasis: #{$gray-800};
   --cui-text-muted: #{$gray-500};
+  --cui-text-faint: #{$gray-400};
   --cui-text-hint: #{$gray-500};
   --cui-text-strong: #{$gray-600};
   --cui-text-error: #{$red-500};
@@ -35,10 +36,17 @@
   --cui-accent: #{$blue-600};
   --cui-accent-hover: #{$blue-700};
   --cui-accent-subtle: #{$blue-200};
+  --cui-highlight: #{$orange-600};
+  --cui-highlight-ring: #{$orange-500};
   --cui-danger: #{$red-600};
   --cui-danger-hover: #{$red-700};
   --cui-success: #{$green-600};
   --cui-success-hover: #{$green-700};
+
+  // Switch
+  --cui-switch-track: #{$gray-200};
+  --cui-switch-thumb: #ffffff;
+  --cui-switch-thumb-shadow: #{$shadow-sm};
 
   // Misc
   --cui-scrollbar-thumb: #{$gray-300};

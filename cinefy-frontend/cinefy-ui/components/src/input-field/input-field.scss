@@ -49,6 +49,11 @@
     }
   }
 
+  &[data-size="sm"] input[ngpInput] {
+    padding: 8px 12px;
+    border-radius: $radius-md;
+  }
+
   &.has-leading input[ngpInput] {
     padding-left: 40px;
   }

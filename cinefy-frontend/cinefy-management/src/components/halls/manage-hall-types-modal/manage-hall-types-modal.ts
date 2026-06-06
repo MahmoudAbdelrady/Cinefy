@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   AbstractControl,
   FormControl,
+  FormGroup,
   ReactiveFormsModule,
   ValidationErrors,
   Validators,
@@ -24,7 +25,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import {
   ModalComponent,
   LoadingSpinnerComponent,
-  FieldErrorComponent,
+  InputField,
   EmptyStateComponent,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -49,7 +50,7 @@ function notBlankValidator(control: AbstractControl): ValidationErrors | null {
     NgpPopoverTrigger,
     ModalComponent,
     LoadingSpinnerComponent,
-    FieldErrorComponent,
+    InputField,
     EmptyStateComponent,
   ],
   templateUrl: './manage-hall-types-modal.html',
@@ -80,14 +81,18 @@ export class ManageHallTypesModalComponent {
   protected readonly addingType = signal(false);
   protected readonly showNewTypeForm = signal(false);
 
-  protected readonly editNameControl = new FormControl('', {
-    nonNullable: true,
-    validators: [Validators.required, notBlankValidator],
+  protected readonly newTypeForm = new FormGroup({
+    name: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, notBlankValidator],
+    }),
   });
 
-  protected readonly newTypeControl = new FormControl('', {
-    nonNullable: true,
-    validators: [Validators.required, notBlankValidator],
+  protected readonly editTypeForm = new FormGroup({
+    name: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, notBlankValidator],
+    }),
   });
 
   protected readonly nameErrorMessages: Record<string, string> = {
@@ -115,14 +120,14 @@ export class ManageHallTypesModalComponent {
 
   protected startEditingType(type: HallType) {
     this.editingTypeId.set(type.id!);
-    this.editNameControl.setValue(type.name);
+    this.editTypeForm.controls.name.setValue(type.name);
   }
 
   protected confirmEditType(type: HallType) {
-    if (this.editNameControl.invalid) return;
+    if (this.editTypeForm.controls.name.invalid) return;
     this.savingTypeId.set(type.id!);
     this.hallsService
-      .updateHallType(type.id!, { name: this.editNameControl.value.trim() })
+      .updateHallType(type.id!, { name: this.editTypeForm.controls.name.value.trim() })
       .subscribe({
         next: (updated) => {
           this.hallTypes.update((types) => types.map((t) => (t.id === updated.id ? updated : t)));
@@ -139,7 +144,7 @@ export class ManageHallTypesModalComponent {
 
   protected cancelEditType() {
     this.editingTypeId.set(null);
-    this.editNameControl.reset();
+    this.editTypeForm.controls.name.reset();
   }
 
   protected deleteType(type: HallType) {
@@ -159,45 +164,31 @@ export class ManageHallTypesModalComponent {
 
   protected startAddingType() {
     this.showNewTypeForm.set(true);
-    this.newTypeControl.reset();
+    this.newTypeForm.controls.name.reset();
   }
 
   protected cancelAddType() {
     this.showNewTypeForm.set(false);
-    this.newTypeControl.reset();
-  }
-
-  protected onNewTypeKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      this.addType();
-    } else if (event.key === 'Escape') {
-      this.cancelAddType();
-    }
+    this.newTypeForm.controls.name.reset();
   }
 
   protected addType() {
-    if (this.newTypeControl.invalid) return;
+    if (this.newTypeForm.controls.name.invalid) return;
     this.addingType.set(true);
-    this.hallsService.createHallType({ name: this.newTypeControl.value.trim() }).subscribe({
-      next: (created) => {
-        this.hallTypes.update((types) => [...types, created]);
-        this.newTypeControl.reset();
-        this.addingType.set(false);
-        this.showNewTypeForm.set(false);
-        this.toastService.success('Hall type created');
-      },
-      error: (err: HttpErrorResponse) => {
-        this.addingType.set(false);
-        this.toastService.error(err.error?.message ?? 'Failed to add hall type');
-      },
-    });
-  }
-
-  protected onEditTypeKeydown(event: KeyboardEvent, type: HallType) {
-    if (event.key === 'Enter') {
-      this.confirmEditType(type);
-    } else if (event.key === 'Escape') {
-      this.cancelEditType();
-    }
+    this.hallsService
+      .createHallType({ name: this.newTypeForm.controls.name.value.trim() })
+      .subscribe({
+        next: (created) => {
+          this.hallTypes.update((types) => [...types, created]);
+          this.newTypeForm.controls.name.reset();
+          this.addingType.set(false);
+          this.showNewTypeForm.set(false);
+          this.toastService.success('Hall type created');
+        },
+        error: (err: HttpErrorResponse) => {
+          this.addingType.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to add hall type');
+        },
+      });
   }
 }

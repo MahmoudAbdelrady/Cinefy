@@ -1,4 +1,5 @@
 @use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
 @use 'cinefy-ui/styles/mixins' as *;
 
 .spin {
@@ -19,20 +20,40 @@
   gap: 16px;
 }
 
-.existing-types-container {
+.section-head {
+  @include flex-align;
+  gap: 12px;
+  margin-bottom: 12px;
+
   h3 {
-    font-size: 14px;
-    font-weight: 500;
-    color: $gray-700;
-    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $gray-500;
+    white-space: nowrap;
+  }
+
+  .sh-rule {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, $gray-200, transparent);
+  }
+
+  .sh-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: $gray-400;
+    font-variant-numeric: tabular-nums;
   }
 }
 
 .existing-types-list {
   @include flex-column;
   gap: 8px;
-  max-height: 300px;
+  max-height: 500px;
   overflow-y: auto;
+  padding-right: 8px;
 }
 
 .loading-types {
@@ -43,48 +64,63 @@
 
 .existing-type-item {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
   padding: 10px;
   background-color: $gray-50;
   border-radius: $radius-md;
   border: 1px solid $gray-200;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
 
-  > span {
+  &:has(.inline-edit-field) {
+    align-items: flex-start;
+  }
+
+  &:hover {
+    border-color: $gray-300;
+    background-color: #ffffff;
+  }
+
+  .type-name {
+    flex: 1;
+    min-width: 0;
     font-size: 14px;
     font-weight: 500;
     color: $gray-800;
-    padding: 5px 0;
+    @include text-truncate;
   }
+}
 
-  .edit-type-field {
-    flex: 1;
-    @include flex-column;
-    min-width: 0;
-  }
+.edit-type-form {
+  display: contents;
+}
 
-  .edit-type-input {
-    width: 100%;
-    padding: 4px 8px;
-    font-size: 14px;
-    border: 1px solid $blue-300;
-    border-radius: $radius-sm;
-    color: $gray-800;
-    background-color: #ffffff;
-    transition: all 150ms ease;
+.type-tile {
+  @include icon-box(38px);
+  background-color: $blue-50;
+  color: $blue-600;
+}
 
-    &:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-      border-color: $blue-600;
-    }
-  }
+.inline-edit-field {
+  flex: 1;
+  min-width: 0;
 }
 
 .action-buttons {
   @include flex-align;
   gap: 4px;
-  margin-left: 8px;
+
+  &:not(.editing) {
+    opacity: 0;
+    transition: opacity 150ms ease;
+
+    .existing-type-item:hover &,
+    .existing-type-item:focus-within & {
+      opacity: 1;
+    }
+  }
 
   button {
     @include flex-center;
@@ -111,6 +147,8 @@
   }
 
   &.editing {
+    min-height: 38px;
+
     button:first-child {
       color: $green-600;
 
@@ -241,37 +279,11 @@
 .new-type-form {
   display: flex;
   align-items: flex-start;
+  gap: 12px;
   padding: 10px;
   background-color: $gray-50;
   border-radius: $radius-md;
   border: 1px solid $gray-200;
-
-  .new-type-field {
-    flex: 1;
-    @include flex-column;
-    min-width: 0;
-  }
-
-  input {
-    width: 100%;
-    padding: 4px 8px;
-    font-size: 14px;
-    border: 1px solid $blue-300;
-    border-radius: $radius-sm;
-    color: $gray-800;
-    background-color: #ffffff;
-    transition: all 150ms ease;
-
-    &::placeholder {
-      color: $gray-400;
-    }
-
-    &:focus {
-      outline: none;
-      border-color: $blue-600;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-    }
-  }
 }
 
 .btn-add-new-type {

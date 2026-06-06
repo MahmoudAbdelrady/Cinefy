@@ -180,8 +180,8 @@
     background: var(--cui-surface-hover);
   }
 
-  &[data-outside] {
-    color: var(--cui-text-muted);
+  &[data-outside-month] {
+    color: var(--cui-text-faint);
   }
 
   &[data-today]:not([data-selected]) {

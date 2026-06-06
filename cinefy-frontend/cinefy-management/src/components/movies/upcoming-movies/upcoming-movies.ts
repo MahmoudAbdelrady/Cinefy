@@ -1,13 +1,4 @@
-import {
-  afterNextRender,
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  inject,
-  signal,
-  untracked,
-} from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
@@ -16,8 +7,12 @@ import { CalendarIcon, MegaphoneIcon, SearchIcon } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
-import { LoadingSpinnerComponent, EmptyStateComponent, InputField } from 'cinefy-ui/components';
+import {
+  LoadingSpinnerComponent,
+  EmptyStateComponent,
+  InputField,
+  Switch,
+} from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MoviesService, ShowtimeEventsService } from '../../../services';
@@ -28,8 +23,7 @@ import { MoviesService, ShowtimeEventsService } from '../../../services';
     LucideAngularModule,
     NgpButton,
     NgpDialogTrigger,
-    NgpSwitch,
-    NgpSwitchThumb,
+    Switch,
     LoadingSpinnerComponent,
     EmptyStateComponent,
     InputField,
@@ -84,17 +78,13 @@ export class UpcomingMoviesComponent {
       });
     });
 
-    effect(() => {
-      const event = this.showtimeEvents.published();
-      if (!event) return;
-      untracked(() => this.markCommitted(event.movieId));
-    });
+    this.showtimeEvents.published$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => this.markCommitted(event.movieId));
 
-    effect(() => {
-      const event = this.showtimeEvents.committedChanged();
-      if (!event) return;
-      untracked(() => this.setCommitted(event.movieId, event.hasCommittedShowtimes));
-    });
+    this.showtimeEvents.committedChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => this.setCommitted(event.movieId, event.hasCommittedShowtimes));
   }
 
   protected isComingSoon(releaseDate: string | undefined): boolean {

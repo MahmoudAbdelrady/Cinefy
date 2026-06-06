@@ -39,7 +39,7 @@ public class HallService {
     // ========================= Hall Types =========================
 
     public List<HallTypeDTO> getHallTypes() {
-        return hallTypeRepository.findAll().stream()
+        return hallTypeRepository.findAllByOrderByCreatedAtAsc().stream()
                 .map(ht -> {
                     HallTypeDTO dto = new HallTypeDTO();
                     dto.setId(ht.getUuid());

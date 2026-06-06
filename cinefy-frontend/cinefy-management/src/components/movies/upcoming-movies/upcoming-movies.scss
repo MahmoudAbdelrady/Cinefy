@@ -81,7 +81,7 @@
 
   button[ngpToggleGroupItem] {
     padding: 6px 12px;
-    border-radius: 6px;
+    border-radius: $radius-xs;
     font-size: 14px;
     font-weight: 500;
     color: $gray-500;
@@ -170,9 +170,7 @@
   flex-shrink: 0;
   border-radius: $radius-md;
   overflow: hidden;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow: $shadow-card;
 
   img {
     display: block;
@@ -352,44 +350,4 @@
   width: 14px;
   height: 14px;
   color: $orange-600;
-}
-
-.mcv-switch {
-  position: relative;
-  width: 36px;
-  height: 20px;
-  border-radius: $radius-full;
-  background-color: $gray-200;
-  transition: background-color 200ms ease;
-  flex-shrink: 0;
-
-  &[data-checked] {
-    background-color: $orange-600;
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow:
-      0 0 0 2px #ffffff,
-      0 0 0 4px $orange-500;
-  }
-
-  [ngpSwitchThumb] {
-    display: block;
-    width: 16px;
-    height: 16px;
-    border-radius: $radius-full;
-    background-color: #ffffff;
-    box-shadow: $shadow-sm;
-    transition: transform 200ms ease;
-    transform: translateX(2px);
-  }
-
-  &[data-checked] [ngpSwitchThumb] {
-    transform: translateX(18px);
-  }
-
-  &[data-disabled] {
-    cursor: not-allowed;
-  }
 }

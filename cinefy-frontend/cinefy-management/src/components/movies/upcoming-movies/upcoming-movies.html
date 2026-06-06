@@ -88,17 +88,13 @@
                       <loading-spinner variant="xs" />
                     }
                   </div>
-                  <button
-                    ngpSwitch
-                    class="mcv-switch"
-                    [ngpSwitchChecked]="isAnnounced(upcomingMovie.id)"
-                    [ngpSwitchDisabled]="
-                      isCommitted(upcomingMovie.id) || isPending(upcomingMovie.id)
-                    "
-                    (ngpSwitchCheckedChange)="toggleAnnounced(upcomingMovie.id, $event)"
-                  >
-                    <span ngpSwitchThumb></span>
-                  </button>
+                  <cui-switch
+                    size="sm"
+                    color="highlight"
+                    [checked]="isAnnounced(upcomingMovie.id)"
+                    [disabled]="isCommitted(upcomingMovie.id) || isPending(upcomingMovie.id)"
+                    (checkedChange)="toggleAnnounced(upcomingMovie.id, $event)"
+                  />
                 </div>
               </div>
             </div>
