@@ -157,11 +157,6 @@ export class UpcomingMoviesComponent {
     });
   }
 
-  private markCommitted(movieId: number): void {
-    this.setCommitted(movieId, true);
-    this.setAnnounced(movieId, false);
-  }
-
   private setCommitted(movieId: number, committed: boolean): void {
     if (!this.movies().some((movie) => movie.id === movieId)) return;
     this.committedIds.update((ids) => {
@@ -169,5 +164,10 @@ export class UpcomingMoviesComponent {
       committed ? next.add(movieId) : next.delete(movieId);
       return next;
     });
+  }
+
+  private markCommitted(movieId: number): void {
+    this.setCommitted(movieId, true);
+    this.setAnnounced(movieId, false);
   }
 }
