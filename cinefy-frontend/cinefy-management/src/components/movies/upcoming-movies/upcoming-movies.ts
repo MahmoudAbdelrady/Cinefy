@@ -1,13 +1,4 @@
-import {
-  afterNextRender,
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  inject,
-  signal,
-  untracked,
-} from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
@@ -84,17 +75,13 @@ export class UpcomingMoviesComponent {
       });
     });
 
-    effect(() => {
-      const event = this.showtimeEvents.published();
-      if (!event) return;
-      untracked(() => this.markCommitted(event.movieId));
-    });
+    this.showtimeEvents.published$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => this.markCommitted(event.movieId));
 
-    effect(() => {
-      const event = this.showtimeEvents.committedChanged();
-      if (!event) return;
-      untracked(() => this.setCommitted(event.movieId, event.hasCommittedShowtimes));
-    });
+    this.showtimeEvents.committedChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => this.setCommitted(event.movieId, event.hasCommittedShowtimes));
   }
 
   protected isComingSoon(releaseDate: string | undefined): boolean {

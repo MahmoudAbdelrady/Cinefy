@@ -1,12 +1,6 @@
-import {
-  afterNextRender,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-  untracked,
-} from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { merge } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CalendarIcon, ClockIcon, FilmIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
@@ -25,6 +19,7 @@ export class MoviesStatisticsComponent {
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected statistics = signal<ShowtimesStatistics | null>(null);
   protected loading = signal(true);
@@ -41,15 +36,9 @@ export class MoviesStatisticsComponent {
   constructor() {
     afterNextRender(() => this.refetchStatistics(true));
 
-    effect(() => {
-      if (!this.showtimeEvents.created()) return;
-      untracked(() => this.refetchStatistics(false));
-    });
-
-    effect(() => {
-      if (!this.showtimeEvents.deleted()) return;
-      untracked(() => this.refetchStatistics(false));
-    });
+    merge(this.showtimeEvents.created$, this.showtimeEvents.deleted$)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.refetchStatistics(false));
   }
 
   private refetchStatistics(showLoading: boolean): void {

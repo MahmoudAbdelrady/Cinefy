@@ -1,40 +1,41 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import type { Showtime } from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class ShowtimeEventsService {
-  private readonly _created = signal<Showtime | null>(null);
-  private readonly _updated = signal<Showtime | null>(null);
-  private readonly _published = signal<{ movieId: number; count: number } | null>(null);
-  private readonly _deleted = signal<number | null>(null);
-  private readonly _committedChanged = signal<{
+  private readonly _created = new Subject<Showtime>();
+  private readonly _updated = new Subject<Showtime>();
+  private readonly _published = new Subject<{ movieId: number; count: number }>();
+  private readonly _deleted = new Subject<number>();
+  private readonly _committedChanged = new Subject<{
     movieId: number;
     hasCommittedShowtimes: boolean;
-  } | null>(null);
+  }>();
 
-  readonly created = this._created.asReadonly();
-  readonly updated = this._updated.asReadonly();
-  readonly published = this._published.asReadonly();
-  readonly deleted = this._deleted.asReadonly();
-  readonly committedChanged = this._committedChanged.asReadonly();
+  readonly created$ = this._created.asObservable();
+  readonly updated$ = this._updated.asObservable();
+  readonly published$ = this._published.asObservable();
+  readonly deleted$ = this._deleted.asObservable();
+  readonly committedChanged$ = this._committedChanged.asObservable();
 
   notifyCreated(showtime: Showtime): void {
-    this._created.set(showtime);
+    this._created.next(showtime);
   }
 
   notifyUpdated(showtime: Showtime): void {
-    this._updated.set(showtime);
+    this._updated.next(showtime);
   }
 
   notifyPublished(movieId: number, count: number): void {
-    this._published.set({ movieId, count });
+    this._published.next({ movieId, count });
   }
 
   notifyDeleted(movieId: number): void {
-    this._deleted.set(movieId);
+    this._deleted.next(movieId);
   }
 
   notifyCommittedChanged(movieId: number, hasCommittedShowtimes: boolean): void {
-    this._committedChanged.set({ movieId, hasCommittedShowtimes });
+    this._committedChanged.next({ movieId, hasCommittedShowtimes });
   }
 }

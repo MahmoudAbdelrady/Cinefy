@@ -1,13 +1,4 @@
-import {
-  afterNextRender,
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  inject,
-  signal,
-  untracked,
-} from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
@@ -101,34 +92,24 @@ export class CurrentShowtimesComponent {
       });
     });
 
-    effect(() => {
-      const showtime = this.showtimeEvents.created();
-      if (!showtime) return;
-      untracked(() => this.applyCreatedShowtime(showtime));
+    this.showtimeEvents.created$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((showtime) => this.applyCreatedShowtime(showtime));
+
+    this.showtimeEvents.deleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((movieId) => {
+      this.moviesWithShowtimes.update((list) =>
+        list.filter((item) => item.movieDetails.id !== movieId),
+      );
     });
 
-    effect(() => {
-      const movieId = this.showtimeEvents.deleted();
-      if (movieId == null) return;
-      untracked(() => {
-        this.moviesWithShowtimes.update((list) =>
-          list.filter((item) => item.movieDetails.id !== movieId),
-        );
-      });
-    });
-
-    effect(() => {
-      const event = this.showtimeEvents.published();
-      if (!event) return;
-      untracked(() => {
-        this.moviesWithShowtimes.update((list) =>
-          list.map((item) =>
-            item.movieDetails.id === event.movieId
-              ? { ...item, totalDraftShowtimes: item.totalDraftShowtimes - event.count }
-              : item,
-          ),
-        );
-      });
+    this.showtimeEvents.published$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
+      this.moviesWithShowtimes.update((list) =>
+        list.map((item) =>
+          item.movieDetails.id === event.movieId
+            ? { ...item, totalDraftShowtimes: item.totalDraftShowtimes - event.count }
+            : item,
+        ),
+      );
     });
   }
 
