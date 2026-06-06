@@ -94,6 +94,22 @@
   @include staff-position-dot-and-text('.spcc-dot', '.pos-count');
 }
 
+.spcc-note {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 6px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid $gray-100;
+  font-size: 12px;
+  color: $gray-500;
+
+  > lucide-icon {
+    flex-shrink: 0;
+    color: $gray-400;
+  }
+}
+
 @include below-mobile {
   .staff-position-coverage-container {
     padding: 16px;
