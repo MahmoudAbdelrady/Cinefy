@@ -10,7 +10,6 @@ import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
-import com.mdevs.cinefy.utils.TmdbGenres;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +57,28 @@ public class TmdbMovieService {
     private static final int TMDB_RELEASE_TYPE_THEATRICAL = 3;
 
     private static final int TMDB_RELEASE_TYPE_THEATRICAL_LIMITED = 2;
+
+    private static final Map<Integer, String> TMDB_GENRES = Map.ofEntries(
+            Map.entry(28, "Action"),
+            Map.entry(12, "Adventure"),
+            Map.entry(16, "Animation"),
+            Map.entry(35, "Comedy"),
+            Map.entry(80, "Crime"),
+            Map.entry(99, "Documentary"),
+            Map.entry(18, "Drama"),
+            Map.entry(10751, "Family"),
+            Map.entry(14, "Fantasy"),
+            Map.entry(36, "History"),
+            Map.entry(27, "Horror"),
+            Map.entry(10402, "Music"),
+            Map.entry(9648, "Mystery"),
+            Map.entry(10749, "Romance"),
+            Map.entry(878, "Science Fiction"),
+            Map.entry(10770, "TV Movie"),
+            Map.entry(53, "Thriller"),
+            Map.entry(10752, "War"),
+            Map.entry(37, "Western")
+    );
 
     @PostConstruct
     private void init() {
@@ -239,7 +260,7 @@ public class TmdbMovieService {
         String backdropPath = node.path("backdrop_path").stringValue();
         dto.setBackdropUrl(StringUtils.isNotEmpty(backdropPath) ? imageBaseUrl + backdropPath : null);
 
-        List<String> genreNames = node.path("genre_ids").valueStream().map(g -> TmdbGenres.resolve(g.asInt())).toList();
+        List<String> genreNames = node.path("genre_ids").valueStream().map(g -> resolveGenre(g.asInt())).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
 
         return dto;
@@ -332,5 +353,9 @@ public class TmdbMovieService {
                 .filter(StringUtils::isNotEmpty)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private String resolveGenre(int id) {
+        return TMDB_GENRES.getOrDefault(id, "Unknown");
     }
 }
