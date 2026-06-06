@@ -405,6 +405,7 @@ export class MovieShowtimesModal {
     const removed = this.movieShowtimeDetails().find((s) => s.id === id);
     if (!removed) return;
     const wasDraft = removed.status === 'DRAFT';
+    const wasCommitted = removed.status === 'PUBLISHED' || removed.status === 'RUNNING';
 
     const currentDate = this.selectedTab();
     if (currentDate) this.dayCache.delete(currentDate);
@@ -414,7 +415,7 @@ export class MovieShowtimesModal {
     if (wasDraft) {
       this.dayDrafts.update((n) => n - 1);
       this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: m.numberOfDrafts - 1 } : m));
-    } else {
+    } else if (wasCommitted) {
       this.movieShowtimes.update((m) =>
         m ? { ...m, numberOfCommitted: m.numberOfCommitted - 1 } : m,
       );

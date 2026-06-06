@@ -6,7 +6,6 @@ const SHOWTIME_STATUS_LABELS = {
   PUBLISHED: 'Published',
   RUNNING: 'Running',
   FINISHED: 'Finished',
-  CANCELLED: 'Cancelled',
 } as const;
 
 type ShowtimeStatus = keyof typeof SHOWTIME_STATUS_LABELS;

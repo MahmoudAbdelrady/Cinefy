@@ -59,8 +59,8 @@ public class ShowtimeService {
             throw new NotFoundException("No showtimes found for the provided movie");
         }
 
-        long numberOfDrafts = showtimeRepository.countByTmdbMovieIdAndStatus(movieId, ShowtimeStatus.DRAFT);
-        long numberOfCommitted = showtimeRepository.countByTmdbMovieIdAndStatusNot(movieId, ShowtimeStatus.DRAFT);
+        long numberOfDrafts = showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, Set.of(ShowtimeStatus.DRAFT));
+        long numberOfCommitted = showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, ShowtimeStatus.COMMITTED_STATUSES);
 
         MovieShowtimeDatesDTO dto = new MovieShowtimeDatesDTO();
         dto.setNumberOfDrafts(numberOfDrafts);
@@ -161,10 +161,8 @@ public class ShowtimeService {
             throw new BusinessException("Cannot delete a showtime that's not draft or published");
         }
         Hall hall = showtime.getHall();
-        TmdbMovie movie = showtime.getTmdbMovie();
         showtimeRepository.delete(showtime);
         flipHallIfNoActiveShowtimes(hall, showtime.getId());
-        tmdbMovieService.reannounceIfEligible(movie);
     }
 
     @Transactional
@@ -187,7 +185,6 @@ public class ShowtimeService {
         showtimeRepository.deleteAll(showtimes);
 
         affectedHalls.forEach(hall -> flipHallIfNoActiveShowtimes(hall, null));
-        tmdbMovieService.reannounceIfEligible(movie);
     }
 
     @Transactional

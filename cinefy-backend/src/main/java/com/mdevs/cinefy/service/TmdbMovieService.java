@@ -81,7 +81,7 @@ public class TmdbMovieService {
     }
 
     public List<UpcomingMovieDTO> getUpcomingMovies(int limit) {
-        Page<MovieSearchResultDTO> page = fetchMoviePage("/movie/upcoming?language=en-US&region=us&page={page}", Pageable.unpaged(), 1);
+        Page<MovieSearchResultDTO> page = fetchMoviePage("/movie/upcoming?language=en-US&region=us&page=1", Pageable.unpaged());
         LocalDate today = LocalDate.now();
         List<MovieSearchResultDTO> upcoming = page.getContent().stream()
                 .filter(dto -> StringUtils.isNotEmpty(dto.getReleaseDate()) && !LocalDate.parse(dto.getReleaseDate()).isBefore(today))
@@ -91,7 +91,7 @@ public class TmdbMovieService {
 
         List<Long> movieIds = upcoming.stream().map(MovieSearchResultDTO::getId).toList();
         Map<Long, TmdbMovie> localById = tmdbMovieRepository.findAllById(movieIds).stream().collect(Collectors.toMap(TmdbMovie::getId, Function.identity()));
-        Set<Long> committedMovieIds = tmdbMovieRepository.findMovieIdsWithShowtimeStatusNot(movieIds, ShowtimeStatus.DRAFT);
+        Set<Long> committedMovieIds = tmdbMovieRepository.findMovieIdsWithShowtimeStatusIn(movieIds, ShowtimeStatus.COMMITTED_STATUSES);
 
         return upcoming.stream()
                 .map(dto -> toUpcomingMovie(dto, localById.get(dto.getId()), committedMovieIds.contains(dto.getId())))
@@ -129,7 +129,7 @@ public class TmdbMovieService {
         }
 
         TmdbMovie movie = findTmdbMovie(tmdbId);
-        if (showtimeRepository.existsByTmdbMovieIdAndStatusNot(movie.getId(), ShowtimeStatus.DRAFT)) {
+        if (showtimeRepository.existsByTmdbMovieIdAndStatusIn(movie.getId(), ShowtimeStatus.COMMITTED_STATUSES)) {
             throw new BusinessException("'" + movie.getTitle() + "' already has scheduled showtimes");
         }
         movie.setAnnounced(false);
@@ -142,21 +142,6 @@ public class TmdbMovieService {
             movie.setAnnounced(false);
             tmdbMovieRepository.save(movie);
         }
-    }
-
-    @Transactional
-    public void reannounceIfEligible(TmdbMovie movie) {
-        if (movie.isAnnounced()) {
-            return;
-        }
-        if (movie.getReleaseDate() == null || !movie.getReleaseDate().isAfter(LocalDate.now())) {
-            return;
-        }
-        if (showtimeRepository.existsByTmdbMovieIdAndStatusNot(movie.getId(), ShowtimeStatus.DRAFT)) {
-            return;
-        }
-        movie.setAnnounced(true);
-        tmdbMovieRepository.save(movie);
     }
 
     @Transactional
@@ -187,7 +172,7 @@ public class TmdbMovieService {
         if (!movie.getReleaseDate().isAfter(LocalDate.now())) {
             throw new BusinessException("'" + movie.getTitle() + "' has already been released");
         }
-        if (showtimeRepository.existsByTmdbMovieIdAndStatusNot(movie.getId(), ShowtimeStatus.DRAFT)) {
+        if (showtimeRepository.existsByTmdbMovieIdAndStatusIn(movie.getId(), ShowtimeStatus.COMMITTED_STATUSES)) {
             throw new BusinessException("'" + movie.getTitle() + "' already has scheduled showtimes");
         }
     }

@@ -27,10 +27,10 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
 
     @Query("""
             SELECT m.id FROM TmdbMovie m
-            WHERE EXISTS (SELECT 1 FROM Showtime s WHERE s.tmdbMovie = m AND s.status != :status)
+            WHERE EXISTS (SELECT 1 FROM Showtime s WHERE s.tmdbMovie = m AND s.status IN :statuses)
             AND m.id IN :ids
             """)
-    Set<Long> findMovieIdsWithShowtimeStatusNot(@Param("ids") List<Long> ids, @Param("status") ShowtimeStatus status);
+    Set<Long> findMovieIdsWithShowtimeStatusIn(@Param("ids") List<Long> ids, @Param("statuses") Set<ShowtimeStatus> statuses);
 
     List<TmdbMovie> findByIdGreaterThanOrderByIdAsc(Long maxId, Pageable pageable);
 }

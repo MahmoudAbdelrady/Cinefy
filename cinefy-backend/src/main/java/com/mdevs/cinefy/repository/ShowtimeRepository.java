@@ -20,7 +20,6 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
             SELECT CASE WHEN COUNT(s) > 0 THEN true ELSE false END
             FROM Showtime s
             WHERE s.hall = :hall
-            AND s.status != 'CANCELLED'
             AND s.startDateTime < :end
             AND s.endDateTime > :start
             AND (:excludeId IS NULL OR s.id != :excludeId)
@@ -49,11 +48,9 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
     List<LocalDate> findDistinctShowtimeDatesByMovieAndStatuses(@Param("movieId") Long movieId,
                                                                 @Param("statuses") Set<ShowtimeStatus> statuses);
 
-    long countByTmdbMovieIdAndStatus(Long tmdbMovieId, ShowtimeStatus status);
+    long countByTmdbMovieIdAndStatusIn(Long tmdbMovieId, Set<ShowtimeStatus> statuses);
 
-    long countByTmdbMovieIdAndStatusNot(Long tmdbMovieId, ShowtimeStatus status);
-
-    boolean existsByTmdbMovieIdAndStatusNot(Long tmdbMovieId, ShowtimeStatus status);
+    boolean existsByTmdbMovieIdAndStatusIn(Long tmdbMovieId, Set<ShowtimeStatus> statuses);
 
     List<Showtime> findByTmdbMovieIdAndStatusIn(Long tmdbMovieId, Set<ShowtimeStatus> statuses);
 
