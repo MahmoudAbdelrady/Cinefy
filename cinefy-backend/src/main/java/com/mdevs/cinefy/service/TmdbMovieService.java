@@ -34,7 +34,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Slf4j
 @Service
@@ -255,7 +254,7 @@ public class TmdbMovieService {
         String backdropPath = node.path("backdrop_path").stringValue();
         dto.setBackdropUrl(StringUtils.isNotEmpty(backdropPath) ? imageBaseUrl + backdropPath : null);
 
-        List<String> genreNames = StreamSupport.stream(node.path("genre_ids").spliterator(), false).map(g -> TmdbGenres.resolve(g.asInt())).toList();
+        List<String> genreNames = node.path("genre_ids").valueStream().map(g -> TmdbGenres.resolve(g.asInt())).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
 
         return dto;
@@ -298,12 +297,12 @@ public class TmdbMovieService {
         String backdropPath = node.path("backdrop_path").stringValue();
         dto.setBackdropUrl(StringUtils.isNotEmpty(backdropPath) ? imageBaseUrl + backdropPath : null);
 
-        List<String> genreNames = StreamSupport.stream(node.path("genres").spliterator(), false).map(g -> g.path("name").stringValue()).toList();
+        List<String> genreNames = node.path("genres").valueStream().map(g -> g.path("name").stringValue()).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
 
-        List<JsonNode> usReleaseDates = StreamSupport.stream(node.path("release_dates").path("results").spliterator(), false)
+        List<JsonNode> usReleaseDates = node.path("release_dates").path("results").valueStream()
                 .filter(r -> "US".equals(r.path("iso_3166_1").stringValue()))
-                .flatMap(r -> StreamSupport.stream(r.path("release_dates").spliterator(), false))
+                .flatMap(r -> r.path("release_dates").valueStream())
                 .toList();
 
         dto.setReleaseDate(resolveUsReleaseDate(usReleaseDates, node.path("release_date").stringValue()));
