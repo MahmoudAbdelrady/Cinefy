@@ -81,7 +81,7 @@
 
   button[ngpToggleGroupItem] {
     padding: 6px 12px;
-    border-radius: 6px;
+    border-radius: $radius-xs;
     font-size: 14px;
     font-weight: 500;
     color: $gray-500;
@@ -170,9 +170,7 @@
   flex-shrink: 0;
   border-radius: $radius-md;
   overflow: hidden;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow: $shadow-card;
 
   img {
     display: block;

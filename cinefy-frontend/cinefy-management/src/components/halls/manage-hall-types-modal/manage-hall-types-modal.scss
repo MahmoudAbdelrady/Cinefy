@@ -75,7 +75,7 @@
 
     &:focus {
       outline: none;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      box-shadow: 0 0 0 2px rgba($blue-600, 0.2);
       border-color: $blue-600;
     }
   }
@@ -269,7 +269,7 @@
     &:focus {
       outline: none;
       border-color: $blue-600;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      box-shadow: 0 0 0 2px rgba($blue-600, 0.2);
     }
   }
 }
