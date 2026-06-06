@@ -93,47 +93,6 @@
   }
 }
 
-.switch-button {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  border-radius: $radius-full;
-  background-color: $gray-200;
-  transition: background-color 200ms ease;
-  flex-shrink: 0;
-
-  &[data-checked] {
-    background-color: $blue-600;
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow:
-      0 0 0 2px #ffffff,
-      0 0 0 4px $blue-500;
-  }
-
-  [ngpSwitchThumb] {
-    display: block;
-    width: 20px;
-    height: 20px;
-    border-radius: $radius-full;
-    background-color: #ffffff;
-    box-shadow: $shadow-sm;
-    transition: transform 200ms ease;
-    transform: translateX(2px);
-  }
-
-  &[data-checked] [ngpSwitchThumb] {
-    transform: translateX(22px);
-  }
-
-  &[data-disabled] {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
 // ─── Seat Categories ────────────────────────────────────────────────────────────
 
 .seats-configuration {
@@ -301,10 +260,6 @@
       .sg-label-icon {
         background-color: $orange-500;
         color: #ffffff;
-      }
-
-      .onsite-switch {
-        background-color: $orange-500;
       }
     }
 

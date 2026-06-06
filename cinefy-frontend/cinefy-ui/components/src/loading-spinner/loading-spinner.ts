@@ -2,7 +2,7 @@ import { Component, computed, input, type InputSignal } from "@angular/core";
 import { LucideAngularModule } from "lucide-angular";
 import { LoaderIcon } from "../icons";
 
-export type LoadingSpinnerVariant = "xs" | "sm" | "md" | "lg" | "xl";
+type LoadingSpinnerVariant = "xs" | "sm" | "md" | "lg" | "xl";
 
 const VARIANT_PRESETS: Record<LoadingSpinnerVariant, { size: number; strokeWidth: number }> = {
   xs: { size: 14, strokeWidth: 2.5 },

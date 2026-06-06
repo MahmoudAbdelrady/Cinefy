@@ -25,6 +25,7 @@ import {
   AsyncSelectComponent,
   FieldErrorComponent,
   LoadingSpinnerComponent,
+  Switch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import {
@@ -38,7 +39,6 @@ import { NgpButton } from 'ng-primitives/button';
 import { LucideAngularModule } from 'lucide-angular';
 import { FilmIcon } from '../../../shared/icons';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
-import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 
 function notInPastValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value as Date | null;
@@ -74,8 +74,7 @@ function timeNotInPastValidator(control: AbstractControl): ValidationErrors | nu
     ModalComponent,
     MoviePickerComponent,
     DatePipe,
-    NgpSwitch,
-    NgpSwitchThumb,
+    Switch,
     FieldErrorComponent,
     LoadingSpinnerComponent,
   ],

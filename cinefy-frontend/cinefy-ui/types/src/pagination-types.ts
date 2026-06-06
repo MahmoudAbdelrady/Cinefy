@@ -1,4 +1,4 @@
-export interface PageFields {
+interface PageFields {
   totalElements: number;
   totalPages: number;
   number: number;

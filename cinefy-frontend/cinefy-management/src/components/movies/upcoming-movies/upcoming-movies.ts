@@ -7,8 +7,12 @@ import { CalendarIcon, MegaphoneIcon, SearchIcon } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
-import { LoadingSpinnerComponent, EmptyStateComponent, InputField } from 'cinefy-ui/components';
+import {
+  LoadingSpinnerComponent,
+  EmptyStateComponent,
+  InputField,
+  Switch,
+} from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MoviesService, ShowtimeEventsService } from '../../../services';
@@ -19,8 +23,7 @@ import { MoviesService, ShowtimeEventsService } from '../../../services';
     LucideAngularModule,
     NgpButton,
     NgpDialogTrigger,
-    NgpSwitch,
-    NgpSwitchThumb,
+    Switch,
     LoadingSpinnerComponent,
     EmptyStateComponent,
     InputField,

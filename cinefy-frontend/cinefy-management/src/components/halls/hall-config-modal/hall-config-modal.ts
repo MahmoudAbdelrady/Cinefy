@@ -26,13 +26,13 @@ import {
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import {
   ModalComponent,
   LoadingSpinnerComponent,
   InputField,
   CustomSelectComponent,
   AsyncSelectComponent,
+  Switch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import {
@@ -69,8 +69,7 @@ interface LayoutBaseline {
     LucideAngularModule,
     NgpButton,
     NgpDialogTrigger,
-    NgpSwitch,
-    NgpSwitchThumb,
+    Switch,
     ModalComponent,
     LoadingSpinnerComponent,
     InputField,
