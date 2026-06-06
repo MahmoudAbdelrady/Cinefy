@@ -17,6 +17,7 @@
   --cui-text-primary: #{$color-foreground};
   --cui-text-emphasis: #{$color-foreground};
   --cui-text-muted: #{$color-muted-foreground};
+  --cui-text-faint: #{rgba($color-foreground, 0.4)};
   --cui-text-hint: #{$color-muted-foreground};
   --cui-text-strong: #{$color-foreground};
   --cui-text-error: #{$color-destructive};

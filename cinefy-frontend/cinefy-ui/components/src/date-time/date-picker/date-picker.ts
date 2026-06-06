@@ -1,4 +1,4 @@
-import { Component, computed, input, type InputSignal } from "@angular/core";
+import { Component, computed, input, linkedSignal, type InputSignal } from "@angular/core";
 import { FormControl, Validators } from "@angular/forms";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { startWith, switchMap } from "rxjs";
@@ -52,6 +52,7 @@ export class DatePicker {
   };
 
   protected readonly weekdays = WEEKDAY_LABELS;
+  protected readonly today = new Date();
 
   readonly control: InputSignal<FormControl<Date | null>> = input.required<FormControl<Date | null>>();
   readonly placeholder = input<string>("Select a date");
@@ -77,9 +78,22 @@ export class DatePicker {
     });
   });
 
+  protected readonly focusedDate = linkedSignal(() => this.value() ?? this.today);
+
+  protected readonly monthLabel = computed(() =>
+    this.focusedDate().toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+    }),
+  );
+
   protected get required(): boolean {
     const c = this.control();
     return c.hasValidator(Validators.required) && c.enabled;
+  }
+
+  protected onFocusedDateChange(date: Date) {
+    this.focusedDate.set(date);
   }
 
   protected onDateChange(date: Date | undefined) {

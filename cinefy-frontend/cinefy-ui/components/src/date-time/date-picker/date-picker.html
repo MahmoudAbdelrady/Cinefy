@@ -30,15 +30,17 @@
     class="dp-popover"
     ngpDatePicker
     [ngpDatePickerDate]="value()"
+    [ngpDatePickerFocusedDate]="focusedDate()"
     [ngpDatePickerMin]="min()"
     [ngpDatePickerMax]="max()"
     (ngpDatePickerDateChange)="onDateChange($event)"
+    (ngpDatePickerFocusedDateChange)="onFocusedDateChange($event)"
   >
     <div class="dp-header">
       <button type="button" ngpButton ngpDatePickerPreviousMonth class="dp-nav-btn">
         <lucide-icon [img]="icons.ChevronLeftIcon" [size]="16"></lucide-icon>
       </button>
-      <div ngpDatePickerLabel class="dp-label"></div>
+      <div ngpDatePickerLabel class="dp-label">{{ monthLabel() }}</div>
       <button type="button" ngpButton ngpDatePickerNextMonth class="dp-nav-btn">
         <lucide-icon [img]="icons.ChevronRightIcon" [size]="16"></lucide-icon>
       </button>
