@@ -38,6 +38,7 @@ export {
   LogOut as LogoutIcon,
   Mail as EmailIcon,
   MapPin as MapPinIcon,
+  Megaphone as MegaphoneIcon,
   Menu as MenuIcon,
   Phone as PhoneIcon,
   Plus as PlusIcon,

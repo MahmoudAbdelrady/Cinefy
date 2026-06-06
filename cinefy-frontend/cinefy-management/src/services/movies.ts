@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { MovieSearchResult, MovieDetail } from '../shared/types';
+import type { MovieSearchResult, UpcomingMovie, MovieDetail } from '../shared/types';
 import type { PaginatedResponse } from 'cinefy-ui/types';
 
 @Injectable({ providedIn: 'root' })
@@ -19,12 +19,16 @@ export class MoviesService {
     return this.http.get<PaginatedResponse<MovieSearchResult>>('/movies/search', { params });
   }
 
-  getUpcomingMovies(limit?: number): Observable<MovieSearchResult[]> {
+  getUpcomingMovies(limit?: number): Observable<UpcomingMovie[]> {
     const params = { ...(limit !== undefined && { limit }) };
-    return this.http.get<MovieSearchResult[]>('/movies/upcoming', { params });
+    return this.http.get<UpcomingMovie[]>('/movies/upcoming', { params });
   }
 
   getMovieDetails(id: number): Observable<MovieDetail> {
     return this.http.get<MovieDetail>(`/movies/${id}`);
+  }
+
+  setAnnouncement(id: number, announced: boolean): Observable<void> {
+    return this.http.post<void>(`/movies/${id}/announcement`, { announced });
   }
 }

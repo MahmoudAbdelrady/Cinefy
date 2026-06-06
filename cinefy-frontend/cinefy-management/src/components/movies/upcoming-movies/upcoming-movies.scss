@@ -139,7 +139,7 @@
 
 .movie-card {
   display: flex;
-  gap: 16px;
+  flex-direction: column;
   padding: 16px;
   min-width: 0;
   background-color: #ffffff;
@@ -150,6 +150,12 @@
   &:hover {
     box-shadow: $shadow-md;
   }
+}
+
+.mc-main {
+  display: flex;
+  gap: 16px;
+  min-width: 0;
 
   @include below-tablet {
     flex-direction: column;
@@ -277,5 +283,113 @@
       flex: 1;
       text-align: center;
     }
+  }
+}
+
+.mc-visibility {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid $gray-200;
+}
+
+.mcv-row {
+  @include flex-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+
+  &--disabled {
+    opacity: 0.6;
+  }
+}
+
+.mcv-label {
+  @include flex-align;
+  @include lucide-icon-fix;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mcv-icon {
+  margin-top: 2px;
+  flex-shrink: 0;
+  color: $gray-400;
+  transition: color 150ms ease;
+
+  &--on {
+    color: $orange-600;
+  }
+}
+
+.mcv-text {
+  min-width: 0;
+}
+
+.mcv-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: $gray-900;
+}
+
+.mcv-subtitle {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: $gray-500;
+}
+
+.mcv-control {
+  @include flex-align;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.mcv-pending {
+  @include flex-center;
+  width: 14px;
+  height: 14px;
+  color: $orange-600;
+}
+
+.mcv-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: $radius-full;
+  background-color: $gray-200;
+  transition: background-color 200ms ease;
+  flex-shrink: 0;
+
+  &[data-checked] {
+    background-color: $orange-600;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px #ffffff,
+      0 0 0 4px $orange-500;
+  }
+
+  [ngpSwitchThumb] {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: $radius-full;
+    background-color: #ffffff;
+    box-shadow: $shadow-sm;
+    transition: transform 200ms ease;
+    transform: translateX(2px);
+  }
+
+  &[data-checked] [ngpSwitchThumb] {
+    transform: translateX(18px);
+  }
+
+  &[data-disabled] {
+    cursor: not-allowed;
   }
 }

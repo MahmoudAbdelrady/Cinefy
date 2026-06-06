@@ -9,10 +9,11 @@ public enum ShowtimeStatus {
     DRAFT,
     PUBLISHED,
     RUNNING,
-    FINISHED,
-    CANCELLED;
+    FINISHED;
 
     public static final Set<ShowtimeStatus> ACTIVE_STATUSES = Set.of(DRAFT, PUBLISHED);
+
+    public static final Set<ShowtimeStatus> COMMITTED_STATUSES = Set.of(PUBLISHED, RUNNING);
 
     public static ShowtimeStatus fromString(String name) {
         return Arrays.stream(values())

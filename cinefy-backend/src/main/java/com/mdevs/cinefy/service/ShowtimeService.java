@@ -59,10 +59,12 @@ public class ShowtimeService {
             throw new NotFoundException("No showtimes found for the provided movie");
         }
 
-        long numberOfDrafts = showtimeRepository.countByTmdbMovieIdAndStatus(movieId, ShowtimeStatus.DRAFT);
+        long numberOfDrafts = showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, Set.of(ShowtimeStatus.DRAFT));
+        long numberOfCommitted = showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, ShowtimeStatus.COMMITTED_STATUSES);
 
         MovieShowtimeDatesDTO dto = new MovieShowtimeDatesDTO();
         dto.setNumberOfDrafts(numberOfDrafts);
+        dto.setNumberOfCommitted(numberOfCommitted);
         dto.setDates(dates.stream().map(LocalDate::toString).toList());
         return dto;
     }
@@ -165,9 +167,7 @@ public class ShowtimeService {
 
     @Transactional
     public void deleteMovieShowtimes(Long movieId) {
-        TmdbMovie movie = findTmdbMovie(movieId);
-
-        List<Showtime> showtimes = showtimeRepository.findByTmdbMovieIdAndStatusIn(movie.getId(), Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED, ShowtimeStatus.RUNNING));
+        List<Showtime> showtimes = showtimeRepository.findByTmdbMovieIdAndStatusIn(movieId, Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED, ShowtimeStatus.RUNNING));
 
         if (showtimes.isEmpty()) {
             throw new NotFoundException("No showtimes found for the provided movie");
@@ -201,10 +201,6 @@ public class ShowtimeService {
 
     private Showtime findShowtime(String uuid) {
         return showtimeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Showtime not found: " + uuid));
-    }
-
-    private TmdbMovie findTmdbMovie(Long id) {
-        return tmdbMovieRepository.findById(id).orElseThrow(() -> new NotFoundException("Movie not found: " + id));
     }
 
     private void validateShowtime(Hall hall, TmdbMovie movie, ShowtimeDTO dto, Long showtimeId) {
@@ -242,6 +238,7 @@ public class ShowtimeService {
     }
 
     private void flipHallIfNoActiveShowtimes(Hall hall, Long excludeId) {
+        // @TODO --> This should be changed to check other statuses
         boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndIdNot(hall, ShowtimeStatus.ACTIVE_STATUSES, excludeId);
         if (!stillHasShowtimes) {
             hallService.updateHallStatus(hall, HallStatus.ACTIVE);
@@ -259,6 +256,7 @@ public class ShowtimeService {
         validateShowtimeNotInPast(showtime);
         showtime.setStatus(ShowtimeStatus.PUBLISHED);
         showtimeRepository.save(showtime);
+        tmdbMovieService.clearAnnouncement(showtime.getTmdbMovie());
     }
 
     private void publishDraftsForMovie(Long movieId, LocalDate date) {
@@ -273,6 +271,7 @@ public class ShowtimeService {
             showtime.setStatus(ShowtimeStatus.PUBLISHED);
             showtimeRepository.save(showtime);
         }
+        tmdbMovieService.clearAnnouncement(tmdbMovieService.findTmdbMovie(movieId));
     }
 
     private Showtime applyDtoToShowtime(Showtime showtime, Hall hall, TmdbMovie movie, ShowtimeDTO dto) {

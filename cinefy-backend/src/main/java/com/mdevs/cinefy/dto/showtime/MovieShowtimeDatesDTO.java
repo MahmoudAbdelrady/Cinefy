@@ -13,5 +13,7 @@ public class MovieShowtimeDatesDTO {
 
     private long numberOfDrafts;
 
+    private long numberOfCommitted;
+
     private List<String> dates;
 }

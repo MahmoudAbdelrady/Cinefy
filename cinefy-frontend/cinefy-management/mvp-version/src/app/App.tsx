@@ -52,6 +52,7 @@ import {
   ContactRound,
   User,
   Save,
+  Megaphone,
 } from 'lucide-react';
 import { ImageWithFallback } from './components/figma/ImageWithFallback';
 
@@ -3245,6 +3246,21 @@ export default function App() {
   // Upcoming movies data
   const [upcomingInterval, setUpcomingInterval] = useState<'2weeks' | 'month' | '3months'>('month');
 
+  // Announce-to-clients state (per movie id). In the real app this comes from the
+  // UpcomingMovieDTO.isAnnounced flag; here it's local so the toggle is interactive.
+  const [announcedMovieIds, setAnnouncedMovieIds] = useState<Set<number>>(new Set([10]));
+  // Movies with a published showtime hide the announce control entirely (they're
+  // already "really showing"). Stubbed here to demo the hidden state on one card.
+  const committedMovieIds = new Set<number>([8]);
+
+  const toggleAnnounced = (movieId: number) => {
+    setAnnouncedMovieIds((prev) => {
+      const next = new Set(prev);
+      next.has(movieId) ? next.delete(movieId) : next.add(movieId);
+      return next;
+    });
+  };
+
   const allUpcomingMovies = [
     // Next 2 weeks (Apr 17–30)
     {
@@ -4330,55 +4346,137 @@ export default function App() {
                         day: 'numeric',
                         year: 'numeric',
                       });
+                      const isAnnounced = announcedMovieIds.has(movie.id);
+                      const isCommitted = committedMovieIds.has(movie.id);
 
                       return (
                         <div
                           key={movie.id}
-                          className="flex gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-orange-200 hover:shadow-md transition-all"
+                          className="flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-orange-200 hover:shadow-md transition-all"
                         >
-                          <div className="relative shrink-0 w-24 aspect-[2/3] rounded-lg overflow-hidden bg-gray-100 ring-1 ring-gray-200">
-                            <ImageWithFallback
-                              src={movie.poster}
-                              alt={movie.title}
-                              className="w-full h-full object-cover"
-                            />
+                          <div className="flex gap-4">
+                            <div className="relative shrink-0 w-24 aspect-[2/3] rounded-lg overflow-hidden bg-gray-100 ring-1 ring-gray-200">
+                              <ImageWithFallback
+                                src={movie.poster}
+                                alt={movie.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+
+                            <div className="flex-1 min-w-0 flex flex-col">
+                              <div className="flex items-start justify-between gap-2 mb-1">
+                                <h4 className="font-semibold text-gray-900 truncate">
+                                  {movie.title}
+                                </h4>
+                                <span className="shrink-0 px-2 py-0.5 bg-orange-50 text-orange-700 rounded-full text-xs font-semibold whitespace-nowrap">
+                                  {daysUntil === 0 ? 'Today' : `in ${daysUntil}d`}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-500 mb-2 truncate">
+                                {movie.genre} · {movie.director}
+                              </p>
+                              <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-3">
+                                <Calendar size={14} className="text-orange-500" />
+                                <span className="font-medium">{releaseLabel}</span>
+                              </div>
+
+                              <button
+                                onClick={() => {
+                                  setScheduleSelectedMovie({
+                                    id: movie.id,
+                                    title: movie.title,
+                                    poster: movie.poster,
+                                    genre: movie.genre,
+                                    director: movie.director,
+                                    releaseYear: release.getFullYear(),
+                                    duration: 'TBA',
+                                  });
+                                  setShowScheduleMovieModal(true);
+                                  setSearchQuery('');
+                                }}
+                                className="self-start px-4 py-1.5 bg-orange-50 text-orange-600 rounded-lg font-medium hover:bg-orange-100 transition-colors text-sm"
+                              >
+                                Schedule Showtimes
+                              </button>
+                            </div>
                           </div>
 
-                          <div className="flex-1 min-w-0 flex flex-col">
-                            <div className="flex items-start justify-between gap-2 mb-1">
-                              <h4 className="font-semibold text-gray-900 truncate">
-                                {movie.title}
-                              </h4>
-                              <span className="shrink-0 px-2 py-0.5 bg-orange-50 text-orange-700 rounded-full text-xs font-semibold whitespace-nowrap">
-                                {daysUntil === 0 ? 'Today' : `in ${daysUntil}d`}
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-500 mb-2 truncate">
-                              {movie.genre} · {movie.director}
-                            </p>
-                            <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-3">
-                              <Calendar size={14} className="text-orange-500" />
-                              <span className="font-medium">{releaseLabel}</span>
+                          {/* Client visibility — full-width footer of movie-state toggles.
+                              When the movie already has a published showtime it's "really showing":
+                              the toggles render disabled (off) so every card keeps the same height. */}
+                          <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {/* Announce — the gate: show in the client "Coming Soon" rail */}
+                            <div
+                              className={`flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2.5 ${
+                                isCommitted ? 'opacity-60' : ''
+                              }`}
+                            >
+                              <div className="flex items-start gap-2.5 min-w-0">
+                                <Megaphone
+                                  size={16}
+                                  className={`mt-0.5 shrink-0 transition-colors ${
+                                    isAnnounced ? 'text-orange-600' : 'text-gray-400'
+                                  }`}
+                                />
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 leading-tight">
+                                    Announce to clients
+                                  </p>
+                                  <p className="text-xs text-gray-500 leading-tight mt-0.5">
+                                    {isCommitted
+                                      ? 'Already scheduled'
+                                      : 'Show in the “Coming Soon” rail'}
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                role="switch"
+                                aria-checked={isAnnounced}
+                                disabled={isCommitted}
+                                title={isCommitted ? 'Already scheduled' : undefined}
+                                onClick={isCommitted ? undefined : () => toggleAnnounced(movie.id)}
+                                className={`relative shrink-0 inline-flex h-5 w-9 items-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 ${
+                                  isAnnounced ? 'bg-orange-600' : 'bg-gray-200'
+                                } ${isCommitted ? 'cursor-not-allowed' : ''}`}
+                              >
+                                <span
+                                  className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+                                    isAnnounced ? 'translate-x-[18px]' : 'translate-x-0.5'
+                                  }`}
+                                />
+                              </button>
                             </div>
 
-                            <button
-                              onClick={() => {
-                                setScheduleSelectedMovie({
-                                  id: movie.id,
-                                  title: movie.title,
-                                  poster: movie.poster,
-                                  genre: movie.genre,
-                                  director: movie.director,
-                                  releaseYear: release.getFullYear(),
-                                  duration: 'TBA',
-                                });
-                                setShowScheduleMovieModal(true);
-                                setSearchQuery('');
-                              }}
-                              className="mt-auto self-start px-4 py-1.5 bg-orange-50 text-orange-600 rounded-lg font-medium hover:bg-orange-100 transition-colors text-sm"
+                            {/* Highlight — the escalation: feature in the client homepage hero.
+                                  Lands next PR; disabled until the movie is announced. */}
+                            <div
+                              className={`flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2.5 ${
+                                isAnnounced ? '' : 'opacity-60'
+                              }`}
                             >
-                              Schedule Showtimes
-                            </button>
+                              <div className="flex items-start gap-2.5 min-w-0">
+                                <Star size={16} className="mt-0.5 shrink-0 text-gray-400" />
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 leading-tight">
+                                    Highlight on homepage
+                                  </p>
+                                  <p className="text-xs text-gray-500 leading-tight mt-0.5">
+                                    {isAnnounced
+                                      ? 'Feature in the hero banner'
+                                      : 'Announce first to enable'}
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                role="switch"
+                                aria-checked={false}
+                                disabled
+                                title="Coming soon"
+                                className="relative shrink-0 inline-flex h-5 w-9 items-center rounded-full bg-gray-200 transition-colors cursor-not-allowed"
+                              >
+                                <span className="inline-block h-4 w-4 rounded-full bg-white shadow-sm translate-x-0.5" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       );

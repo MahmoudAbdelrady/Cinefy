@@ -18,5 +18,7 @@
     <movies-statistics />
   }
   <current-showtimes />
-  <upcoming-movies />
+  @if (canManage()) {
+    <upcoming-movies />
+  }
 </div>

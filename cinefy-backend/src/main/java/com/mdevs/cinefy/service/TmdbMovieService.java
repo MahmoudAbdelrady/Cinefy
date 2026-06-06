@@ -4,9 +4,12 @@ import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.JsonNode;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
+import com.mdevs.cinefy.dto.movie.UpcomingMovieDTO;
 import com.mdevs.cinefy.entity.TmdbMovie;
+import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
+import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
-import com.mdevs.cinefy.utils.TmdbGenres;
+import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +28,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.StreamSupport;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,6 +40,8 @@ import java.util.stream.StreamSupport;
 public class TmdbMovieService {
 
     private final TmdbMovieRepository tmdbMovieRepository;
+
+    private final ShowtimeRepository showtimeRepository;
 
     @Value("${app.tmdb.api-base-url}")
     private String apiBaseUrl;
@@ -44,6 +53,32 @@ public class TmdbMovieService {
     private String imageBaseUrl;
 
     private RestClient restClient;
+
+    private static final int TMDB_RELEASE_TYPE_THEATRICAL = 3;
+
+    private static final int TMDB_RELEASE_TYPE_THEATRICAL_LIMITED = 2;
+
+    private static final Map<Integer, String> TMDB_GENRES = Map.ofEntries(
+            Map.entry(28, "Action"),
+            Map.entry(12, "Adventure"),
+            Map.entry(16, "Animation"),
+            Map.entry(35, "Comedy"),
+            Map.entry(80, "Crime"),
+            Map.entry(99, "Documentary"),
+            Map.entry(18, "Drama"),
+            Map.entry(10751, "Family"),
+            Map.entry(14, "Fantasy"),
+            Map.entry(36, "History"),
+            Map.entry(27, "Horror"),
+            Map.entry(10402, "Music"),
+            Map.entry(9648, "Mystery"),
+            Map.entry(10749, "Romance"),
+            Map.entry(878, "Science Fiction"),
+            Map.entry(10770, "TV Movie"),
+            Map.entry(53, "Thriller"),
+            Map.entry(10752, "War"),
+            Map.entry(37, "Western")
+    );
 
     @PostConstruct
     private void init() {
@@ -66,14 +101,32 @@ public class TmdbMovieService {
                 .orElseGet(() -> fetchMovieDetailsFromTmdb(tmdbId));
     }
 
-    public List<MovieSearchResultDTO> getUpcomingMovies(int limit) {
-        Page<MovieSearchResultDTO> page = fetchMoviePage("/movie/upcoming?language=en-US&region=us&page={page}", Pageable.unpaged(), 1);
+    public List<UpcomingMovieDTO> getUpcomingMovies(int limit) {
+        Page<MovieSearchResultDTO> page = fetchMoviePage("/movie/upcoming?language=en-US&region=us&page=1", Pageable.unpaged());
         LocalDate today = LocalDate.now();
-        return page.getContent().stream()
+        List<MovieSearchResultDTO> upcoming = page.getContent().stream()
                 .filter(dto -> StringUtils.isNotEmpty(dto.getReleaseDate()) && !LocalDate.parse(dto.getReleaseDate()).isBefore(today))
-                .limit(Math.min(limit, 20))
                 .sorted(Comparator.comparing(MovieSearchResultDTO::getReleaseDate))
+                .limit(Math.min(limit, 20))
                 .toList();
+
+        List<Long> movieIds = upcoming.stream().map(MovieSearchResultDTO::getId).toList();
+        Map<Long, TmdbMovie> localById = tmdbMovieRepository.findAllById(movieIds).stream().collect(Collectors.toMap(TmdbMovie::getId, Function.identity()));
+        Set<Long> committedMovieIds = tmdbMovieRepository.findMovieIdsWithShowtimeStatusIn(movieIds, ShowtimeStatus.COMMITTED_STATUSES);
+
+        return upcoming.stream()
+                .map(dto -> toUpcomingMovie(dto, localById.get(dto.getId()), committedMovieIds.contains(dto.getId())))
+                .toList();
+    }
+
+    public List<MovieSearchResultDTO> getAnnouncedUpcoming() {
+        return tmdbMovieRepository.findAnnouncedUpcoming(LocalDate.now()).stream()
+                .map(this::toMovieSearchResult)
+                .toList();
+    }
+
+    public TmdbMovie findTmdbMovie(long tmdbId) {
+        return tmdbMovieRepository.findById(tmdbId).orElseThrow(() -> new NotFoundException("Movie not found: " + tmdbId));
     }
 
     public TmdbMovie fetchAndCache(long tmdbId) {
@@ -84,6 +137,32 @@ public class TmdbMovieService {
             applyDetailsToMovie(movie, details);
             return tmdbMovieRepository.save(movie);
         });
+    }
+
+    @Transactional
+    public void setAnnouncement(long tmdbId, boolean announced) {
+        if (announced) {
+            TmdbMovie movie = fetchAndCache(tmdbId);
+            validateAnnounceable(movie);
+            movie.setAnnounced(true);
+            tmdbMovieRepository.save(movie);
+            return;
+        }
+
+        TmdbMovie movie = findTmdbMovie(tmdbId);
+        if (showtimeRepository.existsByTmdbMovieIdAndStatusIn(movie.getId(), ShowtimeStatus.COMMITTED_STATUSES)) {
+            throw new BusinessException("'" + movie.getTitle() + "' already has scheduled showtimes");
+        }
+        movie.setAnnounced(false);
+        tmdbMovieRepository.save(movie);
+    }
+
+    @Transactional
+    public void clearAnnouncement(TmdbMovie movie) {
+        if (movie.isAnnounced()) {
+            movie.setAnnounced(false);
+            tmdbMovieRepository.save(movie);
+        }
     }
 
     @Transactional
@@ -102,10 +181,22 @@ public class TmdbMovieService {
 
     @Transactional
     public int deleteOrphans() {
-        return tmdbMovieRepository.deleteOrphans();
+        return tmdbMovieRepository.deleteOrphans(LocalDate.now());
     }
 
     // =========================== Helpers ===========================
+
+    private void validateAnnounceable(TmdbMovie movie) {
+        if (movie.getReleaseDate() == null) {
+            throw new BusinessException("'" + movie.getTitle() + "' has no release date yet and cannot be announced");
+        }
+        if (!movie.getReleaseDate().isAfter(LocalDate.now())) {
+            throw new BusinessException("'" + movie.getTitle() + "' has already been released");
+        }
+        if (showtimeRepository.existsByTmdbMovieIdAndStatusIn(movie.getId(), ShowtimeStatus.COMMITTED_STATUSES)) {
+            throw new BusinessException("'" + movie.getTitle() + "' already has scheduled showtimes");
+        }
+    }
 
     private Page<MovieSearchResultDTO> fetchMoviePage(String uriTemplate, Pageable pageable, Object... uriVars) {
         JsonNode root = restClient.get()
@@ -169,9 +260,33 @@ public class TmdbMovieService {
         String backdropPath = node.path("backdrop_path").stringValue();
         dto.setBackdropUrl(StringUtils.isNotEmpty(backdropPath) ? imageBaseUrl + backdropPath : null);
 
-        List<String> genreNames = StreamSupport.stream(node.path("genre_ids").spliterator(), false).map(g -> TmdbGenres.resolve(g.asInt())).toList();
+        List<String> genreNames = node.path("genre_ids").valueStream().map(g -> resolveGenre(g.asInt())).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
 
+        return dto;
+    }
+
+    private UpcomingMovieDTO toUpcomingMovie(MovieSearchResultDTO source, TmdbMovie local, boolean hasCommittedShowtimes) {
+        UpcomingMovieDTO dto = new UpcomingMovieDTO();
+        dto.setId(source.getId());
+        dto.setTitle(source.getTitle());
+        dto.setGenre(source.getGenre());
+        dto.setReleaseDate(source.getReleaseDate());
+        dto.setPosterUrl(source.getPosterUrl());
+        dto.setBackdropUrl(source.getBackdropUrl());
+        dto.setAnnounced(local != null && local.isAnnounced());
+        dto.setHasCommittedShowtimes(hasCommittedShowtimes);
+        return dto;
+    }
+
+    private MovieSearchResultDTO toMovieSearchResult(TmdbMovie movie) {
+        MovieSearchResultDTO dto = new MovieSearchResultDTO();
+        dto.setId(movie.getId());
+        dto.setTitle(movie.getTitle());
+        dto.setGenre(movie.getGenres());
+        dto.setReleaseDate(movie.getReleaseDate() != null ? movie.getReleaseDate().toString() : null);
+        dto.setPosterUrl(movie.getPosterUrl());
+        dto.setBackdropUrl(movie.getBackdropUrl());
         return dto;
     }
 
@@ -180,7 +295,6 @@ public class TmdbMovieService {
         dto.setId(node.get("id").longValue());
         dto.setTitle(node.get("title").stringValue());
         dto.setSynopsis(node.path("overview").stringValue());
-        dto.setReleaseDate(node.path("release_date").stringValue());
         dto.setDuration(node.path("runtime").intValue());
 
         String posterPath = node.path("poster_path").stringValue();
@@ -189,12 +303,17 @@ public class TmdbMovieService {
         String backdropPath = node.path("backdrop_path").stringValue();
         dto.setBackdropUrl(StringUtils.isNotEmpty(backdropPath) ? imageBaseUrl + backdropPath : null);
 
-        List<String> genreNames = StreamSupport.stream(node.path("genres").spliterator(), false).map(g -> g.path("name").stringValue()).toList();
+        List<String> genreNames = node.path("genres").valueStream().map(g -> g.path("name").stringValue()).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
 
-        String contentRating = StreamSupport.stream(node.path("release_dates").path("results").spliterator(), false)
+        List<JsonNode> usReleaseDates = node.path("release_dates").path("results").valueStream()
                 .filter(r -> "US".equals(r.path("iso_3166_1").stringValue()))
-                .flatMap(r -> StreamSupport.stream(r.path("release_dates").spliterator(), false))
+                .flatMap(r -> r.path("release_dates").valueStream())
+                .toList();
+
+        dto.setReleaseDate(resolveUsReleaseDate(usReleaseDates, node.path("release_date").stringValue()));
+
+        String contentRating = usReleaseDates.stream()
                 .map(r -> r.path("certification").stringValue())
                 .filter(StringUtils::isNotEmpty)
                 .findFirst()
@@ -216,5 +335,27 @@ public class TmdbMovieService {
         dto.setPosterUrl(m.getPosterUrl());
         dto.setBackdropUrl(m.getBackdropUrl());
         return dto;
+    }
+
+    private String resolveUsReleaseDate(List<JsonNode> usReleaseDates, String primaryReleaseDate) {
+        String resolved = Optional.ofNullable(firstUsDateOfType(usReleaseDates, TMDB_RELEASE_TYPE_THEATRICAL))
+                .or(() -> Optional.ofNullable(firstUsDateOfType(usReleaseDates, TMDB_RELEASE_TYPE_THEATRICAL_LIMITED)))
+                .orElse(primaryReleaseDate);
+
+        // Trim TMDB's full timestamp to yyyy-MM-dd so it matches the upcoming list's format.
+        return StringUtils.isNotEmpty(resolved) && resolved.length() >= 10 ? resolved.substring(0, 10) : resolved;
+    }
+
+    private String firstUsDateOfType(List<JsonNode> usReleaseDates, int releaseType) {
+        return usReleaseDates.stream()
+                .filter(r -> r.path("type").asInt() == releaseType)
+                .map(r -> r.path("release_date").stringValue())
+                .filter(StringUtils::isNotEmpty)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private String resolveGenre(int id) {
+        return TMDB_GENRES.getOrDefault(id, "Unknown");
     }
 }

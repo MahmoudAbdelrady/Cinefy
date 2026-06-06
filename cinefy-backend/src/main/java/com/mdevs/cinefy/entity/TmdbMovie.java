@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(indexes = @Index(columnList = "IS_ANNOUNCED, RELEASE_DATE"))
 public class TmdbMovie {
 
     @Id
@@ -37,4 +39,8 @@ public class TmdbMovie {
 
     @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime lastSyncedAt;
+
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private boolean isAnnounced = false;
 }
