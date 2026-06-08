@@ -3253,6 +3253,20 @@ export default function App() {
   // already "really showing"). Stubbed here to demo the hidden state on one card.
   const committedMovieIds = new Set<number>([8]);
 
+  // Highlight-on-homepage state (per movie id) — the single shared `highlighted` flag.
+  // Same set drives the toggle on both the upcoming cards and the now-showing rows;
+  // in the real app it's one `highlighted` flag on the movie (announced OR now-showing).
+  // Here it's local so the toggle is interactive.
+  const [highlightedMovieIds, setHighlightedMovieIds] = useState<Set<number>>(new Set([5]));
+
+  const toggleHighlighted = (movieId: number) => {
+    setHighlightedMovieIds((prev) => {
+      const next = new Set(prev);
+      next.has(movieId) ? next.delete(movieId) : next.add(movieId);
+      return next;
+    });
+  };
+
   const toggleAnnounced = (movieId: number) => {
     setAnnouncedMovieIds((prev) => {
       const next = new Set(prev);
@@ -4192,52 +4206,121 @@ export default function App() {
                     </p>
                   </div>
 
-                  <div className="divide-y divide-gray-200">
+                  <div className="p-4 space-y-3">
                     {moviesWithShowtimes.map((movie) => {
                       const movieShowtimes = getMovieShowtimes(movie.id);
                       const draftCount = movieShowtimes.filter(
                         (st: any) => st.status === 'draft',
                       ).length;
+                      const isHighlighted = highlightedMovieIds.has(movie.id);
                       return (
-                        <div key={movie.id} className="p-6 hover:bg-gray-50 transition-colors">
-                          <div className="flex items-center gap-5">
-                            {/* Movie Poster */}
-                            <ImageWithFallback
-                              src={movie.poster}
-                              alt={movie.title}
-                              className="w-20 h-28 object-cover rounded-lg shadow-sm flex-shrink-0"
-                            />
-
-                            {/* Movie Info */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-3 mb-1">
-                                <h4 className="text-lg font-semibold text-gray-900 truncate">
-                                  {movie.title}
-                                </h4>
-                                <span className="px-2.5 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold flex-shrink-0">
-                                  {movie.genre}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-500">
-                                {movie.duration} · {movie.director}
-                              </p>
-                            </div>
-
-                            {/* Showtime Count */}
-                            <div className="text-center flex-shrink-0 px-4">
-                              <p className="text-2xl font-bold text-gray-900">
-                                {movieShowtimes.length}
-                              </p>
-                              <p className="text-xs text-gray-500">Showtimes</p>
-                              {draftCount > 0 && (
-                                <p className="text-xs text-orange-600 font-medium mt-0.5">
-                                  {draftCount} draft{draftCount !== 1 ? 's' : ''}
-                                </p>
+                        <div
+                          key={movie.id}
+                          className={`rounded-xl border transition-all ${
+                            isHighlighted
+                              ? 'border-orange-200 bg-orange-50/30'
+                              : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                          }`}
+                        >
+                          {/* Tier 1 — identity + at-a-glance metrics. No actions compete
+                              here, so the title never gets squeezed. */}
+                          <div className="flex items-center gap-5 p-5">
+                            <div className="relative shrink-0">
+                              <ImageWithFallback
+                                src={movie.poster}
+                                alt={movie.title}
+                                className="w-20 h-28 object-cover rounded-lg shadow-sm"
+                              />
+                              {isHighlighted && (
+                                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-orange-500 ring-2 ring-white flex items-center justify-center shadow-sm">
+                                  <Star size={12} className="fill-white text-white" />
+                                </div>
                               )}
                             </div>
 
-                            {/* Actions */}
-                            <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2.5 mb-1">
+                                <h4 className="text-lg font-semibold text-gray-900 truncate">
+                                  {movie.title}
+                                </h4>
+                                <span className="shrink-0 px-2.5 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
+                                  {movie.genre}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-500 truncate mb-2.5">
+                                {movie.duration} · {movie.director}
+                              </p>
+                              <div className="flex items-center gap-2 text-xs">
+                                <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md font-medium">
+                                  <Clock size={13} className="text-gray-500" />
+                                  <span className="text-gray-700">
+                                    {movieShowtimes.length} showtime
+                                    {movieShowtimes.length !== 1 ? 's' : ''}
+                                  </span>
+                                  {draftCount > 0 && (
+                                    <span className="text-orange-600">
+                                      ({draftCount} draft{draftCount !== 1 ? 's' : ''})
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Tier 2 — the action bar. Left: the highlight toggle (compact).
+                              Right: the action-button zone — the single, extensible home for
+                              all row actions. Add a button here and it just slots in; the
+                              destructive action sits past a divider. A now-showing movie is
+                              already client-visible, so the highlight toggle has no announce-
+                              gate — always enabled. Shares `highlightedMovieIds` with the
+                              upcoming card. */}
+                          <div
+                            className={`flex items-center justify-between gap-4 px-5 py-3 border-t ${
+                              isHighlighted ? 'border-orange-100' : 'border-gray-100'
+                            }`}
+                          >
+                            <button
+                              role="switch"
+                              aria-checked={isHighlighted}
+                              onClick={() => toggleHighlighted(movie.id)}
+                              title={
+                                isHighlighted
+                                  ? 'Featured in the client hero banner'
+                                  : 'Highlight on the client homepage hero'
+                              }
+                              className="group flex items-center gap-2.5 min-w-0 outline-none"
+                            >
+                              <span
+                                className={`relative shrink-0 inline-flex h-5 w-9 items-center rounded-full transition-colors group-focus-visible:ring-2 group-focus-visible:ring-orange-500/40 ${
+                                  isHighlighted ? 'bg-orange-600' : 'bg-gray-200'
+                                }`}
+                              >
+                                <span
+                                  className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+                                    isHighlighted ? 'translate-x-[18px]' : 'translate-x-0.5'
+                                  }`}
+                                />
+                              </span>
+                              <span className="flex items-center gap-1.5 min-w-0">
+                                <Star
+                                  size={15}
+                                  className={`shrink-0 transition-colors ${
+                                    isHighlighted
+                                      ? 'fill-orange-400 text-orange-500'
+                                      : 'text-gray-400 group-hover:text-gray-500'
+                                  }`}
+                                />
+                                <span
+                                  className={`text-sm font-medium truncate transition-colors ${
+                                    isHighlighted ? 'text-orange-700' : 'text-gray-600'
+                                  }`}
+                                >
+                                  Highlight on homepage
+                                </span>
+                              </span>
+                            </button>
+
+                            <div className="flex items-center gap-1 shrink-0">
                               <button
                                 onClick={() => {
                                   setSelectedMovie(movie);
@@ -4245,29 +4328,30 @@ export default function App() {
                                   setSelectedShowtimeDate(dates[0] || '');
                                   setShowViewShowtimesModal(true);
                                 }}
-                                className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium"
+                                className="px-3 py-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
                               >
-                                View Showtimes
+                                View
                               </button>
                               <button
                                 onClick={() => {
                                   setSelectedMovie(movie);
                                   setShowCreateShowtimeModal(true);
                                 }}
-                                className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-1.5 text-sm"
+                                className="px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-1.5 text-sm font-medium"
                               >
                                 <Plus size={15} />
                                 Add Showtime
                               </button>
+                              <div className="w-px h-5 bg-gray-200 mx-1" />
                               <button
                                 onClick={() => {
                                   setSelectedMovie(movie);
                                   setShowDeleteAllShowtimesConfirm(true);
                                 }}
-                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                 title="Delete all showtimes"
                               >
-                                <Trash2 size={18} />
+                                <Trash2 size={17} />
                               </button>
                             </div>
                           </div>
