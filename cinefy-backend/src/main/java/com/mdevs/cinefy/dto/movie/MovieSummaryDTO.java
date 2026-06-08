@@ -7,13 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MovieDetailDTO {
+public class MovieSummaryDTO {
 
     private Long id;
 
     private String title;
-
-    private String synopsis;
 
     private String genre;
 
@@ -26,8 +24,4 @@ public class MovieDetailDTO {
     private String posterUrl;
 
     private String backdropUrl;
-
-    private MovieCredits credits;
-
-    private String trailerUrl;
 }

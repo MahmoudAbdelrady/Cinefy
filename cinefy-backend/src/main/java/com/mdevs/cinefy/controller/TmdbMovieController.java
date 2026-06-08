@@ -51,7 +51,7 @@ public class TmdbMovieController {
 
     @PublicApi
     @GetMapping("/highlighted")
-    public ResponseEntity<List<MovieSearchResultDTO>> getHighlighted() {
+    public ResponseEntity<List<MovieDetailDTO>> getHighlighted() {
         return ResponseEntity.ok(tmdbMovieService.getHighlighted());
     }
 

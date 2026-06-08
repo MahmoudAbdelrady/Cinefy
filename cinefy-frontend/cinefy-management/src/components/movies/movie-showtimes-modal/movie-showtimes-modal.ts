@@ -18,7 +18,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   EditableShowtime,
-  MovieDetail,
+  MovieSummary,
   MovieShowtimeDatesResponse,
   MovieShowtimeListItem,
   MovieShowtimesResponse,
@@ -92,7 +92,7 @@ export class MovieShowtimesModal {
   protected readonly statusLabels = SHOWTIME_STATUS_LABELS;
 
   readonly close = input.required<() => void>();
-  readonly selectedMovie = input.required<MovieDetail>();
+  readonly selectedMovie = input.required<MovieSummary>();
 
   readonly addShowtimeRequested = output<void>();
   readonly editShowtimeRequested = output<EditableShowtime>();

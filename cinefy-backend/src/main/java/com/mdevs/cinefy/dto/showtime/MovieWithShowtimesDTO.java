@@ -2,7 +2,7 @@ package com.mdevs.cinefy.dto.showtime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
+import com.mdevs.cinefy.dto.movie.MovieSummaryDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,5 +18,5 @@ public class MovieWithShowtimesDTO {
     @JsonProperty("isHighlighted")
     private boolean isHighlighted;
 
-    private MovieDetailDTO movieDetails;
+    private MovieSummaryDTO movieDetails;
 }

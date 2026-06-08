@@ -2,8 +2,10 @@ package com.mdevs.cinefy.service;
 
 import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.JsonNode;
+import com.mdevs.cinefy.dto.movie.MovieCredits;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
+import com.mdevs.cinefy.dto.movie.MovieSummaryDTO;
 import com.mdevs.cinefy.dto.movie.UpcomingMovieDTO;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
@@ -59,6 +61,8 @@ public class TmdbMovieService {
     private static final int TMDB_RELEASE_TYPE_THEATRICAL_LIMITED = 2;
 
     private static final int MAX_HIGHLIGHTED_MOVIES = 5;
+
+    private static final int MAX_CAST_MEMBERS = 6;
 
     private static final Map<Integer, String> TMDB_GENRES = Map.ofEntries(
             Map.entry(28, "Action"),
@@ -127,9 +131,9 @@ public class TmdbMovieService {
                 .toList();
     }
 
-    public List<MovieSearchResultDTO> getHighlighted() {
+    public List<MovieDetailDTO> getHighlighted() {
         return tmdbMovieRepository.findHighlighted().stream()
-                .map(this::toMovieSearchResult)
+                .map(this::toMovieDetail)
                 .toList();
     }
 
@@ -265,7 +269,7 @@ public class TmdbMovieService {
         JsonNode root;
         try {
             root = restClient.get()
-                    .uri("/movie/{id}?append_to_response=release_dates", tmdbId)
+                    .uri("/movie/{id}?append_to_response=release_dates,credits,videos", tmdbId)
                     .retrieve()
                     .body(JsonNode.class);
         } catch (HttpClientErrorException.NotFound e) {
@@ -289,6 +293,8 @@ public class TmdbMovieService {
         movie.setDurationMinutes(details.getDuration());
         movie.setPosterUrl(details.getPosterUrl());
         movie.setBackdropUrl(details.getBackdropUrl());
+        movie.setCredits(details.getCredits());
+        movie.setTrailerUrl(details.getTrailerUrl());
         movie.setLastSyncedAt(LocalDateTime.now());
     }
 
@@ -365,6 +371,9 @@ public class TmdbMovieService {
                 .orElse(null);
         dto.setContentRating(contentRating);
 
+        dto.setCredits(resolveCredits(node.path("credits")));
+        dto.setTrailerUrl(resolveTrailerUrl(node.path("videos").path("results")));
+
         return dto;
     }
 
@@ -373,6 +382,21 @@ public class TmdbMovieService {
         dto.setId(m.getId());
         dto.setTitle(m.getTitle());
         dto.setSynopsis(m.getSynopsis());
+        dto.setGenre(m.getGenres());
+        dto.setContentRating(m.getContentRating());
+        dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
+        dto.setDuration(m.getDurationMinutes());
+        dto.setPosterUrl(m.getPosterUrl());
+        dto.setBackdropUrl(m.getBackdropUrl());
+        dto.setCredits(m.getCredits());
+        dto.setTrailerUrl(m.getTrailerUrl());
+        return dto;
+    }
+
+    public MovieSummaryDTO toMovieSummary(TmdbMovie m) {
+        MovieSummaryDTO dto = new MovieSummaryDTO();
+        dto.setId(m.getId());
+        dto.setTitle(m.getTitle());
         dto.setGenre(m.getGenres());
         dto.setContentRating(m.getContentRating());
         dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
@@ -393,8 +417,8 @@ public class TmdbMovieService {
 
     private String firstUsDateOfType(List<JsonNode> usReleaseDates, int releaseType) {
         return usReleaseDates.stream()
-                .filter(r -> r.path("type").asInt() == releaseType)
-                .map(r -> r.path("release_date").stringValue())
+                .filter(r -> r.path("type").asInt(Integer.MAX_VALUE) == releaseType)
+                .map(r -> r.path("release_date").stringValue(null))
                 .filter(StringUtils::isNotEmpty)
                 .findFirst()
                 .orElse(null);
@@ -402,5 +426,53 @@ public class TmdbMovieService {
 
     private String resolveGenre(int id) {
         return TMDB_GENRES.getOrDefault(id, "Unknown");
+    }
+
+    private MovieCredits resolveCredits(JsonNode credits) {
+        if (credits.isMissingNode()) {
+            return null;
+        }
+
+        List<MovieCredits.CreditMember> cast = credits.path("cast").valueStream()
+                .sorted(Comparator.comparingInt(c -> c.path("order").asInt(Integer.MAX_VALUE)))
+                .limit(MAX_CAST_MEMBERS)
+                .map(this::toCreditMember)
+                .toList();
+
+        List<MovieCredits.CreditMember> directors = credits.path("crew").valueStream()
+                .filter(c -> "Director".equals(c.path("job").stringValue(null)))
+                .map(this::toCreditMember)
+                .toList();
+
+        if (cast.isEmpty() && directors.isEmpty()) {
+            return null;
+        }
+
+        return new MovieCredits(cast, directors);
+    }
+
+    private MovieCredits.CreditMember toCreditMember(JsonNode person) {
+        String profilePath = person.path("profile_path").stringValue(null);
+        String profileUrl = StringUtils.isNotEmpty(profilePath) ? imageBaseUrl + profilePath : null;
+        return new MovieCredits.CreditMember(person.get("id").longValue(0), person.path("name").stringValue(null), profileUrl);
+    }
+
+    private String resolveTrailerUrl(JsonNode videos) {
+        List<JsonNode> youtubeVideos = videos.valueStream()
+                .filter(v -> "YouTube".equals(v.path("site").stringValue(null)))
+                .toList();
+
+        JsonNode trailer = youtubeVideos.stream()
+                .filter(v -> "Trailer".equals(v.path("type").stringValue(null)))
+                .max(Comparator.comparing(v -> v.path("published_at").stringValue("")))
+                .or(() -> youtubeVideos.stream().filter(v -> "Teaser".equals(v.path("type").stringValue(null))).findFirst())
+                .orElse(null);
+
+        if (trailer == null) {
+            return null;
+        }
+
+        String key = trailer.path("key").stringValue(null);
+        return StringUtils.isNotEmpty(key) ? "https://www.youtube.com/embed/" + key : null;
     }
 }
