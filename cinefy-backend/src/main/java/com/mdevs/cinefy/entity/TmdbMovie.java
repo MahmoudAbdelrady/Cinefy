@@ -13,7 +13,10 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(indexes = @Index(columnList = "IS_ANNOUNCED, RELEASE_DATE"))
+@Table(indexes = {
+        @Index(columnList = "IS_ANNOUNCED, RELEASE_DATE"),
+        @Index(columnList = "IS_HIGHLIGHTED")
+})
 public class TmdbMovie {
 
     @Id
@@ -43,4 +46,8 @@ public class TmdbMovie {
     @Column(nullable = false)
     @ColumnDefault("false")
     private boolean isAnnounced = false;
+
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private boolean isHighlighted = false;
 }

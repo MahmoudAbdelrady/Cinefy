@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.movie.AnnouncementRequestDTO;
+import com.mdevs.cinefy.dto.movie.HighlightRequestDTO;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 import com.mdevs.cinefy.dto.movie.UpcomingMovieDTO;
@@ -49,6 +50,12 @@ public class TmdbMovieController {
     }
 
     @PublicApi
+    @GetMapping("/highlighted")
+    public ResponseEntity<List<MovieSearchResultDTO>> getHighlighted() {
+        return ResponseEntity.ok(tmdbMovieService.getHighlighted());
+    }
+
+    @PublicApi
     @GetMapping("/{id}")
     public ResponseEntity<MovieDetailDTO> getMovieDetails(@PathVariable long id) {
         return ResponseEntity.ok(tmdbMovieService.getMovieDetails(id));
@@ -58,6 +65,13 @@ public class TmdbMovieController {
     @PostMapping("/{id}/announcement")
     public ResponseEntity<Void> setAnnouncement(@PathVariable long id, @Valid @RequestBody AnnouncementRequestDTO dto) {
         tmdbMovieService.setAnnouncement(id, dto.getAnnounced());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PostMapping("/{id}/highlight")
+    public ResponseEntity<Void> setHighlight(@PathVariable long id, @Valid @RequestBody HighlightRequestDTO dto) {
+        tmdbMovieService.setHighlight(id, dto.getHighlighted());
         return ResponseEntity.noContent().build();
     }
 }

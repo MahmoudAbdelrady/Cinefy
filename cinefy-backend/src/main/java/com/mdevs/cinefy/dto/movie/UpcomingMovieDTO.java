@@ -25,5 +25,8 @@ public class UpcomingMovieDTO {
     @JsonProperty("isAnnounced")
     private boolean isAnnounced;
 
+    @JsonProperty("isHighlighted")
+    private boolean isHighlighted;
+
     private boolean hasCommittedShowtimes;
 }

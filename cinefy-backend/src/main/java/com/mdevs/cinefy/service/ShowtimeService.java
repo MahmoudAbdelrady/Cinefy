@@ -163,6 +163,7 @@ public class ShowtimeService {
         Hall hall = showtime.getHall();
         showtimeRepository.delete(showtime);
         flipHallIfNoActiveShowtimes(hall, showtime.getId());
+        tmdbMovieService.clearHighlightIfIneligible(showtime.getTmdbMovie());
     }
 
     @Transactional
@@ -183,6 +184,7 @@ public class ShowtimeService {
         showtimeRepository.deleteAll(showtimes);
 
         affectedHalls.forEach(hall -> flipHallIfNoActiveShowtimes(hall, null));
+        tmdbMovieService.clearHighlightIfIneligible(tmdbMovieService.findTmdbMovie(movieId));
     }
 
     @Transactional
@@ -305,6 +307,7 @@ public class ShowtimeService {
         MovieWithShowtimesDTO dto = new MovieWithShowtimesDTO();
         dto.setTotalShowtimes(counts.getTotalShowtimes());
         dto.setTotalDraftShowtimes(counts.getTotalDraftShowtimes());
+        dto.setHighlighted(movie.isHighlighted());
         dto.setMovieDetails(details);
         return dto;
     }

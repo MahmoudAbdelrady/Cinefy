@@ -58,6 +58,8 @@ public class TmdbMovieService {
 
     private static final int TMDB_RELEASE_TYPE_THEATRICAL_LIMITED = 2;
 
+    private static final int MAX_HIGHLIGHTED_MOVIES = 5;
+
     private static final Map<Integer, String> TMDB_GENRES = Map.ofEntries(
             Map.entry(28, "Action"),
             Map.entry(12, "Adventure"),
@@ -125,6 +127,12 @@ public class TmdbMovieService {
                 .toList();
     }
 
+    public List<MovieSearchResultDTO> getHighlighted() {
+        return tmdbMovieRepository.findHighlighted().stream()
+                .map(this::toMovieSearchResult)
+                .toList();
+    }
+
     public TmdbMovie findTmdbMovie(long tmdbId) {
         return tmdbMovieRepository.findById(tmdbId).orElseThrow(() -> new NotFoundException("Movie not found: " + tmdbId));
     }
@@ -166,6 +174,29 @@ public class TmdbMovieService {
     }
 
     @Transactional
+    public void setHighlight(long tmdbId, boolean highlighted) {
+        TmdbMovie movie = findTmdbMovie(tmdbId);
+        validateHighlightEligible(movie);
+        if (highlighted && !movie.isHighlighted()) {
+            validateHighlightCapacity();
+        }
+        movie.setHighlighted(highlighted);
+        tmdbMovieRepository.save(movie);
+    }
+
+    @Transactional
+    public void clearHighlightIfIneligible(TmdbMovie movie) {
+        if (!movie.isHighlighted()) {
+            return;
+        }
+        boolean hasCommittedShowtimes = showtimeRepository.existsByTmdbMovieIdAndStatusIn(movie.getId(), ShowtimeStatus.COMMITTED_STATUSES);
+        if (!hasCommittedShowtimes && !movie.isAnnounced()) {
+            movie.setHighlighted(false);
+            tmdbMovieRepository.save(movie);
+        }
+    }
+
+    @Transactional
     public void refreshOrDelete(TmdbMovie movie) {
         MovieDetailDTO details;
         try {
@@ -195,6 +226,19 @@ public class TmdbMovieService {
         }
         if (showtimeRepository.existsByTmdbMovieIdAndStatusIn(movie.getId(), ShowtimeStatus.COMMITTED_STATUSES)) {
             throw new BusinessException("'" + movie.getTitle() + "' already has scheduled showtimes");
+        }
+    }
+
+    private void validateHighlightEligible(TmdbMovie movie) {
+        boolean hasCommittedShowtimes = showtimeRepository.existsByTmdbMovieIdAndStatusIn(movie.getId(), ShowtimeStatus.COMMITTED_STATUSES);
+        if (!hasCommittedShowtimes && !movie.isAnnounced()) {
+            throw new BusinessException("'" + movie.getTitle() + "' must be announced or have scheduled showtimes to be highlighted");
+        }
+    }
+
+    private void validateHighlightCapacity() {
+        if (tmdbMovieRepository.countByIsHighlightedTrue() >= MAX_HIGHLIGHTED_MOVIES) {
+            throw new BusinessException("You can highlight at most " + MAX_HIGHLIGHTED_MOVIES + " movies");
         }
     }
 
@@ -275,6 +319,7 @@ public class TmdbMovieService {
         dto.setPosterUrl(source.getPosterUrl());
         dto.setBackdropUrl(source.getBackdropUrl());
         dto.setAnnounced(local != null && local.isAnnounced());
+        dto.setHighlighted(local != null && local.isHighlighted());
         dto.setHasCommittedShowtimes(hasCommittedShowtimes);
         return dto;
     }
