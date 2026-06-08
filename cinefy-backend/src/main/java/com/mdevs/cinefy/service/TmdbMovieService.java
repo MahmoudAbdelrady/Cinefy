@@ -2,6 +2,7 @@ package com.mdevs.cinefy.service;
 
 import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.JsonNode;
+import com.mdevs.cinefy.dto.movie.HighlightedMovieDTO;
 import com.mdevs.cinefy.dto.movie.MovieCredits;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
@@ -131,9 +132,13 @@ public class TmdbMovieService {
                 .toList();
     }
 
-    public List<MovieDetailDTO> getHighlighted() {
-        return tmdbMovieRepository.findHighlighted().stream()
-                .map(this::toMovieDetail)
+    public List<HighlightedMovieDTO> getHighlighted() {
+        List<TmdbMovie> highlighted = tmdbMovieRepository.findHighlighted();
+        List<Long> movieIds = highlighted.stream().map(TmdbMovie::getId).toList();
+        Set<Long> bookingOpenedIds = tmdbMovieRepository.findMovieIdsWithShowtimeStatusIn(movieIds, ShowtimeStatus.COMMITTED_STATUSES);
+
+        return highlighted.stream()
+                .map(movie -> toHighlightedMovie(movie, bookingOpenedIds.contains(movie.getId())))
                 .toList();
     }
 
@@ -166,6 +171,7 @@ public class TmdbMovieService {
             throw new BusinessException("'" + movie.getTitle() + "' already has scheduled showtimes");
         }
         movie.setAnnounced(false);
+        movie.setHighlighted(false);
         tmdbMovieRepository.save(movie);
     }
 
@@ -327,6 +333,13 @@ public class TmdbMovieService {
         dto.setAnnounced(local != null && local.isAnnounced());
         dto.setHighlighted(local != null && local.isHighlighted());
         dto.setHasCommittedShowtimes(hasCommittedShowtimes);
+        return dto;
+    }
+
+    private HighlightedMovieDTO toHighlightedMovie(TmdbMovie movie, boolean bookingOpened) {
+        HighlightedMovieDTO dto = new HighlightedMovieDTO();
+        dto.setBookingOpened(bookingOpened);
+        dto.setMovieDetails(toMovieDetail(movie));
         return dto;
     }
 

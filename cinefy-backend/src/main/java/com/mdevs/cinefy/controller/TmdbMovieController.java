@@ -2,6 +2,7 @@ package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.movie.AnnouncementRequestDTO;
 import com.mdevs.cinefy.dto.movie.HighlightRequestDTO;
+import com.mdevs.cinefy.dto.movie.HighlightedMovieDTO;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 import com.mdevs.cinefy.dto.movie.UpcomingMovieDTO;
@@ -51,7 +52,7 @@ public class TmdbMovieController {
 
     @PublicApi
     @GetMapping("/highlighted")
-    public ResponseEntity<List<MovieDetailDTO>> getHighlighted() {
+    public ResponseEntity<List<HighlightedMovieDTO>> getHighlighted() {
         return ResponseEntity.ok(tmdbMovieService.getHighlighted());
     }
 
