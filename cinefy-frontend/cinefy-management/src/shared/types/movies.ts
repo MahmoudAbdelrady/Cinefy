@@ -14,6 +14,7 @@ interface UpcomingMovie {
   posterUrl?: string;
   backdropUrl?: string;
   isAnnounced: boolean;
+  isHighlighted: boolean;
   hasCommittedShowtimes: boolean;
 }
 

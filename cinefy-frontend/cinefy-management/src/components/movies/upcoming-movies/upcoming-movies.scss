@@ -288,6 +288,13 @@
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid $gray-200;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+
+  @include from-mobile {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .mcv-row {
@@ -346,8 +353,7 @@
 }
 
 .mcv-pending {
-  @include flex-center;
-  width: 14px;
-  height: 14px;
+  display: flex;
+  flex-shrink: 0;
   color: $orange-600;
 }

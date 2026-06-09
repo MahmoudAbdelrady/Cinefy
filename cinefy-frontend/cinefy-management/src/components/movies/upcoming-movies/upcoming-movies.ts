@@ -3,7 +3,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { CalendarIcon, MegaphoneIcon, SearchIcon } from '../../../shared/icons';
+import { CalendarIcon, MegaphoneIcon, SearchIcon, StarIcon } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
@@ -37,6 +37,7 @@ export class UpcomingMoviesComponent {
     CalendarIcon,
     SearchIcon,
     MegaphoneIcon,
+    StarIcon,
   };
 
   private readonly moviesService = inject(MoviesService);
@@ -48,8 +49,10 @@ export class UpcomingMoviesComponent {
   protected readonly movies = signal<UpcomingMovie[]>([]);
 
   private readonly announcedIds = signal<Set<number>>(new Set());
+  private readonly highlightedIds = signal<Set<number>>(new Set());
   private readonly committedIds = signal<Set<number>>(new Set());
-  private readonly pendingIds = signal<Set<number>>(new Set());
+  private readonly announcePendingIds = signal<Set<number>>(new Set());
+  private readonly highlightPendingIds = signal<Set<number>>(new Set());
 
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
   private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: '' });
@@ -66,6 +69,7 @@ export class UpcomingMoviesComponent {
         next: (list) => {
           this.movies.set(list);
           this.announcedIds.set(new Set(list.filter((m) => m.isAnnounced).map((m) => m.id)));
+          this.highlightedIds.set(new Set(list.filter((m) => m.isHighlighted).map((m) => m.id)));
           this.committedIds.set(
             new Set(list.filter((m) => m.hasCommittedShowtimes).map((m) => m.id)),
           );
@@ -84,7 +88,19 @@ export class UpcomingMoviesComponent {
 
     this.showtimeEvents.committedChanged$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((event) => this.setCommitted(event.movieId, event.hasCommittedShowtimes));
+      .subscribe((event) => {
+        this.setCommitted(event.movieId, event.hasCommittedShowtimes);
+        if (!event.hasCommittedShowtimes) this.demoteHighlightIfUnhighlightable(event.movieId);
+      });
+
+    this.showtimeEvents.deleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((movieId) => {
+      this.setCommitted(movieId, false);
+      this.demoteHighlightIfUnhighlightable(movieId);
+    });
+
+    this.showtimeEvents.highlightChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => this.setHighlighted(event.movieId, event.isHighlighted));
   }
 
   protected isComingSoon(releaseDate: string | undefined): boolean {
@@ -106,12 +122,24 @@ export class UpcomingMoviesComponent {
     return this.committedIds().has(movieId);
   }
 
-  protected isPending(movieId: number): boolean {
-    return this.pendingIds().has(movieId);
+  protected isAnnouncePending(movieId: number): boolean {
+    return this.announcePendingIds().has(movieId);
+  }
+
+  protected isHighlighted(movieId: number): boolean {
+    return this.highlightedIds().has(movieId);
+  }
+
+  protected isHighlightPending(movieId: number): boolean {
+    return this.highlightPendingIds().has(movieId);
+  }
+
+  protected canHighlight(movieId: number): boolean {
+    return this.isAnnounced(movieId) || this.isCommitted(movieId);
   }
 
   protected toggleAnnounced(movieId: number, announced: boolean): void {
-    if (this.isPending(movieId)) return;
+    if (this.isAnnouncePending(movieId)) return;
 
     this.setPending(movieId, true);
     this.moviesService
@@ -121,12 +149,38 @@ export class UpcomingMoviesComponent {
         next: () => {
           this.setAnnounced(movieId, announced);
           this.setPending(movieId, false);
+          if (!this.canHighlight(movieId) && this.isHighlighted(movieId)) {
+            this.setHighlighted(movieId, false);
+            this.showtimeEvents.notifyHighlightChanged(movieId, false);
+          }
         },
         error: (err: HttpErrorResponse) => {
           // Re-assert the prior value so the switch reverts to the confirmed state.
           this.setAnnounced(movieId, !announced);
           this.setPending(movieId, false);
           this.toastService.error(err.error?.message ?? 'Failed to update announcement');
+        },
+      });
+  }
+
+  protected toggleHighlighted(movieId: number, highlighted: boolean): void {
+    if (this.isHighlightPending(movieId)) return;
+
+    this.setHighlightPending(movieId, true);
+    this.moviesService
+      .setHighlight(movieId, highlighted)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.setHighlighted(movieId, highlighted);
+          this.setHighlightPending(movieId, false);
+          this.showtimeEvents.notifyHighlightChanged(movieId, highlighted);
+        },
+        error: (err: HttpErrorResponse) => {
+          // Re-assert the prior value so the switch reverts to the confirmed state.
+          this.setHighlighted(movieId, !highlighted);
+          this.setHighlightPending(movieId, false);
+          this.toastService.error(err.error?.message ?? 'Failed to update highlight');
         },
       });
   }
@@ -140,7 +194,7 @@ export class UpcomingMoviesComponent {
   }
 
   private setPending(movieId: number, pending: boolean): void {
-    this.pendingIds.update((ids) => {
+    this.announcePendingIds.update((ids) => {
       const next = new Set(ids);
       pending ? next.add(movieId) : next.delete(movieId);
       return next;
@@ -159,5 +213,28 @@ export class UpcomingMoviesComponent {
   private markCommitted(movieId: number): void {
     this.setCommitted(movieId, true);
     this.setAnnounced(movieId, false);
+  }
+
+  private demoteHighlightIfUnhighlightable(movieId: number): void {
+    if (this.canHighlight(movieId) || !this.isHighlighted(movieId)) return;
+    this.setHighlighted(movieId, false);
+    this.showtimeEvents.notifyHighlightChanged(movieId, false);
+  }
+
+  private setHighlighted(movieId: number, highlighted: boolean): void {
+    if (!this.movies().some((movie) => movie.id === movieId)) return;
+    this.highlightedIds.update((ids) => {
+      const next = new Set(ids);
+      highlighted ? next.add(movieId) : next.delete(movieId);
+      return next;
+    });
+  }
+
+  private setHighlightPending(movieId: number, pending: boolean): void {
+    this.highlightPendingIds.update((ids) => {
+      const next = new Set(ids);
+      pending ? next.add(movieId) : next.delete(movieId);
+      return next;
+    });
   }
 }

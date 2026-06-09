@@ -83,17 +83,52 @@
                   </div>
                 </div>
                 <div class="mcv-control">
-                  <div class="mcv-pending">
-                    @if (isPending(upcomingMovie.id)) {
-                      <loading-spinner variant="xs" />
-                    }
-                  </div>
+                  @if (isAnnouncePending(upcomingMovie.id)) {
+                    <loading-spinner class="mcv-pending" variant="xs" />
+                  }
                   <cui-switch
                     size="sm"
                     color="highlight"
                     [checked]="isAnnounced(upcomingMovie.id)"
-                    [disabled]="isCommitted(upcomingMovie.id) || isPending(upcomingMovie.id)"
+                    [disabled]="
+                      isCommitted(upcomingMovie.id) || isAnnouncePending(upcomingMovie.id)
+                    "
                     (checkedChange)="toggleAnnounced(upcomingMovie.id, $event)"
+                  />
+                </div>
+              </div>
+
+              <div class="mcv-row" [class.mcv-row--disabled]="!canHighlight(upcomingMovie.id)">
+                <div class="mcv-label">
+                  <lucide-icon
+                    class="mcv-icon"
+                    [class.mcv-icon--on]="isHighlighted(upcomingMovie.id)"
+                    [img]="icons.StarIcon"
+                    [size]="16"
+                  ></lucide-icon>
+                  <div class="mcv-text">
+                    <p class="mcv-title">Highlight on homepage</p>
+                    <p class="mcv-subtitle">
+                      @if (canHighlight(upcomingMovie.id)) {
+                        Feature in the hero banner
+                      } @else {
+                        Announce or schedule showtimes to enable
+                      }
+                    </p>
+                  </div>
+                </div>
+                <div class="mcv-control">
+                  @if (isHighlightPending(upcomingMovie.id)) {
+                    <loading-spinner class="mcv-pending" variant="xs" />
+                  }
+                  <cui-switch
+                    size="sm"
+                    color="highlight"
+                    [checked]="isHighlighted(upcomingMovie.id)"
+                    [disabled]="
+                      !canHighlight(upcomingMovie.id) || isHighlightPending(upcomingMovie.id)
+                    "
+                    (checkedChange)="toggleHighlighted(upcomingMovie.id, $event)"
                   />
                 </div>
               </div>

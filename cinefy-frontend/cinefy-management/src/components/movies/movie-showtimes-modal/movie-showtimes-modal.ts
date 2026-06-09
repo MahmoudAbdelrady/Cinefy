@@ -226,7 +226,12 @@ export class MovieShowtimesModal {
       .subscribe({
         next: () => {
           this.markDeleting(id, false);
-          this.applyLocalDeletion(id);
+          const wasDraft = this.applyLocalDeletion(id);
+          this.showtimeEvents.notifySingleDeleted(this.selectedMovie().id, wasDraft);
+          this.showtimeEvents.notifyCommittedChanged(
+            this.selectedMovie().id,
+            (this.movieShowtimes()?.numberOfCommitted ?? 0) > 0,
+          );
           this.toastService.success('Showtime deleted');
           close();
         },
@@ -397,9 +402,9 @@ export class MovieShowtimesModal {
     }
   }
 
-  private applyLocalDeletion(id: string): void {
+  private applyLocalDeletion(id: string): boolean {
     const removed = this.movieShowtimeDetails().find((s) => s.id === id);
-    if (!removed) return;
+    if (!removed) return false;
     const wasDraft = removed.status === 'DRAFT';
     const wasCommitted = removed.status === 'PUBLISHED' || removed.status === 'RUNNING';
 
@@ -417,14 +422,11 @@ export class MovieShowtimesModal {
       );
     }
 
-    this.showtimeEvents.notifyCommittedChanged(
-      this.selectedMovie().id,
-      (this.movieShowtimes()?.numberOfCommitted ?? 0) > 0,
-    );
-
     if (this.movieShowtimeDetails().length === 0) {
       this.dropDateAndPickNeighbour(this.selectedTab());
     }
+
+    return wasDraft;
   }
 
   private applyLocalPublish(id: string): void {

@@ -31,4 +31,8 @@ export class MoviesService {
   setAnnouncement(id: number, announced: boolean): Observable<void> {
     return this.http.post<void>(`/movies/${id}/announcement`, { announced });
   }
+
+  setHighlight(id: number, highlighted: boolean): Observable<void> {
+    return this.http.post<void>(`/movies/${id}/highlight`, { highlighted });
+  }
 }
