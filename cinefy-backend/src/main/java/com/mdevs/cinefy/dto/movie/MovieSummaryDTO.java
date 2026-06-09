@@ -1,6 +1,8 @@
 package com.mdevs.cinefy.dto.movie;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,5 +27,6 @@ public class MovieSummaryDTO {
 
     private String backdropUrl;
 
+    @JsonProperty("isHighlighted")
     private boolean isHighlighted;
 }
