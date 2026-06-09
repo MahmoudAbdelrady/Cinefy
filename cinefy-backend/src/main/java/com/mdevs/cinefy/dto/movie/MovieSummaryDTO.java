@@ -24,4 +24,6 @@ public class MovieSummaryDTO {
     private String posterUrl;
 
     private String backdropUrl;
+
+    private boolean isHighlighted;
 }

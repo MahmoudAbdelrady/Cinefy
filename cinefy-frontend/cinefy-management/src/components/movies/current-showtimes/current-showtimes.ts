@@ -154,7 +154,7 @@ export class CurrentShowtimesComponent {
         movieDetails: showtime.movie,
         totalShowtimes: 1,
         totalDraftShowtimes: isDraft ? 1 : 0,
-        isHighlighted: false,
+        isHighlighted: showtime.movie.isHighlighted,
       };
       return [...list, newRow];
     });

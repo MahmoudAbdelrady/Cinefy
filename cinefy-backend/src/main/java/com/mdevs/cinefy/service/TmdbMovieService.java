@@ -416,6 +416,7 @@ public class TmdbMovieService {
         dto.setDuration(m.getDurationMinutes());
         dto.setPosterUrl(m.getPosterUrl());
         dto.setBackdropUrl(m.getBackdropUrl());
+        dto.setHighlighted(m.isHighlighted());
         return dto;
     }
 

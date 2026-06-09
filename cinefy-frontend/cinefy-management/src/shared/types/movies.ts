@@ -27,6 +27,7 @@ interface MovieSummary {
   duration?: number;
   posterUrl?: string;
   backdropUrl?: string;
+  isHighlighted: boolean;
 }
 
 interface MovieDetail {
