@@ -57,6 +57,12 @@ public class TmdbMovieController {
     }
 
     @PublicApi
+    @GetMapping("/now-showing")
+    public ResponseEntity<List<MovieSearchResultDTO>> getNowShowing() {
+        return ResponseEntity.ok(tmdbMovieService.getNowShowing());
+    }
+
+    @PublicApi
     @GetMapping("/{id}")
     public ResponseEntity<MovieDetailDTO> getMovieDetails(@PathVariable long id) {
         return ResponseEntity.ok(tmdbMovieService.getMovieDetails(id));

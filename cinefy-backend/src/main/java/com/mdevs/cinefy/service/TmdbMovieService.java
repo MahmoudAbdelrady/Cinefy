@@ -142,6 +142,12 @@ public class TmdbMovieService {
                 .toList();
     }
 
+    public List<MovieSearchResultDTO> getNowShowing() {
+        return tmdbMovieRepository.findWithShowtimeStatusIn(ShowtimeStatus.COMMITTED_STATUSES).stream()
+                .map(this::toMovieSearchResult)
+                .toList();
+    }
+
     public TmdbMovie findTmdbMovie(long tmdbId) {
         return tmdbMovieRepository.findById(tmdbId).orElseThrow(() -> new NotFoundException("Movie not found: " + tmdbId));
     }
