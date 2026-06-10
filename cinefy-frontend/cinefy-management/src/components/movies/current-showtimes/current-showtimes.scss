@@ -162,7 +162,7 @@
     color: $gray-900;
     line-height: 1.3;
     min-width: 0;
-    @include text-truncate;
+    overflow-wrap: anywhere;
   }
 }
 
@@ -440,6 +440,11 @@
     gap: 12px;
   }
 
+  .mci-poster img {
+    width: 72px;
+    height: 108px;
+  }
+
   .mcib-head {
     flex-direction: column;
     gap: 6px;
@@ -451,5 +456,32 @@
 
   .mcib-chip {
     align-self: flex-start;
+  }
+
+  .mcib-genre,
+  .mcib-meta {
+    font-size: 13px;
+  }
+
+  .mcf-highlight,
+  .mcf-actions {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .mcf-actions {
+    flex-wrap: wrap;
+
+    .mcfa-view {
+      flex: 1 1 100%;
+    }
+
+    .mcfa-add {
+      flex: 1 1 auto;
+    }
+
+    .mcfa-delete {
+      flex: 0 0 auto;
+    }
   }
 }
