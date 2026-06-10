@@ -7,12 +7,25 @@
       </div>
       <p>Movies releasing soon that you can schedule</p>
     </div>
-    <div class="h-search">
-      <input-field
-        [control]="searchControl"
-        [leadingIcon]="icons.SearchIcon"
-        placeholder="Search movies…"
-      />
+    <div class="h-controls">
+      <div class="h-filter">
+        <span class="hf-label" (click)="showAnnouncedOnly.set(!showAnnouncedOnly())">
+          Show announced movies only
+        </span>
+        <cui-switch
+          size="sm"
+          color="highlight"
+          [checked]="showAnnouncedOnly()"
+          (checkedChange)="showAnnouncedOnly.set($event)"
+        />
+      </div>
+      <div class="h-search">
+        <input-field
+          [control]="searchControl"
+          [leadingIcon]="icons.SearchIcon"
+          placeholder="Search movies…"
+        />
+      </div>
     </div>
   </div>
   <div class="content">
@@ -138,8 +151,16 @@
           <empty-state
             class="um-empty"
             [icon]="icons.CalendarIcon"
-            [title]="searchControl.value ? 'No movies found' : 'No upcoming movies available'"
-            [description]="searchControl.value ? 'Try adjusting your search term' : null"
+            [title]="
+              searchControl.value || showAnnouncedOnly()
+                ? 'No movies found'
+                : 'No upcoming movies available'
+            "
+            [description]="
+              searchControl.value || showAnnouncedOnly()
+                ? 'Try adjusting your search filters'
+                : null
+            "
           />
         }
       </div>

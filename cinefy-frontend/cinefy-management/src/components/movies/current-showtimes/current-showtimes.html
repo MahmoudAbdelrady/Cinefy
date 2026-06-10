@@ -4,12 +4,25 @@
       <h4>Current Movies & Showtimes</h4>
       <p>Manage movies currently showing in your cinema</p>
     </div>
-    <div class="h-search">
-      <input-field
-        [control]="searchControl"
-        [leadingIcon]="icons.SearchIcon"
-        placeholder="Search movies…"
-      />
+    <div class="h-controls">
+      <div class="h-filter">
+        <span class="hf-label" (click)="showHighlightedOnly.set(!showHighlightedOnly())">
+          Show highlighted movies only
+        </span>
+        <cui-switch
+          size="sm"
+          color="highlight"
+          [checked]="showHighlightedOnly()"
+          (checkedChange)="showHighlightedOnly.set($event)"
+        />
+      </div>
+      <div class="h-search">
+        <input-field
+          [control]="searchControl"
+          [leadingIcon]="icons.SearchIcon"
+          placeholder="Search movies…"
+        />
+      </div>
     </div>
   </div>
   <div class="content">
@@ -222,10 +235,14 @@
           <empty-state
             class="cs-empty"
             [icon]="icons.CalendarClockIcon"
-            [title]="searchControl.value ? 'No movies found' : 'No showtimes scheduled yet'"
+            [title]="
+              searchControl.value || showHighlightedOnly()
+                ? 'No movies found'
+                : 'No showtimes scheduled yet'
+            "
             [description]="
-              searchControl.value
-                ? 'Try adjusting your search term'
+              searchControl.value || showHighlightedOnly()
+                ? 'Try adjusting your search filters'
                 : 'Schedule a showtime to start selling tickets for this movie.'
             "
           />

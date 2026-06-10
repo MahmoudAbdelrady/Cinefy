@@ -57,10 +57,16 @@ export class UpcomingMoviesComponent {
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
   private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: '' });
 
+  protected readonly showAnnouncedOnly = signal(false);
+
   protected readonly filteredMovies = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
-    if (!term) return this.movies();
-    return this.movies().filter((movie) => movie.title.toLowerCase().includes(term));
+    const announcedOnly = this.showAnnouncedOnly();
+    return this.movies().filter((movie) => {
+      if (announcedOnly && !movie.announced) return false;
+      if (term && !movie.title.toLowerCase().includes(term)) return false;
+      return true;
+    });
   });
 
   constructor() {

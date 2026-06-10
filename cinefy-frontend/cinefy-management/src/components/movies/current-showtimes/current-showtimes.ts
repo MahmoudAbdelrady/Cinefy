@@ -83,12 +83,16 @@ export class CurrentShowtimesComponent {
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
   private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: '' });
 
+  protected readonly showHighlightedOnly = signal(false);
+
   protected readonly filteredMovies = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
-    if (!term) return this.moviesWithShowtimes();
-    return this.moviesWithShowtimes().filter((item) =>
-      item.movieDetails.title.toLowerCase().includes(term),
-    );
+    const highlightedOnly = this.showHighlightedOnly();
+    return this.moviesWithShowtimes().filter((item) => {
+      if (highlightedOnly && !item.highlighted) return false;
+      if (term && !item.movieDetails.title.toLowerCase().includes(term)) return false;
+      return true;
+    });
   });
 
   constructor() {

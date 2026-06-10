@@ -45,6 +45,36 @@
   }
 }
 
+.h-controls {
+  @include flex-align;
+  gap: 16px;
+  flex-shrink: 0;
+
+  @include below-mobile {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+}
+
+.h-filter {
+  @include flex-align;
+  gap: 10px;
+
+  @include below-mobile {
+    justify-content: space-between;
+  }
+
+  .hf-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-700;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
 .h-search {
   width: 288px;
   flex-shrink: 0;
