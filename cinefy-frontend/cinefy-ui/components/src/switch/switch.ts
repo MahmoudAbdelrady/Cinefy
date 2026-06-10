@@ -1,4 +1,4 @@
-import { Component, input, output, type InputSignal } from "@angular/core";
+import { Component, effect, input, output, untracked, viewChild, type InputSignal } from "@angular/core";
 import { NgpSwitch, NgpSwitchThumb } from "ng-primitives/switch";
 
 type SwitchSize = "sm" | "md";
@@ -9,6 +9,7 @@ type SwitchColor = "accent" | "highlight";
   selector: "cui-switch",
   imports: [NgpSwitch, NgpSwitchThumb],
   template: `<button
+    #switch="ngpSwitch"
     ngpSwitch
     class="cui-switch"
     [attr.data-size]="size()"
@@ -28,4 +29,17 @@ export class Switch {
   readonly color: InputSignal<SwitchColor> = input<SwitchColor>("accent");
 
   readonly checkedChange = output<boolean>();
+
+  private readonly switch = viewChild.required<NgpSwitch>("switch");
+
+  constructor() {
+    // Keep the uncontrolled NgpSwitch in sync: when its internal state and [checked] diverge, force it back to [checked] so the switch is fully controlled by the input.
+    effect(() => {
+      const desired = this.checked();
+      const directive = this.switch();
+      if (directive.state.checked() !== desired) {
+        untracked(() => directive.setChecked(desired));
+      }
+    });
+  }
 }

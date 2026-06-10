@@ -68,8 +68,8 @@ export class UpcomingMoviesComponent {
       this.moviesService.getUpcomingMovies().subscribe({
         next: (list) => {
           this.movies.set(list);
-          this.announcedIds.set(new Set(list.filter((m) => m.isAnnounced).map((m) => m.id)));
-          this.highlightedIds.set(new Set(list.filter((m) => m.isHighlighted).map((m) => m.id)));
+          this.announcedIds.set(new Set(list.filter((m) => m.announced).map((m) => m.id)));
+          this.highlightedIds.set(new Set(list.filter((m) => m.highlighted).map((m) => m.id)));
           this.committedIds.set(
             new Set(list.filter((m) => m.hasCommittedShowtimes).map((m) => m.id)),
           );

@@ -1,7 +1,6 @@
 package com.mdevs.cinefy.dto.movie;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,10 +21,8 @@ public class UpcomingMovieDTO {
 
     private String backdropUrl;
 
-    @JsonProperty("isAnnounced")
     private boolean isAnnounced;
 
-    @JsonProperty("isHighlighted")
     private boolean isHighlighted;
 
     private boolean hasCommittedShowtimes;

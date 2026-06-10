@@ -13,8 +13,8 @@ interface UpcomingMovie {
   releaseDate?: string;
   posterUrl?: string;
   backdropUrl?: string;
-  isAnnounced: boolean;
-  isHighlighted: boolean;
+  announced: boolean;
+  highlighted: boolean;
   hasCommittedShowtimes: boolean;
 }
 
@@ -27,7 +27,7 @@ interface MovieSummary {
   duration?: number;
   posterUrl?: string;
   backdropUrl?: string;
-  isHighlighted: boolean;
+  highlighted: boolean;
 }
 
 interface MovieDetail {

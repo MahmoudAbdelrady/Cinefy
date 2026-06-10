@@ -154,7 +154,7 @@ export class CurrentShowtimesComponent {
         movieDetails: showtime.movie,
         totalShowtimes: 1,
         totalDraftShowtimes: isDraft ? 1 : 0,
-        isHighlighted: showtime.movie.isHighlighted,
+        highlighted: showtime.movie.highlighted,
       };
       return [...list, newRow];
     });
@@ -255,9 +255,7 @@ export class CurrentShowtimesComponent {
 
   private setHighlighted(movieId: number, highlighted: boolean): void {
     this.moviesWithShowtimes.update((list) =>
-      list.map((item) =>
-        item.movieDetails.id === movieId ? { ...item, isHighlighted: highlighted } : item,
-      ),
+      list.map((item) => (item.movieDetails.id === movieId ? { ...item, highlighted } : item)),
     );
   }
 }

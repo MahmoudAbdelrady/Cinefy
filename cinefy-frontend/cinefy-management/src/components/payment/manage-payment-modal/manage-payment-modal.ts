@@ -148,7 +148,7 @@ export class ManagePaymentModalComponent {
     return {
       name: identity.name.value,
       type: identity.type.value ?? 'CARD',
-      isTest: identity.environment.value === 'sandbox',
+      testMode: identity.environment.value === 'sandbox',
       currency: integration.currency.value ?? '',
       publicKey: credentials.publicKey.value,
       secretKey: credentials.secretKey.value,
@@ -234,7 +234,7 @@ export class ManagePaymentModalComponent {
           this.form.controls.identity.patchValue({
             name: detail.name,
             type: detail.type,
-            environment: detail.isTest ? 'sandbox' : 'production',
+            environment: detail.testMode ? 'sandbox' : 'production',
           });
           this.form.controls.credentials.controls.publicKey.setValue(detail.publicKey);
           this.form.controls.integration.patchValue({
