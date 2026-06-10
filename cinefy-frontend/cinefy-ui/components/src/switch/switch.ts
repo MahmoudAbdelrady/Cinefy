@@ -16,7 +16,7 @@ type SwitchColor = "accent" | "highlight";
     [attr.data-color]="color()"
     [ngpSwitchChecked]="checked()"
     [ngpSwitchDisabled]="disabled()"
-    (ngpSwitchCheckedChange)="checkedChange.emit($event)"
+    (ngpSwitchCheckedChange)="onCheckedChange($event)"
   >
     <span ngpSwitchThumb></span>
   </button>`,
@@ -32,14 +32,24 @@ export class Switch {
 
   private readonly switch = viewChild.required<NgpSwitch>("switch");
 
+  private reconciling = false;
+
   constructor() {
-    // Keep the uncontrolled NgpSwitch in sync: when its internal state and [checked] diverge, force it back to [checked] so the switch is fully controlled by the input.
+    // Force the uncontrolled NgpSwitch back to [checked] when it diverges, so the input fully controls the switch.
     effect(() => {
       const desired = this.checked();
       const directive = this.switch();
       if (directive.state.checked() !== desired) {
+        this.reconciling = true;
         untracked(() => directive.setChecked(desired));
+        this.reconciling = false;
       }
     });
+  }
+
+  protected onCheckedChange(checked: boolean): void {
+    // Swallow reconciliation's re-emit; only genuine user interaction emits.
+    if (this.reconciling) return;
+    this.checkedChange.emit(checked);
   }
 }
