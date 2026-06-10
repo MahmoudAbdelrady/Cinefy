@@ -76,18 +76,18 @@
             </div>
 
             <div class="mc-visibility">
-              <div class="mcv-row" [class.mcv-row--disabled]="isCommitted(upcomingMovie.id)">
+              <div class="mcv-row" [class.mcv-row--disabled]="upcomingMovie.hasCommittedShowtimes">
                 <div class="mcv-label">
                   <lucide-icon
                     class="mcv-icon"
-                    [class.mcv-icon--on]="isAnnounced(upcomingMovie.id)"
+                    [class.mcv-icon--on]="upcomingMovie.announced"
                     [img]="icons.MegaphoneIcon"
                     [size]="16"
                   ></lucide-icon>
                   <div class="mcv-text">
                     <p class="mcv-title">Announce to clients</p>
                     <p class="mcv-subtitle">
-                      @if (isCommitted(upcomingMovie.id)) {
+                      @if (upcomingMovie.hasCommittedShowtimes) {
                         Already scheduled
                       } @else {
                         Show in the “Coming Soon” rail
@@ -102,27 +102,27 @@
                   <cui-switch
                     size="sm"
                     color="highlight"
-                    [checked]="isAnnounced(upcomingMovie.id)"
+                    [checked]="upcomingMovie.announced"
                     [disabled]="
-                      isCommitted(upcomingMovie.id) || isAnnouncePending(upcomingMovie.id)
+                      upcomingMovie.hasCommittedShowtimes || isAnnouncePending(upcomingMovie.id)
                     "
                     (checkedChange)="toggleAnnounced(upcomingMovie.id, $event)"
                   />
                 </div>
               </div>
 
-              <div class="mcv-row" [class.mcv-row--disabled]="!canHighlight(upcomingMovie.id)">
+              <div class="mcv-row" [class.mcv-row--disabled]="!canHighlight(upcomingMovie)">
                 <div class="mcv-label">
                   <lucide-icon
                     class="mcv-icon"
-                    [class.mcv-icon--on]="isHighlighted(upcomingMovie.id)"
+                    [class.mcv-icon--on]="upcomingMovie.highlighted"
                     [img]="icons.StarIcon"
                     [size]="16"
                   ></lucide-icon>
                   <div class="mcv-text">
                     <p class="mcv-title">Highlight on homepage</p>
                     <p class="mcv-subtitle">
-                      @if (canHighlight(upcomingMovie.id)) {
+                      @if (canHighlight(upcomingMovie)) {
                         Feature in the hero banner
                       } @else {
                         Announce or schedule showtimes to enable
@@ -137,9 +137,9 @@
                   <cui-switch
                     size="sm"
                     color="highlight"
-                    [checked]="isHighlighted(upcomingMovie.id)"
+                    [checked]="upcomingMovie.highlighted"
                     [disabled]="
-                      !canHighlight(upcomingMovie.id) || isHighlightPending(upcomingMovie.id)
+                      !canHighlight(upcomingMovie) || isHighlightPending(upcomingMovie.id)
                     "
                     (checkedChange)="toggleHighlighted(upcomingMovie.id, $event)"
                   />

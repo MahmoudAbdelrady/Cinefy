@@ -48,9 +48,6 @@ export class UpcomingMoviesComponent {
   protected readonly loading = signal(true);
   protected readonly movies = signal<UpcomingMovie[]>([]);
 
-  private readonly announcedIds = signal<Set<number>>(new Set());
-  private readonly highlightedIds = signal<Set<number>>(new Set());
-  private readonly committedIds = signal<Set<number>>(new Set());
   private readonly announcePendingIds = signal<Set<number>>(new Set());
   private readonly highlightPendingIds = signal<Set<number>>(new Set());
 
@@ -74,11 +71,6 @@ export class UpcomingMoviesComponent {
       this.moviesService.getUpcomingMovies().subscribe({
         next: (list) => {
           this.movies.set(list);
-          this.announcedIds.set(new Set(list.filter((m) => m.announced).map((m) => m.id)));
-          this.highlightedIds.set(new Set(list.filter((m) => m.highlighted).map((m) => m.id)));
-          this.committedIds.set(
-            new Set(list.filter((m) => m.hasCommittedShowtimes).map((m) => m.id)),
-          );
           this.loading.set(false);
         },
         error: (err: HttpErrorResponse) => {
@@ -120,28 +112,16 @@ export class UpcomingMoviesComponent {
     return diffDays >= 0 && diffDays <= 10;
   }
 
-  protected isAnnounced(movieId: number): boolean {
-    return this.announcedIds().has(movieId);
-  }
-
-  protected isCommitted(movieId: number): boolean {
-    return this.committedIds().has(movieId);
-  }
-
   protected isAnnouncePending(movieId: number): boolean {
     return this.announcePendingIds().has(movieId);
-  }
-
-  protected isHighlighted(movieId: number): boolean {
-    return this.highlightedIds().has(movieId);
   }
 
   protected isHighlightPending(movieId: number): boolean {
     return this.highlightPendingIds().has(movieId);
   }
 
-  protected canHighlight(movieId: number): boolean {
-    return this.isAnnounced(movieId) || this.isCommitted(movieId);
+  protected canHighlight(movie: UpcomingMovie): boolean {
+    return movie.announced || movie.hasCommittedShowtimes;
   }
 
   protected toggleAnnounced(movieId: number, announced: boolean): void {
@@ -155,10 +135,7 @@ export class UpcomingMoviesComponent {
         next: () => {
           this.setAnnounced(movieId, announced);
           this.setPending(movieId, false);
-          if (!this.canHighlight(movieId) && this.isHighlighted(movieId)) {
-            this.setHighlighted(movieId, false);
-            this.showtimeEvents.notifyHighlightChanged(movieId, false);
-          }
+          this.demoteHighlightIfUnhighlightable(movieId);
         },
         error: (err: HttpErrorResponse) => {
           // Re-assert the prior value so the switch reverts to the confirmed state.
@@ -192,11 +169,7 @@ export class UpcomingMoviesComponent {
   }
 
   private setAnnounced(movieId: number, announced: boolean): void {
-    this.announcedIds.update((ids) => {
-      const next = new Set(ids);
-      announced ? next.add(movieId) : next.delete(movieId);
-      return next;
-    });
+    this.patchMovie(movieId, { announced });
   }
 
   private setPending(movieId: number, pending: boolean): void {
@@ -208,32 +181,22 @@ export class UpcomingMoviesComponent {
   }
 
   private setCommitted(movieId: number, committed: boolean): void {
-    if (!this.movies().some((movie) => movie.id === movieId)) return;
-    this.committedIds.update((ids) => {
-      const next = new Set(ids);
-      committed ? next.add(movieId) : next.delete(movieId);
-      return next;
-    });
+    this.patchMovie(movieId, { hasCommittedShowtimes: committed });
   }
 
   private markCommitted(movieId: number): void {
-    this.setCommitted(movieId, true);
-    this.setAnnounced(movieId, false);
+    this.patchMovie(movieId, { hasCommittedShowtimes: true, announced: false });
   }
 
   private demoteHighlightIfUnhighlightable(movieId: number): void {
-    if (this.canHighlight(movieId) || !this.isHighlighted(movieId)) return;
+    const movie = this.movies().find((m) => m.id === movieId);
+    if (!movie || this.canHighlight(movie) || !movie.highlighted) return;
     this.setHighlighted(movieId, false);
     this.showtimeEvents.notifyHighlightChanged(movieId, false);
   }
 
   private setHighlighted(movieId: number, highlighted: boolean): void {
-    if (!this.movies().some((movie) => movie.id === movieId)) return;
-    this.highlightedIds.update((ids) => {
-      const next = new Set(ids);
-      highlighted ? next.add(movieId) : next.delete(movieId);
-      return next;
-    });
+    this.patchMovie(movieId, { highlighted });
   }
 
   private setHighlightPending(movieId: number, pending: boolean): void {
@@ -242,5 +205,11 @@ export class UpcomingMoviesComponent {
       pending ? next.add(movieId) : next.delete(movieId);
       return next;
     });
+  }
+
+  private patchMovie(movieId: number, patch: Partial<UpcomingMovie>): void {
+    this.movies.update((list) =>
+      list.map((movie) => (movie.id === movieId ? { ...movie, ...patch } : movie)),
+    );
   }
 }
