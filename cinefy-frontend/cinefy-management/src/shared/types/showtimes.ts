@@ -1,5 +1,5 @@
 import type { HallRef } from './halls';
-import type { MovieDetail } from './movies';
+import type { MovieSummary } from './movies';
 
 const SHOWTIME_STATUS_LABELS = {
   DRAFT: 'Draft',
@@ -20,7 +20,7 @@ interface ShowtimeDraft {
 
 interface Showtime {
   id: string;
-  movie: MovieDetail;
+  movie: MovieSummary;
   hall: HallRef;
   startDateTime: string;
   status: ShowtimeStatus;
@@ -39,7 +39,8 @@ interface PublishShowtimesInput {
 interface MovieWithShowtimes {
   totalShowtimes: number;
   totalDraftShowtimes: number;
-  movieDetails: MovieDetail;
+  highlighted: boolean;
+  movieDetails: MovieSummary;
 }
 
 interface ShowtimesStatistics {

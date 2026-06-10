@@ -24,8 +24,8 @@
             <span>{{ typeLabels[payment.type] }} · {{ payment.currency }}</span>
           </div>
         </div>
-        <div class="rsc-tag" [attr.data-is-test]="payment.isTest">
-          {{ payment.isTest ? 'Sandbox' : 'Production' }}
+        <div class="rsc-tag" [attr.data-is-test]="payment.testMode">
+          {{ payment.testMode ? 'Sandbox' : 'Production' }}
         </div>
       </div>
       <div class="rscd-info">

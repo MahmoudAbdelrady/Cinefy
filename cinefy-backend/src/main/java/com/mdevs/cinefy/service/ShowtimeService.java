@@ -1,7 +1,6 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.hall.HallReferenceDTO;
-import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeDatesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeListItemDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimesDTO;
@@ -163,6 +162,7 @@ public class ShowtimeService {
         Hall hall = showtime.getHall();
         showtimeRepository.delete(showtime);
         flipHallIfNoActiveShowtimes(hall, showtime.getId());
+        tmdbMovieService.clearHighlightIfIneligible(showtime.getTmdbMovie());
     }
 
     @Transactional
@@ -183,6 +183,7 @@ public class ShowtimeService {
         showtimeRepository.deleteAll(showtimes);
 
         affectedHalls.forEach(hall -> flipHallIfNoActiveShowtimes(hall, null));
+        tmdbMovieService.clearHighlightIfIneligible(tmdbMovieService.findTmdbMovie(movieId));
     }
 
     @Transactional
@@ -299,13 +300,11 @@ public class ShowtimeService {
     }
 
     private MovieWithShowtimesDTO toMovieWithShowtimes(MovieShowtimeCountProjection counts, TmdbMovie movie) {
-        MovieDetailDTO details = tmdbMovieService.toMovieDetail(movie);
-        details.setSynopsis(null);
-
         MovieWithShowtimesDTO dto = new MovieWithShowtimesDTO();
         dto.setTotalShowtimes(counts.getTotalShowtimes());
         dto.setTotalDraftShowtimes(counts.getTotalDraftShowtimes());
-        dto.setMovieDetails(details);
+        dto.setHighlighted(movie.isHighlighted());
+        dto.setMovieDetails(tmdbMovieService.toMovieSummary(movie));
         return dto;
     }
 
@@ -313,7 +312,7 @@ public class ShowtimeService {
         Hall hall = showtime.getHall();
         ShowtimeSummaryDTO dto = new ShowtimeSummaryDTO();
         dto.setId(showtime.getUuid());
-        dto.setMovie(tmdbMovieService.toMovieDetail(showtime.getTmdbMovie()));
+        dto.setMovie(tmdbMovieService.toMovieSummary(showtime.getTmdbMovie()));
         dto.setHall(toHallReference(hall));
         dto.setStartDateTime(showtime.getStartDateTime());
         dto.setStatus(showtime.getStatus().name());

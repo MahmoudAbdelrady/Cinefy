@@ -1,7 +1,6 @@
 package com.mdevs.cinefy.dto.payment;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,9 +21,7 @@ public class PaymentMethodSummaryDTO {
 
     private String type;
 
-    @Getter(onMethod_ = @JsonProperty("isTest"))
-    @Setter(onMethod_ = @JsonProperty("isTest"))
-    private boolean isTest;
+    private boolean isTestMode;
 
     private String currency;
 

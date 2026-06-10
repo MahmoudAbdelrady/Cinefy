@@ -26,4 +26,8 @@ public class MovieDetailDTO {
     private String posterUrl;
 
     private String backdropUrl;
+
+    private MovieCredits credits;
+
+    private String trailerUrl;
 }

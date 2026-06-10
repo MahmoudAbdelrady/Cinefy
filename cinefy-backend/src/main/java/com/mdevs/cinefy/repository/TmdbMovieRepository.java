@@ -19,11 +19,17 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
             DELETE FROM TmdbMovie m
             WHERE NOT EXISTS (SELECT 1 FROM Showtime s WHERE s.tmdbMovie = m)
             AND (m.isAnnounced = false OR m.releaseDate <= :today)
+            AND m.isHighlighted = false
             """)
     int deleteOrphans(@Param("today") LocalDate today);
 
     @Query("SELECT m FROM TmdbMovie m WHERE m.isAnnounced = true AND m.releaseDate > :today ORDER BY m.releaseDate ASC")
     List<TmdbMovie> findAnnouncedUpcoming(@Param("today") LocalDate today);
+
+    @Query("SELECT m FROM TmdbMovie m WHERE m.isHighlighted = true")
+    List<TmdbMovie> findHighlighted();
+
+    long countByIsHighlightedTrue();
 
     @Query("""
             SELECT m.id FROM TmdbMovie m

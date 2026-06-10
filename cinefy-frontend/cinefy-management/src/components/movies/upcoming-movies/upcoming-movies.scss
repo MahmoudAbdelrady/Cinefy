@@ -37,6 +37,36 @@
   min-width: 0;
 }
 
+.h-controls {
+  @include flex-align;
+  gap: 16px;
+  flex-shrink: 0;
+
+  @include below-tablet {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+}
+
+.h-filter {
+  @include flex-align;
+  gap: 10px;
+
+  @include below-tablet {
+    justify-content: space-between;
+  }
+
+  .hf-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-700;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
 .h-search {
   width: 288px;
   flex-shrink: 0;
@@ -157,8 +187,7 @@
   gap: 16px;
   min-width: 0;
 
-  @include below-tablet {
-    flex-direction: column;
+  @include below-mobile {
     gap: 12px;
   }
 }
@@ -179,10 +208,9 @@
     object-fit: cover;
   }
 
-  @include below-tablet {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
+  @include below-mobile {
+    width: 72px;
+    height: 108px;
   }
 }
 
@@ -204,19 +232,17 @@
   margin-bottom: 4px;
   min-width: 0;
 
+  @include below-mobile {
+    flex-direction: column;
+    gap: 6px;
+  }
+
   h4 {
-    @include text-truncate;
     min-width: 0;
     font-size: 16px;
     font-weight: 600;
     color: $gray-900;
-
-    @include below-tablet {
-      overflow: visible;
-      white-space: normal;
-      text-overflow: clip;
-      word-break: break-word;
-    }
+    overflow-wrap: anywhere;
   }
 }
 
@@ -229,6 +255,10 @@
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
+
+  @include below-mobile {
+    align-self: flex-start;
+  }
 }
 
 .mci-items {
@@ -258,7 +288,7 @@
 .mc-actions {
   margin-top: auto;
 
-  @include below-tablet {
+  @include below-mobile {
     display: flex;
   }
 
@@ -276,7 +306,7 @@
       background-color: $orange-100;
     }
 
-    @include below-tablet {
+    @include below-mobile {
       align-self: stretch;
       flex: 1;
       text-align: center;
@@ -288,10 +318,18 @@
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid $gray-200;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+
+  @include from-mobile {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .mcv-row {
   @include flex-between;
+  flex-wrap: wrap;
   gap: 12px;
   padding: 12px;
   border: 1px solid $gray-200;
@@ -308,6 +346,7 @@
   align-items: flex-start;
   gap: 10px;
   min-width: 0;
+  flex: 1 1 180px;
 }
 
 .mcv-icon {
@@ -343,11 +382,15 @@
   @include flex-align;
   gap: 8px;
   flex-shrink: 0;
+
+  @include below-desktop {
+    flex-direction: column;
+    gap: 6px;
+  }
 }
 
 .mcv-pending {
-  @include flex-center;
-  width: 14px;
-  height: 14px;
+  display: flex;
+  flex-shrink: 0;
   color: $orange-600;
 }

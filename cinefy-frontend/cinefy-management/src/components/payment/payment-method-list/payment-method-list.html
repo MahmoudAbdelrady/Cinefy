@@ -21,8 +21,8 @@
                 <div class="mihi-name">
                   <div class="mihi-name-row">
                     <h3>{{ paymentMethod.name }}</h3>
-                    <span class="mihi-name-badge" [attr.data-is-test]="paymentMethod.isTest">{{
-                      paymentMethod.isTest ? 'Sandbox' : 'Production'
+                    <span class="mihi-name-badge" [attr.data-is-test]="paymentMethod.testMode">{{
+                      paymentMethod.testMode ? 'Sandbox' : 'Production'
                     }}</span>
                   </div>
                   <div class="mihi-meta-row">

@@ -25,7 +25,7 @@ type PaymentMethodTestStatus = keyof typeof PAYMENT_METHOD_TEST_STATUS_LABELS;
 interface PaymentMethod {
   name: string;
   type: PaymentMethodType;
-  isTest: boolean;
+  testMode: boolean;
   currency: string;
   publicKey: string;
   secretKey: string;
@@ -39,7 +39,7 @@ interface PaymentMethodSummary {
   name: string;
   status: PaymentMethodStatus;
   type: PaymentMethodType;
-  isTest: boolean;
+  testMode: boolean;
   currency: string;
   publicKey: string;
   secretKeyHint: string;
@@ -57,7 +57,7 @@ interface PaymentMethodDetail {
   id: string;
   name: string;
   type: PaymentMethodType;
-  isTest: boolean;
+  testMode: boolean;
   currency: string;
   publicKey: string;
   integrationId: number;

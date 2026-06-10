@@ -3253,6 +3253,20 @@ export default function App() {
   // already "really showing"). Stubbed here to demo the hidden state on one card.
   const committedMovieIds = new Set<number>([8]);
 
+  // Highlight-on-homepage state (per movie id) — the single shared `highlighted` flag.
+  // Same set drives the toggle on both the upcoming cards and the now-showing rows;
+  // in the real app it's one `highlighted` flag on the movie (announced OR now-showing).
+  // Here it's local so the toggle is interactive.
+  const [highlightedMovieIds, setHighlightedMovieIds] = useState<Set<number>>(new Set([5]));
+
+  const toggleHighlighted = (movieId: number) => {
+    setHighlightedMovieIds((prev) => {
+      const next = new Set(prev);
+      next.has(movieId) ? next.delete(movieId) : next.add(movieId);
+      return next;
+    });
+  };
+
   const toggleAnnounced = (movieId: number) => {
     setAnnouncedMovieIds((prev) => {
       const next = new Set(prev);
@@ -4192,52 +4206,118 @@ export default function App() {
                     </p>
                   </div>
 
-                  <div className="divide-y divide-gray-200">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 p-6">
                     {moviesWithShowtimes.map((movie) => {
                       const movieShowtimes = getMovieShowtimes(movie.id);
                       const draftCount = movieShowtimes.filter(
                         (st: any) => st.status === 'draft',
                       ).length;
+                      const isHighlighted = highlightedMovieIds.has(movie.id);
                       return (
-                        <div key={movie.id} className="p-6 hover:bg-gray-50 transition-colors">
-                          <div className="flex items-center gap-5">
-                            {/* Movie Poster */}
-                            <ImageWithFallback
-                              src={movie.poster}
-                              alt={movie.title}
-                              className="w-20 h-28 object-cover rounded-lg shadow-sm flex-shrink-0"
-                            />
-
-                            {/* Movie Info */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-3 mb-1">
-                                <h4 className="text-lg font-semibold text-gray-900 truncate">
-                                  {movie.title}
-                                </h4>
-                                <span className="px-2.5 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold flex-shrink-0">
-                                  {movie.genre}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-500">
-                                {movie.duration} · {movie.director}
-                              </p>
-                            </div>
-
-                            {/* Showtime Count */}
-                            <div className="text-center flex-shrink-0 px-4">
-                              <p className="text-2xl font-bold text-gray-900">
-                                {movieShowtimes.length}
-                              </p>
-                              <p className="text-xs text-gray-500">Showtimes</p>
-                              {draftCount > 0 && (
-                                <p className="text-xs text-orange-600 font-medium mt-0.5">
-                                  {draftCount} draft{draftCount !== 1 ? 's' : ''}
-                                </p>
+                        <div
+                          key={movie.id}
+                          className={`flex flex-col rounded-xl border transition-all ${
+                            isHighlighted
+                              ? 'border-orange-200 bg-orange-50/30'
+                              : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+                          }`}
+                        >
+                          {/* Identity — poster + title/meta + the metric chip. */}
+                          <div className="flex gap-4 p-4">
+                            <div className="relative shrink-0">
+                              <ImageWithFallback
+                                src={movie.poster}
+                                alt={movie.title}
+                                className="w-20 h-28 object-cover rounded-lg shadow-sm"
+                              />
+                              {isHighlighted && (
+                                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-orange-500 ring-2 ring-white flex items-center justify-center shadow-sm">
+                                  <Star size={12} className="fill-white text-white" />
+                                </div>
                               )}
                             </div>
 
-                            {/* Actions */}
-                            <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex-1 min-w-0 flex flex-col">
+                              <div className="flex items-start justify-between gap-2 mb-1.5">
+                                <h4 className="font-semibold text-gray-900 leading-tight line-clamp-2">
+                                  {movie.title}
+                                </h4>
+                                <span className="shrink-0 inline-flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md text-xs font-medium">
+                                  <Clock size={13} className="text-gray-500" />
+                                  <span className="text-gray-700">
+                                    {movieShowtimes.length} showtime
+                                    {movieShowtimes.length !== 1 ? 's' : ''}
+                                  </span>
+                                  {draftCount > 0 && (
+                                    <span className="text-orange-600">
+                                      ({draftCount} draft{draftCount !== 1 ? 's' : ''})
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-500 truncate">
+                                {movie.genre}
+                              </p>
+                              <p className="mt-0.5 text-sm text-gray-500 truncate">
+                                {movie.duration} · {movie.director}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Footer — the highlight toggle on its own row, then the
+                              extensible action-button zone beneath it. A now-showing movie
+                              is already client-visible, so the toggle has no announce-gate —
+                              always enabled. Shares `highlightedMovieIds` with the upcoming
+                              card. mt-auto pins the footer to the card bottom so cards in a
+                              row stay equal height regardless of title length. */}
+                          <div
+                            className={`mt-auto border-t ${
+                              isHighlighted ? 'border-orange-100' : 'border-gray-100'
+                            }`}
+                          >
+                            <button
+                              role="switch"
+                              aria-checked={isHighlighted}
+                              onClick={() => toggleHighlighted(movie.id)}
+                              className={`group flex w-full items-center justify-between gap-3 px-4 py-2.5 outline-none transition-colors ${
+                                isHighlighted ? 'hover:bg-orange-50/60' : 'hover:bg-gray-50'
+                              }`}
+                            >
+                              <span className="flex items-center gap-2 min-w-0">
+                                <Star
+                                  size={15}
+                                  className={`shrink-0 transition-colors ${
+                                    isHighlighted
+                                      ? 'fill-orange-400 text-orange-500'
+                                      : 'text-gray-400 group-hover:text-gray-500'
+                                  }`}
+                                />
+                                <span
+                                  className={`text-sm font-medium truncate transition-colors ${
+                                    isHighlighted ? 'text-orange-700' : 'text-gray-600'
+                                  }`}
+                                >
+                                  Highlight on homepage
+                                </span>
+                              </span>
+                              <span
+                                className={`relative shrink-0 inline-flex h-5 w-9 items-center rounded-full transition-colors group-focus-visible:ring-2 group-focus-visible:ring-orange-500/40 ${
+                                  isHighlighted ? 'bg-orange-600' : 'bg-gray-200'
+                                }`}
+                              >
+                                <span
+                                  className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+                                    isHighlighted ? 'translate-x-[18px]' : 'translate-x-0.5'
+                                  }`}
+                                />
+                              </span>
+                            </button>
+
+                            <div
+                              className={`flex items-center gap-2 px-4 py-3 border-t ${
+                                isHighlighted ? 'border-orange-100' : 'border-gray-100'
+                              }`}
+                            >
                               <button
                                 onClick={() => {
                                   setSelectedMovie(movie);
@@ -4245,16 +4325,16 @@ export default function App() {
                                   setSelectedShowtimeDate(dates[0] || '');
                                   setShowViewShowtimesModal(true);
                                 }}
-                                className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium"
+                                className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors flex items-center justify-center text-sm font-medium"
                               >
-                                View Showtimes
+                                View
                               </button>
                               <button
                                 onClick={() => {
                                   setSelectedMovie(movie);
                                   setShowCreateShowtimeModal(true);
                                 }}
-                                className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-1.5 text-sm"
+                                className="flex-1 px-3 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center justify-center gap-1.5 text-sm font-medium"
                               >
                                 <Plus size={15} />
                                 Add Showtime
@@ -4267,7 +4347,7 @@ export default function App() {
                                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                 title="Delete all showtimes"
                               >
-                                <Trash2 size={18} />
+                                <Trash2 size={17} />
                               </button>
                             </div>
                           </div>

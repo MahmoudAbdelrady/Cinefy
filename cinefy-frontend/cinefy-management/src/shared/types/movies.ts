@@ -13,8 +13,21 @@ interface UpcomingMovie {
   releaseDate?: string;
   posterUrl?: string;
   backdropUrl?: string;
-  isAnnounced: boolean;
+  announced: boolean;
+  highlighted: boolean;
   hasCommittedShowtimes: boolean;
+}
+
+interface MovieSummary {
+  id: number;
+  title: string;
+  genre?: string;
+  contentRating?: string;
+  releaseDate?: string;
+  duration?: number;
+  posterUrl?: string;
+  backdropUrl?: string;
+  highlighted: boolean;
 }
 
 interface MovieDetail {
@@ -38,4 +51,4 @@ interface Movie {
   posterUrl: string;
 }
 
-export type { Movie, MovieSearchResult, UpcomingMovie, MovieDetail };
+export type { Movie, MovieSearchResult, UpcomingMovie, MovieSummary, MovieDetail };

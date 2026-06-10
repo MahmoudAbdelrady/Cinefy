@@ -2,8 +2,11 @@ package com.mdevs.cinefy.service;
 
 import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.JsonNode;
+import com.mdevs.cinefy.dto.movie.HighlightedMovieDTO;
+import com.mdevs.cinefy.dto.movie.MovieCredits;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
+import com.mdevs.cinefy.dto.movie.MovieSummaryDTO;
 import com.mdevs.cinefy.dto.movie.UpcomingMovieDTO;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
@@ -57,6 +60,10 @@ public class TmdbMovieService {
     private static final int TMDB_RELEASE_TYPE_THEATRICAL = 3;
 
     private static final int TMDB_RELEASE_TYPE_THEATRICAL_LIMITED = 2;
+
+    private static final int MAX_HIGHLIGHTED_MOVIES = 5;
+
+    private static final int MAX_CAST_MEMBERS = 6;
 
     private static final Map<Integer, String> TMDB_GENRES = Map.ofEntries(
             Map.entry(28, "Action"),
@@ -125,6 +132,16 @@ public class TmdbMovieService {
                 .toList();
     }
 
+    public List<HighlightedMovieDTO> getHighlighted() {
+        List<TmdbMovie> highlighted = tmdbMovieRepository.findHighlighted();
+        List<Long> movieIds = highlighted.stream().map(TmdbMovie::getId).toList();
+        Set<Long> bookingOpenedIds = tmdbMovieRepository.findMovieIdsWithShowtimeStatusIn(movieIds, ShowtimeStatus.COMMITTED_STATUSES);
+
+        return highlighted.stream()
+                .map(movie -> toHighlightedMovie(movie, bookingOpenedIds.contains(movie.getId())))
+                .toList();
+    }
+
     public TmdbMovie findTmdbMovie(long tmdbId) {
         return tmdbMovieRepository.findById(tmdbId).orElseThrow(() -> new NotFoundException("Movie not found: " + tmdbId));
     }
@@ -154,6 +171,7 @@ public class TmdbMovieService {
             throw new BusinessException("'" + movie.getTitle() + "' already has scheduled showtimes");
         }
         movie.setAnnounced(false);
+        movie.setHighlighted(false);
         tmdbMovieRepository.save(movie);
     }
 
@@ -161,6 +179,29 @@ public class TmdbMovieService {
     public void clearAnnouncement(TmdbMovie movie) {
         if (movie.isAnnounced()) {
             movie.setAnnounced(false);
+            tmdbMovieRepository.save(movie);
+        }
+    }
+
+    @Transactional
+    public void setHighlight(long tmdbId, boolean highlighted) {
+        TmdbMovie movie = findTmdbMovie(tmdbId);
+        validateHighlightEligible(movie);
+        if (highlighted && !movie.isHighlighted()) {
+            validateHighlightCapacity();
+        }
+        movie.setHighlighted(highlighted);
+        tmdbMovieRepository.save(movie);
+    }
+
+    @Transactional
+    public void clearHighlightIfIneligible(TmdbMovie movie) {
+        if (!movie.isHighlighted()) {
+            return;
+        }
+        boolean hasCommittedShowtimes = showtimeRepository.existsByTmdbMovieIdAndStatusIn(movie.getId(), ShowtimeStatus.COMMITTED_STATUSES);
+        if (!hasCommittedShowtimes && !movie.isAnnounced()) {
+            movie.setHighlighted(false);
             tmdbMovieRepository.save(movie);
         }
     }
@@ -198,6 +239,19 @@ public class TmdbMovieService {
         }
     }
 
+    private void validateHighlightEligible(TmdbMovie movie) {
+        boolean hasCommittedShowtimes = showtimeRepository.existsByTmdbMovieIdAndStatusIn(movie.getId(), ShowtimeStatus.COMMITTED_STATUSES);
+        if (!hasCommittedShowtimes && !movie.isAnnounced()) {
+            throw new BusinessException("'" + movie.getTitle() + "' must be announced or have scheduled showtimes to be highlighted");
+        }
+    }
+
+    private void validateHighlightCapacity() {
+        if (tmdbMovieRepository.countByIsHighlightedTrue() >= MAX_HIGHLIGHTED_MOVIES) {
+            throw new BusinessException("You can highlight at most " + MAX_HIGHLIGHTED_MOVIES + " movies");
+        }
+    }
+
     private Page<MovieSearchResultDTO> fetchMoviePage(String uriTemplate, Pageable pageable, Object... uriVars) {
         JsonNode root = restClient.get()
                 .uri(uriTemplate, uriVars)
@@ -221,7 +275,7 @@ public class TmdbMovieService {
         JsonNode root;
         try {
             root = restClient.get()
-                    .uri("/movie/{id}?append_to_response=release_dates", tmdbId)
+                    .uri("/movie/{id}?append_to_response=release_dates,credits,videos", tmdbId)
                     .retrieve()
                     .body(JsonNode.class);
         } catch (HttpClientErrorException.NotFound e) {
@@ -245,6 +299,8 @@ public class TmdbMovieService {
         movie.setDurationMinutes(details.getDuration());
         movie.setPosterUrl(details.getPosterUrl());
         movie.setBackdropUrl(details.getBackdropUrl());
+        movie.setCredits(details.getCredits());
+        movie.setTrailerUrl(details.getTrailerUrl());
         movie.setLastSyncedAt(LocalDateTime.now());
     }
 
@@ -275,7 +331,15 @@ public class TmdbMovieService {
         dto.setPosterUrl(source.getPosterUrl());
         dto.setBackdropUrl(source.getBackdropUrl());
         dto.setAnnounced(local != null && local.isAnnounced());
+        dto.setHighlighted(local != null && local.isHighlighted());
         dto.setHasCommittedShowtimes(hasCommittedShowtimes);
+        return dto;
+    }
+
+    private HighlightedMovieDTO toHighlightedMovie(TmdbMovie movie, boolean bookingOpened) {
+        HighlightedMovieDTO dto = new HighlightedMovieDTO();
+        dto.setBookingOpened(bookingOpened);
+        dto.setMovieDetails(toMovieDetail(movie));
         return dto;
     }
 
@@ -320,6 +384,9 @@ public class TmdbMovieService {
                 .orElse(null);
         dto.setContentRating(contentRating);
 
+        dto.setCredits(resolveCredits(node.path("credits")));
+        dto.setTrailerUrl(resolveTrailerUrl(node.path("videos").path("results")));
+
         return dto;
     }
 
@@ -334,6 +401,22 @@ public class TmdbMovieService {
         dto.setDuration(m.getDurationMinutes());
         dto.setPosterUrl(m.getPosterUrl());
         dto.setBackdropUrl(m.getBackdropUrl());
+        dto.setCredits(m.getCredits());
+        dto.setTrailerUrl(m.getTrailerUrl());
+        return dto;
+    }
+
+    public MovieSummaryDTO toMovieSummary(TmdbMovie m) {
+        MovieSummaryDTO dto = new MovieSummaryDTO();
+        dto.setId(m.getId());
+        dto.setTitle(m.getTitle());
+        dto.setGenre(m.getGenres());
+        dto.setContentRating(m.getContentRating());
+        dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
+        dto.setDuration(m.getDurationMinutes());
+        dto.setPosterUrl(m.getPosterUrl());
+        dto.setBackdropUrl(m.getBackdropUrl());
+        dto.setHighlighted(m.isHighlighted());
         return dto;
     }
 
@@ -348,8 +431,8 @@ public class TmdbMovieService {
 
     private String firstUsDateOfType(List<JsonNode> usReleaseDates, int releaseType) {
         return usReleaseDates.stream()
-                .filter(r -> r.path("type").asInt() == releaseType)
-                .map(r -> r.path("release_date").stringValue())
+                .filter(r -> r.path("type").asInt(Integer.MAX_VALUE) == releaseType)
+                .map(r -> r.path("release_date").stringValue(null))
                 .filter(StringUtils::isNotEmpty)
                 .findFirst()
                 .orElse(null);
@@ -357,5 +440,53 @@ public class TmdbMovieService {
 
     private String resolveGenre(int id) {
         return TMDB_GENRES.getOrDefault(id, "Unknown");
+    }
+
+    private MovieCredits resolveCredits(JsonNode credits) {
+        if (credits.isMissingNode()) {
+            return null;
+        }
+
+        List<MovieCredits.CreditMember> cast = credits.path("cast").valueStream()
+                .sorted(Comparator.comparingInt(c -> c.path("order").asInt(Integer.MAX_VALUE)))
+                .limit(MAX_CAST_MEMBERS)
+                .map(this::toCreditMember)
+                .toList();
+
+        List<MovieCredits.CreditMember> directors = credits.path("crew").valueStream()
+                .filter(c -> "Director".equals(c.path("job").stringValue(null)))
+                .map(this::toCreditMember)
+                .toList();
+
+        if (cast.isEmpty() && directors.isEmpty()) {
+            return null;
+        }
+
+        return new MovieCredits(cast, directors);
+    }
+
+    private MovieCredits.CreditMember toCreditMember(JsonNode person) {
+        String profilePath = person.path("profile_path").stringValue(null);
+        String profileUrl = StringUtils.isNotEmpty(profilePath) ? imageBaseUrl + profilePath : null;
+        return new MovieCredits.CreditMember(person.get("id").longValue(0), person.path("name").stringValue(null), profileUrl);
+    }
+
+    private String resolveTrailerUrl(JsonNode videos) {
+        List<JsonNode> youtubeVideos = videos.valueStream()
+                .filter(v -> "YouTube".equals(v.path("site").stringValue(null)))
+                .toList();
+
+        JsonNode trailer = youtubeVideos.stream()
+                .filter(v -> "Trailer".equals(v.path("type").stringValue(null)))
+                .max(Comparator.comparing(v -> v.path("published_at").stringValue("")))
+                .or(() -> youtubeVideos.stream().filter(v -> "Teaser".equals(v.path("type").stringValue(null))).findFirst())
+                .orElse(null);
+
+        if (trailer == null) {
+            return null;
+        }
+
+        String key = trailer.path("key").stringValue(null);
+        return StringUtils.isNotEmpty(key) ? "https://www.youtube.com/embed/" + key : null;
     }
 }
