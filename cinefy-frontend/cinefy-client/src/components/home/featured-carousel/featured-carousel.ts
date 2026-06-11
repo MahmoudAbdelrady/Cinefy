@@ -88,7 +88,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
   ];
 
   private static readonly AUTO_ADVANCE_INTERVAL = 5000; // 5 seconds
-  private static readonly SWIPE_THRESHOLD = 20;
+  private static readonly SWIPE_THRESHOLD = 20; // 20 pixels
 
   protected readonly currentIndex = signal(0);
 
