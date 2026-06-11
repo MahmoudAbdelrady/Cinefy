@@ -1,4 +1,4 @@
 import { MyTicketsListComponent } from './header/my-tickets-list/my-tickets-list';
-import { HighlightedMovieComponent } from './home/highlighted-movie/highlighted-movie';
+import { FeaturedCarouselComponent } from './home/featured-carousel/featured-carousel';
 
-export { MyTicketsListComponent, HighlightedMovieComponent };
+export { MyTicketsListComponent, FeaturedCarouselComponent };

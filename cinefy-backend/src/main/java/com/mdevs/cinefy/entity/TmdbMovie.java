@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(indexes = {
         @Index(columnList = "IS_ANNOUNCED, RELEASE_DATE"),
-        @Index(columnList = "IS_HIGHLIGHTED")
+        @Index(columnList = "IS_HIGHLIGHTED, RELEASE_DATE")
 })
 public class TmdbMovie {
 

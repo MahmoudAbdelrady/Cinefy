@@ -11,4 +11,6 @@ export {
   DollarSign as DollarIcon,
   ArrowRight as ArrowRightIcon,
   Play as PlayIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
 } from 'lucide-angular';
