@@ -5,7 +5,7 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   ClockIcon,
-  RatingIcon,
+  EyeIcon,
   PlayIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -22,7 +22,7 @@ import { TrailerModalComponent } from '../../movies/trailer-modal/trailer-modal'
 export class FeaturedCarouselComponent implements OnDestroy {
   protected readonly icons = {
     ClockIcon,
-    RatingIcon,
+    EyeIcon,
     PlayIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
