@@ -123,6 +123,17 @@
     line-height: 1.25;
     transition: color 150ms ease;
   }
+
+  span {
+    flex-shrink: 0;
+    padding: 0 6px;
+    border: 1px solid rgba($color-primary, 0.4);
+    border-radius: $radius-md;
+    font-family: $font-mono;
+    font-size: 10px;
+    font-weight: 600;
+    color: $color-primary;
+  }
 }
 
 .movie-card:hover .mc-title h4 {
