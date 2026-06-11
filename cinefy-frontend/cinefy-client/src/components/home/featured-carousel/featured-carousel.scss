@@ -137,6 +137,20 @@
   }
 }
 
+.fc-controls {
+  display: contents;
+
+  @include below-mobile {
+    @include flex-center;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    z-index: 10;
+    gap: 16px;
+    transform: translateX(-50%);
+  }
+}
+
 .fc-nav {
   @include flex-center;
   @include lucide-icon-fix;
@@ -156,6 +170,13 @@
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
+
+  @include below-mobile {
+    position: static;
+    transform: none;
+    width: 32px;
+    height: 32px;
+  }
 }
 
 .fc-nav-prev {
@@ -174,6 +195,13 @@
   z-index: 10;
   gap: 8px;
   transform: translateX(-50%);
+
+  @include below-mobile {
+    position: static;
+    bottom: auto;
+    left: auto;
+    transform: none;
+  }
 }
 
 .fc-dot {

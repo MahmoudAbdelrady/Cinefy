@@ -87,6 +87,9 @@ export class FeaturedCarouselComponent implements OnDestroy {
     },
   ];
 
+  private static readonly AUTO_ADVANCE_INTERVAL = 5000; // 5 seconds
+  private static readonly SWIPE_THRESHOLD = 20;
+
   protected readonly currentIndex = signal(0);
 
   protected readonly currentSlide = computed(() => this.slides[this.currentIndex()]);
@@ -96,6 +99,8 @@ export class FeaturedCarouselComponent implements OnDestroy {
   );
 
   private intervalId?: ReturnType<typeof setInterval>;
+
+  private touchStartX?: number;
 
   constructor() {
     afterNextRender(() => this.startAutoAdvance());
@@ -113,6 +118,19 @@ export class FeaturedCarouselComponent implements OnDestroy {
     this.goTo((this.currentIndex() - 1 + this.slides.length) % this.slides.length);
   }
 
+  protected onTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.changedTouches[0].clientX;
+  }
+
+  protected onTouchEnd(event: TouchEvent): void {
+    if (this.touchStartX === undefined) return;
+    const deltaX = event.changedTouches[0].clientX - this.touchStartX;
+    this.touchStartX = undefined;
+    if (Math.abs(deltaX) < FeaturedCarouselComponent.SWIPE_THRESHOLD) return; // if distance is less than threshold pixels, ignore it
+    if (deltaX < 0) this.next();
+    else this.previous();
+  }
+
   protected goTo(index: number): void {
     this.currentIndex.set(index);
     this.restartAutoAdvance();
@@ -121,7 +139,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
   private startAutoAdvance(): void {
     this.intervalId = setInterval(
       () => this.currentIndex.update((index) => (index + 1) % this.slides.length),
-      5000,
+      FeaturedCarouselComponent.AUTO_ADVANCE_INTERVAL,
     );
   }
 

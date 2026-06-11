@@ -1,4 +1,4 @@
-<div class="featured-carousel">
+<div class="featured-carousel" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
   @if (currentSlide(); as slide) {
     <div class="fc-backdrop">
       <img [src]="slide.movieDetails.backdropUrl" [alt]="slide.movieDetails.title" />
@@ -43,20 +43,23 @@
     </div>
   }
 
-  <button class="fc-nav fc-nav-prev" (click)="previous()">
-    <lucide-icon [img]="icons.ChevronLeftIcon" [size]="20" />
-  </button>
-  <button class="fc-nav fc-nav-next" (click)="next()">
-    <lucide-icon [img]="icons.ChevronRightIcon" [size]="20" />
-  </button>
+  <div class="fc-controls">
+    <button class="fc-nav fc-nav-prev" (click)="previous()">
+      <lucide-icon [img]="icons.ChevronLeftIcon" [size]="20" />
+    </button>
 
-  <div class="fc-dots">
-    @for (slide of slides; track $index) {
-      <button
-        class="fc-dot"
-        [class.active]="$index === currentIndex()"
-        (click)="goTo($index)"
-      ></button>
-    }
+    <div class="fc-dots">
+      @for (slide of slides; track $index) {
+        <button
+          class="fc-dot"
+          [class.active]="$index === currentIndex()"
+          (click)="goTo($index)"
+        ></button>
+      }
+    </div>
+
+    <button class="fc-nav fc-nav-next" (click)="next()">
+      <lucide-icon [img]="icons.ChevronRightIcon" [size]="20" />
+    </button>
   </div>
 </div>
