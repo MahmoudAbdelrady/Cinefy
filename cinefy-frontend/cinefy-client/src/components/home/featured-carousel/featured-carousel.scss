@@ -2,7 +2,7 @@
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
-.highlighted-movie {
+.featured-carousel {
   position: relative;
   width: 100%;
   height: 70vh;
@@ -10,7 +10,7 @@
   overflow: hidden;
 }
 
-.hm-backdrop {
+.fc-backdrop {
   position: absolute;
   inset: 0;
 
@@ -21,16 +21,16 @@
   }
 }
 
-.hm-scrim {
+.fc-scrim {
   position: absolute;
   inset: 0;
 }
 
-.hm-scrim-bottom {
+.fc-scrim-bottom {
   background: linear-gradient(to top, $color-background, rgba($color-background, 0.6), transparent);
 }
 
-.hm-scrim-left {
+.fc-scrim-left {
   background: linear-gradient(
     to right,
     $color-background,
@@ -39,7 +39,7 @@
   );
 }
 
-.hm-content {
+.fc-content {
   position: relative;
   z-index: 10;
   display: flex;
@@ -50,13 +50,13 @@
   padding: 0 16px 64px;
 }
 
-.hm-data {
+.fc-data {
   @include flex-column;
   gap: 16px;
   max-width: 672px;
 }
 
-.hm-meta {
+.fc-meta {
   @include flex-align;
   @include lucide-icon-fix;
   gap: 12px;
@@ -65,7 +65,7 @@
   color: $color-primary;
 }
 
-.hm-badge {
+.fc-badge {
   padding: 2px 10px;
   border: 1px solid $color-primary;
   border-radius: 9999px;
@@ -73,13 +73,13 @@
   font-size: 12px;
 }
 
-.hm-meta-item {
+.fc-meta-item {
   @include flex-align;
   gap: 4px;
   font-family: $font-mono;
 }
 
-.hm-title {
+.fc-title {
   font-size: 48px;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -91,7 +91,7 @@
   }
 }
 
-.hm-synopsis {
+.fc-synopsis {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
@@ -103,7 +103,7 @@
   color: $color-gray-300;
 }
 
-.hm-actions {
+.fc-actions {
   @include flex-align;
   gap: 16px;
   padding-top: 16px;
@@ -114,14 +114,14 @@
   }
 }
 
-.hm-book-btn {
+.fc-book-btn {
   height: 44px;
   padding: 0 32px;
   font-size: 16px;
   font-weight: 600;
 }
 
-.hm-trailer-btn {
+.fc-trailer-btn {
   @include lucide-icon-fix;
   height: 44px;
   padding: 0 24px;
@@ -134,5 +134,91 @@
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.fc-controls {
+  display: contents;
+
+  @include below-mobile {
+    @include flex-center;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    z-index: 10;
+    gap: 16px;
+    transform: translateX(-50%);
+  }
+}
+
+.fc-nav {
+  @include flex-center;
+  @include lucide-icon-fix;
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  background-color: rgba($color-background, 0.2);
+  backdrop-filter: blur(4px);
+  color: $color-foreground;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  @include below-mobile {
+    position: static;
+    transform: none;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.fc-nav-prev {
+  left: 16px;
+}
+
+.fc-nav-next {
+  right: 16px;
+}
+
+.fc-dots {
+  @include flex-center;
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  z-index: 10;
+  gap: 8px;
+  transform: translateX(-50%);
+
+  @include below-mobile {
+    position: static;
+    bottom: auto;
+    left: auto;
+    transform: none;
+  }
+}
+
+.fc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background-color: rgba($color-foreground, 0.4);
+  transition:
+    width 200ms ease,
+    background-color 200ms ease;
+
+  &:hover:not(.active) {
+    background-color: rgba($color-foreground, 0.6);
+  }
+
+  &.active {
+    width: 24px;
+    background-color: $color-primary;
   }
 }

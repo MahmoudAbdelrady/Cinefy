@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { EmptyStateComponent } from 'cinefy-ui/components';
-import { HighlightedMovieComponent } from '../../components';
+import { FeaturedCarouselComponent } from '../../components';
 import { ClapperboardIcon, CalendarIcon } from '../../shared/icons';
 
 interface NowShowingMovie {
@@ -22,7 +22,7 @@ interface UpcomingMovie {
 
 @Component({
   selector: 'home-page',
-  imports: [HighlightedMovieComponent, RouterLink, DatePipe, EmptyStateComponent],
+  imports: [FeaturedCarouselComponent, RouterLink, DatePipe, EmptyStateComponent],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

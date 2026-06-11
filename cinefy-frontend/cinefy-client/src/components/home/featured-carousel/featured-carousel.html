@@ -1,0 +1,65 @@
+<div class="featured-carousel" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+  @if (currentSlide(); as slide) {
+    <div class="fc-backdrop">
+      <img [src]="slide.movieDetails.backdropUrl" [alt]="slide.movieDetails.title" />
+      <div class="fc-scrim fc-scrim-bottom"></div>
+      <div class="fc-scrim fc-scrim-left"></div>
+    </div>
+
+    <div class="fc-content">
+      <div class="fc-data reveal">
+        <div class="fc-meta">
+          <div class="fc-badge">{{ slide.bookingOpened ? 'Now Showing' : 'Coming Soon' }}</div>
+          @if (runtimeLabel(); as runtime) {
+            <span class="fc-meta-item">
+              <lucide-icon [img]="icons.ClockIcon" [size]="16" />
+              <span>{{ runtime }}</span>
+            </span>
+          }
+          @if (slide.movieDetails.contentRating; as contentRating) {
+            <span class="fc-meta-item">
+              <lucide-icon [img]="icons.RatingIcon" [size]="16" />
+              <span>{{ contentRating }}</span>
+            </span>
+          }
+        </div>
+
+        <h1 class="fc-title">{{ slide.movieDetails.title }}</h1>
+
+        <p class="fc-synopsis">{{ slide.movieDetails.synopsis }}</p>
+
+        <div class="fc-actions">
+          @if (slide.bookingOpened) {
+            <button class="fc-book-btn btn-primary">Book Tickets</button>
+          }
+          @if (slide.movieDetails.trailerUrl; as trailerUrl) {
+            <button class="fc-trailer-btn btn-base">
+              <lucide-icon [img]="icons.PlayIcon" [size]="16" />
+              <span>Watch Trailer</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="fc-controls">
+    <button class="fc-nav fc-nav-prev" (click)="previous()">
+      <lucide-icon [img]="icons.ChevronLeftIcon" [size]="20" />
+    </button>
+
+    <div class="fc-dots">
+      @for (slide of slides; track $index) {
+        <button
+          class="fc-dot"
+          [class.active]="$index === currentIndex()"
+          (click)="goTo($index)"
+        ></button>
+      }
+    </div>
+
+    <button class="fc-nav fc-nav-next" (click)="next()">
+      <lucide-icon [img]="icons.ChevronRightIcon" [size]="20" />
+    </button>
+  </div>
+</div>

@@ -133,7 +133,7 @@ public class TmdbMovieService {
     }
 
     public List<HighlightedMovieDTO> getHighlighted() {
-        List<TmdbMovie> highlighted = tmdbMovieRepository.findHighlighted();
+        List<TmdbMovie> highlighted = tmdbMovieRepository.findHighlighted(LocalDate.now(), ShowtimeStatus.COMMITTED_STATUSES);
         List<Long> movieIds = highlighted.stream().map(TmdbMovie::getId).toList();
         Set<Long> bookingOpenedIds = tmdbMovieRepository.findMovieIdsWithShowtimeStatusIn(movieIds, ShowtimeStatus.COMMITTED_STATUSES);
 
