@@ -30,7 +30,9 @@
 
         <div class="fc-actions">
           @if (slide.bookingOpened) {
-            <button class="fc-book-btn btn-primary">Book Tickets</button>
+            <a class="fc-book-btn btn-primary" routerLink="/movies/{{ slide.movieDetails.id }}"
+              >Book Tickets</a
+            >
           }
           @if (slide.movieDetails.trailerUrl; as trailerUrl) {
             <button

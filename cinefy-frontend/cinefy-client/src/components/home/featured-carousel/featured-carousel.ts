@@ -1,4 +1,5 @@
 import { afterNextRender, Component, computed, input, OnDestroy, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
@@ -14,7 +15,7 @@ import { TrailerModalComponent } from '../../movies/trailer-modal/trailer-modal'
 
 @Component({
   selector: 'featured-carousel',
-  imports: [LucideAngularModule, NgpButton, NgpDialogTrigger, TrailerModalComponent],
+  imports: [RouterLink, LucideAngularModule, NgpButton, NgpDialogTrigger, TrailerModalComponent],
   templateUrl: './featured-carousel.html',
   styleUrl: './featured-carousel.scss',
 })
