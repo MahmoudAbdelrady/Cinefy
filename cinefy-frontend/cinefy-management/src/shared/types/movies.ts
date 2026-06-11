@@ -4,6 +4,7 @@ interface MovieSearchResult {
   genre?: string;
   releaseDate?: string;
   posterUrl?: string;
+  backdropUrl?: string;
 }
 
 interface UpcomingMovie {

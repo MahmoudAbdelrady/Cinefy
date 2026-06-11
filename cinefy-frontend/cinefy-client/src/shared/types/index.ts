@@ -1,1 +1,7 @@
-export type { CreditMember, MovieCredits, MovieDetail, HighlightedMovie } from './movies';
+export type {
+  CreditMember,
+  MovieCredits,
+  MovieDetail,
+  HighlightedMovie,
+  MovieSearchResult,
+} from './movies';

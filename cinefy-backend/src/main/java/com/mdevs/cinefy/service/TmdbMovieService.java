@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
@@ -148,8 +149,9 @@ public class TmdbMovieService {
                 .toList();
     }
 
-    public List<MovieSearchResultDTO> getNowShowing() {
-        return tmdbMovieRepository.findWithShowtimeStatusIn(ShowtimeStatus.COMMITTED_STATUSES).stream()
+    public List<MovieSearchResultDTO> getNowShowing(Integer limit) {
+        Pageable pageable = limit != null ? PageRequest.of(0, limit) : Pageable.unpaged();
+        return tmdbMovieRepository.findWithShowtimeStatusIn(ShowtimeStatus.COMMITTED_STATUSES, pageable).stream()
                 .map(this::toMovieSearchResult)
                 .toList();
     }

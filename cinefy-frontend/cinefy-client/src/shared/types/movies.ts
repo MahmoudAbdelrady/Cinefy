@@ -28,4 +28,13 @@ interface HighlightedMovie {
   movieDetails: MovieDetail;
 }
 
-export type { CreditMember, MovieCredits, MovieDetail, HighlightedMovie };
+interface MovieSearchResult {
+  id: number;
+  title: string;
+  genre?: string;
+  releaseDate?: string;
+  posterUrl?: string;
+  backdropUrl?: string;
+}
+
+export type { CreditMember, MovieCredits, MovieDetail, HighlightedMovie, MovieSearchResult };
