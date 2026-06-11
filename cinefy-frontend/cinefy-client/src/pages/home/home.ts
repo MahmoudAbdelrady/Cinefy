@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { EmptyStateComponent } from 'cinefy-ui/components';
 import { FeaturedCarouselComponent } from '../../components';
+import { MoviesService } from '../../services';
 import { ClapperboardIcon, CalendarIcon } from '../../shared/icons';
 
 interface NowShowingMovie {
@@ -31,6 +33,12 @@ export class HomePage {
     ClapperboardIcon,
     CalendarIcon,
   };
+
+  private readonly moviesService = inject(MoviesService);
+
+  protected readonly highlightedMovies = toSignal(this.moviesService.getHighlighted(), {
+    initialValue: [],
+  });
 
   protected readonly nowShowingMovies: NowShowingMovie[] = [
     {

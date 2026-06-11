@@ -65,6 +65,12 @@ public class TmdbMovieService {
 
     private static final int MAX_CAST_MEMBERS = 6;
 
+    private static final String BACKDROP_SIZE = "original";
+
+    private static final String POSTER_SIZE = "w500";
+
+    private static final String PROFILE_SIZE = "w185";
+
     private static final Map<Integer, String> TMDB_GENRES = Map.ofEntries(
             Map.entry(28, "Action"),
             Map.entry(12, "Adventure"),
@@ -317,10 +323,10 @@ public class TmdbMovieService {
         dto.setReleaseDate(node.path("release_date").stringValue());
 
         String posterPath = node.path("poster_path").stringValue();
-        dto.setPosterUrl(StringUtils.isNotEmpty(posterPath) ? imageBaseUrl + posterPath : null);
+        dto.setPosterUrl(toImageUrl(POSTER_SIZE, posterPath));
 
         String backdropPath = node.path("backdrop_path").stringValue();
-        dto.setBackdropUrl(StringUtils.isNotEmpty(backdropPath) ? imageBaseUrl + backdropPath : null);
+        dto.setBackdropUrl(toImageUrl(BACKDROP_SIZE, backdropPath));
 
         List<String> genreNames = node.path("genre_ids").valueStream().map(g -> resolveGenre(g.asInt())).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
@@ -368,10 +374,10 @@ public class TmdbMovieService {
         dto.setDuration(node.path("runtime").intValue());
 
         String posterPath = node.path("poster_path").stringValue();
-        dto.setPosterUrl(StringUtils.isNotEmpty(posterPath) ? imageBaseUrl + posterPath : null);
+        dto.setPosterUrl(toImageUrl(POSTER_SIZE, posterPath));
 
         String backdropPath = node.path("backdrop_path").stringValue();
-        dto.setBackdropUrl(StringUtils.isNotEmpty(backdropPath) ? imageBaseUrl + backdropPath : null);
+        dto.setBackdropUrl(toImageUrl(BACKDROP_SIZE, backdropPath));
 
         List<String> genreNames = node.path("genres").valueStream().map(g -> g.path("name").stringValue()).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
@@ -473,7 +479,7 @@ public class TmdbMovieService {
 
     private MovieCredits.CreditMember toCreditMember(JsonNode person) {
         String profilePath = person.path("profile_path").stringValue(null);
-        String profileUrl = StringUtils.isNotEmpty(profilePath) ? imageBaseUrl + profilePath : null;
+        String profileUrl = toImageUrl(PROFILE_SIZE, profilePath);
         return new MovieCredits.CreditMember(person.get("id").longValue(0), person.path("name").stringValue(null), profileUrl);
     }
 
@@ -494,5 +500,9 @@ public class TmdbMovieService {
 
         String key = trailer.path("key").stringValue(null);
         return StringUtils.isNotEmpty(key) ? "https://www.youtube.com/embed/" + key : null;
+    }
+
+    private String toImageUrl(String size, String path) {
+        return StringUtils.isNotEmpty(path) ? imageBaseUrl + "/" + size + path : null;
     }
 }

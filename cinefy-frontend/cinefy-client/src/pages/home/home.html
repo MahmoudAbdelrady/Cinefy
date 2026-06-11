@@ -1,5 +1,7 @@
 <div class="home-container">
-  <featured-carousel />
+  @if (highlightedMovies().length) {
+    <featured-carousel [slides]="highlightedMovies()" />
+  }
   <div class="now-showing-movies">
     <div class="ms-header">
       <h3>Now Showing</h3>

@@ -33,33 +33,48 @@
             <button class="fc-book-btn btn-primary">Book Tickets</button>
           }
           @if (slide.movieDetails.trailerUrl; as trailerUrl) {
-            <button class="fc-trailer-btn btn-base">
+            <button
+              class="fc-trailer-btn btn-base"
+              ngpButton
+              [ngpDialogTrigger]="trailerDialog"
+              (click)="stopAutoAdvance()"
+              (ngpDialogTriggerClosed)="restartAutoAdvance()"
+            >
               <lucide-icon [img]="icons.PlayIcon" [size]="16" />
               <span>Watch Trailer</span>
             </button>
+            <ng-template #trailerDialog let-close="close">
+              <trailer-modal
+                [trailerUrl]="trailerUrl"
+                [title]="slide.movieDetails.title + ' - Trailer'"
+                [close]="close"
+              />
+            </ng-template>
           }
         </div>
       </div>
     </div>
   }
 
-  <div class="fc-controls">
-    <button class="fc-nav fc-nav-prev" (click)="previous()">
-      <lucide-icon [img]="icons.ChevronLeftIcon" [size]="20" />
-    </button>
+  @if (slides().length > 1) {
+    <div class="fc-controls">
+      <button class="fc-nav fc-nav-prev" (click)="previous()">
+        <lucide-icon [img]="icons.ChevronLeftIcon" [size]="20" />
+      </button>
 
-    <div class="fc-dots">
-      @for (slide of slides; track $index) {
-        <button
-          class="fc-dot"
-          [class.active]="$index === currentIndex()"
-          (click)="goTo($index)"
-        ></button>
-      }
+      <div class="fc-dots">
+        @for (slide of slides(); track $index) {
+          <button
+            class="fc-dot"
+            [class.active]="$index === currentIndex()"
+            (click)="goTo($index)"
+          ></button>
+        }
+      </div>
+
+      <button class="fc-nav fc-nav-next" (click)="next()">
+        <lucide-icon [img]="icons.ChevronRightIcon" [size]="20" />
+      </button>
     </div>
-
-    <button class="fc-nav fc-nav-next" (click)="next()">
-      <lucide-icon [img]="icons.ChevronRightIcon" [size]="20" />
-    </button>
-  </div>
+  }
 </div>
