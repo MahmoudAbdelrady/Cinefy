@@ -21,7 +21,6 @@ import {
   MovieSummary,
   MovieShowtimeDatesResponse,
   MovieShowtimeListItem,
-  MovieShowtimesResponse,
   PublishShowtimesInput,
   SHOWTIME_STATUS_LABELS,
   Showtime,
@@ -110,8 +109,6 @@ export class MovieShowtimesModal {
   protected readonly expandedNotes = signal<Set<string>>(new Set());
   protected readonly overflowingNotes = signal<Set<string>>(new Set());
 
-  private readonly dayCache = new Map<string, MovieShowtimesResponse>();
-
   private readonly selectedMovieId = computed(() => this.selectedMovie().id);
 
   protected readonly otherDrafts = computed(
@@ -128,7 +125,6 @@ export class MovieShowtimesModal {
       this.movieShowtimeDetails.set([]);
       this.dayDrafts.set(0);
       this.selectedTab.set(undefined);
-      this.dayCache.clear();
 
       const sub = this.showtimesService.getMovieShowtimeDates(this.selectedMovieId()).subscribe({
         next: (data) => {
@@ -148,12 +144,7 @@ export class MovieShowtimesModal {
 
     effect((onCleanup) => {
       const targetDate = this.selectedTab();
-      if (!targetDate) return;
-
-      const cached = this.dayCache.get(targetDate);
-      if (cached) {
-        this.movieShowtimeDetails.set(cached.showtimes);
-        this.dayDrafts.set(cached.numberOfDrafts);
+      if (!targetDate) {
         this.loadingDay.set(false);
         return;
       }
@@ -164,7 +155,6 @@ export class MovieShowtimesModal {
         .subscribe({
           next: (data) => {
             if (this.selectedTab() !== targetDate) return;
-            this.dayCache.set(targetDate, data);
             this.movieShowtimeDetails.set(data.showtimes);
             this.dayDrafts.set(data.numberOfDrafts);
             this.loadingDay.set(false);
@@ -278,7 +268,6 @@ export class MovieShowtimesModal {
     this.runBulkPublish({ movieId, date }, this.publishingDay, () => {
       const remaining = (this.movieShowtimes()?.numberOfDrafts ?? 0) - count;
       this.applyLocalBulkPublish(remaining);
-      this.syncCurrentDayCache();
       this.showtimeEvents.notifyPublished(movieId, count);
     });
   }
@@ -289,8 +278,6 @@ export class MovieShowtimesModal {
 
     this.runBulkPublish({ movieId }, this.publishingAll, () => {
       this.applyLocalBulkPublish(0);
-      this.dayCache.clear();
-      this.syncCurrentDayCache();
       this.showtimeEvents.notifyPublished(movieId, count);
     });
   }
@@ -352,10 +339,7 @@ export class MovieShowtimesModal {
       };
     });
 
-    if (createdDate !== this.selectedTab()) {
-      this.dayCache.delete(createdDate);
-      return;
-    }
+    if (createdDate !== this.selectedTab()) return;
 
     if (isDraft) this.dayDrafts.update((n) => n + 1);
 
@@ -363,7 +347,6 @@ export class MovieShowtimesModal {
     this.movieShowtimeDetails.update((list) =>
       [...list, item].sort((a, b) => a.time.localeCompare(b.time)),
     );
-    this.syncCurrentDayCache();
   }
 
   private applyUpdatedShowtime(showtime: Showtime): void {
@@ -391,11 +374,8 @@ export class MovieShowtimesModal {
           m ? { ...m, numberOfDrafts: m.numberOfDrafts + draftDelta } : m,
         );
       }
-      this.syncCurrentDayCache();
       return;
     }
-
-    this.dayCache.delete(updatedDate);
 
     this.movieShowtimeDetails.update((list) => list.filter((s) => s.id !== showtime.id));
     if (prevWasDraft) this.dayDrafts.update((n) => n - 1);
@@ -412,8 +392,6 @@ export class MovieShowtimesModal {
 
     if (this.movieShowtimeDetails().length === 0) {
       this.dropDateAndPickNeighbour(this.selectedTab());
-    } else {
-      this.syncCurrentDayCache();
     }
   }
 
@@ -434,12 +412,10 @@ export class MovieShowtimesModal {
       );
     }
 
-    let movieClosed = false;
-    if (this.movieShowtimeDetails().length === 0) {
-      movieClosed = this.dropDateAndPickNeighbour(this.selectedTab());
-    } else {
-      this.syncCurrentDayCache();
-    }
+    const movieClosed =
+      this.movieShowtimeDetails().length === 0
+        ? this.dropDateAndPickNeighbour(this.selectedTab())
+        : false;
 
     return { wasDraft, movieClosed };
   }
@@ -454,7 +430,6 @@ export class MovieShowtimesModal {
         ? { ...m, numberOfDrafts: m.numberOfDrafts - 1, numberOfCommitted: m.numberOfCommitted + 1 }
         : m,
     );
-    this.syncCurrentDayCache();
   }
 
   private applyLocalBulkPublish(remainingDrafts: number): void {
@@ -473,18 +448,7 @@ export class MovieShowtimesModal {
     );
   }
 
-  private syncCurrentDayCache(): void {
-    const currentDate = this.selectedTab();
-    if (!currentDate) return;
-    this.dayCache.set(currentDate, {
-      numberOfDrafts: this.dayDrafts(),
-      showtimes: this.movieShowtimeDetails(),
-    });
-  }
-
   private dropDateAndPickNeighbour(date: string | undefined): boolean {
-    if (date) this.dayCache.delete(date);
-
     const currentDates = this.movieShowtimes()?.dates ?? [];
     const removedIndex = currentDates.indexOf(date ?? '');
     const remainingDates = currentDates.filter((d) => d !== date);
