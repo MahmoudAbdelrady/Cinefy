@@ -1,57 +1,27 @@
-import { HeaderComponent } from './header/header';
-import { SidebarComponent } from './sidebar/sidebar';
-import { NowShowingComponent } from './dashboard/now-showing/now-showing';
-import { UpcomingMoviesWidgetComponent } from './dashboard/upcoming-movies-widget/upcoming-movies-widget';
-import { TodayScheduleComponent } from './dashboard/today-schedule/today-schedule';
-import { HallsStatisticsComponent } from './halls/halls-statistics/halls-statistics';
-import { HallsListComponent } from './halls/halls-list/halls-list';
-import { HallLayoutEditorComponent } from './halls/hall-layout-editor/hall-layout-editor';
-import { HallConfigModalComponent } from './halls/hall-config-modal/hall-config-modal';
-import { ManageHallTypesModalComponent } from './halls/manage-hall-types-modal/manage-hall-types-modal';
-import { MoviePickerComponent } from './movies/movie-picker/movie-picker';
-import { ManageShowtimeModalComponent } from './movies/manage-showtime-modal/manage-showtime-modal';
-import { StatsComponent } from './stats/stats';
-import { MoviesStatisticsComponent } from './movies/movies-statistics/movies-statistics';
-import { CurrentShowtimesComponent } from './movies/current-showtimes/current-showtimes';
-import { UpcomingMoviesComponent } from './movies/upcoming-movies/upcoming-movies';
-import { MovieShowtimesModal } from './movies/movie-showtimes-modal/movie-showtimes-modal';
-import { ManagePaymentModalComponent } from './payment/manage-payment-modal/manage-payment-modal';
-import { Stepper } from './stepper/stepper';
-import { PaymentMethodListComponent } from './payment/payment-method-list/payment-method-list';
-import { StaffListComponent } from './staff/staff-list/staff-list';
-import { ManageStaffModalComponent } from './staff/manage-staff-modal/manage-staff-modal';
-import { StaffDetailsComponent } from './staff/staff-details/staff-details';
-import { StaffPositionCoverageComponent } from './staff/staff-position-coverage/staff-position-coverage';
-import { ProfileIdentityComponent } from './profile/profile-identity/profile-identity';
-import { ProfilePersonalDetailsComponent } from './profile/profile-personal-details/profile-personal-details';
-import { ProfilePasswordComponent } from './profile/profile-password/profile-password';
-
-export {
-  HeaderComponent,
-  SidebarComponent,
-  NowShowingComponent,
-  UpcomingMoviesWidgetComponent,
-  TodayScheduleComponent,
-  HallsStatisticsComponent,
-  HallsListComponent,
-  HallLayoutEditorComponent,
-  HallConfigModalComponent,
-  ManageHallTypesModalComponent,
-  MoviePickerComponent,
-  ManageShowtimeModalComponent,
-  StatsComponent,
-  MoviesStatisticsComponent,
-  CurrentShowtimesComponent,
-  UpcomingMoviesComponent,
-  MovieShowtimesModal,
-  ManagePaymentModalComponent,
-  Stepper,
-  PaymentMethodListComponent,
-  StaffListComponent,
-  ManageStaffModalComponent,
-  StaffDetailsComponent,
-  StaffPositionCoverageComponent,
-  ProfileIdentityComponent,
-  ProfilePersonalDetailsComponent,
-  ProfilePasswordComponent,
-};
+export { HeaderComponent } from './header/header';
+export { SidebarComponent } from './sidebar/sidebar';
+export { NowShowingComponent } from './dashboard/now-showing/now-showing';
+export { UpcomingMoviesWidgetComponent } from './dashboard/upcoming-movies-widget/upcoming-movies-widget';
+export { TodayScheduleComponent } from './dashboard/today-schedule/today-schedule';
+export { HallsStatisticsComponent } from './halls/halls-statistics/halls-statistics';
+export { HallsListComponent } from './halls/halls-list/halls-list';
+export { HallLayoutEditorComponent } from './halls/hall-layout-editor/hall-layout-editor';
+export { HallConfigModalComponent } from './halls/hall-config-modal/hall-config-modal';
+export { ManageHallTypesModalComponent } from './halls/manage-hall-types-modal/manage-hall-types-modal';
+export { MoviePickerComponent } from './movies/movie-picker/movie-picker';
+export { ManageShowtimeModalComponent } from './movies/manage-showtime-modal/manage-showtime-modal';
+export { StatsComponent } from './stats/stats';
+export { MoviesStatisticsComponent } from './movies/movies-statistics/movies-statistics';
+export { CurrentShowtimesComponent } from './movies/current-showtimes/current-showtimes';
+export { UpcomingMoviesComponent } from './movies/upcoming-movies/upcoming-movies';
+export { MovieShowtimesModal } from './movies/movie-showtimes-modal/movie-showtimes-modal';
+export { ManagePaymentModalComponent } from './payment/manage-payment-modal/manage-payment-modal';
+export { Stepper } from './stepper/stepper';
+export { PaymentMethodListComponent } from './payment/payment-method-list/payment-method-list';
+export { StaffListComponent } from './staff/staff-list/staff-list';
+export { ManageStaffModalComponent } from './staff/manage-staff-modal/manage-staff-modal';
+export { StaffDetailsComponent } from './staff/staff-details/staff-details';
+export { StaffPositionCoverageComponent } from './staff/staff-position-coverage/staff-position-coverage';
+export { ProfileIdentityComponent } from './profile/profile-identity/profile-identity';
+export { ProfilePersonalDetailsComponent } from './profile/profile-personal-details/profile-personal-details';
+export { ProfilePasswordComponent } from './profile/profile-password/profile-password';
