@@ -39,13 +39,7 @@
             <span
               class="rii-secret-text"
               [class.monospace]="showSecretKey() && payment.secretKey"
-              >{{
-                payment.secretKey
-                  ? showSecretKey()
-                    ? payment.secretKey
-                    : mask(payment.secretKey)
-                  : '—'
-              }}</span
+              >{{ displaySecret(payment.secretKey, showSecretKey()) }}</span
             >
             @if (payment.secretKey) {
               <button type="button" class="rii-toggle" (click)="toggleSecretKey()">
@@ -63,13 +57,7 @@
             <span
               class="rii-secret-text"
               [class.monospace]="showHmacSecret() && payment.hmacSecret"
-              >{{
-                payment.hmacSecret
-                  ? showHmacSecret()
-                    ? payment.hmacSecret
-                    : mask(payment.hmacSecret)
-                  : '—'
-              }}</span
+              >{{ displaySecret(payment.hmacSecret, showHmacSecret()) }}</span
             >
             @if (payment.hmacSecret) {
               <button type="button" class="rii-toggle" (click)="toggleHmacSecret()">

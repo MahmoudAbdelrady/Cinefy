@@ -33,18 +33,10 @@
       @for (member of staffMembers(); track member.id) {
         <div class="staff-member">
           <div class="staff-info">
-            @let staffNameParts = member.fullName.split(' ');
             <div class="si-img" [attr.data-position]="member.position">
               <span class="si-img-ink"></span>
               <span class="si-img-glow"></span>
-              <span class="si-img-initials">
-                {{
-                  (
-                    staffNameParts[0].charAt(0) +
-                    staffNameParts[staffNameParts.length - 1].charAt(0)
-                  ).toUpperCase()
-                }}
-              </span>
+              <span class="si-img-initials">{{ getInitials(member.fullName) }}</span>
             </div>
             <div class="si-details">
               <div class="sid-name-box">

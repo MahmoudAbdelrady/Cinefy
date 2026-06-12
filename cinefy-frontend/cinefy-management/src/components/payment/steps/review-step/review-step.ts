@@ -66,8 +66,9 @@ export class ReviewStep {
     });
   }
 
-  protected mask(value: string): string {
-    return value ? '•'.repeat(value.length) : '—';
+  protected displaySecret(value: string | null | undefined, revealed: boolean): string {
+    if (!value) return '—';
+    return revealed ? value : '•'.repeat(value.length);
   }
 
   protected toggleSecretKey() {

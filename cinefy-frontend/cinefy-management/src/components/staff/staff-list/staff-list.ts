@@ -202,6 +202,11 @@ export class StaffListComponent {
     this.coverageChanged.emit({ action: 'add', position: member.position });
   }
 
+  protected getInitials(fullName: string): string {
+    const [first, last] = fullName.split(' ');
+    return (first.charAt(0) + last.charAt(0)).toUpperCase();
+  }
+
   protected onPositionFilterChange(position: UserPosition): void {
     this.positionFilter.set(position);
     this.page.set(1);

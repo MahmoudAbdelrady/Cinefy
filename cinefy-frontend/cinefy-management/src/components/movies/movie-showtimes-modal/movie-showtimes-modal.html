@@ -138,17 +138,11 @@
                 </div>
                 <div class="ds-occupancy">
                   <div class="dso-bar">
-                    <div
-                      class="dso-bar-fill"
-                      [style.width.%]="
-                        (showtimeDetail.reservedSeats / showtimeDetail.totalSeats) * 100
-                      "
-                    ></div>
+                    <div class="dso-bar-fill" [style.width.%]="getOccupancy(showtimeDetail)"></div>
                   </div>
                   <div class="dso-percentage">
                     {{ showtimeDetail.reservedSeats }}/{{ showtimeDetail.totalSeats }} ({{
-                      (showtimeDetail.reservedSeats / showtimeDetail.totalSeats) * 100
-                        | number: '1.0-0'
+                      getOccupancy(showtimeDetail) | number: '1.0-0'
                     }}%)
                   </div>
                 </div>
@@ -178,14 +172,10 @@
     </div>
   }
   @if (canManage() && !loadingDates() && movieShowtimes(); as data) {
-    <div
-      modal-footer
-      class="movie-showtimes-footer"
-      [class.has-drafts]="hasDayDrafts() || hasOtherDrafts()"
-    >
+    <div modal-footer class="movie-showtimes-footer" [class.has-drafts]="hasAnyDrafts()">
       <button
         ngpButton
-        [class]="hasDayDrafts() || hasOtherDrafts() ? 'btn-add-outlined' : 'btn-add-solid'"
+        [class]="hasAnyDrafts() ? 'btn-add-outlined' : 'btn-add-solid'"
         (click)="onAddShowtime()"
       >
         <lucide-icon [img]="icons.PlusIcon" [size]="16"></lucide-icon>

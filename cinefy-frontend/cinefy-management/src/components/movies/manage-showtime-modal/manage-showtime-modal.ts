@@ -135,6 +135,10 @@ export class ManageShowtimeModalComponent {
     return JSON.stringify(this.showtimeForm.getRawValue()) !== snapshot;
   });
 
+  protected readonly submitDisabled = computed(
+    () => this.submitting() || (this.isEditMode() && !this.hasChanges()),
+  );
+
   protected readonly modalTitle = computed(() => {
     if (this.isEditMode()) return 'Edit Showtime';
     return this.activeMovie() ? 'Schedule Showtime' : 'Schedule a Movie';

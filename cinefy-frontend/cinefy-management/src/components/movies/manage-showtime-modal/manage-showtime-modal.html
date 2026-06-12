@@ -118,7 +118,7 @@
       <button
         ngpButton
         class="btn-primary"
-        [disabled]="showtimeForm.invalid || submitting() || (isEditMode() && !hasChanges())"
+        [disabled]="showtimeForm.invalid || submitDisabled()"
         (click)="onSubmit()"
       >
         @if (submitting()) {

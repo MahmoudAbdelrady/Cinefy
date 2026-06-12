@@ -117,6 +117,7 @@ export class MovieShowtimesModal {
   );
   protected readonly hasDayDrafts = computed(() => this.dayDrafts() > 0);
   protected readonly hasOtherDrafts = computed(() => this.otherDrafts() > 0);
+  protected readonly hasAnyDrafts = computed(() => this.hasDayDrafts() || this.hasOtherDrafts());
 
   constructor() {
     effect((onCleanup) => {
@@ -298,6 +299,11 @@ export class MovieShowtimesModal {
       }
       return next;
     });
+  }
+
+  protected getOccupancy(detail: MovieShowtimeListItem): number {
+    if (detail.totalSeats === 0) return 0;
+    return (detail.reservedSeats / detail.totalSeats) * 100;
   }
 
   private runBulkPublish(
