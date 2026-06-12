@@ -588,13 +588,13 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
-}
 
-.mi-footer > button {
-  padding: 8px 18px;
-  font-size: 13px;
-  gap: 6px;
-  @include lucide-icon-fix;
+  > button {
+    padding: 8px 18px;
+    font-size: 13px;
+    gap: 6px;
+    @include lucide-icon-fix;
+  }
 }
 
 // ─── Responsive ──────────────────────────────────────────────────────────────

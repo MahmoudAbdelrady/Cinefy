@@ -68,6 +68,20 @@
   color: inherit;
   text-decoration: none;
   cursor: pointer;
+
+  &:hover {
+    .mc-poster media-image {
+      transform: scale(1.1);
+    }
+
+    .mc-poster-overlay {
+      opacity: 1;
+    }
+
+    .mc-title h4 {
+      color: $color-primary;
+    }
+  }
 }
 
 .mc-poster {
@@ -85,10 +99,6 @@
   }
 }
 
-.movie-card:hover .mc-poster media-image {
-  transform: scale(1.1);
-}
-
 .mc-poster-overlay {
   @include flex-center;
   position: absolute;
@@ -97,10 +107,6 @@
   background-color: rgba($color-black, 0.6);
   opacity: 0;
   transition: opacity 300ms ease;
-}
-
-.movie-card:hover .mc-poster-overlay {
-  opacity: 1;
 }
 
 .mc-meta {
@@ -131,10 +137,6 @@
     font-weight: 600;
     color: $color-primary;
   }
-}
-
-.movie-card:hover .mc-title h4 {
-  color: $color-primary;
 }
 
 .mc-subtitle p {

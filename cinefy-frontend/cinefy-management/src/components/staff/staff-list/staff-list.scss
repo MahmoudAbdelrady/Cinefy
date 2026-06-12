@@ -388,11 +388,11 @@ pagination-component {
     row-gap: 10px;
   }
 
-  .sa-btn span {
-    display: none;
-  }
-
   .sa-btn {
     padding: 8px;
+
+    span {
+      display: none;
+    }
   }
 }
