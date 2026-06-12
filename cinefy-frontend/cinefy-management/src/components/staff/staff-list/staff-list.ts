@@ -51,6 +51,7 @@ import {
 } from '../../../shared/types';
 import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
+import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
 
 @Component({
   selector: 'staff-list',
@@ -130,7 +131,7 @@ export class StaffListComponent {
   private readonly staff$ = combineLatest([
     this.searchControl.valueChanges.pipe(
       startWith(''),
-      debounceTime(300),
+      debounceTime(SEARCH_DEBOUNCE_MS),
       distinctUntilChanged(),
       tap(() => this.page.set(1)),
     ),

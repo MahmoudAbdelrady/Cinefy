@@ -5,6 +5,7 @@ import { FormControl } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { CalendarIcon, MegaphoneIcon, SearchIcon, StarIcon } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
+import { differenceInCalendarDays } from 'date-fns';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
@@ -46,6 +47,8 @@ export class UpcomingMoviesComponent {
   private readonly toastService = inject(ToastService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private static readonly COMING_SOON_WINDOW_DAYS = 10;
 
   protected readonly loading = signal(true);
   protected readonly movies = signal<UpcomingMovie[]>([]);
@@ -107,11 +110,8 @@ export class UpcomingMoviesComponent {
     if (!releaseDate) return false;
     const release = new Date(releaseDate);
     if (Number.isNaN(release.getTime())) return false;
-    release.setHours(0, 0, 0, 0);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const diffDays = Math.round((release.getTime() - today.getTime()) / 86_400_000);
-    return diffDays >= 0 && diffDays <= 10;
+    const diffDays = differenceInCalendarDays(release, new Date());
+    return diffDays >= 0 && diffDays <= UpcomingMoviesComponent.COMING_SOON_WINDOW_DAYS;
   }
 
   protected isAnnouncePending(movieId: number): boolean {

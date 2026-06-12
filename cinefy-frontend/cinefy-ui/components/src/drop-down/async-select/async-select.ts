@@ -54,6 +54,8 @@ export class AsyncSelectComponent<T> {
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
 
+  private static readonly SEARCH_DEBOUNCE_MS = 300;
+
   readonly label: InputSignal<string | null> = input<string | null>(null);
   readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly required = input(false);
@@ -95,7 +97,12 @@ export class AsyncSelectComponent<T> {
 
   constructor() {
     toObservable(this.searchInput)
-      .pipe(skip(1), debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        skip(1),
+        debounceTime(AsyncSelectComponent.SEARCH_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((term) => {
         this.searchTerm.set(term);
         this.resetAndFetch();

@@ -106,6 +106,9 @@ importers:
       cinefy-ui:
         specifier: link:../cinefy-ui/dist
         version: link:../cinefy-ui/dist
+      date-fns:
+        specifier: ^4.4.0
+        version: 4.4.0
       lucide-angular:
         specifier: ^1.0.0
         version: 1.0.0(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))
@@ -2298,6 +2301,10 @@ packages:
     resolution:
       { integrity: sha512-euIQENZg6x8mj3fO6o9+fOW8MimUI4PpD/fZBhJfeioZVy9TUpM4UY7KjQNVZFlqwJ0UdzRDzkycB997HEq1BQ== }
     engines: { node: ">=20" }
+
+  date-fns@4.4.0:
+    resolution:
+      { integrity: sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w== }
 
   debug@4.4.3:
     resolution:
@@ -5558,6 +5565,8 @@ snapshots:
     dependencies:
       whatwg-mimetype: 5.0.0
       whatwg-url: 15.1.0
+
+  date-fns@4.4.0: {}
 
   debug@4.4.3:
     dependencies:

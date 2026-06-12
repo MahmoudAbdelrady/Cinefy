@@ -21,6 +21,7 @@ import { ChevronRightIcon, ClapperboardIcon, SearchIcon } from '../../../shared/
 import { LoadingSpinnerComponent, MediaImageComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { MovieSearchResult } from '../../../shared/types';
+import { SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE } from '../../../shared/constants';
 import { MoviesService } from '../../../services';
 
 @Component({
@@ -51,8 +52,6 @@ export class MoviePickerComponent {
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
-  private static readonly PAGE_SIZE = 20;
-
   readonly movieSelected = output<MovieSearchResult>();
 
   protected readonly movieSearchQuery = signal('');
@@ -70,7 +69,7 @@ export class MoviePickerComponent {
     afterNextRender(() => {
       this.movieSearchQuery$
         .pipe(
-          debounceTime(300),
+          debounceTime(SEARCH_DEBOUNCE_MS),
           distinctUntilChanged(),
           tap((query) => {
             this.currentPage.set(0);
@@ -86,7 +85,7 @@ export class MoviePickerComponent {
             if (query.length === 0) return EMPTY;
             return this.moviesService.searchMovies(query, {
               page: 0,
-              size: MoviePickerComponent.PAGE_SIZE,
+              size: DEFAULT_PAGE_SIZE,
             });
           }),
           takeUntilDestroyed(this.destroyRef),
@@ -113,7 +112,7 @@ export class MoviePickerComponent {
     this.moviesService
       .searchMovies(this.movieSearchQuery(), {
         page: nextPage,
-        size: MoviePickerComponent.PAGE_SIZE,
+        size: DEFAULT_PAGE_SIZE,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

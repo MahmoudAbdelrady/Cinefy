@@ -27,13 +27,16 @@ export class HomePage {
 
   private readonly moviesService = inject(MoviesService);
 
+  private static readonly NOW_SHOWING_LIMIT = 5;
+
   protected readonly highlightedMovies = toSignal(this.moviesService.getHighlighted(), {
     initialValue: [],
   });
 
-  protected readonly nowShowingMovies = toSignal(this.moviesService.getNowShowing(5), {
-    initialValue: [],
-  });
+  protected readonly nowShowingMovies = toSignal(
+    this.moviesService.getNowShowing(HomePage.NOW_SHOWING_LIMIT),
+    { initialValue: [] },
+  );
 
   protected readonly upcomingMovies = toSignal(this.moviesService.getAnnouncedUpcoming(), {
     initialValue: [],

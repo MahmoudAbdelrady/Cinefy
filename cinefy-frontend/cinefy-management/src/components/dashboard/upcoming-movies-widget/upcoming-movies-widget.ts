@@ -4,6 +4,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { CalendarIcon, ClockIcon } from '../../../shared/icons';
 import { RouterLink } from '@angular/router';
 import type { MovieDetail } from '../../../shared/types';
+import { differenceInCalendarDays } from 'date-fns';
 import { MediaImageComponent } from 'cinefy-ui/components';
 
 @Component({
@@ -51,11 +52,6 @@ export class UpcomingMoviesWidgetComponent {
   ];
 
   protected daysUntil(isoDate: string): number {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const release = new Date(isoDate);
-    release.setHours(0, 0, 0, 0);
-    const diffMs = release.getTime() - today.getTime();
-    return Math.max(0, Math.round(diffMs / 86_400_000));
+    return Math.max(0, differenceInCalendarDays(new Date(isoDate), new Date()));
   }
 }
