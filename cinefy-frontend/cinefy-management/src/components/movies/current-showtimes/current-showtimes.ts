@@ -2,7 +2,9 @@ import { afterNextRender, Component, computed, DestroyRef, inject, signal } from
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
-import { EditableShowtime, MovieWithShowtimes, Showtime } from '../../../shared/types';
+import { merge, Subject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { EditableShowtime, MovieWithShowtimes } from '../../../shared/types';
 import { canManage as canManagePosition } from '../../../shared/access';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -84,6 +86,8 @@ export class CurrentShowtimesComponent {
   protected readonly togglingHighlightIds = signal<Set<number>>(new Set());
   protected readonly moviesWithShowtimes = signal<MovieWithShowtimes[]>([]);
 
+  private readonly refetch$ = new Subject<void>();
+
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
   private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: '' });
 
@@ -100,8 +104,12 @@ export class CurrentShowtimesComponent {
   });
 
   constructor() {
-    afterNextRender(() => {
-      this.showtimesService.getMoviesWithShowtimes().subscribe({
+    this.refetch$
+      .pipe(
+        switchMap(() => this.showtimesService.getMoviesWithShowtimes()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
         next: (list) => {
           this.moviesWithShowtimes.set(list);
           this.loading.set(false);
@@ -111,11 +119,12 @@ export class CurrentShowtimesComponent {
           this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
         },
       });
-    });
 
-    this.showtimeEvents.created$
+    afterNextRender(() => this.refetch$.next());
+
+    merge(this.showtimeEvents.created$, this.showtimeEvents.singleDeleted$)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((showtime) => this.applyCreatedShowtime(showtime));
+      .subscribe(() => this.refetch$.next());
 
     this.showtimeEvents.deleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((movieId) => {
       this.moviesWithShowtimes.update((list) =>
@@ -133,56 +142,9 @@ export class CurrentShowtimesComponent {
       );
     });
 
-    this.showtimeEvents.singleDeleted$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((event) => this.applySingleDeletion(event.movieId, event.wasDraft));
-
     this.showtimeEvents.highlightChanged$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((event) => this.setHighlighted(event.movieId, event.isHighlighted));
-  }
-
-  private applyCreatedShowtime(showtime: Showtime): void {
-    const movieId = showtime.movie.id;
-    const isDraft = showtime.status === 'DRAFT';
-    this.moviesWithShowtimes.update((list) => {
-      const existing = list.find((item) => item.movieDetails.id === movieId);
-      if (existing) {
-        return list.map((item) =>
-          item.movieDetails.id === movieId
-            ? {
-                ...item,
-                totalShowtimes: item.totalShowtimes + 1,
-                totalDraftShowtimes: item.totalDraftShowtimes + (isDraft ? 1 : 0),
-              }
-            : item,
-        );
-      }
-      const newRow: MovieWithShowtimes = {
-        movieDetails: showtime.movie,
-        totalShowtimes: 1,
-        totalDraftShowtimes: isDraft ? 1 : 0,
-        highlighted: showtime.movie.highlighted,
-      };
-      return [...list, newRow];
-    });
-  }
-
-  private applySingleDeletion(movieId: number, wasDraft: boolean): void {
-    this.moviesWithShowtimes.update((list) =>
-      list.flatMap((item) => {
-        if (item.movieDetails.id !== movieId) return [item];
-        const totalShowtimes = item.totalShowtimes - 1;
-        if (totalShowtimes <= 0) return [];
-        return [
-          {
-            ...item,
-            totalShowtimes,
-            totalDraftShowtimes: item.totalDraftShowtimes - (wasDraft ? 1 : 0),
-          },
-        ];
-      }),
-    );
   }
 
   protected isHighlighting(movieId: number): boolean {
