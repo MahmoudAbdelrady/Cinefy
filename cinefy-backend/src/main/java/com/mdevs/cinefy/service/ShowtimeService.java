@@ -53,7 +53,7 @@ public class ShowtimeService {
     // ========================= Public API =========================
 
     public MovieShowtimeDatesDTO getMovieShowtimeDates(Long movieId) {
-        List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ShowtimeStatus.ACTIVE_STATUSES);
+        List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ShowtimeStatus.LIVE_STATUSES);
         if (dates.isEmpty()) {
             throw new NotFoundException("No showtimes found for the provided movie");
         }
@@ -69,7 +69,7 @@ public class ShowtimeService {
     }
 
     public MovieShowtimesDTO getMovieShowtimesForDate(Long movieId, LocalDate date) {
-        List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ShowtimeStatus.ACTIVE_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+        List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ShowtimeStatus.LIVE_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
         if (showtimes.isEmpty()) {
             throw new NotFoundException("No showtimes found for the provided movie on " + date);
         }
@@ -83,11 +83,11 @@ public class ShowtimeService {
     }
 
     public ShowtimesStatisticsDTO getShowtimesStatistics() {
-        long totalMovies = showtimeRepository.countDistinctMoviesByStatusIn(ShowtimeStatus.ACTIVE_STATUSES);
-        long totalShowtimes = showtimeRepository.countByStatusIn(ShowtimeStatus.ACTIVE_STATUSES);
+        long totalMovies = showtimeRepository.countDistinctMoviesByStatusIn(ShowtimeStatus.LIVE_STATUSES);
+        long totalShowtimes = showtimeRepository.countByStatusIn(ShowtimeStatus.LIVE_STATUSES);
         LocalDate today = LocalDate.now();
         long todayShowtimes = showtimeRepository.countByStatusInAndStartDateTimeGreaterThanEqualAndStartDateTimeLessThan(
-                ShowtimeStatus.ACTIVE_STATUSES, today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+                ShowtimeStatus.LIVE_STATUSES, today.atStartOfDay(), today.plusDays(1).atStartOfDay());
 
         ShowtimesStatisticsDTO dto = new ShowtimesStatisticsDTO();
         dto.setTotalMovies(totalMovies);
@@ -97,7 +97,7 @@ public class ShowtimeService {
     }
 
     public List<MovieWithShowtimesDTO> getMoviesWithShowtimes() {
-        List<MovieShowtimeCountProjection> counts = showtimeRepository.findMovieShowtimeCounts(ShowtimeStatus.ACTIVE_STATUSES);
+        List<MovieShowtimeCountProjection> counts = showtimeRepository.findMovieShowtimeCounts(ShowtimeStatus.LIVE_STATUSES);
         if (counts.isEmpty()) {
             return List.of();
         }
@@ -167,7 +167,7 @@ public class ShowtimeService {
 
     @Transactional
     public void deleteMovieShowtimes(Long movieId) {
-        List<Showtime> showtimes = showtimeRepository.findByTmdbMovieIdAndStatusIn(movieId, Set.of(ShowtimeStatus.DRAFT, ShowtimeStatus.PUBLISHED, ShowtimeStatus.RUNNING));
+        List<Showtime> showtimes = showtimeRepository.findByTmdbMovieIdAndStatusIn(movieId, ShowtimeStatus.LIVE_STATUSES);
 
         if (showtimes.isEmpty()) {
             throw new NotFoundException("No showtimes found for the provided movie");
@@ -240,7 +240,7 @@ public class ShowtimeService {
 
     private void flipHallIfNoActiveShowtimes(Hall hall, Long excludeId) {
         // @TODO --> This should be changed to check other statuses
-        boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndIdNot(hall, ShowtimeStatus.ACTIVE_STATUSES, excludeId);
+        boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndIdNot(hall, ShowtimeStatus.LIVE_STATUSES, excludeId);
         if (!stillHasShowtimes) {
             hallService.updateHallStatus(hall, HallStatus.ACTIVE);
         }

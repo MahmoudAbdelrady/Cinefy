@@ -65,22 +65,24 @@
                           }
                         </button>
                       }
-                      <button
-                        ngpButton
-                        class="dsi-action dsi-action-edit"
-                        title="Edit"
-                        (click)="onEditShowtime(showtimeDetail)"
-                      >
-                        <lucide-icon [img]="icons.EditIcon" [size]="14"></lucide-icon>
-                      </button>
-                      <button
-                        ngpButton
-                        class="dsi-action dsi-action-delete"
-                        title="Delete"
-                        [ngpDialogTrigger]="deleteDialog"
-                      >
-                        <lucide-icon [img]="icons.DeleteIcon" [size]="14"></lucide-icon>
-                      </button>
+                      @if (showtimeDetail.status !== 'RUNNING') {
+                        <button
+                          ngpButton
+                          class="dsi-action dsi-action-edit"
+                          title="Edit"
+                          (click)="onEditShowtime(showtimeDetail)"
+                        >
+                          <lucide-icon [img]="icons.EditIcon" [size]="14"></lucide-icon>
+                        </button>
+                        <button
+                          ngpButton
+                          class="dsi-action dsi-action-delete"
+                          title="Delete"
+                          [ngpDialogTrigger]="deleteDialog"
+                        >
+                          <lucide-icon [img]="icons.DeleteIcon" [size]="14"></lucide-icon>
+                        </button>
+                      }
                     </div>
                   }
 

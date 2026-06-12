@@ -139,7 +139,7 @@
 }
 
 .dsid-status {
-  padding: 2px 10px;
+  padding: 4px 10px;
   border-radius: $radius-full;
   font-size: 12px;
   font-weight: 600;
@@ -149,6 +149,11 @@
   &[data-status='DRAFT'] {
     background-color: $orange-100;
     color: $orange-700;
+  }
+
+  &[data-status='RUNNING'] {
+    background-color: $blue-100;
+    color: $blue-700;
   }
 }
 

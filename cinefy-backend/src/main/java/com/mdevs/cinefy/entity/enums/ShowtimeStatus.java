@@ -15,6 +15,8 @@ public enum ShowtimeStatus {
 
     public static final Set<ShowtimeStatus> COMMITTED_STATUSES = Set.of(PUBLISHED, RUNNING);
 
+    public static final Set<ShowtimeStatus> LIVE_STATUSES = Set.of(DRAFT, PUBLISHED, RUNNING);
+
     public static ShowtimeStatus fromString(String name) {
         return Arrays.stream(values())
                 .filter(status -> status.name().equals(name))
