@@ -41,7 +41,7 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
             WHERE EXISTS (SELECT 1 FROM Showtime s WHERE s.tmdbMovie = m AND s.status IN :statuses)
             ORDER BY m.releaseDate DESC
             """)
-    List<TmdbMovie> findWithShowtimeStatusIn(@Param("statuses") Set<ShowtimeStatus> statuses);
+    List<TmdbMovie> findWithShowtimeStatusIn(@Param("statuses") Set<ShowtimeStatus> statuses, Pageable pageable);
 
     long countByIsHighlightedTrue();
 

@@ -7,7 +7,7 @@ export {
   Calendar as CalendarIcon,
   MapPin as MapPinIcon,
   Glasses as GlassesIcon,
-  ShieldAlert as RatingIcon,
+  Eye as EyeIcon,
   DollarSign as DollarIcon,
   ArrowRight as ArrowRightIcon,
   Play as PlayIcon,

@@ -58,8 +58,8 @@ public class TmdbMovieController {
 
     @PublicApi
     @GetMapping("/now-showing")
-    public ResponseEntity<List<MovieSearchResultDTO>> getNowShowing() {
-        return ResponseEntity.ok(tmdbMovieService.getNowShowing());
+    public ResponseEntity<List<MovieSearchResultDTO>> getNowShowing(@RequestParam(required = false) Integer limit) {
+        return ResponseEntity.ok(tmdbMovieService.getNowShowing(limit));
     }
 
     @PublicApi

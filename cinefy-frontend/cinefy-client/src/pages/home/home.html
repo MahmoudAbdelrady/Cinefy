@@ -1,15 +1,17 @@
 <div class="home-container">
-  <featured-carousel />
+  @if (highlightedMovies().length) {
+    <featured-carousel [slides]="highlightedMovies()" />
+  }
   <div class="now-showing-movies">
     <div class="ms-header">
       <h3>Now Showing</h3>
       <a routerLink="/movies">View All</a>
     </div>
     <div class="ms-content">
-      @for (movie of nowShowingMovies.slice(0, 5); track $index) {
+      @for (movie of nowShowingMovies(); track movie.id) {
         <a
           class="movie-card reveal"
-          routerLink="/movies/{{ movie.code }}"
+          routerLink="/movies/{{ movie.id }}"
           [style.animation-delay.ms]="$index * 70"
         >
           <div class="mc-poster">
@@ -21,9 +23,9 @@
           <div class="mc-meta">
             <div class="mc-title">
               <h4>{{ movie.title }}</h4>
-              @if (movie.is3D) {
+              <!-- @if (movie.is3D) {
                 <span>3D</span>
-              }
+              } -->
             </div>
             <div class="mc-subtitle">
               <p>{{ movie.genre }}</p>
@@ -45,10 +47,10 @@
       <h3>Coming Soon</h3>
     </div>
     <div class="ms-content">
-      @for (movie of upcomingMovies; track $index) {
+      @for (movie of upcomingMovies(); track movie.id) {
         <a
           class="movie-card reveal"
-          routerLink="/movies/{{ movie.code }}"
+          routerLink="/movies/{{ movie.id }}"
           [style.animation-delay.ms]="$index * 70"
         >
           <div class="mc-poster">

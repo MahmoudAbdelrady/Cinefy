@@ -27,14 +27,19 @@
 }
 
 .fc-scrim-bottom {
-  background: linear-gradient(to top, $color-background, rgba($color-background, 0.6), transparent);
+  background: linear-gradient(
+    to top,
+    rgba($color-background, 0.9),
+    rgba($color-background, 0.4),
+    transparent
+  );
 }
 
 .fc-scrim-left {
   background: linear-gradient(
     to right,
-    $color-background,
-    rgba($color-background, 0.4),
+    rgba($color-background, 0.85),
+    rgba($color-background, 0.32),
     transparent
   );
 }
@@ -119,6 +124,7 @@
   padding: 0 32px;
   font-size: 16px;
   font-weight: 600;
+  text-decoration: none;
 }
 
 .fc-trailer-btn {

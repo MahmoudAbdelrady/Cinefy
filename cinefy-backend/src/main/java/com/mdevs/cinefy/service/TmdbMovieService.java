@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
@@ -64,6 +65,12 @@ public class TmdbMovieService {
     private static final int MAX_HIGHLIGHTED_MOVIES = 5;
 
     private static final int MAX_CAST_MEMBERS = 6;
+
+    private static final String BACKDROP_SIZE = "original";
+
+    private static final String POSTER_SIZE = "w500";
+
+    private static final String PROFILE_SIZE = "w185";
 
     private static final Map<Integer, String> TMDB_GENRES = Map.ofEntries(
             Map.entry(28, "Action"),
@@ -142,8 +149,9 @@ public class TmdbMovieService {
                 .toList();
     }
 
-    public List<MovieSearchResultDTO> getNowShowing() {
-        return tmdbMovieRepository.findWithShowtimeStatusIn(ShowtimeStatus.COMMITTED_STATUSES).stream()
+    public List<MovieSearchResultDTO> getNowShowing(Integer limit) {
+        Pageable pageable = limit != null ? PageRequest.of(0, limit) : Pageable.unpaged();
+        return tmdbMovieRepository.findWithShowtimeStatusIn(ShowtimeStatus.COMMITTED_STATUSES, pageable).stream()
                 .map(this::toMovieSearchResult)
                 .toList();
     }
@@ -317,10 +325,10 @@ public class TmdbMovieService {
         dto.setReleaseDate(node.path("release_date").stringValue());
 
         String posterPath = node.path("poster_path").stringValue();
-        dto.setPosterUrl(StringUtils.isNotEmpty(posterPath) ? imageBaseUrl + posterPath : null);
+        dto.setPosterUrl(toImageUrl(POSTER_SIZE, posterPath));
 
         String backdropPath = node.path("backdrop_path").stringValue();
-        dto.setBackdropUrl(StringUtils.isNotEmpty(backdropPath) ? imageBaseUrl + backdropPath : null);
+        dto.setBackdropUrl(toImageUrl(BACKDROP_SIZE, backdropPath));
 
         List<String> genreNames = node.path("genre_ids").valueStream().map(g -> resolveGenre(g.asInt())).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
@@ -368,10 +376,10 @@ public class TmdbMovieService {
         dto.setDuration(node.path("runtime").intValue());
 
         String posterPath = node.path("poster_path").stringValue();
-        dto.setPosterUrl(StringUtils.isNotEmpty(posterPath) ? imageBaseUrl + posterPath : null);
+        dto.setPosterUrl(toImageUrl(POSTER_SIZE, posterPath));
 
         String backdropPath = node.path("backdrop_path").stringValue();
-        dto.setBackdropUrl(StringUtils.isNotEmpty(backdropPath) ? imageBaseUrl + backdropPath : null);
+        dto.setBackdropUrl(toImageUrl(BACKDROP_SIZE, backdropPath));
 
         List<String> genreNames = node.path("genres").valueStream().map(g -> g.path("name").stringValue()).toList();
         dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
@@ -473,7 +481,7 @@ public class TmdbMovieService {
 
     private MovieCredits.CreditMember toCreditMember(JsonNode person) {
         String profilePath = person.path("profile_path").stringValue(null);
-        String profileUrl = StringUtils.isNotEmpty(profilePath) ? imageBaseUrl + profilePath : null;
+        String profileUrl = toImageUrl(PROFILE_SIZE, profilePath);
         return new MovieCredits.CreditMember(person.get("id").longValue(0), person.path("name").stringValue(null), profileUrl);
     }
 
@@ -494,5 +502,9 @@ public class TmdbMovieService {
 
         String key = trailer.path("key").stringValue(null);
         return StringUtils.isNotEmpty(key) ? "https://www.youtube.com/embed/" + key : null;
+    }
+
+    private String toImageUrl(String size, String path) {
+        return StringUtils.isNotEmpty(path) ? imageBaseUrl + "/" + size + path : null;
     }
 }
