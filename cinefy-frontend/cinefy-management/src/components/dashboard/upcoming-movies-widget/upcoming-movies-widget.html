@@ -18,13 +18,17 @@
           <div class="umc-info">
             <div class="umc-details">
               <h4>{{ movie.title }}</h4>
-              <p>{{ movie.genre }} · {{ movie.rating }}</p>
-              <div class="umc-release">
-                <lucide-icon [img]="icons.ClockIcon" [size]="11"></lucide-icon>
-                <span>{{ daysUntil(movie.releaseDate) }} days left</span>
-              </div>
+              <p>{{ movie.genre }} · {{ movie.contentRating }}</p>
+              @if (movie.releaseDate; as releaseDate) {
+                <div class="umc-release">
+                  <lucide-icon [img]="icons.ClockIcon" [size]="11"></lucide-icon>
+                  <span>{{ daysUntil(releaseDate) }} days left</span>
+                </div>
+              }
             </div>
-            <div class="umc-date">{{ movie.releaseDate | date: 'MMM d' }}</div>
+            @if (movie.releaseDate; as releaseDate) {
+              <div class="umc-date">{{ releaseDate | date: 'MMM d' }}</div>
+            }
           </div>
         </div>
       }

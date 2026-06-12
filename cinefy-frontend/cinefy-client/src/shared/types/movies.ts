@@ -1,7 +1,7 @@
 interface CreditMember {
   id: number;
   name: string;
-  profileUrl: string;
+  profileUrl?: string;
 }
 
 interface MovieCredits {
@@ -18,7 +18,7 @@ interface MovieDetail {
   releaseDate?: string;
   duration?: number;
   posterUrl?: string;
-  backdropUrl: string;
+  backdropUrl?: string;
   credits?: MovieCredits;
   trailerUrl?: string;
 }
