@@ -48,6 +48,10 @@
   --cui-switch-thumb: #ffffff;
   --cui-switch-thumb-shadow: #{$shadow-sm};
 
+  // Media image (poster/backdrop/profile placeholder)
+  --cui-media-placeholder-bg: #{$gray-100};
+  --cui-media-placeholder-icon: #{$gray-400};
+
   // Misc
   --cui-scrollbar-thumb: #{$gray-300};
 

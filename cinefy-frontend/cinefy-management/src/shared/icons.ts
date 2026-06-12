@@ -26,7 +26,7 @@ export {
   EllipsisVertical as EllipsisIcon,
   Eye as EyeIcon,
   EyeOff as EyeOffIcon,
-  Film as FilmIcon,
+  Clapperboard as ClapperboardIcon,
   House as HouseIcon,
   Info as InfoIcon,
   KeyRound as KeyIcon,

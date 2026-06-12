@@ -51,8 +51,12 @@ public class AppConfig {
         return mailSender;
     }
 
-    public static String getFrontendUrl() {
-        return applicationContext.getEnvironment().getProperty("app.frontend.url");
+    public static String getFrontendManagementUrl() {
+        return applicationContext.getEnvironment().getProperty("app.frontend.mgmt.url");
+    }
+
+    public static String getFrontendClientUrl() {
+        return applicationContext.getEnvironment().getProperty("app.frontend.client.url");
     }
 
     public static boolean isProductionEnv() {

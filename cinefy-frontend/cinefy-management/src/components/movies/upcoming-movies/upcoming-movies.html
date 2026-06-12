@@ -39,7 +39,11 @@
           <div class="movie-card">
             <div class="mc-main">
               <div class="mc-img">
-                <img [src]="upcomingMovie.posterUrl" [alt]="upcomingMovie.title" />
+                <media-image
+                  [src]="upcomingMovie.posterUrl"
+                  [alt]="upcomingMovie.title"
+                  [iconSize]="36"
+                />
               </div>
               <div class="mc-body">
                 <div class="mc-info">

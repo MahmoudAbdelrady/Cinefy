@@ -207,25 +207,6 @@
     border-radius: $radius-lg;
     overflow: hidden;
     flex-shrink: 0;
-    background-color: $gray-100;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-  }
-
-  .mi-img-fallback {
-    @include flex-center;
-    @include lucide-icon-fix;
-    color: $gray-400;
-
-    lucide-icon svg {
-      width: 20px;
-      height: 20px;
-    }
   }
 
   .mi-details {

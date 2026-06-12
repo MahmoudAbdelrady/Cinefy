@@ -2,7 +2,7 @@ import { afterNextRender, Component, computed, DestroyRef, inject, signal } from
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { merge } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CalendarIcon, ClockIcon, FilmIcon } from '../../../shared/icons';
+import { CalendarIcon, ClockIcon, ClapperboardIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { StatsComponent } from '../../stats/stats';
@@ -27,7 +27,7 @@ export class MoviesStatisticsComponent {
   protected readonly cards = computed<StatsCard[]>(() => {
     const s = this.statistics();
     return [
-      { label: 'Total Movies', value: s?.totalMovies?.toString() ?? '—', icon: FilmIcon },
+      { label: 'Total Movies', value: s?.totalMovies?.toString() ?? '—', icon: ClapperboardIcon },
       { label: 'Total Showtimes', value: s?.totalShowtimes?.toString() ?? '—', icon: CalendarIcon },
       { label: "Today's Showtimes", value: s?.todayShowtimes?.toString() ?? '—', icon: ClockIcon },
     ];

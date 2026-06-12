@@ -25,6 +25,7 @@ import {
   AsyncSelectComponent,
   FieldErrorComponent,
   LoadingSpinnerComponent,
+  MediaImageComponent,
   Switch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -36,8 +37,6 @@ import {
 } from '../../../services';
 import { NgpTextarea } from 'ng-primitives/textarea';
 import { NgpButton } from 'ng-primitives/button';
-import { LucideAngularModule } from 'lucide-angular';
-import { FilmIcon } from '../../../shared/icons';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
 
 function notInPastValidator(control: AbstractControl): ValidationErrors | null {
@@ -70,9 +69,9 @@ function timeNotInPastValidator(control: AbstractControl): ValidationErrors | nu
     AsyncSelectComponent,
     NgpTextarea,
     NgpButton,
-    LucideAngularModule,
     ModalComponent,
     MoviePickerComponent,
+    MediaImageComponent,
     DatePipe,
     Switch,
     FieldErrorComponent,
@@ -82,10 +81,6 @@ function timeNotInPastValidator(control: AbstractControl): ValidationErrors | nu
   styleUrl: './manage-showtime-modal.scss',
 })
 export class ManageShowtimeModalComponent {
-  protected readonly icons = {
-    FilmIcon,
-  };
-
   private readonly hallsService = inject(HallsService);
   private readonly moviesService = inject(MoviesService);
   private readonly showtimesService = inject(ShowtimesService);

@@ -32,7 +32,7 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
                 (m.isAnnounced = true AND m.releaseDate > :today)
                 OR EXISTS (SELECT 1 FROM Showtime s WHERE s.tmdbMovie = m AND s.status IN :statuses)
             )
-            ORDER BY m.releaseDate ASC
+            ORDER BY m.releaseDate DESC
             """)
     List<TmdbMovie> findHighlighted(@Param("today") LocalDate today, @Param("statuses") Set<ShowtimeStatus> statuses);
 

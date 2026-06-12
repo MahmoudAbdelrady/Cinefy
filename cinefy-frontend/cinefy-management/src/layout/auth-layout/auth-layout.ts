@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FilmIcon } from '../../shared/icons';
+import { ClapperboardIcon } from '../../shared/icons';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -11,7 +11,7 @@ import { LucideAngularModule } from 'lucide-angular';
 })
 export class AuthLayout {
   protected readonly icons = {
-    FilmIcon,
+    ClapperboardIcon,
   };
 
   protected readonly currentYear = new Date().getFullYear();

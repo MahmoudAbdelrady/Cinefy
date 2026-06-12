@@ -78,17 +78,14 @@
   border-radius: $radius-lg;
   background-color: $color-muted;
 
-  img {
+  media-image {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
     transition: transform 500ms ease-out;
   }
 }
 
-.movie-card:hover .mc-poster img {
+.movie-card:hover .mc-poster media-image {
   transform: scale(1.1);
 }
 

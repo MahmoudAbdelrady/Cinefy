@@ -13,7 +13,7 @@
       @for (movie of upcomingMovies; track movie.title) {
         <div class="um-card">
           <div class="umc-poster">
-            <img [src]="movie.posterUrl" [alt]="movie.title" />
+            <media-image [src]="movie.posterUrl" [alt]="movie.title" [iconSize]="20" />
           </div>
           <div class="umc-info">
             <div class="umc-details">

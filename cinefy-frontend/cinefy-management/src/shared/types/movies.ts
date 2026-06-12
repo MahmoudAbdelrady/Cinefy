@@ -49,7 +49,7 @@ interface Movie {
   rating: string; // e.g. 'PG-13'
   releaseDate: string; // ISO date, e.g. '2026-03-30'
   duration: number; // in minutes
-  posterUrl: string;
+  posterUrl?: string;
 }
 
 export type { Movie, MovieSearchResult, UpcomingMovie, MovieSummary, MovieDetail };

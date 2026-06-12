@@ -201,13 +201,6 @@
   overflow: hidden;
   box-shadow: $shadow-card;
 
-  img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
   @include below-mobile {
     width: 72px;
     height: 108px;

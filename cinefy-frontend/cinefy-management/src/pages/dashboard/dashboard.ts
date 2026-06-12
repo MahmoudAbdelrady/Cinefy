@@ -7,7 +7,7 @@ import {
   ChevronDownIcon,
   ClockIcon,
   DollarSignIcon,
-  FilmIcon,
+  ClapperboardIcon,
   LayoutIcon,
   LayoutTemplateIcon,
   PlusIcon,
@@ -49,7 +49,7 @@ export class DashboardPage implements OnInit {
   protected readonly icons = {
     ChevronDownIcon,
     DollarSignIcon,
-    FilmIcon,
+    ClapperboardIcon,
     LayoutIcon,
     PlusIcon,
     TicketIcon,
@@ -65,7 +65,7 @@ export class DashboardPage implements OnInit {
   protected currentDate = new Date();
 
   protected readonly quickAddMenuItems: DropDownMenuItem[] = [
-    { icon: FilmIcon, label: 'Movie', code: 'movie' },
+    { icon: ClapperboardIcon, label: 'Movie', code: 'movie' },
     { icon: LayoutTemplateIcon, label: 'Hall', code: 'hall' },
     { icon: ClockIcon, label: 'Showtime', code: 'showtime' },
   ];

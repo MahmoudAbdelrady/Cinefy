@@ -10,12 +10,20 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from '../../../shared/icons';
+import { MediaImageComponent } from 'cinefy-ui/components';
 import { HighlightedMovie } from '../../../shared/types';
 import { TrailerModalComponent } from '../../movies/trailer-modal/trailer-modal';
 
 @Component({
   selector: 'featured-carousel',
-  imports: [RouterLink, LucideAngularModule, NgpButton, NgpDialogTrigger, TrailerModalComponent],
+  imports: [
+    RouterLink,
+    LucideAngularModule,
+    NgpButton,
+    NgpDialogTrigger,
+    TrailerModalComponent,
+    MediaImageComponent,
+  ],
   templateUrl: './featured-carousel.html',
   styleUrl: './featured-carousel.scss',
 })
@@ -99,7 +107,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
   }
 
   private formatRuntime(minutes?: number): string | undefined {
-    if (minutes === undefined || minutes === null) return undefined;
+    if (minutes === undefined || minutes === null || minutes === 0) return undefined;
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;

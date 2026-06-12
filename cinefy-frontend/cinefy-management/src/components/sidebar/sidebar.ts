@@ -4,7 +4,7 @@ import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 import {
   ChartColumnIcon,
   CreditCardIcon,
-  FilmIcon,
+  ClapperboardIcon,
   HouseIcon,
   LayoutIcon,
   UsersIcon,
@@ -36,7 +36,7 @@ export class SidebarComponent {
   private static readonly ALL_TABS: SidebarTab[] = [
     { label: 'Dashboard', icon: HouseIcon, path: '/' },
     { label: 'Halls', icon: LayoutIcon, path: '/halls' },
-    { label: 'Movies', icon: FilmIcon, path: '/movies' },
+    { label: 'Movies', icon: ClapperboardIcon, path: '/movies' },
     { label: 'Statistics', icon: ChartColumnIcon, path: '/statistics' },
     { label: 'Payment', icon: CreditCardIcon, path: '/payment' },
     { label: 'Staff', icon: UsersIcon, path: '/staff' },

@@ -12,12 +12,12 @@
       @if (showSelectedMovie()) {
         <div class="selected-movie-container">
           <div class="sm-info">
-            <div class="sm-img" [class.sm-img-fallback]="!activeMovie()!.posterUrl">
-              @if (activeMovie()!.posterUrl; as posterUrl) {
-                <img [src]="posterUrl" alt="{{ activeMovie()!.title }} Poster" />
-              } @else {
-                <lucide-icon [img]="icons.FilmIcon"></lucide-icon>
-              }
+            <div class="sm-img">
+              <media-image
+                [src]="activeMovie()!.posterUrl"
+                alt="{{ activeMovie()!.title }} Poster"
+                [iconSize]="24"
+              />
             </div>
             <div class="sm-details">
               <h4>{{ activeMovie()!.title }}</h4>

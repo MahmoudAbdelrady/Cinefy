@@ -71,13 +71,6 @@
   overflow: hidden;
   flex-shrink: 0;
   box-shadow: $shadow-sm;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
 }
 
 .umc-info {

@@ -4,7 +4,7 @@ import {
   ChevronRightIcon,
   ClockIcon,
   DollarSignIcon,
-  FilmIcon,
+  ClapperboardIcon,
   TicketIcon,
   UsersIcon,
 } from '../../../shared/icons';
@@ -31,7 +31,7 @@ export class NowShowingComponent {
     ChevronRightIcon,
     ClockIcon,
     DollarSignIcon,
-    FilmIcon,
+    ClapperboardIcon,
     TicketIcon,
     UsersIcon,
   };

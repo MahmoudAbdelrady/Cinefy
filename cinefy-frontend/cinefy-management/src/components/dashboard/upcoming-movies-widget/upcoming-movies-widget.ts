@@ -4,10 +4,11 @@ import { LucideAngularModule } from 'lucide-angular';
 import { CalendarIcon, ClockIcon } from '../../../shared/icons';
 import { RouterLink } from '@angular/router';
 import type { Movie } from '../../../shared/types';
+import { MediaImageComponent } from 'cinefy-ui/components';
 
 @Component({
   selector: 'upcoming-movies-widget',
-  imports: [DatePipe, LucideAngularModule, RouterLink],
+  imports: [DatePipe, LucideAngularModule, RouterLink, MediaImageComponent],
   templateUrl: './upcoming-movies-widget.html',
   styleUrl: './upcoming-movies-widget.scss',
 })

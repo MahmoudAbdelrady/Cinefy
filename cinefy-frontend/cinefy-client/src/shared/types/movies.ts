@@ -17,7 +17,7 @@ interface MovieDetail {
   contentRating?: string;
   releaseDate?: string;
   duration?: number;
-  posterUrl: string;
+  posterUrl?: string;
   backdropUrl: string;
   credits?: MovieCredits;
   trailerUrl?: string;

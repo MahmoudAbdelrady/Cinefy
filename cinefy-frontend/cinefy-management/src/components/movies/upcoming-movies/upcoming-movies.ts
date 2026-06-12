@@ -11,6 +11,7 @@ import {
   LoadingSpinnerComponent,
   EmptyStateComponent,
   InputField,
+  MediaImageComponent,
   Switch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -28,6 +29,7 @@ import { MoviesService, ShowtimeEventsService } from '../../../services';
     EmptyStateComponent,
     InputField,
     ManageShowtimeModalComponent,
+    MediaImageComponent,
   ],
   templateUrl: './upcoming-movies.html',
   styleUrl: './upcoming-movies.scss',

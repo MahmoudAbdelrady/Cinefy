@@ -144,13 +144,11 @@
   position: relative;
   flex-shrink: 0;
 
-  img {
+  media-image {
     width: 104px;
     height: 156px;
-    object-fit: cover;
     border-radius: $radius-lg;
     box-shadow: $shadow-sm;
-    display: block;
   }
 }
 
@@ -470,7 +468,7 @@
     gap: 12px;
   }
 
-  .mci-poster img {
+  .mci-poster media-image {
     width: 72px;
     height: 108px;
   }

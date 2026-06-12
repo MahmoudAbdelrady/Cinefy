@@ -2,14 +2,20 @@ import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { EmptyStateComponent } from 'cinefy-ui/components';
+import { EmptyStateComponent, MediaImageComponent } from 'cinefy-ui/components';
 import { FeaturedCarouselComponent } from '../../components';
 import { MoviesService } from '../../services';
 import { ClapperboardIcon, CalendarIcon } from '../../shared/icons';
 
 @Component({
   selector: 'home-page',
-  imports: [FeaturedCarouselComponent, RouterLink, DatePipe, EmptyStateComponent],
+  imports: [
+    FeaturedCarouselComponent,
+    MediaImageComponent,
+    RouterLink,
+    DatePipe,
+    EmptyStateComponent,
+  ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -32,5 +38,4 @@ export class HomePage {
   protected readonly upcomingMovies = toSignal(this.moviesService.getAnnouncedUpcoming(), {
     initialValue: [],
   });
-
 }

@@ -17,8 +17,8 @@ import { NgpFormField } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
 import { LucideAngularModule } from 'lucide-angular';
-import { ChevronRightIcon, FilmIcon, SearchIcon } from '../../../shared/icons';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ChevronRightIcon, ClapperboardIcon, SearchIcon } from '../../../shared/icons';
+import { LoadingSpinnerComponent, MediaImageComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { MovieSearchResult } from '../../../shared/types';
 import { MoviesService } from '../../../services';
@@ -34,6 +34,7 @@ import { MoviesService } from '../../../services';
     NgpFormField,
     LucideAngularModule,
     LoadingSpinnerComponent,
+    MediaImageComponent,
     DatePipe,
   ],
   templateUrl: './movie-picker.html',
@@ -42,7 +43,7 @@ import { MoviesService } from '../../../services';
 export class MoviePickerComponent {
   protected readonly icons = {
     ChevronRightIcon,
-    FilmIcon,
+    ClapperboardIcon,
     SearchIcon,
   };
 

@@ -21,6 +21,7 @@ import {
   LoadingSpinnerComponent,
   EmptyStateComponent,
   InputField,
+  MediaImageComponent,
   Switch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -45,6 +46,7 @@ import {
     Switch,
     ManageShowtimeModalComponent,
     MovieShowtimesModal,
+    MediaImageComponent,
     LucideAngularModule,
   ],
   templateUrl: './current-showtimes.html',

@@ -37,7 +37,11 @@
           <div class="movie-card" [class.movie-card--highlighted]="item.highlighted">
             <div class="mc-identity">
               <div class="mci-poster">
-                <img [src]="shMovie.posterUrl" alt="{{ shMovie.title }} Poster" />
+                <media-image
+                  [src]="shMovie.posterUrl"
+                  alt="{{ shMovie.title }} Poster"
+                  [iconSize]="36"
+                />
                 @if (item.highlighted) {
                   <span class="mci-badge">
                     <lucide-icon [img]="icons.StarIcon" [size]="12"></lucide-icon>

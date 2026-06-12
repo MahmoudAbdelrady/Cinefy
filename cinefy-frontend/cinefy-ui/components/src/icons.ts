@@ -14,4 +14,5 @@ export {
   Clock as ClockIcon,
   CircleCheckBig as CircleCheckBigIcon,
   CircleX as CircleXIcon,
+  Clapperboard as ClapperboardIcon,
 } from "lucide-angular";
