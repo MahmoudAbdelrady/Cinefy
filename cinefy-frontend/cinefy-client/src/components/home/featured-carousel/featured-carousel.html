@@ -14,10 +14,10 @@
       <div class="fc-data reveal">
         <div class="fc-meta">
           <div class="fc-badge">{{ slide.bookingOpened ? 'Now Showing' : 'Coming Soon' }}</div>
-          @if (runtimeLabel(); as runtime) {
+          @if (slide.movieDetails.duration; as runtime) {
             <span class="fc-meta-item">
               <lucide-icon [img]="icons.ClockIcon" [size]="16" />
-              <span>{{ runtime }}</span>
+              <span>{{ runtime | duration }}</span>
             </span>
           }
           @if (slide.movieDetails.contentRating; as contentRating) {

@@ -72,8 +72,8 @@
                   @if (shMovie.contentRating) {
                     <span>{{ shMovie.contentRating }}</span>
                   }
-                  @if (shMovie.duration) {
-                    <span>{{ shMovie.duration }} min</span>
+                  @if (shMovie.duration; as runtime) {
+                    <span>{{ runtime | duration }}</span>
                   }
                   @if (shMovie.releaseDate) {
                     <span>{{ shMovie.releaseDate }}</span>

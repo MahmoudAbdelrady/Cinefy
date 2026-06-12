@@ -29,6 +29,7 @@ import {
   Switch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
+import { DurationPipe } from 'cinefy-ui/pipes';
 import {
   HallsService,
   MoviesService,
@@ -76,6 +77,7 @@ function timeNotInPastValidator(control: AbstractControl): ValidationErrors | nu
     Switch,
     FieldErrorComponent,
     LoadingSpinnerComponent,
+    DurationPipe,
   ],
   templateUrl: './manage-showtime-modal.html',
   styleUrl: './manage-showtime-modal.scss',

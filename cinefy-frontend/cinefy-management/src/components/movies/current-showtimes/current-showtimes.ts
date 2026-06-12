@@ -25,6 +25,7 @@ import {
   Switch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
+import { DurationPipe } from 'cinefy-ui/pipes';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
 import {
@@ -48,6 +49,7 @@ import {
     MovieShowtimesModal,
     MediaImageComponent,
     LucideAngularModule,
+    DurationPipe,
   ],
   templateUrl: './current-showtimes.html',
   styleUrl: './current-showtimes.scss',

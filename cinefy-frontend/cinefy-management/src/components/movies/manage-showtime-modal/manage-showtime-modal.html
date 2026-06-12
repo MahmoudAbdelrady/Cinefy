@@ -31,8 +31,8 @@
                 @if (activeMovieDetail()?.contentRating; as contentRating) {
                   <span class="smdb-item">{{ contentRating }}</span>
                 }
-                @if (activeMovieDetail()?.duration; as duration) {
-                  <span class="smdb-item">{{ duration }} min</span>
+                @if (activeMovieDetail()?.duration; as runtime) {
+                  <span class="smdb-item">{{ runtime | duration }}</span>
                 }
               </div>
             </div>
