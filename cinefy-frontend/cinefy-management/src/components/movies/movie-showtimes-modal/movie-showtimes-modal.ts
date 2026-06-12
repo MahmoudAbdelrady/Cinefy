@@ -112,6 +112,8 @@ export class MovieShowtimesModal {
 
   private readonly dayCache = new Map<string, MovieShowtimesResponse>();
 
+  private readonly selectedMovieId = computed(() => this.selectedMovie().id);
+
   protected readonly otherDrafts = computed(
     () => (this.movieShowtimes()?.numberOfDrafts ?? 0) - this.dayDrafts(),
   );
@@ -121,7 +123,6 @@ export class MovieShowtimesModal {
 
   constructor() {
     effect((onCleanup) => {
-      const movieId = this.selectedMovie().id;
       this.loadingDates.set(true);
       this.movieShowtimes.set(null);
       this.movieShowtimeDetails.set([]);
@@ -129,7 +130,7 @@ export class MovieShowtimesModal {
       this.selectedTab.set(undefined);
       this.dayCache.clear();
 
-      const sub = this.showtimesService.getMovieShowtimeDates(movieId).subscribe({
+      const sub = this.showtimesService.getMovieShowtimeDates(this.selectedMovieId()).subscribe({
         next: (data) => {
           this.movieShowtimes.set(data);
           this.loadingDates.set(false);
@@ -157,22 +158,23 @@ export class MovieShowtimesModal {
         return;
       }
 
-      const movieId = this.selectedMovie().id;
       this.loadingDay.set(true);
-      const sub = this.showtimesService.getMovieShowtimesForDate(movieId, targetDate).subscribe({
-        next: (data) => {
-          if (this.selectedTab() !== targetDate) return;
-          this.dayCache.set(targetDate, data);
-          this.movieShowtimeDetails.set(data.showtimes);
-          this.dayDrafts.set(data.numberOfDrafts);
-          this.loadingDay.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          if (this.selectedTab() !== targetDate) return;
-          this.loadingDay.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
-        },
-      });
+      const sub = this.showtimesService
+        .getMovieShowtimesForDate(this.selectedMovieId(), targetDate)
+        .subscribe({
+          next: (data) => {
+            if (this.selectedTab() !== targetDate) return;
+            this.dayCache.set(targetDate, data);
+            this.movieShowtimeDetails.set(data.showtimes);
+            this.dayDrafts.set(data.numberOfDrafts);
+            this.loadingDay.set(false);
+          },
+          error: (err: HttpErrorResponse) => {
+            if (this.selectedTab() !== targetDate) return;
+            this.loadingDay.set(false);
+            this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
+          },
+        });
       onCleanup(() => sub.unsubscribe());
     });
 
@@ -227,14 +229,17 @@ export class MovieShowtimesModal {
       .subscribe({
         next: () => {
           this.markDeleting(id, false);
-          const wasDraft = this.applyLocalDeletion(id);
-          this.showtimeEvents.notifySingleDeleted(this.selectedMovie().id, wasDraft);
-          this.showtimeEvents.notifyCommittedChanged(
-            this.selectedMovie().id,
-            (this.movieShowtimes()?.numberOfCommitted ?? 0) > 0,
-          );
+          const { wasDraft, movieClosed } = this.applyLocalDeletion(id);
           this.toastService.success('Showtime deleted');
           close();
+
+          if (movieClosed) return;
+
+          this.showtimeEvents.notifySingleDeleted(this.selectedMovieId(), wasDraft);
+          this.showtimeEvents.notifyCommittedChanged(
+            this.selectedMovieId(),
+            (this.movieShowtimes()?.numberOfCommitted ?? 0) > 0,
+          );
         },
         error: (err: HttpErrorResponse) => {
           this.markDeleting(id, false);
@@ -254,7 +259,7 @@ export class MovieShowtimesModal {
         next: () => {
           this.markPublishing(id, false);
           this.applyLocalPublish(id);
-          this.showtimeEvents.notifyPublished(this.selectedMovie().id, 1);
+          this.showtimeEvents.notifyPublished(this.selectedMovieId(), 1);
           this.toastService.success('Showtime published');
         },
         error: (err: HttpErrorResponse) => {
@@ -267,24 +272,25 @@ export class MovieShowtimesModal {
   protected onPublishDayDrafts(): void {
     const date = this.selectedTab();
     if (!date) return;
-    const movieId = this.selectedMovie().id;
+    const movieId = this.selectedMovieId();
     const count = this.dayDrafts();
 
     this.runBulkPublish({ movieId, date }, this.publishingDay, () => {
       const remaining = (this.movieShowtimes()?.numberOfDrafts ?? 0) - count;
       this.applyLocalBulkPublish(remaining);
-      this.dayCache.delete(date);
+      this.syncCurrentDayCache();
       this.showtimeEvents.notifyPublished(movieId, count);
     });
   }
 
   protected onPublishAllDrafts(): void {
-    const movieId = this.selectedMovie().id;
+    const movieId = this.selectedMovieId();
     const count = this.movieShowtimes()?.numberOfDrafts ?? 0;
 
     this.runBulkPublish({ movieId }, this.publishingAll, () => {
       this.applyLocalBulkPublish(0);
       this.dayCache.clear();
+      this.syncCurrentDayCache();
       this.showtimeEvents.notifyPublished(movieId, count);
     });
   }
@@ -336,8 +342,6 @@ export class MovieShowtimesModal {
     );
     const isDraft = showtime.status === 'DRAFT';
 
-    this.dayCache.delete(createdDate);
-
     this.movieShowtimes.update((m) => {
       if (!m) return m;
       const dates = m.dates.includes(createdDate) ? m.dates : [...m.dates, createdDate].sort();
@@ -348,7 +352,10 @@ export class MovieShowtimesModal {
       };
     });
 
-    if (createdDate !== this.selectedTab()) return;
+    if (createdDate !== this.selectedTab()) {
+      this.dayCache.delete(createdDate);
+      return;
+    }
 
     if (isDraft) this.dayDrafts.update((n) => n + 1);
 
@@ -356,6 +363,7 @@ export class MovieShowtimesModal {
     this.movieShowtimeDetails.update((list) =>
       [...list, item].sort((a, b) => a.time.localeCompare(b.time)),
     );
+    this.syncCurrentDayCache();
   }
 
   private applyUpdatedShowtime(showtime: Showtime): void {
@@ -368,10 +376,6 @@ export class MovieShowtimesModal {
     if (!previous) return;
     const prevWasDraft = previous.status === 'DRAFT';
     const draftDelta = (isDraft ? 1 : 0) - (prevWasDraft ? 1 : 0);
-
-    const previousDate = this.selectedTab();
-    if (previousDate) this.dayCache.delete(previousDate);
-    this.dayCache.delete(updatedDate);
 
     const updatedItem = this.toListItem(showtime, updatedTime);
 
@@ -387,8 +391,11 @@ export class MovieShowtimesModal {
           m ? { ...m, numberOfDrafts: m.numberOfDrafts + draftDelta } : m,
         );
       }
+      this.syncCurrentDayCache();
       return;
     }
+
+    this.dayCache.delete(updatedDate);
 
     this.movieShowtimeDetails.update((list) => list.filter((s) => s.id !== showtime.id));
     if (prevWasDraft) this.dayDrafts.update((n) => n - 1);
@@ -405,17 +412,16 @@ export class MovieShowtimesModal {
 
     if (this.movieShowtimeDetails().length === 0) {
       this.dropDateAndPickNeighbour(this.selectedTab());
+    } else {
+      this.syncCurrentDayCache();
     }
   }
 
-  private applyLocalDeletion(id: string): boolean {
+  private applyLocalDeletion(id: string): { wasDraft: boolean; movieClosed: boolean } {
     const removed = this.movieShowtimeDetails().find((s) => s.id === id);
-    if (!removed) return false;
+    if (!removed) return { wasDraft: false, movieClosed: false };
     const wasDraft = removed.status === 'DRAFT';
     const wasCommitted = removed.status === 'PUBLISHED' || removed.status === 'RUNNING';
-
-    const currentDate = this.selectedTab();
-    if (currentDate) this.dayCache.delete(currentDate);
 
     this.movieShowtimeDetails.update((list) => list.filter((s) => s.id !== id));
 
@@ -428,17 +434,17 @@ export class MovieShowtimesModal {
       );
     }
 
+    let movieClosed = false;
     if (this.movieShowtimeDetails().length === 0) {
-      this.dropDateAndPickNeighbour(this.selectedTab());
+      movieClosed = this.dropDateAndPickNeighbour(this.selectedTab());
+    } else {
+      this.syncCurrentDayCache();
     }
 
-    return wasDraft;
+    return { wasDraft, movieClosed };
   }
 
   private applyLocalPublish(id: string): void {
-    const currentDate = this.selectedTab();
-    if (currentDate) this.dayCache.delete(currentDate);
-
     this.movieShowtimeDetails.update((list) =>
       list.map((s) => (s.id === id ? { ...s, status: 'PUBLISHED' } : s)),
     );
@@ -448,6 +454,7 @@ export class MovieShowtimesModal {
         ? { ...m, numberOfDrafts: m.numberOfDrafts - 1, numberOfCommitted: m.numberOfCommitted + 1 }
         : m,
     );
+    this.syncCurrentDayCache();
   }
 
   private applyLocalBulkPublish(remainingDrafts: number): void {
@@ -466,7 +473,18 @@ export class MovieShowtimesModal {
     );
   }
 
-  private dropDateAndPickNeighbour(date: string | undefined): void {
+  private syncCurrentDayCache(): void {
+    const currentDate = this.selectedTab();
+    if (!currentDate) return;
+    this.dayCache.set(currentDate, {
+      numberOfDrafts: this.dayDrafts(),
+      showtimes: this.movieShowtimeDetails(),
+    });
+  }
+
+  private dropDateAndPickNeighbour(date: string | undefined): boolean {
+    if (date) this.dayCache.delete(date);
+
     const currentDates = this.movieShowtimes()?.dates ?? [];
     const removedIndex = currentDates.indexOf(date ?? '');
     const remainingDates = currentDates.filter((d) => d !== date);
@@ -474,13 +492,14 @@ export class MovieShowtimesModal {
     this.movieShowtimes.update((m) => (m ? { ...m, dates: remainingDates } : m));
 
     if (remainingDates.length === 0) {
-      this.showtimeEvents.notifyDeleted(this.selectedMovie().id);
+      this.showtimeEvents.notifyDeleted(this.selectedMovieId());
       this.close()();
-      return;
+      return true;
     }
 
     const nextIndex = Math.min(removedIndex, remainingDates.length - 1);
     this.selectedTab.set(remainingDates[nextIndex]);
+    return false;
   }
 
   private toListItem(showtime: Showtime, time: string): MovieShowtimeListItem {
