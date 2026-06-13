@@ -349,7 +349,8 @@
   transition: color 150ms ease;
 
   &--on {
-    color: $orange-600;
+    color: $orange-500;
+    fill: $orange-400;
   }
 }
 
