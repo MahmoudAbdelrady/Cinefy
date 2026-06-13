@@ -29,7 +29,7 @@
         @include icon-box(40px);
         background-color: $blue-50;
 
-        lucide-icon {
+        svg {
           color: $blue-600;
         }
       }
@@ -134,7 +134,7 @@
   font-size: 12px;
   color: $gray-500;
 
-  lucide-icon {
+  svg {
     display: flex;
     flex-shrink: 0;
   }
@@ -152,7 +152,7 @@
   gap: 8px;
   flex-shrink: 0;
 
-  > lucide-icon {
+  > svg {
     color: $gray-300;
     display: flex;
 

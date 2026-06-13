@@ -15,11 +15,11 @@
         (click)="toggleEditMode()"
         [title]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
       >
-        <lucide-icon
-          [img]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
+        <svg
+          [lucideIcon]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
           [size]="20"
           [strokeWidth]="2"
-        ></lucide-icon>
+        ></svg>
       </button>
       <button #discardTrigger [ngpDialogTrigger]="discardDialog" hidden></button>
 
@@ -44,7 +44,7 @@
   <div class="hall-config-modal-content" [hidden]="loadingHall()">
     <div class="hall-information">
       <div class="hi-header">
-        <lucide-icon [img]="icons.SettingsIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+        <svg [lucideIcon]="icons.SettingsIcon" [size]="16" [strokeWidth]="2.5"></svg>
         <span>Hall Information</span>
       </div>
       <form class="hi-form" [formGroup]="hallForm">
@@ -146,7 +146,7 @@
           @if (!isViewMode()) {
             <div class="seat-categories">
               <div class="sc-header">
-                <lucide-icon [img]="icons.StarIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <svg [lucideIcon]="icons.StarIcon" [size]="16" [strokeWidth]="2.5"></svg>
                 <span>Seat Categories</span>
               </div>
               <div class="sc-content">
@@ -195,11 +195,7 @@
           }
           <div class="ticket-pricing">
             <div class="tp-header">
-              <lucide-icon
-                [img]="icons.DollarSignIcon"
-                [size]="16"
-                [strokeWidth]="2.5"
-              ></lucide-icon>
+              <svg [lucideIcon]="icons.DollarSignIcon" [size]="16" [strokeWidth]="2.5"></svg>
               <span class="tp-title">Ticket Pricing <span class="tp-vat">(without VAT)</span></span>
             </div>
             <div class="tp-content">
@@ -250,7 +246,7 @@
     </div>
     <div class="hall-layout-editor">
       <div class="hle-header">
-        <lucide-icon [img]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+        <svg [lucideIcon]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></svg>
         <span>Seat Layout Editor</span>
       </div>
       <div class="hle-content">

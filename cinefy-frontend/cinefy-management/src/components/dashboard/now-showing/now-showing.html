@@ -2,7 +2,7 @@
   <div class="header">
     <div class="header-left">
       <div class="hl-icon">
-        <lucide-icon [img]="icons.FilmIcon" [size]="20"></lucide-icon>
+        <svg [lucideIcon]="icons.ClapperboardIcon" [size]="20"></svg>
       </div>
       <div class="hl-info">
         <h3>Now Showing</h3>
@@ -11,7 +11,7 @@
     </div>
     <div class="header-right">
       <a [routerLink]="'/movies'"
-        >View All <lucide-icon [img]="icons.ChevronRightIcon" [size]="16"></lucide-icon
+        >View All <svg [lucideIcon]="icons.ChevronRightIcon" [size]="16"></svg
       ></a>
     </div>
   </div>
@@ -28,22 +28,22 @@
           </div>
           <div class="nsm-stats">
             <div class="nsm-stat">
-              <lucide-icon [img]="icons.ClockIcon" [size]="15"></lucide-icon>
+              <svg [lucideIcon]="icons.ClockIcon" [size]="15"></svg>
               <span>{{ movie.showtimes }}</span>
               <span>{{ movie.showtimes > 1 ? 'shows' : 'show' }}</span>
             </div>
             <div class="nsm-stat">
-              <lucide-icon [img]="icons.TicketIcon" [size]="15"></lucide-icon>
+              <svg [lucideIcon]="icons.TicketIcon" [size]="15"></svg>
               <span>{{ movie.ticketsSold }}</span>
               <span>sold</span>
             </div>
             <div class="nsm-stat">
-              <lucide-icon [img]="icons.DollarSignIcon" [size]="15"></lucide-icon>
+              <svg [lucideIcon]="icons.DollarSignIcon" [size]="15"></svg>
               <span>{{ movie.revenue }}</span>
               <span>revenue</span>
             </div>
             <div class="nsm-stat">
-              <lucide-icon [img]="icons.UsersIcon" [size]="15"></lucide-icon>
+              <svg [lucideIcon]="icons.UsersIcon" [size]="15"></svg>
               <span>{{ movie.occupancy }}</span>
               <span>occupancy</span>
             </div>

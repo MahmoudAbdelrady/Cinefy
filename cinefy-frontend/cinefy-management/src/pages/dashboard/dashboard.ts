@@ -1,13 +1,13 @@
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
-import { LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import {
   ArrowDownIcon,
   ArrowUpIcon,
   ChevronDownIcon,
   ClockIcon,
   DollarSignIcon,
-  FilmIcon,
+  ClapperboardIcon,
   LayoutIcon,
   LayoutTemplateIcon,
   PlusIcon,
@@ -24,7 +24,7 @@ import {
 import { HeaderActionsService } from '../../services';
 
 interface DropDownMenuItem {
-  icon: LucideIconData;
+  icon: LucideIcon;
   label: string;
   code: string;
 }
@@ -33,7 +33,7 @@ interface DropDownMenuItem {
   selector: 'dashboard-page',
   imports: [
     DatePipe,
-    LucideAngularModule,
+    LucideDynamicIcon,
     NowShowingComponent,
     UpcomingMoviesWidgetComponent,
     TodayScheduleComponent,
@@ -49,7 +49,7 @@ export class DashboardPage implements OnInit {
   protected readonly icons = {
     ChevronDownIcon,
     DollarSignIcon,
-    FilmIcon,
+    ClapperboardIcon,
     LayoutIcon,
     PlusIcon,
     TicketIcon,
@@ -65,7 +65,7 @@ export class DashboardPage implements OnInit {
   protected currentDate = new Date();
 
   protected readonly quickAddMenuItems: DropDownMenuItem[] = [
-    { icon: FilmIcon, label: 'Movie', code: 'movie' },
+    { icon: ClapperboardIcon, label: 'Movie', code: 'movie' },
     { icon: LayoutTemplateIcon, label: 'Hall', code: 'hall' },
     { icon: ClockIcon, label: 'Showtime', code: 'showtime' },
   ];

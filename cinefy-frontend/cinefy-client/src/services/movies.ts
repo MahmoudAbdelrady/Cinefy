@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { HighlightedMovie, MovieSearchResult } from '../shared/types';
+import type { HighlightedMovie, MovieSearchResult, NowShowingMovie } from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class MoviesService {
@@ -11,9 +11,9 @@ export class MoviesService {
     return this.http.get<HighlightedMovie[]>('/movies/highlighted');
   }
 
-  getNowShowing(limit?: number): Observable<MovieSearchResult[]> {
+  getNowShowing(limit?: number): Observable<NowShowingMovie[]> {
     const params = { ...(limit !== undefined && { limit }) };
-    return this.http.get<MovieSearchResult[]>('/movies/now-showing', { params });
+    return this.http.get<NowShowingMovie[]>('/movies/now-showing', { params });
   }
 
   getAnnouncedUpcoming(): Observable<MovieSearchResult[]> {

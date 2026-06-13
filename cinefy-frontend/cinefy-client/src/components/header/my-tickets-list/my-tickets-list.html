@@ -10,28 +10,28 @@
             <h3>{{ booking.movieTitle }}</h3>
             <div class="place-info">
               <div class="pi-item">
-                <lucide-icon [img]="icons.CalendarIcon" [size]="16" />
+                <svg [lucideIcon]="icons.CalendarIcon" [size]="16"></svg>
                 <span>{{ booking.bookingDate }} at {{ booking.bookingTime }}</span>
               </div>
               <div class="pi-item">
-                <lucide-icon [img]="icons.GlassesIcon" [size]="16" />
+                <svg [lucideIcon]="icons.GlassesIcon" [size]="16"></svg>
                 <span>{{ booking.is3D ? '3D' : '2D' }}</span>
               </div>
             </div>
             <div class="pricing-info">
               <div class="ticket-count">
-                <lucide-icon [img]="icons.TicketIcon" [size]="16" />
+                <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
                 <span>x{{ booking.totalTickets }}</span>
               </div>
               <div class="total-price">
-                <span>${{ booking.totalPrice.toFixed(2) }}</span>
+                <span>{{ booking.totalPrice | currency: 'USD' }}</span>
               </div>
             </div>
           </div>
           <div class="bi-actions">
             <button class="btn-primary">
               <span>Proceed</span>
-              <lucide-icon [img]="icons.ArrowRightIcon" [size]="16" />
+              <svg [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
             </button>
           </div>
         </div>

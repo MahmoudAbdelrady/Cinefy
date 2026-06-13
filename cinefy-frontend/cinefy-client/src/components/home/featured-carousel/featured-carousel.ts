@@ -1,6 +1,6 @@
 import { afterNextRender, Component, computed, input, OnDestroy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
@@ -10,12 +10,22 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from '../../../shared/icons';
+import { MediaImageComponent } from 'cinefy-ui/components';
+import { DurationPipe } from 'cinefy-ui/pipes';
 import { HighlightedMovie } from '../../../shared/types';
 import { TrailerModalComponent } from '../../movies/trailer-modal/trailer-modal';
 
 @Component({
   selector: 'featured-carousel',
-  imports: [RouterLink, LucideAngularModule, NgpButton, NgpDialogTrigger, TrailerModalComponent],
+  imports: [
+    RouterLink,
+    LucideDynamicIcon,
+    NgpButton,
+    NgpDialogTrigger,
+    TrailerModalComponent,
+    MediaImageComponent,
+    DurationPipe,
+  ],
   templateUrl: './featured-carousel.html',
   styleUrl: './featured-carousel.scss',
 })
@@ -36,10 +46,6 @@ export class FeaturedCarouselComponent implements OnDestroy {
   protected readonly currentIndex = signal(0);
 
   protected readonly currentSlide = computed(() => this.slides()[this.currentIndex()]);
-
-  protected readonly runtimeLabel = computed(() =>
-    this.formatRuntime(this.currentSlide().movieDetails.duration),
-  );
 
   private intervalId?: ReturnType<typeof setInterval>;
 
@@ -96,12 +102,5 @@ export class FeaturedCarouselComponent implements OnDestroy {
       clearInterval(this.intervalId);
       this.intervalId = undefined;
     }
-  }
-
-  private formatRuntime(minutes?: number): string | undefined {
-    if (minutes === undefined || minutes === null) return undefined;
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
   }
 }

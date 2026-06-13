@@ -16,11 +16,12 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpFormField } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
-import { LucideAngularModule } from 'lucide-angular';
-import { ChevronRightIcon, FilmIcon, SearchIcon } from '../../../shared/icons';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { ChevronRightIcon, ClapperboardIcon, SearchIcon } from '../../../shared/icons';
+import { LoadingSpinnerComponent, MediaImageComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { MovieSearchResult } from '../../../shared/types';
+import { SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE } from '../../../shared/constants';
 import { MoviesService } from '../../../services';
 
 @Component({
@@ -32,8 +33,9 @@ import { MoviesService } from '../../../services';
     NgpSearchClear,
     NgpInput,
     NgpFormField,
-    LucideAngularModule,
+    LucideDynamicIcon,
     LoadingSpinnerComponent,
+    MediaImageComponent,
     DatePipe,
   ],
   templateUrl: './movie-picker.html',
@@ -42,15 +44,13 @@ import { MoviesService } from '../../../services';
 export class MoviePickerComponent {
   protected readonly icons = {
     ChevronRightIcon,
-    FilmIcon,
+    ClapperboardIcon,
     SearchIcon,
   };
 
   private readonly moviesService = inject(MoviesService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
-
-  private static readonly PAGE_SIZE = 20;
 
   readonly movieSelected = output<MovieSearchResult>();
 
@@ -69,7 +69,7 @@ export class MoviePickerComponent {
     afterNextRender(() => {
       this.movieSearchQuery$
         .pipe(
-          debounceTime(300),
+          debounceTime(SEARCH_DEBOUNCE_MS),
           distinctUntilChanged(),
           tap((query) => {
             this.currentPage.set(0);
@@ -85,7 +85,7 @@ export class MoviePickerComponent {
             if (query.length === 0) return EMPTY;
             return this.moviesService.searchMovies(query, {
               page: 0,
-              size: MoviePickerComponent.PAGE_SIZE,
+              size: DEFAULT_PAGE_SIZE,
             });
           }),
           takeUntilDestroyed(this.destroyRef),
@@ -112,7 +112,7 @@ export class MoviePickerComponent {
     this.moviesService
       .searchMovies(this.movieSearchQuery(), {
         page: nextPage,
-        size: MoviePickerComponent.PAGE_SIZE,
+        size: DEFAULT_PAGE_SIZE,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

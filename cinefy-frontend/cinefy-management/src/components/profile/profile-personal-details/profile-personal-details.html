@@ -4,7 +4,7 @@
   <div class="panel-header">
     <div class="ph-title">
       <div class="ph-icon ph-icon-blue">
-        <lucide-icon [img]="icons.UserIcon" [size]="16" />
+        <svg [lucideIcon]="icons.UserIcon" [size]="16"></svg>
       </div>
       <div>
         <h4>Personal details</h4>
@@ -15,12 +15,12 @@
     </div>
     @if (profile.position === 'ADMIN') {
       <span class="ph-readonly">
-        <lucide-icon [img]="icons.LockIcon" [size]="11" />
+        <svg [lucideIcon]="icons.LockIcon" [size]="11"></svg>
         Read-only
       </span>
     } @else if (!isEditing()) {
       <button type="button" class="ph-edit-btn" (click)="startEditing()">
-        <lucide-icon [img]="icons.EditIcon" [size]="15" [strokeWidth]="2" />
+        <svg [lucideIcon]="icons.EditIcon" [size]="15" [strokeWidth]="2"></svg>
         <span>Edit</span>
       </button>
     }
@@ -61,7 +61,7 @@
       />
 
       <div class="panel-note">
-        <lucide-icon [img]="icons.LockIcon" [size]="15" />
+        <svg [lucideIcon]="icons.LockIcon" [size]="15"></svg>
         <p>Username, email, and employment information can only be changed by an administrator.</p>
       </div>
 
@@ -76,7 +76,7 @@
             <loading-spinner variant="xs" />
             <span>Saving…</span>
           } @else {
-            <lucide-icon [img]="icons.SaveIcon" [size]="16" [strokeWidth]="2.5" />
+            <svg [lucideIcon]="icons.SaveIcon" [size]="16" [strokeWidth]="2.5"></svg>
             <span>Save changes</span>
           }
         </button>
@@ -87,7 +87,7 @@
       <div class="info-grid">
         <div class="info-item">
           <div class="ii-icon">
-            <lucide-icon [img]="icons.UserIcon" [size]="14" />
+            <svg [lucideIcon]="icons.UserIcon" [size]="14"></svg>
           </div>
           <div class="ii-info">
             <span class="ii-title">First name</span>
@@ -96,7 +96,7 @@
         </div>
         <div class="info-item">
           <div class="ii-icon">
-            <lucide-icon [img]="icons.UserIcon" [size]="14" />
+            <svg [lucideIcon]="icons.UserIcon" [size]="14"></svg>
           </div>
           <div class="ii-info">
             <span class="ii-title">Last name</span>
@@ -105,7 +105,7 @@
         </div>
         <div class="info-item">
           <div class="ii-icon">
-            <lucide-icon [img]="icons.AtSignIcon" [size]="14" />
+            <svg [lucideIcon]="icons.AtSignIcon" [size]="14"></svg>
           </div>
           <div class="ii-info">
             <span class="ii-title">Username</span>
@@ -114,7 +114,7 @@
         </div>
         <div class="info-item">
           <div class="ii-icon">
-            <lucide-icon [img]="icons.EmailIcon" [size]="14" />
+            <svg [lucideIcon]="icons.EmailIcon" [size]="14"></svg>
           </div>
           <div class="ii-info">
             <span class="ii-title">Email</span>
@@ -123,7 +123,7 @@
         </div>
         <div class="info-item">
           <div class="ii-icon">
-            <lucide-icon [img]="icons.PhoneIcon" [size]="14" />
+            <svg [lucideIcon]="icons.PhoneIcon" [size]="14"></svg>
           </div>
           <div class="ii-info">
             <span class="ii-title">Phone</span>

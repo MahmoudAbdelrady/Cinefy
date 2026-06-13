@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { KeyIcon, SaveIcon } from '../../../shared/icons';
 import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -12,7 +12,7 @@ import type { ApiError } from '../../../shared/types';
 
 @Component({
   selector: 'profile-password',
-  imports: [ReactiveFormsModule, LucideAngularModule, InputField, LoadingSpinnerComponent],
+  imports: [ReactiveFormsModule, LucideDynamicIcon, InputField, LoadingSpinnerComponent],
   templateUrl: './profile-password.html',
   styleUrl: './profile-password.scss',
 })

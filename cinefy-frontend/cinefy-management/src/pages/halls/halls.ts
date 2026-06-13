@@ -1,5 +1,5 @@
 import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { PlusIcon, SettingsIcon } from '../../shared/icons';
 import { HeaderActionsService } from '../../services';
 import { NgpButton } from 'ng-primitives/button';
@@ -14,7 +14,7 @@ import {
 @Component({
   selector: 'halls-page',
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpButton,
     NgpDialogTrigger,
     HallsStatisticsComponent,

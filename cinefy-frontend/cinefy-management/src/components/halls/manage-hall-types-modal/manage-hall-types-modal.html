@@ -29,7 +29,7 @@
                   (keydown.escape)="cancelEditType()"
                 >
                   <div class="type-tile">
-                    <lucide-icon [img]="icons.TagIcon" [size]="17" [strokeWidth]="2"></lucide-icon>
+                    <svg [lucideIcon]="icons.TagIcon" [size]="17" [strokeWidth]="2"></svg>
                   </div>
                   <div class="inline-edit-field">
                     <input-field
@@ -46,34 +46,28 @@
                       title="Save"
                       [disabled]="editTypeForm.invalid || savingTypeId() === type.id"
                     >
-                      <lucide-icon
-                        [img]="savingTypeId() === type.id ? icons.LoaderIcon : icons.CheckIcon"
+                      <svg
+                        [lucideIcon]="
+                          savingTypeId() === type.id ? icons.LoaderIcon : icons.CheckIcon
+                        "
                         [size]="14"
                         [strokeWidth]="2.5"
                         [class.spin]="savingTypeId() === type.id"
-                      ></lucide-icon>
+                      ></svg>
                     </button>
                     <button ngpButton type="button" (click)="cancelEditType()" title="Cancel">
-                      <lucide-icon
-                        [img]="icons.XIcon"
-                        [size]="14"
-                        [strokeWidth]="2.5"
-                      ></lucide-icon>
+                      <svg [lucideIcon]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></svg>
                     </button>
                   </div>
                 </form>
               } @else {
                 <div class="type-tile">
-                  <lucide-icon [img]="icons.TagIcon" [size]="17" [strokeWidth]="2"></lucide-icon>
+                  <svg [lucideIcon]="icons.TagIcon" [size]="17" [strokeWidth]="2"></svg>
                 </div>
                 <span class="type-name">{{ type.name }}</span>
                 <div class="action-buttons">
                   <button ngpButton (click)="startEditingType(type)">
-                    <lucide-icon
-                      [img]="icons.EditIcon"
-                      [size]="14"
-                      [strokeWidth]="2.5"
-                    ></lucide-icon>
+                    <svg [lucideIcon]="icons.EditIcon" [size]="14" [strokeWidth]="2.5"></svg>
                   </button>
                   <button
                     ngpButton
@@ -83,20 +77,12 @@
                     ngpPopoverTriggerContainer=".modal-overlay"
                     #deleteTrigger="ngpPopoverTrigger"
                   >
-                    <lucide-icon
-                      [img]="icons.DeleteIcon"
-                      [size]="14"
-                      [strokeWidth]="2.5"
-                    ></lucide-icon>
+                    <svg [lucideIcon]="icons.DeleteIcon" [size]="14" [strokeWidth]="2.5"></svg>
                   </button>
                   <ng-template #deleteConfirm>
                     <div ngpPopover class="delete-confirm-popover">
                       <div class="delete-confirm-header">
-                        <lucide-icon
-                          [img]="icons.WarningIcon"
-                          [size]="16"
-                          [strokeWidth]="2.5"
-                        ></lucide-icon>
+                        <svg [lucideIcon]="icons.WarningIcon" [size]="16" [strokeWidth]="2.5"></svg>
                         <span>Delete "{{ type.name }}"?</span>
                       </div>
                       <p>This action cannot be undone.</p>
@@ -146,7 +132,7 @@
           (keydown.escape)="cancelAddType()"
         >
           <div class="type-tile">
-            <lucide-icon [img]="icons.TagIcon" [size]="17" [strokeWidth]="2"></lucide-icon>
+            <svg [lucideIcon]="icons.TagIcon" [size]="17" [strokeWidth]="2"></svg>
           </div>
           <div class="inline-edit-field">
             <input-field
@@ -164,21 +150,21 @@
               title="Save"
               [disabled]="newTypeForm.invalid || addingType()"
             >
-              <lucide-icon
-                [img]="addingType() ? icons.LoaderIcon : icons.CheckIcon"
+              <svg
+                [lucideIcon]="addingType() ? icons.LoaderIcon : icons.CheckIcon"
                 [size]="14"
                 [strokeWidth]="2.5"
                 [class.spin]="addingType()"
-              ></lucide-icon>
+              ></svg>
             </button>
             <button ngpButton type="button" (click)="cancelAddType()" title="Cancel">
-              <lucide-icon [img]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></lucide-icon>
+              <svg [lucideIcon]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></svg>
             </button>
           </div>
         </form>
       } @else {
         <button ngpButton class="btn-add-new-type" (click)="startAddingType()">
-          <lucide-icon [img]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+          <svg [lucideIcon]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></svg>
           Add new type
         </button>
       }

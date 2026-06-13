@@ -9,7 +9,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { LucideAngularModule, LucideIconData } from "lucide-angular";
+import { LucideDynamicIcon, LucideIcon } from "@lucide/angular";
 import { EyeIcon, EyeOffIcon } from "../icons";
 import { NgpInput } from "ng-primitives/input";
 import { NgpButton } from "ng-primitives/button";
@@ -19,7 +19,7 @@ type InputFieldSize = "sm" | "md";
 
 @Component({
   selector: "input-field",
-  imports: [ReactiveFormsModule, NgpInput, NgpButton, LucideAngularModule, FieldErrorComponent],
+  imports: [ReactiveFormsModule, NgpInput, NgpButton, LucideDynamicIcon, FieldErrorComponent],
   templateUrl: "./input-field.html",
   styleUrl: "./input-field.scss",
 })
@@ -36,7 +36,7 @@ export class InputField {
   readonly type = input<"text" | "number" | "password">("text");
   readonly placeholder = input<string>("");
   readonly hint: InputSignal<string | null> = input<string | null>(null);
-  readonly leadingIcon: InputSignal<LucideIconData | null> = input<LucideIconData | null>(null);
+  readonly leadingIcon: InputSignal<LucideIcon | null> = input<LucideIcon | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
   readonly monospace = input<boolean>(false);
   readonly blockClipboard = input<boolean>(false);

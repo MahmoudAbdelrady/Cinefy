@@ -1,5 +1,7 @@
 package com.mdevs.cinefy.repository;
 
+import com.mdevs.cinefy.dto.movie.MovieWithCommittedShowtimeProjection;
+import com.mdevs.cinefy.dto.movie.NowShowingProjection;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import org.springframework.data.domain.Pageable;
@@ -26,31 +28,39 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
     List<TmdbMovie> findAnnouncedUpcoming(@Param("today") LocalDate today);
 
     @Query("""
-            SELECT m FROM TmdbMovie m
+            SELECT m AS movie, (COUNT(s.id) > 0) AS hasCommittedShowtime
+            FROM TmdbMovie m
+            LEFT JOIN Showtime s ON s.tmdbMovie = m AND s.status IN :statuses
             WHERE m.isHighlighted = true
             AND (
                 (m.isAnnounced = true AND m.releaseDate > :today)
-                OR EXISTS (SELECT 1 FROM Showtime s WHERE s.tmdbMovie = m AND s.status IN :statuses)
+                OR s.id IS NOT NULL
             )
-            ORDER BY m.releaseDate ASC
-            """)
-    List<TmdbMovie> findHighlighted(@Param("today") LocalDate today, @Param("statuses") Set<ShowtimeStatus> statuses);
-
-    @Query("""
-            SELECT m FROM TmdbMovie m
-            WHERE EXISTS (SELECT 1 FROM Showtime s WHERE s.tmdbMovie = m AND s.status IN :statuses)
+            GROUP BY m
             ORDER BY m.releaseDate DESC
             """)
-    List<TmdbMovie> findWithShowtimeStatusIn(@Param("statuses") Set<ShowtimeStatus> statuses, Pageable pageable);
+    List<MovieWithCommittedShowtimeProjection> findHighlightedWithBookingFlag(@Param("today") LocalDate today, @Param("statuses") Set<ShowtimeStatus> statuses);
+
+    @Query("""
+            SELECT m AS movie, (MAX(CASE WHEN s.is3D = true THEN 1 ELSE 0 END) > 0) AS is3D
+            FROM TmdbMovie m
+            JOIN Showtime s ON s.tmdbMovie = m
+            WHERE s.status IN :statuses
+            GROUP BY m.id
+            ORDER BY m.releaseDate DESC
+            """)
+    List<NowShowingProjection> findNowShowingWith3DFlag(@Param("statuses") Set<ShowtimeStatus> statuses, Pageable pageable);
 
     long countByIsHighlightedTrue();
 
     @Query("""
-            SELECT m.id FROM TmdbMovie m
-            WHERE EXISTS (SELECT 1 FROM Showtime s WHERE s.tmdbMovie = m AND s.status IN :statuses)
-            AND m.id IN :ids
+            SELECT m AS movie, (COUNT(s.id) > 0) AS hasCommittedShowtime
+            FROM TmdbMovie m
+            LEFT JOIN Showtime s ON s.tmdbMovie = m AND s.status IN :statuses
+            WHERE m.id IN :ids
+            GROUP BY m
             """)
-    Set<Long> findMovieIdsWithShowtimeStatusIn(@Param("ids") List<Long> ids, @Param("statuses") Set<ShowtimeStatus> statuses);
+    List<MovieWithCommittedShowtimeProjection> findMoviesWithCommittedShowtime(@Param("ids") List<Long> ids, @Param("statuses") Set<ShowtimeStatus> statuses);
 
     List<TmdbMovie> findByIdGreaterThanOrderByIdAsc(Long maxId, Pageable pageable);
 }

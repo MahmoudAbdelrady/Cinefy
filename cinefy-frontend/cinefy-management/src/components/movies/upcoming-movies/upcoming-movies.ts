@@ -2,15 +2,17 @@ import { afterNextRender, Component, computed, DestroyRef, inject, signal } from
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { CalendarIcon, MegaphoneIcon, SearchIcon, StarIcon } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
+import { differenceInCalendarDays } from 'date-fns';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   LoadingSpinnerComponent,
   EmptyStateComponent,
   InputField,
+  MediaImageComponent,
   Switch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -20,7 +22,7 @@ import { MoviesService, ShowtimeEventsService } from '../../../services';
 @Component({
   selector: 'upcoming-movies',
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpButton,
     NgpDialogTrigger,
     Switch,
@@ -28,6 +30,7 @@ import { MoviesService, ShowtimeEventsService } from '../../../services';
     EmptyStateComponent,
     InputField,
     ManageShowtimeModalComponent,
+    MediaImageComponent,
   ],
   templateUrl: './upcoming-movies.html',
   styleUrl: './upcoming-movies.scss',
@@ -44,6 +47,8 @@ export class UpcomingMoviesComponent {
   private readonly toastService = inject(ToastService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private static readonly COMING_SOON_WINDOW_DAYS = 10;
 
   protected readonly loading = signal(true);
   protected readonly movies = signal<UpcomingMovie[]>([]);
@@ -105,11 +110,8 @@ export class UpcomingMoviesComponent {
     if (!releaseDate) return false;
     const release = new Date(releaseDate);
     if (Number.isNaN(release.getTime())) return false;
-    release.setHours(0, 0, 0, 0);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const diffDays = Math.round((release.getTime() - today.getTime()) / 86_400_000);
-    return diffDays >= 0 && diffDays <= 10;
+    const diffDays = differenceInCalendarDays(release, new Date());
+    return diffDays >= 0 && diffDays <= UpcomingMoviesComponent.COMING_SOON_WINDOW_DAYS;
   }
 
   protected isAnnouncePending(movieId: number): boolean {

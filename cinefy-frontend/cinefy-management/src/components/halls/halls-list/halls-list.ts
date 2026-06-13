@@ -1,7 +1,7 @@
 import { afterNextRender, Component, computed, inject, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
   DeleteIcon,
@@ -34,7 +34,7 @@ import { HallsService } from '../../../services';
 @Component({
   selector: 'halls-list',
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpButton,
     NgpDialogTrigger,
     InputField,

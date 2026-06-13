@@ -13,7 +13,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
   CalendarIcon,
@@ -51,11 +51,12 @@ import {
 } from '../../../shared/types';
 import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
+import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
 
 @Component({
   selector: 'staff-list',
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     CustomSelectComponent,
     InputField,
     PaginationComponent,
@@ -130,7 +131,7 @@ export class StaffListComponent {
   private readonly staff$ = combineLatest([
     this.searchControl.valueChanges.pipe(
       startWith(''),
-      debounceTime(300),
+      debounceTime(SEARCH_DEBOUNCE_MS),
       distinctUntilChanged(),
       tap(() => this.page.set(1)),
     ),
@@ -199,6 +200,11 @@ export class StaffListComponent {
       },
     });
     this.coverageChanged.emit({ action: 'add', position: member.position });
+  }
+
+  protected getInitials(fullName: string): string {
+    const [first, last] = fullName.split(' ');
+    return (first.charAt(0) + last.charAt(0)).toUpperCase();
   }
 
   protected onPositionFilterChange(position: UserPosition): void {

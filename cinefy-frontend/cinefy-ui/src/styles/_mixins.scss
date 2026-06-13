@@ -21,7 +21,7 @@
 }
 
 @mixin lucide-icon-fix {
-  lucide-icon {
+  svg {
     display: flex;
   }
 }
@@ -39,7 +39,7 @@
   padding: 64px 24px;
   color: var(--cui-text-muted);
 
-  lucide-icon {
+  svg {
     display: flex;
     margin-bottom: 4px;
   }

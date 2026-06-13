@@ -15,7 +15,7 @@
           [style.animation-delay.ms]="$index * 70"
         >
           <div class="mc-poster">
-            <img [src]="movie.posterUrl" alt="{{ movie.title }} poster" loading="lazy" />
+            <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
             <div class="mc-poster-overlay">
               <button class="mc-tickets-btn btn-primary">Get Tickets</button>
             </div>
@@ -23,9 +23,9 @@
           <div class="mc-meta">
             <div class="mc-title">
               <h4>{{ movie.title }}</h4>
-              <!-- @if (movie.is3D) {
+              @if (movie.is3D) {
                 <span>3D</span>
-              } -->
+              }
             </div>
             <div class="mc-subtitle">
               <p>{{ movie.genre }}</p>
@@ -54,7 +54,7 @@
           [style.animation-delay.ms]="$index * 70"
         >
           <div class="mc-poster">
-            <img [src]="movie.posterUrl" alt="{{ movie.title }} poster" loading="lazy" />
+            <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
           </div>
           <div class="mc-meta">
             <div class="mc-title">

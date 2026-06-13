@@ -3,7 +3,7 @@
     <div class="alh-inner">
       <div class="alh-tabs">
         <a class="alh-main-tab" routerLink="/">
-          <lucide-icon [img]="icons.ClapperboardIcon" [size]="24" />
+          <svg [lucideIcon]="icons.ClapperboardIcon" [size]="24"></svg>
           <span class="alh-main-tab-text">Cinefy</span>
         </a>
         <div class="alh-sub-tabs">
@@ -12,7 +12,7 @@
       </div>
       <div class="alh-info">
         <button class="alh-tickets-btn btn-primary" ngpButton [ngpDialogTrigger]="myTicketsDialog">
-          <lucide-icon [img]="icons.TicketIcon" [size]="16" />
+          <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
           <span class="tb-text">My Tickets</span>
           <span class="tb-count">2</span>
         </button>
@@ -20,13 +20,13 @@
           <my-tickets-list [close]="close" />
         </ng-template>
         <button class="alh-user-info" ngpButton [ngpMenuTrigger]="userInfoMenu">
-          <lucide-icon [img]="icons.UserIcon" [size]="20" />
+          <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
         </button>
         <ng-template #userInfoMenu>
           <div class="user-info-menu-items" ngpMenu>
             @for (item of userInfoMenuItems; track item.label) {
               <button class="uim-item" ngpMenuItem (click)="item.action()">
-                <lucide-icon [img]="item.icon" [size]="16" />
+                <svg [lucideIcon]="item.icon" [size]="16"></svg>
                 <span>{{ item.label }}</span>
               </button>
             }
@@ -43,7 +43,7 @@
   <footer class="app-layout-footer">
     <div class="alf-inner">
       <div class="alf-site-name">
-        <lucide-icon [img]="icons.ClapperboardIcon" [size]="20" />
+        <svg [lucideIcon]="icons.ClapperboardIcon" [size]="20"></svg>
         <span class="alf-site-name-text">Cinefy</span>
       </div>
       <div class="alf-site-info">© {{ currentYear }} Cinefy. All rights reserved.</div>

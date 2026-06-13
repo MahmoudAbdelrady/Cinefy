@@ -235,7 +235,7 @@ pagination-component {
   min-width: 0;
   @include lucide-icon-fix;
 
-  lucide-icon {
+  svg {
     color: $gray-400;
     flex-shrink: 0;
   }
@@ -327,7 +327,7 @@ pagination-component {
   @include flex-center;
   margin: 0 auto 16px;
 
-  lucide-icon {
+  svg {
     display: flex;
     color: $red-600;
   }
@@ -353,7 +353,7 @@ pagination-component {
   border: 1px solid rgba($red-400, 0.4);
   border-radius: $radius-md;
 
-  > lucide-icon {
+  > svg {
     display: flex;
     color: $red-600;
     flex-shrink: 0;
@@ -388,11 +388,11 @@ pagination-component {
     row-gap: 10px;
   }
 
-  .sa-btn span {
-    display: none;
-  }
-
   .sa-btn {
     padding: 8px;
+
+    span {
+      display: none;
+    }
   }
 }

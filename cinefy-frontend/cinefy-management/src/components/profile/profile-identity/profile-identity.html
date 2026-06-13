@@ -7,7 +7,7 @@
     <div class="ic-avatar">{{ initials() }}</div>
     <h3 class="ic-name">{{ fullName() }}</h3>
     <div class="ic-position">
-      <lucide-icon [img]="icons.BriefCaseIcon" [size]="11" [strokeWidth]="2.5" />
+      <svg [lucideIcon]="icons.BriefCaseIcon" [size]="11" [strokeWidth]="2.5"></svg>
       <span>{{ positionLabels[profile.position] }}</span>
     </div>
   </div>
@@ -16,34 +16,34 @@
 <div class="employment-card">
   <div class="ec-header">
     <div class="ec-title">
-      <lucide-icon [img]="icons.BriefCaseIcon" [size]="15" />
+      <svg [lucideIcon]="icons.BriefCaseIcon" [size]="15"></svg>
       <h4>Employment</h4>
     </div>
     <span class="ec-readonly">
-      <lucide-icon [img]="icons.LockIcon" [size]="11" />
+      <svg [lucideIcon]="icons.LockIcon" [size]="11"></svg>
       Read-only
     </span>
   </div>
   <div class="ec-list">
     <div class="ec-row">
-      <lucide-icon [img]="icons.ShieldCheckIcon" [size]="15" />
+      <svg [lucideIcon]="icons.ShieldCheckIcon" [size]="15"></svg>
       <span class="ec-label">Employment type</span>
       <span class="ec-value">{{ employmentTypeLabels[profile.employmentType] }}</span>
     </div>
     <div class="ec-row">
-      <lucide-icon [img]="icons.CalendarIcon" [size]="15" />
+      <svg [lucideIcon]="icons.CalendarIcon" [size]="15"></svg>
       <span class="ec-label">Hired on</span>
       <span class="ec-value">{{ profile.hiredAt | date: 'mediumDate' }}</span>
     </div>
     <div class="ec-row">
-      <lucide-icon [img]="icons.CalendarClockIcon" [size]="15" />
+      <svg [lucideIcon]="icons.CalendarClockIcon" [size]="15"></svg>
       <span class="ec-label">Working days</span>
       <span class="ec-value">
         {{ weekDayLabels[profile.workingDayStart] }} – {{ weekDayLabels[profile.workingDayEnd] }}
       </span>
     </div>
     <div class="ec-row">
-      <lucide-icon [img]="icons.ClockIcon" [size]="15" />
+      <svg [lucideIcon]="icons.ClockIcon" [size]="15"></svg>
       <span class="ec-label">Working hours</span>
       <span class="ec-value">
         {{ profile.workingHourStart | time12h }} – {{ profile.workingHourEnd | time12h }}

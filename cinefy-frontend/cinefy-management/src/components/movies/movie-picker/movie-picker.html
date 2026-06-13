@@ -1,7 +1,7 @@
 <div class="movie-picker">
   <div ngpFormField class="search-bar">
     <div ngpSearch>
-      <lucide-icon [img]="icons.SearchIcon"></lucide-icon>
+      <svg [lucideIcon]="icons.SearchIcon"></svg>
       <input
         [value]="movieSearchQuery()"
         (input)="movieSearchQuery.set($event.target.value)"
@@ -15,7 +15,7 @@
   @if (movieSearchQuery().length === 0) {
     <div class="search-placeholder">
       <div class="sp-icon" data-variant="empty">
-        <lucide-icon [img]="icons.FilmIcon"></lucide-icon>
+        <svg [lucideIcon]="icons.ClapperboardIcon"></svg>
       </div>
       <h4>Search for a movie</h4>
       <p>Type a movie title to find it in the catalog</p>
@@ -30,12 +30,8 @@
       @for (movie of movies(); track movie.id) {
         <div class="movie-item" (click)="onPick(movie)">
           <div class="mi-info">
-            <div class="mi-img" [class.mi-img-fallback]="!movie.posterUrl">
-              @if (movie.posterUrl) {
-                <img [src]="movie.posterUrl" alt="{{ movie.title }} Poster" />
-              } @else {
-                <lucide-icon [img]="icons.FilmIcon"></lucide-icon>
-              }
+            <div class="mi-img">
+              <media-image [src]="movie.posterUrl" alt="{{ movie.title }} Poster" [iconSize]="20" />
             </div>
             <div class="mi-details">
               <h4>{{ movie.title }}</h4>
@@ -51,7 +47,7 @@
           </div>
           <div class="mi-actions">
             <div class="mia-item">
-              <lucide-icon [img]="icons.ChevronRightIcon"></lucide-icon>
+              <svg [lucideIcon]="icons.ChevronRightIcon"></svg>
             </div>
           </div>
         </div>
@@ -76,7 +72,7 @@
   } @else {
     <div class="search-placeholder">
       <div class="sp-icon" data-variant="no-results">
-        <lucide-icon [img]="icons.SearchIcon"></lucide-icon>
+        <svg [lucideIcon]="icons.SearchIcon"></svg>
       </div>
       <h4>No movies found</h4>
       <p>Try a different title</p>

@@ -2,7 +2,7 @@
   <div class="header">
     <div class="header-left">
       <div class="hl-icon">
-        <lucide-icon [img]="icons.ClockIcon" [size]="20"></lucide-icon>
+        <svg [lucideIcon]="icons.ClockIcon" [size]="20"></svg>
       </div>
       <div class="hl-info">
         <h3>Today's Schedule</h3>
@@ -21,12 +21,12 @@
             <h4>{{ movie.title }}</h4>
             <div class="tsil-details">
               <div class="tsild-item">
-                <lucide-icon [img]="icons.LayoutIcon" [size]="12"></lucide-icon>
+                <svg [lucideIcon]="icons.LayoutIcon" [size]="12"></svg>
                 <span>{{ movie.hall }}</span>
               </div>
               <span class="tsild-dot"></span>
               <div class="tsild-item">
-                <lucide-icon [img]="icons.TicketIcon" [size]="12"></lucide-icon>
+                <svg [lucideIcon]="icons.TicketIcon" [size]="12"></svg>
                 <span>{{ movie.ticketsSold }}</span>
               </div>
             </div>
@@ -45,7 +45,7 @@
                 <span class="status-text">{{ movie.status }}</span>
               </div>
             </div>
-            <lucide-icon [img]="icons.ChevronRightIcon" [size]="16"></lucide-icon>
+            <svg [lucideIcon]="icons.ChevronRightIcon" [size]="16"></svg>
           </div>
         </div>
       </div>

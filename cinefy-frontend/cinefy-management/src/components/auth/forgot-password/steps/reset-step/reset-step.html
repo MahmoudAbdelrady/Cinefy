@@ -30,7 +30,7 @@
         />
         @if (resetForm.hasError('mismatch')) {
           <p class="fp-mismatch">
-            <lucide-icon [img]="icons.AlertIcon" [size]="12" [strokeWidth]="2.4" />
+            <svg [lucideIcon]="icons.AlertIcon" [size]="12" [strokeWidth]="2.4"></svg>
             Passwords don't match.
           </p>
         }
@@ -39,7 +39,7 @@
       <ul class="fp-checklist">
         @for (check of checks(); track $index) {
           <li class="fp-check" [class.fp-check--ok]="check.ok">
-            <lucide-icon [img]="icons.CircleCheckIcon" [size]="12" [strokeWidth]="2.4" />
+            <svg [lucideIcon]="icons.CircleCheckIcon" [size]="12" [strokeWidth]="2.4"></svg>
             {{ check.label }}
           </li>
         }
@@ -51,7 +51,7 @@
           <span>Saving…</span>
         } @else {
           <span>Save new password</span>
-          <lucide-icon class="fp-submit-arrow" [img]="icons.ArrowRightIcon" [size]="16" />
+          <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
         }
       </button>
 

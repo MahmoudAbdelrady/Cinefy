@@ -50,7 +50,7 @@ $max-width: 1152px;
     opacity: 0.8;
   }
 
-  lucide-icon {
+  svg {
     color: $color-primary;
   }
 }
@@ -168,7 +168,7 @@ $max-width: 1152px;
     background-color: $color-accent;
   }
 
-  lucide-icon {
+  svg {
     color: $color-muted-foreground;
   }
 }
@@ -206,7 +206,7 @@ $max-width: 1152px;
   gap: 8px;
   user-select: none;
 
-  lucide-icon {
+  svg {
     color: $color-primary;
   }
 }

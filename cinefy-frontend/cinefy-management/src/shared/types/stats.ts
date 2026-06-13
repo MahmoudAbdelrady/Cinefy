@@ -1,9 +1,9 @@
-import type { LucideIconData } from 'lucide-angular';
+import type { LucideIcon } from '@lucide/angular';
 
 interface StatsCard {
   label: string;
   value: string;
-  icon: LucideIconData;
+  icon: LucideIcon;
 }
 
 export type { StatsCard };

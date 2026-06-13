@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpButton } from 'ng-primitives/button';
 import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -14,7 +14,7 @@ import { ArrowRightIcon, AtSignIcon, PasswordIcon } from '../../../shared/icons'
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpButton,
     InputField,
     LoadingSpinnerComponent,

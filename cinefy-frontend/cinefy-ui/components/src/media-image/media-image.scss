@@ -1,0 +1,34 @@
+@use "../../../src/styles/mixins" as *;
+
+:host {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  background-color: var(--cui-media-placeholder-bg);
+}
+
+.cui-media-image-placeholder {
+  @include flex-center;
+  @include lucide-icon-fix;
+  position: absolute;
+  inset: 0;
+  color: var(--cui-media-placeholder-icon);
+}
+
+img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.cui-media-image-loaded {
+  opacity: 1;
+}

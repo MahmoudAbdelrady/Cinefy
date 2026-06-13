@@ -1,5 +1,5 @@
 import { Component, computed, input, type InputSignal } from "@angular/core";
-import { LucideAngularModule } from "lucide-angular";
+import { LucideDynamicIcon } from "@lucide/angular";
 import { LoaderIcon } from "../icons";
 
 type LoadingSpinnerVariant = "xs" | "sm" | "md" | "lg" | "xl";
@@ -14,9 +14,9 @@ const VARIANT_PRESETS: Record<LoadingSpinnerVariant, { size: number; strokeWidth
 
 @Component({
   selector: "loading-spinner",
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   template: `<div class="spinner" [style.width.px]="resolvedSize()" [style.height.px]="resolvedSize()">
-    <lucide-icon [img]="icons.LoaderIcon" [size]="resolvedSize()" [strokeWidth]="resolvedStrokeWidth()"></lucide-icon>
+    <svg [lucideIcon]="icons.LoaderIcon" [size]="resolvedSize()" [strokeWidth]="resolvedStrokeWidth()"></svg>
   </div>`,
   styles: `
     .spinner {

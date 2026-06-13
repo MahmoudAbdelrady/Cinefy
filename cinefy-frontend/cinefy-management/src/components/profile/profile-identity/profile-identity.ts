@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   BriefCaseIcon,
   CalendarClockIcon,
@@ -19,7 +19,7 @@ import {
 
 @Component({
   selector: 'profile-identity',
-  imports: [LucideAngularModule, DatePipe, Time12hPipe],
+  imports: [LucideDynamicIcon, DatePipe, Time12hPipe],
   templateUrl: './profile-identity.html',
   styleUrl: './profile-identity.scss',
 })

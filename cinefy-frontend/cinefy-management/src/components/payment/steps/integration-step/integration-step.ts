@@ -1,7 +1,6 @@
 import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputField, CustomSelectComponent } from 'cinefy-ui/components';
-import { LucideAngularModule } from 'lucide-angular';
 import { WebhookIcon } from '../../../../shared/icons';
 import { HelpHint } from '../../../help-hint/help-hint';
 
@@ -27,7 +26,7 @@ export type IntegrationForm = ReturnType<typeof buildIntegrationForm>;
 
 @Component({
   selector: 'integration-step',
-  imports: [ReactiveFormsModule, LucideAngularModule, InputField, HelpHint, CustomSelectComponent],
+  imports: [ReactiveFormsModule, InputField, HelpHint, CustomSelectComponent],
   templateUrl: './integration-step.html',
   styleUrl: './integration-step.scss',
 })

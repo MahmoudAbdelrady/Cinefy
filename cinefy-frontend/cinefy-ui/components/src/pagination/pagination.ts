@@ -7,13 +7,13 @@ import {
   NgpPaginationPrevious,
 } from "ng-primitives/pagination";
 import { NgpTooltip, NgpTooltipTrigger } from "ng-primitives/tooltip";
-import { LucideAngularModule } from "lucide-angular";
+import { LucideDynamicIcon } from "@lucide/angular";
 import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon } from "../icons";
 
 @Component({
   selector: "pagination-component",
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpPagination,
     NgpPaginationFirst,
     NgpPaginationPrevious,

@@ -1,7 +1,7 @@
 <div class="done-step-container">
   <div class="fp-done-card">
     <div class="fp-done-icon">
-      <lucide-icon [img]="icons.ShieldCheckIcon" [size]="26" [strokeWidth]="2.2" />
+      <svg [lucideIcon]="icons.ShieldCheckIcon" [size]="26" [strokeWidth]="2.2"></svg>
     </div>
 
     <h1>Password updated</h1>
@@ -9,7 +9,7 @@
 
     <a routerLink="/login" class="fp-done-cta">
       <span>Continue to sign in</span>
-      <lucide-icon class="fp-submit-arrow" [img]="icons.ArrowRightIcon" [size]="16" />
+      <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
     </a>
   </div>
 </div>

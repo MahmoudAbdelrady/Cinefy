@@ -10,6 +10,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { differenceInCalendarDays, format, isPast } from 'date-fns';
 import {
   ACTIVE_HALL_STATUSES,
   EditableShowtime,
@@ -25,9 +26,11 @@ import {
   AsyncSelectComponent,
   FieldErrorComponent,
   LoadingSpinnerComponent,
+  MediaImageComponent,
   Switch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
+import { DurationPipe } from 'cinefy-ui/pipes';
 import {
   HallsService,
   MoviesService,
@@ -36,18 +39,12 @@ import {
 } from '../../../services';
 import { NgpTextarea } from 'ng-primitives/textarea';
 import { NgpButton } from 'ng-primitives/button';
-import { LucideAngularModule } from 'lucide-angular';
-import { FilmIcon } from '../../../shared/icons';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
 
 function notInPastValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value as Date | null;
   if (!value) return null;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const candidate = new Date(value);
-  candidate.setHours(0, 0, 0, 0);
-  return candidate.getTime() < today.getTime() ? { pastDate: true } : null;
+  return differenceInCalendarDays(value, new Date()) < 0 ? { pastDate: true } : null;
 }
 
 function timeNotInPastValidator(control: AbstractControl): ValidationErrors | null {
@@ -58,7 +55,11 @@ function timeNotInPastValidator(control: AbstractControl): ValidationErrors | nu
   const [hours, minutes] = time.split(':').map(Number);
   const candidate = new Date(date);
   candidate.setHours(hours, minutes, 0, 0);
-  return candidate.getTime() < Date.now() ? { pastTime: true } : null;
+  return isPast(candidate) ? { pastTime: true } : null;
+}
+
+function combineDateAndTime(date: Date, time: string): string {
+  return `${format(date, 'yyyy-MM-dd')}T${time}:00`;
 }
 
 @Component({
@@ -70,22 +71,19 @@ function timeNotInPastValidator(control: AbstractControl): ValidationErrors | nu
     AsyncSelectComponent,
     NgpTextarea,
     NgpButton,
-    LucideAngularModule,
     ModalComponent,
     MoviePickerComponent,
+    MediaImageComponent,
     DatePipe,
     Switch,
     FieldErrorComponent,
     LoadingSpinnerComponent,
+    DurationPipe,
   ],
   templateUrl: './manage-showtime-modal.html',
   styleUrl: './manage-showtime-modal.scss',
 })
 export class ManageShowtimeModalComponent {
-  protected readonly icons = {
-    FilmIcon,
-  };
-
   private readonly hallsService = inject(HallsService);
   private readonly moviesService = inject(MoviesService);
   private readonly showtimesService = inject(ShowtimesService);
@@ -137,6 +135,10 @@ export class ManageShowtimeModalComponent {
     return JSON.stringify(this.showtimeForm.getRawValue()) !== snapshot;
   });
 
+  protected readonly submitDisabled = computed(
+    () => this.submitting() || (this.isEditMode() && !this.hasChanges()),
+  );
+
   protected readonly modalTitle = computed(() => {
     if (this.isEditMode()) return 'Edit Showtime';
     return this.activeMovie() ? 'Schedule Showtime' : 'Schedule a Movie';
@@ -177,6 +179,7 @@ export class ManageShowtimeModalComponent {
         is3D: editing.is3D,
         specialNotes: editing.specialNotes,
       });
+      this.showtimeForm.markAllAsTouched();
       this.initialFormSnapshot.set(JSON.stringify(this.showtimeForm.getRawValue()));
     });
 
@@ -263,17 +266,10 @@ export class ManageShowtimeModalComponent {
     const value = this.showtimeForm.getRawValue();
     return {
       movieId: movie.id,
-      dateTime: this.combineDateAndTime(value.date!, value.time!),
+      dateTime: combineDateAndTime(value.date!, value.time!),
       hallId: value.hallId!,
       is3D: value.is3D,
       specialNotes: value.specialNotes,
     };
-  }
-
-  private combineDateAndTime(date: Date, time: string): string {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}T${time}:00`;
   }
 }

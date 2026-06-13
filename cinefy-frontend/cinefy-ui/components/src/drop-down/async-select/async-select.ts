@@ -14,7 +14,7 @@ import { FormControl } from "@angular/forms";
 import { HttpErrorResponse } from "@angular/common/http";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { Observable, debounceTime, distinctUntilChanged, skip } from "rxjs";
-import { LucideAngularModule } from "lucide-angular";
+import { LucideDynamicIcon } from "@lucide/angular";
 import { ChevronDownIcon, XIcon } from "../../icons";
 import {
   NgpCombobox,
@@ -38,7 +38,7 @@ import type { PaginatedResponse } from "cinefy-ui/types";
     NgpComboboxInput,
     NgpComboboxOption,
     NgpComboboxPortal,
-    LucideAngularModule,
+    LucideDynamicIcon,
     LoadingSpinnerComponent,
     FieldErrorComponent,
   ],
@@ -53,6 +53,8 @@ export class AsyncSelectComponent<T> {
   };
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
+
+  private static readonly SEARCH_DEBOUNCE_MS = 300;
 
   readonly label: InputSignal<string | null> = input<string | null>(null);
   readonly hint: InputSignal<string | null> = input<string | null>(null);
@@ -95,7 +97,12 @@ export class AsyncSelectComponent<T> {
 
   constructor() {
     toObservable(this.searchInput)
-      .pipe(skip(1), debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        skip(1),
+        debounceTime(AsyncSelectComponent.SEARCH_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((term) => {
         this.searchTerm.set(term);
         this.resetAndFetch();

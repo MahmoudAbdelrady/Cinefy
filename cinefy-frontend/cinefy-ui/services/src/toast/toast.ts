@@ -1,5 +1,5 @@
 import { Component, Injectable, inject, viewChild } from "@angular/core";
-import { LucideAngularModule, CircleCheckBig, CircleX, X } from "lucide-angular";
+import { LucideDynamicIcon, LucideCircleCheckBig, LucideCircleX, LucideX } from "@lucide/angular";
 import {
   NgpToast,
   NgpToastManager,
@@ -11,7 +11,7 @@ import type { ToastContext } from "cinefy-ui/types";
 
 @Component({
   selector: "app-toast",
-  imports: [LucideAngularModule, NgpToast],
+  imports: [LucideDynamicIcon, NgpToast],
   templateUrl: "./toast.html",
   styleUrl: "./toast.scss",
   host: {
@@ -21,9 +21,9 @@ import type { ToastContext } from "cinefy-ui/types";
 })
 class ToastComponent {
   protected readonly icons = {
-    CircleCheckBigIcon: CircleCheckBig,
-    CircleXIcon: CircleX,
-    XIcon: X,
+    CircleCheckBigIcon: LucideCircleCheckBig,
+    CircleXIcon: LucideCircleX,
+    XIcon: LucideX,
   };
 
   private readonly manager = inject(NgpToastManager);

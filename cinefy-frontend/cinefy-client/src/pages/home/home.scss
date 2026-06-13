@@ -68,6 +68,20 @@
   color: inherit;
   text-decoration: none;
   cursor: pointer;
+
+  &:hover {
+    .mc-poster media-image {
+      transform: scale(1.1);
+    }
+
+    .mc-poster-overlay {
+      opacity: 1;
+    }
+
+    .mc-title h4 {
+      color: $color-primary;
+    }
+  }
 }
 
 .mc-poster {
@@ -78,18 +92,11 @@
   border-radius: $radius-lg;
   background-color: $color-muted;
 
-  img {
+  media-image {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
     transition: transform 500ms ease-out;
   }
-}
-
-.movie-card:hover .mc-poster img {
-  transform: scale(1.1);
 }
 
 .mc-poster-overlay {
@@ -100,10 +107,6 @@
   background-color: rgba($color-black, 0.6);
   opacity: 0;
   transition: opacity 300ms ease;
-}
-
-.movie-card:hover .mc-poster-overlay {
-  opacity: 1;
 }
 
 .mc-meta {
@@ -130,14 +133,10 @@
     border: 1px solid rgba($color-primary, 0.4);
     border-radius: $radius-md;
     font-family: $font-mono;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
     color: $color-primary;
   }
-}
-
-.movie-card:hover .mc-title h4 {
-  color: $color-primary;
 }
 
 .mc-subtitle p {

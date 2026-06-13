@@ -1,21 +1,9 @@
-import { AuthService } from './auth';
-import { HeaderActionsService } from './header-actions';
-import { HallsService } from './halls';
-import { MoviesService } from './movies';
-import { PaymentMethodService } from './payment-method';
-import { ShowtimeEventsService } from './showtime-events';
-import { ShowtimesService } from './showtimes';
-import { SidebarService } from './sidebar';
-import { StaffService } from './staff';
-
-export {
-  AuthService,
-  HeaderActionsService,
-  HallsService,
-  MoviesService,
-  PaymentMethodService,
-  ShowtimeEventsService,
-  ShowtimesService,
-  SidebarService,
-  StaffService,
-};
+export { AuthService } from './auth';
+export { HeaderActionsService } from './header-actions';
+export { HallsService } from './halls';
+export { MoviesService } from './movies';
+export { PaymentMethodService } from './payment-method';
+export { ShowtimeEventsService } from './showtime-events';
+export { ShowtimesService } from './showtimes';
+export { SidebarService } from './sidebar';
+export { StaffService } from './staff';

@@ -1,17 +1,17 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FilmIcon } from '../../shared/icons';
-import { LucideAngularModule } from 'lucide-angular';
+import { ClapperboardIcon } from '../../shared/icons';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'auth-layout',
-  imports: [RouterOutlet, LucideAngularModule],
+  imports: [RouterOutlet, LucideDynamicIcon],
   templateUrl: './auth-layout.html',
   styleUrl: './auth-layout.scss',
 })
 export class AuthLayout {
   protected readonly icons = {
-    FilmIcon,
+    ClapperboardIcon,
   };
 
   protected readonly currentYear = new Date().getFullYear();

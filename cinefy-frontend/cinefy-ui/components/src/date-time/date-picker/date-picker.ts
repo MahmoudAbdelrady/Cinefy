@@ -16,7 +16,7 @@ import {
 import { NgpNativeDateAdapter, provideDateAdapter } from "ng-primitives/date-time";
 import { NgpButton } from "ng-primitives/button";
 import { NgpPopover, NgpPopoverTrigger } from "ng-primitives/popover";
-import { LucideAngularModule } from "lucide-angular";
+import { LucideDynamicIcon } from "@lucide/angular";
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from "../../icons";
 import { FieldErrorComponent } from "../../field-error/field-error";
 
@@ -37,7 +37,7 @@ const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     NgpButton,
     NgpPopover,
     NgpPopoverTrigger,
-    LucideAngularModule,
+    LucideDynamicIcon,
     FieldErrorComponent,
   ],
   providers: [provideDateAdapter(NgpNativeDateAdapter)],
@@ -107,13 +107,5 @@ export class DatePicker {
     if (!open) {
       this.control().markAsTouched();
     }
-  }
-
-  protected onTriggerBlur(event: FocusEvent) {
-    const next = event.relatedTarget as HTMLElement | null;
-    if (next?.closest(".dp-popover")) {
-      return;
-    }
-    this.control().markAsTouched();
   }
 }

@@ -153,7 +153,7 @@ public class HallService {
     @Transactional
     public void deleteHall(String uuid) {
         Hall hall = findHall(uuid);
-        if (showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.ACTIVE_STATUSES)) {
+        if (showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.LIVE_STATUSES)) {
             throw new BusinessException("Cannot delete this hall while it has active showtimes");
         }
         hallRepository.delete(hall);
@@ -231,18 +231,19 @@ public class HallService {
     }
 
     private void validateHallMutability(Hall hall, HallDTO dto) {
-        if (!hall.getStatus().equals(HallStatus.fromString(dto.getStatus())) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.ACTIVE_STATUSES)) {
+        if (!hall.getStatus().equals(HallStatus.fromString(dto.getStatus())) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.LIVE_STATUSES)) {
             throw new BusinessException("Cannot modify status of this hall while it has active showtimes");
         }
 
         // @TODO --> This could be changed to depend on the number of reserved seats instead
-        if (hasCriticalConfigChange(hall, dto) && showtimeRepository.existsByHallAndStatusIn(hall, Set.of(ShowtimeStatus.PUBLISHED))) {
-            throw new BusinessException("Cannot modify layout or pricing of this hall while it has published showtimes");
+        if (hasCriticalConfigChange(hall, dto) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.COMMITTED_STATUSES)) {
+            throw new BusinessException("Cannot modify the configuration of this hall while it has active showtimes");
         }
     }
 
     private boolean hasCriticalConfigChange(Hall hall, HallDTO dto) {
-        return hall.getTotalRows() != dto.getNumberOfRows()
+        return !hall.getName().equals(dto.getName())
+                || hall.getTotalRows() != dto.getNumberOfRows()
                 || hall.getTotalColumns() != dto.getSeatsPerRow()
                 || isPricingChanged(hall, dto.getTicketPricing())
                 || isLayoutChanged(hall, dto.getLayout());

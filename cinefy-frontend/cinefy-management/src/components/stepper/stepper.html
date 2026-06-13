@@ -11,7 +11,7 @@
           >
             <div class="sci-num">
               @if ($index < currentStep()) {
-                <lucide-icon [img]="CheckIcon" [size]="15" />
+                <svg [lucideIcon]="CheckIcon" [size]="15"></svg>
               } @else {
                 {{ $index + 1 }}
               }

@@ -305,7 +305,7 @@
     background-color: $gray-50;
   }
 
-  lucide-icon {
+  svg {
     display: flex;
     color: $gray-500;
   }
@@ -317,7 +317,7 @@
     border-top: 1px solid $gray-100;
     border-radius: 0 0 $radius-sm $radius-sm;
 
-    lucide-icon {
+    svg {
       color: $red-500;
     }
 
@@ -491,7 +491,7 @@
   &[data-test-status='success'] {
     color: $green-700;
 
-    lucide-icon {
+    svg {
       color: $green-500;
     }
   }
@@ -499,7 +499,7 @@
   &[data-test-status='failure'] {
     color: $red-700;
 
-    lucide-icon {
+    svg {
       color: $red-500;
     }
   }
@@ -560,7 +560,7 @@
     border-bottom: 1px solid rgba($red-200, 0.6);
     @include lucide-icon-fix;
 
-    lucide-icon {
+    svg {
       color: $red-500;
     }
 
@@ -588,13 +588,13 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
-}
 
-.mi-footer > button {
-  padding: 8px 18px;
-  font-size: 13px;
-  gap: 6px;
-  @include lucide-icon-fix;
+  > button {
+    padding: 8px 18px;
+    font-size: 13px;
+    gap: 6px;
+    @include lucide-icon-fix;
+  }
 }
 
 // ─── Responsive ──────────────────────────────────────────────────────────────
@@ -657,7 +657,7 @@
   @include flex-center;
   margin: 0 auto 16px;
 
-  lucide-icon {
+  svg {
     display: flex;
     color: $red-600;
   }
@@ -683,7 +683,7 @@
   border: 1px solid rgba($red-400, 0.4);
   border-radius: $radius-md;
 
-  > lucide-icon {
+  > svg {
     display: flex;
     color: $red-600;
     flex-shrink: 0;

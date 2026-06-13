@@ -28,7 +28,7 @@ import {
   type Currency,
   type TestResultState,
 } from '../steps';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { LockIcon } from '../../../shared/icons';
 import { PaymentMethodService } from '../../../services';
 import type { PaymentMethod, PaymentMethodSummary } from '../../../shared/types';
@@ -42,7 +42,7 @@ import type { PaymentMethod, PaymentMethodSummary } from '../../../shared/types'
     CredentialsStep,
     IntegrationStep,
     ReviewStep,
-    LucideAngularModule,
+    LucideDynamicIcon,
     LoadingSpinnerComponent,
   ],
   templateUrl: './manage-payment-modal.html',

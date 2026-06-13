@@ -16,7 +16,7 @@ public class ShowtimeStatusJob {
 
     private final ShowtimeRepository showtimeRepository;
 
-    @Scheduled(fixedDelay = 60_000)
+    @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void tickShowtimeStatuses() {
         LocalDateTime now = LocalDateTime.now();

@@ -12,12 +12,12 @@
       @if (showSelectedMovie()) {
         <div class="selected-movie-container">
           <div class="sm-info">
-            <div class="sm-img" [class.sm-img-fallback]="!activeMovie()!.posterUrl">
-              @if (activeMovie()!.posterUrl; as posterUrl) {
-                <img [src]="posterUrl" alt="{{ activeMovie()!.title }} Poster" />
-              } @else {
-                <lucide-icon [img]="icons.FilmIcon"></lucide-icon>
-              }
+            <div class="sm-img">
+              <media-image
+                [src]="activeMovie()!.posterUrl"
+                alt="{{ activeMovie()!.title }} Poster"
+                [iconSize]="24"
+              />
             </div>
             <div class="sm-details">
               <h4>{{ activeMovie()!.title }}</h4>
@@ -31,8 +31,8 @@
                 @if (activeMovieDetail()?.contentRating; as contentRating) {
                   <span class="smdb-item">{{ contentRating }}</span>
                 }
-                @if (activeMovieDetail()?.duration; as duration) {
-                  <span class="smdb-item">{{ duration }} min</span>
+                @if (activeMovieDetail()?.duration; as runtime) {
+                  <span class="smdb-item">{{ runtime | duration }}</span>
                 }
               </div>
             </div>
@@ -118,7 +118,7 @@
       <button
         ngpButton
         class="btn-primary"
-        [disabled]="showtimeForm.invalid || submitting() || (isEditMode() && !hasChanges())"
+        [disabled]="showtimeForm.invalid || submitDisabled()"
         (click)="onSubmit()"
       >
         @if (submitting()) {

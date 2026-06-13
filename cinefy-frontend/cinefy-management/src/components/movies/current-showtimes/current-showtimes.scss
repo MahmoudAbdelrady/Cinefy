@@ -144,13 +144,11 @@
   position: relative;
   flex-shrink: 0;
 
-  img {
+  media-image {
     width: 104px;
     height: 156px;
-    object-fit: cover;
     border-radius: $radius-lg;
     box-shadow: $shadow-sm;
-    display: block;
   }
 }
 
@@ -167,7 +165,7 @@
     $shadow-sm;
   @include flex-center;
 
-  lucide-icon {
+  svg {
     display: flex;
     color: #ffffff;
     fill: #ffffff;
@@ -208,7 +206,7 @@
   color: $gray-700;
   white-space: nowrap;
 
-  lucide-icon {
+  svg {
     display: flex;
     color: $gray-500;
   }
@@ -365,7 +363,7 @@
       background-color: $blue-700;
     }
 
-    lucide-icon {
+    svg {
       display: flex;
     }
   }
@@ -383,7 +381,7 @@
       cursor: default;
     }
 
-    lucide-icon {
+    svg {
       display: flex;
     }
   }
@@ -413,7 +411,7 @@
   @include flex-center;
   margin: 0 auto 16px;
 
-  lucide-icon {
+  svg {
     display: flex;
     color: $red-600;
   }
@@ -439,7 +437,7 @@
   border: 1px solid rgba($red-400, 0.4);
   border-radius: $radius-md;
 
-  > lucide-icon {
+  > svg {
     display: flex;
     color: $red-600;
     flex-shrink: 0;
@@ -470,7 +468,7 @@
     gap: 12px;
   }
 
-  .mci-poster img {
+  .mci-poster media-image {
     width: 72px;
     height: 108px;
   }

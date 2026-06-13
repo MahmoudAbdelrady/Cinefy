@@ -21,13 +21,12 @@ import {
   MovieSummary,
   MovieShowtimeDatesResponse,
   MovieShowtimeListItem,
-  MovieShowtimesResponse,
   PublishShowtimesInput,
   SHOWTIME_STATUS_LABELS,
   Showtime,
 } from '../../../shared/types';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DeleteIcon,
   EditIcon,
@@ -55,7 +54,7 @@ import { canManage as canManagePosition } from '../../../shared/access';
     NgpTabPanel,
     DatePipe,
     DecimalPipe,
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpButton,
     NgpDialogTrigger,
     LoadingSpinnerComponent,
@@ -110,25 +109,24 @@ export class MovieShowtimesModal {
   protected readonly expandedNotes = signal<Set<string>>(new Set());
   protected readonly overflowingNotes = signal<Set<string>>(new Set());
 
-  private readonly dayCache = new Map<string, MovieShowtimesResponse>();
+  private readonly selectedMovieId = computed(() => this.selectedMovie().id);
 
   protected readonly otherDrafts = computed(
     () => (this.movieShowtimes()?.numberOfDrafts ?? 0) - this.dayDrafts(),
   );
   protected readonly hasDayDrafts = computed(() => this.dayDrafts() > 0);
   protected readonly hasOtherDrafts = computed(() => this.otherDrafts() > 0);
+  protected readonly hasAnyDrafts = computed(() => this.hasDayDrafts() || this.hasOtherDrafts());
 
   constructor() {
     effect((onCleanup) => {
-      const movieId = this.selectedMovie().id;
       this.loadingDates.set(true);
       this.movieShowtimes.set(null);
       this.movieShowtimeDetails.set([]);
       this.dayDrafts.set(0);
       this.selectedTab.set(undefined);
-      this.dayCache.clear();
 
-      const sub = this.showtimesService.getMovieShowtimeDates(movieId).subscribe({
+      const sub = this.showtimesService.getMovieShowtimeDates(this.selectedMovieId()).subscribe({
         next: (data) => {
           this.movieShowtimes.set(data);
           this.loadingDates.set(false);
@@ -146,32 +144,27 @@ export class MovieShowtimesModal {
 
     effect((onCleanup) => {
       const targetDate = this.selectedTab();
-      if (!targetDate) return;
-
-      const cached = this.dayCache.get(targetDate);
-      if (cached) {
-        this.movieShowtimeDetails.set(cached.showtimes);
-        this.dayDrafts.set(cached.numberOfDrafts);
+      if (!targetDate) {
         this.loadingDay.set(false);
         return;
       }
 
-      const movieId = this.selectedMovie().id;
       this.loadingDay.set(true);
-      const sub = this.showtimesService.getMovieShowtimesForDate(movieId, targetDate).subscribe({
-        next: (data) => {
-          if (this.selectedTab() !== targetDate) return;
-          this.dayCache.set(targetDate, data);
-          this.movieShowtimeDetails.set(data.showtimes);
-          this.dayDrafts.set(data.numberOfDrafts);
-          this.loadingDay.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          if (this.selectedTab() !== targetDate) return;
-          this.loadingDay.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
-        },
-      });
+      const sub = this.showtimesService
+        .getMovieShowtimesForDate(this.selectedMovieId(), targetDate)
+        .subscribe({
+          next: (data) => {
+            if (this.selectedTab() !== targetDate) return;
+            this.movieShowtimeDetails.set(data.showtimes);
+            this.dayDrafts.set(data.numberOfDrafts);
+            this.loadingDay.set(false);
+          },
+          error: (err: HttpErrorResponse) => {
+            if (this.selectedTab() !== targetDate) return;
+            this.loadingDay.set(false);
+            this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
+          },
+        });
       onCleanup(() => sub.unsubscribe());
     });
 
@@ -226,14 +219,17 @@ export class MovieShowtimesModal {
       .subscribe({
         next: () => {
           this.markDeleting(id, false);
-          const wasDraft = this.applyLocalDeletion(id);
-          this.showtimeEvents.notifySingleDeleted(this.selectedMovie().id, wasDraft);
-          this.showtimeEvents.notifyCommittedChanged(
-            this.selectedMovie().id,
-            (this.movieShowtimes()?.numberOfCommitted ?? 0) > 0,
-          );
+          const { wasDraft, movieClosed } = this.applyLocalDeletion(id);
           this.toastService.success('Showtime deleted');
           close();
+
+          if (movieClosed) return;
+
+          this.showtimeEvents.notifySingleDeleted(this.selectedMovieId(), wasDraft);
+          this.showtimeEvents.notifyCommittedChanged(
+            this.selectedMovieId(),
+            (this.movieShowtimes()?.numberOfCommitted ?? 0) > 0,
+          );
         },
         error: (err: HttpErrorResponse) => {
           this.markDeleting(id, false);
@@ -253,7 +249,7 @@ export class MovieShowtimesModal {
         next: () => {
           this.markPublishing(id, false);
           this.applyLocalPublish(id);
-          this.showtimeEvents.notifyPublished(this.selectedMovie().id, 1);
+          this.showtimeEvents.notifyPublished(this.selectedMovieId(), 1);
           this.toastService.success('Showtime published');
         },
         error: (err: HttpErrorResponse) => {
@@ -266,24 +262,22 @@ export class MovieShowtimesModal {
   protected onPublishDayDrafts(): void {
     const date = this.selectedTab();
     if (!date) return;
-    const movieId = this.selectedMovie().id;
+    const movieId = this.selectedMovieId();
     const count = this.dayDrafts();
 
     this.runBulkPublish({ movieId, date }, this.publishingDay, () => {
       const remaining = (this.movieShowtimes()?.numberOfDrafts ?? 0) - count;
       this.applyLocalBulkPublish(remaining);
-      this.dayCache.delete(date);
       this.showtimeEvents.notifyPublished(movieId, count);
     });
   }
 
   protected onPublishAllDrafts(): void {
-    const movieId = this.selectedMovie().id;
+    const movieId = this.selectedMovieId();
     const count = this.movieShowtimes()?.numberOfDrafts ?? 0;
 
     this.runBulkPublish({ movieId }, this.publishingAll, () => {
       this.applyLocalBulkPublish(0);
-      this.dayCache.clear();
       this.showtimeEvents.notifyPublished(movieId, count);
     });
   }
@@ -298,6 +292,11 @@ export class MovieShowtimesModal {
       }
       return next;
     });
+  }
+
+  protected getOccupancy(detail: MovieShowtimeListItem): number {
+    if (detail.totalSeats === 0) return 0;
+    return (detail.reservedSeats / detail.totalSeats) * 100;
   }
 
   private runBulkPublish(
@@ -330,8 +329,6 @@ export class MovieShowtimesModal {
     );
     const isDraft = showtime.status === 'DRAFT';
 
-    this.dayCache.delete(createdDate);
-
     this.movieShowtimes.update((m) => {
       if (!m) return m;
       const dates = m.dates.includes(createdDate) ? m.dates : [...m.dates, createdDate].sort();
@@ -362,10 +359,6 @@ export class MovieShowtimesModal {
     if (!previous) return;
     const prevWasDraft = previous.status === 'DRAFT';
     const draftDelta = (isDraft ? 1 : 0) - (prevWasDraft ? 1 : 0);
-
-    const previousDate = this.selectedTab();
-    if (previousDate) this.dayCache.delete(previousDate);
-    this.dayCache.delete(updatedDate);
 
     const updatedItem = this.toListItem(showtime, updatedTime);
 
@@ -402,14 +395,11 @@ export class MovieShowtimesModal {
     }
   }
 
-  private applyLocalDeletion(id: string): boolean {
+  private applyLocalDeletion(id: string): { wasDraft: boolean; movieClosed: boolean } {
     const removed = this.movieShowtimeDetails().find((s) => s.id === id);
-    if (!removed) return false;
+    if (!removed) return { wasDraft: false, movieClosed: false };
     const wasDraft = removed.status === 'DRAFT';
     const wasCommitted = removed.status === 'PUBLISHED' || removed.status === 'RUNNING';
-
-    const currentDate = this.selectedTab();
-    if (currentDate) this.dayCache.delete(currentDate);
 
     this.movieShowtimeDetails.update((list) => list.filter((s) => s.id !== id));
 
@@ -422,17 +412,15 @@ export class MovieShowtimesModal {
       );
     }
 
-    if (this.movieShowtimeDetails().length === 0) {
-      this.dropDateAndPickNeighbour(this.selectedTab());
-    }
+    const movieClosed =
+      this.movieShowtimeDetails().length === 0
+        ? this.dropDateAndPickNeighbour(this.selectedTab())
+        : false;
 
-    return wasDraft;
+    return { wasDraft, movieClosed };
   }
 
   private applyLocalPublish(id: string): void {
-    const currentDate = this.selectedTab();
-    if (currentDate) this.dayCache.delete(currentDate);
-
     this.movieShowtimeDetails.update((list) =>
       list.map((s) => (s.id === id ? { ...s, status: 'PUBLISHED' } : s)),
     );
@@ -460,7 +448,7 @@ export class MovieShowtimesModal {
     );
   }
 
-  private dropDateAndPickNeighbour(date: string | undefined): void {
+  private dropDateAndPickNeighbour(date: string | undefined): boolean {
     const currentDates = this.movieShowtimes()?.dates ?? [];
     const removedIndex = currentDates.indexOf(date ?? '');
     const remainingDates = currentDates.filter((d) => d !== date);
@@ -468,13 +456,14 @@ export class MovieShowtimesModal {
     this.movieShowtimes.update((m) => (m ? { ...m, dates: remainingDates } : m));
 
     if (remainingDates.length === 0) {
-      this.showtimeEvents.notifyDeleted(this.selectedMovie().id);
+      this.showtimeEvents.notifyDeleted(this.selectedMovieId());
       this.close()();
-      return;
+      return true;
     }
 
     const nextIndex = Math.min(removedIndex, remainingDates.length - 1);
     this.selectedTab.set(remainingDates[nextIndex]);
+    return false;
   }
 
   private toListItem(showtime: Showtime, time: string): MovieShowtimeListItem {

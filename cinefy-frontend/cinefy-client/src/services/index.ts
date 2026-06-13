@@ -1,3 +1,1 @@
-import { MoviesService } from './movies';
-
-export { MoviesService };
+export { MoviesService } from './movies';

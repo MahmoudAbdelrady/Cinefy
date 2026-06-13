@@ -17,7 +17,7 @@
 
       @if (error(); as errorText) {
         <p class="fp-otp-error">
-          <lucide-icon [img]="icons.AlertIcon" [size]="14" [strokeWidth]="2.2" />
+          <svg [lucideIcon]="icons.AlertIcon" [size]="14" [strokeWidth]="2.2"></svg>
           {{ errorText }}
         </p>
       }
@@ -43,14 +43,14 @@
           <span>Verifying…</span>
         } @else {
           <span>Verify code</span>
-          <lucide-icon class="fp-submit-arrow" [img]="icons.ArrowRightIcon" [size]="16" />
+          <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
         }
       </button>
     </form>
   </div>
 
   <button type="button" class="fp-back-link" (click)="onBack()">
-    <lucide-icon [img]="icons.ArrowLeftIcon" [size]="14" [strokeWidth]="2" />
+    <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="14" [strokeWidth]="2"></svg>
     Use a different username
   </button>
 </div>

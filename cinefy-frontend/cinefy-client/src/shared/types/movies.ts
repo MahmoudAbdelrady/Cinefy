@@ -1,7 +1,7 @@
 interface CreditMember {
   id: number;
   name: string;
-  profileUrl: string;
+  profileUrl?: string;
 }
 
 interface MovieCredits {
@@ -17,8 +17,8 @@ interface MovieDetail {
   contentRating?: string;
   releaseDate?: string;
   duration?: number;
-  posterUrl: string;
-  backdropUrl: string;
+  posterUrl?: string;
+  backdropUrl?: string;
   credits?: MovieCredits;
   trailerUrl?: string;
 }
@@ -37,4 +37,21 @@ interface MovieSearchResult {
   backdropUrl?: string;
 }
 
-export type { CreditMember, MovieCredits, MovieDetail, HighlightedMovie, MovieSearchResult };
+interface NowShowingMovie {
+  id: number;
+  title: string;
+  genre?: string;
+  releaseDate?: string;
+  posterUrl?: string;
+  backdropUrl?: string;
+  is3D: boolean;
+}
+
+export type {
+  CreditMember,
+  MovieCredits,
+  MovieDetail,
+  HighlightedMovie,
+  MovieSearchResult,
+  NowShowingMovie,
+};

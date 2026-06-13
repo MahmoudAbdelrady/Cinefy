@@ -1,10 +1,10 @@
 import { Component, input } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import type { StatsCard } from '../../shared/types';
 
 @Component({
   selector: 'app-stats',
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   templateUrl: './stats.html',
   styleUrl: './stats.scss',
 })

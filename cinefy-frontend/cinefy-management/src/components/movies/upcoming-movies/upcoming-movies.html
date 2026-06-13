@@ -2,7 +2,7 @@
   <div class="header">
     <div class="h-info">
       <div class="hi-details">
-        <lucide-icon [img]="icons.CalendarIcon" [size]="20"></lucide-icon>
+        <svg [lucideIcon]="icons.CalendarIcon" [size]="20"></svg>
         <h3>Upcoming Movies</h3>
       </div>
       <p>Movies releasing soon that you can schedule</p>
@@ -39,7 +39,16 @@
           <div class="movie-card">
             <div class="mc-main">
               <div class="mc-img">
-                <img [src]="upcomingMovie.posterUrl" [alt]="upcomingMovie.title" />
+                <media-image
+                  [src]="upcomingMovie.posterUrl"
+                  [alt]="upcomingMovie.title"
+                  [iconSize]="36"
+                />
+                @if (upcomingMovie.highlighted) {
+                  <span class="mc-img-badge">
+                    <svg [lucideIcon]="icons.StarIcon" [size]="12"></svg>
+                  </span>
+                }
               </div>
               <div class="mc-body">
                 <div class="mc-info">
@@ -57,7 +66,7 @@
                 </div>
                 @if (upcomingMovie.releaseDate; as releaseDate) {
                   <div class="mc-date">
-                    <lucide-icon [img]="icons.CalendarIcon" [size]="14"></lucide-icon>
+                    <svg [lucideIcon]="icons.CalendarIcon" [size]="14"></svg>
                     <span>{{ releaseDate }}</span>
                   </div>
                 }
@@ -78,12 +87,12 @@
             <div class="mc-visibility">
               <div class="mcv-row" [class.mcv-row--disabled]="upcomingMovie.hasCommittedShowtimes">
                 <div class="mcv-label">
-                  <lucide-icon
+                  <svg
                     class="mcv-icon"
                     [class.mcv-icon--on]="upcomingMovie.announced"
-                    [img]="icons.MegaphoneIcon"
+                    [lucideIcon]="icons.MegaphoneIcon"
                     [size]="16"
-                  ></lucide-icon>
+                  ></svg>
                   <div class="mcv-text">
                     <p class="mcv-title">Announce to clients</p>
                     <p class="mcv-subtitle">
@@ -113,12 +122,12 @@
 
               <div class="mcv-row" [class.mcv-row--disabled]="!canHighlight(upcomingMovie)">
                 <div class="mcv-label">
-                  <lucide-icon
+                  <svg
                     class="mcv-icon"
                     [class.mcv-icon--on]="upcomingMovie.highlighted"
-                    [img]="icons.StarIcon"
+                    [lucideIcon]="icons.StarIcon"
                     [size]="16"
-                  ></lucide-icon>
+                  ></svg>
                   <div class="mcv-text">
                     <p class="mcv-title">Highlight on homepage</p>
                     <p class="mcv-subtitle">

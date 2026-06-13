@@ -21,9 +21,9 @@
     @if (selectedItem(); as item) { {{ displayFn()(item) }} } @else {
     <span class="as-placeholder">{{ placeholder() }}</span>
     } @if (clearable() && selectedItem()) {
-    <lucide-icon class="as-clear" [img]="icons.XIcon" [size]="16" [strokeWidth]="2" (click)="clear($event)" />
+    <svg class="as-clear" [lucideIcon]="icons.XIcon" [size]="16" [strokeWidth]="2" (click)="clear($event)"></svg>
     } @else {
-    <lucide-icon class="as-chevron" [img]="icons.ChevronDownIcon" [size]="16" [strokeWidth]="2" />
+    <svg class="as-chevron" [lucideIcon]="icons.ChevronDownIcon" [size]="16" [strokeWidth]="2"></svg>
     }
   </button>
 

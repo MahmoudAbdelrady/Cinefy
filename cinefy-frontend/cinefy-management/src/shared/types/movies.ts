@@ -42,14 +42,4 @@ interface MovieDetail {
   posterUrl?: string;
 }
 
-interface Movie {
-  id: number;
-  title: string;
-  genre: string;
-  rating: string; // e.g. 'PG-13'
-  releaseDate: string; // ISO date, e.g. '2026-03-30'
-  duration: number; // in minutes
-  posterUrl: string;
-}
-
-export type { Movie, MovieSearchResult, UpcomingMovie, MovieSummary, MovieDetail };
+export type { MovieSearchResult, UpcomingMovie, MovieSummary, MovieDetail };

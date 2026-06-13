@@ -1,10 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import {
   ChartColumnIcon,
   CreditCardIcon,
-  FilmIcon,
+  ClapperboardIcon,
   HouseIcon,
   LayoutIcon,
   UsersIcon,
@@ -16,13 +16,13 @@ import { canAccessRoute } from '../../shared/access';
 
 interface SidebarTab {
   label: string;
-  icon: LucideIconData;
+  icon: LucideIcon;
   path: string;
 }
 
 @Component({
   selector: 'sidebar-component',
-  imports: [LucideAngularModule, RouterLink, RouterLinkActive],
+  imports: [LucideDynamicIcon, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
@@ -36,7 +36,7 @@ export class SidebarComponent {
   private static readonly ALL_TABS: SidebarTab[] = [
     { label: 'Dashboard', icon: HouseIcon, path: '/' },
     { label: 'Halls', icon: LayoutIcon, path: '/halls' },
-    { label: 'Movies', icon: FilmIcon, path: '/movies' },
+    { label: 'Movies', icon: ClapperboardIcon, path: '/movies' },
     { label: 'Statistics', icon: ChartColumnIcon, path: '/statistics' },
     { label: 'Payment', icon: CreditCardIcon, path: '/payment' },
     { label: 'Staff', icon: UsersIcon, path: '/staff' },

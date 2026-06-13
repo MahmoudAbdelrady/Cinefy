@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { interval, takeWhile } from 'rxjs';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertIcon, ArrowLeftIcon, ArrowRightIcon } from '../../../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { LoadingSpinnerComponent, InputOtp } from 'cinefy-ui/components';
@@ -14,7 +14,7 @@ const RESEND_COOLDOWN_SECONDS = 10 * 60;
 
 @Component({
   selector: 'fp-otp-step',
-  imports: [FormsModule, LucideAngularModule, NgpButton, LoadingSpinnerComponent, InputOtp],
+  imports: [FormsModule, LucideDynamicIcon, NgpButton, LoadingSpinnerComponent, InputOtp],
   templateUrl: './otp-step.html',
   styleUrl: './otp-step.scss',
 })

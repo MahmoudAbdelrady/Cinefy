@@ -1,0 +1,14 @@
+<div class="cui-media-image-placeholder">
+  <svg [lucideIcon]="icon()" [size]="iconSize()"></svg>
+</div>
+@if (showImage()) {
+<img
+  #image
+  [src]="src()"
+  [alt]="alt()"
+  [loading]="loading()"
+  [class.cui-media-image-loaded]="loaded()"
+  (load)="onLoad()"
+  (error)="onError()"
+/>
+}

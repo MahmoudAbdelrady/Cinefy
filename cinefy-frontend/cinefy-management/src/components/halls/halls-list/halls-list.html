@@ -35,7 +35,7 @@
           <div class="ah-item">
             <div class="ahi-info">
               <div class="ahi-info-icon">
-                <lucide-icon [img]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <svg [lucideIcon]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></svg>
               </div>
               <div class="ahi-info-details">
                 <div class="ahid-header">
@@ -48,27 +48,15 @@
                 </div>
                 <div class="ahid-content">
                   <div class="ahidc-item">
-                    <lucide-icon
-                      [img]="icons.UsersIcon"
-                      [size]="16"
-                      [strokeWidth]="2.5"
-                    ></lucide-icon>
+                    <svg [lucideIcon]="icons.UsersIcon" [size]="16" [strokeWidth]="2.5"></svg>
                     <span>{{ hall.totalRows * hall.totalColumns }} seats</span>
                   </div>
                   <div class="ahidc-item">
-                    <lucide-icon
-                      [img]="icons.LayoutIcon"
-                      [size]="16"
-                      [strokeWidth]="2.5"
-                    ></lucide-icon>
+                    <svg [lucideIcon]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></svg>
                     <span>{{ hall.totalRows }} rows × {{ hall.totalColumns }} seats</span>
                   </div>
                   <div class="ahidc-item">
-                    <lucide-icon
-                      [img]="icons.TagIcon"
-                      [size]="16"
-                      [strokeWidth]="2.5"
-                    ></lucide-icon>
+                    <svg [lucideIcon]="icons.TagIcon" [size]="16" [strokeWidth]="2.5"></svg>
                     <span>{{ hall.typeName }}</span>
                   </div>
                 </div>
@@ -76,11 +64,11 @@
             </div>
             <div class="ahi-actions">
               <button ngpButton [ngpDialogTrigger]="viewDialog">
-                <lucide-icon [img]="icons.EyeIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <svg [lucideIcon]="icons.EyeIcon" [size]="16" [strokeWidth]="2.5"></svg>
                 <span>View</span>
               </button>
               <button ngpButton [ngpDialogTrigger]="deleteDialog">
-                <lucide-icon [img]="icons.DeleteIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                <svg [lucideIcon]="icons.DeleteIcon" [size]="16" [strokeWidth]="2.5"></svg>
                 <span>Delete</span>
               </button>
 
@@ -96,11 +84,7 @@
                 <app-modal modalTitle="Delete Hall" [close]="close" width="448px">
                   <div class="delete-modal-content">
                     <div class="dmc-icon">
-                      <lucide-icon
-                        [img]="icons.AlertIcon"
-                        [size]="24"
-                        [strokeWidth]="2"
-                      ></lucide-icon>
+                      <svg [lucideIcon]="icons.AlertIcon" [size]="24" [strokeWidth]="2"></svg>
                     </div>
                     <p class="dmc-message">
                       Are you sure you want to delete <strong>{{ hall.name }}</strong
@@ -108,11 +92,7 @@
                       associated data.
                     </p>
                     <div class="dmc-warning">
-                      <lucide-icon
-                        [img]="icons.AlertIcon"
-                        [size]="16"
-                        [strokeWidth]="2"
-                      ></lucide-icon>
+                      <svg [lucideIcon]="icons.AlertIcon" [size]="16" [strokeWidth]="2"></svg>
                       <div>
                         <p><strong>Warning:</strong></p>
                         <ul>

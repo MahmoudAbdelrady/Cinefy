@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { CurrencyPipe } from '@angular/common';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { EmptyStateComponent, ModalComponent } from 'cinefy-ui/components';
 import { CalendarIcon, GlassesIcon, TicketIcon, ArrowRightIcon } from '../../../shared/icons';
 
@@ -16,7 +17,7 @@ interface Booking {
 
 @Component({
   selector: 'my-tickets-list',
-  imports: [LucideAngularModule, ModalComponent, EmptyStateComponent],
+  imports: [LucideDynamicIcon, ModalComponent, EmptyStateComponent, CurrencyPipe],
   templateUrl: './my-tickets-list.html',
   styleUrl: './my-tickets-list.scss',
 })

@@ -1,8 +1,9 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { merge } from 'rxjs';
+import { merge, Subject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CalendarIcon, ClockIcon, FilmIcon } from '../../../shared/icons';
+import { CalendarIcon, ClockIcon, ClapperboardIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { StatsComponent } from '../../stats/stats';
@@ -21,37 +22,41 @@ export class MoviesStatisticsComponent {
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
+  private readonly refetch$ = new Subject<void>();
+
   protected statistics = signal<ShowtimesStatistics | null>(null);
   protected loading = signal(true);
 
   protected readonly cards = computed<StatsCard[]>(() => {
     const s = this.statistics();
     return [
-      { label: 'Total Movies', value: s?.totalMovies?.toString() ?? '—', icon: FilmIcon },
+      { label: 'Total Movies', value: s?.totalMovies?.toString() ?? '—', icon: ClapperboardIcon },
       { label: 'Total Showtimes', value: s?.totalShowtimes?.toString() ?? '—', icon: CalendarIcon },
       { label: "Today's Showtimes", value: s?.todayShowtimes?.toString() ?? '—', icon: ClockIcon },
     ];
   });
 
   constructor() {
-    afterNextRender(() => this.refetchStatistics(true));
+    this.refetch$
+      .pipe(
+        switchMap(() => this.showtimesService.getShowtimesStatistics()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (stats) => {
+          this.statistics.set(stats);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.toastService.error(err.error?.message ?? 'Failed to load statistics');
+        },
+      });
+
+    afterNextRender(() => this.refetch$.next());
 
     merge(this.showtimeEvents.created$, this.showtimeEvents.deleted$)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.refetchStatistics(false));
-  }
-
-  private refetchStatistics(showLoading: boolean): void {
-    if (showLoading) this.loading.set(true);
-    this.showtimesService.getShowtimesStatistics().subscribe({
-      next: (stats) => {
-        this.statistics.set(stats);
-        if (showLoading) this.loading.set(false);
-      },
-      error: (err: HttpErrorResponse) => {
-        if (showLoading) this.loading.set(false);
-        this.toastService.error(err.error?.message ?? 'Failed to load statistics');
-      },
-    });
+      .subscribe(() => this.refetch$.next());
   }
 }

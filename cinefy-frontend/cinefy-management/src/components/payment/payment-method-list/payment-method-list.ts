@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
   CircleCheckIcon,
@@ -34,6 +34,7 @@ import { ToastService } from 'cinefy-ui/services';
 import { RelativeTimePipe } from 'cinefy-ui/pipes';
 import { ManagePaymentModalComponent } from '../manage-payment-modal/manage-payment-modal';
 import { PaymentMethodService } from '../../../services';
+import { differenceInCalendarDays } from 'date-fns';
 import {
   PAYMENT_METHOD_STATUS_LABELS,
   PAYMENT_METHOD_TYPE_LABELS,
@@ -45,7 +46,7 @@ import {
 @Component({
   selector: 'payment-method-list',
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpMenu,
     NgpMenuTrigger,
     NgpMenuItem,
@@ -83,6 +84,11 @@ export class PaymentMethodListComponent {
   private readonly paymentMethodService = inject(PaymentMethodService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private static readonly CREDENTIALS_RECENT_DAYS = 30;
+  private static readonly CREDENTIALS_DUE_DAYS = 90;
+  private static readonly HEALTHY_SUCCESS_RATE = 95;
+  private static readonly WATCH_SUCCESS_RATE = 80;
 
   protected readonly typeLabels = PAYMENT_METHOD_TYPE_LABELS;
   protected readonly statusLabels = PAYMENT_METHOD_STATUS_LABELS;
@@ -215,13 +221,12 @@ export class PaymentMethodListComponent {
   }
 
   protected getRotationStatus(method: PaymentMethodSummary): 'recent' | 'due' | 'overdue' {
-    const now = new Date();
     const rotatedAt = new Date(method.credentialsRotatedAt);
-    const daysSinceRotation = (now.getTime() - rotatedAt.getTime()) / (1000 * 60 * 60 * 24);
+    const daysSinceRotation = differenceInCalendarDays(new Date(), rotatedAt);
 
-    if (daysSinceRotation < 30) {
+    if (daysSinceRotation < PaymentMethodListComponent.CREDENTIALS_RECENT_DAYS) {
       return 'recent';
-    } else if (daysSinceRotation < 90) {
+    } else if (daysSinceRotation < PaymentMethodListComponent.CREDENTIALS_DUE_DAYS) {
       return 'due';
     } else {
       return 'overdue';
@@ -234,8 +239,8 @@ export class PaymentMethodListComponent {
     if (!match) return 'empty';
     const value = parseFloat(match[1]);
     if (isNaN(value) || value === 0) return 'empty';
-    if (value >= 95) return 'healthy';
-    if (value >= 80) return 'watch';
+    if (value >= PaymentMethodListComponent.HEALTHY_SUCCESS_RATE) return 'healthy';
+    if (value >= PaymentMethodListComponent.WATCH_SUCCESS_RATE) return 'watch';
     return 'degraded';
   }
 
