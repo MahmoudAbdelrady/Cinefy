@@ -6,7 +6,7 @@ Angular 21 management dashboard for the Cinefy cinema platform. Standalone compo
 
 ## Workspace Layout
 
-This app lives in a pnpm workspace rooted at `cinefy-frontend/` (a sibling of `cinefy-backend/` at the repo root). The workspace holds two packages today — `cinefy-management` (this app) and `cinefy-ui` (the shared component library) — and the planned `cinefy-client` app will join the same workspace. Run `pnpm install` from `cinefy-frontend/`. `cinefy-management` consumes the **built** library via `"cinefy-ui": "link:../cinefy-ui/dist"`, so the library must be built before/alongside the app.
+This app lives in a pnpm workspace rooted at `cinefy-frontend/` (a sibling of `cinefy-backend/` at the repo root). The workspace holds three packages — `cinefy-management` (this app), `cinefy-ui` (the shared component library), and `cinefy-client` (the public-facing SSR booking app). Run `pnpm install` from `cinefy-frontend/`. `cinefy-management` consumes the **built** library via `"cinefy-ui": "link:../cinefy-ui/dist"`, so the library must be built before/alongside the app.
 
 ## Commands
 
@@ -72,6 +72,10 @@ src/
 │                                       #   custom-select: static items[] + client-side search.
 │                                       #   async-select: lazy fetchFn (loads on first open, spinner);
 │                                       #     accepts a paged (PaginatedResponse) or flat (T[]) source.
+│                                       #   both selects: [multi] toggles multi-select (default false). Single
+│                                       #     mode emits (selectionChange)=T; multi mode emits
+│                                       #     (multiSelectionChange)=T[] and shows checkmarks + a "first +N"
+│                                       #     trigger. [value] is a controlled input (parent echoes changes back).
 │                                       # Imports are grouped by subpath:
 │                                       #   from 'cinefy-ui/components' — component classes
 │                                       #   from 'cinefy-ui/services'   — ToastService

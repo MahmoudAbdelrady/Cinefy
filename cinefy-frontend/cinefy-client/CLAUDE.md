@@ -4,7 +4,7 @@
 
 Angular 21 **public-facing booking app** for the Cinefy cinema platform. Standalone components, signal-based state, **server-side rendered** (`@angular/ssr` with an Express host) — this is the customer-facing site where people browse movies and book seats, as opposed to the CSR-only `cinefy-management` admin dashboard. Custom SCSS design system; consumes the shared `cinefy-ui` library.
 
-> **Current state:** the home page is built and routed; the rest is still being ported. The fully-designed product lives as a **React reference mock** in `mvp-version/` and is ported screen-by-screen into the Angular app via the `mvp-to-real` skill. Most "build a page" work means mapping from `mvp-version/`, not writing from scratch. Pages already mapped: **Home** (`/`) — a hero "highlighted movie", a "Now Showing" rail, and a "Coming Soon" rail — inside the `AppLayout` shell (header with a user-info menu + "My Tickets" dialog, and a footer).
+> **Current state:** the home page is built and routed; the rest is still being ported. The fully-designed product lives as a **React reference mock** in `mvp-version/` and is ported screen-by-screen into the Angular app via the `mvp-to-real` skill. Most "build a page" work means mapping from `mvp-version/`, not writing from scratch. Pages already mapped: **Home** (`/`) — a `featured-carousel` hero (auto-advancing highlighted-movie slides), a "Now Showing" rail, and a "Coming Soon"/upcoming rail — inside the `AppLayout` shell (header with a user-info menu + "My Tickets" dialog, and a footer). Home data comes from `MoviesService` (`services/movies.ts`).
 
 ## Workspace Layout
 
@@ -53,12 +53,16 @@ src/
 ├── layout/
 │   └── app-layout/            # Public shell: header (logo, nav, "My Tickets" dialog, user-info menu) + <router-outlet> + footer
 ├── pages/                      # Route-level components (barrel: pages/index.ts)
-│   └── home/                  # HomePage (/) — highlighted-movie hero + "Now Showing" + "Coming Soon" rails
+│   └── home/                  # HomePage (/) — featured-carousel hero + "Now Showing" + upcoming rails
 ├── components/                 # Reusable UI components (barrel: components/index.ts)
-│   ├── home/highlighted-movie/ # Hero movie banner (backdrop, scrims, meta, Play CTA)
+│   ├── home/featured-carousel/ # Auto-advancing hero carousel of highlighted-movie slides (backdrop, scrims, meta, Play CTA)
+│   ├── movies/trailer-modal/   # YouTube/trailer player dialog (trailerUrl + title inputs)
 │   └── header/my-tickets-list/ # In-progress bookings list shown inside the header's "My Tickets" modal
+├── services/                   # HTTP services (barrel: services/index.ts)
+│   └── movies.ts              # MoviesService — getHighlighted / getNowShowing / getAnnouncedUpcoming
 ├── shared/
 │   ├── icons.ts               # Re-exports of lucide icons used in the app — sole source of glyphs (alias `X as XIcon`)
+│   ├── types/                 # Client-facing data shapes (barrel: types/index.ts) — movies.ts (HighlightedMovie, NowShowingMovie, MovieSearchResult)
 │   └── styles/
 │       └── _colors.scss       # Color palette + typography vars; @forwards cinefy-ui radii — the single shared SCSS partial
 ├── main.ts                     # Browser bootstrap
@@ -70,7 +74,7 @@ src/
 mvp-version/                    # React 19 + Vite + Tailwind v4 + shadcn/ui design mock (the reference)
 ```
 
-Barrel exports exist at `components/index.ts` and `pages/index.ts` — import pages/components through them, not by deep path.
+Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, and `shared/types/index.ts` — import through them, not by deep path.
 
 ### Shared styles & the design system
 

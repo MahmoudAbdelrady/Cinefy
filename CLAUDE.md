@@ -16,7 +16,10 @@ Cinefy/
 Each subtree has its own detailed `CLAUDE.md` — read the one for the area you're working in:
 
 - **Backend:** [`cinefy-backend/CLAUDE.md`](cinefy-backend/CLAUDE.md) — stack, package structure, security model, entity/DTO patterns, API endpoints.
-- **Frontend (management app):** [`cinefy-frontend/cinefy-management/CLAUDE.md`](cinefy-frontend/cinefy-management/CLAUDE.md) — Angular conventions, signals, SCSS design system, the cinefy-ui import contract.
+- **Frontend (management app):** [`cinefy-frontend/cinefy-management/CLAUDE.md`](cinefy-frontend/cinefy-management/CLAUDE.md) — Angular conventions, signals, SCSS design system, the cinefy-ui import contract. This is the canonical reference for the frontend-wide conventions (used by all three frontend packages).
+- **Frontend (client app):** [`cinefy-frontend/cinefy-client/CLAUDE.md`](cinefy-frontend/cinefy-client/CLAUDE.md) — the SSR booking app: SSR-safety rules, structure, and porting from the `mvp-version/` React mock.
+
+`cinefy-ui` (the shared component library) has no `CLAUDE.md` of its own — its import contract and conventions are documented in the management `CLAUDE.md`.
 
 ## Working in each half
 
