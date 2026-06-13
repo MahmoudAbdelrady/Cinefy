@@ -96,11 +96,11 @@ export class CustomSelectComponent<T> {
     return this.itemsFromControl();
   });
 
-  protected readonly displayValue = computed(() => {
+  protected readonly triggerLabel = computed<{ text: string; extra: number } | null>(() => {
     const items = this.currentItems();
     if (!items.length) return null;
     const display = this.triggerDisplayFn() ?? this.displayFn();
-    return items.map(display).join(", ");
+    return { text: display(items[0]), extra: this.multi() ? items.length - 1 : 0 };
   });
 
   protected readonly currentValue = computed<T | T[] | null>(() => {

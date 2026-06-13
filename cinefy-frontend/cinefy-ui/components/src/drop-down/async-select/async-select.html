@@ -19,9 +19,13 @@
     [disabled]="disabled()"
     (blur)="onTriggerBlur($event)"
   >
-    @if (displayValue(); as display) { {{ display }} } @else {
+    @if (triggerLabel(); as label) {
+    <span class="as-value">{{ label.text }}</span>
+    @if (label.extra) {
+    <span class="as-value-extra">+{{ label.extra }}</span>
+    } } @else {
     <span class="as-placeholder">{{ placeholder() }}</span>
-    } @if (clearable() && displayValue()) {
+    } @if (clearable() && triggerLabel()) {
     <svg class="as-clear" [lucideIcon]="icons.XIcon" [size]="16" [strokeWidth]="2" (click)="clear($event)"></svg>
     } @else {
     <svg class="as-chevron" [lucideIcon]="icons.ChevronDownIcon" [size]="16" [strokeWidth]="2"></svg>

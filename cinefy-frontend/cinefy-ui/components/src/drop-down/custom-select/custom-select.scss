@@ -22,6 +22,14 @@ custom-select {
     @include select-trigger;
   }
 
+  .cs-value {
+    @include select-trigger-value;
+  }
+
+  .cs-value-extra {
+    @include select-trigger-value-extra;
+  }
+
   .cs-placeholder {
     @include select-placeholder;
   }

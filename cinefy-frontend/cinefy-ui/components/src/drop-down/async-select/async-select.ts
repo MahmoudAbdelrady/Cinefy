@@ -84,11 +84,11 @@ export class AsyncSelectComponent<T> {
   protected readonly selectedItems = signal<T[]>([]);
   protected readonly searchTerm = signal("");
 
-  protected readonly displayValue = computed(() => {
+  protected readonly triggerLabel = computed<{ text: string; extra: number } | null>(() => {
     const items = this.selectedItems();
     if (!items.length) return null;
     const displayFn = this.displayFn();
-    return items.map(displayFn).join(", ");
+    return { text: displayFn(items[0]), extra: this.multi() ? items.length - 1 : 0 };
   });
 
   protected readonly comboboxValue = computed<T | T[] | null>(() => {

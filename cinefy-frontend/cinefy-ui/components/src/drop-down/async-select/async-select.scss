@@ -22,6 +22,14 @@ async-select {
     @include select-trigger;
   }
 
+  .as-value {
+    @include select-trigger-value;
+  }
+
+  .as-value-extra {
+    @include select-trigger-value-extra;
+  }
+
   .as-placeholder {
     @include select-placeholder;
   }
