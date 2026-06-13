@@ -53,6 +53,10 @@ async-select {
   @include select-option;
 }
 
+.as-option-multi {
+  @include select-option-multi;
+}
+
 .as-search {
   @include select-search;
 }

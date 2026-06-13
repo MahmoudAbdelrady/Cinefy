@@ -58,6 +58,10 @@ custom-select {
   @include select-option;
 }
 
+.cs-option-multi {
+  @include select-option-multi;
+}
+
 .cs-search {
   @include select-search;
 }

@@ -3,7 +3,7 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { of, startWith, switchMap } from "rxjs";
 import { FormControl } from "@angular/forms";
 import { LucideDynamicIcon } from "@lucide/angular";
-import { ChevronDownIcon, XIcon } from "../../icons";
+import { CheckIcon, ChevronDownIcon, XIcon } from "../../icons";
 import {
   NgpCombobox,
   NgpComboboxButton,
@@ -34,13 +34,15 @@ export class CustomSelectComponent<T> {
   protected readonly icons = {
     ChevronDownIcon,
     XIcon,
+    CheckIcon,
   };
 
   readonly items = input.required<T[]>();
+  readonly multi = input(false);
   readonly displayFn = input.required<(item: T) => string>();
   readonly triggerDisplayFn: InputSignal<((item: T) => string) | null> = input<((item: T) => string) | null>(null);
   readonly valueFn = input<(item: T) => unknown>((item) => item);
-  readonly value: InputSignal<T | null> = input<T | null>(null);
+  readonly value: InputSignal<T | T[] | null> = input<T | T[] | null>(null);
   readonly label: InputSignal<string | null> = input<string | null>(null);
   readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly required = input(false);
@@ -56,9 +58,10 @@ export class CustomSelectComponent<T> {
   readonly dropdownWidth = input<"matchTrigger" | "matchContent">("matchTrigger");
 
   readonly selectionChange = output<T>();
+  readonly multiSelectionChange = output<T[]>();
   readonly cleared = output<void>();
 
-  protected readonly selectedItem = signal<T | null>(null);
+  protected readonly selectedItems = signal<T[]>([]);
   protected readonly searchTerm = signal("");
   private readonly wasCleared = signal(false);
 
@@ -69,25 +72,41 @@ export class CustomSelectComponent<T> {
     { initialValue: null },
   );
 
-  private readonly itemFromControl = computed<T | null>(() => {
-    if (!this.control()) return null;
+  private readonly itemsFromControl = computed<T[]>(() => {
+    if (!this.control()) return [];
     const formValue = this.controlValue();
-    if (formValue == null || formValue === "") return null;
+    if (formValue == null || formValue === "") return [];
     const valueFn = this.valueFn();
-    return this.items().find((item) => Object.is(valueFn(item), formValue)) ?? null;
+    const formValues = Array.isArray(formValue) ? formValue : [formValue];
+    return this.items().filter((item) => formValues.some((v) => Object.is(valueFn(item), v)));
+  });
+
+  private readonly valueItems = computed<T[]>(() => {
+    const value = this.value();
+    if (value == null) return [];
+    return Array.isArray(value) ? value : [value];
+  });
+
+  private readonly currentItems = computed<T[]>(() => {
+    if (this.wasCleared()) return [];
+    const fromValue = this.valueItems();
+    if (fromValue.length) return fromValue;
+    const internal = this.selectedItems();
+    if (internal.length) return internal;
+    return this.itemsFromControl();
   });
 
   protected readonly displayValue = computed(() => {
-    if (this.wasCleared()) return null;
-    const item = this.value() ?? this.selectedItem() ?? this.itemFromControl();
-    if (!item) return null;
-    const trigger = this.triggerDisplayFn();
-    return (trigger ?? this.displayFn())(item);
+    const items = this.currentItems();
+    if (!items.length) return null;
+    const display = this.triggerDisplayFn() ?? this.displayFn();
+    return items.map(display).join(", ");
   });
 
-  protected readonly currentValue = computed<T | null>(() => {
-    if (this.wasCleared()) return null;
-    return this.value() ?? this.selectedItem() ?? this.itemFromControl();
+  protected readonly currentValue = computed<T | T[] | null>(() => {
+    const items = this.currentItems();
+    if (this.multi()) return items;
+    return items[0] ?? null;
   });
 
   protected readonly filteredItems = computed(() => {
@@ -113,10 +132,22 @@ export class CustomSelectComponent<T> {
     this.control()?.markAsTouched();
   }
 
-  protected onValueChange(value: T) {
+  protected onValueChange(value: T | T[]) {
     this.wasCleared.set(false);
-    this.selectedItem.set(value);
-    this.selectionChange.emit(value);
+    let items: T[];
+    if (Array.isArray(value)) {
+      items = value;
+    } else if (value == null) {
+      items = [];
+    } else {
+      items = [value];
+    }
+    this.selectedItems.set(items);
+    if (this.multi()) {
+      this.multiSelectionChange.emit(items);
+    } else if (items.length) {
+      this.selectionChange.emit(items[0]);
+    }
   }
 
   protected onSearchInput(event: Event) {
@@ -132,7 +163,7 @@ export class CustomSelectComponent<T> {
   protected clear(event: MouseEvent) {
     event.stopPropagation();
     this.wasCleared.set(true);
-    this.selectedItem.set(null);
+    this.selectedItems.set([]);
     this.control()?.markAsTouched();
     this.cleared.emit();
   }
