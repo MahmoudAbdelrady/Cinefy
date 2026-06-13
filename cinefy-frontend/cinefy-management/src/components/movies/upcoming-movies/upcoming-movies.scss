@@ -194,16 +194,38 @@
 
 .mc-img {
   position: relative;
-  width: 104px;
-  height: 156px;
   flex-shrink: 0;
-  border-radius: $radius-md;
-  overflow: hidden;
-  box-shadow: $shadow-card;
 
-  @include below-mobile {
-    width: 72px;
-    height: 108px;
+  media-image {
+    width: 104px;
+    height: 156px;
+    border-radius: $radius-md;
+    box-shadow: $shadow-card;
+
+    @include below-mobile {
+      width: 72px;
+      height: 108px;
+    }
+  }
+}
+
+.mc-img-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: $radius-full;
+  background-color: $orange-500;
+  box-shadow:
+    0 0 0 2px #ffffff,
+    $shadow-sm;
+  @include flex-center;
+
+  svg {
+    display: flex;
+    color: #ffffff;
+    fill: #ffffff;
   }
 }
 

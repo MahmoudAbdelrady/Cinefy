@@ -44,6 +44,11 @@
                   [alt]="upcomingMovie.title"
                   [iconSize]="36"
                 />
+                @if (upcomingMovie.highlighted) {
+                  <span class="mc-img-badge">
+                    <svg [lucideIcon]="icons.StarIcon" [size]="12"></svg>
+                  </span>
+                }
               </div>
               <div class="mc-body">
                 <div class="mc-info">
