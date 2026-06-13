@@ -6,6 +6,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
@@ -13,6 +14,7 @@ import org.springframework.web.client.RestClientException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +25,10 @@ public class PaymobClient {
 
     private static final String INTENTION_PATH = "/v1/intention/";
 
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
+
+    private static final Duration READ_TIMEOUT = Duration.ofSeconds(10);
+
     @Value("${app.paymob.api-base-url}")
     private String apiBaseUrl;
 
@@ -32,8 +38,13 @@ public class PaymobClient {
 
     @PostConstruct
     private void init() {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(CONNECT_TIMEOUT);
+        requestFactory.setReadTimeout(READ_TIMEOUT);
+
         restClient = RestClient.builder()
                 .baseUrl(apiBaseUrl)
+                .requestFactory(requestFactory)
                 .build();
     }
 
