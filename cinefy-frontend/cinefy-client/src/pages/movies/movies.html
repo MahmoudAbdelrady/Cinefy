@@ -1,1 +1,124 @@
-<p>movies works!</p>
+<div class="movies-container">
+  <div class="movies-header reveal">
+    <h1>Movies</h1>
+    <p>Browse everything showing in our cinemas right now.</p>
+  </div>
+
+  <div class="movies-filters reveal" style="animation-delay: 60ms">
+    <div class="mf-search">
+      <input-field
+        placeholder="Search by title…"
+        [control]="searchControl"
+        [leadingIcon]="icons.SearchIcon"
+      />
+    </div>
+
+    <div class="mf-select">
+      <custom-select
+        placeholder="Experience"
+        [items]="experiences()"
+        [displayFn]="optionDisplayFn"
+        [value]="experience()"
+        [multi]="true"
+        [clearable]="true"
+        (multiSelectionChange)="onExperienceChange($event)"
+        (cleared)="onExperienceChange([])"
+      />
+    </div>
+
+    <div class="mf-select">
+      <custom-select
+        placeholder="Genre"
+        [items]="genres()"
+        [displayFn]="optionDisplayFn"
+        [value]="genre()"
+        [multi]="true"
+        [clearable]="true"
+        (multiSelectionChange)="onGenreChange($event)"
+        (cleared)="onGenreChange([])"
+      />
+    </div>
+
+    @if (hasFilters()) {
+      <button class="mf-clear" (click)="clearAll()">
+        <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
+        <span>Clear</span>
+      </button>
+    }
+  </div>
+
+  <div class="movies-summary">
+    <span class="ms-count"
+      >{{ filtered().length }} {{ filtered().length === 1 ? 'result' : 'results' }}</span
+    >
+    @if (hasFilters()) {
+      <span class="ms-divider">·</span>
+    }
+    @if (trimmedSearch()) {
+      <span class="filter-chip">
+        <span>Title: “{{ trimmedSearch() }}”</span>
+        <button class="fc-clear" (click)="clearSearch()">
+          <svg [lucideIcon]="icons.XIcon" [size]="12"></svg>
+        </button>
+      </span>
+    }
+    @for (experience of experience(); track experience) {
+      <span class="filter-chip">
+        <span>Experience: {{ experience }}</span>
+        <button class="fc-clear" (click)="removeExperience(experience)">
+          <svg [lucideIcon]="icons.XIcon" [size]="12"></svg>
+        </button>
+      </span>
+    }
+    @for (genre of genre(); track genre) {
+      <span class="filter-chip">
+        <span>Genre: {{ genre }}</span>
+        <button class="fc-clear" (click)="removeGenre(genre)">
+          <svg [lucideIcon]="icons.XIcon" [size]="12"></svg>
+        </button>
+      </span>
+    }
+  </div>
+
+  @if (filtered().length) {
+    <div class="movies-grid">
+      @for (movie of filtered(); track movie.id) {
+        <a
+          class="movie-card reveal"
+          routerLink="/movies/{{ movie.id }}"
+          [style.animation-delay.ms]="$index * 70"
+        >
+          <div class="mc-poster">
+            <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
+            <div class="mc-poster-overlay">
+              <button class="mc-tickets-btn btn-primary">Get Tickets</button>
+            </div>
+          </div>
+          <div class="mc-meta">
+            <div class="mc-title">
+              <h4>{{ movie.title }}</h4>
+              @if (movie.is3D) {
+                <span>3D</span>
+              }
+            </div>
+            <div class="mc-subtitle">
+              <p>{{ movie.genres.join(', ') }}</p>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  } @else {
+    <div class="movies-empty">
+      <empty-state
+        [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.ClapperboardIcon"
+        [title]="hasFilters() ? 'No movies match your filters' : 'No movies showing'"
+        [description]="
+          hasFilters()
+            ? 'Try a different search, language, or genre.'
+            : 'Check back soon for what\'s playing in theaters.'
+        "
+      />
+    </div>
+  }
+</div>
