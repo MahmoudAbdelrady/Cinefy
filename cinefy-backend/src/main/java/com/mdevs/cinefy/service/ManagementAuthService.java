@@ -105,6 +105,7 @@ public class ManagementAuthService {
                 return;
             }
 
+            // TODO: Will be moved to Redis - SET NX approach
             Otp otp;
             try {
                 otp = otpService.create(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);
