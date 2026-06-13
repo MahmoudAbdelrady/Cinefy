@@ -22,6 +22,14 @@ async-select {
     @include select-trigger;
   }
 
+  .as-value {
+    @include select-trigger-value;
+  }
+
+  .as-value-extra {
+    @include select-trigger-value-extra;
+  }
+
   .as-placeholder {
     @include select-placeholder;
   }
@@ -51,6 +59,10 @@ async-select {
 
 .as-option {
   @include select-option;
+}
+
+.as-option-multi {
+  @include select-option-multi;
 }
 
 .as-search {

@@ -5,6 +5,7 @@
   ngpCombobox
   [ngpComboboxValue]="currentValue()"
   (ngpComboboxValueChange)="onValueChange($event)"
+  [ngpComboboxMultiple]="multi()"
   [ngpComboboxDisabled]="disabled()"
   [ngpComboboxCompareWith]="compareWith()"
   (ngpComboboxOpenChange)="onOpenChange($event)"
@@ -19,9 +20,13 @@
     [disabled]="disabled()"
     (blur)="onTriggerBlur($event)"
   >
-    @if (displayValue(); as display) { {{ display }} } @else {
+    @if (triggerLabel(); as label) {
+    <span class="cs-value">{{ label.text }}</span>
+    @if (label.extra) {
+    <span class="cs-value-extra">+{{ label.extra }}</span>
+    } } @else {
     <span class="cs-placeholder">{{ placeholder() }}</span>
-    } @if (clearable() && displayValue()) {
+    } @if (clearable() && triggerLabel()) {
     <svg class="cs-clear" [lucideIcon]="icons.XIcon" [size]="16" [strokeWidth]="2" (click)="clear($event)"></svg>
     } @else {
     <svg class="cs-chevron" [lucideIcon]="icons.ChevronDownIcon" [size]="16" [strokeWidth]="2"></svg>
@@ -34,7 +39,12 @@
     }
     <div class="cs-options" (mousedown)="onOptionsAreaMousedown($event)">
       @for (item of filteredItems(); track valueFn()(item)) {
-      <div ngpComboboxOption class="cs-option" [ngpComboboxOptionValue]="item">{{ displayFn()(item) }}</div>
+      <div ngpComboboxOption class="cs-option" [class.cs-option-multi]="multi()" [ngpComboboxOptionValue]="item">
+        @if (multi()) {
+        <svg class="cs-option-check" [lucideIcon]="icons.CheckIcon" [size]="16" [strokeWidth]="2.5"></svg>
+        }
+        <span class="cs-option-label">{{ displayFn()(item) }}</span>
+      </div>
       } @empty {
       <div class="cs-empty">No results</div>
       }

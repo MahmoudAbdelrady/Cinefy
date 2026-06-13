@@ -10,6 +10,7 @@ export {
   LucideChevronsLeft as ChevronsLeftIcon,
   LucideChevronsRight as ChevronsRightIcon,
   LucideX as XIcon,
+  LucideCheck as CheckIcon,
   LucideCalendar as CalendarIcon,
   LucideClock as ClockIcon,
   LucideCircleCheckBig as CircleCheckBigIcon,

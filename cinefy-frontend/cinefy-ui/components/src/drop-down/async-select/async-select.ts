@@ -15,7 +15,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { Observable, debounceTime, distinctUntilChanged, skip } from "rxjs";
 import { LucideDynamicIcon } from "@lucide/angular";
-import { ChevronDownIcon, XIcon } from "../../icons";
+import { CheckIcon, ChevronDownIcon, XIcon } from "../../icons";
 import {
   NgpCombobox,
   NgpComboboxButton,
@@ -50,12 +50,14 @@ export class AsyncSelectComponent<T> {
   protected readonly icons = {
     ChevronDownIcon,
     XIcon,
+    CheckIcon,
   };
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
 
   private static readonly SEARCH_DEBOUNCE_MS = 300;
 
+  readonly multi = input(false);
   readonly label: InputSignal<string | null> = input<string | null>(null);
   readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly required = input(false);
@@ -65,7 +67,7 @@ export class AsyncSelectComponent<T> {
   readonly searchable = input(false);
   readonly pageSize = input(20);
   readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>(null);
-  readonly initialValue: InputSignal<T | null> = input<T | null>(null);
+  readonly initialValue: InputSignal<T | T[] | null> = input<T | T[] | null>(null);
   readonly control: InputSignal<FormControl | null> = input<FormControl | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
   readonly fetchFn =
@@ -74,12 +76,26 @@ export class AsyncSelectComponent<T> {
   readonly valueFn = input.required<(item: T) => string>();
 
   readonly selectionChange = output<T>();
+  readonly multiSelectionChange = output<T[]>();
   readonly cleared = output<void>();
 
   protected readonly items = signal<T[]>([]);
   protected readonly loading = signal(false);
-  protected readonly selectedItem = signal<T | null>(null);
+  protected readonly selectedItems = signal<T[]>([]);
   protected readonly searchTerm = signal("");
+
+  protected readonly triggerLabel = computed<{ text: string; extra: number } | null>(() => {
+    const items = this.selectedItems();
+    if (!items.length) return null;
+    const displayFn = this.displayFn();
+    return { text: displayFn(items[0]), extra: this.multi() ? items.length - 1 : 0 };
+  });
+
+  protected readonly comboboxValue = computed<T | T[] | null>(() => {
+    const items = this.selectedItems();
+    if (this.multi()) return items;
+    return items[0] ?? null;
+  });
 
   private currentPage = 0;
   private totalPages = 1;
@@ -110,7 +126,8 @@ export class AsyncSelectComponent<T> {
 
     effect(() => {
       const initial = this.initialValue();
-      if (initial !== null) this.selectedItem.set(initial);
+      if (initial == null) return;
+      this.selectedItems.set(Array.isArray(initial) ? initial : [initial]);
     });
   }
 
@@ -133,9 +150,21 @@ export class AsyncSelectComponent<T> {
     this.control()?.markAsTouched();
   }
 
-  protected onValueChange(value: T) {
-    this.selectedItem.set(value);
-    this.selectionChange.emit(value);
+  protected onValueChange(value: T | T[]) {
+    let items: T[];
+    if (Array.isArray(value)) {
+      items = value;
+    } else if (value == null) {
+      items = [];
+    } else {
+      items = [value];
+    }
+    this.selectedItems.set(items);
+    if (this.multi()) {
+      this.multiSelectionChange.emit(items);
+    } else if (items.length) {
+      this.selectionChange.emit(items[0]);
+    }
   }
 
   protected onSearchInput(event: Event) {
@@ -149,7 +178,7 @@ export class AsyncSelectComponent<T> {
 
   protected clear(event: MouseEvent) {
     event.stopPropagation();
-    this.selectedItem.set(null);
+    this.selectedItems.set([]);
     this.cleared.emit();
   }
 
