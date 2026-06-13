@@ -70,14 +70,6 @@ export class TimePicker {
     }
   }
 
-  protected onTriggerBlur(event: FocusEvent) {
-    const next = event.relatedTarget as HTMLElement | null;
-    if (next?.closest(".tp-popover")) {
-      return;
-    }
-    this.control().markAsTouched();
-  }
-
   protected onHourInput(event: Event) {
     const el = event.target as HTMLInputElement;
     const digits = el.value.replace(/\D/g, "").slice(0, 2);

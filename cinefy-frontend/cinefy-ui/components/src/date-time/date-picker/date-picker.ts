@@ -108,12 +108,4 @@ export class DatePicker {
       this.control().markAsTouched();
     }
   }
-
-  protected onTriggerBlur(event: FocusEvent) {
-    const next = event.relatedTarget as HTMLElement | null;
-    if (next?.closest(".dp-popover")) {
-      return;
-    }
-    this.control().markAsTouched();
-  }
 }

@@ -9,7 +9,6 @@
     ngpPopoverTriggerPlacement="bottom-start"
     [ngpPopoverTriggerOffset]="6"
     (ngpPopoverTriggerOpenChange)="onOpenChange($event)"
-    (blur)="onTriggerBlur($event)"
     [disabled]="control().disabled"
     [attr.data-empty]="formatted() ? null : ''"
   >
