@@ -5,6 +5,7 @@ import com.mdevs.cinefy.dto.movie.HighlightRequestDTO;
 import com.mdevs.cinefy.dto.movie.HighlightedMovieDTO;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
+import com.mdevs.cinefy.dto.movie.NowShowingMovieDTO;
 import com.mdevs.cinefy.dto.movie.UpcomingMovieDTO;
 import com.mdevs.cinefy.service.TmdbMovieService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
@@ -58,7 +59,7 @@ public class TmdbMovieController {
 
     @PublicApi
     @GetMapping("/now-showing")
-    public ResponseEntity<List<MovieSearchResultDTO>> getNowShowing(@RequestParam(required = false) Integer limit) {
+    public ResponseEntity<List<NowShowingMovieDTO>> getNowShowing(@RequestParam(required = false) Integer limit) {
         return ResponseEntity.ok(tmdbMovieService.getNowShowing(limit));
     }
 

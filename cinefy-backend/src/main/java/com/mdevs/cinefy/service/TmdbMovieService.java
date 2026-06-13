@@ -7,6 +7,7 @@ import com.mdevs.cinefy.dto.movie.MovieCredits;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 import com.mdevs.cinefy.dto.movie.MovieSummaryDTO;
+import com.mdevs.cinefy.dto.movie.NowShowingMovieDTO;
 import com.mdevs.cinefy.dto.movie.UpcomingMovieDTO;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
@@ -149,10 +150,10 @@ public class TmdbMovieService {
                 .toList();
     }
 
-    public List<MovieSearchResultDTO> getNowShowing(Integer limit) {
+    public List<NowShowingMovieDTO> getNowShowing(Integer limit) {
         Pageable pageable = limit != null ? PageRequest.of(0, limit) : Pageable.unpaged();
-        return tmdbMovieRepository.findWithShowtimeStatusIn(ShowtimeStatus.COMMITTED_STATUSES, pageable).stream()
-                .map(this::toMovieSearchResult)
+        return tmdbMovieRepository.findNowShowingWith3DFlag(ShowtimeStatus.COMMITTED_STATUSES, pageable).stream()
+                .map(row -> toNowShowingMovie(row.getMovie(), Boolean.TRUE.equals(row.getIs3D())))
                 .toList();
     }
 
@@ -354,6 +355,18 @@ public class TmdbMovieService {
         HighlightedMovieDTO dto = new HighlightedMovieDTO();
         dto.setBookingOpened(bookingOpened);
         dto.setMovieDetails(toMovieDetail(movie));
+        return dto;
+    }
+
+    private NowShowingMovieDTO toNowShowingMovie(TmdbMovie movie, boolean is3D) {
+        NowShowingMovieDTO dto = new NowShowingMovieDTO();
+        dto.setId(movie.getId());
+        dto.setTitle(movie.getTitle());
+        dto.setGenre(movie.getGenres());
+        dto.setReleaseDate(movie.getReleaseDate() != null ? movie.getReleaseDate().toString() : null);
+        dto.setPosterUrl(movie.getPosterUrl());
+        dto.setBackdropUrl(movie.getBackdropUrl());
+        dto.set3D(is3D);
         return dto;
     }
 

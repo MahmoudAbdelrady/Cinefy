@@ -37,4 +37,21 @@ interface MovieSearchResult {
   backdropUrl?: string;
 }
 
-export type { CreditMember, MovieCredits, MovieDetail, HighlightedMovie, MovieSearchResult };
+interface NowShowingMovie {
+  id: number;
+  title: string;
+  genre?: string;
+  releaseDate?: string;
+  posterUrl?: string;
+  backdropUrl?: string;
+  is3D: boolean;
+}
+
+export type {
+  CreditMember,
+  MovieCredits,
+  MovieDetail,
+  HighlightedMovie,
+  MovieSearchResult,
+  NowShowingMovie,
+};

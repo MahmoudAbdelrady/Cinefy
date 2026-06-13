@@ -4,4 +4,5 @@ export type {
   MovieDetail,
   HighlightedMovie,
   MovieSearchResult,
+  NowShowingMovie,
 } from './movies';
