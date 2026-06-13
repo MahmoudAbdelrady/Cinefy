@@ -179,6 +179,7 @@ export class ManageShowtimeModalComponent {
         is3D: editing.is3D,
         specialNotes: editing.specialNotes,
       });
+      this.showtimeForm.markAllAsTouched();
       this.initialFormSnapshot.set(JSON.stringify(this.showtimeForm.getRawValue()));
     });
 
