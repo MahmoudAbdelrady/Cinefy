@@ -7,6 +7,7 @@ import com.mdevs.cinefy.dto.movie.MovieCredits;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 import com.mdevs.cinefy.dto.movie.MovieSummaryDTO;
+import com.mdevs.cinefy.dto.movie.MovieWithCommittedShowtimeProjection;
 import com.mdevs.cinefy.dto.movie.NowShowingMovieDTO;
 import com.mdevs.cinefy.dto.movie.UpcomingMovieDTO;
 import com.mdevs.cinefy.entity.TmdbMovie;
@@ -35,7 +36,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -126,11 +126,16 @@ public class TmdbMovieService {
                 .toList();
 
         List<Long> movieIds = upcoming.stream().map(MovieSearchResultDTO::getId).toList();
-        Map<Long, TmdbMovie> localById = tmdbMovieRepository.findAllById(movieIds).stream().collect(Collectors.toMap(TmdbMovie::getId, Function.identity()));
-        Set<Long> committedMovieIds = tmdbMovieRepository.findMovieIdsWithShowtimeStatusIn(movieIds, ShowtimeStatus.COMMITTED_STATUSES);
+        Map<Long, MovieWithCommittedShowtimeProjection> moviesById = tmdbMovieRepository.findMoviesWithCommittedShowtime(movieIds, ShowtimeStatus.COMMITTED_STATUSES).stream()
+                .collect(Collectors.toMap(row -> row.getMovie().getId(), Function.identity()));
 
         return upcoming.stream()
-                .map(dto -> toUpcomingMovie(dto, localById.get(dto.getId()), committedMovieIds.contains(dto.getId())))
+                .map(dto -> {
+                    MovieWithCommittedShowtimeProjection row = moviesById.get(dto.getId());
+                    TmdbMovie local = row != null ? row.getMovie() : null;
+                    boolean hasCommittedShowtimes = row != null && row.getHasCommittedShowtime();
+                    return toUpcomingMovie(dto, local, hasCommittedShowtimes);
+                })
                 .toList();
     }
 
@@ -141,19 +146,15 @@ public class TmdbMovieService {
     }
 
     public List<HighlightedMovieDTO> getHighlighted() {
-        List<TmdbMovie> highlighted = tmdbMovieRepository.findHighlighted(LocalDate.now(), ShowtimeStatus.COMMITTED_STATUSES);
-        List<Long> movieIds = highlighted.stream().map(TmdbMovie::getId).toList();
-        Set<Long> bookingOpenedIds = tmdbMovieRepository.findMovieIdsWithShowtimeStatusIn(movieIds, ShowtimeStatus.COMMITTED_STATUSES);
-
-        return highlighted.stream()
-                .map(movie -> toHighlightedMovie(movie, bookingOpenedIds.contains(movie.getId())))
+        return tmdbMovieRepository.findHighlightedWithBookingFlag(LocalDate.now(), ShowtimeStatus.COMMITTED_STATUSES).stream()
+                .map(row -> toHighlightedMovie(row.getMovie(), row.getHasCommittedShowtime()))
                 .toList();
     }
 
     public List<NowShowingMovieDTO> getNowShowing(Integer limit) {
         Pageable pageable = limit != null ? PageRequest.of(0, limit) : Pageable.unpaged();
         return tmdbMovieRepository.findNowShowingWith3DFlag(ShowtimeStatus.COMMITTED_STATUSES, pageable).stream()
-                .map(row -> toNowShowingMovie(row.getMovie(), Boolean.TRUE.equals(row.getIs3D())))
+                .map(row -> toNowShowingMovie(row.getMovie(), row.getIs3D()))
                 .toList();
     }
 
