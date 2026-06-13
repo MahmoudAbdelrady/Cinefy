@@ -1,6 +1,6 @@
 import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CheckIcon,
   CreditCardIcon,
@@ -28,7 +28,7 @@ export interface TestResultState {
 
 @Component({
   selector: 'review-step',
-  imports: [LucideAngularModule, NgpButton, LoadingSpinnerComponent, RelativeTimePipe],
+  imports: [LucideDynamicIcon, NgpButton, LoadingSpinnerComponent, RelativeTimePipe],
   templateUrl: './review-step.html',
   styleUrl: './review-step.scss',
 })

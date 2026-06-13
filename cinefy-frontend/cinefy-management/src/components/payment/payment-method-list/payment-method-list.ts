@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
   CircleCheckIcon,
@@ -46,7 +46,7 @@ import {
 @Component({
   selector: 'payment-method-list',
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpMenu,
     NgpMenuTrigger,
     NgpMenuItem,

@@ -16,7 +16,7 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpFormField } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { ChevronRightIcon, ClapperboardIcon, SearchIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent, MediaImageComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -33,7 +33,7 @@ import { MoviesService } from '../../../services';
     NgpSearchClear,
     NgpInput,
     NgpFormField,
-    LucideAngularModule,
+    LucideDynamicIcon,
     LoadingSpinnerComponent,
     MediaImageComponent,
     DatePipe,

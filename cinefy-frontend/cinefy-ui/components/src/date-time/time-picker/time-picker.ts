@@ -2,7 +2,7 @@ import { Component, computed, input, type InputSignal } from "@angular/core";
 import { FormControl, Validators } from "@angular/forms";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { startWith, switchMap } from "rxjs";
-import { LucideAngularModule } from "lucide-angular";
+import { LucideDynamicIcon } from "@lucide/angular";
 import { ChevronDownIcon, ChevronUpIcon, ClockIcon } from "../../icons";
 import { NgpButton } from "ng-primitives/button";
 import { NgpPopover, NgpPopoverTrigger } from "ng-primitives/popover";
@@ -14,7 +14,7 @@ const pad = (n: number) => n.toString().padStart(2, "0");
 
 @Component({
   selector: "time-picker",
-  imports: [LucideAngularModule, NgpButton, NgpPopover, NgpPopoverTrigger, FieldErrorComponent],
+  imports: [LucideDynamicIcon, NgpButton, NgpPopover, NgpPopoverTrigger, FieldErrorComponent],
   templateUrl: "./time-picker.html",
   styleUrl: "./time-picker.scss",
 })

@@ -2,7 +2,7 @@
   <div class="header-inner">
     <div class="header-left">
       <button class="hamburger-btn" (click)="openSidebar()">
-        <lucide-icon [img]="icons.MenuIcon" [size]="22"></lucide-icon>
+        <svg [lucideIcon]="icons.MenuIcon" [size]="22"></svg>
       </button>
     </div>
     <div class="header-right">
@@ -19,13 +19,13 @@
             <h5>{{ currentStaffMember()?.fullName }}</h5>
             <p>{{ positionLabel() }}</p>
           </div>
-          <lucide-icon [img]="icons.ChevronDownIcon" [size]="14"></lucide-icon>
+          <svg [lucideIcon]="icons.ChevronDownIcon" [size]="14"></svg>
         </button>
         <ng-template #userInfoMenu>
           <div class="user-info-menu-items" ngpMenu>
             @for (item of userInfoMenuItems; track item.label) {
               <button class="uim-item" ngpMenuItem (click)="item.action()">
-                <lucide-icon [img]="item.icon" [size]="16"></lucide-icon>
+                <svg [lucideIcon]="item.icon" [size]="16"></svg>
                 <span>{{ item.label }}</span>
               </button>
             }

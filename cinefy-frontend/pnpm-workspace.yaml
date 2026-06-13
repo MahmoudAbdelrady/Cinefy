@@ -7,3 +7,5 @@ allowBuilds:
   esbuild: true
   lmdb: true
   msgpackr-extract: true
+minimumReleaseAgeExclude:
+  - "@lucide/angular@1.18.0"

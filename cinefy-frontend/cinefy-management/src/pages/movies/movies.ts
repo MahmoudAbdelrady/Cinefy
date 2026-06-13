@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { PlusIcon } from '../../shared/icons';
 import { canManage as canManagePosition } from '../../shared/access';
 import { NgpButton } from 'ng-primitives/button';
@@ -24,7 +24,7 @@ import { HeaderActionsService, StaffService } from '../../services';
 @Component({
   selector: 'movies-page',
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpButton,
     NgpDialogTrigger,
     ManageShowtimeModalComponent,

@@ -25,14 +25,14 @@
           <span>Sending code…</span>
         } @else {
           <span>Send verification code</span>
-          <lucide-icon class="fp-submit-arrow" [img]="icons.ArrowRightIcon" [size]="16" />
+          <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
         }
       </button>
     </form>
   </div>
 
   <a routerLink="/login" class="fp-back-link">
-    <lucide-icon [img]="icons.ArrowLeftIcon" [size]="14" [strokeWidth]="2" />
+    <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="14" [strokeWidth]="2"></svg>
     Back to sign in
   </a>
 </div>

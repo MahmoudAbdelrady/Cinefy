@@ -2,7 +2,7 @@ import { Component, computed, input, type InputSignal, output, signal, ViewEncap
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { of, startWith, switchMap } from "rxjs";
 import { FormControl } from "@angular/forms";
-import { LucideAngularModule } from "lucide-angular";
+import { LucideDynamicIcon } from "@lucide/angular";
 import { ChevronDownIcon, XIcon } from "../../icons";
 import {
   NgpCombobox,
@@ -17,7 +17,7 @@ import { FieldErrorComponent } from "../../field-error/field-error";
 @Component({
   selector: "custom-select",
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpCombobox,
     NgpComboboxButton,
     NgpComboboxDropdown,

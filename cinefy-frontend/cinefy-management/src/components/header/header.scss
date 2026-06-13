@@ -43,7 +43,7 @@
     background-color: $gray-100;
   }
 
-  lucide-icon {
+  svg {
     display: flex;
   }
 
@@ -94,7 +94,7 @@
         transform: scale(0.97);
       }
 
-      lucide-icon {
+      svg {
         display: flex;
       }
 
@@ -104,7 +104,7 @@
         }
       }
 
-      lucide-icon:last-child {
+      svg:last-child {
         transition: transform 200ms ease;
 
         @include below-mobile {
@@ -173,7 +173,7 @@
       }
     }
 
-    > lucide-icon:last-child {
+    > svg:last-child {
       color: $gray-400;
       transition: all 150ms ease;
       display: flex;
@@ -183,7 +183,7 @@
       }
     }
 
-    &:hover > lucide-icon:last-child {
+    &:hover > svg:last-child {
       color: $gray-600;
     }
   }
@@ -221,7 +221,7 @@
     background-color: $gray-50;
   }
 
-  lucide-icon {
+  svg {
     display: flex;
     color: $gray-400;
   }
@@ -236,7 +236,7 @@
       background-color: $red-50;
     }
 
-    lucide-icon {
+    svg {
       color: $red-400;
     }
   }

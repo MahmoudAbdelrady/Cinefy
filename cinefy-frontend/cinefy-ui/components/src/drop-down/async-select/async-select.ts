@@ -14,7 +14,7 @@ import { FormControl } from "@angular/forms";
 import { HttpErrorResponse } from "@angular/common/http";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { Observable, debounceTime, distinctUntilChanged, skip } from "rxjs";
-import { LucideAngularModule } from "lucide-angular";
+import { LucideDynamicIcon } from "@lucide/angular";
 import { ChevronDownIcon, XIcon } from "../../icons";
 import {
   NgpCombobox,
@@ -38,7 +38,7 @@ import type { PaginatedResponse } from "cinefy-ui/types";
     NgpComboboxInput,
     NgpComboboxOption,
     NgpComboboxPortal,
-    LucideAngularModule,
+    LucideDynamicIcon,
     LoadingSpinnerComponent,
     FieldErrorComponent,
   ],

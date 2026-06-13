@@ -22,9 +22,9 @@
     @if (displayValue(); as display) { {{ display }} } @else {
     <span class="cs-placeholder">{{ placeholder() }}</span>
     } @if (clearable() && displayValue()) {
-    <lucide-icon class="cs-clear" [img]="icons.XIcon" [size]="16" [strokeWidth]="2" (click)="clear($event)" />
+    <svg class="cs-clear" [lucideIcon]="icons.XIcon" [size]="16" [strokeWidth]="2" (click)="clear($event)"></svg>
     } @else {
-    <lucide-icon class="cs-chevron" [img]="icons.ChevronDownIcon" [size]="16" [strokeWidth]="2" />
+    <svg class="cs-chevron" [lucideIcon]="icons.ChevronDownIcon" [size]="16" [strokeWidth]="2"></svg>
     }
   </button>
 

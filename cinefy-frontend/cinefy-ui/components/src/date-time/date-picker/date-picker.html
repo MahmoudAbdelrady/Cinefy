@@ -13,7 +13,7 @@
     [disabled]="control().disabled"
     [attr.data-empty]="formatted() ? null : ''"
   >
-    <lucide-icon [img]="icons.CalendarIcon" [size]="16"></lucide-icon>
+    <svg [lucideIcon]="icons.CalendarIcon" [size]="16"></svg>
     <span class="dp-trigger-label"> {{ formatted() || placeholder() }} </span>
   </button>
 
@@ -38,11 +38,11 @@
   >
     <div class="dp-header">
       <button type="button" ngpButton ngpDatePickerPreviousMonth class="dp-nav-btn">
-        <lucide-icon [img]="icons.ChevronLeftIcon" [size]="16"></lucide-icon>
+        <svg [lucideIcon]="icons.ChevronLeftIcon" [size]="16"></svg>
       </button>
       <div ngpDatePickerLabel class="dp-label">{{ monthLabel() }}</div>
       <button type="button" ngpButton ngpDatePickerNextMonth class="dp-nav-btn">
-        <lucide-icon [img]="icons.ChevronRightIcon" [size]="16"></lucide-icon>
+        <svg [lucideIcon]="icons.ChevronRightIcon" [size]="16"></svg>
       </button>
     </div>
 

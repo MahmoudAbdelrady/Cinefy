@@ -1,6 +1,6 @@
 import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   USER_POSITION_LABELS,
   type CoverageChange,
@@ -15,7 +15,7 @@ import { ToastService } from 'cinefy-ui/services';
 
 @Component({
   selector: 'staff-position-coverage',
-  imports: [LoadingSpinnerComponent, LucideAngularModule],
+  imports: [LoadingSpinnerComponent, LucideDynamicIcon],
   templateUrl: './staff-position-coverage.html',
   styleUrl: './staff-position-coverage.scss',
 })

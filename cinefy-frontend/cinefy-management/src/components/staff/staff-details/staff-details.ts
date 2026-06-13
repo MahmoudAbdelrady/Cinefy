@@ -1,7 +1,7 @@
 import { afterNextRender, Component, computed, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   BriefCaseIcon,
   CalendarIcon,
@@ -27,7 +27,7 @@ import { canManageStaffMember } from '../../../shared/access';
   selector: 'staff-details',
   imports: [
     ModalComponent,
-    LucideAngularModule,
+    LucideDynamicIcon,
     LoadingSpinnerComponent,
     DatePipe,
     Time12hPipe,

@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { KeyIcon, LockIcon } from '../../../../shared/icons';
 import { InputField } from 'cinefy-ui/components';
 import { HelpHint } from '../../../help-hint/help-hint';
@@ -26,7 +26,7 @@ export type CredentialsForm = ReturnType<typeof buildCredentialsForm>;
 
 @Component({
   selector: 'credentials-step',
-  imports: [ReactiveFormsModule, LucideAngularModule, InputField, HelpHint],
+  imports: [ReactiveFormsModule, LucideDynamicIcon, InputField, HelpHint],
   templateUrl: './credentials-step.html',
   styleUrl: './credentials-step.scss',
 })

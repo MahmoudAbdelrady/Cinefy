@@ -16,13 +16,13 @@
           <div class="fc-badge">{{ slide.bookingOpened ? 'Now Showing' : 'Coming Soon' }}</div>
           @if (slide.movieDetails.duration; as runtime) {
             <span class="fc-meta-item">
-              <lucide-icon [img]="icons.ClockIcon" [size]="16" />
+              <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
               <span>{{ runtime | duration }}</span>
             </span>
           }
           @if (slide.movieDetails.contentRating; as contentRating) {
             <span class="fc-meta-item">
-              <lucide-icon [img]="icons.EyeIcon" [size]="16" />
+              <svg [lucideIcon]="icons.EyeIcon" [size]="16"></svg>
               <span>{{ contentRating }}</span>
             </span>
           }
@@ -46,7 +46,7 @@
               (click)="stopAutoAdvance()"
               (ngpDialogTriggerClosed)="restartAutoAdvance()"
             >
-              <lucide-icon [img]="icons.PlayIcon" [size]="16" />
+              <svg [lucideIcon]="icons.PlayIcon" [size]="16"></svg>
               <span>Watch Trailer</span>
             </button>
             <ng-template #trailerDialog let-close="close">
@@ -65,7 +65,7 @@
   @if (slides().length > 1) {
     <div class="fc-controls">
       <button class="fc-nav fc-nav-prev" (click)="previous()">
-        <lucide-icon [img]="icons.ChevronLeftIcon" [size]="20" />
+        <svg [lucideIcon]="icons.ChevronLeftIcon" [size]="20"></svg>
       </button>
 
       <div class="fc-dots">
@@ -79,7 +79,7 @@
       </div>
 
       <button class="fc-nav fc-nav-next" (click)="next()">
-        <lucide-icon [img]="icons.ChevronRightIcon" [size]="20" />
+        <svg [lucideIcon]="icons.ChevronRightIcon" [size]="20"></svg>
       </button>
     </div>
   }

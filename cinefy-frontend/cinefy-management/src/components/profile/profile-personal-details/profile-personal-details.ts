@@ -2,7 +2,7 @@ import { Component, computed, DestroyRef, inject, input, output, signal } from '
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AtSignIcon,
   SaveIcon,
@@ -32,7 +32,7 @@ import { StaffService } from '../../../services';
   selector: 'profile-personal-details',
   imports: [
     ReactiveFormsModule,
-    LucideAngularModule,
+    LucideDynamicIcon,
     InputField,
     PhoneInput,
     LoadingSpinnerComponent,

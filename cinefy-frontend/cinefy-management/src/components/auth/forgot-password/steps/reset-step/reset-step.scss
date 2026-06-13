@@ -63,7 +63,7 @@
   @include lucide-icon-fix;
   transition: color 150ms ease;
 
-  lucide-icon {
+  svg {
     color: $gray-300;
     transition: color 150ms ease;
   }
@@ -71,7 +71,7 @@
   &--ok {
     color: $green-700;
 
-    lucide-icon {
+    svg {
       color: $green-500;
     }
   }

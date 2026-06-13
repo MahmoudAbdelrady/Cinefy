@@ -48,22 +48,22 @@
               </div>
               <div class="sid-contact">
                 <div class="sidc-item">
-                  <lucide-icon [img]="icons.EmailIcon" [size]="14"></lucide-icon>
+                  <svg [lucideIcon]="icons.EmailIcon" [size]="14"></svg>
                   <span>{{ member.email }}</span>
                 </div>
                 <div class="sidc-item">
-                  <lucide-icon [img]="icons.PhoneIcon" [size]="14"></lucide-icon>
+                  <svg [lucideIcon]="icons.PhoneIcon" [size]="14"></svg>
                   <span>{{ member.phoneNumber | phoneFormat }}</span>
                 </div>
                 <div class="sidc-item">
-                  <lucide-icon [img]="icons.CalendarIcon" [size]="14"></lucide-icon>
+                  <svg [lucideIcon]="icons.CalendarIcon" [size]="14"></svg>
                   <span>
                     {{ weekDayLabels[member.workingDayStart] }} –
                     {{ weekDayLabels[member.workingDayEnd] }}
                   </span>
                 </div>
                 <div class="sidc-item">
-                  <lucide-icon [img]="icons.ClockIcon" [size]="14"></lucide-icon>
+                  <svg [lucideIcon]="icons.ClockIcon" [size]="14"></svg>
                   <span>
                     {{ member.workingHourStart | time12h }} –
                     {{ member.workingHourEnd | time12h }}
@@ -74,16 +74,16 @@
           </div>
           <div class="staff-actions">
             <button ngpButton class="sa-btn sa-btn-view" [ngpDialogTrigger]="viewDialog">
-              <lucide-icon [img]="icons.EyeIcon" [size]="16"></lucide-icon>
+              <svg [lucideIcon]="icons.EyeIcon" [size]="16"></svg>
               <span>View</span>
             </button>
             @if (canManageRow(member)) {
               <button ngpButton class="sa-btn sa-btn-edit" (click)="openEditDialog(member.id)">
-                <lucide-icon [img]="icons.EditIcon" [size]="16"></lucide-icon>
+                <svg [lucideIcon]="icons.EditIcon" [size]="16"></svg>
                 <span>Edit</span>
               </button>
               <button ngpButton class="sa-btn sa-btn-delete" [ngpDialogTrigger]="deleteDialog">
-                <lucide-icon [img]="icons.DeleteIcon" [size]="16"></lucide-icon>
+                <svg [lucideIcon]="icons.DeleteIcon" [size]="16"></svg>
                 <span>Delete</span>
               </button>
             }
@@ -99,11 +99,7 @@
               <app-modal modalTitle="Delete Staff Member" [close]="close" width="448px">
                 <div class="delete-modal-content">
                   <div class="dmc-icon">
-                    <lucide-icon
-                      [img]="icons.AlertIcon"
-                      [size]="24"
-                      [strokeWidth]="2"
-                    ></lucide-icon>
+                    <svg [lucideIcon]="icons.AlertIcon" [size]="24" [strokeWidth]="2"></svg>
                   </div>
                   <p class="dmc-message">
                     Are you sure you want to remove <strong>{{ member.fullName }}</strong> from the
@@ -111,11 +107,7 @@
                     immediately.
                   </p>
                   <div class="dmc-warning">
-                    <lucide-icon
-                      [img]="icons.AlertIcon"
-                      [size]="16"
-                      [strokeWidth]="2"
-                    ></lucide-icon>
+                    <svg [lucideIcon]="icons.AlertIcon" [size]="16" [strokeWidth]="2"></svg>
                     <div>
                       <p><strong>Warning:</strong></p>
                       <ul>

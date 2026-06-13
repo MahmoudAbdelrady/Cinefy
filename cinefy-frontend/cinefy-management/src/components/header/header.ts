@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import { ChevronDownIcon, LogoutIcon, MenuIcon, UserIcon } from '../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
@@ -11,14 +11,14 @@ import { ToastService } from 'cinefy-ui/services';
 import { USER_POSITION_LABELS } from '../../shared/types';
 
 interface DropDownMenuItem {
-  icon: LucideIconData;
+  icon: LucideIcon;
   label: string;
   action: () => void;
 }
 
 @Component({
   selector: 'header-component',
-  imports: [LucideAngularModule, NgpButton, NgpMenu, NgpMenuItem, NgpMenuTrigger, NgTemplateOutlet],
+  imports: [LucideDynamicIcon, NgpButton, NgpMenu, NgpMenuItem, NgpMenuTrigger, NgTemplateOutlet],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })

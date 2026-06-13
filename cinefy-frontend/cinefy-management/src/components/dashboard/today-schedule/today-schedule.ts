@@ -1,11 +1,6 @@
 import { Component } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
-import {
-  ChevronRightIcon,
-  ClockIcon,
-  LayoutIcon,
-  TicketIcon,
-} from '../../../shared/icons';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { ChevronRightIcon, ClockIcon, LayoutIcon, TicketIcon } from '../../../shared/icons';
 import { RouterLink } from '@angular/router';
 
 interface TodayScheduleMovie {
@@ -19,7 +14,7 @@ interface TodayScheduleMovie {
 
 @Component({
   selector: 'today-schedule-component',
-  imports: [LucideAngularModule, RouterLink],
+  imports: [LucideDynamicIcon, RouterLink],
   templateUrl: './today-schedule.html',
   styleUrl: './today-schedule.scss',
 })

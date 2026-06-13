@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { CheckIcon } from '../../../../shared/icons';
 import { InputField, CustomSelectComponent } from 'cinefy-ui/components';
 import { PAYMENT_METHOD_TYPE_LABELS, type PaymentMethodType } from '../../../../shared/types';
@@ -30,7 +30,7 @@ export type IdentityForm = ReturnType<typeof buildIdentityForm>;
     ReactiveFormsModule,
     NgpRadioGroup,
     NgpRadioItem,
-    LucideAngularModule,
+    LucideDynamicIcon,
     InputField,
     CustomSelectComponent,
   ],

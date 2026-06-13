@@ -13,7 +13,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
   CalendarIcon,
@@ -56,7 +56,7 @@ import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
 @Component({
   selector: 'staff-list',
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     CustomSelectComponent,
     InputField,
     PaginationComponent,

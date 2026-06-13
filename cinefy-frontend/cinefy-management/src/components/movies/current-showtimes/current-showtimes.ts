@@ -6,7 +6,7 @@ import { merge, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { EditableShowtime, MovieWithShowtimes } from '../../../shared/types';
 import { canManage as canManagePosition } from '../../../shared/access';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CalendarClockIcon,
   ClockIcon,
@@ -50,7 +50,7 @@ import {
     ManageShowtimeModalComponent,
     MovieShowtimesModal,
     MediaImageComponent,
-    LucideAngularModule,
+    LucideDynamicIcon,
     DurationPipe,
   ],
   templateUrl: './current-showtimes.html',

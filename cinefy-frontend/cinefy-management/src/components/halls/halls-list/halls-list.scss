@@ -111,7 +111,7 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 
-  lucide-icon {
+  svg {
     color: #ffffff;
   }
 
@@ -317,7 +317,7 @@ pagination-component {
   @include flex-center;
   margin: 0 auto 16px;
 
-  lucide-icon {
+  svg {
     display: flex;
     color: $red-600;
   }
@@ -343,7 +343,7 @@ pagination-component {
   border: 1px solid rgba($red-400, 0.4);
   border-radius: $radius-md;
 
-  > lucide-icon {
+  > svg {
     display: flex;
     color: $red-600;
     flex-shrink: 0;

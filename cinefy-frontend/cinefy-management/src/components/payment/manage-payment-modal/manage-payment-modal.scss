@@ -22,7 +22,7 @@
   min-width: 0;
   @include lucide-icon-fix;
 
-  > lucide-icon {
+  > svg {
     flex-shrink: 0;
     color: $gray-500;
   }

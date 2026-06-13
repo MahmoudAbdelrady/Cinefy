@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ClapperboardIcon } from '../../shared/icons';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'auth-layout',
-  imports: [RouterOutlet, LucideAngularModule],
+  imports: [RouterOutlet, LucideDynamicIcon],
   templateUrl: './auth-layout.html',
   styleUrl: './auth-layout.scss',
 })

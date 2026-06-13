@@ -1,14 +1,14 @@
 <ng-template #headerActionsTemplate>
   <button [ngpMenuTrigger]="quickAddMenu" ngpMenuTriggerScrollBehavior="reposition" ngpButton>
-    <lucide-icon [img]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+    <svg [lucideIcon]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></svg>
     <span>Quick Add</span>
-    <lucide-icon [img]="icons.ChevronDownIcon" [size]="14"></lucide-icon>
+    <svg [lucideIcon]="icons.ChevronDownIcon" [size]="14"></svg>
   </button>
   <ng-template #quickAddMenu>
     <div class="quick-add-menu-items" ngpMenu>
       @for (item of quickAddMenuItems; track item.label) {
         <div class="qam-item" ngpMenuItem>
-          <lucide-icon [img]="item.icon" [size]="16"></lucide-icon>
+          <svg [lucideIcon]="item.icon" [size]="16"></svg>
           <span>{{ item.label }}</span>
         </div>
       }
@@ -25,39 +25,39 @@
     <div class="stats-cards">
       <div class="sc-item">
         <div class="sc-icon">
-          <lucide-icon [img]="icons.TicketIcon" [size]="28"></lucide-icon>
+          <svg [lucideIcon]="icons.TicketIcon" [size]="28"></svg>
         </div>
         <div class="sc-info">
           <span>Tickets Sold</span>
           <h3>342</h3>
           <div class="percentage-box">
-            <lucide-icon [img]="icons.ArrowUpIcon" [size]="14"></lucide-icon>
+            <svg [lucideIcon]="icons.ArrowUpIcon" [size]="14"></svg>
             <span>12% vs yesterday</span>
           </div>
         </div>
       </div>
       <div class="sc-item">
         <div class="sc-icon">
-          <lucide-icon [img]="icons.DollarSignIcon" [size]="28"></lucide-icon>
+          <svg [lucideIcon]="icons.DollarSignIcon" [size]="28"></svg>
         </div>
         <div class="sc-info">
           <span>Revenue</span>
           <h3>$8.5K</h3>
           <div class="percentage-box">
-            <lucide-icon [img]="icons.ArrowDownIcon" [size]="14"></lucide-icon>
+            <svg [lucideIcon]="icons.ArrowDownIcon" [size]="14"></svg>
             <span>15% vs yesterday</span>
           </div>
         </div>
       </div>
       <div class="sc-item">
         <div class="sc-icon">
-          <lucide-icon [img]="icons.TrendingUpIcon" [size]="28"></lucide-icon>
+          <svg [lucideIcon]="icons.TrendingUpIcon" [size]="28"></svg>
         </div>
         <div class="sc-info">
           <span>Occupancy Rate</span>
           <h3>84%</h3>
           <div class="percentage-box">
-            <lucide-icon [img]="icons.ArrowUpIcon" [size]="14"></lucide-icon>
+            <svg [lucideIcon]="icons.ArrowUpIcon" [size]="14"></svg>
             <span>8% vs last week</span>
           </div>
         </div>
@@ -67,7 +67,7 @@
   <div class="quick-overview">
     <div class="overview-card">
       <div class="card-icon">
-        <lucide-icon [img]="icons.LayoutIcon" [size]="24"></lucide-icon>
+        <svg [lucideIcon]="icons.LayoutIcon" [size]="24"></svg>
       </div>
       <div class="card-info">
         <span>Total Halls</span>
@@ -77,7 +77,7 @@
     </div>
     <div class="overview-card">
       <div class="card-icon">
-        <lucide-icon [img]="icons.ClapperboardIcon" [size]="24"></lucide-icon>
+        <svg [lucideIcon]="icons.ClapperboardIcon" [size]="24"></svg>
       </div>
       <div class="card-info">
         <span>Total Movies</span>

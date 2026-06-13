@@ -10,7 +10,7 @@ import {
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpButton } from 'ng-primitives/button';
 import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -33,13 +33,7 @@ function passwordsMatchValidator(group: AbstractControl): ValidationErrors | nul
 
 @Component({
   selector: 'fp-reset-step',
-  imports: [
-    ReactiveFormsModule,
-    LucideAngularModule,
-    NgpButton,
-    InputField,
-    LoadingSpinnerComponent,
-  ],
+  imports: [ReactiveFormsModule, LucideDynamicIcon, NgpButton, InputField, LoadingSpinnerComponent],
   templateUrl: './reset-step.html',
   styleUrl: './reset-step.scss',
 })

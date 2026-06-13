@@ -26,7 +26,7 @@ import {
   Showtime,
 } from '../../../shared/types';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DeleteIcon,
   EditIcon,
@@ -54,7 +54,7 @@ import { canManage as canManagePosition } from '../../../shared/access';
     NgpTabPanel,
     DatePipe,
     DecimalPipe,
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpButton,
     NgpDialogTrigger,
     LoadingSpinnerComponent,

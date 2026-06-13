@@ -11,7 +11,6 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
 import {
   AtSignIcon,
   CheckIcon,
@@ -62,7 +61,6 @@ import { assignableStaffPositions } from '../../../shared/access';
     InputField,
     PhoneInput,
     CustomSelectComponent,
-    LucideAngularModule,
     NgpRadioGroup,
     NgpRadioItem,
     ReactiveFormsModule,

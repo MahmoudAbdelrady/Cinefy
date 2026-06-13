@@ -1,11 +1,11 @@
 import { Component, ElementRef, computed, input, type InputSignal, viewChild } from "@angular/core";
 import { NgpDialog, NgpDialogDescription, NgpDialogOverlay, NgpDialogTitle } from "ng-primitives/dialog";
-import { LucideAngularModule } from "lucide-angular";
+import { LucideDynamicIcon } from "@lucide/angular";
 import { XIcon } from "../icons";
 
 @Component({
   selector: "app-modal",
-  imports: [NgpDialog, NgpDialogOverlay, NgpDialogTitle, NgpDialogDescription, LucideAngularModule],
+  imports: [NgpDialog, NgpDialogOverlay, NgpDialogTitle, NgpDialogDescription, LucideDynamicIcon],
   templateUrl: "./modal.html",
   styleUrl: "./modal.scss",
 })

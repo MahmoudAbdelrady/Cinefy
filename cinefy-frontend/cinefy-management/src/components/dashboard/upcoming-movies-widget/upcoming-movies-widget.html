@@ -1,7 +1,7 @@
 <div class="upcoming">
   <div class="header">
     <div class="h-icon">
-      <lucide-icon [img]="icons.CalendarIcon" [size]="20"></lucide-icon>
+      <svg [lucideIcon]="icons.CalendarIcon" [size]="20"></svg>
     </div>
     <div class="h-info">
       <h3>Upcoming</h3>
@@ -21,7 +21,7 @@
               <p>{{ movie.genre }} · {{ movie.contentRating }}</p>
               @if (movie.releaseDate; as releaseDate) {
                 <div class="umc-release">
-                  <lucide-icon [img]="icons.ClockIcon" [size]="11"></lucide-icon>
+                  <svg [lucideIcon]="icons.ClockIcon" [size]="11"></svg>
                   <span>{{ daysUntil(releaseDate) }} days left</span>
                 </div>
               }

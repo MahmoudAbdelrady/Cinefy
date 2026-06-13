@@ -112,7 +112,7 @@
   @include lucide-icon-fix;
   color: $gray-900;
 
-  lucide-icon {
+  svg {
     color: #4f46e5;
   }
 
@@ -140,7 +140,7 @@
     border-top: 1px solid $gray-100;
   }
 
-  lucide-icon {
+  svg {
     color: $gray-400;
     flex-shrink: 0;
   }

@@ -2,7 +2,7 @@ import { afterNextRender, Component, computed, DestroyRef, inject, signal } from
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { CalendarIcon, MegaphoneIcon, SearchIcon, StarIcon } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
 import { differenceInCalendarDays } from 'date-fns';
@@ -22,7 +22,7 @@ import { MoviesService, ShowtimeEventsService } from '../../../services';
 @Component({
   selector: 'upcoming-movies',
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpButton,
     NgpDialogTrigger,
     Switch,

@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import {
   ChartColumnIcon,
   CreditCardIcon,
@@ -16,13 +16,13 @@ import { canAccessRoute } from '../../shared/access';
 
 interface SidebarTab {
   label: string;
-  icon: LucideIconData;
+  icon: LucideIcon;
   path: string;
 }
 
 @Component({
   selector: 'sidebar-component',
-  imports: [LucideAngularModule, RouterLink, RouterLinkActive],
+  imports: [LucideDynamicIcon, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })

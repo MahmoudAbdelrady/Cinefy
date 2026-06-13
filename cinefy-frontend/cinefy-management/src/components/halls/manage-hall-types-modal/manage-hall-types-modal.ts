@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CheckIcon,
   DeleteIcon,
@@ -44,7 +44,7 @@ function notBlankValidator(control: AbstractControl): ValidationErrors | null {
   selector: 'manage-hall-types-modal',
   imports: [
     ReactiveFormsModule,
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpButton,
     NgpPopover,
     NgpPopoverTrigger,

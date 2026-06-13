@@ -1,6 +1,6 @@
 import { Component, computed, input, TemplateRef } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { CheckIcon, CircleQuestionIcon } from '../../shared/icons';
 import { HelpHint } from '../help-hint/help-hint';
 
@@ -17,7 +17,7 @@ export interface StepperNoteTip {
 
 @Component({
   selector: 'stepper',
-  imports: [NgTemplateOutlet, LucideAngularModule, HelpHint],
+  imports: [NgTemplateOutlet, LucideDynamicIcon, HelpHint],
   templateUrl: './stepper.html',
   styleUrl: './stepper.scss',
 })

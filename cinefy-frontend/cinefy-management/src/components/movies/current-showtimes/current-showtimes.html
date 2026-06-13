@@ -44,7 +44,7 @@
                 />
                 @if (item.highlighted) {
                   <span class="mci-badge">
-                    <lucide-icon [img]="icons.StarIcon" [size]="12"></lucide-icon>
+                    <svg [lucideIcon]="icons.StarIcon" [size]="12"></svg>
                   </span>
                 }
               </div>
@@ -52,7 +52,7 @@
                 <div class="mcib-head">
                   <h4>{{ shMovie.title }}</h4>
                   <span class="mcib-chip">
-                    <lucide-icon [img]="icons.ClockIcon" [size]="13"></lucide-icon>
+                    <svg [lucideIcon]="icons.ClockIcon" [size]="13"></svg>
                     <span>
                       {{ item.totalShowtimes }}
                       {{ item.totalShowtimes === 1 ? 'showtime' : 'showtimes' }}
@@ -90,7 +90,7 @@
                   [class.mcf-highlight--disabled]="!canHighlight(item)"
                 >
                   <div class="mcfh-label">
-                    <lucide-icon class="mcfh-icon" [img]="icons.StarIcon" [size]="15"></lucide-icon>
+                    <svg class="mcfh-icon" [lucideIcon]="icons.StarIcon" [size]="15"></svg>
                     <div class="mcfh-text">
                       <span class="mcfh-title">Highlight on homepage</span>
                       <span class="mcfh-subtitle">
@@ -123,7 +123,7 @@
                 </button>
                 @if (canManage()) {
                   <button ngpButton class="mcfa-add" [ngpDialogTrigger]="addShowtimeDialog">
-                    <lucide-icon [img]="icons.PlusIcon" [size]="15"></lucide-icon>
+                    <svg [lucideIcon]="icons.PlusIcon" [size]="15"></svg>
                     <span>Add Showtime</span>
                   </button>
                   <button
@@ -135,7 +135,7 @@
                     @if (deletingShowtimeIds().has(shMovie.id)) {
                       <loading-spinner variant="sm" />
                     } @else {
-                      <lucide-icon [img]="icons.DeleteIcon" [size]="17"></lucide-icon>
+                      <svg [lucideIcon]="icons.DeleteIcon" [size]="17"></svg>
                     }
                   </button>
                 }
@@ -186,11 +186,7 @@
               <app-modal modalTitle="Delete All Showtimes" [close]="close" width="500px">
                 <div class="delete-modal-content">
                   <div class="dmc-icon">
-                    <lucide-icon
-                      [img]="icons.WarningIcon"
-                      [size]="24"
-                      [strokeWidth]="2"
-                    ></lucide-icon>
+                    <svg [lucideIcon]="icons.WarningIcon" [size]="24" [strokeWidth]="2"></svg>
                   </div>
                   <p class="dmc-message">
                     Are you sure you want to delete <strong>all showtimes</strong> for
@@ -198,11 +194,7 @@
                     >? This action cannot be undone.
                   </p>
                   <div class="dmc-warning">
-                    <lucide-icon
-                      [img]="icons.WarningIcon"
-                      [size]="16"
-                      [strokeWidth]="2"
-                    ></lucide-icon>
+                    <svg [lucideIcon]="icons.WarningIcon" [size]="16" [strokeWidth]="2"></svg>
                     <div>
                       <p><strong>Critical Warning:</strong></p>
                       <ul>

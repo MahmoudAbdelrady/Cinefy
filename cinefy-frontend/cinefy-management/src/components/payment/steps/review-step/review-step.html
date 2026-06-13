@@ -17,7 +17,7 @@
       <div class="rscd-header">
         <div class="rsc-data">
           <div class="rsh-icon">
-            <lucide-icon [img]="icons.CreditCardIcon" [size]="16"></lucide-icon>
+            <svg [lucideIcon]="icons.CreditCardIcon" [size]="16"></svg>
           </div>
           <div class="rsh-info">
             <h4>{{ payment.name || '—' }}</h4>
@@ -43,10 +43,10 @@
             >
             @if (payment.secretKey) {
               <button type="button" class="rii-toggle" (click)="toggleSecretKey()">
-                <lucide-icon
-                  [img]="showSecretKey() ? icons.EyeOffIcon : icons.EyeIcon"
+                <svg
+                  [lucideIcon]="showSecretKey() ? icons.EyeOffIcon : icons.EyeIcon"
                   [size]="16"
-                ></lucide-icon>
+                ></svg>
               </button>
             }
           </span>
@@ -61,10 +61,10 @@
             >
             @if (payment.hmacSecret) {
               <button type="button" class="rii-toggle" (click)="toggleHmacSecret()">
-                <lucide-icon
-                  [img]="showHmacSecret() ? icons.EyeOffIcon : icons.EyeIcon"
+                <svg
+                  [lucideIcon]="showHmacSecret() ? icons.EyeOffIcon : icons.EyeIcon"
                   [size]="16"
-                ></lucide-icon>
+                ></svg>
               </button>
             }
           </span>
@@ -102,7 +102,7 @@
             <loading-spinner variant="sm" />
             <span>Testing…</span>
           } @else {
-            <lucide-icon [img]="icons.ZapIcon" [size]="16"></lucide-icon>
+            <svg [lucideIcon]="icons.ZapIcon" [size]="16"></svg>
             <span>{{ result.testStatus === 'UNTESTED' ? 'Test connection' : 'Test again' }}</span>
           }
         </button>
@@ -110,10 +110,7 @@
       @if (result.testStatus !== 'UNTESTED') {
         <div class="rsct-result" [class.error]="isFailure">
           <div class="rsctr-icon">
-            <lucide-icon
-              [img]="isFailure ? icons.XIcon : icons.CheckIcon"
-              [size]="16"
-            ></lucide-icon>
+            <svg [lucideIcon]="isFailure ? icons.XIcon : icons.CheckIcon" [size]="16"></svg>
           </div>
           <div class="rsctr-info">
             <h5>

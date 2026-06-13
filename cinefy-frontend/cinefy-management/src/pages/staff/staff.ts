@@ -1,5 +1,5 @@
 import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { UserPlusIcon } from '../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { HeaderActionsService } from '../../services';
@@ -13,7 +13,7 @@ import {
 @Component({
   selector: 'staff-page',
   imports: [
-    LucideAngularModule,
+    LucideDynamicIcon,
     NgpButton,
     NgpDialogTrigger,
     StaffListComponent,

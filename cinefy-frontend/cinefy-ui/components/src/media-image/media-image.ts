@@ -9,12 +9,12 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { LucideAngularModule, LucideIconData } from "lucide-angular";
+import { LucideDynamicIcon, LucideIcon } from "@lucide/angular";
 import { ClapperboardIcon } from "../icons";
 
 @Component({
   selector: "media-image",
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   templateUrl: "./media-image.html",
   styleUrl: "./media-image.scss",
 })
@@ -24,7 +24,7 @@ export class MediaImageComponent {
   readonly src: InputSignal<string | undefined> = input<string | undefined>();
   readonly alt = input("");
   readonly loading = input<"lazy" | "eager">("lazy");
-  readonly icon = input<LucideIconData>(ClapperboardIcon);
+  readonly icon = input<LucideIcon>(ClapperboardIcon);
   readonly iconSize = input(28);
 
   protected readonly loaded = signal(false);

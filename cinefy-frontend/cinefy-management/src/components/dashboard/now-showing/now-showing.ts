@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   ChevronRightIcon,
   ClockIcon,
@@ -22,7 +22,7 @@ interface NowShowingMovie {
 
 @Component({
   selector: 'now-showing-component',
-  imports: [LucideAngularModule, RouterLink],
+  imports: [LucideDynamicIcon, RouterLink],
   templateUrl: './now-showing.html',
   styleUrl: './now-showing.scss',
 })

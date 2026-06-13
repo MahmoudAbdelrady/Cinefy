@@ -203,7 +203,7 @@
   width: 100%;
   min-width: 0;
 
-  > lucide-icon {
+  > svg {
     flex-shrink: 0;
     color: $gray-400;
     align-self: flex-start;
@@ -387,7 +387,7 @@
   @include flex-center;
   margin: 0 auto 16px;
 
-  lucide-icon {
+  svg {
     display: flex;
     color: $red-600;
   }
@@ -413,7 +413,7 @@
   border: 1px solid rgba($red-400, 0.4);
   border-radius: $radius-md;
 
-  > lucide-icon {
+  > svg {
     display: flex;
     color: $red-600;
     flex-shrink: 0;

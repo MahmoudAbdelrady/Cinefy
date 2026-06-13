@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { ArrowRightIcon, ShieldCheckIcon } from '../../../../../shared/icons';
 
 @Component({
   selector: 'fp-done-step',
-  imports: [RouterLink, LucideAngularModule],
+  imports: [RouterLink, LucideDynamicIcon],
   templateUrl: './done-step.html',
   styleUrl: './done-step.scss',
 })

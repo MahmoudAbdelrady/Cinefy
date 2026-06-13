@@ -1,5 +1,5 @@
 import { Component, DestroyRef, inject, TemplateRef, viewChild } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { PlusIcon } from '../../shared/icons';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { HeaderActionsService } from '../../services';
@@ -9,7 +9,7 @@ import { ManagePaymentModalComponent, PaymentMethodListComponent } from '../../c
   selector: 'payment-page',
   imports: [
     NgpDialogTrigger,
-    LucideAngularModule,
+    LucideDynamicIcon,
     ManagePaymentModalComponent,
     PaymentMethodListComponent,
   ],

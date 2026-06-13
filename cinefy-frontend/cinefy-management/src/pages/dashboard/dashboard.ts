@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
-import { LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -24,7 +24,7 @@ import {
 import { HeaderActionsService } from '../../services';
 
 interface DropDownMenuItem {
-  icon: LucideIconData;
+  icon: LucideIcon;
   label: string;
   code: string;
 }
@@ -33,7 +33,7 @@ interface DropDownMenuItem {
   selector: 'dashboard-page',
   imports: [
     DatePipe,
-    LucideAngularModule,
+    LucideDynamicIcon,
     NowShowingComponent,
     UpcomingMoviesWidgetComponent,
     TodayScheduleComponent,

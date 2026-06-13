@@ -12,7 +12,7 @@
   color: #1e3a8a;
   @include lucide-icon-fix;
 
-  > lucide-icon {
+  > svg {
     flex-shrink: 0;
     margin-top: 2px;
     opacity: 0.8;

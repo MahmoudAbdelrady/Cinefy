@@ -35,7 +35,7 @@
 
   @include lucide-icon-fix;
 
-  lucide-icon {
+  svg {
     color: $gray-400;
   }
 }
@@ -88,7 +88,7 @@
   &:nth-child(1) .sc-icon {
     background-color: $blue-100;
 
-    lucide-icon {
+    svg {
       color: $blue-600;
     }
   }
@@ -96,7 +96,7 @@
   &:nth-child(2) .sc-icon {
     background-color: $green-100;
 
-    lucide-icon {
+    svg {
       color: $green-600;
     }
   }
@@ -104,7 +104,7 @@
   &:nth-child(3) .sc-icon {
     background-color: $orange-100;
 
-    lucide-icon {
+    svg {
       color: $orange-600;
     }
   }
@@ -141,7 +141,7 @@
   &.up,
   .sc-item:nth-child(1) &,
   .sc-item:nth-child(3) & {
-    lucide-icon {
+    svg {
       color: $green-600;
     }
 
@@ -152,7 +152,7 @@
 
   &.down,
   .sc-item:nth-child(2) & {
-    lucide-icon {
+    svg {
       color: $red-600;
     }
 
@@ -190,7 +190,7 @@
   &:nth-child(1) .card-icon {
     background-color: $blue-100;
 
-    lucide-icon {
+    svg {
       color: $blue-600;
     }
   }
@@ -198,7 +198,7 @@
   &:nth-child(2) .card-icon {
     background-color: $purple-100;
 
-    lucide-icon {
+    svg {
       color: $purple-600;
     }
   }
