@@ -91,7 +91,7 @@
           </button>
         </span>
       }
-      @for (genre of selectedGenres(); track genre) {
+      @for (genre of selectedGenres(); track $index) {
         <span class="filter-chip">
           <span>Genre: {{ genre }}</span>
           <button class="fc-clear" (click)="removeGenre(genre)">
@@ -99,7 +99,7 @@
           </button>
         </span>
       }
-      @for (contentRating of selectedContentRatings(); track contentRating) {
+      @for (contentRating of selectedContentRatings(); track $index) {
         <span class="filter-chip">
           <span>Content Rating: {{ contentRating }}</span>
           <button class="fc-clear" (click)="removeContentRating(contentRating)">
