@@ -79,18 +79,24 @@ export class MoviesPage {
   protected readonly contentRatings = ['G', 'PG', 'PG-13', 'R', 'NC-17'];
 
   protected readonly filtered = computed(() => {
-    const query = this.trimmedSearch().toLowerCase();
-    const experiences = this.selectedExperiences();
-    const genres = this.selectedGenres();
-    const contentRatings = this.selectedContentRatings();
+    const searchedTitle = this.trimmedSearch().toLowerCase();
+    const selectedExperiences = this.selectedExperiences();
+    const selectedGenres = this.selectedGenres();
+    const selectedContentRatings = this.selectedContentRatings();
     return (this.movies() ?? []).filter((movie) => {
-      const matchesName = !query || movie.title.toLowerCase().includes(query);
+      const matchesName = !searchedTitle || movie.title.toLowerCase().includes(searchedTitle);
+
       const matchesExperience =
-        !experiences.length || experiences.some((e) => movie.experiences?.includes(e.name));
-      const matchesGenre = !genres.length || genres.some((g) => movie.genres?.includes(g));
+        !selectedExperiences.length ||
+        selectedExperiences.some((e) => movie.experiences?.includes(e.name));
+
+      const matchesGenre =
+        !selectedGenres.length || selectedGenres.some((g) => movie.genres?.includes(g));
+
       const matchesContentRating =
-        !contentRatings.length ||
-        (movie.contentRating != null && contentRatings.includes(movie.contentRating));
+        !selectedContentRatings.length ||
+        (movie.contentRating != null && selectedContentRatings.includes(movie.contentRating));
+
       return matchesName && matchesExperience && matchesGenre && matchesContentRating;
     });
   });
