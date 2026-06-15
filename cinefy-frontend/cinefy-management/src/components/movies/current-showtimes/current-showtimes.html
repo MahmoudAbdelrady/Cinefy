@@ -34,7 +34,7 @@
       <div class="cs-grid">
         @for (item of filteredMovies(); track item.movieDetails.id) {
           @let shMovie = item.movieDetails;
-          <div class="movie-card" [class.movie-card--highlighted]="item.highlighted">
+          <div class="movie-card" [class.movie-card--highlighted]="shMovie.highlighted">
             <div class="mc-identity">
               <div class="mci-poster">
                 <media-image
@@ -42,7 +42,7 @@
                   alt="{{ shMovie.title }} Poster"
                   [iconSize]="36"
                 />
-                @if (item.highlighted) {
+                @if (shMovie.highlighted) {
                   <span class="mci-badge">
                     <svg [lucideIcon]="icons.StarIcon" [size]="12"></svg>
                   </span>
@@ -86,7 +86,7 @@
               @if (canManage()) {
                 <div
                   class="mcf-highlight"
-                  [class.mcf-highlight--on]="item.highlighted"
+                  [class.mcf-highlight--on]="shMovie.highlighted"
                   [class.mcf-highlight--disabled]="!canHighlight(item)"
                 >
                   <div class="mcfh-label">
@@ -109,7 +109,7 @@
                     <cui-switch
                       size="sm"
                       color="highlight"
-                      [checked]="item.highlighted"
+                      [checked]="shMovie.highlighted"
                       [disabled]="isHighlighting(shMovie.id) || !canHighlight(item)"
                       (checkedChange)="toggleHighlighted(shMovie.id, $event)"
                     />
