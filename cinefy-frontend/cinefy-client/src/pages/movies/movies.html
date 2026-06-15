@@ -70,7 +70,8 @@
   } @else {
     <div class="movies-summary">
       <span class="ms-count"
-        >{{ filtered().length }} {{ filtered().length === 1 ? 'result' : 'results' }}</span
+        >{{ filteredMovies().length }}
+        {{ filteredMovies().length === 1 ? 'result' : 'results' }}</span
       >
       @if (hasFilters()) {
         <span class="ms-divider">·</span>
@@ -109,9 +110,9 @@
       }
     </div>
 
-    @if (filtered().length) {
+    @if (filteredMovies().length) {
       <div class="movies-grid">
-        @for (movie of filtered(); track movie.id) {
+        @for (movie of filteredMovies(); track movie.id) {
           <a
             class="movie-card reveal"
             routerLink="/movies/{{ movie.id }}"

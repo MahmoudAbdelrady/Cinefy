@@ -78,7 +78,7 @@ export class MoviesPage {
 
   protected readonly contentRatings = ['G', 'PG', 'PG-13', 'R', 'NC-17'];
 
-  protected readonly filtered = computed(() => {
+  protected readonly filteredMovies = computed(() => {
     const searchedTitle = this.trimmedSearch().toLowerCase();
     const selectedExperiences = this.selectedExperiences();
     const selectedGenres = this.selectedGenres();
