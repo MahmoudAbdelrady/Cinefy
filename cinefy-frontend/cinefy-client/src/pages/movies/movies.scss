@@ -2,45 +2,116 @@
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
-.now-showing-movies,
-.upcoming-movies {
+.movies-container {
   width: min(100%, 1152px);
   margin: 0 auto;
+  padding: 40px 16px;
 }
 
-.now-showing-movies {
-  padding: 64px 16px;
-}
-
-.upcoming-movies {
-  padding: 32px 16px;
-}
-
-.ms-header {
-  @include flex-between;
-  gap: 16px;
+.movies-header {
   margin-bottom: 32px;
 
-  h3 {
+  h1 {
     font-size: 30px;
     font-weight: 700;
     letter-spacing: -0.025em;
   }
 
-  a {
-    font-size: 14px;
-    font-weight: 500;
-    color: $color-primary;
-    transition: color 150ms ease;
-    text-decoration: none;
-
-    &:hover {
-      color: rgba($color-primary, 0.8);
-    }
+  p {
+    margin-top: 4px;
+    color: $color-muted-foreground;
   }
 }
 
-.ms-content {
+.movies-filters {
+  @include flex-column;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 16px;
+  border: 1px solid rgba($color-border, 0.5);
+  border-radius: $radius-lg;
+  background-color: $color-card;
+
+  @include from-tablet {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.mf-search {
+  flex: 1;
+  min-width: 0;
+}
+
+.mf-select {
+  width: 100%;
+
+  @include from-tablet {
+    width: 176px;
+  }
+}
+
+.mf-clear {
+  @include flex-center;
+  flex-shrink: 0;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: $radius-md;
+  font-size: 14px;
+  font-weight: 500;
+  color: $color-muted-foreground;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+
+  &:hover {
+    color: $color-foreground;
+    background-color: $color-secondary;
+  }
+}
+
+.movies-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.ms-count {
+  font-family: $font-mono;
+  font-size: 14px;
+  color: $color-muted-foreground;
+}
+
+.ms-divider {
+  color: $color-border;
+}
+
+.filter-chip {
+  @include flex-align;
+  gap: 4px;
+  padding: 2px 4px 2px 10px;
+  border-radius: $radius-md;
+  background-color: $color-secondary;
+  font-size: 12px;
+  color: $color-secondary-foreground;
+}
+
+.fc-clear {
+  @include flex-center;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  color: inherit;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background-color: rgba($color-foreground, 0.1);
+  }
+}
+
+.movies-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
@@ -56,21 +127,6 @@
   @media (min-width: 1280px) {
     grid-template-columns: repeat(5, 1fr);
   }
-}
-
-.ms-empty {
-  grid-column: 1 / -1;
-}
-
-.ms-loading {
-  grid-column: 1 / -1;
-  @include flex-center;
-  padding: 48px;
-}
-
-.home-carousel-loading {
-  @include flex-center;
-  padding: 64px;
 }
 
 .movie-card {
@@ -154,4 +210,19 @@
   @include text-truncate;
   font-size: 14px;
   color: $color-muted-foreground;
+}
+
+.movies-empty {
+  @include flex-column;
+  align-items: center;
+  padding: 32px;
+  border: 1px solid rgba($color-border, 0.5);
+  border-radius: $radius-lg;
+  background-color: $color-card;
+  text-align: center;
+}
+
+.movies-loading {
+  @include flex-center;
+  padding: 64px;
 }

@@ -6,6 +6,7 @@ import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
 import com.mdevs.cinefy.dto.hall.HallSummaryDTO;
 import com.mdevs.cinefy.dto.hall.HallTypeDTO;
 import com.mdevs.cinefy.service.HallService;
+import com.mdevs.cinefy.shared.annotation.PublicApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,8 @@ public class HallController {
 
     // ========================= Hall Types =========================
 
+    @PublicApi
+    @PreAuthorize("permitAll()")
     @GetMapping("/types")
     public ResponseEntity<List<HallTypeDTO>> getHallTypes() {
         return ResponseEntity.ok(hallService.getHallTypes());

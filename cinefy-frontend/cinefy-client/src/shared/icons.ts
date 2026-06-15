@@ -13,4 +13,7 @@ export {
   LucidePlay as PlayIcon,
   LucideChevronLeft as ChevronLeftIcon,
   LucideChevronRight as ChevronRightIcon,
+  LucideSearch as SearchIcon,
+  LucideSlidersHorizontal as SlidersHorizontalIcon,
+  LucideX as XIcon,
 } from '@lucide/angular';

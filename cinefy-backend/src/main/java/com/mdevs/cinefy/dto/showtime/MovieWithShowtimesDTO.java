@@ -14,7 +14,5 @@ public class MovieWithShowtimesDTO {
 
     private long totalDraftShowtimes;
 
-    private boolean isHighlighted;
-
     private MovieSummaryDTO movieDetails;
 }

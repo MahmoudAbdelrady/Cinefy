@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -13,7 +15,7 @@ public abstract class MovieBaseDTO {
 
     private String title;
 
-    private String genre;
+    private List<String> genres;
 
     private String releaseDate;
 

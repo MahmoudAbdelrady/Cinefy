@@ -42,14 +42,15 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
     List<MovieWithCommittedShowtimeProjection> findHighlightedWithBookingFlag(@Param("today") LocalDate today, @Param("statuses") Set<ShowtimeStatus> statuses);
 
     @Query("""
-            SELECT m AS movie, (MAX(CASE WHEN s.is3D = true THEN 1 ELSE 0 END) > 0) AS is3D
+            SELECT m AS movie, (MAX(CASE WHEN s.is3D = true THEN 1 ELSE 0 END) > 0) AS is3D, STRING_AGG(ht.name, ',') AS experiences
             FROM TmdbMovie m
             JOIN Showtime s ON s.tmdbMovie = m
+            JOIN s.hall.type ht
             WHERE s.status IN :statuses
             GROUP BY m.id
             ORDER BY m.releaseDate DESC
             """)
-    List<NowShowingProjection> findNowShowingWith3DFlag(@Param("statuses") Set<ShowtimeStatus> statuses, Pageable pageable);
+    List<NowShowingProjection> findNowShowing(@Param("statuses") Set<ShowtimeStatus> statuses, Pageable pageable);
 
     long countByIsHighlightedTrue();
 

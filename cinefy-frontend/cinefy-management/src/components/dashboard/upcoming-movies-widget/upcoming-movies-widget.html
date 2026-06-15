@@ -18,7 +18,7 @@
           <div class="umc-info">
             <div class="umc-details">
               <h4>{{ movie.title }}</h4>
-              <p>{{ movie.genre }} · {{ movie.contentRating }}</p>
+              <p>{{ movie.genres?.join(', ') }} · {{ movie.contentRating }}</p>
               @if (movie.releaseDate; as releaseDate) {
                 <div class="umc-release">
                   <svg [lucideIcon]="icons.ClockIcon" [size]="11"></svg>

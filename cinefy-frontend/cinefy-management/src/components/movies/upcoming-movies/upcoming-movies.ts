@@ -62,12 +62,14 @@ export class UpcomingMoviesComponent {
   protected readonly showAnnouncedOnly = signal(false);
 
   protected readonly filteredMovies = computed(() => {
-    const term = this.searchTerm().trim().toLowerCase();
+    const searchedTitle = this.searchTerm().trim().toLowerCase();
     const announcedOnly = this.showAnnouncedOnly();
     return this.movies().filter((movie) => {
-      if (announcedOnly && !movie.announced) return false;
-      if (term && !movie.title.toLowerCase().includes(term)) return false;
-      return true;
+      const matchesAnnounced = !announcedOnly || movie.announced;
+
+      const matchesName = !searchedTitle || movie.title.toLowerCase().includes(searchedTitle);
+
+      return matchesAnnounced && matchesName;
     });
   });
 

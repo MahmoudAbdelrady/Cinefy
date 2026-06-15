@@ -94,12 +94,15 @@ export class CurrentShowtimesComponent {
   protected readonly showHighlightedOnly = signal(false);
 
   protected readonly filteredMovies = computed(() => {
-    const term = this.searchTerm().trim().toLowerCase();
+    const searchedTitle = this.searchTerm().trim().toLowerCase();
     const highlightedOnly = this.showHighlightedOnly();
     return this.moviesWithShowtimes().filter((item) => {
-      if (highlightedOnly && !item.highlighted) return false;
-      if (term && !item.movieDetails.title.toLowerCase().includes(term)) return false;
-      return true;
+      const matchesHighlight = !highlightedOnly || item.movieDetails.highlighted;
+
+      const matchesName =
+        !searchedTitle || item.movieDetails.title.toLowerCase().includes(searchedTitle);
+
+      return matchesHighlight && matchesName;
     });
   });
 
@@ -225,7 +228,11 @@ export class CurrentShowtimesComponent {
 
   private setHighlighted(movieId: number, highlighted: boolean): void {
     this.moviesWithShowtimes.update((list) =>
-      list.map((item) => (item.movieDetails.id === movieId ? { ...item, highlighted } : item)),
+      list.map((item) =>
+        item.movieDetails.id === movieId
+          ? { ...item, movieDetails: { ...item.movieDetails, highlighted } }
+          : item,
+      ),
     );
   }
 }

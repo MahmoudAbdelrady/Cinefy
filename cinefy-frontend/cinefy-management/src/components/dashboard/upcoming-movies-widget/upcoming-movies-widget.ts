@@ -22,7 +22,7 @@ export class UpcomingMoviesWidgetComponent {
     {
       id: 101,
       title: 'The Dark Knight Returns',
-      genre: 'Action',
+      genres: ['Action'],
       contentRating: 'PG-13',
       releaseDate: '2026-03-30',
       duration: 135,
@@ -32,7 +32,7 @@ export class UpcomingMoviesWidgetComponent {
     {
       id: 102,
       title: 'Interstellar Journey',
-      genre: 'Sci-Fi',
+      genres: ['Sci-Fi'],
       contentRating: 'PG-13',
       releaseDate: '2026-04-05',
       duration: 150,
@@ -42,7 +42,7 @@ export class UpcomingMoviesWidgetComponent {
     {
       id: 103,
       title: 'Eternal Horizon',
-      genre: 'Drama',
+      genres: ['Drama'],
       contentRating: 'PG-13',
       releaseDate: '2026-04-12',
       duration: 125,

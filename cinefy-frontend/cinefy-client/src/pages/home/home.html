@@ -1,6 +1,10 @@
 <div class="home-container">
-  @if (highlightedMovies().length) {
-    <featured-carousel [slides]="highlightedMovies()" />
+  @if (highlightedLoading()) {
+    <div class="home-carousel-loading">
+      <loading-spinner variant="lg" />
+    </div>
+  } @else if (highlightedMovies()!.length) {
+    <featured-carousel [slides]="highlightedMovies()!" />
   }
   <div class="now-showing-movies">
     <div class="ms-header">
@@ -8,37 +12,43 @@
       <a routerLink="/movies">View All</a>
     </div>
     <div class="ms-content">
-      @for (movie of nowShowingMovies(); track movie.id) {
-        <a
-          class="movie-card reveal"
-          routerLink="/movies/{{ movie.id }}"
-          [style.animation-delay.ms]="$index * 70"
-        >
-          <div class="mc-poster">
-            <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
-            <div class="mc-poster-overlay">
-              <button class="mc-tickets-btn btn-primary">Get Tickets</button>
+      @if (nowShowingLoading()) {
+        <div class="ms-loading">
+          <loading-spinner variant="lg" />
+        </div>
+      } @else {
+        @for (movie of nowShowingMovies()!; track movie.id) {
+          <a
+            class="movie-card reveal"
+            routerLink="/movies/{{ movie.id }}"
+            [style.animation-delay.ms]="$index * 70"
+          >
+            <div class="mc-poster">
+              <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
+              <div class="mc-poster-overlay">
+                <button class="mc-tickets-btn btn-primary">Get Tickets</button>
+              </div>
             </div>
-          </div>
-          <div class="mc-meta">
-            <div class="mc-title">
-              <h4>{{ movie.title }}</h4>
-              @if (movie.is3D) {
-                <span>3D</span>
-              }
+            <div class="mc-meta">
+              <div class="mc-title">
+                <h4>{{ movie.title }}</h4>
+                @if (movie.is3D) {
+                  <span>3D</span>
+                }
+              </div>
+              <div class="mc-subtitle">
+                <p>{{ movie.genres?.join(', ') }}</p>
+              </div>
             </div>
-            <div class="mc-subtitle">
-              <p>{{ movie.genre }}</p>
-            </div>
-          </div>
-        </a>
-      } @empty {
-        <empty-state
-          class="ms-empty"
-          [icon]="icons.ClapperboardIcon"
-          title="No movies showing"
-          description="Check back soon for what's playing in theaters."
-        />
+          </a>
+        } @empty {
+          <empty-state
+            class="ms-empty"
+            [icon]="icons.ClapperboardIcon"
+            title="No movies showing"
+            description="Check back soon for what's playing in theaters."
+          />
+        }
       }
     </div>
   </div>
@@ -47,31 +57,37 @@
       <h3>Coming Soon</h3>
     </div>
     <div class="ms-content">
-      @for (movie of upcomingMovies(); track movie.id) {
-        <a
-          class="movie-card reveal"
-          routerLink="/movies/{{ movie.id }}"
-          [style.animation-delay.ms]="$index * 70"
-        >
-          <div class="mc-poster">
-            <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
-          </div>
-          <div class="mc-meta">
-            <div class="mc-title">
-              <h4>{{ movie.title }}</h4>
+      @if (upcomingLoading()) {
+        <div class="ms-loading">
+          <loading-spinner variant="lg" />
+        </div>
+      } @else {
+        @for (movie of upcomingMovies()!; track movie.id) {
+          <a
+            class="movie-card reveal"
+            routerLink="/movies/{{ movie.id }}"
+            [style.animation-delay.ms]="$index * 70"
+          >
+            <div class="mc-poster">
+              <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
             </div>
-            <div class="mc-subtitle">
-              <p>{{ movie.releaseDate | date: 'longDate' }}</p>
+            <div class="mc-meta">
+              <div class="mc-title">
+                <h4>{{ movie.title }}</h4>
+              </div>
+              <div class="mc-subtitle">
+                <p>{{ movie.releaseDate | date: 'longDate' }}</p>
+              </div>
             </div>
-          </div>
-        </a>
-      } @empty {
-        <empty-state
-          class="ms-empty"
-          [icon]="icons.CalendarIcon"
-          title="No upcoming movies"
-          description="New releases will appear here as they're announced."
-        />
+          </a>
+        } @empty {
+          <empty-state
+            class="ms-empty"
+            [icon]="icons.CalendarIcon"
+            title="No upcoming movies"
+            description="New releases will appear here as they're announced."
+          />
+        }
       }
     </div>
   </div>

@@ -7,4 +7,6 @@ public interface NowShowingProjection {
     TmdbMovie getMovie();
 
     Boolean getIs3D();
+
+    String getExperiences();
 }

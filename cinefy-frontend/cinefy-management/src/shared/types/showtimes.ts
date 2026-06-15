@@ -39,7 +39,6 @@ interface PublishShowtimesInput {
 interface MovieWithShowtimes {
   totalShowtimes: number;
   totalDraftShowtimes: number;
-  highlighted: boolean;
   movieDetails: MovieSummary;
 }
 

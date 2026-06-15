@@ -22,8 +22,8 @@
             <div class="sm-details">
               <h4>{{ activeMovie()!.title }}</h4>
               <div class="smd-box">
-                @if (activeMovie()!.genre; as genre) {
-                  <span class="smdb-item">{{ genre }}</span>
+                @if (activeMovie()!.genres?.length) {
+                  <span class="smdb-item">{{ activeMovie()!.genres!.join(', ') }}</span>
                 }
                 @if (activeMovie()!.releaseDate; as releaseDate) {
                   <span class="smdb-item">{{ releaseDate | date: 'MMM d, y' }}</span>

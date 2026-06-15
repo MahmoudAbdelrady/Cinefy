@@ -303,7 +303,6 @@ public class ShowtimeService {
         MovieWithShowtimesDTO dto = new MovieWithShowtimesDTO();
         dto.setTotalShowtimes(counts.getTotalShowtimes());
         dto.setTotalDraftShowtimes(counts.getTotalDraftShowtimes());
-        dto.setHighlighted(movie.isHighlighted());
         dto.setMovieDetails(tmdbMovieService.toMovieSummary(movie));
         return dto;
     }
