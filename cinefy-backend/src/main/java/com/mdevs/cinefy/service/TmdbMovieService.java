@@ -32,6 +32,7 @@ import org.springframework.web.client.RestClient;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -153,8 +154,8 @@ public class TmdbMovieService {
 
     public List<NowShowingMovieDTO> getNowShowing(Integer limit) {
         Pageable pageable = limit != null ? PageRequest.of(0, limit) : Pageable.unpaged();
-        return tmdbMovieRepository.findNowShowingWith3DFlag(ShowtimeStatus.COMMITTED_STATUSES, pageable).stream()
-                .map(row -> toNowShowingMovie(row.getMovie(), row.getIs3D()))
+        return tmdbMovieRepository.findNowShowing(ShowtimeStatus.COMMITTED_STATUSES, pageable).stream()
+                .map(row -> toNowShowingMovie(row.getMovie(), row.getIs3D(), row.getExperiences()))
                 .toList();
     }
 
@@ -359,7 +360,7 @@ public class TmdbMovieService {
         return dto;
     }
 
-    private NowShowingMovieDTO toNowShowingMovie(TmdbMovie movie, boolean is3D) {
+    private NowShowingMovieDTO toNowShowingMovie(TmdbMovie movie, boolean is3D, String experiences) {
         NowShowingMovieDTO dto = new NowShowingMovieDTO();
         dto.setId(movie.getId());
         dto.setTitle(movie.getTitle());
@@ -367,7 +368,11 @@ public class TmdbMovieService {
         dto.setReleaseDate(movie.getReleaseDate() != null ? movie.getReleaseDate().toString() : null);
         dto.setPosterUrl(movie.getPosterUrl());
         dto.setBackdropUrl(movie.getBackdropUrl());
+        dto.setContentRating(movie.getContentRating());
         dto.set3D(is3D);
+        dto.setExperiences(experiences != null
+                ? Arrays.stream(experiences.split(",")).distinct().toList()
+                : List.of());
         return dto;
     }
 
