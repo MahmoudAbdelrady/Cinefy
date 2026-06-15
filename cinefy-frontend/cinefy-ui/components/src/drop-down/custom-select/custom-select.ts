@@ -63,7 +63,6 @@ export class CustomSelectComponent<T> {
 
   protected readonly selectedItems = signal<T[]>([]);
   protected readonly searchTerm = signal("");
-  private readonly wasCleared = signal(false);
 
   private readonly controlValue = toSignal(
     toObservable(this.control).pipe(
@@ -73,7 +72,6 @@ export class CustomSelectComponent<T> {
   );
 
   private readonly itemsFromControl = computed<T[]>(() => {
-    if (!this.control()) return [];
     const formValue = this.controlValue();
     if (formValue == null || formValue === "") return [];
     const valueFn = this.valueFn();
@@ -88,12 +86,9 @@ export class CustomSelectComponent<T> {
   });
 
   private readonly currentItems = computed<T[]>(() => {
-    if (this.wasCleared()) return [];
-    const fromValue = this.valueItems();
-    if (fromValue.length) return fromValue;
-    const internal = this.selectedItems();
-    if (internal.length) return internal;
-    return this.itemsFromControl();
+    if (this.value() != null) return this.valueItems();
+    if (this.control()) return this.itemsFromControl();
+    return this.selectedItems();
   });
 
   protected readonly triggerLabel = computed<{ text: string; extra: number } | null>(() => {
@@ -133,7 +128,6 @@ export class CustomSelectComponent<T> {
   }
 
   protected onValueChange(value: T | T[]) {
-    this.wasCleared.set(false);
     let items: T[];
     if (Array.isArray(value)) {
       items = value;
@@ -162,7 +156,6 @@ export class CustomSelectComponent<T> {
 
   protected clear(event: MouseEvent) {
     event.stopPropagation();
-    this.wasCleared.set(true);
     this.selectedItems.set([]);
     this.control()?.markAsTouched();
     this.cleared.emit();

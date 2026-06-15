@@ -16,9 +16,9 @@
     <div class="mf-select">
       <custom-select
         placeholder="Experience"
-        [items]="experiences()"
+        [items]="experiences"
         [displayFn]="optionDisplayFn"
-        [value]="experience()"
+        [value]="selectedExperiences()"
         [multi]="true"
         [clearable]="true"
         (multiSelectionChange)="onExperienceChange($event)"
@@ -29,9 +29,9 @@
     <div class="mf-select">
       <custom-select
         placeholder="Genre"
-        [items]="genres()"
+        [items]="genres"
         [displayFn]="optionDisplayFn"
-        [value]="genre()"
+        [value]="selectedGenres()"
         [multi]="true"
         [clearable]="true"
         (multiSelectionChange)="onGenreChange($event)"
@@ -62,7 +62,7 @@
         </button>
       </span>
     }
-    @for (experience of experience(); track experience) {
+    @for (experience of selectedExperiences(); track experience) {
       <span class="filter-chip">
         <span>Experience: {{ experience }}</span>
         <button class="fc-clear" (click)="removeExperience(experience)">
@@ -70,7 +70,7 @@
         </button>
       </span>
     }
-    @for (genre of genre(); track genre) {
+    @for (genre of selectedGenres(); track genre) {
       <span class="filter-chip">
         <span>Genre: {{ genre }}</span>
         <button class="fc-clear" (click)="removeGenre(genre)">

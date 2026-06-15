@@ -22,8 +22,6 @@ interface MoviesPageMovie {
   is3D: boolean;
 }
 
-const EXPERIENCE_ORDER: Experience[] = ['Normal', 'Imax', '4DX', 'Gold'];
-
 const PLACEHOLDER_MOVIES: MoviesPageMovie[] = [
   {
     id: 1,
@@ -103,22 +101,37 @@ export class MoviesPage {
   private readonly search = toSignal(this.searchControl.valueChanges, {
     initialValue: this.searchControl.value,
   });
-  protected readonly experience = signal<Experience[]>([]);
-  protected readonly genre = signal<string[]>([]);
+  protected readonly selectedExperiences = signal<Experience[]>([]);
+  protected readonly selectedGenres = signal<string[]>([]);
 
-  protected readonly experiences = computed(() => {
-    const present = new Set(this.movies().map((m) => m.experience));
-    return EXPERIENCE_ORDER.filter((experience) => present.has(experience));
-  });
+  protected readonly experiences: Experience[] = ['Normal', 'Imax', '4DX', 'Gold'];
 
-  protected readonly genres = computed(() =>
-    [...new Set(this.movies().flatMap((m) => m.genres))].sort(),
-  );
+  protected readonly genres = [
+    'Action',
+    'Adventure',
+    'Animation',
+    'Comedy',
+    'Crime',
+    'Documentary',
+    'Drama',
+    'Family',
+    'Fantasy',
+    'History',
+    'Horror',
+    'Music',
+    'Mystery',
+    'Romance',
+    'Science Fiction',
+    'TV Movie',
+    'Thriller',
+    'War',
+    'Western',
+  ];
 
   protected readonly filtered = computed(() => {
     const query = this.trimmedSearch().toLowerCase();
-    const experiences = this.experience();
-    const genres = this.genre();
+    const experiences = this.selectedExperiences();
+    const genres = this.selectedGenres();
     return this.movies().filter((movie) => {
       const matchesName = !query || movie.title.toLowerCase().includes(query);
       const matchesExperience = !experiences.length || experiences.includes(movie.experience);
@@ -130,7 +143,10 @@ export class MoviesPage {
   protected readonly trimmedSearch = computed(() => this.search().trim());
 
   protected readonly hasFilters = computed(
-    () => this.trimmedSearch() !== '' || this.experience().length > 0 || this.genre().length > 0,
+    () =>
+      this.trimmedSearch() !== '' ||
+      this.selectedExperiences().length > 0 ||
+      this.selectedGenres().length > 0,
   );
 
   protected readonly optionDisplayFn = (option: string): string => option;
@@ -140,24 +156,24 @@ export class MoviesPage {
   }
 
   protected onExperienceChange(values: Experience[]): void {
-    this.experience.set(values);
+    this.selectedExperiences.set(values);
   }
 
   protected onGenreChange(values: string[]): void {
-    this.genre.set(values);
+    this.selectedGenres.set(values);
   }
 
   protected removeExperience(value: Experience): void {
-    this.experience.update((values) => values.filter((v) => v !== value));
+    this.selectedExperiences.update((values) => values.filter((v) => v !== value));
   }
 
   protected removeGenre(value: string): void {
-    this.genre.update((values) => values.filter((v) => v !== value));
+    this.selectedGenres.update((values) => values.filter((v) => v !== value));
   }
 
   protected clearAll(): void {
     this.clearSearch();
-    this.experience.set([]);
-    this.genre.set([]);
+    this.selectedExperiences.set([]);
+    this.selectedGenres.set([]);
   }
 }
