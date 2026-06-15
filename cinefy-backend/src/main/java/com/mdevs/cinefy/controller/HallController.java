@@ -27,6 +27,7 @@ public class HallController {
     // ========================= Hall Types =========================
 
     @PublicApi
+    @PreAuthorize("permitAll()")
     @GetMapping("/types")
     public ResponseEntity<List<HallTypeDTO>> getHallTypes() {
         return ResponseEntity.ok(hallService.getHallTypes());

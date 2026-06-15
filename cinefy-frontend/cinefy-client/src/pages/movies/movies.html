@@ -14,13 +14,15 @@
     </div>
 
     <div class="mf-select">
-      <custom-select
+      <async-select
         placeholder="Experience"
-        [items]="experiences"
-        [displayFn]="optionDisplayFn"
-        [value]="selectedExperiences()"
+        [fetchFn]="fetchHallTypes"
+        [displayFn]="hallTypeDisplayFn"
+        [valueFn]="hallTypeValueFn"
+        [initialValue]="selectedExperiences()"
         [multi]="true"
         [clearable]="true"
+        [searchable]="true"
         (multiSelectionChange)="onExperienceChange($event)"
         (cleared)="onExperienceChange([])"
       />
@@ -34,6 +36,7 @@
         [value]="selectedGenres()"
         [multi]="true"
         [clearable]="true"
+        [searchable]="true"
         (multiSelectionChange)="onGenreChange($event)"
         (cleared)="onGenreChange([])"
       />
@@ -80,9 +83,9 @@
           </button>
         </span>
       }
-      @for (experience of selectedExperiences(); track experience) {
+      @for (experience of selectedExperiences(); track experience.id) {
         <span class="filter-chip">
-          <span>Experience: {{ experience }}</span>
+          <span>Experience: {{ experience.name }}</span>
           <button class="fc-clear" (click)="removeExperience(experience)">
             <svg [lucideIcon]="icons.XIcon" [size]="12"></svg>
           </button>

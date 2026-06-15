@@ -6,3 +6,4 @@ export type {
   MovieSearchResult,
   NowShowingMovie,
 } from './movies';
+export type { HallType } from './halls';

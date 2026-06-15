@@ -4,16 +4,16 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
+  AsyncSelectComponent,
   CustomSelectComponent,
   EmptyStateComponent,
   InputField,
   LoadingSpinnerComponent,
   MediaImageComponent,
 } from 'cinefy-ui/components';
-import { MoviesService } from '../../services';
+import { HallsService, MoviesService } from '../../services';
+import type { HallType } from '../../shared/types';
 import { ClapperboardIcon, SearchIcon, SlidersHorizontalIcon, XIcon } from '../../shared/icons';
-
-type Experience = 'Normal' | 'Imax' | '4DX' | 'Gold';
 
 @Component({
   selector: 'movies-page',
@@ -22,6 +22,7 @@ type Experience = 'Normal' | 'Imax' | '4DX' | 'Gold';
     LucideDynamicIcon,
     InputField,
     CustomSelectComponent,
+    AsyncSelectComponent,
     MediaImageComponent,
     EmptyStateComponent,
     LoadingSpinnerComponent,
@@ -38,6 +39,7 @@ export class MoviesPage {
   };
 
   private readonly moviesService = inject(MoviesService);
+  private readonly hallsService = inject(HallsService);
 
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
 
@@ -48,11 +50,9 @@ export class MoviesPage {
   private readonly search = toSignal(this.searchControl.valueChanges, {
     initialValue: this.searchControl.value,
   });
-  protected readonly selectedExperiences = signal<Experience[]>([]);
+  protected readonly selectedExperiences = signal<HallType[]>([]);
   protected readonly selectedGenres = signal<string[]>([]);
   protected readonly selectedContentRatings = signal<string[]>([]);
-
-  protected readonly experiences: Experience[] = ['Normal', 'Imax', '4DX', 'Gold'];
 
   protected readonly genres = [
     'Action',
@@ -86,7 +86,7 @@ export class MoviesPage {
     return (this.movies() ?? []).filter((movie) => {
       const matchesName = !query || movie.title.toLowerCase().includes(query);
       const matchesExperience =
-        !experiences.length || experiences.some((e) => movie.experiences?.includes(e));
+        !experiences.length || experiences.some((e) => movie.experiences?.includes(e.name));
       const matchesGenre = !genres.length || genres.some((g) => movie.genres?.includes(g));
       const matchesContentRating =
         !contentRatings.length ||
@@ -107,11 +107,17 @@ export class MoviesPage {
 
   protected readonly optionDisplayFn = (option: string): string => option;
 
+  protected readonly fetchHallTypes = () => this.hallsService.getHallTypes();
+
+  protected readonly hallTypeDisplayFn = (type: HallType): string => type.name;
+
+  protected readonly hallTypeValueFn = (type: HallType): string => type.id;
+
   protected clearSearch(): void {
     this.searchControl.setValue('');
   }
 
-  protected onExperienceChange(values: Experience[]): void {
+  protected onExperienceChange(values: HallType[]): void {
     this.selectedExperiences.set(values);
   }
 
@@ -123,8 +129,8 @@ export class MoviesPage {
     this.selectedContentRatings.set(values);
   }
 
-  protected removeExperience(value: Experience): void {
-    this.selectedExperiences.update((values) => values.filter((v) => v !== value));
+  protected removeExperience(value: HallType): void {
+    this.selectedExperiences.update((values) => values.filter((v) => v.id !== value.id));
   }
 
   protected removeGenre(value: string): void {
