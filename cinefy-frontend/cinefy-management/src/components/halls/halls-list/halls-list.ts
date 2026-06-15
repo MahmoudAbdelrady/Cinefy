@@ -8,6 +8,7 @@ import {
   EyeIcon,
   LayoutIcon,
   SearchIcon,
+  SlidersHorizontalIcon,
   TagIcon,
   UsersIcon,
 } from '../../../shared/icons';
@@ -56,6 +57,7 @@ export class HallsListComponent {
     DeleteIcon,
     AlertIcon,
     TagIcon,
+    SlidersHorizontalIcon,
   };
 
   private readonly hallsService = inject(HallsService);
@@ -84,6 +86,10 @@ export class HallsListComponent {
       return matchesSearch && matchesStatus;
     });
   });
+
+  protected readonly hasFilters = computed(
+    () => this.searchTerm().trim() !== '' || this.statusFilter() !== undefined,
+  );
 
   protected readonly statusDisplayFn = (status: HallStatus): string => HALL_STATUS_LABELS[status];
 

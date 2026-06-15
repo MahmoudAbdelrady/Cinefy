@@ -51,6 +51,7 @@ export {
   LucideSettings as SettingsIcon,
   LucideShieldCheck as ShieldCheckIcon,
   LucideShieldX as ShieldXIcon,
+  LucideSlidersHorizontal as SlidersHorizontalIcon,
   LucideSparkles as SparklesIcon,
   LucideSquarePen as EditIcon,
   LucideStar as StarIcon,

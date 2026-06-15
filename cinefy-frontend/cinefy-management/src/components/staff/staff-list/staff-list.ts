@@ -24,6 +24,7 @@ import {
   EyeIcon,
   PhoneIcon,
   SearchIcon,
+  SlidersHorizontalIcon,
   UsersIcon,
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
@@ -85,6 +86,7 @@ export class StaffListComponent {
     EditIcon,
     DeleteIcon,
     AlertIcon,
+    SlidersHorizontalIcon,
   };
 
   private readonly staffService = inject(StaffService);
@@ -114,6 +116,7 @@ export class StaffListComponent {
   protected readonly staffPage = signal<PaginatedResponse<StaffMemberSummary> | null>(null);
 
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+  private readonly appliedSearch = signal('');
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
 
@@ -121,6 +124,10 @@ export class StaffListComponent {
   protected readonly totalItems = computed(() => this.staffPage()?.page.totalElements ?? 0);
   protected readonly pageCount = computed(() =>
     Math.max(1, this.staffPage()?.page.totalPages ?? 1),
+  );
+
+  protected readonly hasFilters = computed(
+    () => this.appliedSearch() !== '' || this.positionFilter() !== undefined,
   );
 
   protected readonly canManageRow = (member: StaffMemberSummary): boolean => {
@@ -133,7 +140,10 @@ export class StaffListComponent {
       startWith(''),
       debounceTime(SEARCH_DEBOUNCE_MS),
       distinctUntilChanged(),
-      tap(() => this.page.set(1)),
+      tap((search) => {
+        this.page.set(1);
+        this.appliedSearch.set(search.trim());
+      }),
     ),
     toObservable(this.positionFilter),
     toObservable(this.page),

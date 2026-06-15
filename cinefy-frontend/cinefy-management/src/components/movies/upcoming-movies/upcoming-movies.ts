@@ -3,7 +3,13 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CalendarIcon, MegaphoneIcon, SearchIcon, StarIcon } from '../../../shared/icons';
+import {
+  CalendarIcon,
+  MegaphoneIcon,
+  SearchIcon,
+  SlidersHorizontalIcon,
+  StarIcon,
+} from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
 import { differenceInCalendarDays } from 'date-fns';
 import { NgpButton } from 'ng-primitives/button';
@@ -41,6 +47,7 @@ export class UpcomingMoviesComponent {
     SearchIcon,
     MegaphoneIcon,
     StarIcon,
+    SlidersHorizontalIcon,
   };
 
   private readonly moviesService = inject(MoviesService);
@@ -72,6 +79,10 @@ export class UpcomingMoviesComponent {
       return matchesAnnounced && matchesName;
     });
   });
+
+  protected readonly hasFilters = computed(
+    () => this.searchTerm().trim() !== '' || this.showAnnouncedOnly(),
+  );
 
   constructor() {
     afterNextRender(() => {

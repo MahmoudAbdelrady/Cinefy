@@ -147,9 +147,13 @@
         </div>
       } @empty {
         <empty-state
-          [icon]="icons.UsersIcon"
-          title="No staff members yet"
-          description="Add a staff member to start building your cinema team."
+          [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.UsersIcon"
+          [title]="hasFilters() ? 'No staff members found' : 'No staff members yet'"
+          [description]="
+            hasFilters()
+              ? 'Try adjusting your filters.'
+              : 'Add a staff member to start building your cinema team.'
+          "
         />
       }
     }

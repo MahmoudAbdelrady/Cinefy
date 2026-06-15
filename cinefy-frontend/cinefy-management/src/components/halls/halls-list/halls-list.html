@@ -126,11 +126,9 @@
           </div>
         } @empty {
           <empty-state
-            [icon]="icons.LayoutIcon"
+            [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.LayoutIcon"
             title="No halls found"
-            [description]="
-              searchControl.value || statusFilter() ? 'Try adjusting your search or filters' : null
-            "
+            [description]="hasFilters() ? 'Try adjusting your filters.' : null"
           />
         }
       </div>

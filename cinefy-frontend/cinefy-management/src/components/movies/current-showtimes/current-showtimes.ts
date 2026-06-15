@@ -13,6 +13,7 @@ import {
   DeleteIcon,
   PlusIcon,
   SearchIcon,
+  SlidersHorizontalIcon,
   StarIcon,
   WarningIcon,
 } from '../../../shared/icons';
@@ -65,6 +66,7 @@ export class CurrentShowtimesComponent {
     SearchIcon,
     ClockIcon,
     StarIcon,
+    SlidersHorizontalIcon,
   };
 
   private readonly showtimesService = inject(ShowtimesService);
@@ -105,6 +107,10 @@ export class CurrentShowtimesComponent {
       return matchesHighlight && matchesName;
     });
   });
+
+  protected readonly hasFilters = computed(
+    () => this.searchTerm().trim() !== '' || this.showHighlightedOnly(),
+  );
 
   constructor() {
     this.refetch$
