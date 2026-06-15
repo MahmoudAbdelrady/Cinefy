@@ -368,9 +368,7 @@ public class TmdbMovieService {
         dto.setBackdropUrl(movie.getBackdropUrl());
         dto.setContentRating(movie.getContentRating());
         dto.set3D(is3D);
-        dto.setExperiences(experiences != null
-                ? Arrays.stream(experiences.split(",")).distinct().toList()
-                : List.of());
+        dto.setExperiences(experiences != null ? Arrays.stream(experiences.split(",")).distinct().toList() : List.of());
         return dto;
     }
 
