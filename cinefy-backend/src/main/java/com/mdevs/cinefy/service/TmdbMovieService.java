@@ -310,7 +310,7 @@ public class TmdbMovieService {
     private void applyDetailsToMovie(TmdbMovie movie, MovieDetailDTO details) {
         movie.setTitle(details.getTitle());
         movie.setSynopsis(details.getSynopsis());
-        movie.setGenres(details.getGenre());
+        movie.setGenres(details.getGenres() != null ? String.join(",", details.getGenres()) : null);
         movie.setContentRating(details.getContentRating());
         movie.setReleaseDate(StringUtils.isNotEmpty(details.getReleaseDate()) ? LocalDate.parse(details.getReleaseDate()) : null);
         movie.setDurationMinutes(details.getDuration());
@@ -334,7 +334,7 @@ public class TmdbMovieService {
         dto.setBackdropUrl(toImageUrl(BACKDROP_SIZE, backdropPath));
 
         List<String> genreNames = node.path("genre_ids").valueStream().map(g -> resolveGenre(g.asInt())).toList();
-        dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
+        dto.setGenres(genreNames.isEmpty() ? null : genreNames);
 
         return dto;
     }
@@ -343,7 +343,7 @@ public class TmdbMovieService {
         UpcomingMovieDTO dto = new UpcomingMovieDTO();
         dto.setId(source.getId());
         dto.setTitle(source.getTitle());
-        dto.setGenre(source.getGenre());
+        dto.setGenres(source.getGenres());
         dto.setReleaseDate(source.getReleaseDate());
         dto.setPosterUrl(source.getPosterUrl());
         dto.setBackdropUrl(source.getBackdropUrl());
@@ -364,7 +364,7 @@ public class TmdbMovieService {
         NowShowingMovieDTO dto = new NowShowingMovieDTO();
         dto.setId(movie.getId());
         dto.setTitle(movie.getTitle());
-        dto.setGenre(movie.getGenres());
+        dto.setGenres(splitGenres(movie.getGenres()));
         dto.setReleaseDate(movie.getReleaseDate() != null ? movie.getReleaseDate().toString() : null);
         dto.setPosterUrl(movie.getPosterUrl());
         dto.setBackdropUrl(movie.getBackdropUrl());
@@ -380,7 +380,7 @@ public class TmdbMovieService {
         MovieSearchResultDTO dto = new MovieSearchResultDTO();
         dto.setId(movie.getId());
         dto.setTitle(movie.getTitle());
-        dto.setGenre(movie.getGenres());
+        dto.setGenres(splitGenres(movie.getGenres()));
         dto.setReleaseDate(movie.getReleaseDate() != null ? movie.getReleaseDate().toString() : null);
         dto.setPosterUrl(movie.getPosterUrl());
         dto.setBackdropUrl(movie.getBackdropUrl());
@@ -401,7 +401,7 @@ public class TmdbMovieService {
         dto.setBackdropUrl(toImageUrl(BACKDROP_SIZE, backdropPath));
 
         List<String> genreNames = node.path("genres").valueStream().map(g -> g.path("name").stringValue()).toList();
-        dto.setGenre(genreNames.isEmpty() ? null : String.join(", ", genreNames));
+        dto.setGenres(genreNames.isEmpty() ? null : genreNames);
 
         List<JsonNode> usReleaseDates = node.path("release_dates").path("results").valueStream()
                 .filter(r -> "US".equals(r.path("iso_3166_1").stringValue()))
@@ -428,7 +428,7 @@ public class TmdbMovieService {
         dto.setId(m.getId());
         dto.setTitle(m.getTitle());
         dto.setSynopsis(m.getSynopsis());
-        dto.setGenre(m.getGenres());
+        dto.setGenres(splitGenres(m.getGenres()));
         dto.setContentRating(m.getContentRating());
         dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
         dto.setDuration(m.getDurationMinutes());
@@ -443,7 +443,7 @@ public class TmdbMovieService {
         MovieSummaryDTO dto = new MovieSummaryDTO();
         dto.setId(m.getId());
         dto.setTitle(m.getTitle());
-        dto.setGenre(m.getGenres());
+        dto.setGenres(splitGenres(m.getGenres()));
         dto.setContentRating(m.getContentRating());
         dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
         dto.setDuration(m.getDurationMinutes());
@@ -469,6 +469,16 @@ public class TmdbMovieService {
                 .filter(StringUtils::isNotEmpty)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private List<String> splitGenres(String genres) {
+        if (StringUtils.isEmpty(genres)) {
+            return null;
+        }
+        return Arrays.stream(genres.split(","))
+                .map(String::trim)
+                .filter(StringUtils::isNotEmpty)
+                .toList();
     }
 
     private String resolveGenre(int id) {

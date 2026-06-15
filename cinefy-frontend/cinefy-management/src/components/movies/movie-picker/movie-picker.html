@@ -36,8 +36,8 @@
             <div class="mi-details">
               <h4>{{ movie.title }}</h4>
               <div class="mid-box">
-                @if (movie.genre) {
-                  <span class="midb-item">{{ movie.genre }}</span>
+                @if (movie.genres?.length) {
+                  <span class="midb-item">{{ movie.genres!.join(', ') }}</span>
                 }
                 @if (movie.releaseDate) {
                   <span class="midb-item">{{ movie.releaseDate | date: 'MMM d, y' }}</span>
