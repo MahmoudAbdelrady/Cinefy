@@ -41,6 +41,8 @@ interface NowShowingMovie {
   id: number;
   title: string;
   genres?: string[];
+  experiences?: string[];
+  contentRating?: string;
   releaseDate?: string;
   posterUrl?: string;
   backdropUrl?: string;

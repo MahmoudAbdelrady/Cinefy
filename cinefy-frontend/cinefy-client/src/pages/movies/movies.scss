@@ -221,3 +221,8 @@
   background-color: $color-card;
   text-align: center;
 }
+
+.movies-loading {
+  @include flex-center;
+  padding: 64px;
+}

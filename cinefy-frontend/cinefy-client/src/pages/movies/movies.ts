@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -7,78 +7,13 @@ import {
   CustomSelectComponent,
   EmptyStateComponent,
   InputField,
+  LoadingSpinnerComponent,
   MediaImageComponent,
 } from 'cinefy-ui/components';
+import { MoviesService } from '../../services';
 import { ClapperboardIcon, SearchIcon, SlidersHorizontalIcon, XIcon } from '../../shared/icons';
 
 type Experience = 'Normal' | 'Imax' | '4DX' | 'Gold';
-
-interface MoviesPageMovie {
-  id: number;
-  title: string;
-  genres: string[];
-  experience: Experience;
-  contentRating: string;
-  posterUrl?: string;
-  is3D: boolean;
-}
-
-const PLACEHOLDER_MOVIES: MoviesPageMovie[] = [
-  {
-    id: 1,
-    title: 'Dune: Part Two',
-    genres: ['Sci-Fi', 'Adventure'],
-    experience: 'Imax',
-    contentRating: 'PG-13',
-    posterUrl: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
-    is3D: true,
-  },
-  {
-    id: 2,
-    title: 'Oppenheimer',
-    genres: ['Biography', 'Drama', 'History'],
-    experience: 'Imax',
-    contentRating: 'R',
-    posterUrl: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
-    is3D: false,
-  },
-  {
-    id: 3,
-    title: 'Furiosa: A Mad Max Saga',
-    genres: ['Action', 'Adventure', 'Sci-Fi'],
-    experience: '4DX',
-    contentRating: 'R',
-    posterUrl: 'https://image.tmdb.org/t/p/w500/iADOJ8Zymht2JPMoy3R7xceZprc.jpg',
-    is3D: false,
-  },
-  {
-    id: 4,
-    title: 'Deadpool & Wolverine',
-    genres: ['Action', 'Comedy', 'Sci-Fi'],
-    experience: 'Gold',
-    contentRating: 'R',
-    posterUrl: 'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg',
-    is3D: false,
-  },
-  {
-    id: 5,
-    title: 'Inside Out 2',
-    genres: ['Animation', 'Adventure', 'Comedy'],
-    experience: 'Normal',
-    contentRating: 'PG',
-    posterUrl: 'https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg',
-    is3D: false,
-  },
-  {
-    id: 6,
-    title: 'Kingdom of the Planet of the Apes',
-    genres: ['Action', 'Adventure', 'Sci-Fi'],
-    experience: 'Normal',
-    contentRating: 'PG-13',
-    posterUrl: 'https://image.tmdb.org/t/p/w500/gKkl37BQuKTanygYQG1pyYgLVgf.jpg',
-    is3D: false,
-  },
-];
 
 @Component({
   selector: 'movies-page',
@@ -89,6 +24,7 @@ const PLACEHOLDER_MOVIES: MoviesPageMovie[] = [
     CustomSelectComponent,
     MediaImageComponent,
     EmptyStateComponent,
+    LoadingSpinnerComponent,
   ],
   templateUrl: './movies.html',
   styleUrl: './movies.scss',
@@ -101,9 +37,13 @@ export class MoviesPage {
     ClapperboardIcon,
   };
 
+  private readonly moviesService = inject(MoviesService);
+
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
 
-  private readonly movies = signal<MoviesPageMovie[]>(PLACEHOLDER_MOVIES);
+  private readonly movies = toSignal(this.moviesService.getNowShowing());
+
+  protected readonly moviesLoading = computed(() => this.movies() === undefined);
 
   private readonly search = toSignal(this.searchControl.valueChanges, {
     initialValue: this.searchControl.value,
@@ -143,12 +83,14 @@ export class MoviesPage {
     const experiences = this.selectedExperiences();
     const genres = this.selectedGenres();
     const contentRatings = this.selectedContentRatings();
-    return this.movies().filter((movie) => {
+    return (this.movies() ?? []).filter((movie) => {
       const matchesName = !query || movie.title.toLowerCase().includes(query);
-      const matchesExperience = !experiences.length || experiences.includes(movie.experience);
-      const matchesGenre = !genres.length || genres.some((g) => movie.genres.includes(g));
+      const matchesExperience =
+        !experiences.length || experiences.some((e) => movie.experiences?.includes(e));
+      const matchesGenre = !genres.length || genres.some((g) => movie.genres?.includes(g));
       const matchesContentRating =
-        !contentRatings.length || contentRatings.includes(movie.contentRating);
+        !contentRatings.length ||
+        (movie.contentRating != null && contentRatings.includes(movie.contentRating));
       return matchesName && matchesExperience && matchesGenre && matchesContentRating;
     });
   });
