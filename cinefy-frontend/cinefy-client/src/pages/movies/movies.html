@@ -39,6 +39,19 @@
       />
     </div>
 
+    <div class="mf-select">
+      <custom-select
+        placeholder="Content Rating"
+        [items]="contentRatings"
+        [displayFn]="optionDisplayFn"
+        [value]="selectedContentRatings()"
+        [multi]="true"
+        [clearable]="true"
+        (multiSelectionChange)="onContentRatingChange($event)"
+        (cleared)="onContentRatingChange([])"
+      />
+    </div>
+
     @if (hasFilters()) {
       <button class="mf-clear" (click)="clearAll()">
         <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
@@ -74,6 +87,14 @@
       <span class="filter-chip">
         <span>Genre: {{ genre }}</span>
         <button class="fc-clear" (click)="removeGenre(genre)">
+          <svg [lucideIcon]="icons.XIcon" [size]="12"></svg>
+        </button>
+      </span>
+    }
+    @for (contentRating of selectedContentRatings(); track contentRating) {
+      <span class="filter-chip">
+        <span>Content Rating: {{ contentRating }}</span>
+        <button class="fc-clear" (click)="removeContentRating(contentRating)">
           <svg [lucideIcon]="icons.XIcon" [size]="12"></svg>
         </button>
       </span>
@@ -115,7 +136,7 @@
         [title]="hasFilters() ? 'No movies match your filters' : 'No movies showing'"
         [description]="
           hasFilters()
-            ? 'Try a different search, language, or genre.'
+            ? 'Try adjusting your filters.'
             : 'Check back soon for what\'s playing in theaters.'
         "
       />

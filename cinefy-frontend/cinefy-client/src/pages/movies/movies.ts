@@ -18,6 +18,7 @@ interface MoviesPageMovie {
   title: string;
   genres: string[];
   experience: Experience;
+  contentRating: string;
   posterUrl?: string;
   is3D: boolean;
 }
@@ -28,6 +29,7 @@ const PLACEHOLDER_MOVIES: MoviesPageMovie[] = [
     title: 'Dune: Part Two',
     genres: ['Sci-Fi', 'Adventure'],
     experience: 'Imax',
+    contentRating: 'PG-13',
     posterUrl: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
     is3D: true,
   },
@@ -36,6 +38,7 @@ const PLACEHOLDER_MOVIES: MoviesPageMovie[] = [
     title: 'Oppenheimer',
     genres: ['Biography', 'Drama', 'History'],
     experience: 'Imax',
+    contentRating: 'R',
     posterUrl: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
     is3D: false,
   },
@@ -44,6 +47,7 @@ const PLACEHOLDER_MOVIES: MoviesPageMovie[] = [
     title: 'Furiosa: A Mad Max Saga',
     genres: ['Action', 'Adventure', 'Sci-Fi'],
     experience: '4DX',
+    contentRating: 'R',
     posterUrl: 'https://image.tmdb.org/t/p/w500/iADOJ8Zymht2JPMoy3R7xceZprc.jpg',
     is3D: false,
   },
@@ -52,6 +56,7 @@ const PLACEHOLDER_MOVIES: MoviesPageMovie[] = [
     title: 'Deadpool & Wolverine',
     genres: ['Action', 'Comedy', 'Sci-Fi'],
     experience: 'Gold',
+    contentRating: 'R',
     posterUrl: 'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg',
     is3D: false,
   },
@@ -60,6 +65,7 @@ const PLACEHOLDER_MOVIES: MoviesPageMovie[] = [
     title: 'Inside Out 2',
     genres: ['Animation', 'Adventure', 'Comedy'],
     experience: 'Normal',
+    contentRating: 'PG',
     posterUrl: 'https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg',
     is3D: false,
   },
@@ -68,6 +74,7 @@ const PLACEHOLDER_MOVIES: MoviesPageMovie[] = [
     title: 'Kingdom of the Planet of the Apes',
     genres: ['Action', 'Adventure', 'Sci-Fi'],
     experience: 'Normal',
+    contentRating: 'PG-13',
     posterUrl: 'https://image.tmdb.org/t/p/w500/gKkl37BQuKTanygYQG1pyYgLVgf.jpg',
     is3D: false,
   },
@@ -103,6 +110,7 @@ export class MoviesPage {
   });
   protected readonly selectedExperiences = signal<Experience[]>([]);
   protected readonly selectedGenres = signal<string[]>([]);
+  protected readonly selectedContentRatings = signal<string[]>([]);
 
   protected readonly experiences: Experience[] = ['Normal', 'Imax', '4DX', 'Gold'];
 
@@ -128,15 +136,20 @@ export class MoviesPage {
     'Western',
   ];
 
+  protected readonly contentRatings = ['G', 'PG', 'PG-13', 'R', 'NC-17'];
+
   protected readonly filtered = computed(() => {
     const query = this.trimmedSearch().toLowerCase();
     const experiences = this.selectedExperiences();
     const genres = this.selectedGenres();
+    const contentRatings = this.selectedContentRatings();
     return this.movies().filter((movie) => {
       const matchesName = !query || movie.title.toLowerCase().includes(query);
       const matchesExperience = !experiences.length || experiences.includes(movie.experience);
       const matchesGenre = !genres.length || genres.some((g) => movie.genres.includes(g));
-      return matchesName && matchesExperience && matchesGenre;
+      const matchesContentRating =
+        !contentRatings.length || contentRatings.includes(movie.contentRating);
+      return matchesName && matchesExperience && matchesGenre && matchesContentRating;
     });
   });
 
@@ -146,7 +159,8 @@ export class MoviesPage {
     () =>
       this.trimmedSearch() !== '' ||
       this.selectedExperiences().length > 0 ||
-      this.selectedGenres().length > 0,
+      this.selectedGenres().length > 0 ||
+      this.selectedContentRatings().length > 0,
   );
 
   protected readonly optionDisplayFn = (option: string): string => option;
@@ -163,6 +177,10 @@ export class MoviesPage {
     this.selectedGenres.set(values);
   }
 
+  protected onContentRatingChange(values: string[]): void {
+    this.selectedContentRatings.set(values);
+  }
+
   protected removeExperience(value: Experience): void {
     this.selectedExperiences.update((values) => values.filter((v) => v !== value));
   }
@@ -171,9 +189,14 @@ export class MoviesPage {
     this.selectedGenres.update((values) => values.filter((v) => v !== value));
   }
 
+  protected removeContentRating(value: string): void {
+    this.selectedContentRatings.update((values) => values.filter((v) => v !== value));
+  }
+
   protected clearAll(): void {
     this.clearSearch();
     this.selectedExperiences.set([]);
     this.selectedGenres.set([]);
+    this.selectedContentRatings.set([]);
   }
 }
