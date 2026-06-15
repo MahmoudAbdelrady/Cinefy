@@ -1,7 +1,7 @@
 interface MovieSearchResult {
   id: number;
   title: string;
-  genre?: string;
+  genres?: string[];
   releaseDate?: string;
   posterUrl?: string;
   backdropUrl?: string;
@@ -10,7 +10,7 @@ interface MovieSearchResult {
 interface UpcomingMovie {
   id: number;
   title: string;
-  genre?: string;
+  genres?: string[];
   releaseDate?: string;
   posterUrl?: string;
   backdropUrl?: string;
@@ -22,7 +22,7 @@ interface UpcomingMovie {
 interface MovieSummary {
   id: number;
   title: string;
-  genre?: string;
+  genres?: string[];
   contentRating?: string;
   releaseDate?: string;
   duration?: number;
@@ -35,7 +35,7 @@ interface MovieDetail {
   id: number;
   title: string;
   synopsis?: string;
-  genre?: string;
+  genres?: string[];
   contentRating?: string;
   releaseDate?: string;
   duration?: number;

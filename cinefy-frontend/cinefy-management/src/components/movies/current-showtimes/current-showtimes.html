@@ -65,8 +65,8 @@
                     }
                   </span>
                 </div>
-                @if (shMovie.genre) {
-                  <p class="mcib-genre">{{ shMovie.genre }}</p>
+                @if (shMovie.genres?.length) {
+                  <p class="mcib-genre">{{ shMovie.genres!.join(', ') }}</p>
                 }
                 <p class="mcib-meta">
                   @if (shMovie.contentRating) {
