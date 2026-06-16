@@ -13,7 +13,7 @@ public class NowShowingMovieDTO extends MovieBaseDTO {
     @JsonProperty("is3D")
     private boolean is3D;
 
-    private List<String> experiences;
+    private List<String> hallTypes;
 
     private String contentRating;
 }
