@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from '../layout/app-layout/app-layout';
-import { HomePage, MoviesPage } from '../pages';
+import { HomePage, MovieDetailPage, MoviesPage } from '../pages';
 
 export const routes: Routes = [
   {
@@ -14,6 +14,10 @@ export const routes: Routes = [
       {
         path: 'movies',
         component: MoviesPage,
+      },
+      {
+        path: 'movie-detail/:movieId',
+        component: MovieDetailPage,
       },
     ],
   },
