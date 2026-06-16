@@ -168,7 +168,7 @@ public class TmdbMovieService {
                     NowShowingMovieDTO dto = populateBaseFields(new NowShowingMovieDTO(), row.getMovie());
                     dto.setContentRating(row.getMovie().getContentRating());
                     dto.set3D(row.getIs3D());
-                    dto.setExperiences(row.getExperiences() != null ? Arrays.stream(row.getExperiences().split(",")).distinct().toList() : List.of());
+                    dto.setHallTypes(row.getHallTypes() != null ? Arrays.stream(row.getHallTypes().split(",")).distinct().toList() : List.of());
                     return dto;
                 })
                 .toList();

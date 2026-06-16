@@ -8,5 +8,5 @@ public interface NowShowingProjection {
 
     Boolean getIs3D();
 
-    String getExperiences();
+    String getHallTypes();
 }

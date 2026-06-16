@@ -19,12 +19,12 @@
         [fetchFn]="fetchHallTypes"
         [displayFn]="hallTypeDisplayFn"
         [valueFn]="hallTypeValueFn"
-        [initialValue]="selectedExperiences()"
+        [initialValue]="selectedHallTypes()"
         [multi]="true"
         [clearable]="true"
         [searchable]="true"
-        (multiSelectionChange)="onExperienceChange($event)"
-        (cleared)="onExperienceChange([])"
+        (multiSelectionChange)="onHallTypeChange($event)"
+        (cleared)="onHallTypeChange([])"
       />
     </div>
 
@@ -84,10 +84,10 @@
           </button>
         </span>
       }
-      @for (experience of selectedExperiences(); track experience.id) {
+      @for (hallType of selectedHallTypes(); track hallType.id) {
         <span class="filter-chip">
-          <span>Experience: {{ experience.name }}</span>
-          <button class="fc-clear" (click)="removeExperience(experience)">
+          <span>Experience: {{ hallType.name }}</span>
+          <button class="fc-clear" (click)="removeHallType(hallType)">
             <svg [lucideIcon]="icons.XIcon" [size]="12"></svg>
           </button>
         </span>
