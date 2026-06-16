@@ -3,6 +3,7 @@ package com.mdevs.cinefy.service;
 import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.JsonNode;
 import com.mdevs.cinefy.dto.movie.HighlightedMovieDTO;
+import com.mdevs.cinefy.dto.movie.MovieBaseDTO;
 import com.mdevs.cinefy.dto.movie.MovieCredits;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
@@ -134,28 +135,42 @@ public class TmdbMovieService {
                 .map(dto -> {
                     MovieWithCommittedShowtimeProjection row = moviesById.get(dto.getId());
                     TmdbMovie local = row != null ? row.getMovie() : null;
-                    boolean hasCommittedShowtimes = row != null && row.getHasCommittedShowtime();
-                    return toUpcomingMovie(dto, local, hasCommittedShowtimes);
+                    UpcomingMovieDTO upcomingDto = populateBaseFields(new UpcomingMovieDTO(), dto);
+                    upcomingDto.setAnnounced(local != null && local.isAnnounced());
+                    upcomingDto.setHighlighted(local != null && local.isHighlighted());
+                    upcomingDto.setHasCommittedShowtimes(row != null && row.getHasCommittedShowtime());
+                    return upcomingDto;
                 })
                 .toList();
     }
 
     public List<MovieSearchResultDTO> getAnnouncedUpcoming() {
         return tmdbMovieRepository.findAnnouncedUpcoming(LocalDate.now()).stream()
-                .map(this::toMovieSearchResult)
+                .map(movie -> populateBaseFields(new MovieSearchResultDTO(), movie))
                 .toList();
     }
 
     public List<HighlightedMovieDTO> getHighlighted() {
         return tmdbMovieRepository.findHighlightedWithBookingFlag(LocalDate.now(), ShowtimeStatus.COMMITTED_STATUSES).stream()
-                .map(row -> toHighlightedMovie(row.getMovie(), row.getHasCommittedShowtime()))
+                .map(row -> {
+                    HighlightedMovieDTO dto = new HighlightedMovieDTO();
+                    dto.setBookingOpened(row.getHasCommittedShowtime());
+                    dto.setMovieDetails(toMovieDetail(row.getMovie()));
+                    return dto;
+                })
                 .toList();
     }
 
     public List<NowShowingMovieDTO> getNowShowing(Integer limit) {
         Pageable pageable = limit != null ? PageRequest.of(0, limit) : Pageable.unpaged();
         return tmdbMovieRepository.findNowShowing(ShowtimeStatus.COMMITTED_STATUSES, pageable).stream()
-                .map(row -> toNowShowingMovie(row.getMovie(), row.getIs3D(), row.getExperiences()))
+                .map(row -> {
+                    NowShowingMovieDTO dto = populateBaseFields(new NowShowingMovieDTO(), row.getMovie());
+                    dto.setContentRating(row.getMovie().getContentRating());
+                    dto.set3D(row.getIs3D());
+                    dto.setExperiences(row.getExperiences() != null ? Arrays.stream(row.getExperiences().split(",")).distinct().toList() : List.of());
+                    return dto;
+                })
                 .toList();
     }
 
@@ -337,49 +352,23 @@ public class TmdbMovieService {
         return dto;
     }
 
-    private UpcomingMovieDTO toUpcomingMovie(MovieSearchResultDTO source, TmdbMovie local, boolean hasCommittedShowtimes) {
-        UpcomingMovieDTO dto = new UpcomingMovieDTO();
+    private <T extends MovieBaseDTO> T populateBaseFields(T dto, TmdbMovie movie) {
+        dto.setId(movie.getId());
+        dto.setTitle(movie.getTitle());
+        dto.setGenres(splitGenres(movie.getGenres()));
+        dto.setReleaseDate(movie.getReleaseDate() != null ? movie.getReleaseDate().toString() : null);
+        dto.setPosterUrl(movie.getPosterUrl());
+        dto.setBackdropUrl(movie.getBackdropUrl());
+        return dto;
+    }
+
+    private <T extends MovieBaseDTO> T populateBaseFields(T dto, MovieBaseDTO source) {
         dto.setId(source.getId());
         dto.setTitle(source.getTitle());
         dto.setGenres(source.getGenres());
         dto.setReleaseDate(source.getReleaseDate());
         dto.setPosterUrl(source.getPosterUrl());
         dto.setBackdropUrl(source.getBackdropUrl());
-        dto.setAnnounced(local != null && local.isAnnounced());
-        dto.setHighlighted(local != null && local.isHighlighted());
-        dto.setHasCommittedShowtimes(hasCommittedShowtimes);
-        return dto;
-    }
-
-    private HighlightedMovieDTO toHighlightedMovie(TmdbMovie movie, boolean bookingOpened) {
-        HighlightedMovieDTO dto = new HighlightedMovieDTO();
-        dto.setBookingOpened(bookingOpened);
-        dto.setMovieDetails(toMovieDetail(movie));
-        return dto;
-    }
-
-    private NowShowingMovieDTO toNowShowingMovie(TmdbMovie movie, boolean is3D, String experiences) {
-        NowShowingMovieDTO dto = new NowShowingMovieDTO();
-        dto.setId(movie.getId());
-        dto.setTitle(movie.getTitle());
-        dto.setGenres(splitGenres(movie.getGenres()));
-        dto.setReleaseDate(movie.getReleaseDate() != null ? movie.getReleaseDate().toString() : null);
-        dto.setPosterUrl(movie.getPosterUrl());
-        dto.setBackdropUrl(movie.getBackdropUrl());
-        dto.setContentRating(movie.getContentRating());
-        dto.set3D(is3D);
-        dto.setExperiences(experiences != null ? Arrays.stream(experiences.split(",")).distinct().toList() : List.of());
-        return dto;
-    }
-
-    private MovieSearchResultDTO toMovieSearchResult(TmdbMovie movie) {
-        MovieSearchResultDTO dto = new MovieSearchResultDTO();
-        dto.setId(movie.getId());
-        dto.setTitle(movie.getTitle());
-        dto.setGenres(splitGenres(movie.getGenres()));
-        dto.setReleaseDate(movie.getReleaseDate() != null ? movie.getReleaseDate().toString() : null);
-        dto.setPosterUrl(movie.getPosterUrl());
-        dto.setBackdropUrl(movie.getBackdropUrl());
         return dto;
     }
 
@@ -420,31 +409,19 @@ public class TmdbMovieService {
     }
 
     public MovieDetailDTO toMovieDetail(TmdbMovie m) {
-        MovieDetailDTO dto = new MovieDetailDTO();
-        dto.setId(m.getId());
-        dto.setTitle(m.getTitle());
+        MovieDetailDTO dto = populateBaseFields(new MovieDetailDTO(), m);
         dto.setSynopsis(m.getSynopsis());
-        dto.setGenres(splitGenres(m.getGenres()));
         dto.setContentRating(m.getContentRating());
-        dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
         dto.setDuration(m.getDurationMinutes());
-        dto.setPosterUrl(m.getPosterUrl());
-        dto.setBackdropUrl(m.getBackdropUrl());
         dto.setCredits(m.getCredits());
         dto.setTrailerUrl(m.getTrailerUrl());
         return dto;
     }
 
     public MovieSummaryDTO toMovieSummary(TmdbMovie m) {
-        MovieSummaryDTO dto = new MovieSummaryDTO();
-        dto.setId(m.getId());
-        dto.setTitle(m.getTitle());
-        dto.setGenres(splitGenres(m.getGenres()));
+        MovieSummaryDTO dto = populateBaseFields(new MovieSummaryDTO(), m);
         dto.setContentRating(m.getContentRating());
-        dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
         dto.setDuration(m.getDurationMinutes());
-        dto.setPosterUrl(m.getPosterUrl());
-        dto.setBackdropUrl(m.getBackdropUrl());
         dto.setHighlighted(m.isHighlighted());
         return dto;
     }
