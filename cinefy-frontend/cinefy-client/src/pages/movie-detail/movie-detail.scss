@@ -175,6 +175,13 @@
   gap: 12px;
 }
 
+.md-crew-divider {
+  flex-shrink: 0;
+  width: 1px;
+  height: 40px;
+  background-color: $color-border;
+}
+
 .md-crew-avatar {
   @include flex-center;
   @include lucide-icon-fix;

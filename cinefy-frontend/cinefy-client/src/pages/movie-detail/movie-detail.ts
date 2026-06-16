@@ -41,13 +41,15 @@ export class MovieDetailPage {
 
   protected readonly bookingOpened = signal(true);
 
-  protected readonly crew = computed<CrewMember[]>(() => {
-    const credits = this.movie()?.credits;
-    if (!credits) return [];
-    const directors = credits.directors.map((member) => ({ name: member.name, role: 'Director' }));
-    const cast = credits.cast.map((member) => ({ name: member.name, role: 'Cast' }));
-    return [...directors, ...cast];
-  });
+  protected readonly directors = computed<CrewMember[]>(
+    () =>
+      this.movie()?.credits?.directors.map((member) => ({ name: member.name, role: 'Director' })) ??
+      [],
+  );
+
+  protected readonly cast = computed<CrewMember[]>(
+    () => this.movie()?.credits?.cast.map((member) => ({ name: member.name, role: 'Cast' })) ?? [],
+  );
 }
 
 const PLACEHOLDER_MOVIE: MovieDetail = {

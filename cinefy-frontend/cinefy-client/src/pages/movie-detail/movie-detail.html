@@ -50,11 +50,23 @@
             </div>
           }
 
-          @if (crew().length) {
+          @if (directors().length && cast().length) {
             <div class="md-section">
               <h3>Cast & Crew</h3>
               <div class="md-crew">
-                @for (member of crew(); track $index) {
+                @for (member of directors(); track $index) {
+                  <div class="md-crew-member">
+                    <div class="md-crew-avatar">
+                      <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
+                    </div>
+                    <div class="md-crew-text">
+                      <p class="md-crew-name">{{ member.name }}</p>
+                      <p class="md-crew-role">{{ member.role }}</p>
+                    </div>
+                  </div>
+                }
+                <div class="md-crew-divider"></div>
+                @for (member of cast(); track $index) {
                   <div class="md-crew-member">
                     <div class="md-crew-avatar">
                       <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
