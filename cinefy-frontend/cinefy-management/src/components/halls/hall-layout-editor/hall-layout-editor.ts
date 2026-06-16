@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { Component, computed, input, linkedSignal, output } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import type { Seat, SeatCategory } from '../../../shared/types';
 
@@ -25,7 +25,25 @@ export class HallLayoutEditorComponent {
   readonly seatChanged = output<void>();
   readonly layoutReset = output<void>();
 
-  private readonly _seatLayout = signal<Seat[][]>([]);
+  private readonly _seatLayout = linkedSignal<{ rows: number; cols: number }, Seat[][]>({
+    source: () => ({ rows: this.numRows(), cols: this.seatsPerRow() }),
+    computation: ({ rows, cols }, previous) => {
+      const prev = previous?.value ?? [];
+      const layout: Seat[][] = [];
+      for (let i = 0; i < rows; i++) {
+        const row: Seat[] = [];
+        for (let j = 0; j < cols; j++) {
+          if (i < prev.length && j < prev[i].length) {
+            row.push(prev[i][j]);
+          } else {
+            row.push({ type: 'NORMAL', onsiteOnly: false });
+          }
+        }
+        layout.push(row);
+      }
+      return layout;
+    },
+  });
   readonly seatLayout = this._seatLayout.asReadonly();
 
   protected readonly rowLabelWidth = computed(() => {
@@ -53,12 +71,6 @@ export class HallLayoutEditorComponent {
 
     return { normal, vip, onsiteOnly, total };
   });
-
-  constructor() {
-    effect(() => {
-      this.initializeLayout(this.numRows(), this.seatsPerRow());
-    });
-  }
 
   rowLabel(index: number): string {
     const letter = String.fromCharCode(65 + (index % 26));
@@ -98,23 +110,5 @@ export class HallLayoutEditorComponent {
     if (layoutChanged) {
       this.seatChanged.emit();
     }
-  }
-
-  private initializeLayout(rows: number, cols: number) {
-    this._seatLayout.update((prev) => {
-      const layout: Seat[][] = [];
-      for (let i = 0; i < rows; i++) {
-        const row: Seat[] = [];
-        for (let j = 0; j < cols; j++) {
-          if (prev.length > 0 && i < prev.length && j < prev[i].length) {
-            row.push(prev[i][j]);
-          } else {
-            row.push({ type: 'NORMAL', onsiteOnly: false });
-          }
-        }
-        layout.push(row);
-      }
-      return layout;
-    });
   }
 }
