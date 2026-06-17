@@ -28,6 +28,11 @@ interface SeatCategoryItem {
   type: SeatCategory;
 }
 
+interface HallStatusEntry {
+  value: HallStatus;
+  label: string;
+}
+
 interface SeatLayout {
   categories: Partial<Record<SeatCategory, string[]>>;
   onSiteOnly: string[];
@@ -121,6 +126,7 @@ export type {
   SeatCategory,
   Seat,
   SeatCategoryItem,
+  HallStatusEntry,
   SeatLayout,
   HallRef,
   HallType,

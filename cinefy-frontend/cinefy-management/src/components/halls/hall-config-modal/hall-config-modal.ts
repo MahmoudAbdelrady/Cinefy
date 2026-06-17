@@ -44,6 +44,7 @@ import {
   HallDetail,
   HallLayout,
   HallStatus,
+  HallStatusEntry,
   Hall,
   SeatCategory,
   SeatCategoryItem,
@@ -100,13 +101,15 @@ export class HallConfigModalComponent {
 
   private static readonly SELECTABLE_HALL_STATUS_ENTRIES = (
     Object.entries(HALL_STATUS_LABELS) as [HallStatus, string][]
-  ).filter(([key]) => !HallConfigModalComponent.AUTO_HALL_STATUSES.includes(key));
+  )
+    .filter(([value]) => !HallConfigModalComponent.AUTO_HALL_STATUSES.includes(value))
+    .map(([value, label]) => ({ value, label }));
 
-  protected readonly hallStatusEntries = computed<[HallStatus, string][]>(() => {
+  protected readonly hallStatusEntries = computed<HallStatusEntry[]>(() => {
     const current = this.selectedHallData()?.status;
     const base = HallConfigModalComponent.SELECTABLE_HALL_STATUS_ENTRIES;
     if (current && HallConfigModalComponent.AUTO_HALL_STATUSES.includes(current)) {
-      return [...base, [current, HALL_STATUS_LABELS[current]]];
+      return [...base, { value: current, label: HALL_STATUS_LABELS[current] }];
     }
     return base;
   });
@@ -199,7 +202,7 @@ export class HallConfigModalComponent {
     this.selectedSeatCategory().type === 'AISLE' ? false : this.onSiteOnlyPreference(),
   );
   protected readonly statusEntry = computed(
-    () => this.hallStatusEntries().find((e) => e[0] === this.statusValue()) ?? null,
+    () => this.hallStatusEntries().find((e) => e.value === this.statusValue()) ?? null,
   );
   private readonly currentFormValue = toSignal(this.hallForm.valueChanges, {
     initialValue: this.hallForm.getRawValue(),
@@ -219,8 +222,8 @@ export class HallConfigModalComponent {
     });
   }
 
-  protected readonly statusDisplayFn = (entry: [HallStatus, string]) => entry[1];
-  protected readonly statusValueFn = (entry: [HallStatus, string]) => entry[0];
+  protected readonly statusDisplayFn = (entry: HallStatusEntry) => entry.label;
+  protected readonly statusValueFn = (entry: HallStatusEntry) => entry.value;
   protected readonly hallTypeDisplayFn = (type: HallType) => type.name;
   protected readonly hallTypeValueFn = (type: HallType) => type.id;
   protected readonly compareHallTypes = (a: HallType, b: HallType) => a?.id === b?.id;
@@ -293,8 +296,8 @@ export class HallConfigModalComponent {
     this.initialSnapshot.set(this.serializeState());
   }
 
-  protected onStatusChange(entry: [HallStatus, string]) {
-    this.hallForm.controls.status.setValue(entry[0]);
+  protected onStatusChange(entry: HallStatusEntry) {
+    this.hallForm.controls.status.setValue(entry.value);
   }
 
   protected onHallTypeChange(type: HallType) {

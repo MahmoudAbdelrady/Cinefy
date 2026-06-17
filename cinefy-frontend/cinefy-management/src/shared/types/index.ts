@@ -4,6 +4,7 @@ export type {
   SeatCategory,
   Seat,
   SeatCategoryItem,
+  HallStatusEntry,
   SeatLayout,
   HallRef,
   HallType,
