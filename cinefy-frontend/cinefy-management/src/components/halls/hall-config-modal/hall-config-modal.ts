@@ -44,10 +44,8 @@ import {
   HallDetail,
   HallLayout,
   HallStatus,
-  HallStatusEntry,
   Hall,
   SeatCategory,
-  SeatCategoryItem,
   SeatLayout,
   TicketPricing,
 } from '../../../shared/types';
@@ -60,6 +58,16 @@ interface LayoutBaseline {
   normalPrice: number | null;
   vipPrice: number | null;
   grid: Seat[][];
+}
+
+interface SeatCategoryItem {
+  name: string;
+  type: SeatCategory;
+}
+
+interface HallStatusEntry {
+  value: HallStatus;
+  label: string;
 }
 
 @Component({

@@ -83,11 +83,7 @@ interface TestConnectionRequest {
   currency: string;
 }
 
-export {
-  PAYMENT_METHOD_TYPE_LABELS,
-  PAYMENT_METHOD_STATUS_LABELS,
-  PAYMENT_METHOD_TEST_STATUS_LABELS,
-};
+export { PAYMENT_METHOD_TYPE_LABELS, PAYMENT_METHOD_STATUS_LABELS };
 export type {
   PaymentMethodType,
   PaymentMethodStatus,

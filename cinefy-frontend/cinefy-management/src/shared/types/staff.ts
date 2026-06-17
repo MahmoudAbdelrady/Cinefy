@@ -26,21 +26,6 @@ const WEEK_DAY_LABELS = {
 
 type WeekDay = keyof typeof WEEK_DAY_LABELS;
 
-interface StaffMember {
-  id: string;
-  username: string;
-  fullName: string;
-  email: string;
-  phoneNumber: string;
-  position: UserPosition;
-  workingDayStart: WeekDay;
-  workingDayEnd: WeekDay;
-  workingHourStart: string;
-  workingHourEnd: string;
-  hiredAt: string;
-  employmentType: EmploymentType;
-}
-
 interface StaffMemberSummary {
   id: string;
   fullName: string;
@@ -120,7 +105,6 @@ type CoverageChange =
 
 export { USER_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS };
 export type {
-  StaffMember,
   StaffMemberSummary,
   StaffMemberDetail,
   CurrentStaffMember,
