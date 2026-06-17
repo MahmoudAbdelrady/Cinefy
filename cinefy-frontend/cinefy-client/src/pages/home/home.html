@@ -1,10 +1,16 @@
 <div class="home-container">
-  @if (highlightedLoading()) {
+  @if (highlightedMovies.isLoading()) {
     <div class="home-carousel-loading">
       <loading-spinner variant="lg" />
     </div>
-  } @else if (highlightedMovies()!.length) {
-    <featured-carousel [slides]="highlightedMovies()!" />
+  } @else if (highlightedMovies.error()) {
+    <empty-state
+      [icon]="icons.TriangleAlertIcon"
+      title="Failed to load movies"
+      description="Something went wrong. Please try again later."
+    />
+  } @else if (highlightedMovies.value()!.length) {
+    <featured-carousel [slides]="highlightedMovies.value()!" />
   }
   <div class="now-showing-movies">
     <div class="ms-header">
@@ -12,12 +18,19 @@
       <a routerLink="/movies">View All</a>
     </div>
     <div class="ms-content">
-      @if (nowShowingLoading()) {
+      @if (nowShowingMovies.isLoading()) {
         <div class="ms-loading">
           <loading-spinner variant="lg" />
         </div>
+      } @else if (nowShowingMovies.error()) {
+        <empty-state
+          class="ms-empty"
+          [icon]="icons.TriangleAlertIcon"
+          title="Failed to load movies"
+          description="Something went wrong. Please try again later."
+        />
       } @else {
-        @for (movie of nowShowingMovies()!; track movie.id) {
+        @for (movie of nowShowingMovies.value(); track movie.id) {
           <a
             class="movie-card reveal"
             routerLink="/movies/{{ movie.id }}"
@@ -57,12 +70,19 @@
       <h3>Coming Soon</h3>
     </div>
     <div class="ms-content">
-      @if (upcomingLoading()) {
+      @if (upcomingMovies.isLoading()) {
         <div class="ms-loading">
           <loading-spinner variant="lg" />
         </div>
+      } @else if (upcomingMovies.error()) {
+        <empty-state
+          class="ms-empty"
+          [icon]="icons.TriangleAlertIcon"
+          title="Failed to load movies"
+          description="Something went wrong. Please try again later."
+        />
       } @else {
-        @for (movie of upcomingMovies()!; track movie.id) {
+        @for (movie of upcomingMovies.value(); track movie.id) {
           <a
             class="movie-card reveal"
             routerLink="/movies/{{ movie.id }}"

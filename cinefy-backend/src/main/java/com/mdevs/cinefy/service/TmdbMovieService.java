@@ -73,8 +73,6 @@ public class TmdbMovieService {
 
     private static final String POSTER_SIZE = "w500";
 
-    private static final String PROFILE_SIZE = "w185";
-
     private static final Map<Integer, String> TMDB_GENRES = Map.ofEntries(
             Map.entry(28, "Action"),
             Map.entry(12, "Adventure"),
@@ -482,9 +480,7 @@ public class TmdbMovieService {
     }
 
     private MovieCredits.CreditMember toCreditMember(JsonNode person) {
-        String profilePath = person.path("profile_path").stringValue(null);
-        String profileUrl = toImageUrl(PROFILE_SIZE, profilePath);
-        return new MovieCredits.CreditMember(person.get("id").longValue(0), person.path("name").stringValue(null), profileUrl);
+        return new MovieCredits.CreditMember(person.get("id").longValue(0), person.path("name").stringValue(null));
     }
 
     private String resolveTrailerUrl(JsonNode videos) {
