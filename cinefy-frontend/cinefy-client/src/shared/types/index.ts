@@ -7,3 +7,4 @@ export type {
   NowShowingMovie,
 } from './movies';
 export type { HallType } from './halls';
+export type { BookingShowtime, HallTypeShowtimes } from './booking';
