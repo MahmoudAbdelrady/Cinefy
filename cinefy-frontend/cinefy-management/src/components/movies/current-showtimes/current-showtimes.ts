@@ -1,6 +1,5 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 import { merge, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -123,10 +122,7 @@ export class CurrentShowtimesComponent {
           this.moviesWithShowtimes.set(list);
           this.loading.set(false);
         },
-        error: (err: HttpErrorResponse) => {
-          this.loading.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
-        },
+        error: () => this.loading.set(false),
       });
 
     afterNextRender(() => this.refetch$.next());
@@ -177,13 +173,10 @@ export class CurrentShowtimesComponent {
           this.markHighlightToggling(movieId, false);
           this.showtimeEvents.notifyHighlightChanged(movieId, highlighted);
         },
-        error: (err: HttpErrorResponse) => {
+        error: () => {
           // Re-assert the prior value so the switch reverts to the confirmed state.
           this.setHighlighted(movieId, !highlighted);
           this.markHighlightToggling(movieId, false);
-          this.toastService.error(
-            err.error?.message ?? 'Failed to update highlight state for this movie',
-          );
         },
       });
   }
@@ -201,10 +194,7 @@ export class CurrentShowtimesComponent {
           this.showtimeEvents.notifyDeleted(id);
           close();
         },
-        error: (err: HttpErrorResponse) => {
-          this.markDeleting(id, false);
-          this.toastService.error(err.error?.message ?? 'Failed to delete showtimes');
-        },
+        error: () => this.markDeleting(id, false),
       });
   }
 

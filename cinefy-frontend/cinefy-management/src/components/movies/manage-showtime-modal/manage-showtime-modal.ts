@@ -1,6 +1,5 @@
 import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   AbstractControl,
   FormControl,
@@ -210,9 +209,6 @@ export class ManageShowtimeModalComponent {
             if (this.activeMovie()?.id !== targetId) return;
             this.activeMovieDetail.set(detail);
           },
-          error: (err: HttpErrorResponse) => {
-            this.toastService.error(err.error?.message ?? 'Failed to load movie details');
-          },
         });
     });
   }
@@ -246,13 +242,7 @@ export class ManageShowtimeModalComponent {
         }
         this.close()();
       },
-      error: (err: HttpErrorResponse) => {
-        this.submitting.set(false);
-        this.toastService.error(
-          err.error?.message ??
-            (editing ? 'Failed to update showtime' : 'Failed to create showtime'),
-        );
-      },
+      error: () => this.submitting.set(false),
     });
   }
 

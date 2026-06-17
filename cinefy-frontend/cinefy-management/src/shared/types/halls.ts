@@ -23,11 +23,6 @@ interface Seat {
   onsiteOnly: boolean;
 }
 
-interface SeatCategoryItem {
-  name: string;
-  type: SeatCategory;
-}
-
 interface SeatLayout {
   categories: Partial<Record<SeatCategory, string[]>>;
   onSiteOnly: string[];
@@ -41,16 +36,6 @@ interface HallRef {
 interface HallType {
   id?: string;
   name: string;
-}
-
-interface HallItem {
-  id: string;
-  name: string;
-  status: HallStatus | null;
-  rows: number;
-  seatsPerRow: number;
-  currentMovie: string | null;
-  occupancy: number;
 }
 
 interface TicketPricing {
@@ -87,12 +72,6 @@ interface HallLayout {
   ticketPricing: TicketPricing[];
 }
 
-interface HallStatistics {
-  totalHalls: number;
-  activeHalls: number;
-  totalCapacity: number;
-}
-
 interface Hall {
   name: string;
   numberOfRows: number;
@@ -120,16 +99,13 @@ export type {
   HallStatus,
   SeatCategory,
   Seat,
-  SeatCategoryItem,
   SeatLayout,
   HallRef,
   HallType,
-  HallItem,
   TicketPricing,
   HallSummary,
   HallDetail,
   HallLayout,
-  HallStatistics,
   Hall,
   StatisticsChange,
 };

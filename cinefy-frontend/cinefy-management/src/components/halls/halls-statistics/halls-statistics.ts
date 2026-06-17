@@ -2,12 +2,13 @@ import { Component, computed, signal } from '@angular/core';
 import { EyeIcon, LayoutIcon, UsersIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { StatsComponent } from '../../stats/stats';
-import {
-  type HallStatus,
-  type HallStatistics,
-  type StatisticsChange,
-  type StatsCard,
-} from '../../../shared/types';
+import { type HallStatus, type StatisticsChange, type StatsCard } from '../../../shared/types';
+
+interface HallStatistics {
+  totalHalls: number;
+  activeHalls: number;
+  totalCapacity: number;
+}
 
 @Component({
   selector: 'halls-statistics',

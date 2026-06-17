@@ -15,7 +15,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   EditableShowtime,
   MovieSummary,
@@ -134,10 +133,7 @@ export class MovieShowtimesModal {
             this.selectedTab.set(data.dates[0]);
           }
         },
-        error: (err: HttpErrorResponse) => {
-          this.loadingDates.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load showtime dates');
-        },
+        error: () => this.loadingDates.set(false),
       });
       onCleanup(() => sub.unsubscribe());
     });
@@ -159,10 +155,9 @@ export class MovieShowtimesModal {
             this.dayDrafts.set(data.numberOfDrafts);
             this.loadingDay.set(false);
           },
-          error: (err: HttpErrorResponse) => {
+          error: () => {
             if (this.selectedTab() !== targetDate) return;
             this.loadingDay.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to load showtimes');
           },
         });
       onCleanup(() => sub.unsubscribe());
@@ -231,10 +226,7 @@ export class MovieShowtimesModal {
             (this.movieShowtimes()?.numberOfCommitted ?? 0) > 0,
           );
         },
-        error: (err: HttpErrorResponse) => {
-          this.markDeleting(id, false);
-          this.toastService.error(err.error?.message ?? 'Failed to delete showtime');
-        },
+        error: () => this.markDeleting(id, false),
       });
   }
 
@@ -252,10 +244,7 @@ export class MovieShowtimesModal {
           this.showtimeEvents.notifyPublished(this.selectedMovieId(), 1);
           this.toastService.success('Showtime published');
         },
-        error: (err: HttpErrorResponse) => {
-          this.markPublishing(id, false);
-          this.toastService.error(err.error?.message ?? 'Failed to publish showtime');
-        },
+        error: () => this.markPublishing(id, false),
       });
   }
 
@@ -316,10 +305,7 @@ export class MovieShowtimesModal {
           onSuccess();
           this.toastService.success('Drafts published');
         },
-        error: (err: HttpErrorResponse) => {
-          inFlight.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to publish drafts');
-        },
+        error: () => inFlight.set(false),
       });
   }
 

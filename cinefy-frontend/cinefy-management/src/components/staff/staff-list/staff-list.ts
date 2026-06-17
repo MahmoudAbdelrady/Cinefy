@@ -9,7 +9,6 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
@@ -170,10 +169,7 @@ export class StaffListComponent {
             this.staffPage.set(staffPage);
             this.loading.set(false);
           },
-          error: (err: HttpErrorResponse) => {
-            this.loading.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to load staff members');
-          },
+          error: () => this.loading.set(false),
         });
     });
   }
@@ -268,13 +264,12 @@ export class StaffListComponent {
         this.toastService.success('Staff member deleted');
         close();
       },
-      error: (err: HttpErrorResponse) => {
+      error: () => {
         this.deletingStaffIds.update((current) => {
           const next = new Set(current);
           next.delete(id);
           return next;
         });
-        this.toastService.error(err.error?.message ?? 'Failed to delete staff member');
       },
     });
   }

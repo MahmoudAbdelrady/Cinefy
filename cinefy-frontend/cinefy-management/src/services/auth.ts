@@ -7,6 +7,7 @@ import type {
   VerifyResetCodePayload,
   ResetPasswordPayload,
 } from '../shared/types';
+import { skipErrorToast } from '../app/core/interceptors';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -35,7 +36,9 @@ export class AuthService {
   }
 
   verifyResetCode(data: VerifyResetCodePayload): Observable<void> {
-    return this.http.post<void>('/management/auth/verify-reset-code', data);
+    return this.http.post<void>('/management/auth/verify-reset-code', data, {
+      context: skipErrorToast(),
+    });
   }
 
   resetPassword(data: ResetPasswordPayload): Observable<void> {

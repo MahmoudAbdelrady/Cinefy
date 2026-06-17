@@ -7,7 +7,6 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -19,7 +18,6 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { ChevronRightIcon, ClapperboardIcon, SearchIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent, MediaImageComponent } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
 import { MovieSearchResult } from '../../../shared/types';
 import { SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE } from '../../../shared/constants';
 import { MoviesService } from '../../../services';
@@ -49,7 +47,6 @@ export class MoviePickerComponent {
   };
 
   private readonly moviesService = inject(MoviesService);
-  private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly movieSelected = output<MovieSearchResult>();
@@ -97,10 +94,7 @@ export class MoviePickerComponent {
             this.totalPages.set(response.page.totalPages);
             this.loading.set(false);
           },
-          error: (err: HttpErrorResponse) => {
-            this.loading.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to search movies');
-          },
+          error: () => this.loading.set(false),
         });
     });
   }
@@ -122,10 +116,7 @@ export class MoviePickerComponent {
           this.totalPages.set(response.page.totalPages);
           this.loadingMore.set(false);
         },
-        error: (err: HttpErrorResponse) => {
-          this.loadingMore.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load more movies');
-        },
+        error: () => this.loadingMore.set(false),
       });
   }
 

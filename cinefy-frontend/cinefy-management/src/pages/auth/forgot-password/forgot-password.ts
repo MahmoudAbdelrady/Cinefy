@@ -58,10 +58,7 @@ export class ForgotPasswordPage {
           this.stage.set('otp');
           this.toast.success('We sent a new code to your email.');
         },
-        error: () => {
-          this.requestingNewCode.set(false);
-          this.toast.error('Could not send a new code. Please try again.');
-        },
+        error: () => this.requestingNewCode.set(false),
       });
   }
 }

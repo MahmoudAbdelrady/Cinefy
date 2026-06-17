@@ -23,9 +23,10 @@ export class StaffService {
   getCurrentStaffMember(): Observable<CurrentStaffMember> {
     if (!this.currentStaffMemberRequested) {
       this.currentStaffMemberRequested = true;
-      this.http
-        .get<CurrentStaffMember>('/staff/me')
-        .subscribe((member) => this.currentStaffMember.next(member));
+      this.http.get<CurrentStaffMember>('/staff/me').subscribe({
+        next: (member) => this.currentStaffMember.next(member),
+        error: () => (this.currentStaffMemberRequested = false),
+      });
     }
     return this.currentStaffMember.pipe(filter((member) => member !== null));
   }
