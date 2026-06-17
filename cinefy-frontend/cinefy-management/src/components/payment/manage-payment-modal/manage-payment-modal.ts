@@ -11,7 +11,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { HttpErrorResponse } from '@angular/common/http';
 import { FormGroup, Validators } from '@angular/forms';
 import { merge, startWith } from 'rxjs';
 import { Stepper, StepperNoteTip, StepperStep } from '../../stepper/stepper';
@@ -202,10 +201,7 @@ export class ManagePaymentModalComponent {
         }
         this.close()();
       },
-      error: (err: HttpErrorResponse) => {
-        this.saving.set(false);
-        this.toastService.error(err.error?.message ?? 'Failed to save payment method');
-      },
+      error: () => this.saving.set(false),
     });
   }
 
@@ -250,9 +246,8 @@ export class ManagePaymentModalComponent {
           }
           this.loadingDetail.set(false);
         },
-        error: (err: HttpErrorResponse) => {
+        error: () => {
           this.loadingDetail.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load payment method');
           this.close()();
         },
       });

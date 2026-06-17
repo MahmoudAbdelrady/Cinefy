@@ -1,5 +1,4 @@
 import { afterNextRender, Component, inject, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { switchMap, take } from 'rxjs';
 import {
   ProfileIdentityComponent,
@@ -9,7 +8,6 @@ import {
 import type { StaffMemberDetail } from '../../shared/types';
 import { StaffService } from '../../services';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
 
 @Component({
   selector: 'profile-page',
@@ -24,7 +22,6 @@ import { ToastService } from 'cinefy-ui/services';
 })
 export class ProfilePage {
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
 
   protected readonly profile = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
@@ -48,10 +45,7 @@ export class ProfilePage {
           this.profile.set(profile);
           this.loading.set(false);
         },
-        error: (err: HttpErrorResponse) => {
-          this.loading.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load profile');
-        },
+        error: () => this.loading.set(false),
       });
   }
 }

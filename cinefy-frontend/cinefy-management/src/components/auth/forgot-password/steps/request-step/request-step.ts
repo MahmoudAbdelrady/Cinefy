@@ -5,7 +5,6 @@ import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpButton } from 'ng-primitives/button';
 import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
 import { ArrowLeftIcon, ArrowRightIcon, AtSignIcon } from '../../../../../shared/icons';
 import { AuthService } from '../../../../../services/auth';
 
@@ -30,7 +29,6 @@ export class RequestStep {
   };
 
   private readonly authService = inject(AuthService);
-  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly requested = output<string>();
@@ -56,10 +54,7 @@ export class RequestStep {
           this.submitting.set(false);
           this.requested.emit(username);
         },
-        error: () => {
-          this.submitting.set(false);
-          this.toast.error('Could not send the reset code. Please try again.');
-        },
+        error: () => this.submitting.set(false),
       });
   }
 }

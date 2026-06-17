@@ -67,10 +67,7 @@ export class OtpStep {
           this.error.set(null);
           this.toast.success('We sent a new code to your email.');
         },
-        error: () => {
-          this.resending.set(false);
-          this.toast.error('Could not resend the code. Please try again.');
-        },
+        error: () => this.resending.set(false),
       });
   }
 

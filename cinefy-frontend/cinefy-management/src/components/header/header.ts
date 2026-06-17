@@ -7,7 +7,6 @@ import { ChevronDownIcon, LogoutIcon, MenuIcon, UserIcon } from '../../shared/ic
 import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { AuthService, HeaderActionsService, SidebarService, StaffService } from '../../services';
-import { ToastService } from 'cinefy-ui/services';
 import { USER_POSITION_LABELS } from '../../shared/types';
 
 interface DropDownMenuItem {
@@ -32,7 +31,6 @@ export class HeaderComponent {
   private readonly headerActionsService = inject(HeaderActionsService);
   private readonly authService = inject(AuthService);
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -62,12 +60,9 @@ export class HeaderComponent {
     this.authService
       .logout()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.staffService.clearCurrentStaffMember();
-          this.router.navigateByUrl('/login');
-        },
-        error: () => this.toastService.error('Failed to log out'),
+      .subscribe(() => {
+        this.staffService.clearCurrentStaffMember();
+        this.router.navigateByUrl('/login');
       });
   }
 }

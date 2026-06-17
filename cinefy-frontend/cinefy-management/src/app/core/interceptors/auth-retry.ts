@@ -23,7 +23,6 @@ export const authRetryInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
-      // Access token likely expired: refresh then replay.
       return authService.refresh().pipe(
         switchMap(() => next(req)),
         catchError(() => {

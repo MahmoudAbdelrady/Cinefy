@@ -12,7 +12,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -285,10 +284,7 @@ export class HallConfigModalComponent {
         this.applyHallDetail(detail);
         this.loadingHall.set(false);
       },
-      error: (err: HttpErrorResponse) => {
-        this.loadingHall.set(false);
-        this.toastService.error(err.error?.message ?? 'Failed to load hall data');
-      },
+      error: () => this.loadingHall.set(false),
     });
   }
 
@@ -370,9 +366,6 @@ export class HallConfigModalComponent {
   protected copyLayoutFrom(hall: HallSummary) {
     this.hallsService.getHallLayout(hall.id).subscribe({
       next: (hallLayout) => this.applyLayoutData(hallLayout),
-      error: (err: HttpErrorResponse) => {
-        this.toastService.error(err.error?.message ?? 'Failed to copy layout');
-      },
     });
   }
 
@@ -399,12 +392,7 @@ export class HallConfigModalComponent {
         }
         this.close()();
       },
-      error: (err: HttpErrorResponse) => {
-        this.saving.set(false);
-        this.toastService.error(
-          err.error?.message ?? `Failed to ${existing ? 'update' : 'create'} hall`,
-        );
-      },
+      error: () => this.saving.set(false),
     });
   }
 

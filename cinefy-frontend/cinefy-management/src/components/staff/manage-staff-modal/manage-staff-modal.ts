@@ -8,7 +8,6 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
@@ -245,10 +244,7 @@ export class ManageStaffModalComponent {
             this.resolvedStaffMember.set(detail);
             this.loading.set(false);
           },
-          error: (err: HttpErrorResponse) => {
-            this.loading.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to load staff member');
-          },
+          error: () => this.loading.set(false),
         });
     });
 
@@ -335,10 +331,7 @@ export class ManageStaffModalComponent {
         }
         this.close()();
       },
-      error: (err: HttpErrorResponse) => {
-        this.saving.set(false);
-        this.toastService.error(err.error?.message ?? 'Failed to save staff member');
-      },
+      error: () => this.saving.set(false),
     });
   }
 }

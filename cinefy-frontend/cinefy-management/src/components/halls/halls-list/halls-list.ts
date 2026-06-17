@@ -1,5 +1,4 @@
 import { afterNextRender, Component, computed, inject, output, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
@@ -106,10 +105,9 @@ export class HallsListComponent {
           });
           this.loading.set(false);
         },
-        error: (err: HttpErrorResponse) => {
+        error: () => {
           this.loading.set(false);
           this.statisticsChanged.emit({ action: 'reset' });
-          this.toastService.error(err.error?.message ?? 'Failed to load halls');
         },
       });
     });
@@ -157,10 +155,7 @@ export class HallsListComponent {
         this.toastService.success('Hall deleted');
         close();
       },
-      error: (err: HttpErrorResponse) => {
-        this.deletingHallId.set(null);
-        this.toastService.error(err.error?.message ?? 'Failed to delete hall');
-      },
+      error: () => this.deletingHallId.set(null),
     });
   }
 }

@@ -1,5 +1,4 @@
 import { afterNextRender, Component, inject, input, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 
 import {
   AbstractControl,
@@ -111,10 +110,7 @@ export class ManageHallTypesModalComponent {
         this.hallTypes.set(types);
         this.loadingTypes.set(false);
       },
-      error: (err: HttpErrorResponse) => {
-        this.loadingTypes.set(false);
-        this.toastService.error(err.error?.message ?? 'Failed to load hall types');
-      },
+      error: () => this.loadingTypes.set(false),
     });
   }
 
@@ -135,10 +131,7 @@ export class ManageHallTypesModalComponent {
           this.savingTypeId.set(null);
           this.toastService.success('Hall type updated');
         },
-        error: (err: HttpErrorResponse) => {
-          this.savingTypeId.set(null);
-          this.toastService.error(err.error?.message ?? 'Failed to update hall type');
-        },
+        error: () => this.savingTypeId.set(null),
       });
   }
 
@@ -155,10 +148,7 @@ export class ManageHallTypesModalComponent {
         this.deletingTypeId.set(null);
         this.toastService.success('Hall type deleted');
       },
-      error: (err: HttpErrorResponse) => {
-        this.deletingTypeId.set(null);
-        this.toastService.error(err.error?.message ?? 'Failed to delete hall type');
-      },
+      error: () => this.deletingTypeId.set(null),
     });
   }
 
@@ -185,10 +175,7 @@ export class ManageHallTypesModalComponent {
           this.showNewTypeForm.set(false);
           this.toastService.success('Hall type created');
         },
-        error: (err: HttpErrorResponse) => {
-          this.addingType.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to add hall type');
-        },
+        error: () => this.addingType.set(false),
       });
   }
 }
