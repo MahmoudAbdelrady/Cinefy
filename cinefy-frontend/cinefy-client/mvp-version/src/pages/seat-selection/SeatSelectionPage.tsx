@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
-import { ArrowLeft, Info } from 'lucide-react'
+import { ArrowLeft, Clock, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
@@ -17,6 +17,7 @@ import {
 } from '@/data/movies'
 
 const FEE_CENTS = 150
+const HOLD_SECONDS = 10 * 60
 
 export function SeatSelectionPage() {
   const { movieId } = useParams()
@@ -27,6 +28,13 @@ export function SeatSelectionPage() {
   const showtime = getShowtime(movie, params.get('showtime'))
   const hall = useMemo(() => buildHall(), [])
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [secondsLeft, setSecondsLeft] = useState(HOLD_SECONDS)
+
+  useEffect(() => {
+    if (secondsLeft <= 0) return
+    const id = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000)
+    return () => clearInterval(id)
+  }, [secondsLeft])
 
   if (!movie || !showtime) return <Missing movieId={movieId} />
 
@@ -74,6 +82,18 @@ export function SeatSelectionPage() {
             <p className="font-mono text-xs text-muted-foreground">
               {formatLongDate(showtime.date)} • {showtime.time} • {showtime.hall} ({showtime.format})
             </p>
+          </div>
+
+          <div
+            className={cn(
+              'ml-auto flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-sm',
+              secondsLeft <= 60
+                ? 'border-destructive/60 bg-destructive/10 text-destructive'
+                : 'border-border/50 bg-card text-foreground',
+            )}
+          >
+            <Clock className="size-4" />
+            <span className="tabular-nums font-medium">{formatCountdown(secondsLeft)}</span>
           </div>
         </div>
       </div>
@@ -170,6 +190,12 @@ export function SeatSelectionPage() {
       </div>
     </div>
   )
+}
+
+function formatCountdown(seconds: number) {
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
 function SeatButton({
