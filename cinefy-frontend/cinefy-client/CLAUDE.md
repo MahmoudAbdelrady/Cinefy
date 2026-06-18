@@ -4,7 +4,7 @@
 
 Angular 21 **public-facing booking app** for the Cinefy cinema platform. Standalone components, signal-based state, **server-side rendered** (`@angular/ssr` with an Express host) — this is the customer-facing site where people browse movies and book seats, as opposed to the CSR-only `cinefy-management` admin dashboard. Custom SCSS design system; consumes the shared `cinefy-ui` library.
 
-> **Current state:** the home page is built and routed; the rest is still being ported. The fully-designed product lives as a **React reference mock** in `mvp-version/` and is ported screen-by-screen into the Angular app via the `mvp-to-real` skill. Most "build a page" work means mapping from `mvp-version/`, not writing from scratch. Pages already mapped: **Home** (`/`) — a `featured-carousel` hero (auto-advancing highlighted-movie slides), a "Now Showing" rail, and a "Coming Soon"/upcoming rail — inside the `AppLayout` shell (header with a user-info menu + "My Tickets" dialog, and a footer). Home data comes from `MoviesService` (`services/movies.ts`).
+> **Current state:** the home, movies-listing, and movie-detail pages are built and routed; the rest (seat selection, checkout) is still being ported. The fully-designed product lives as a **React reference mock** in `mvp-version/` and is ported screen-by-screen into the Angular app via the `mvp-to-real` skill. Most "build a page" work means mapping from `mvp-version/`, not writing from scratch. Pages already mapped, all inside the `AppLayout` shell (header with a user-info menu + "My Tickets" dialog, and a footer): **Home** (`/`) — a `featured-carousel` hero (auto-advancing highlighted-movie slides), a "Now Showing" rail, and a "Coming Soon"/upcoming rail; **Movies** (`/movies`) — a filterable grid (title search + experience/genre/rating selects); **Movie Detail** (`/movies/:movieId`) — backdrop, cast/crew, trailer dialog, and a `booking-section` (date strip + showtimes grouped by hall type). Data comes from `MoviesService`, `HallsService`, and `BookingService` (`services/`), loaded with `rxResource`.
 
 ## Workspace Layout
 
@@ -53,16 +53,21 @@ src/
 ├── layout/
 │   └── app-layout/            # Public shell: header (logo, nav, "My Tickets" dialog, user-info menu) + <router-outlet> + footer
 ├── pages/                      # Route-level components (barrel: pages/index.ts)
-│   └── home/                  # HomePage (/) — featured-carousel hero + "Now Showing" + upcoming rails
+│   ├── home/                  # HomePage (/) — featured-carousel hero + "Now Showing" + upcoming rails
+│   ├── movies/                # MoviesPage (/movies) — filterable grid (search + experience/genre/rating selects)
+│   └── movie-detail/          # MovieDetailPage (/movies/:movieId) — backdrop, cast/crew, trailer + <booking-section>
 ├── components/                 # Reusable UI components (barrel: components/index.ts)
 │   ├── home/featured-carousel/ # Auto-advancing hero carousel of highlighted-movie slides (backdrop, scrims, meta, Play CTA)
 │   ├── movies/trailer-modal/   # YouTube/trailer player dialog (trailerUrl + title inputs)
+│   ├── movies/booking-section/ # Date strip + showtimes (grouped by hall type) on the detail page; fetches BookingService
 │   └── header/my-tickets-list/ # In-progress bookings list shown inside the header's "My Tickets" modal
 ├── services/                   # HTTP services (barrel: services/index.ts)
-│   └── movies.ts              # MoviesService — getHighlighted / getNowShowing / getAnnouncedUpcoming
+│   ├── movies.ts              # MoviesService — getHighlighted / getNowShowing / getAnnouncedUpcoming / getMovieDetails
+│   ├── halls.ts              # HallsService — getHallTypes
+│   └── booking.ts            # BookingService — getBookableDates / getBookableShowtimes (public /booking/* endpoints)
 ├── shared/
 │   ├── icons.ts               # Re-exports of lucide icons used in the app — sole source of glyphs (alias `X as XIcon`)
-│   ├── types/                 # Client-facing data shapes (barrel: types/index.ts) — movies.ts (HighlightedMovie, NowShowingMovie, MovieSearchResult)
+│   ├── types/                 # Client-facing data shapes (barrel: types/index.ts) — movies.ts, halls.ts (HallType), booking.ts (BookingShowtime, HallTypeShowtimes)
 │   └── styles/
 │       └── _colors.scss       # Color palette + typography vars; @forwards cinefy-ui radii — the single shared SCSS partial
 ├── main.ts                     # Browser bootstrap
@@ -123,3 +128,5 @@ These hold across the Cinefy frontend — see `cinefy-management/CLAUDE.md` for 
 ## Backend contract
 
 The only contract with `cinefy-backend` is the HTTP API (documented in the backend `CLAUDE.md`). Frontend and backend version/deploy independently. Frontend branches on JSON `errorCode` (an `ApiErrorCode` union), not message text, when multiple 400s need distinct UI handling.
+
+This app consumes the **public** (`@PublicApi`, unauthenticated) read endpoints: `/movies/highlighted`, `/movies/now-showing`, `/movies/announced-upcoming`, `/movies/{id}` (raw TMDB id, not a uuid), and `/booking/movies/{id}/dates` + `/booking/movies/{id}/showtimes?date=`. **The client-facing list endpoints return an empty array, never 404, when there's nothing** (a movie with no bookable dates, a date with no showtimes) — the empty state is driven off `length === 0`, so don't treat empty as an error. A genuine 404 means the resource itself is absent (e.g. an unknown movie id on `/movies/{id}`) and is handled distinctly (see `movie-detail.ts`, which branches on `HttpErrorResponse.status === 404`).
