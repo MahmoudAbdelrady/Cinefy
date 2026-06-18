@@ -13,6 +13,7 @@ export {
   LucidePlay as PlayIcon,
   LucideChevronLeft as ChevronLeftIcon,
   LucideChevronRight as ChevronRightIcon,
+  LucideArrowLeft as ArrowLeftIcon,
   LucideSearch as SearchIcon,
   LucideSlidersHorizontal as SlidersHorizontalIcon,
   LucideX as XIcon,

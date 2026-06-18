@@ -1,0 +1,84 @@
+@use '../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+
+.seat-selection-container {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.ss-header {
+  position: sticky;
+  top: 64px;
+  z-index: 20;
+  border-bottom: 1px solid rgba($color-border, 0.4);
+  background: rgba($color-background, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+.ss-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 1152px;
+  height: 64px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.ss-back {
+  @include flex-center;
+
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-md;
+  color: $color-foreground;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: $color-accent;
+  }
+}
+
+.ss-info {
+  min-width: 0;
+}
+
+.ss-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.ss-meta {
+  font-family: $font-mono;
+  font-size: 12px;
+  color: $color-muted-foreground;
+}
+
+// .ss-timer {
+//   @include flex-align;
+//
+//   gap: 8px;
+//   margin-left: auto;
+//   padding: 6px 12px;
+//   border: 1px solid rgba($color-border, 0.5);
+//   border-radius: 9999px;
+//   background: $color-card;
+//   color: $color-foreground;
+//   font-family: $font-mono;
+//   font-size: 14px;
+//
+//   &.expiring {
+//     border-color: rgba($color-destructive, 0.6);
+//     background: rgba($color-destructive, 0.1);
+//     color: $color-destructive;
+//   }
+// }
+//
+// .ss-timer-value {
+//   font-weight: 500;
+//   font-variant-numeric: tabular-nums;
+// }

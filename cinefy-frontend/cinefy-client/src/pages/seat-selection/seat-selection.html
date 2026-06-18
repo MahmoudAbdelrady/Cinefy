@@ -1,0 +1,19 @@
+<div class="seat-selection-container">
+  <div class="ss-header">
+    <div class="ss-header-inner">
+      <a class="ss-back" routerLink="/movies/{{ movieId() }}">
+        <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="20"></svg>
+      </a>
+
+      <div class="ss-info">
+        <h1 class="ss-title">Movie title</h1>
+        <p class="ss-meta">Sat, Jun 1 • 6:00 PM • Hall 1 (IMAX)</p>
+      </div>
+
+      <!-- <div class="ss-timer" [class.expiring]="expiring()">
+        <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
+        <span class="ss-timer-value">{{ countdown() }}</span>
+      </div> -->
+    </div>
+  </div>
+</div>
