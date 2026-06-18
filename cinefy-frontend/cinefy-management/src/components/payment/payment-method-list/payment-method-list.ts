@@ -8,7 +8,6 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HttpErrorResponse } from '@angular/common/http';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
@@ -106,10 +105,7 @@ export class PaymentMethodListComponent {
           this.paymentMethods.set(methods);
           this.loading.set(false);
         },
-        error: (err: HttpErrorResponse) => {
-          this.loading.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load payment methods');
-        },
+        error: () => this.loading.set(false),
       });
     });
   }
@@ -136,10 +132,7 @@ export class PaymentMethodListComponent {
           this.clearInFlight(this.updatingStatusMethodIds, id);
           this.toastService.success('Status updated');
         },
-        error: (err: HttpErrorResponse) => {
-          this.clearInFlight(this.updatingStatusMethodIds, id);
-          this.toastService.error(err.error?.message ?? 'Failed to update status');
-        },
+        error: () => this.clearInFlight(this.updatingStatusMethodIds, id),
       });
   }
 
@@ -170,10 +163,7 @@ export class PaymentMethodListComponent {
             this.toastService.error(result.testFailureReason ?? 'Connection test failed');
           }
         },
-        error: (err: HttpErrorResponse) => {
-          this.clearInFlight(this.testingMethodIds, id);
-          this.toastService.error(err.error?.message ?? 'Failed to run test connection');
-        },
+        error: () => this.clearInFlight(this.testingMethodIds, id),
       });
   }
 
@@ -190,10 +180,7 @@ export class PaymentMethodListComponent {
           this.toastService.success('Payment method deleted');
           close();
         },
-        error: (err: HttpErrorResponse) => {
-          this.clearInFlight(this.deletingMethodIds, id);
-          this.toastService.error(err.error?.message ?? 'Failed to delete payment method');
-        },
+        error: () => this.clearInFlight(this.deletingMethodIds, id),
       });
   }
 

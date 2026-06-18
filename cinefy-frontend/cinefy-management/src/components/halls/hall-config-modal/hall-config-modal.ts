@@ -12,7 +12,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -46,7 +45,6 @@ import {
   HallStatus,
   Hall,
   SeatCategory,
-  SeatCategoryItem,
   SeatLayout,
   TicketPricing,
 } from '../../../shared/types';
@@ -59,6 +57,16 @@ interface LayoutBaseline {
   normalPrice: number | null;
   vipPrice: number | null;
   grid: Seat[][];
+}
+
+interface SeatCategoryItem {
+  name: string;
+  type: SeatCategory;
+}
+
+interface HallStatusEntry {
+  value: HallStatus;
+  label: string;
 }
 
 @Component({
@@ -100,13 +108,15 @@ export class HallConfigModalComponent {
 
   private static readonly SELECTABLE_HALL_STATUS_ENTRIES = (
     Object.entries(HALL_STATUS_LABELS) as [HallStatus, string][]
-  ).filter(([key]) => !HallConfigModalComponent.AUTO_HALL_STATUSES.includes(key));
+  )
+    .filter(([value]) => !HallConfigModalComponent.AUTO_HALL_STATUSES.includes(value))
+    .map(([value, label]) => ({ value, label }));
 
-  protected readonly hallStatusEntries = computed<[HallStatus, string][]>(() => {
+  protected readonly hallStatusEntries = computed<HallStatusEntry[]>(() => {
     const current = this.selectedHallData()?.status;
     const base = HallConfigModalComponent.SELECTABLE_HALL_STATUS_ENTRIES;
     if (current && HallConfigModalComponent.AUTO_HALL_STATUSES.includes(current)) {
-      return [...base, [current, HALL_STATUS_LABELS[current]]];
+      return [...base, { value: current, label: HALL_STATUS_LABELS[current] }];
     }
     return base;
   });
@@ -199,7 +209,7 @@ export class HallConfigModalComponent {
     this.selectedSeatCategory().type === 'AISLE' ? false : this.onSiteOnlyPreference(),
   );
   protected readonly statusEntry = computed(
-    () => this.hallStatusEntries().find((e) => e[0] === this.statusValue()) ?? null,
+    () => this.hallStatusEntries().find((e) => e.value === this.statusValue()) ?? null,
   );
   private readonly currentFormValue = toSignal(this.hallForm.valueChanges, {
     initialValue: this.hallForm.getRawValue(),
@@ -219,8 +229,8 @@ export class HallConfigModalComponent {
     });
   }
 
-  protected readonly statusDisplayFn = (entry: [HallStatus, string]) => entry[1];
-  protected readonly statusValueFn = (entry: [HallStatus, string]) => entry[0];
+  protected readonly statusDisplayFn = (entry: HallStatusEntry) => entry.label;
+  protected readonly statusValueFn = (entry: HallStatusEntry) => entry.value;
   protected readonly hallTypeDisplayFn = (type: HallType) => type.name;
   protected readonly hallTypeValueFn = (type: HallType) => type.id;
   protected readonly compareHallTypes = (a: HallType, b: HallType) => a?.id === b?.id;
@@ -274,10 +284,7 @@ export class HallConfigModalComponent {
         this.applyHallDetail(detail);
         this.loadingHall.set(false);
       },
-      error: (err: HttpErrorResponse) => {
-        this.loadingHall.set(false);
-        this.toastService.error(err.error?.message ?? 'Failed to load hall data');
-      },
+      error: () => this.loadingHall.set(false),
     });
   }
 
@@ -293,8 +300,8 @@ export class HallConfigModalComponent {
     this.initialSnapshot.set(this.serializeState());
   }
 
-  protected onStatusChange(entry: [HallStatus, string]) {
-    this.hallForm.controls.status.setValue(entry[0]);
+  protected onStatusChange(entry: HallStatusEntry) {
+    this.hallForm.controls.status.setValue(entry.value);
   }
 
   protected onHallTypeChange(type: HallType) {
@@ -359,9 +366,6 @@ export class HallConfigModalComponent {
   protected copyLayoutFrom(hall: HallSummary) {
     this.hallsService.getHallLayout(hall.id).subscribe({
       next: (hallLayout) => this.applyLayoutData(hallLayout),
-      error: (err: HttpErrorResponse) => {
-        this.toastService.error(err.error?.message ?? 'Failed to copy layout');
-      },
     });
   }
 
@@ -388,12 +392,7 @@ export class HallConfigModalComponent {
         }
         this.close()();
       },
-      error: (err: HttpErrorResponse) => {
-        this.saving.set(false);
-        this.toastService.error(
-          err.error?.message ?? `Failed to ${existing ? 'update' : 'create'} hall`,
-        );
-      },
+      error: () => this.saving.set(false),
     });
   }
 

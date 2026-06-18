@@ -1,5 +1,4 @@
 import { Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -154,10 +153,7 @@ export class ProfilePersonalDetailsComponent {
           this.isEditing.set(false);
           this.toastService.success('Profile updated');
         },
-        error: (err: HttpErrorResponse) => {
-          this.saving.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to update profile');
-        },
+        error: () => this.saving.set(false),
       });
   }
 }

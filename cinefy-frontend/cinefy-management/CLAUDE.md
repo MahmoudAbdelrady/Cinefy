@@ -192,6 +192,37 @@ Always use `inject()` — never constructor injection.
 - **RxJS** is used only for HTTP streams and combining/debouncing observables.
 - `toSignal()` / `toObservable()` to bridge between the two.
 
+#### Prefer `linkedSignal` over `signal` + a re-seeding `effect`
+
+When a writable signal's only `effect` (or input-setter / `ngOnChanges`) re-seeds it **synchronously** from another reactive source — a "derived default + local override" — use `linkedSignal` instead of a `signal` paired with an `effect` that calls `.set()`. This collapses two members into one and makes the derive-from-source intent explicit. The signal stays writable, so user interactions still `.set()`/`.update()` it; the value is recomputed (overwriting any manual write) whenever the source changes.
+
+Use it when **all** hold:
+
+1. The signal has a default derived from a source (`signal`, `input()`, or `computed`).
+2. That default is **re-seeded synchronously** when the source changes.
+3. The signal is also written independently by user interaction (so a read-only `computed` won't do).
+
+```typescript
+// Before — signal + constructor effect
+protected readonly testResult = signal<TestResultState>({ testStatus: 'UNTESTED' });
+constructor() {
+  effect(() => {
+    const initial = this.initialTestResult();
+    if (initial) this.testResult.set({ ...initial, fromPriorSession: true });
+  });
+}
+
+// After — one linkedSignal
+protected readonly testResult = linkedSignal<TestResultState>(() => {
+  const initial = this.initialTestResult();
+  return initial ? { ...initial, fromPriorSession: true } : { testStatus: 'UNTESTED' };
+});
+```
+
+Use the `{ source, computation }` form when the computation needs the **previous** value (e.g. preserving existing entries when a grid resizes) — `computation: (source, previous) => ...`, with `previous` `undefined` on first run. See [`hall-layout-editor.ts`](src/components/halls/hall-layout-editor/hall-layout-editor.ts) (`_seatLayout`, previous-value form) and [`review-step.ts`](src/components/payment/steps/review-step/review-step.ts) (`testResult`, simple form).
+
+**Do NOT** reach for `linkedSignal` when the re-seed is **asynchronous** — i.e. the value lands from an HTTP response inside a `.subscribe()`. `linkedSignal`'s computation is synchronous and can't await, so those stay as `signal` + `effect` (the effect fires the request and `.set()`s the result). Also skip it when collapsing the `.set()` would leave the `effect` in place anyway (because the effect does other work, e.g. patching a form) and the net reduction is one or two lines — the phantom dependency-read needed to keep the reset reactive is easy to misread as dead code, so a plain `signal` is clearer there.
+
 ### When to use `takeUntilDestroyed`
 
 `takeUntilDestroyed(this.destroyRef)` is **only** needed when the source observable doesn't complete on its own. Adding it everywhere is cargo-cult — `HttpClient` observables emit once and complete, so they cannot leak.

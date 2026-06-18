@@ -75,7 +75,6 @@ export class ProfilePasswordComponent {
         error: (err: HttpErrorResponse) => {
           this.saving.set(false);
           const body = err.error as ApiError | null;
-          this.toastService.error(body?.message ?? 'Failed to change password');
           if (body?.errorCode === 'PASSWORD_INCORRECT') {
             this.passwordForm.controls.currentPassword.reset();
           }

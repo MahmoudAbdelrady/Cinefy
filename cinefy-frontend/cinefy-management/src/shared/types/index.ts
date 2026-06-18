@@ -3,16 +3,13 @@ export type {
   HallStatus,
   SeatCategory,
   Seat,
-  SeatCategoryItem,
   SeatLayout,
   HallRef,
   HallType,
-  HallItem,
   TicketPricing,
   HallSummary,
   HallDetail,
   HallLayout,
-  HallStatistics,
   Hall,
   StatisticsChange,
 } from './halls';
@@ -28,11 +25,7 @@ export type {
 
 export type { MovieSearchResult, UpcomingMovie, MovieSummary, MovieDetail } from './movies';
 
-export {
-  PAYMENT_METHOD_TYPE_LABELS,
-  PAYMENT_METHOD_STATUS_LABELS,
-  PAYMENT_METHOD_TEST_STATUS_LABELS,
-} from './payment';
+export { PAYMENT_METHOD_TYPE_LABELS, PAYMENT_METHOD_STATUS_LABELS } from './payment';
 export type {
   PaymentMethodType,
   PaymentMethodStatus,
@@ -63,7 +56,6 @@ export type { StatsCard } from './stats';
 
 export { USER_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS } from './staff';
 export type {
-  StaffMember,
   StaffMemberSummary,
   StaffMemberDetail,
   CurrentStaffMember,

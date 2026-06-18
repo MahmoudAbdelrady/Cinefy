@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { skipErrorToast } from '../app/core/interceptors';
 import type {
   PaymentMethod,
   PaymentMethodDetail,
@@ -35,7 +36,9 @@ export class PaymentMethodService {
   }
 
   testConnection(data: TestConnectionRequest): Observable<void> {
-    return this.http.post<void>('/payment-methods/test-connection', data);
+    return this.http.post<void>('/payment-methods/test-connection', data, {
+      context: skipErrorToast(),
+    });
   }
 
   testPaymentMethodConnection(id: string): Observable<PaymentMethodTestResult> {

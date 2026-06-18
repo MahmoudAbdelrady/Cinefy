@@ -1,9 +1,14 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CalendarIcon, MegaphoneIcon, SearchIcon, StarIcon } from '../../../shared/icons';
+import {
+  CalendarIcon,
+  MegaphoneIcon,
+  SearchIcon,
+  SlidersHorizontalIcon,
+  StarIcon,
+} from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
 import { differenceInCalendarDays } from 'date-fns';
 import { NgpButton } from 'ng-primitives/button';
@@ -15,7 +20,6 @@ import {
   MediaImageComponent,
   Switch,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MoviesService, ShowtimeEventsService } from '../../../services';
 
@@ -41,10 +45,10 @@ export class UpcomingMoviesComponent {
     SearchIcon,
     MegaphoneIcon,
     StarIcon,
+    SlidersHorizontalIcon,
   };
 
   private readonly moviesService = inject(MoviesService);
-  private readonly toastService = inject(ToastService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -73,6 +77,10 @@ export class UpcomingMoviesComponent {
     });
   });
 
+  protected readonly hasFilters = computed(
+    () => this.searchTerm().trim() !== '' || this.showAnnouncedOnly(),
+  );
+
   constructor() {
     afterNextRender(() => {
       this.moviesService.getUpcomingMovies().subscribe({
@@ -80,10 +88,7 @@ export class UpcomingMoviesComponent {
           this.movies.set(list);
           this.loading.set(false);
         },
-        error: (err: HttpErrorResponse) => {
-          this.loading.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load upcoming movies');
-        },
+        error: () => this.loading.set(false),
       });
     });
 
@@ -141,11 +146,10 @@ export class UpcomingMoviesComponent {
           this.setPending(movieId, false);
           this.demoteHighlightIfUnhighlightable(movieId);
         },
-        error: (err: HttpErrorResponse) => {
+        error: () => {
           // Re-assert the prior value so the switch reverts to the confirmed state.
           this.setAnnounced(movieId, !announced);
           this.setPending(movieId, false);
-          this.toastService.error(err.error?.message ?? 'Failed to update announcement');
         },
       });
   }
@@ -163,11 +167,10 @@ export class UpcomingMoviesComponent {
           this.setHighlightPending(movieId, false);
           this.showtimeEvents.notifyHighlightChanged(movieId, highlighted);
         },
-        error: (err: HttpErrorResponse) => {
+        error: () => {
           // Re-assert the prior value so the switch reverts to the confirmed state.
           this.setHighlighted(movieId, !highlighted);
           this.setHighlightPending(movieId, false);
-          this.toastService.error(err.error?.message ?? 'Failed to update highlight');
         },
       });
   }

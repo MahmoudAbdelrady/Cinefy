@@ -11,7 +11,6 @@ import {
   ViewEncapsulation,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { HttpErrorResponse } from "@angular/common/http";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { Observable, debounceTime, distinctUntilChanged, skip } from "rxjs";
 import { LucideDynamicIcon } from "@lucide/angular";
@@ -26,7 +25,6 @@ import {
 } from "ng-primitives/combobox";
 import { LoadingSpinnerComponent } from "../../loading-spinner/loading-spinner";
 import { FieldErrorComponent } from "../../field-error/field-error";
-import { ToastService } from "cinefy-ui/services";
 import type { PaginatedResponse } from "cinefy-ui/types";
 
 @Component({
@@ -53,7 +51,6 @@ export class AsyncSelectComponent<T> {
     CheckIcon,
   };
   private readonly destroyRef = inject(DestroyRef);
-  private readonly toastService = inject(ToastService);
 
   private static readonly SEARCH_DEBOUNCE_MS = 300;
 
@@ -223,10 +220,7 @@ export class AsyncSelectComponent<T> {
           this.loadedOnce = true;
           this.loading.set(false);
         },
-        error: (err: HttpErrorResponse) => {
-          this.loading.set(false);
-          this.toastService.error(err.error?.message ?? "Failed to load items");
-        },
+        error: () => this.loading.set(false),
       });
   }
 }

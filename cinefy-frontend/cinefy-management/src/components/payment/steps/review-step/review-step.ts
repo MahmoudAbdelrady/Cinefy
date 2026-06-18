@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
@@ -55,16 +55,10 @@ export class ReviewStep {
   protected readonly showHmacSecret = signal(false);
 
   protected readonly loading = signal(false);
-  protected readonly testResult = signal<TestResultState>({ testStatus: 'UNTESTED' });
-
-  constructor() {
-    effect(() => {
-      const initial = this.initialTestResult();
-      if (initial) {
-        this.testResult.set({ ...initial, fromPriorSession: true });
-      }
-    });
-  }
+  protected readonly testResult = linkedSignal<TestResultState>(() => {
+    const initial = this.initialTestResult();
+    return initial ? { ...initial, fromPriorSession: true } : { testStatus: 'UNTESTED' };
+  });
 
   protected displaySecret(value: string | null | undefined, revealed: boolean): string {
     if (!value) return '—';

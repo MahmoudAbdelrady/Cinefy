@@ -1,5 +1,4 @@
 import { afterNextRender, Component, computed, inject, output, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
@@ -8,6 +7,7 @@ import {
   EyeIcon,
   LayoutIcon,
   SearchIcon,
+  SlidersHorizontalIcon,
   TagIcon,
   UsersIcon,
 } from '../../../shared/icons';
@@ -56,6 +56,7 @@ export class HallsListComponent {
     DeleteIcon,
     AlertIcon,
     TagIcon,
+    SlidersHorizontalIcon,
   };
 
   private readonly hallsService = inject(HallsService);
@@ -85,6 +86,10 @@ export class HallsListComponent {
     });
   });
 
+  protected readonly hasFilters = computed(
+    () => this.searchTerm().trim() !== '' || this.statusFilter() !== undefined,
+  );
+
   protected readonly statusDisplayFn = (status: HallStatus): string => HALL_STATUS_LABELS[status];
 
   constructor() {
@@ -100,10 +105,9 @@ export class HallsListComponent {
           });
           this.loading.set(false);
         },
-        error: (err: HttpErrorResponse) => {
+        error: () => {
           this.loading.set(false);
           this.statisticsChanged.emit({ action: 'reset' });
-          this.toastService.error(err.error?.message ?? 'Failed to load halls');
         },
       });
     });
@@ -151,10 +155,7 @@ export class HallsListComponent {
         this.toastService.success('Hall deleted');
         close();
       },
-      error: (err: HttpErrorResponse) => {
-        this.deletingHallId.set(null);
-        this.toastService.error(err.error?.message ?? 'Failed to delete hall');
-      },
+      error: () => this.deletingHallId.set(null),
     });
   }
 }

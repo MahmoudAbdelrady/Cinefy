@@ -13,7 +13,6 @@ import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpButton } from 'ng-primitives/button';
 import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
 import {
   AlertIcon,
   ArrowRightIcon,
@@ -46,7 +45,6 @@ export class ResetStep {
   };
 
   private readonly authService = inject(AuthService);
-  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly code = input.required<string>();
@@ -106,7 +104,6 @@ export class ResetStep {
         error: (err: HttpErrorResponse) => {
           this.submitting.set(false);
           const body = err.error as ApiError | null;
-          this.toast.error(body?.message ?? 'Could not reset your password. Please try again.');
           if (body?.errorCode === 'OTP_INVALID') this.codeRejected.set(true);
           if (body?.errorCode === 'PASSWORD_REUSED') this.resetForm.reset();
         },

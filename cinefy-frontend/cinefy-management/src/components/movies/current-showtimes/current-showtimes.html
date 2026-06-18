@@ -230,15 +230,11 @@
         } @empty {
           <empty-state
             class="cs-empty"
-            [icon]="icons.CalendarClockIcon"
-            [title]="
-              searchControl.value || showHighlightedOnly()
-                ? 'No movies found'
-                : 'No showtimes scheduled yet'
-            "
+            [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.CalendarClockIcon"
+            [title]="hasFilters() ? 'No movies found' : 'No showtimes scheduled yet'"
             [description]="
-              searchControl.value || showHighlightedOnly()
-                ? 'Try adjusting your search filters'
+              hasFilters()
+                ? 'Try adjusting your filters.'
                 : 'Schedule a showtime to start selling tickets for this movie.'
             "
           />

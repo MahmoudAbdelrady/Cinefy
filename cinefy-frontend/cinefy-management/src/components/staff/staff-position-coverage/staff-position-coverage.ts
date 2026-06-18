@@ -1,5 +1,4 @@
 import { afterNextRender, Component, inject, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   USER_POSITION_LABELS,
@@ -11,7 +10,6 @@ import {
 import { StaffService } from '../../../services';
 import { InfoIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
 
 @Component({
   selector: 'staff-position-coverage',
@@ -23,7 +21,6 @@ export class StaffPositionCoverageComponent {
   protected readonly icons = { info: InfoIcon };
 
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
 
   protected readonly positionLabels = USER_POSITION_LABELS;
 
@@ -37,10 +34,7 @@ export class StaffPositionCoverageComponent {
           this.positionCoverageItems.set(coverage);
           this.loading.set(false);
         },
-        error: (err: HttpErrorResponse) => {
-          this.loading.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load position coverage');
-        },
+        error: () => this.loading.set(false),
       });
     });
   }

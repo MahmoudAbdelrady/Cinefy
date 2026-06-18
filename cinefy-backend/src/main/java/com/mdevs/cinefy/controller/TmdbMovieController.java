@@ -29,54 +29,55 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/movies")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
 public class TmdbMovieController {
 
     private final TmdbMovieService tmdbMovieService;
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<Page<MovieSearchResultDTO>> searchMovies(@RequestParam String query, Pageable pageable) {
         return ResponseEntity.ok(tmdbMovieService.searchMovies(query, pageable));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/upcoming")
     public ResponseEntity<List<UpcomingMovieDTO>> getUpcomingMovies(@RequestParam(required = false, defaultValue = "20") int limit) {
         return ResponseEntity.ok(tmdbMovieService.getUpcomingMovies(limit));
     }
 
     @PublicApi
+    @PreAuthorize("permitAll()")
     @GetMapping("/announced-upcoming")
     public ResponseEntity<List<MovieSearchResultDTO>> getAnnouncedUpcoming() {
         return ResponseEntity.ok(tmdbMovieService.getAnnouncedUpcoming());
     }
 
     @PublicApi
+    @PreAuthorize("permitAll()")
     @GetMapping("/highlighted")
     public ResponseEntity<List<HighlightedMovieDTO>> getHighlighted() {
         return ResponseEntity.ok(tmdbMovieService.getHighlighted());
     }
 
     @PublicApi
+    @PreAuthorize("permitAll()")
     @GetMapping("/now-showing")
     public ResponseEntity<List<NowShowingMovieDTO>> getNowShowing(@RequestParam(required = false) Integer limit) {
         return ResponseEntity.ok(tmdbMovieService.getNowShowing(limit));
     }
 
     @PublicApi
+    @PreAuthorize("permitAll()")
     @GetMapping("/{id}")
     public ResponseEntity<MovieDetailDTO> getMovieDetails(@PathVariable long id) {
         return ResponseEntity.ok(tmdbMovieService.getMovieDetails(id));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/{id}/announcement")
     public ResponseEntity<Void> setAnnouncement(@PathVariable long id, @Valid @RequestBody AnnouncementRequestDTO dto) {
         tmdbMovieService.setAnnouncement(id, dto.getAnnounced());
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/{id}/highlight")
     public ResponseEntity<Void> setHighlight(@PathVariable long id, @Valid @RequestBody HighlightRequestDTO dto) {
         tmdbMovieService.setHighlight(id, dto.getHighlighted());

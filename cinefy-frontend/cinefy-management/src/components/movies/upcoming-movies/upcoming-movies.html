@@ -159,17 +159,9 @@
         } @empty {
           <empty-state
             class="um-empty"
-            [icon]="icons.CalendarIcon"
-            [title]="
-              searchControl.value || showAnnouncedOnly()
-                ? 'No movies found'
-                : 'No upcoming movies available'
-            "
-            [description]="
-              searchControl.value || showAnnouncedOnly()
-                ? 'Try adjusting your search filters'
-                : null
-            "
+            [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.CalendarIcon"
+            [title]="hasFilters() ? 'No movies found' : 'No upcoming movies available'"
+            [description]="hasFilters() ? 'Try adjusting your filters.' : null"
           />
         }
       </div>

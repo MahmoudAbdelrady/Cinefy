@@ -2,10 +2,8 @@ import { afterNextRender, Component, computed, DestroyRef, inject, signal } from
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { merge, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { HttpErrorResponse } from '@angular/common/http';
 import { CalendarIcon, ClockIcon, ClapperboardIcon } from '../../../shared/icons';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
 import { StatsComponent } from '../../stats/stats';
 import { ShowtimeEventsService, ShowtimesService } from '../../../services';
 import type { ShowtimesStatistics, StatsCard } from '../../../shared/types';
@@ -19,7 +17,6 @@ import type { ShowtimesStatistics, StatsCard } from '../../../shared/types';
 export class MoviesStatisticsComponent {
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
-  private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly refetch$ = new Subject<void>();
@@ -47,10 +44,7 @@ export class MoviesStatisticsComponent {
           this.statistics.set(stats);
           this.loading.set(false);
         },
-        error: (err: HttpErrorResponse) => {
-          this.loading.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load statistics');
-        },
+        error: () => this.loading.set(false),
       });
 
     afterNextRender(() => this.refetch$.next());

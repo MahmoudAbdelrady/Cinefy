@@ -9,7 +9,6 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
@@ -24,6 +23,7 @@ import {
   EyeIcon,
   PhoneIcon,
   SearchIcon,
+  SlidersHorizontalIcon,
   UsersIcon,
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
@@ -85,6 +85,7 @@ export class StaffListComponent {
     EditIcon,
     DeleteIcon,
     AlertIcon,
+    SlidersHorizontalIcon,
   };
 
   private readonly staffService = inject(StaffService);
@@ -114,6 +115,7 @@ export class StaffListComponent {
   protected readonly staffPage = signal<PaginatedResponse<StaffMemberSummary> | null>(null);
 
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+  private readonly appliedSearch = signal('');
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
 
@@ -121,6 +123,10 @@ export class StaffListComponent {
   protected readonly totalItems = computed(() => this.staffPage()?.page.totalElements ?? 0);
   protected readonly pageCount = computed(() =>
     Math.max(1, this.staffPage()?.page.totalPages ?? 1),
+  );
+
+  protected readonly hasFilters = computed(
+    () => this.appliedSearch() !== '' || this.positionFilter() !== undefined,
   );
 
   protected readonly canManageRow = (member: StaffMemberSummary): boolean => {
@@ -133,7 +139,10 @@ export class StaffListComponent {
       startWith(''),
       debounceTime(SEARCH_DEBOUNCE_MS),
       distinctUntilChanged(),
-      tap(() => this.page.set(1)),
+      tap((search) => {
+        this.page.set(1);
+        this.appliedSearch.set(search.trim());
+      }),
     ),
     toObservable(this.positionFilter),
     toObservable(this.page),
@@ -160,10 +169,7 @@ export class StaffListComponent {
             this.staffPage.set(staffPage);
             this.loading.set(false);
           },
-          error: (err: HttpErrorResponse) => {
-            this.loading.set(false);
-            this.toastService.error(err.error?.message ?? 'Failed to load staff members');
-          },
+          error: () => this.loading.set(false),
         });
     });
   }
@@ -258,13 +264,12 @@ export class StaffListComponent {
         this.toastService.success('Staff member deleted');
         close();
       },
-      error: (err: HttpErrorResponse) => {
+      error: () => {
         this.deletingStaffIds.update((current) => {
           const next = new Set(current);
           next.delete(id);
           return next;
         });
-        this.toastService.error(err.error?.message ?? 'Failed to delete staff member');
       },
     });
   }

@@ -1,6 +1,5 @@
 import { afterNextRender, Component, computed, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { HttpErrorResponse } from '@angular/common/http';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   BriefCaseIcon,
@@ -12,7 +11,6 @@ import {
 } from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
 import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
 import {
   EMPLOYMENT_TYPE_LABELS,
@@ -47,7 +45,6 @@ export class StaffDetailsComponent {
   };
 
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
 
   protected readonly employmentTypeLabels = EMPLOYMENT_TYPE_LABELS;
   protected readonly positionLabels = USER_POSITION_LABELS;
@@ -83,10 +80,7 @@ export class StaffDetailsComponent {
           this.staffMember.set(member);
           this.loading.set(false);
         },
-        error: (err: HttpErrorResponse) => {
-          this.loading.set(false);
-          this.toastService.error(err.error?.message ?? 'Failed to load staff member');
-        },
+        error: () => this.loading.set(false),
       });
     });
   }

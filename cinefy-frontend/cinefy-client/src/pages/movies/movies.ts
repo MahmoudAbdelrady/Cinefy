@@ -50,7 +50,7 @@ export class MoviesPage {
   private readonly search = toSignal(this.searchControl.valueChanges, {
     initialValue: this.searchControl.value,
   });
-  protected readonly selectedExperiences = signal<HallType[]>([]);
+  protected readonly selectedHallTypes = signal<HallType[]>([]);
   protected readonly selectedGenres = signal<string[]>([]);
   protected readonly selectedContentRatings = signal<string[]>([]);
 
@@ -80,15 +80,15 @@ export class MoviesPage {
 
   protected readonly filteredMovies = computed(() => {
     const searchedTitle = this.trimmedSearch().toLowerCase();
-    const selectedExperiences = this.selectedExperiences();
+    const selectedHallTypes = this.selectedHallTypes();
     const selectedGenres = this.selectedGenres();
     const selectedContentRatings = this.selectedContentRatings();
     return (this.movies() ?? []).filter((movie) => {
       const matchesName = !searchedTitle || movie.title.toLowerCase().includes(searchedTitle);
 
-      const matchesExperience =
-        !selectedExperiences.length ||
-        selectedExperiences.some((e) => movie.experiences?.includes(e.name));
+      const matchesHallType =
+        !selectedHallTypes.length ||
+        selectedHallTypes.some((t) => movie.hallTypes?.includes(t.name));
 
       const matchesGenre =
         !selectedGenres.length || selectedGenres.some((g) => movie.genres?.includes(g));
@@ -97,7 +97,7 @@ export class MoviesPage {
         !selectedContentRatings.length ||
         (movie.contentRating != null && selectedContentRatings.includes(movie.contentRating));
 
-      return matchesName && matchesExperience && matchesGenre && matchesContentRating;
+      return matchesName && matchesHallType && matchesGenre && matchesContentRating;
     });
   });
 
@@ -106,7 +106,7 @@ export class MoviesPage {
   protected readonly hasFilters = computed(
     () =>
       this.trimmedSearch() !== '' ||
-      this.selectedExperiences().length > 0 ||
+      this.selectedHallTypes().length > 0 ||
       this.selectedGenres().length > 0 ||
       this.selectedContentRatings().length > 0,
   );
@@ -123,8 +123,8 @@ export class MoviesPage {
     this.searchControl.setValue('');
   }
 
-  protected onExperienceChange(values: HallType[]): void {
-    this.selectedExperiences.set(values);
+  protected onHallTypeChange(values: HallType[]): void {
+    this.selectedHallTypes.set(values);
   }
 
   protected onGenreChange(values: string[]): void {
@@ -135,8 +135,8 @@ export class MoviesPage {
     this.selectedContentRatings.set(values);
   }
 
-  protected removeExperience(value: HallType): void {
-    this.selectedExperiences.update((values) => values.filter((v) => v.id !== value.id));
+  protected removeHallType(value: HallType): void {
+    this.selectedHallTypes.update((values) => values.filter((v) => v.id !== value.id));
   }
 
   protected removeGenre(value: string): void {
@@ -149,7 +149,7 @@ export class MoviesPage {
 
   protected clearAll(): void {
     this.clearSearch();
-    this.selectedExperiences.set([]);
+    this.selectedHallTypes.set([]);
     this.selectedGenres.set([]);
     this.selectedContentRatings.set([]);
   }
