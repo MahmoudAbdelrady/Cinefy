@@ -1,4 +1,4 @@
-export type SeatTier = 'standard' | 'premium' | 'recliner'
+export type SeatTier = 'standard' | 'premium'
 
 export interface Seat {
   id: string
@@ -18,13 +18,11 @@ export const AISLE_AFTER_COLS = [2, 9]
 const TIER_SURCHARGE: Record<SeatTier, number> = {
   standard: 0,
   premium: 500,
-  recliner: 1000,
 }
 
-/** Rows D–G are premium, H–J recliner, the rest standard (matches v2 zoning). */
+/** Rows A–G are standard (normal), H–J premium — most of the hall is normal. */
 function tierForRow(rowIdx: number): SeatTier {
-  if (rowIdx >= 7) return 'recliner'
-  if (rowIdx >= 3) return 'premium'
+  if (rowIdx >= 7) return 'premium'
   return 'standard'
 }
 
@@ -55,9 +53,8 @@ export function buildHall(): Seat[][] {
 }
 
 export const tierLabel: Record<SeatTier, string> = {
-  standard: 'Standard',
+  standard: 'Normal',
   premium: 'Premium',
-  recliner: 'Recliner',
 }
 
 /** Look up seats by id (e.g. to re-price a saved booking from its seat ids). */

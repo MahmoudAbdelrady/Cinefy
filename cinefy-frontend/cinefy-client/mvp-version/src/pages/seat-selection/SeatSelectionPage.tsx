@@ -211,10 +211,8 @@ function SeatButton({
 }) {
   const tierClass =
     seat.tier === 'premium'
-      ? 'bg-seat-premium/40 border-seat-premium/60 hover:border-blue-400'
-      : seat.tier === 'recliner'
-        ? 'bg-seat-recliner/40 border-seat-recliner/60 hover:border-purple-400'
-        : 'bg-seat-standard/50 border-seat-standard hover:border-zinc-400'
+      ? 'bg-seat-recliner/40 border-seat-recliner/60 hover:border-purple-400'
+      : 'bg-seat-premium/40 border-seat-premium/60 hover:border-blue-400'
 
   return (
     <button
@@ -245,9 +243,8 @@ function RowLabel({ label }: { label: string }) {
 function Legend() {
   return (
     <div className="mt-8 flex flex-wrap items-center justify-center gap-6 rounded-full border border-border/50 bg-card/50 px-6 py-4 text-sm text-muted-foreground">
-      <LegendItem className="border-seat-standard bg-seat-standard/50" label="Standard" />
-      <LegendItem className="border-seat-premium/60 bg-seat-premium/40" label="Premium" />
-      <LegendItem className="border-seat-recliner/60 bg-seat-recliner/40" label="Recliner" />
+      <LegendItem className="border-seat-premium/60 bg-seat-premium/40" label="Normal" />
+      <LegendItem className="border-seat-recliner/60 bg-seat-recliner/40" label="Premium" />
       <LegendItem className="border-amber bg-amber" label="Selected" />
       <LegendItem className="border-zinc-700 bg-zinc-800 opacity-50" label="Taken" />
     </div>
