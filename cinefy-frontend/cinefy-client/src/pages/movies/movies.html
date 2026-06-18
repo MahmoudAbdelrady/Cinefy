@@ -82,7 +82,7 @@
         {{ filteredMovies().length === 1 ? 'result' : 'results' }}</span
       >
       @if (hasFilters()) {
-        <span class="ms-divider">·</span>
+        <span class="ms-divider">•</span>
       }
       @if (trimmedSearch()) {
         <span class="filter-chip">
@@ -140,7 +140,9 @@
                 }
               </div>
               <div class="mc-subtitle">
-                <p>{{ movie.genres?.join(', ') }}</p>
+                @if (movie.genres?.length) {
+                  <p>{{ movie.genres!.join(', ') }}</p>
+                }
               </div>
             </div>
           </a>

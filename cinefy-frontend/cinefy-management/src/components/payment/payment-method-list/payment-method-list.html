@@ -24,7 +24,7 @@
                   </div>
                   <div class="mihi-meta-row">
                     <span class="mihi-meta-type">{{ typeLabels[paymentMethod.type] }}</span>
-                    <span class="mihi-meta-divider">·</span>
+                    <span class="mihi-meta-divider">•</span>
                     <span class="mihi-meta-currency">{{ paymentMethod.currency }}</span>
                   </div>
                 </div>
@@ -142,7 +142,7 @@
           <div class="mi-content">
             <div class="mic-meta-strip">
               <div class="mics-rate" [attr.data-tone]="successTone">
-                <span class="mics-rate-label">Success rate · 30d</span>
+                <span class="mics-rate-label">Success rate • 30d</span>
                 <span class="mics-rate-value">{{ paymentMethod.successRate ?? '—' }}</span>
                 <div class="mics-rate-tone">
                   <span class="mics-rate-tone-dot"></span>
@@ -176,7 +176,7 @@
                     }
                     @if (paymentMethod.testedAt) {
                       <span class="mics-tested-at"
-                        >· {{ paymentMethod.testedAt | relativeTime }}</span
+                        >• {{ paymentMethod.testedAt | relativeTime }}</span
                       >
                     }
                     @if (

@@ -65,7 +65,7 @@
     white-space: nowrap;
 
     &:not(:last-child)::after {
-      content: '·';
+      content: '•';
       margin-left: 8px;
       color: $gray-400;
     }
