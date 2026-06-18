@@ -251,10 +251,9 @@
       </div>
       <div class="hle-content">
         <hall-layout-editor
+          [(seatLayout)]="seatLayout"
           [selectedSeatType]="selectedSeatCategory().type"
           [selectedOnsiteOnly]="onSiteOnly()"
-          [numRows]="numRowsValue() ?? 10"
-          [seatsPerRow]="seatsPerRowValue() ?? 12"
           [disabled]="isViewMode()"
           (layoutReset)="onResetLayout()"
         />
