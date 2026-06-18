@@ -217,8 +217,13 @@
   transition: background-color 150ms ease;
   cursor: pointer;
 
-  &:hover {
+  &:not(:disabled):hover {
     background-color: $gray-50;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   svg {
@@ -232,7 +237,7 @@
     padding-top: 10px;
     border-top: 1px solid $gray-100;
 
-    &:hover {
+    &:not(:disabled):hover {
       background-color: $red-50;
     }
 
