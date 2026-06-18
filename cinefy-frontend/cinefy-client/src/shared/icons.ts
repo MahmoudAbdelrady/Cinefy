@@ -16,4 +16,5 @@ export {
   LucideSearch as SearchIcon,
   LucideSlidersHorizontal as SlidersHorizontalIcon,
   LucideX as XIcon,
+  LucideTriangleAlert as TriangleAlertIcon,
 } from '@lucide/angular';

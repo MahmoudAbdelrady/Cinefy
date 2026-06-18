@@ -1,5 +1,5 @@
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -9,7 +9,7 @@ import {
 } from 'cinefy-ui/components';
 import { FeaturedCarouselComponent } from '../../components';
 import { MoviesService } from '../../services';
-import { ClapperboardIcon, CalendarIcon } from '../../shared/icons';
+import { ClapperboardIcon, CalendarIcon, TriangleAlertIcon } from '../../shared/icons';
 
 @Component({
   selector: 'home-page',
@@ -28,23 +28,22 @@ export class HomePage {
   protected readonly icons = {
     ClapperboardIcon,
     CalendarIcon,
+    TriangleAlertIcon,
   };
 
   private readonly moviesService = inject(MoviesService);
 
   private static readonly NOW_SHOWING_LIMIT = 5;
 
-  protected readonly highlightedMovies = toSignal(this.moviesService.getHighlighted());
+  protected readonly highlightedMovies = rxResource({
+    stream: () => this.moviesService.getHighlighted(),
+  });
 
-  protected readonly nowShowingMovies = toSignal(
-    this.moviesService.getNowShowing(HomePage.NOW_SHOWING_LIMIT),
-  );
+  protected readonly nowShowingMovies = rxResource({
+    stream: () => this.moviesService.getNowShowing(HomePage.NOW_SHOWING_LIMIT),
+  });
 
-  protected readonly upcomingMovies = toSignal(this.moviesService.getAnnouncedUpcoming());
-
-  protected readonly highlightedLoading = computed(() => this.highlightedMovies() === undefined);
-
-  protected readonly nowShowingLoading = computed(() => this.nowShowingMovies() === undefined);
-
-  protected readonly upcomingLoading = computed(() => this.upcomingMovies() === undefined);
+  protected readonly upcomingMovies = rxResource({
+    stream: () => this.moviesService.getAnnouncedUpcoming(),
+  });
 }

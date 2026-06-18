@@ -1,0 +1,174 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/mixins' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+.booking-section {
+  margin-top: 64px;
+  padding-top: 64px;
+  border-top: 1px solid rgba($color-border, 0.4);
+}
+
+.bs-heading {
+  margin-bottom: 32px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.bs-loading,
+.bs-formats-loading {
+  @include flex-center;
+  padding: 48px 0;
+}
+
+.bs-dates {
+  @include scrollbar-thin;
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 8px;
+  overflow-x: auto;
+}
+
+.bs-date {
+  @include flex-column;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 96px;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  background-color: $color-card;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease;
+
+  &:hover:not(.active) {
+    border-color: rgba($color-primary, 0.5);
+    background-color: $color-accent;
+  }
+
+  &.active {
+    border-color: $color-primary;
+    background-color: rgba($color-primary, 0.1);
+    color: $color-primary;
+
+    .bs-date-day {
+      color: $color-primary;
+    }
+  }
+}
+
+.bs-date-month {
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.bs-date-day {
+  font-size: 24px;
+  font-weight: 700;
+  color: $color-foreground;
+}
+
+.bs-date-label {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.bs-formats {
+  @include flex-column;
+  gap: 32px;
+}
+
+.bs-format {
+  padding: 24px;
+  border: 1px solid rgba($color-border, 0.5);
+  border-radius: $radius-lg;
+  background-color: $color-card;
+}
+
+.bs-format-header {
+  @include flex-align;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+  }
+}
+
+.bs-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  @include below-tablet {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.bs-time {
+  @include flex-center;
+  gap: 10px;
+  width: 150px;
+  padding: 12px 0px;
+  border: 1px solid rgba($color-border, 0.5);
+  border-radius: $radius-md;
+  font-family: $font-mono;
+  font-size: 16px;
+  font-weight: 600;
+  color: $color-foreground;
+  text-decoration: none;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+
+  &:hover {
+    border-color: $color-primary;
+    color: $color-primary;
+  }
+
+  @include below-tablet {
+    width: 100%;
+  }
+}
+
+.bs-time-badge {
+  padding: 0 6px;
+  border: 1px solid rgba($color-primary, 0.4);
+  border-radius: $radius-md;
+  font-size: 11px;
+  font-weight: 600;
+  color: $color-primary;
+}
+
+.bs-state {
+  @include flex-column;
+  align-items: center;
+  padding: 48px 0;
+  border: 1px solid rgba($color-border, 0.5);
+  border-radius: $radius-lg;
+  background-color: rgba($color-muted, 0.2);
+  text-align: center;
+
+  svg {
+    margin-bottom: 16px;
+    color: $color-muted-foreground;
+  }
+
+  h3 {
+    margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  p {
+    color: $color-muted-foreground;
+  }
+}

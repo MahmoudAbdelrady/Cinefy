@@ -1,7 +1,6 @@
 interface CreditMember {
   id: number;
   name: string;
-  profileUrl?: string;
 }
 
 interface MovieCredits {

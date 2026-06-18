@@ -63,9 +63,17 @@
     }
   </div>
 
-  @if (moviesLoading()) {
+  @if (movies.isLoading()) {
     <div class="movies-loading">
       <loading-spinner variant="lg" />
+    </div>
+  } @else if (movies.error()) {
+    <div class="movies-empty">
+      <empty-state
+        [icon]="icons.TriangleAlertIcon"
+        title="Failed to load movies"
+        description="Something went wrong. Please try again later."
+      />
     </div>
   } @else {
     <div class="movies-summary">

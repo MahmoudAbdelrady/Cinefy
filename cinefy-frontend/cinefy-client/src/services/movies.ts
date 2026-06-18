@@ -1,7 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { HighlightedMovie, MovieSearchResult, NowShowingMovie } from '../shared/types';
+import type {
+  HighlightedMovie,
+  MovieDetail,
+  MovieSearchResult,
+  NowShowingMovie,
+} from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class MoviesService {
@@ -18,5 +23,9 @@ export class MoviesService {
 
   getAnnouncedUpcoming(): Observable<MovieSearchResult[]> {
     return this.http.get<MovieSearchResult[]>('/movies/announced-upcoming');
+  }
+
+  getMovieDetails(id: number): Observable<MovieDetail> {
+    return this.http.get<MovieDetail>(`/movies/${id}`);
   }
 }

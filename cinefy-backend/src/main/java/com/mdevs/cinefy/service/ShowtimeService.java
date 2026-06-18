@@ -1,6 +1,8 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.hall.HallReferenceDTO;
+import com.mdevs.cinefy.dto.showtime.BookingShowtimeDTO;
+import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeDatesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeListItemDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimesDTO;
@@ -27,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +56,7 @@ public class ShowtimeService {
     // ========================= Public API =========================
 
     public MovieShowtimeDatesDTO getMovieShowtimeDates(Long movieId) {
+        // @TODO --> return empty list instead
         List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ShowtimeStatus.LIVE_STATUSES);
         if (dates.isEmpty()) {
             throw new NotFoundException("No showtimes found for the provided movie");
@@ -69,6 +73,7 @@ public class ShowtimeService {
     }
 
     public MovieShowtimesDTO getMovieShowtimesForDate(Long movieId, LocalDate date) {
+        // @TODO --> return empty list instead
         List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ShowtimeStatus.LIVE_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
         if (showtimes.isEmpty()) {
             throw new NotFoundException("No showtimes found for the provided movie on " + date);
@@ -80,6 +85,27 @@ public class ShowtimeService {
         dto.setNumberOfDrafts(numberOfDrafts);
         dto.setShowtimes(showtimes.stream().map(this::toMovieShowtimeListItem).toList());
         return dto;
+    }
+
+    public List<String> getBookableDates(Long movieId) {
+        return showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ShowtimeStatus.COMMITTED_STATUSES)
+                .stream()
+                .map(LocalDate::toString)
+                .toList();
+    }
+
+    public List<HallTypeShowtimesDTO> getBookableShowtimesForDate(Long movieId, LocalDate date) {
+        List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ShowtimeStatus.COMMITTED_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+
+        Map<String, List<BookingShowtimeDTO>> grouped = showtimes.stream()
+                .collect(Collectors.groupingBy(
+                        showtime -> showtime.getHall().getType().getName(),
+                        LinkedHashMap::new,
+                        Collectors.mapping(this::toBookingShowtime, Collectors.toList())));
+
+        return grouped.entrySet().stream()
+                .map(entry -> new HallTypeShowtimesDTO(entry.getKey(), entry.getValue()))
+                .toList();
     }
 
     public ShowtimesStatisticsDTO getShowtimesStatistics() {
@@ -297,6 +323,14 @@ public class ShowtimeService {
         dto.setReservedSeats(0);
         dto.setTotalSeats(hall.getTotalRows() * hall.getTotalColumns());
         return dto;
+    }
+
+    private BookingShowtimeDTO toBookingShowtime(Showtime showtime) {
+        return new BookingShowtimeDTO(
+                showtime.getUuid(),
+                showtime.getStartDateTime().toLocalTime().format(TIME_FORMATTER),
+                showtime.is3D(),
+                false);
     }
 
     private MovieWithShowtimesDTO toMovieWithShowtimes(MovieShowtimeCountProjection counts, TmdbMovie movie) {

@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
@@ -13,7 +13,13 @@ import {
 } from 'cinefy-ui/components';
 import { HallsService, MoviesService } from '../../services';
 import type { HallType } from '../../shared/types';
-import { ClapperboardIcon, SearchIcon, SlidersHorizontalIcon, XIcon } from '../../shared/icons';
+import {
+  ClapperboardIcon,
+  SearchIcon,
+  SlidersHorizontalIcon,
+  XIcon,
+  TriangleAlertIcon,
+} from '../../shared/icons';
 
 @Component({
   selector: 'movies-page',
@@ -36,6 +42,7 @@ export class MoviesPage {
     SlidersHorizontalIcon,
     XIcon,
     ClapperboardIcon,
+    TriangleAlertIcon,
   };
 
   private readonly moviesService = inject(MoviesService);
@@ -43,9 +50,9 @@ export class MoviesPage {
 
   protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
 
-  private readonly movies = toSignal(this.moviesService.getNowShowing());
-
-  protected readonly moviesLoading = computed(() => this.movies() === undefined);
+  protected readonly movies = rxResource({
+    stream: () => this.moviesService.getNowShowing(),
+  });
 
   private readonly search = toSignal(this.searchControl.valueChanges, {
     initialValue: this.searchControl.value,
@@ -83,7 +90,8 @@ export class MoviesPage {
     const selectedHallTypes = this.selectedHallTypes();
     const selectedGenres = this.selectedGenres();
     const selectedContentRatings = this.selectedContentRatings();
-    return (this.movies() ?? []).filter((movie) => {
+    const moviesList = this.movies.hasValue() ? this.movies.value() : [];
+    return moviesList.filter((movie) => {
       const matchesName = !searchedTitle || movie.title.toLowerCase().includes(searchedTitle);
 
       const matchesHallType =
