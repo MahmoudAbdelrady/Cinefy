@@ -1,4 +1,24 @@
-@if (movie(); as movie) {
+@if (movieResource.isLoading()) {
+  <div class="md-loading">
+    <loading-spinner variant="lg" />
+  </div>
+} @else if (movieResource.error()) {
+  @if (notFound()) {
+    <empty-state
+      class="md-error"
+      [icon]="icons.TriangleAlertIcon"
+      title="Movie not found"
+      description="That movie isn't in our catalogue."
+    />
+  } @else {
+    <empty-state
+      class="md-error"
+      [icon]="icons.TriangleAlertIcon"
+      title="Failed to load this movie"
+      description="Something went wrong. Please try again later."
+    />
+  }
+} @else if (movie(); as movie) {
   <div class="movie-detail">
     <div class="md-backdrop">
       <media-image [src]="movie.backdropUrl" [alt]="movie.title" [iconSize]="64" />
@@ -89,11 +109,5 @@
         [releaseDate]="movie.releaseDate"
       />
     </div>
-  </div>
-} @else {
-  <div class="md-not-found">
-    <p class="md-not-found-title">Movie not found</p>
-    <p class="md-not-found-message">That movie isn't in our catalogue.</p>
-    <a class="btn-primary" routerLink="/">Back to home</a>
   </div>
 }

@@ -1,13 +1,20 @@
-import { Component, computed, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
+import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { MediaImageComponent } from 'cinefy-ui/components';
+import {
+  EmptyStateComponent,
+  LoadingSpinnerComponent,
+  MediaImageComponent,
+} from 'cinefy-ui/components';
 import { DurationPipe } from 'cinefy-ui/pipes';
 import { BookingSectionComponent, TrailerModalComponent } from '../../components';
-import type { MovieDetail } from '../../shared/types';
-import { ClockIcon, EyeIcon, PlayIcon, UserIcon } from '../../shared/icons';
+import { MoviesService } from '../../services';
+import { ClockIcon, EyeIcon, PlayIcon, TriangleAlertIcon, UserIcon } from '../../shared/icons';
 
 interface CrewMember {
   name: string;
@@ -17,10 +24,11 @@ interface CrewMember {
 @Component({
   selector: 'movie-detail-page',
   imports: [
-    RouterLink,
     LucideDynamicIcon,
     NgpButton,
     NgpDialogTrigger,
+    EmptyStateComponent,
+    LoadingSpinnerComponent,
     MediaImageComponent,
     DurationPipe,
     BookingSectionComponent,
@@ -34,12 +42,31 @@ export class MovieDetailPage {
     ClockIcon,
     EyeIcon,
     PlayIcon,
+    TriangleAlertIcon,
     UserIcon,
   };
 
-  protected readonly movie = signal<MovieDetail | undefined>(PLACEHOLDER_MOVIE);
+  private readonly route = inject(ActivatedRoute);
+
+  private readonly moviesService = inject(MoviesService);
 
   protected readonly bookingOpened = signal(true);
+
+  private readonly movieId = toSignal(
+    this.route.paramMap.pipe(map((params) => Number(params.get('movieId')))),
+  );
+
+  protected readonly movieResource = rxResource({
+    params: () => this.movieId(),
+    stream: ({ params: id }) => this.moviesService.getMovieDetails(id),
+  });
+
+  protected readonly movie = this.movieResource.value;
+
+  protected readonly notFound = computed(() => {
+    const error = this.movieResource.error();
+    return error instanceof HttpErrorResponse && error.status === 404;
+  });
 
   protected readonly directors = computed<CrewMember[]>(
     () =>
@@ -51,26 +78,3 @@ export class MovieDetailPage {
     () => this.movie()?.credits?.cast.map((member) => ({ name: member.name, role: 'Cast' })) ?? [],
   );
 }
-
-const PLACEHOLDER_MOVIE: MovieDetail = {
-  id: 1,
-  title: 'Dune: Part Two',
-  synopsis:
-    'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the known universe, he endeavors to prevent a terrible future only he can foresee.',
-  genres: ['Sci-Fi', 'Adventure'],
-  contentRating: 'PG-13',
-  releaseDate: '2024-03-01',
-  duration: 166,
-  posterUrl: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
-  backdropUrl: 'https://image.tmdb.org/t/p/original/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg',
-  trailerUrl: 'https://www.youtube.com/embed/Way9Dexny3w',
-  credits: {
-    directors: [{ id: 1, name: 'Denis Villeneuve' }],
-    cast: [
-      { id: 2, name: 'Timothée Chalamet' },
-      { id: 3, name: 'Zendaya' },
-      { id: 4, name: 'Rebecca Ferguson' },
-      { id: 5, name: 'Javier Bardem' },
-    ],
-  },
-};

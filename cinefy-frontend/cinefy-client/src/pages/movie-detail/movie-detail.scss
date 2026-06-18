@@ -7,6 +7,13 @@
   padding-bottom: 80px;
 }
 
+.md-loading,
+.md-error {
+  @include flex-center;
+  min-height: 60vh;
+  padding: 64px 16px;
+}
+
 .md-backdrop {
   position: relative;
   width: 100%;
@@ -206,26 +213,4 @@
 .md-crew-role {
   font-size: 12px;
   color: $color-muted-foreground;
-}
-
-.md-not-found {
-  @include flex-column;
-  align-items: flex-start;
-  gap: 16px;
-  width: min(100%, 1152px);
-  margin: 0 auto;
-  padding: 96px 16px;
-}
-
-.md-not-found-title {
-  font-size: 36px;
-  font-weight: 700;
-}
-
-.md-not-found-message {
-  color: $color-muted-foreground;
-}
-
-.md-not-found .btn-primary {
-  text-decoration: none;
 }
