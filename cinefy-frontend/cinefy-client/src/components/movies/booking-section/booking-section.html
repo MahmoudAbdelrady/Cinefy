@@ -1,7 +1,17 @@
 <section class="booking-section">
   <h2 class="bs-heading">Book Tickets</h2>
 
-  @if (!bookingOpened()) {
+  @if (datesResource.isLoading()) {
+    <div class="bs-loading">
+      <loading-spinner variant="lg" />
+    </div>
+  } @else if (datesResource.error()) {
+    <empty-state
+      [icon]="icons.TriangleAlertIcon"
+      title="Couldn't load showtimes"
+      description="Something went wrong. Please try again later."
+    />
+  } @else if (!dates().length) {
     <div class="bs-state">
       <svg [lucideIcon]="icons.CalendarIcon" [size]="48"></svg>
       <h3>Tickets not yet available</h3>
@@ -26,24 +36,42 @@
       }
     </div>
 
-    <div class="bs-formats">
-      @for (group of dayShowtimes(); track group.experience) {
-        <div class="bs-format">
-          <div class="bs-format-header">
-            <h3>{{ group.experience }}</h3>
+    @if (showtimesResource.isLoading()) {
+      <div class="bs-formats-loading">
+        <loading-spinner variant="lg" />
+      </div>
+    } @else if (showtimesResource.error()) {
+      <empty-state
+        [icon]="icons.TriangleAlertIcon"
+        title="Couldn't load showtimes"
+        description="Something went wrong. Please try again later."
+      />
+    } @else {
+      <div class="bs-formats">
+        @for (group of dayShowtimes(); track group.hallType) {
+          <div class="bs-format">
+            <div class="bs-format-header">
+              <h3>{{ group.hallType }}</h3>
+            </div>
+            <div class="bs-times">
+              @for (showtime of group.showtimes; track showtime.id) {
+                <a class="bs-time" routerLink="/movies/{{ movieId() }}/seats/{{ showtime.id }}">
+                  <span>{{ showtime.time | time12h }}</span>
+                  @if (showtime.is3D) {
+                    <span class="bs-time-badge">3D</span>
+                  }
+                </a>
+              }
+            </div>
           </div>
-          <div class="bs-times">
-            @for (showtime of group.showtimes; track showtime.id) {
-              <a class="bs-time" routerLink="/movies/{{ movieId() }}/seats/{{ showtime.id }}">
-                <span>{{ showtime.time | time12h }}</span>
-                @if (showtime.is3D) {
-                  <span class="bs-time-badge">3D</span>
-                }
-              </a>
-            }
-          </div>
-        </div>
-      }
-    </div>
+        } @empty {
+          <empty-state
+            [icon]="icons.CalendarIcon"
+            title="No showtimes for this date"
+            description="Try another date above."
+          />
+        }
+      </div>
+    }
   }
 </section>

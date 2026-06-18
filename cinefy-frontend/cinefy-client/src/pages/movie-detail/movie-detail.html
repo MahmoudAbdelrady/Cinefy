@@ -103,11 +103,7 @@
         </div>
       </div>
 
-      <booking-section
-        [movieId]="movie.id.toString()"
-        [bookingOpened]="bookingOpened()"
-        [releaseDate]="movie.releaseDate"
-      />
+      <booking-section [movieId]="movie.id" [releaseDate]="movie.releaseDate" />
     </div>
   </div>
 }

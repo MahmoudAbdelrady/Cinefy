@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
@@ -49,8 +49,6 @@ export class MovieDetailPage {
   private readonly route = inject(ActivatedRoute);
 
   private readonly moviesService = inject(MoviesService);
-
-  protected readonly bookingOpened = signal(true);
 
   private readonly movieId = toSignal(
     this.route.paramMap.pipe(map((params) => Number(params.get('movieId')))),

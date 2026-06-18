@@ -15,6 +15,12 @@
   font-weight: 700;
 }
 
+.bs-loading,
+.bs-formats-loading {
+  @include flex-center;
+  padding: 48px 0;
+}
+
 .bs-dates {
   @include scrollbar-thin;
   display: flex;
