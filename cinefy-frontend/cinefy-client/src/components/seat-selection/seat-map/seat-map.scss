@@ -129,22 +129,22 @@
   border-top-left-radius: $radius-sm;
   border-top-right-radius: $radius-sm;
 
-  &.normal {
+  &[data-kind='NORMAL'] {
     background: rgba($color-seat-premium, 0.4);
     border-color: rgba($color-seat-premium, 0.6);
   }
 
-  &.premium {
+  &[data-kind='VIP'] {
     background: rgba($color-seat-recliner, 0.4);
     border-color: rgba($color-seat-recliner, 0.6);
   }
 
-  &.selected {
+  &[data-kind='SELECTED'] {
     background: $color-primary;
     border-color: $color-primary;
   }
 
-  &.taken {
+  &[data-kind='TAKEN'] {
     background: $color-seat-taken;
     border-color: rgba($color-foreground, 0.15);
     opacity: 0.5;

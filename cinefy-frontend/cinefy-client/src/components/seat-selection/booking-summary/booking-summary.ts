@@ -2,7 +2,7 @@ import { Component, computed, input, output } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { InfoIcon } from '../../../shared/icons';
-import type { Seat, SeatCategory } from '../../../shared/types';
+import { SEAT_KIND_LABEL, type Seat, type SeatCategory } from '../../../shared/types';
 
 interface CategoryLine {
   category: SeatCategory;
@@ -12,10 +12,6 @@ interface CategoryLine {
 }
 
 const CATEGORY_ORDER: SeatCategory[] = ['NORMAL', 'VIP'];
-const CATEGORY_LABEL: Record<SeatCategory, string> = {
-  NORMAL: 'Normal',
-  VIP: 'Premium',
-};
 
 @Component({
   selector: 'booking-summary',
@@ -43,7 +39,7 @@ export class BookingSummaryComponent {
     }
     return CATEGORY_ORDER.filter((category) => counts.has(category)).map((category) => {
       const count = counts.get(category)!;
-      return { category, label: CATEGORY_LABEL[category], count, total: count * prices[category] };
+      return { category, label: SEAT_KIND_LABEL[category], count, total: count * prices[category] };
     });
   });
 

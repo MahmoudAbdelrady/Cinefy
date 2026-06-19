@@ -1,5 +1,10 @@
 import { Component, computed, input, output, signal } from '@angular/core';
-import type { Seat } from '../../../shared/types';
+import { SEAT_KIND_LABEL, type Seat, type SeatKind } from '../../../shared/types';
+
+interface LegendItem {
+  value: Exclude<SeatKind, 'AISLE'>;
+  label: string;
+}
 
 @Component({
   selector: 'seat-map',
@@ -8,6 +13,10 @@ import type { Seat } from '../../../shared/types';
   styleUrl: './seat-map.scss',
 })
 export class SeatMapComponent {
+  protected readonly legendItems: LegendItem[] = Object.entries(SEAT_KIND_LABEL).map(
+    ([value, label]) => ({ value: value as LegendItem['value'], label }),
+  );
+
   readonly rows = input.required<Seat[][]>();
 
   readonly selectionChange = output<Seat[]>();

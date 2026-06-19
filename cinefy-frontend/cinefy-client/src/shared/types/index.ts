@@ -8,6 +8,7 @@ export type {
 } from './movies';
 export type { HallType } from './halls';
 export type { BookingShowtime, HallTypeShowtimes } from './booking';
+export { SEAT_KIND_LABEL } from './seats';
 export type {
   Seat,
   SeatCategory,

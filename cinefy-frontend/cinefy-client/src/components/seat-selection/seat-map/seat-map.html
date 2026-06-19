@@ -31,20 +31,14 @@
 </div>
 
 <div class="sm-legend">
+  @for (item of legendItems; track item.value) {
+    <span class="sm-legend-item">
+      <span class="sm-legend-swatch" [attr.data-kind]="item.value"></span>
+      {{ item.label }}
+    </span>
+  }
   <span class="sm-legend-item">
-    <span class="sm-legend-swatch normal"></span>
-    Normal
-  </span>
-  <span class="sm-legend-item">
-    <span class="sm-legend-swatch premium"></span>
-    Premium
-  </span>
-  <span class="sm-legend-item">
-    <span class="sm-legend-swatch selected"></span>
+    <span class="sm-legend-swatch" data-kind="SELECTED"></span>
     Selected
-  </span>
-  <span class="sm-legend-item">
-    <span class="sm-legend-swatch taken"></span>
-    Taken
   </span>
 </div>

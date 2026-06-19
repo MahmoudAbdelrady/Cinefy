@@ -11,6 +11,12 @@ type SeatCategory = 'NORMAL' | 'VIP';
 
 type SeatKind = SeatCategory | 'TAKEN' | 'AISLE';
 
+const SEAT_KIND_LABEL: Record<Exclude<SeatKind, 'AISLE'>, string> = {
+  NORMAL: 'Normal',
+  VIP: 'Premium',
+  TAKEN: 'Taken',
+};
+
 interface TicketPrice {
   price: number;
   seatCategory: SeatCategory;
@@ -30,4 +36,5 @@ interface Seat {
   kind: SeatKind;
 }
 
+export { SEAT_KIND_LABEL };
 export type { Seat, SeatCategory, SeatKind, SeatLayout, SeatLayoutResponse, TicketPrice };
