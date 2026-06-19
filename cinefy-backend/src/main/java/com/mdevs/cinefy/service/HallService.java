@@ -108,14 +108,7 @@ public class HallService {
     }
 
     public HallLayoutDTO getHallLayout(String uuid) {
-        Hall hall = findHall(uuid);
-
-        HallLayoutDTO dto = new HallLayoutDTO();
-        dto.setNumberOfRows(hall.getTotalRows());
-        dto.setSeatsPerRow(hall.getTotalColumns());
-        dto.setLayout(toLayoutMap(hall));
-        dto.setTicketPricing(toPricingList(hall));
-        return dto;
+        return getHallLayout(findHall(uuid));
     }
 
     @Transactional
@@ -415,6 +408,15 @@ public class HallService {
         }
 
         return assignedPositions;
+    }
+
+    public HallLayoutDTO getHallLayout(Hall hall) {
+        HallLayoutDTO dto = new HallLayoutDTO();
+        dto.setNumberOfRows(hall.getTotalRows());
+        dto.setSeatsPerRow(hall.getTotalColumns());
+        dto.setLayout(toLayoutMap(hall));
+        dto.setTicketPricing(toPricingList(hall));
+        return dto;
     }
 
     private List<TicketPricingDTO> toPricingList(Hall hall) {

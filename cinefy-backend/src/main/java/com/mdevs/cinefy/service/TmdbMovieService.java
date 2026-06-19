@@ -350,7 +350,7 @@ public class TmdbMovieService {
         return dto;
     }
 
-    private <T extends MovieBaseDTO> T populateBaseFields(T dto, TmdbMovie movie) {
+    public <T extends MovieBaseDTO> T populateBaseFields(T dto, TmdbMovie movie) {
         dto.setId(movie.getId());
         dto.setTitle(movie.getTitle());
         dto.setGenres(splitGenres(movie.getGenres()));
