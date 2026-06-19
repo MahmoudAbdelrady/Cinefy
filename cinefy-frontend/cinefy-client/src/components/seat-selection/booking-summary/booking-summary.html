@@ -1,0 +1,26 @@
+<div class="bsum-card">
+  <h3 class="bsum-heading">Booking Summary</h3>
+
+  @if (!lines().length) {
+    <div class="bsum-empty">
+      <svg [lucideIcon]="icons.InfoIcon" [size]="32"></svg>
+      <p>Please select your seats to proceed.</p>
+    </div>
+  } @else {
+    <div class="bsum-lines">
+      @for (line of lines(); track line.category) {
+        <div class="bsum-line">
+          <span class="bsum-line-label">{{ line.label }} ({{ line.count }})</span>
+          <span class="bsum-line-value">{{ line.total | currency: 'USD' }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="bsum-total">
+      <span>Total <span class="bsum-total-note">(without VAT)</span></span>
+      <span class="bsum-total-value">{{ total() | currency: 'USD' }}</span>
+    </div>
+
+    <button type="button" class="bsum-proceed" (click)="proceed.emit()">Proceed to Payment</button>
+  }
+</div>

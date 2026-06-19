@@ -1,15 +1,22 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { SeatMapComponent } from '../../components';
+import { BookingSummaryComponent, SeatMapComponent } from '../../components';
 import { ArrowLeftIcon } from '../../shared/icons';
-import type { Seat, SeatKind, SeatLayout, SeatLayoutResponse } from '../../shared/types';
+import type {
+  Seat,
+  SeatCategory,
+  SeatKind,
+  SeatLayout,
+  SeatLayoutResponse,
+  TicketPrice,
+} from '../../shared/types';
 
 // TODO: placeholder seat layout — replace with the real seat-layout endpoint once
-// the backend exposes one. `buildHall` is the production mapping; only MOCK_LAYOUT
-// is throwaway.
+// the backend exposes one. `buildHall`/`priceByCategory` are the production mappings;
+// only MOCK_LAYOUT is throwaway.
 const MOCK_LAYOUT: SeatLayoutResponse = {
   numberOfRows: 6,
   seatsPerRow: 7,
@@ -21,6 +28,10 @@ const MOCK_LAYOUT: SeatLayoutResponse = {
     onSiteOnly: ['D2', 'D3', 'F6'],
     reserved: ['F7', 'D1', 'F5'],
   },
+  ticketPricing: [
+    { price: 100, seatCategory: 'NORMAL' },
+    { price: 150, seatCategory: 'VIP' },
+  ],
 };
 
 function seatKind(id: string, layout: SeatLayout): SeatKind {
@@ -42,9 +53,16 @@ function buildHall(response: SeatLayoutResponse): Seat[][] {
   });
 }
 
+function priceByCategory(pricing: TicketPrice[]): Record<SeatCategory, number> {
+  return pricing.reduce(
+    (acc, { seatCategory, price }) => ({ ...acc, [seatCategory]: price }),
+    {} as Record<SeatCategory, number>,
+  );
+}
+
 @Component({
   selector: 'seat-selection-page',
-  imports: [RouterLink, LucideDynamicIcon, SeatMapComponent],
+  imports: [RouterLink, LucideDynamicIcon, SeatMapComponent, BookingSummaryComponent],
   templateUrl: './seat-selection.html',
   styleUrl: './seat-selection.scss',
 })
@@ -66,4 +84,7 @@ export class SeatSelectionPage {
   );
 
   protected readonly hall = buildHall(MOCK_LAYOUT);
+  protected readonly prices = priceByCategory(MOCK_LAYOUT.ticketPricing);
+
+  protected readonly selectedSeats = signal<Seat[]>([]);
 }

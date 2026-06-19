@@ -3,3 +3,4 @@ export { FeaturedCarouselComponent } from './home/featured-carousel/featured-car
 export { BookingSectionComponent } from './movies/booking-section/booking-section';
 export { TrailerModalComponent } from './movies/trailer-modal/trailer-modal';
 export { SeatMapComponent } from './seat-selection/seat-map/seat-map';
+export { BookingSummaryComponent } from './seat-selection/booking-summary/booking-summary';

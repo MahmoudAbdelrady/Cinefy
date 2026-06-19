@@ -18,12 +18,18 @@
   </div>
 
   <div class="ss-body">
-    <div class="ss-screen">
-      <div class="ss-screen-glow"></div>
-      <div class="ss-screen-line"></div>
-      <span class="ss-screen-label">Screen</span>
+    <div class="ss-map">
+      <div class="ss-screen">
+        <div class="ss-screen-glow"></div>
+        <div class="ss-screen-line"></div>
+        <span class="ss-screen-label">Screen</span>
+      </div>
+
+      <seat-map [rows]="hall" (selectionChange)="selectedSeats.set($event)" />
     </div>
 
-    <seat-map [rows]="hall" />
+    <div class="ss-summary">
+      <booking-summary [selectedSeats]="selectedSeats()" [prices]="prices" />
+    </div>
   </div>
 </div>

@@ -7,13 +7,21 @@ interface SeatLayout {
   reserved: string[];
 }
 
+type SeatCategory = 'NORMAL' | 'VIP';
+
+type SeatKind = SeatCategory | 'TAKEN' | 'AISLE';
+
+interface TicketPrice {
+  price: number;
+  seatCategory: SeatCategory;
+}
+
 interface SeatLayoutResponse {
   numberOfRows: number;
   seatsPerRow: number;
   layout: SeatLayout;
+  ticketPricing: TicketPrice[];
 }
-
-type SeatKind = 'NORMAL' | 'VIP' | 'TAKEN' | 'AISLE';
 
 interface Seat {
   id: string;
@@ -22,4 +30,4 @@ interface Seat {
   kind: SeatKind;
 }
 
-export type { Seat, SeatKind, SeatLayout, SeatLayoutResponse };
+export type { Seat, SeatCategory, SeatKind, SeatLayout, SeatLayoutResponse, TicketPrice };

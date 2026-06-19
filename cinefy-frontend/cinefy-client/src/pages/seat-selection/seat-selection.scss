@@ -1,5 +1,6 @@
 @use '../../shared/styles/colors' as *;
 @use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
 
 .seat-selection-container {
   display: flex;
@@ -62,9 +63,33 @@
   width: 100%;
   max-width: 1152px;
   flex-direction: column;
-  align-items: center;
+  gap: 32px;
   margin: 0 auto;
   padding: 32px 16px;
+
+  @include from-desktop {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.ss-map {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ss-summary {
+  width: 100%;
+  flex-shrink: 0;
+
+  @include from-desktop {
+    width: 320px;
+    position: sticky;
+    top: 144px;
+  }
 }
 
 .ss-screen {
