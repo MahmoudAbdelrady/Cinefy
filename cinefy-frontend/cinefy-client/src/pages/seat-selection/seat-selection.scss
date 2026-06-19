@@ -57,6 +57,50 @@
   color: $color-muted-foreground;
 }
 
+.ss-body {
+  display: flex;
+  width: 100%;
+  max-width: 1152px;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.ss-screen {
+  position: relative;
+  width: 100%;
+  max-width: 768px;
+  margin-bottom: 64px;
+}
+
+.ss-screen-glow {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(to right, transparent, rgba($color-primary, 0.5), transparent);
+  filter: blur(4px);
+}
+
+.ss-screen-line {
+  width: 100%;
+  height: 4px;
+  border-radius: $radius-full;
+  background: linear-gradient(to right, transparent, $color-primary, transparent);
+}
+
+.ss-screen-label {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: $color-muted-foreground;
+}
+
 // .ss-timer {
 //   @include flex-align;
 //
