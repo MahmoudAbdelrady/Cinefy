@@ -32,6 +32,17 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
 
     Optional<Showtime> findByUuid(String uuid);
 
+    @Query("""
+            SELECT s FROM Showtime s
+            JOIN FETCH s.tmdbMovie
+            JOIN FETCH s.hall h
+            JOIN FETCH h.type
+            JOIN FETCH h.seats
+            JOIN FETCH h.categoryPrices
+            WHERE s.uuid = :uuid
+            """)
+    Optional<Showtime> findByUuidWithHallLayout(@Param("uuid") String uuid);
+
     @Query("SELECT s FROM Showtime s WHERE s.tmdbMovie.id = :movieId AND s.status = :status AND (CAST(:startDateTime AS LocalDateTime) IS NULL OR s.startDateTime >= :startDateTime) AND (CAST(:endDateTime AS LocalDateTime) IS NULL OR s.startDateTime < :endDateTime)")
     List<Showtime> findByTmdbMovieAndStatusAndStartDateTimeInRange(@Param("movieId") Long movieId,
                                                                    @Param("status") ShowtimeStatus status,

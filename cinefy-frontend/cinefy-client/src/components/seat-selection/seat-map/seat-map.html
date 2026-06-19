@@ -1,0 +1,44 @@
+<div class="sm-grid-scroll">
+  <div class="sm-grid">
+    @for (row of rows(); track row[0].row) {
+      <div class="sm-row">
+        <span class="sm-row-label">{{ row[0].row }}</span>
+        <div class="sm-seats">
+          @for (seat of row; track seat.id) {
+            @if (seat.kind === 'AISLE') {
+              <span class="sm-aisle"></span>
+            } @else {
+              <button
+                type="button"
+                class="sm-seat"
+                [attr.data-kind]="seat.kind"
+                [class.selected]="isSelected(seat)"
+                [disabled]="seat.kind === 'TAKEN'"
+                [title]="seat.id"
+                (click)="toggle(seat)"
+              >
+                @if (isSelected(seat)) {
+                  {{ seat.number }}
+                }
+              </button>
+            }
+          }
+        </div>
+        <span class="sm-row-label">{{ row[0].row }}</span>
+      </div>
+    }
+  </div>
+</div>
+
+<div class="sm-legend">
+  @for (item of legendItems; track item.value) {
+    <span class="sm-legend-item">
+      <span class="sm-legend-swatch" [attr.data-kind]="item.value"></span>
+      {{ item.label }}
+    </span>
+  }
+  <span class="sm-legend-item">
+    <span class="sm-legend-swatch" data-kind="SELECTED"></span>
+    Selected
+  </span>
+</div>

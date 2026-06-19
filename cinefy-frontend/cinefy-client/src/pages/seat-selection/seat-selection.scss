@@ -1,9 +1,9 @@
 @use '../../shared/styles/colors' as *;
 @use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
 
 .seat-selection-container {
   display: flex;
-  min-height: 100vh;
   flex-direction: column;
 }
 
@@ -55,6 +55,74 @@
 .ss-meta {
   font-family: $font-mono;
   font-size: 12px;
+  color: $color-muted-foreground;
+}
+
+.ss-body {
+  display: flex;
+  width: 100%;
+  max-width: 1152px;
+  flex-direction: column;
+  gap: 32px;
+  margin: 0 auto;
+  padding: 32px 16px;
+
+  @include from-desktop {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.ss-map {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ss-summary {
+  width: 100%;
+  flex-shrink: 0;
+
+  @include from-desktop {
+    width: 320px;
+    position: sticky;
+    top: 144px;
+  }
+}
+
+.ss-screen {
+  position: relative;
+  width: 100%;
+  max-width: 768px;
+  margin-bottom: 64px;
+}
+
+.ss-screen-glow {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(to right, transparent, rgba($color-primary, 0.5), transparent);
+  filter: blur(4px);
+}
+
+.ss-screen-line {
+  width: 100%;
+  height: 4px;
+  border-radius: $radius-full;
+  background: linear-gradient(to right, transparent, $color-primary, transparent);
+}
+
+.ss-screen-label {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
   color: $color-muted-foreground;
 }
 
