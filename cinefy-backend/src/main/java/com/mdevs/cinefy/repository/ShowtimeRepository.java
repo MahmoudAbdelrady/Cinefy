@@ -32,6 +32,7 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
 
     Optional<Showtime> findByUuid(String uuid);
 
+    // NOTE: Suffers from two-collection fetch (categoryPrices x seats).
     @Query("""
             SELECT s FROM Showtime s
             JOIN FETCH s.tmdbMovie

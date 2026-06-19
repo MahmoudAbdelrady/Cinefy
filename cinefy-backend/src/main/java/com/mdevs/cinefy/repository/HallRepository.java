@@ -3,7 +3,6 @@ package com.mdevs.cinefy.repository;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.enums.HallStatus;
 import com.mdevs.cinefy.entity.HallType;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -12,8 +11,17 @@ import java.util.Optional;
 
 public interface HallRepository extends BaseRepository<Hall> {
 
-    @EntityGraph(attributePaths = {"type", "categoryPrices", "seats"})
     Optional<Hall> findByUuid(String uuid);
+
+    // NOTE: Suffers from two-collection fetch (categoryPrices x seats).
+    @Query("""
+            SELECT h FROM Hall h
+            JOIN FETCH h.type
+            JOIN FETCH h.categoryPrices
+            JOIN FETCH h.seats
+            WHERE h.uuid = :uuid
+            """)
+    Optional<Hall> findByUuidWithLayout(@Param("uuid") String uuid);
 
     @Query("SELECT h FROM Hall h JOIN FETCH h.type " +
             "WHERE (:excludeHallId IS NULL OR h.uuid != :excludeHallId) " +

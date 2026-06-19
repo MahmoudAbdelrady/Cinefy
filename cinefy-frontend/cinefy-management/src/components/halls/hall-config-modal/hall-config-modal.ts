@@ -62,6 +62,8 @@ import {
   seatStats,
 } from '../seat-layout';
 
+const MAX_GRID_DIMENSION = 50;
+
 interface LayoutBaseline {
   numberOfRows: number;
   seatsPerRow: number;
@@ -110,6 +112,7 @@ export class HallConfigModalComponent {
     StarIcon,
     WarningIcon,
   };
+  protected readonly maxGridDimension = MAX_GRID_DIMENSION;
 
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
@@ -172,10 +175,10 @@ export class HallConfigModalComponent {
       validators: [Validators.required],
     }),
     numberOfRows: new FormControl<number | null>(null, {
-      validators: [Validators.required, Validators.min(1), Validators.max(100)],
+      validators: [Validators.required, Validators.min(1), Validators.max(MAX_GRID_DIMENSION)],
     }),
     seatsPerRow: new FormControl<number | null>(null, {
-      validators: [Validators.required, Validators.min(1), Validators.max(50)],
+      validators: [Validators.required, Validators.min(1), Validators.max(MAX_GRID_DIMENSION)],
     }),
     status: new FormControl<HallStatus>('ACTIVE', {
       nonNullable: true,
@@ -202,13 +205,13 @@ export class HallConfigModalComponent {
 
   private readonly numRowsValue = toSignal(
     this.hallForm.controls.numberOfRows.valueChanges.pipe(
-      map((v) => (v != null && v > 100 ? null : v)),
+      map((v) => (v != null && v > MAX_GRID_DIMENSION ? null : v)),
     ),
     { initialValue: null },
   );
   private readonly seatsPerRowValue = toSignal(
     this.hallForm.controls.seatsPerRow.valueChanges.pipe(
-      map((v) => (v != null && v > 50 ? null : v)),
+      map((v) => (v != null && v > MAX_GRID_DIMENSION ? null : v)),
     ),
     { initialValue: null },
   );
