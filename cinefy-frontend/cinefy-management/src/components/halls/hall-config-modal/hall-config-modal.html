@@ -7,20 +7,22 @@
 >
   @if (selectedHallId()) {
     <div modal-header-actions>
-      <button
-        ngpButton
-        class="mode-toggle-btn"
-        [class.edit]="!isEditMode()"
-        [class.view]="isEditMode()"
-        (click)="toggleEditMode()"
-        [title]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
-      >
-        <svg
-          [lucideIcon]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
-          [size]="20"
-          [strokeWidth]="2"
-        ></svg>
-      </button>
+      @if (!loadingHall() && !loadHallError()) {
+        <button
+          ngpButton
+          class="mode-toggle-btn"
+          [class.edit]="!isEditMode()"
+          [class.view]="isEditMode()"
+          (click)="toggleEditMode()"
+          [title]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
+        >
+          <svg
+            [lucideIcon]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
+            [size]="20"
+            [strokeWidth]="2"
+          ></svg>
+        </button>
+      }
       <button #discardTrigger [ngpDialogTrigger]="discardDialog" hidden></button>
 
       <ng-template #discardDialog let-close="close">
@@ -40,244 +42,255 @@
     <div class="hall-config-loading">
       <loading-spinner variant="xl" />
     </div>
-  }
-  <div class="hall-config-modal-content" [hidden]="loadingHall()">
-    <div class="hall-information">
-      <div class="hi-header">
-        <svg [lucideIcon]="icons.SettingsIcon" [size]="16" [strokeWidth]="2.5"></svg>
-        <span>Hall Information</span>
-      </div>
-      <form class="hi-form" [formGroup]="hallForm">
-        <div class="input-group">
-          <input-field
-            label="Hall Name"
-            placeholder="e.g. Hall 1, VIP Hall, IMAX"
-            [control]="hallForm.controls.name"
-            [errorMessages]="{ required: 'Hall name is required' }"
-          />
+  } @else if (loadHallError()) {
+    <div class="hall-config-error">
+      <empty-state
+        [icon]="icons.WarningIcon"
+        title="Failed to load hall"
+        description="Something went wrong. Please try again later."
+      />
+    </div>
+  } @else {
+    <div class="hall-config-modal-content">
+      <div class="hall-information">
+        <div class="hi-header">
+          <svg [lucideIcon]="icons.SettingsIcon" [size]="16" [strokeWidth]="2.5"></svg>
+          <span>Hall Information</span>
         </div>
-        <div class="number-input-group">
+        <form class="hi-form" [formGroup]="hallForm">
           <div class="input-group">
             <input-field
-              label="Number of Rows"
-              type="number"
-              placeholder="e.g. 10"
-              [control]="hallForm.controls.numberOfRows"
-              [errorMessages]="{
-                required: 'Number of rows is required',
-                min: 'Must be at least 1',
-                max: 'Must be at most 100',
-              }"
+              label="Hall Name"
+              placeholder="e.g. Hall 1, VIP Hall, IMAX"
+              [control]="hallForm.controls.name"
+              [errorMessages]="{ required: 'Hall name is required' }"
             />
+          </div>
+          <div class="number-input-group">
+            <div class="input-group">
+              <input-field
+                label="Number of Rows"
+                type="number"
+                placeholder="e.g. 10"
+                [control]="hallForm.controls.numberOfRows"
+                [errorMessages]="{
+                  required: 'Number of rows is required',
+                  min: 'Must be at least 1',
+                  max: 'Must be at most 100',
+                }"
+              />
+            </div>
+            <div class="input-group">
+              <input-field
+                label="Seats per Row"
+                type="number"
+                placeholder="e.g. 12"
+                [control]="hallForm.controls.seatsPerRow"
+                [errorMessages]="{
+                  required: 'Seats per row is required',
+                  min: 'Must be at least 1',
+                  max: 'Must be at most 50',
+                }"
+              />
+            </div>
           </div>
           <div class="input-group">
-            <input-field
-              label="Seats per Row"
-              type="number"
-              placeholder="e.g. 12"
-              [control]="hallForm.controls.seatsPerRow"
-              [errorMessages]="{
-                required: 'Seats per row is required',
-                min: 'Must be at least 1',
-                max: 'Must be at most 50',
-              }"
-            />
-          </div>
-        </div>
-        <div class="input-group">
-          <custom-select
-            label="Status"
-            [items]="hallStatusEntries()"
-            [value]="statusEntry()"
-            [displayFn]="statusDisplayFn"
-            [valueFn]="statusValueFn"
-            [required]="!isViewMode() && !isStatusLocked()"
-            [disabled]="isViewMode() || isStatusLocked()"
-            [hint]="
-              !isViewMode() && isStatusLocked() ? 'Locked while showtimes are scheduled.' : null
-            "
-            [container]="modal.panelEl()"
-            (selectionChange)="onStatusChange($event)"
-          />
-        </div>
-        <div class="input-group type-group">
-          <custom-select
-            label="Type"
-            [items]="hallTypes()"
-            [value]="selectedHallType()"
-            [displayFn]="hallTypeDisplayFn"
-            [valueFn]="hallTypeValueFn"
-            [compareWith]="compareHallTypes"
-            [disabled]="isViewMode()"
-            [searchable]="true"
-            [control]="hallForm.controls.typeId"
-            [required]="!isViewMode()"
-            [errorMessages]="{ required: 'Hall type is required' }"
-            placeholder="Select a type"
-            [container]="modal.panelEl()"
-            (selectionChange)="onHallTypeChange($event)"
-          />
-          <div class="switch-group">
-            <span>Supports 3D</span>
-            <cui-switch
-              [checked]="supports3DValue()"
-              [disabled]="isViewMode()"
-              (checkedChange)="hallForm.controls.supports3D.setValue($event)"
-            />
-          </div>
-        </div>
-        @if (!isViewMode()) {
-          <div class="input-group">
-            <async-select
-              label="Copy Layout From Existing Hall"
-              placeholder="None"
-              [clearable]="true"
-              [searchable]="true"
-              [fetchFn]="fetchHalls"
-              [displayFn]="hallDisplayFn"
-              [valueFn]="hallValueFn"
+            <custom-select
+              label="Status"
+              [items]="hallStatusEntries()"
+              [value]="statusEntry()"
+              [displayFn]="statusDisplayFn"
+              [valueFn]="statusValueFn"
+              [required]="!isViewMode() && !isStatusLocked()"
+              [disabled]="isViewMode() || isStatusLocked()"
+              [hint]="
+                !isViewMode() && isStatusLocked() ? 'Locked while showtimes are scheduled.' : null
+              "
               [container]="modal.panelEl()"
-              (selectionChange)="copyLayoutFrom($event)"
-              (cleared)="restoreOriginalLayout()"
+              (selectionChange)="onStatusChange($event)"
             />
           </div>
-        }
-        <div class="seats-configuration">
-          @if (!isViewMode()) {
-            <div class="seat-categories">
-              <div class="sc-header">
-                <svg [lucideIcon]="icons.StarIcon" [size]="16" [strokeWidth]="2.5"></svg>
-                <span>Seat Categories</span>
-              </div>
-              <div class="sc-content">
-                <div class="sc-type-items">
-                  @for (item of seatCategoryItems; track item.type) {
-                    <div
-                      class="sti-item"
-                      [class.selected]="selectedSeatCategory().type === item.type"
-                      (click)="selectSeatCategory(item)"
-                    >
-                      <div class="sti-item-icon" [ngClass]="item.type.toLowerCase()"></div>
-                      <span class="sti-item-info">{{ item.name }}</span>
-                      @if (selectedSeatCategory().type === item.type) {
-                        <span class="sti-item-selected">Selected</span>
-                      }
-                    </div>
-                  }
-                </div>
-                <div class="reservation-toggle">
-                  <span>Reservation</span>
-                  <label
-                    class="switch-group"
-                    [class.active]="onSiteOnly()"
-                    [class.disabled]="selectedSeatCategory().type === 'AISLE'"
-                  >
-                    <div class="sg-label">
-                      <span class="sg-label-icon">S</span>
-                      <span class="sg-label-text">On-Site Only</span>
-                    </div>
-                    <cui-switch
-                      color="highlight"
-                      [checked]="onSiteOnly()"
-                      [disabled]="selectedSeatCategory().type === 'AISLE'"
-                      (checkedChange)="setOnSiteOnly($event)"
-                    />
-                  </label>
-                </div>
-                <div class="tip-container">
-                  <p>
-                    <span>Tip:</span> Select a seat type above, then click on seats in the layout to
-                    apply it
-                  </p>
-                </div>
-              </div>
-            </div>
-          }
-          <div class="ticket-pricing">
-            <div class="tp-header">
-              <svg [lucideIcon]="icons.DollarSignIcon" [size]="16" [strokeWidth]="2.5"></svg>
-              <span class="tp-title">Ticket Pricing <span class="tp-vat">(without VAT)</span></span>
-            </div>
-            <div class="tp-content">
-              @if (hasNormalSeats()) {
-                <div class="tp-input-group">
-                  <div class="tpi-label">
-                    <span class="tpi-label-icon normal"></span>
-                    <span class="tpi-label-text" [attr.data-required]="!isViewMode() ? '' : null"
-                      >Normal</span
-                    >
-                  </div>
-                  <input-field
-                    type="number"
-                    placeholder="e.g. 10"
-                    [leadingIcon]="icons.DollarSignIcon"
-                    [control]="hallForm.controls.normalPrice"
-                    [errorMessages]="{
-                      required: 'Normal price is required',
-                      min: 'Price must be at least 1',
-                    }"
-                  />
-                </div>
-              }
-              @if (hasVipSeats()) {
-                <div class="tp-input-group">
-                  <div class="tpi-label">
-                    <span class="tpi-label-icon vip"></span>
-                    <span class="tpi-label-text" [attr.data-required]="!isViewMode() ? '' : null"
-                      >VIP Seat</span
-                    >
-                  </div>
-                  <input-field
-                    type="number"
-                    placeholder="e.g. 10"
-                    [leadingIcon]="icons.DollarSignIcon"
-                    [control]="hallForm.controls.vipPrice"
-                    [errorMessages]="{
-                      required: 'VIP price is required',
-                      min: 'Price must be at least 1',
-                    }"
-                  />
-                </div>
-              }
+          <div class="input-group type-group">
+            <custom-select
+              label="Type"
+              [items]="hallTypes()"
+              [value]="selectedHallType()"
+              [displayFn]="hallTypeDisplayFn"
+              [valueFn]="hallTypeValueFn"
+              [compareWith]="compareHallTypes"
+              [disabled]="isViewMode()"
+              [searchable]="true"
+              [control]="hallForm.controls.typeId"
+              [required]="!isViewMode()"
+              [errorMessages]="{ required: 'Hall type is required' }"
+              placeholder="Select a type"
+              [container]="modal.panelEl()"
+              (selectionChange)="onHallTypeChange($event)"
+            />
+            <div class="switch-group">
+              <span>Supports 3D</span>
+              <cui-switch
+                [checked]="supports3DValue()"
+                [disabled]="isViewMode()"
+                (checkedChange)="hallForm.controls.supports3D.setValue($event)"
+              />
             </div>
           </div>
-        </div>
-      </form>
-    </div>
-    <div class="hall-layout-editor">
-      <div class="hle-header">
-        <svg [lucideIcon]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></svg>
-        <span>Seat Layout Editor</span>
-      </div>
-      <div class="hle-content">
-        <hall-layout-editor
-          [(seatLayout)]="seatLayout"
-          [selectedSeatType]="selectedSeatCategory().type"
-          [selectedOnsiteOnly]="onSiteOnly()"
-          [disabled]="isViewMode()"
-          (layoutReset)="onResetLayout()"
-        />
-      </div>
-    </div>
-  </div>
-  @if (!isViewMode()) {
-    <div modal-footer class="hall-config-modal-footer">
-      <div class="save-btns">
-        <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
-        <button
-          ngpButton
-          class="btn-primary"
-          (click)="saveHall()"
-          [disabled]="hallForm.invalid || !hasChanges() || saving()"
-        >
-          @if (saving()) {
-            <loading-spinner variant="sm" />
-            <span>{{ selectedHallId() ? 'Saving…' : 'Creating…' }}</span>
-          } @else {
-            {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}
+          @if (!isViewMode()) {
+            <div class="input-group">
+              <async-select
+                label="Copy Layout From Existing Hall"
+                placeholder="None"
+                [clearable]="true"
+                [searchable]="true"
+                [fetchFn]="fetchHalls"
+                [displayFn]="hallDisplayFn"
+                [valueFn]="hallValueFn"
+                [container]="modal.panelEl()"
+                (selectionChange)="copyLayoutFrom($event)"
+                (cleared)="restoreOriginalLayout()"
+              />
+            </div>
           }
-        </button>
+          <div class="seats-configuration">
+            @if (!isViewMode()) {
+              <div class="seat-categories">
+                <div class="sc-header">
+                  <svg [lucideIcon]="icons.StarIcon" [size]="16" [strokeWidth]="2.5"></svg>
+                  <span>Seat Categories</span>
+                </div>
+                <div class="sc-content">
+                  <div class="sc-type-items">
+                    @for (item of seatCategoryItems; track item.type) {
+                      <div
+                        class="sti-item"
+                        [class.selected]="selectedSeatCategory().type === item.type"
+                        (click)="selectSeatCategory(item)"
+                      >
+                        <div class="sti-item-icon" [ngClass]="item.type.toLowerCase()"></div>
+                        <span class="sti-item-info">{{ item.name }}</span>
+                        @if (selectedSeatCategory().type === item.type) {
+                          <span class="sti-item-selected">Selected</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <div class="reservation-toggle">
+                    <span>Reservation</span>
+                    <label
+                      class="switch-group"
+                      [class.active]="onSiteOnly()"
+                      [class.disabled]="selectedSeatCategory().type === 'AISLE'"
+                    >
+                      <div class="sg-label">
+                        <span class="sg-label-icon">S</span>
+                        <span class="sg-label-text">On-Site Only</span>
+                      </div>
+                      <cui-switch
+                        color="highlight"
+                        [checked]="onSiteOnly()"
+                        [disabled]="selectedSeatCategory().type === 'AISLE'"
+                        (checkedChange)="setOnSiteOnly($event)"
+                      />
+                    </label>
+                  </div>
+                  <div class="tip-container">
+                    <p>
+                      <span>Tip:</span> Select a seat type above, then click on seats in the layout
+                      to apply it
+                    </p>
+                  </div>
+                </div>
+              </div>
+            }
+            <div class="ticket-pricing">
+              <div class="tp-header">
+                <svg [lucideIcon]="icons.DollarSignIcon" [size]="16" [strokeWidth]="2.5"></svg>
+                <span class="tp-title"
+                  >Ticket Pricing <span class="tp-vat">(without VAT)</span></span
+                >
+              </div>
+              <div class="tp-content">
+                @if (hasNormalSeats()) {
+                  <div class="tp-input-group">
+                    <div class="tpi-label">
+                      <span class="tpi-label-icon normal"></span>
+                      <span class="tpi-label-text" [attr.data-required]="!isViewMode() ? '' : null"
+                        >Normal</span
+                      >
+                    </div>
+                    <input-field
+                      type="number"
+                      placeholder="e.g. 10"
+                      [leadingIcon]="icons.DollarSignIcon"
+                      [control]="hallForm.controls.normalPrice"
+                      [errorMessages]="{
+                        required: 'Normal price is required',
+                        min: 'Price must be at least 1',
+                      }"
+                    />
+                  </div>
+                }
+                @if (hasVipSeats()) {
+                  <div class="tp-input-group">
+                    <div class="tpi-label">
+                      <span class="tpi-label-icon vip"></span>
+                      <span class="tpi-label-text" [attr.data-required]="!isViewMode() ? '' : null"
+                        >VIP Seat</span
+                      >
+                    </div>
+                    <input-field
+                      type="number"
+                      placeholder="e.g. 10"
+                      [leadingIcon]="icons.DollarSignIcon"
+                      [control]="hallForm.controls.vipPrice"
+                      [errorMessages]="{
+                        required: 'VIP price is required',
+                        min: 'Price must be at least 1',
+                      }"
+                    />
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="hall-layout-editor">
+        <div class="hle-header">
+          <svg [lucideIcon]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></svg>
+          <span>Seat Layout Editor</span>
+        </div>
+        <div class="hle-content">
+          <hall-layout-editor
+            [(seatLayout)]="seatLayout"
+            [selectedSeatType]="selectedSeatCategory().type"
+            [selectedOnsiteOnly]="onSiteOnly()"
+            [disabled]="isViewMode()"
+            (layoutReset)="onResetLayout()"
+          />
+        </div>
       </div>
     </div>
+    @if (!isViewMode()) {
+      <div modal-footer class="hall-config-modal-footer">
+        <div class="save-btns">
+          <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
+          <button
+            ngpButton
+            class="btn-primary"
+            (click)="saveHall()"
+            [disabled]="hallForm.invalid || !hasChanges() || saving()"
+          >
+            @if (saving()) {
+              <loading-spinner variant="sm" />
+              <span>{{ selectedHallId() ? 'Saving…' : 'Creating…' }}</span>
+            } @else {
+              {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}
+            }
+          </button>
+        </div>
+      </div>
+    }
   }
 </app-modal>

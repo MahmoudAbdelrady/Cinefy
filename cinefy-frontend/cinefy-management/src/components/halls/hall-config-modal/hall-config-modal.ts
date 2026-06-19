@@ -24,12 +24,14 @@ import {
   LayoutIcon,
   SettingsIcon,
   StarIcon,
+  WarningIcon,
 } from '../../../shared/icons';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   ModalComponent,
   LoadingSpinnerComponent,
+  EmptyStateComponent,
   InputField,
   CustomSelectComponent,
   AsyncSelectComponent,
@@ -89,6 +91,7 @@ interface HallStatusEntry {
     Switch,
     ModalComponent,
     LoadingSpinnerComponent,
+    EmptyStateComponent,
     InputField,
     CustomSelectComponent,
     AsyncSelectComponent,
@@ -105,6 +108,7 @@ export class HallConfigModalComponent {
     LayoutIcon,
     SettingsIcon,
     StarIcon,
+    WarningIcon,
   };
 
   private readonly hallsService = inject(HallsService);
@@ -155,6 +159,7 @@ export class HallConfigModalComponent {
   protected readonly saving = signal(false);
   private readonly layoutBaseline = signal<LayoutBaseline | null>(null);
   protected readonly loadingHall = signal(false);
+  protected readonly loadHallError = signal(false);
   private readonly initialSnapshot = signal<string | null>(null);
   protected readonly selectedHallType = signal<HallType | null>(null);
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems[0]);
@@ -282,13 +287,17 @@ export class HallConfigModalComponent {
 
   private loadHallData(id: string) {
     this.loadingHall.set(true);
+    this.loadHallError.set(false);
     this.hallsService.getHall(id).subscribe({
       next: (detail: HallDetail) => {
         this.selectedHallData.set(detail);
         this.applyHallDetail(detail);
         this.loadingHall.set(false);
       },
-      error: () => this.loadingHall.set(false),
+      error: () => {
+        this.loadHallError.set(true);
+        this.loadingHall.set(false);
+      },
     });
   }
 

@@ -21,6 +21,11 @@
   color: $blue-600;
 }
 
+.hall-config-error {
+  @include flex-center;
+  min-height: 65vh;
+}
+
 // ─── Hall Information ───────────────────────────────────────────────────────────
 
 .hall-information {
