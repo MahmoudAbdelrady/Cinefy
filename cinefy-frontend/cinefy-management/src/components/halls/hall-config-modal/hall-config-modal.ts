@@ -153,15 +153,16 @@ export class HallConfigModalComponent {
 
   protected readonly isEditMode = signal(false);
   private readonly selectedHallData = signal<HallDetail | null>(null);
-  protected readonly hallTypes = toSignal(this.hallsService.getHallTypes(), {
-    initialValue: [] as HallType[],
-  });
+
   protected readonly saving = signal(false);
   private readonly layoutBaseline = signal<LayoutBaseline | null>(null);
+
   protected readonly loadingHall = signal(false);
   protected readonly loadHallError = signal(false);
+
   private readonly initialSnapshot = signal<string | null>(null);
   protected readonly selectedHallType = signal<HallType | null>(null);
+
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems[0]);
   private readonly onSiteOnlyPreference = signal(false);
 
@@ -194,8 +195,11 @@ export class HallConfigModalComponent {
   );
   protected readonly modalTitle = computed(() => {
     if (!this.selectedHallId()) return 'Add New Hall';
-    return this.isEditMode() ? 'Edit Hall' : (this.selectedHallData()?.name ?? 'Loading…');
+    if (this.isEditMode()) return 'Edit Hall';
+    if (this.loadingHall()) return 'Loading…';
+    return this.selectedHallData()?.name ?? '—';
   });
+
   private readonly numRowsValue = toSignal(
     this.hallForm.controls.numberOfRows.valueChanges.pipe(
       map((v) => (v != null && v > 100 ? null : v)),
@@ -212,21 +216,25 @@ export class HallConfigModalComponent {
     source: () => ({ rows: this.numRowsValue() ?? 10, cols: this.seatsPerRowValue() ?? 12 }),
     computation: ({ rows, cols }, previous) => resizeGrid(previous?.value ?? [], rows, cols),
   });
+
   protected readonly supports3DValue = toSignal(this.hallForm.controls.supports3D.valueChanges, {
     initialValue: false,
   });
   private readonly statusValue = toSignal(this.hallForm.controls.status.valueChanges, {
     initialValue: this.hallForm.controls.status.value,
   });
+
   private readonly seatStatsValue = computed(() => seatStats(this.seatLayout()));
   protected readonly hasNormalSeats = computed(() => this.seatStatsValue().normal > 0);
   protected readonly hasVipSeats = computed(() => this.seatStatsValue().vip > 0);
   protected readonly onSiteOnly = computed(() =>
     this.selectedSeatCategory().type === 'AISLE' ? false : this.onSiteOnlyPreference(),
   );
+
   protected readonly statusEntry = computed(
     () => this.hallStatusEntries().find((e) => e.value === this.statusValue()) ?? null,
   );
+
   private readonly currentFormValue = toSignal(this.hallForm.valueChanges, {
     initialValue: this.hallForm.getRawValue(),
   });
@@ -240,11 +248,14 @@ export class HallConfigModalComponent {
 
   protected readonly statusDisplayFn = (entry: HallStatusEntry) => entry.label;
   protected readonly statusValueFn = (entry: HallStatusEntry) => entry.value;
+
   protected readonly hallTypeDisplayFn = (type: HallType) => type.name;
-  protected readonly hallTypeValueFn = (type: HallType) => type.id;
-  protected readonly compareHallTypes = (a: HallType, b: HallType) => a?.id === b?.id;
+  protected readonly hallTypeValueFn = (type: HallType) => type.id ?? '';
+
   protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
   protected readonly hallValueFn = (hall: HallSummary) => hall.id;
+
+  protected readonly fetchHallTypes = () => this.hallsService.getHallTypes();
   protected readonly fetchHalls = () =>
     this.hallsService.getHalls(this.selectedHallId() ?? undefined);
 

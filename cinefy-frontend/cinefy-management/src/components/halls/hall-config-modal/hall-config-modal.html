@@ -111,13 +111,12 @@
             />
           </div>
           <div class="input-group type-group">
-            <custom-select
+            <async-select
               label="Type"
-              [items]="hallTypes()"
-              [value]="selectedHallType()"
+              [fetchFn]="fetchHallTypes"
+              [initialValue]="selectedHallType()"
               [displayFn]="hallTypeDisplayFn"
               [valueFn]="hallTypeValueFn"
-              [compareWith]="compareHallTypes"
               [disabled]="isViewMode()"
               [searchable]="true"
               [control]="hallForm.controls.typeId"
