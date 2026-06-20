@@ -73,15 +73,5 @@
   width: 100%;
   margin-top: 24px;
   padding: 12px 16px;
-  border-radius: $radius-md;
-  background: $color-primary;
-  color: $color-primary-foreground;
-  font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background: rgba($color-primary, 0.9);
-  }
 }

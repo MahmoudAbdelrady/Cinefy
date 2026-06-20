@@ -21,6 +21,8 @@
       <span class="bsum-total-value">{{ total() | currency: 'USD' }}</span>
     </div>
 
-    <button type="button" class="bsum-proceed" (click)="proceed.emit()">Proceed to Payment</button>
+    <button type="button" class="bsum-proceed btn-primary" (click)="proceed.emit()">
+      Proceed to Payment
+    </button>
   }
 </div>

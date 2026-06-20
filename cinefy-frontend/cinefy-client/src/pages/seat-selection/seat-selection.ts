@@ -1,10 +1,13 @@
-import { Component, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, signal } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { BookingSummaryComponent, SeatMapComponent } from '../../components';
-import { ArrowLeftIcon } from '../../shared/icons';
+import { BookingService } from '../../services';
+import { ArrowLeftIcon, TriangleAlertIcon } from '../../shared/icons';
 import type {
   Seat,
   SeatCategory,
@@ -13,26 +16,6 @@ import type {
   SeatLayoutResponse,
   TicketPrice,
 } from '../../shared/types';
-
-// TODO: placeholder seat layout — replace with the real seat-layout endpoint once
-// the backend exposes one. `buildHall`/`priceByCategory` are the production mappings;
-// only MOCK_LAYOUT is throwaway.
-const MOCK_LAYOUT: SeatLayoutResponse = {
-  numberOfRows: 6,
-  seatsPerRow: 7,
-  layout: {
-    categories: {
-      AISLE: ['B2', 'B6', 'B7', 'B1', 'A7', 'A1', 'A6', 'A2'],
-      VIP: ['E2', 'F3', 'E7', 'E4', 'F7', 'E5', 'E6', 'F4', 'F5', 'E3', 'F2', 'F6', 'E1', 'F1'],
-    },
-    onSiteOnly: ['D2', 'D3', 'F6'],
-    reserved: ['F7', 'D1', 'F5'],
-  },
-  ticketPricing: [
-    { price: 100, seatCategory: 'NORMAL' },
-    { price: 150, seatCategory: 'VIP' },
-  ],
-};
 
 function seatKind(id: string, layout: SeatLayout): SeatKind {
   if (layout.categories.AISLE?.includes(id)) return 'AISLE';
@@ -62,29 +45,51 @@ function priceByCategory(pricing: TicketPrice[]): Record<SeatCategory, number> {
 
 @Component({
   selector: 'seat-selection-page',
-  imports: [RouterLink, LucideDynamicIcon, SeatMapComponent, BookingSummaryComponent],
+  imports: [
+    RouterLink,
+    DatePipe,
+    LucideDynamicIcon,
+    SeatMapComponent,
+    BookingSummaryComponent,
+    EmptyStateComponent,
+    LoadingSpinnerComponent,
+  ],
   templateUrl: './seat-selection.html',
   styleUrl: './seat-selection.scss',
 })
 export class SeatSelectionPage {
   protected readonly icons = {
     ArrowLeftIcon,
+    TriangleAlertIcon,
   };
 
   private readonly route = inject(ActivatedRoute);
+  private readonly bookingService = inject(BookingService);
 
   protected readonly movieId = toSignal(
     this.route.paramMap.pipe(map((params) => Number(params.get('movieId')))),
   );
 
-  // TODO: no "get showtime by id" endpoint yet — date/hall/format are placeholders
-  // until the backend exposes a showtime-detail contract.
   protected readonly showtimeId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('showtimeId'))),
   );
 
-  protected readonly hall = buildHall(MOCK_LAYOUT);
-  protected readonly prices = priceByCategory(MOCK_LAYOUT.ticketPricing);
+  protected readonly seatSelectionResource = rxResource({
+    params: () => this.showtimeId() ?? undefined,
+    stream: ({ params: showtimeId }) => this.bookingService.getSeatSelection(showtimeId),
+  });
+
+  protected readonly seatSelection = computed(() => this.seatSelectionResource.value());
+
+  protected readonly hall = computed<Seat[][]>(() => {
+    const layout = this.seatSelection()?.hallLayout;
+    return layout ? buildHall(layout) : [];
+  });
+
+  protected readonly prices = computed<Record<SeatCategory, number>>(() => {
+    const layout = this.seatSelection()?.hallLayout;
+    return layout ? priceByCategory(layout.ticketPricing) : ({} as Record<SeatCategory, number>);
+  });
 
   protected readonly selectedSeats = signal<Seat[]>([]);
 }
