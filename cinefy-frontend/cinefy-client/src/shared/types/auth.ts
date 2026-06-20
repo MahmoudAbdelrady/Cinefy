@@ -4,3 +4,5 @@ export interface OAuthProvider {
   iconSrc: string;
   authenticate: () => void;
 }
+
+export type AuthFormStage = 'form' | 'verify';

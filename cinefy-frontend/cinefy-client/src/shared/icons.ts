@@ -21,4 +21,6 @@ export {
   LucideSlidersHorizontal as SlidersHorizontalIcon,
   LucideX as XIcon,
   LucideTriangleAlert as TriangleAlertIcon,
+  LucideCircleCheck as CircleCheckIcon,
+  LucideShieldCheck as ShieldCheckIcon,
 } from '@lucide/angular';

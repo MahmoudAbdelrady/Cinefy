@@ -1,79 +1,91 @@
 <div class="signup-page">
-  <div class="sp-heading">
-    <h1>Create your account</h1>
-    <p>Create an account to book tickets and manage your bookings.</p>
-  </div>
+  @switch (stage()) {
+    @case ('form') {
+      <div class="sp-heading">
+        <h1>Create your account</h1>
+        <p>Create an account to book tickets and manage your bookings.</p>
+      </div>
 
-  <form class="sp-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
-    <div class="sp-name-row">
-      <input-field
-        label="First name"
-        type="text"
-        placeholder="Enter your first name"
-        [leadingIcon]="icons.UserIcon"
-        [control]="signupForm.controls.firstName"
-        [errorMessages]="{
-          required: 'First name is required',
-          minlength: 'First name must be at least 2 characters',
-          maxlength: 'First name must not exceed 50 characters',
-          pattern: 'First name may only contain letters, spaces, hyphens, and apostrophes',
-        }"
+      <form class="sp-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <div class="sp-name-row">
+          <input-field
+            label="First name"
+            type="text"
+            placeholder="Enter your first name"
+            [leadingIcon]="icons.UserIcon"
+            [control]="signupForm.controls.firstName"
+            [errorMessages]="{
+              required: 'First name is required',
+              minlength: 'First name must be at least 2 characters',
+              maxlength: 'First name must not exceed 50 characters',
+              pattern: 'First name may only contain letters, spaces, hyphens, and apostrophes',
+            }"
+          />
+          <input-field
+            label="Last name"
+            type="text"
+            placeholder="Enter your last name"
+            [leadingIcon]="icons.UserIcon"
+            [control]="signupForm.controls.lastName"
+            [errorMessages]="{
+              required: 'Last name is required',
+              minlength: 'Last name must be at least 2 characters',
+              maxlength: 'Last name must not exceed 50 characters',
+              pattern: 'Last name may only contain letters, spaces, hyphens, and apostrophes',
+            }"
+          />
+        </div>
+
+        <input-field
+          label="Email"
+          type="text"
+          placeholder="Enter your email"
+          [leadingIcon]="icons.EmailIcon"
+          [control]="signupForm.controls.email"
+          [errorMessages]="{
+            required: 'Email is required',
+            pattern: 'Email must be a valid address',
+          }"
+        />
+
+        <phone-input
+          [countryControl]="signupForm.controls.phoneCountry"
+          [numberControl]="signupForm.controls.phoneNumber"
+        />
+
+        <input-field
+          label="Password"
+          type="password"
+          placeholder="At least 8 characters"
+          [leadingIcon]="icons.LockIcon"
+          [control]="signupForm.controls.password"
+          [errorMessages]="{
+            required: 'Password is required',
+            pattern:
+              'Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a symbol',
+          }"
+        />
+
+        <button type="submit" class="btn-primary sp-submit" [disabled]="signupForm.invalid">
+          <span>Create account</span>
+          <svg class="sp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+        </button>
+      </form>
+
+      <oauth-buttons />
+
+      <p class="sp-footer">
+        Already have an account?
+        <a routerLink="../login">Sign in</a>
+      </p>
+    }
+    @case ('verify') {
+      <fp-otp-step
+        heading="Verify your account"
+        subheading="We emailed a 6-digit code to confirm your account. Enter it below to finish signing up."
+        [showBack]="false"
+        (verified)="onVerified()"
       />
-      <input-field
-        label="Last name"
-        type="text"
-        placeholder="Enter your last name"
-        [leadingIcon]="icons.UserIcon"
-        [control]="signupForm.controls.lastName"
-        [errorMessages]="{
-          required: 'Last name is required',
-          minlength: 'Last name must be at least 2 characters',
-          maxlength: 'Last name must not exceed 50 characters',
-          pattern: 'Last name may only contain letters, spaces, hyphens, and apostrophes',
-        }"
-      />
-    </div>
-
-    <input-field
-      label="Email"
-      type="text"
-      placeholder="Enter your email"
-      [leadingIcon]="icons.EmailIcon"
-      [control]="signupForm.controls.email"
-      [errorMessages]="{
-        required: 'Email is required',
-        pattern: 'Email must be a valid address',
-      }"
-    />
-
-    <phone-input
-      [countryControl]="signupForm.controls.phoneCountry"
-      [numberControl]="signupForm.controls.phoneNumber"
-    />
-
-    <input-field
-      label="Password"
-      type="password"
-      placeholder="At least 8 characters"
-      [leadingIcon]="icons.LockIcon"
-      [control]="signupForm.controls.password"
-      [errorMessages]="{
-        required: 'Password is required',
-        pattern:
-          'Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a symbol',
-      }"
-    />
-
-    <button type="submit" class="btn-primary sp-submit" [disabled]="signupForm.invalid">
-      <span>Create account</span>
-      <svg class="sp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
-    </button>
-  </form>
-
-  <oauth-buttons />
-
-  <p class="sp-footer">
-    Already have an account?
-    <a routerLink="../login">Sign in</a>
-  </p>
+    }
+  }
 </div>

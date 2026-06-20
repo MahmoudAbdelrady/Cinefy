@@ -1,0 +1,79 @@
+@use '../../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+
+// Shared styling for the forgot-password step components. Keeps the client's
+// flat, card-less auth design (heading + form in the centered column) consistent
+// across every stage. Each step `@use`s this and applies the mixins.
+
+// Each step is a custom element (inline by default); make its host fill the
+// auth column so the form stretches to the full width in any container.
+@mixin fp-host {
+  :host {
+    display: block;
+    width: 100%;
+  }
+}
+
+@mixin fp-heading {
+  margin-bottom: 32px;
+
+  h1 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: $color-foreground;
+  }
+
+  p {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: $color-muted-foreground;
+  }
+}
+
+@mixin fp-form {
+  @include flex-column;
+  gap: 20px;
+}
+
+@mixin fp-submit {
+  @include lucide-icon-fix;
+  width: 100%;
+  height: 44px;
+  margin-top: 4px;
+  font-weight: 600;
+
+  // Avoids the enabled→disabled colour animation when a step mounts disabled.
+  &:disabled {
+    transition: none;
+  }
+
+  .fp-submit-arrow {
+    transition: transform 150ms ease;
+  }
+
+  &:not(:disabled):hover .fp-submit-arrow {
+    transform: translateX(2px);
+  }
+}
+
+@mixin fp-back-link {
+  @include flex-center;
+  @include lucide-icon-fix;
+  gap: 6px;
+  margin-top: 32px;
+  font-size: 14px;
+  font-weight: 500;
+  color: $color-muted-foreground;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 150ms ease;
+
+  &:hover {
+    color: $color-foreground;
+  }
+}

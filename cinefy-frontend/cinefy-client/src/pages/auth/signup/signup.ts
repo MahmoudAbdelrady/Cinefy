@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -10,6 +10,8 @@ import {
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
 import { OAuthButtonsComponent } from '../../../components';
+import { OtpStep } from '../../../components/auth/forgot-password';
+import { AuthFormStage } from '../../../shared/types';
 import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
 import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/icons';
 
@@ -22,6 +24,7 @@ import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/i
     InputField,
     PhoneInput,
     OAuthButtonsComponent,
+    OtpStep,
   ],
   templateUrl: './signup.html',
   styleUrl: './signup.scss',
@@ -35,6 +38,8 @@ export class SignUpPage {
   };
 
   private readonly router = inject(Router);
+
+  protected readonly stage = signal<AuthFormStage>('form');
 
   protected readonly signupForm = new FormGroup({
     firstName: new FormControl('', {
@@ -81,6 +86,10 @@ export class SignUpPage {
 
   protected onSubmit() {
     if (this.signupForm.invalid) return;
-    this.router.navigateByUrl('/membership/verify');
+    this.stage.set('verify');
+  }
+
+  protected onVerified() {
+    this.router.navigateByUrl('/');
   }
 }
