@@ -1,8 +1,19 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from '../layout/app-layout/app-layout';
-import { HomePage, MovieDetailPage, MoviesPage, SeatSelectionPage } from '../pages';
+import { AuthLayout } from '../layout/auth-layout/auth-layout';
+import { HomePage, LoginPage, MovieDetailPage, MoviesPage, SeatSelectionPage } from '../pages';
 
 export const routes: Routes = [
+  {
+    path: 'membership',
+    component: AuthLayout,
+    children: [
+      {
+        path: 'login',
+        component: LoginPage,
+      },
+    ],
+  },
   {
     path: '',
     component: AppLayout,

@@ -3,6 +3,8 @@ export {
   LucideTicket as TicketIcon,
   LucideClapperboard as ClapperboardIcon,
   LucideLogOut as LogoutIcon,
+  LucideMail as EmailIcon,
+  LucideLock as LockIcon,
   LucideClock as ClockIcon,
   LucideCalendar as CalendarIcon,
   LucideMapPin as MapPinIcon,
