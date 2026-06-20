@@ -61,50 +61,6 @@
   }
 }
 
-// ─── Divider ─────────────────────────────────────────────────────────────────
-.lp-divider {
-  @include flex-align;
-  gap: 16px;
-  margin: 24px 0;
-  font-family: $font-mono;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: $color-muted-foreground;
-
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background-color: $color-border;
-  }
-}
-
-// ─── OAuth providers ─────────────────────────────────────────────────────────
-.lp-oauth {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.lp-oauth-btn {
-  height: 44px;
-  border: 1px solid $color-input;
-  background-color: rgba($color-input, 0.2);
-  color: $color-foreground;
-
-  &:hover {
-    background-color: rgba($color-input, 0.4);
-  }
-}
-
-.lp-oauth-icon {
-  width: 16px;
-  height: 16px;
-  object-fit: contain;
-}
-
 // ─── Footer ──────────────────────────────────────────────────────────────────
 .lp-footer {
   margin: 32px 0 0;

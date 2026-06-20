@@ -9,13 +9,20 @@ import {
   phoneNumberValidator,
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
-import { OAuthProvider } from '../../../shared/types';
+import { OAuthButtonsComponent } from '../../../components';
 import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
 import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/icons';
 
 @Component({
   selector: 'signup-page',
-  imports: [ReactiveFormsModule, RouterLink, LucideDynamicIcon, InputField, PhoneInput],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    LucideDynamicIcon,
+    InputField,
+    PhoneInput,
+    OAuthButtonsComponent,
+  ],
   templateUrl: './signup.html',
   styleUrl: './signup.scss',
 })
@@ -66,21 +73,6 @@ export class SignUpPage {
     }),
   });
 
-  protected readonly oauthProviders: OAuthProvider[] = [
-    {
-      label: 'Google',
-      code: 'google',
-      iconSrc: '/Assets/google-icon-logo.svg',
-      authenticate: () => this.authenticateWith('google'),
-    },
-    {
-      label: 'Apple',
-      code: 'apple',
-      iconSrc: '/Assets/apple-icon-logo.png',
-      authenticate: () => this.authenticateWith('apple'),
-    },
-  ];
-
   constructor() {
     this.signupForm.controls.phoneNumber.addValidators(
       phoneNumberValidator(this.signupForm.controls.phoneCountry),
@@ -90,9 +82,5 @@ export class SignUpPage {
   protected onSubmit() {
     if (this.signupForm.invalid) return;
     this.router.navigateByUrl('/membership/verify');
-  }
-
-  private authenticateWith(_code: string) {
-    // OAuth flow wired later.
   }
 }

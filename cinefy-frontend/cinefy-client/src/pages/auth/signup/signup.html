@@ -70,16 +70,7 @@
     </button>
   </form>
 
-  <div class="sp-divider">or sign up with</div>
-
-  <div class="sp-oauth">
-    @for (provider of oauthProviders; track provider.code) {
-      <button type="button" class="btn-base sp-oauth-btn" (click)="provider.authenticate()">
-        <img class="sp-oauth-icon" [src]="provider.iconSrc" [alt]="provider.label" />
-        <span>{{ provider.label }}</span>
-      </button>
-    }
-  </div>
+  <oauth-buttons />
 
   <p class="sp-footer">
     Already have an account?

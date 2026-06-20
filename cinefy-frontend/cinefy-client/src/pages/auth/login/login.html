@@ -37,16 +37,7 @@
     </button>
   </form>
 
-  <div class="lp-divider">or continue with</div>
-
-  <div class="lp-oauth">
-    @for (provider of oauthProviders; track provider.code) {
-      <button type="button" class="btn-base lp-oauth-btn" (click)="provider.authenticate()">
-        <img class="lp-oauth-icon" [src]="provider.iconSrc" [alt]="provider.label" />
-        <span>{{ provider.label }}</span>
-      </button>
-    }
-  </div>
+  <oauth-buttons />
 
   <p class="lp-footer">
     New to Cinefy?

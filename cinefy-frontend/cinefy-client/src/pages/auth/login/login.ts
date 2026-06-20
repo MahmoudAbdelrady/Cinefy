@@ -3,13 +3,13 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { InputField } from 'cinefy-ui/components';
-import { OAuthProvider } from '../../../shared/types';
+import { OAuthButtonsComponent } from '../../../components';
 import { EMAIL_PATTERN } from '../../../shared/validation';
 import { ArrowRightIcon, EmailIcon, LockIcon } from '../../../shared/icons';
 
 @Component({
   selector: 'login-page',
-  imports: [ReactiveFormsModule, RouterLink, LucideDynamicIcon, InputField],
+  imports: [ReactiveFormsModule, RouterLink, LucideDynamicIcon, InputField, OAuthButtonsComponent],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -33,27 +33,8 @@ export class LoginPage {
     }),
   });
 
-  protected readonly oauthProviders: OAuthProvider[] = [
-    {
-      label: 'Google',
-      code: 'google',
-      iconSrc: '/Assets/google-icon-logo.svg',
-      authenticate: () => this.authenticateWith('google'),
-    },
-    {
-      label: 'Apple',
-      code: 'apple',
-      iconSrc: '/Assets/apple-icon-logo.svg',
-      authenticate: () => this.authenticateWith('apple'),
-    },
-  ];
-
   protected onSubmit() {
     if (this.loginForm.invalid) return;
     this.router.navigateByUrl('/');
-  }
-
-  private authenticateWith(_code: string) {
-    // OAuth flow wired later.
   }
 }
