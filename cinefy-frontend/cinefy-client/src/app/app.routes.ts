@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AppLayout } from '../layout/app-layout/app-layout';
 import { AuthLayout } from '../layout/auth-layout/auth-layout';
 import {
+  ForgotPasswordPage,
   HomePage,
   LoginPage,
   MovieDetailPage,
@@ -22,6 +23,10 @@ export const routes: Routes = [
       {
         path: 'signup',
         component: SignUpPage,
+      },
+      {
+        path: 'forgot-password',
+        component: ForgotPasswordPage,
       },
     ],
   },
