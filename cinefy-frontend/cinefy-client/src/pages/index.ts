@@ -3,3 +3,4 @@ export { MoviesPage } from './movies/movies';
 export { MovieDetailPage } from './movie-detail/movie-detail';
 export { SeatSelectionPage } from './seat-selection/seat-selection';
 export { LoginPage } from './auth/login/login';
+export { SignUpPage } from './auth/signup/signup';
