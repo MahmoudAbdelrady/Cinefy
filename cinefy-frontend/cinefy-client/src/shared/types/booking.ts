@@ -1,3 +1,5 @@
+import type { SeatLayoutResponse } from './seats';
+
 interface BookingShowtime {
   id: string;
   time: string;
@@ -10,4 +12,13 @@ interface HallTypeShowtimes {
   showtimes: BookingShowtime[];
 }
 
-export type { BookingShowtime, HallTypeShowtimes };
+interface SeatSelection {
+  movieTitle: string;
+  startDateTime: string;
+  hallName: string;
+  hallType: string;
+  is3D: boolean;
+  hallLayout: SeatLayoutResponse;
+}
+
+export type { BookingShowtime, HallTypeShowtimes, SeatSelection };

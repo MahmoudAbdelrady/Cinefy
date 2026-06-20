@@ -1,6 +1,8 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
+import com.mdevs.cinefy.service.BookingService;
 import com.mdevs.cinefy.service.ShowtimeService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,8 @@ public class BookingController {
 
     private final ShowtimeService showtimeService;
 
+    private final BookingService bookingService;
+
     @PublicApi
     @PreAuthorize("permitAll()")
     @GetMapping("/movies/{id}/dates")
@@ -34,5 +38,12 @@ public class BookingController {
     @GetMapping("/movies/{id}/showtimes")
     public ResponseEntity<List<HallTypeShowtimesDTO>> getBookableShowtimes(@PathVariable long id, @RequestParam LocalDate date) {
         return ResponseEntity.ok(showtimeService.getBookableShowtimesForDate(id, date));
+    }
+
+    @PublicApi
+    @PreAuthorize("permitAll()")
+    @GetMapping("/showtimes/{uuid}")
+    public ResponseEntity<SeatSelectionDTO> getSeatSelection(@PathVariable String uuid) {
+        return ResponseEntity.ok(bookingService.getSeatSelection(uuid));
     }
 }

@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
-import { ArrowLeft, Info } from 'lucide-react'
+import { ArrowLeft, Clock, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
@@ -17,6 +17,7 @@ import {
 } from '@/data/movies'
 
 const FEE_CENTS = 150
+const HOLD_SECONDS = 10 * 60
 
 export function SeatSelectionPage() {
   const { movieId } = useParams()
@@ -27,6 +28,13 @@ export function SeatSelectionPage() {
   const showtime = getShowtime(movie, params.get('showtime'))
   const hall = useMemo(() => buildHall(), [])
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [secondsLeft, setSecondsLeft] = useState(HOLD_SECONDS)
+
+  useEffect(() => {
+    if (secondsLeft <= 0) return
+    const id = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000)
+    return () => clearInterval(id)
+  }, [secondsLeft])
 
   if (!movie || !showtime) return <Missing movieId={movieId} />
 
@@ -74,6 +82,18 @@ export function SeatSelectionPage() {
             <p className="font-mono text-xs text-muted-foreground">
               {formatLongDate(showtime.date)} • {showtime.time} • {showtime.hall} ({showtime.format})
             </p>
+          </div>
+
+          <div
+            className={cn(
+              'ml-auto flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-sm',
+              secondsLeft <= 60
+                ? 'border-destructive/60 bg-destructive/10 text-destructive'
+                : 'border-border/50 bg-card text-foreground',
+            )}
+          >
+            <Clock className="size-4" />
+            <span className="tabular-nums font-medium">{formatCountdown(secondsLeft)}</span>
           </div>
         </div>
       </div>
@@ -172,6 +192,12 @@ export function SeatSelectionPage() {
   )
 }
 
+function formatCountdown(seconds: number) {
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return `${mins}:${secs.toString().padStart(2, '0')}`
+}
+
 function SeatButton({
   seat,
   selected,
@@ -185,10 +211,8 @@ function SeatButton({
 }) {
   const tierClass =
     seat.tier === 'premium'
-      ? 'bg-seat-premium/40 border-seat-premium/60 hover:border-blue-400'
-      : seat.tier === 'recliner'
-        ? 'bg-seat-recliner/40 border-seat-recliner/60 hover:border-purple-400'
-        : 'bg-seat-standard/50 border-seat-standard hover:border-zinc-400'
+      ? 'bg-seat-recliner/40 border-seat-recliner/60 hover:border-purple-400'
+      : 'bg-seat-premium/40 border-seat-premium/60 hover:border-blue-400'
 
   return (
     <button
@@ -219,9 +243,8 @@ function RowLabel({ label }: { label: string }) {
 function Legend() {
   return (
     <div className="mt-8 flex flex-wrap items-center justify-center gap-6 rounded-full border border-border/50 bg-card/50 px-6 py-4 text-sm text-muted-foreground">
-      <LegendItem className="border-seat-standard bg-seat-standard/50" label="Standard" />
-      <LegendItem className="border-seat-premium/60 bg-seat-premium/40" label="Premium" />
-      <LegendItem className="border-seat-recliner/60 bg-seat-recliner/40" label="Recliner" />
+      <LegendItem className="border-seat-premium/60 bg-seat-premium/40" label="Normal" />
+      <LegendItem className="border-seat-recliner/60 bg-seat-recliner/40" label="Premium" />
       <LegendItem className="border-amber bg-amber" label="Selected" />
       <LegendItem className="border-zinc-700 bg-zinc-800 opacity-50" label="Taken" />
     </div>
