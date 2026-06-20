@@ -32,13 +32,13 @@
 
 <div class="sm-legend">
   @for (item of legendItems; track item.value) {
-    <span class="sm-legend-item">
+    <div class="sm-legend-item">
       <span class="sm-legend-swatch" [attr.data-kind]="item.value"></span>
       {{ item.label }}
-    </span>
+    </div>
   }
-  <span class="sm-legend-item">
+  <div class="sm-legend-item">
     <span class="sm-legend-swatch" data-kind="SELECTED"></span>
     Selected
-  </span>
+  </div>
 </div>
