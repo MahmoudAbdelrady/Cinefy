@@ -2,7 +2,6 @@ package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
-import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
@@ -21,8 +20,6 @@ public class BookingService {
     private final ShowtimeRepository showtimeRepository;
 
     private final HallService hallService;
-
-    private final TmdbMovieService tmdbMovieService;
 
     // ========================= Public API =========================
 
@@ -55,7 +52,7 @@ public class BookingService {
 
     private SeatSelectionDTO toSeatSelectionDTO(Showtime showtime, Hall hall, HallLayoutDTO hallLayout) {
         SeatSelectionDTO dto = new SeatSelectionDTO();
-        dto.setMovie(tmdbMovieService.populateBaseFields(new MovieSearchResultDTO(), showtime.getTmdbMovie()));
+        dto.setMovieTitle(showtime.getTmdbMovie().getTitle());
         dto.setStartDateTime(showtime.getStartDateTime());
         dto.setHallName(hall.getName());
         dto.setHallType(hall.getType().getName());

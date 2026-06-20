@@ -1,7 +1,7 @@
 package com.mdevs.cinefy.dto.booking;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
-import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 public class SeatSelectionDTO {
 
-    private MovieSearchResultDTO movie;
+    private String movieTitle;
 
     private LocalDateTime startDateTime;
 
@@ -19,6 +19,7 @@ public class SeatSelectionDTO {
 
     private String hallType;
 
+    @JsonProperty("is3D")
     private boolean is3D;
 
     private HallLayoutDTO hallLayout;

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { HallTypeShowtimes } from '../shared/types';
+import type { HallTypeShowtimes, SeatSelection } from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
@@ -15,5 +15,9 @@ export class BookingService {
     return this.http.get<HallTypeShowtimes[]>(`/booking/movies/${movieId}/showtimes`, {
       params: { date },
     });
+  }
+
+  getSeatSelection(showtimeId: string): Observable<SeatSelection> {
+    return this.http.get<SeatSelection>(`/booking/showtimes/${showtimeId}`);
   }
 }
