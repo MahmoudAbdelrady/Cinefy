@@ -3,8 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { InputField } from 'cinefy-ui/components';
-import { OAuthButtonsComponent } from '../../../components';
-import { OtpStep } from '../../../components/auth/forgot-password';
+import { OAuthButtonsComponent, OtpStep } from '../../../components';
 import { AuthFormStage } from '../../../shared/types';
 import { EMAIL_PATTERN } from '../../../shared/validation';
 import { ArrowRightIcon, EmailIcon, LockIcon } from '../../../shared/icons';

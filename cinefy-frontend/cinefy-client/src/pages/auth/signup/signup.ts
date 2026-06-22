@@ -9,8 +9,7 @@ import {
   phoneNumberValidator,
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
-import { OAuthButtonsComponent } from '../../../components';
-import { OtpStep } from '../../../components/auth/forgot-password';
+import { OAuthButtonsComponent, OtpStep } from '../../../components';
 import { AuthFormStage } from '../../../shared/types';
 import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
 import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/icons';

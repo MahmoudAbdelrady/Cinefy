@@ -1,8 +1,8 @@
 import { Component, signal } from '@angular/core';
+import { OtpStep } from '../../../components';
 import {
   DoneStep,
   type ForgotPasswordStage,
-  OtpStep,
   ProgressDots,
   RequestStep,
   ResetStep,

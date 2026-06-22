@@ -4,12 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { interval, takeWhile } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { InputOtp } from 'cinefy-ui/components';
-import { ArrowLeftIcon, ArrowRightIcon } from '../../../../../shared/icons';
+import { ArrowLeftIcon, ArrowRightIcon } from '../../../shared/icons';
 
 const RESEND_COOLDOWN_SECONDS = 10 * 60;
 
 @Component({
-  selector: 'fp-otp-step',
+  selector: 'auth-otp-step',
   imports: [FormsModule, LucideDynamicIcon, InputOtp],
   templateUrl: './otp-step.html',
   styleUrl: './otp-step.scss',
@@ -22,8 +22,8 @@ export class OtpStep {
 
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly heading = input('Enter the code we sent');
-  readonly subheading = input('We emailed a 6-digit code to your email address.');
+  readonly heading = input.required<string>();
+  readonly subheading = input.required<string>();
   readonly showBack = input(true);
 
   readonly verified = output<string>();
