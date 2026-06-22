@@ -1,10 +1,10 @@
 export interface LoginPayload {
-  username: string;
+  email: string;
   password: string;
 }
 
 export interface ForgotPasswordPayload {
-  username: string;
+  email: string;
 }
 
 export interface VerifyResetCodePayload {

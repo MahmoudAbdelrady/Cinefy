@@ -1,0 +1,17 @@
+<div class="progress-dots-container">
+  @for (step of steps; track step.label; let i = $index; let last = $last) {
+    <div class="fp-dot-group">
+      <span
+        class="fp-dot"
+        [class.fp-dot--active]="i === currentIndex()"
+        [class.fp-dot--done]="i < currentIndex()"
+      ></span>
+      <span class="fp-dot-label" [class.fp-dot-label--lit]="i <= currentIndex()">
+        {{ step.label }}
+      </span>
+    </div>
+    @if (!last) {
+      <span class="fp-connector" [class.fp-connector--done]="i < currentIndex()"></span>
+    }
+  }
+</div>

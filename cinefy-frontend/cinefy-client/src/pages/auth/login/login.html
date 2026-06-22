@@ -1,0 +1,58 @@
+<div class="login-page">
+  @switch (stage()) {
+    @case ('form') {
+      <div class="lp-heading">
+        <h1>Sign in to Cinefy</h1>
+        <p>Sign in to access your bookings and book tickets.</p>
+      </div>
+
+      <form class="lp-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <input-field
+          label="Email"
+          type="text"
+          placeholder="Enter your email"
+          [leadingIcon]="icons.EmailIcon"
+          [control]="loginForm.controls.email"
+          [errorMessages]="{
+            required: 'Email is required',
+            pattern: 'Enter a valid email address',
+          }"
+        />
+
+        <div class="lp-password">
+          <input-field
+            label="Password"
+            type="password"
+            placeholder="Enter your password"
+            [leadingIcon]="icons.LockIcon"
+            [control]="loginForm.controls.password"
+            [errorMessages]="{
+              required: 'Password is required',
+            }"
+          />
+          <a class="lp-forgot" routerLink="../forgot-password">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-primary lp-submit" [disabled]="loginForm.invalid">
+          <span>Sign in</span>
+          <svg class="lp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+        </button>
+      </form>
+
+      <oauth-buttons />
+
+      <p class="lp-footer">
+        New to Cinefy?
+        <a routerLink="../signup">Create an account</a>
+      </p>
+    }
+    @case ('verify') {
+      <auth-otp-step
+        heading="Verify your account"
+        subheading="Your account isn't verified yet. We emailed a 6-digit code — enter it below to finish setting up."
+        [showBack]="false"
+        (verified)="onVerified()"
+      />
+    }
+  }
+</div>

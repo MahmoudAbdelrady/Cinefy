@@ -3,7 +3,6 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  AtSignIcon,
   SaveIcon,
   EditIcon,
   EmailIcon,
@@ -46,7 +45,6 @@ export class ProfilePersonalDetailsComponent {
     PhoneIcon,
     EditIcon,
     SaveIcon,
-    AtSignIcon,
     UserIcon,
     LockIcon,
   };

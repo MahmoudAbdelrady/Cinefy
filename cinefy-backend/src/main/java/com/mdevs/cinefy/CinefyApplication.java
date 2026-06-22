@@ -27,14 +27,14 @@ public class CinefyApplication {
 
     @Bean
     public CommandLineRunner seedAdminAccount(StaffMemberService staffMemberService,
-                                              @Value("${cinefy.admin.username}") String adminUsername,
+                                              @Value("${cinefy.admin.email}") String adminEmail,
                                               @Value("${cinefy.admin.password:}") String adminPassword) {
         return _ -> {
             if (StringUtils.isEmpty(adminPassword)) {
                 log.warn("Skipping admin account seed: cinefy.admin.password is not set");
                 return;
             }
-            staffMemberService.ensureAdminExists(adminUsername, adminPassword);
+            staffMemberService.ensureAdminExists(adminEmail, adminPassword);
         };
     }
 }

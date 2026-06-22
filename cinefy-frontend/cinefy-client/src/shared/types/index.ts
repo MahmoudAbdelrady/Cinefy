@@ -7,6 +7,7 @@ export type {
   NowShowingMovie,
 } from './movies';
 export type { HallType } from './halls';
+export type { OAuthProvider, AuthFormStage } from './auth';
 export type { BookingShowtime, HallTypeShowtimes, SeatSelection } from './booking';
 export { SEAT_KIND_LABEL } from './seats';
 export type {

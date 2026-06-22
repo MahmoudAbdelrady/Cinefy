@@ -1,0 +1,69 @@
+@use '../../../../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use '../../_fp-shared' as *;
+
+.fp-heading {
+  @include fp-heading;
+}
+
+.fp-form {
+  @include fp-form;
+}
+
+.fp-confirm {
+  @include flex-column;
+  gap: 8px;
+}
+
+.fp-mismatch {
+  margin: 0;
+  @include flex-align;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: $color-destructive;
+  @include lucide-icon-fix;
+}
+
+.fp-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 6px;
+  column-gap: 12px;
+  background-color: $color-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fp-check {
+  @include flex-align;
+  gap: 6px;
+  font-size: 11.5px;
+  color: $color-muted-foreground;
+  @include lucide-icon-fix;
+  transition: color 150ms ease;
+
+  svg {
+    color: $color-secondary;
+    transition: color 150ms ease;
+  }
+
+  &--ok {
+    color: $color-foreground;
+
+    svg {
+      color: $color-primary;
+    }
+  }
+}
+
+.fp-submit {
+  @include fp-submit;
+}

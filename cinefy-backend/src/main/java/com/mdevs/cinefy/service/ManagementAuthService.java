@@ -1,7 +1,7 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
-import com.mdevs.cinefy.dto.auth.ManagementLoginDTO;
+import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.auth.VerifyResetCodeDTO;
@@ -9,6 +9,7 @@ import com.mdevs.cinefy.entity.Otp;
 import com.mdevs.cinefy.entity.enums.OtpType;
 import com.mdevs.cinefy.entity.enums.StaffPosition;
 import com.mdevs.cinefy.entity.enums.UserType;
+import com.mdevs.cinefy.repository.StaffMemberRepository;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
@@ -44,6 +45,8 @@ public class ManagementAuthService {
 
     private final StaffMemberService staffMemberService;
 
+    private final StaffMemberRepository staffMemberRepository;
+
     @Value("${cinefy.jwt.refresh-token-rotation-threshold}")
     private long refreshTokenRotationThreshold;
 
@@ -59,8 +62,8 @@ public class ManagementAuthService {
         return jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) && !invalidJwtService.isBlocklisted(claims.getId());
     }
 
-    public TokenPairDTO login(ManagementLoginDTO dto) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
+    public TokenPairDTO login(LoginDTO dto) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail().trim().toLowerCase(), dto.getPassword()));
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         JwtClaims jwtClaims = JwtClaims.fromPrincipal(principal);
 
@@ -100,7 +103,7 @@ public class ManagementAuthService {
     }
 
     public void forgotPassword(ForgotPasswordDTO dto) {
-        staffMemberService.findByUsername(dto.getUsername()).ifPresent(staffMember -> {
+        staffMemberRepository.findByEmail(dto.getEmail().trim().toLowerCase()).ifPresent(staffMember -> {
             if (staffMember.getPosition().equals(StaffPosition.ADMIN)) {
                 return;
             }

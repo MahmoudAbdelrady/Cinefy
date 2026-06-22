@@ -1,0 +1,20 @@
+<div class="auth-layout-container">
+  <div class="alc-vignette"></div>
+  <div class="alc-glow"></div>
+  <div class="alc-grain"></div>
+
+  <div class="auth-layout-header">
+    <a class="alh-brand" routerLink="/">
+      <span class="alh-brand-icon">
+        <svg [lucideIcon]="icons.ClapperboardIcon" [size]="18"></svg>
+      </span>
+      <span class="alh-brand-text">Cinefy</span>
+    </a>
+  </div>
+
+  <div class="auth-layout-content">
+    <div class="alc-shell">
+      <router-outlet />
+    </div>
+  </div>
+</div>
