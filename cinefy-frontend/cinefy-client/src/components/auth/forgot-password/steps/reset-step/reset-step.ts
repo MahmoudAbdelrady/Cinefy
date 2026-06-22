@@ -8,7 +8,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { InputField } from 'cinefy-ui/components';
 import { PASSWORD_PATTERN } from '../../../../../shared/validation';
@@ -58,10 +57,6 @@ export class ResetStep {
   private readonly newPasswordValue = toSignal(this.resetForm.controls.newPassword.valueChanges, {
     initialValue: '',
   });
-  private readonly formValid = toSignal(
-    this.resetForm.statusChanges.pipe(map((status) => status === 'VALID')),
-    { initialValue: this.resetForm.valid },
-  );
 
   protected readonly checks = computed(() => {
     const pw = this.newPasswordValue();
@@ -75,7 +70,7 @@ export class ResetStep {
   });
 
   protected onSubmit() {
-    if (!this.formValid()) return;
+    if (this.resetForm.invalid) return;
     this.reset.emit();
   }
 }
