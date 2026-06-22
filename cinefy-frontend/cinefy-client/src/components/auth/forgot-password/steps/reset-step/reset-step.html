@@ -21,7 +21,10 @@
         placeholder="Confirm your password"
         [leadingIcon]="icons.LockIcon"
         [control]="resetForm.controls.confirmPassword"
-        [errorMessages]="{ required: 'Please confirm your password' }"
+        [errorMessages]="{
+          required: 'Please confirm your password',
+          mismatch: 'Passwords do not match',
+        }"
       />
       @if (resetForm.hasError('mismatch')) {
         <p class="fp-mismatch">

@@ -6,6 +6,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { KeyIcon, SaveIcon } from '../../../shared/icons';
 import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
+import { linkConfirmPassword } from 'cinefy-ui/forms';
 import { PASSWORD_PATTERN } from '../../../shared/validation';
 import { StaffService } from '../../../services';
 import type { ApiError } from '../../../shared/types';
@@ -44,15 +45,11 @@ export class ProfilePasswordComponent {
   });
 
   constructor() {
-    this.passwordForm.controls.confirmPassword.addValidators((control) => {
-      const confirm = control.value;
-      const next = this.passwordForm.controls.newPassword.value;
-      if (!confirm || !next) return null;
-      return confirm === next ? null : { mismatch: true };
-    });
-    this.passwordForm.controls.newPassword.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.passwordForm.controls.confirmPassword.updateValueAndValidity());
+    linkConfirmPassword(
+      this.passwordForm.controls.newPassword,
+      this.passwordForm.controls.confirmPassword,
+      this.destroyRef,
+    );
   }
 
   protected save(): void {

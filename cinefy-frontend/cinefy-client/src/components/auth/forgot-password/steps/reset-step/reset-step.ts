@@ -1,15 +1,9 @@
-import { Component, computed, output } from '@angular/core';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { Component, DestroyRef, computed, inject, output } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { InputField } from 'cinefy-ui/components';
+import { linkConfirmPassword } from 'cinefy-ui/forms';
 import { PASSWORD_PATTERN } from '../../../../../shared/validation';
 import {
   ArrowRightIcon,
@@ -17,12 +11,6 @@ import {
   LockIcon,
   TriangleAlertIcon,
 } from '../../../../../shared/icons';
-
-function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
-  const newPassword = group.get('newPassword')?.value;
-  const confirmPassword = group.get('confirmPassword')?.value;
-  return !confirmPassword || newPassword === confirmPassword ? null : { mismatch: true };
-}
 
 @Component({
   selector: 'fp-reset-step',
@@ -38,21 +26,20 @@ export class ResetStep {
     TriangleAlertIcon,
   };
 
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly reset = output<void>();
 
-  protected readonly resetForm = new FormGroup(
-    {
-      newPassword: new FormControl('', {
-        nonNullable: true,
-        validators: [Validators.required, Validators.pattern(PASSWORD_PATTERN)],
-      }),
-      confirmPassword: new FormControl('', {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
-    },
-    { validators: passwordsMatchValidator },
-  );
+  protected readonly resetForm = new FormGroup({
+    newPassword: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.pattern(PASSWORD_PATTERN)],
+    }),
+    confirmPassword: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+  });
 
   private readonly newPasswordValue = toSignal(this.resetForm.controls.newPassword.valueChanges, {
     initialValue: '',
@@ -68,6 +55,14 @@ export class ResetStep {
       { ok: /[^A-Za-z0-9]/.test(pw), label: 'One special character' },
     ];
   });
+
+  constructor() {
+    linkConfirmPassword(
+      this.resetForm.controls.newPassword,
+      this.resetForm.controls.confirmPassword,
+      this.destroyRef,
+    );
+  }
 
   protected onSubmit() {
     if (this.resetForm.invalid) return;

@@ -9,5 +9,12 @@
     "types": []
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["src/**/*.ts", "components/**/*.ts", "services/**/*.ts", "pipes/**/*.ts", "types/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "components/**/*.ts",
+    "services/**/*.ts",
+    "pipes/**/*.ts",
+    "types/**/*.ts",
+    "forms/**/*.ts"
+  ]
 }

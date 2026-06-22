@@ -16,7 +16,8 @@
       "cinefy-ui/components": ["./components/src/public-api.ts"],
       "cinefy-ui/services": ["./services/src/public-api.ts"],
       "cinefy-ui/pipes": ["./pipes/src/public-api.ts"],
-      "cinefy-ui/types": ["./types/src/public-api.ts"]
+      "cinefy-ui/types": ["./types/src/public-api.ts"],
+      "cinefy-ui/forms": ["./forms/src/public-api.ts"]
     }
   },
   "angularCompilerOptions": {
