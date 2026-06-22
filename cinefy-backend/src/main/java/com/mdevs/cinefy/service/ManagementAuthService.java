@@ -1,7 +1,7 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
-import com.mdevs.cinefy.dto.auth.ManagementLoginDTO;
+import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.auth.VerifyResetCodeDTO;
@@ -62,7 +62,7 @@ public class ManagementAuthService {
         return jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) && !invalidJwtService.isBlocklisted(claims.getId());
     }
 
-    public TokenPairDTO login(ManagementLoginDTO dto) {
+    public TokenPairDTO login(LoginDTO dto) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail().trim().toLowerCase(), dto.getPassword()));
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         JwtClaims jwtClaims = JwtClaims.fromPrincipal(principal);

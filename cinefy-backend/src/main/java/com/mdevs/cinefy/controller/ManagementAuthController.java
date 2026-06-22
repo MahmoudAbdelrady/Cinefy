@@ -1,7 +1,7 @@
 package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
-import com.mdevs.cinefy.dto.auth.ManagementLoginDTO;
+import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.auth.VerifyResetCodeDTO;
@@ -36,13 +36,15 @@ public class ManagementAuthController {
     @Value("${cinefy.jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
+    private static final String AUTH_PATH = "/management/auth";
+
     @PublicApi
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@Valid @RequestBody ManagementLoginDTO dto) {
+    public ResponseEntity<Void> login(@Valid @RequestBody LoginDTO dto) {
         TokenPairDTO tokens = managementAuthService.login(dto);
 
         ResponseCookie accessTokenCookie = cookieUtil.buildAccessTokenCookie(tokens.accessToken(), accessTokenExpiration);
-        ResponseCookie refreshTokenCookie = cookieUtil.buildRefreshTokenCookie(tokens.refreshToken(), refreshTokenExpiration);
+        ResponseCookie refreshTokenCookie = cookieUtil.buildRefreshTokenCookie(tokens.refreshToken(), refreshTokenExpiration, AUTH_PATH);
         ResponseCookie csrfTokenCookie = cookieUtil.buildCsrfTokenCookie(UUID.randomUUID().toString(), refreshTokenExpiration);
 
         return ResponseEntity.ok()
@@ -62,7 +64,7 @@ public class ManagementAuthController {
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
         if (StringUtils.isNotEmpty(tokens.refreshToken())) {
-            ResponseCookie refreshTokenCookie = cookieUtil.buildRefreshTokenCookie(tokens.refreshToken(), refreshTokenExpiration);
+            ResponseCookie refreshTokenCookie = cookieUtil.buildRefreshTokenCookie(tokens.refreshToken(), refreshTokenExpiration, AUTH_PATH);
             ResponseCookie csrfTokenCookie = cookieUtil.buildCsrfTokenCookie(UUID.randomUUID().toString(), refreshTokenExpiration);
             responseBuilder.header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
             responseBuilder.header(HttpHeaders.SET_COOKIE, csrfTokenCookie.toString());
@@ -84,7 +86,7 @@ public class ManagementAuthController {
         managementAuthService.logout(accessToken, refreshToken);
 
         ResponseCookie clearedAccessTokenCookie = cookieUtil.buildAccessTokenCookie("", 0);
-        ResponseCookie clearedRefreshTokenCookie = cookieUtil.buildRefreshTokenCookie("", 0);
+        ResponseCookie clearedRefreshTokenCookie = cookieUtil.buildRefreshTokenCookie("", 0, AUTH_PATH);
         ResponseCookie clearedCsrfTokenCookie = cookieUtil.buildCsrfTokenCookie("", 0);
 
         return ResponseEntity.ok()

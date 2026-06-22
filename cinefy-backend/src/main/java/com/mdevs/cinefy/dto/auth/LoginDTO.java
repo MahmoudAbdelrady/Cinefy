@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ManagementLoginDTO {
+public class LoginDTO {
 
     @NotBlank(message = "Email is required")
     @Pattern(regexp = ValidationPatterns.EMAIL, message = ValidationPatterns.EMAIL_MESSAGE)

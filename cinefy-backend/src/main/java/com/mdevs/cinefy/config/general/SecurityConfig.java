@@ -2,6 +2,7 @@ package com.mdevs.cinefy.config.general;
 
 import com.mdevs.cinefy.filter.CsrfValidationFilter;
 import com.mdevs.cinefy.filter.JwtAuthenticationFilter;
+import com.mdevs.cinefy.service.ClientService;
 import com.mdevs.cinefy.service.StaffMemberService;
 import com.mdevs.cinefy.shared.security.CinefyAuthenticationEntryPoint;
 import com.mdevs.cinefy.shared.security.CinefyApiAuthorizationManager;
@@ -29,6 +30,8 @@ public class SecurityConfig {
 
     private final StaffMemberService staffMemberService;
 
+    private final ClientService clientService;
+
     private final PasswordEncoder passwordEncoder;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -42,6 +45,13 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager managementAuthenticationManager() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(staffMemberService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return new ProviderManager(provider);
+    }
+
+    @Bean
+    public AuthenticationManager clientAuthenticationManager() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(clientService);
         provider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(provider);
     }

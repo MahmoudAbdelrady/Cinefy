@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.shared.security;
 
+import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.entity.enums.UserType;
 import lombok.Getter;
@@ -46,6 +47,17 @@ public class UserPrincipal implements UserDetails {
                 staffMember.getPassword(),
                 position,
                 List.of(new SimpleGrantedAuthority(ROLE_PREFIX + position)));
+    }
+
+    public static UserPrincipal fromClient(Client client) {
+        return new UserPrincipal(
+                client.getId(),
+                client.getUuid(),
+                UserType.CLIENT,
+                client.getEmail(),
+                client.getPassword(),
+                null,
+                List.of());
     }
 
     public static UserPrincipal fromJwtClaims(JwtClaims claims) {
