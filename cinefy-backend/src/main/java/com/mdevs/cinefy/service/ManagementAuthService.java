@@ -10,6 +10,7 @@ import com.mdevs.cinefy.entity.enums.OtpType;
 import com.mdevs.cinefy.entity.enums.StaffPosition;
 import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.StaffMemberRepository;
+import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
@@ -20,9 +21,7 @@ import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -32,8 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ManagementAuthService {
 
-    @Qualifier("managementAuthenticationManager")
-    private final AuthenticationManager authenticationManager;
+    private final CinefyAuthManagers authManagers;
 
     private final JwtUtil jwtUtil;
 
@@ -63,7 +61,7 @@ public class ManagementAuthService {
     }
 
     public TokenPairDTO login(LoginDTO dto) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail().trim().toLowerCase(), dto.getPassword()));
+        Authentication authentication = authManagers.management().authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail().trim().toLowerCase(), dto.getPassword()));
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         JwtClaims jwtClaims = JwtClaims.fromPrincipal(principal);
 
