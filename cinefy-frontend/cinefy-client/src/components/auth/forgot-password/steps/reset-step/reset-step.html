@@ -5,43 +5,32 @@
   </div>
 
   <form class="fp-form" [formGroup]="resetForm" (ngSubmit)="onSubmit()">
-    <input-field
-      label="New password"
-      type="password"
-      placeholder="Enter your password"
-      [leadingIcon]="icons.LockIcon"
-      [control]="resetForm.controls.newPassword"
-      [errorMessages]="{ required: 'Password is required' }"
-    />
-
-    <div class="fp-confirm">
+    <div class="input-group">
       <input-field
-        label="Confirm new password"
+        label="New password"
         type="password"
-        placeholder="Confirm your password"
+        placeholder="Enter your password"
         [leadingIcon]="icons.LockIcon"
-        [control]="resetForm.controls.confirmPassword"
+        [control]="resetForm.controls.newPassword"
         [errorMessages]="{
-          required: 'Please confirm your password',
-          mismatch: 'Passwords do not match',
+          required: 'Password is required',
+          pattern: 'Password is too weak',
         }"
       />
-      @if (resetForm.hasError('mismatch')) {
-        <p class="fp-mismatch">
-          <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="12" [strokeWidth]="2.4"></svg>
-          Passwords don't match.
-        </p>
-      }
+      <password-checklist [control]="resetForm.controls.newPassword" />
     </div>
 
-    <ul class="fp-checklist">
-      @for (check of checks(); track $index) {
-        <li class="fp-check" [class.fp-check--ok]="check.ok">
-          <svg [lucideIcon]="icons.CircleCheckIcon" [size]="14" [strokeWidth]="2.4"></svg>
-          {{ check.label }}
-        </li>
-      }
-    </ul>
+    <input-field
+      label="Confirm new password"
+      type="password"
+      placeholder="Confirm your password"
+      [leadingIcon]="icons.LockIcon"
+      [control]="resetForm.controls.confirmPassword"
+      [errorMessages]="{
+        required: 'Please confirm your password',
+        mismatch: 'Passwords do not match',
+      }"
+    />
 
     <button type="submit" class="btn-primary fp-submit" [disabled]="resetForm.invalid">
       <span>Save new password</span>

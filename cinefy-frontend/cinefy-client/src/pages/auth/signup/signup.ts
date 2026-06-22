@@ -5,6 +5,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
   InputField,
+  PasswordChecklist,
   PhoneInput,
   phoneNumberValidator,
   type PhoneCountryCode,
@@ -21,6 +22,7 @@ import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/i
     RouterLink,
     LucideDynamicIcon,
     InputField,
+    PasswordChecklist,
     PhoneInput,
     OAuthButtonsComponent,
     OtpStep,

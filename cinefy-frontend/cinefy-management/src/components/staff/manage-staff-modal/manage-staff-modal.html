@@ -73,10 +73,10 @@
           [blockClipboard]="true"
           [errorMessages]="{
             required: 'Password is required',
-            pattern:
-              'Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a symbol',
+            pattern: 'Password is too weak',
           }"
         />
+        <password-checklist [control]="staffForm.controls.password" />
       </div>
       <div class="input-group">
         <custom-select

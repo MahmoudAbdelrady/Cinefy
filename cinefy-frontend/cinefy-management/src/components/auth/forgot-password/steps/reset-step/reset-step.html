@@ -13,9 +13,13 @@
           placeholder="Enter your password"
           [leadingIcon]="icons.PasswordIcon"
           [control]="resetForm.controls.newPassword"
-          [errorMessages]="{ required: 'Password is required.' }"
+          [errorMessages]="{
+            required: 'Password is required.',
+            pattern: 'Password is too weak.',
+          }"
           [blockClipboard]="true"
         />
+        <password-checklist [control]="resetForm.controls.newPassword" />
       </div>
 
       <div class="input-group">
@@ -31,22 +35,7 @@
           }"
           [blockClipboard]="true"
         />
-        @if (resetForm.hasError('mismatch')) {
-          <p class="fp-mismatch">
-            <svg [lucideIcon]="icons.AlertIcon" [size]="12" [strokeWidth]="2.4"></svg>
-            Passwords don't match.
-          </p>
-        }
       </div>
-
-      <ul class="fp-checklist">
-        @for (check of checks(); track $index) {
-          <li class="fp-check" [class.fp-check--ok]="check.ok">
-            <svg [lucideIcon]="icons.CircleCheckIcon" [size]="12" [strokeWidth]="2.4"></svg>
-            {{ check.label }}
-          </li>
-        }
-      </ul>
 
       <button ngpButton type="submit" class="fp-submit" [disabled]="!canSubmit()">
         @if (submitting()) {

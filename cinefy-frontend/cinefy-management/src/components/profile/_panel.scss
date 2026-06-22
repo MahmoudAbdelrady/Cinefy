@@ -70,6 +70,11 @@
     }
   }
 
+  .input-group {
+    @include flex-column;
+    gap: 8px;
+  }
+
   .panel-footer {
     @include flex-align;
     justify-content: flex-end;
