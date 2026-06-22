@@ -39,7 +39,6 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -87,14 +86,10 @@ public class StaffMemberService implements UserDetailsService {
                 staffMember.getPosition().name());
     }
 
-    public Optional<StaffMember> findByUsername(String username) {
-        return staffMemberRepository.findByUsername(username);
-    }
-
     @Override
-    public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
-        StaffMember staffMember = findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Staff member not found with username: " + username));
+    public UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
+        StaffMember staffMember = staffMemberRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Staff member not found with email: " + email));
         return UserPrincipal.fromStaffMember(staffMember);
     }
 
@@ -114,8 +109,8 @@ public class StaffMemberService implements UserDetailsService {
     }
 
     @Transactional
-    public void ensureAdminExists(String username, String rawPassword) {
-        if (staffMemberRepository.existsByUsername(username)) {
+    public void ensureAdminExists(String email, String rawPassword) {
+        if (staffMemberRepository.existsByEmail(email)) {
             return;
         }
 
@@ -123,8 +118,7 @@ public class StaffMemberService implements UserDetailsService {
         admin.setFirstName("System");
         admin.setLastName("Administrator");
         admin.setFullName(User.toFullName(admin.getFirstName(), admin.getLastName()));
-        admin.setUsername(username);
-        admin.setEmail("admin@cinefy.local");
+        admin.setEmail(email);
         admin.setPhoneNumber("0000000000");
         admin.setPassword(passwordEncoder.encode(rawPassword));
         admin.setPosition(StaffPosition.ADMIN);
@@ -243,12 +237,6 @@ public class StaffMemberService implements UserDetailsService {
         if (dto.getWorkingHourStart().equals(dto.getWorkingHourEnd())) {
             throw new BusinessException("Working hour end must be different from working hour start");
         }
-        boolean usernameExists = excludeId == null
-                ? staffMemberRepository.existsByUsername(dto.getUsername())
-                : staffMemberRepository.existsByUsernameAndIdNot(dto.getUsername(), excludeId);
-        if (usernameExists) {
-            throw new BusinessException("Username already in use");
-        }
         boolean emailExists = excludeId == null
                 ? staffMemberRepository.existsByEmail(normalizedEmail)
                 : staffMemberRepository.existsByEmailAndIdNot(normalizedEmail, excludeId);
@@ -280,7 +268,6 @@ public class StaffMemberService implements UserDetailsService {
         staffMember.setFirstName(dto.getFirstName());
         staffMember.setLastName(dto.getLastName());
         staffMember.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
-        staffMember.setUsername(dto.getUsername());
         staffMember.setEmail(normalizedEmail);
         staffMember.setPhoneNumber(normalizedPhoneNumber);
         staffMember.setPosition(position);
@@ -341,7 +328,6 @@ public class StaffMemberService implements UserDetailsService {
         dto.setId(staffMember.getUuid());
         dto.setFirstName(staffMember.getFirstName());
         dto.setLastName(staffMember.getLastName());
-        dto.setUsername(staffMember.getUsername());
         dto.setEmail(staffMember.getEmail());
         dto.setPhoneNumber(staffMember.getPhoneNumber());
         dto.setPosition(staffMember.getPosition().name());

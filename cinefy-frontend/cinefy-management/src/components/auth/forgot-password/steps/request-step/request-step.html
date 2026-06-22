@@ -1,17 +1,20 @@
 <div class="request-step-container">
   <div class="fp-heading">
     <h1>Forgot password?</h1>
-    <p>Enter your username and we'll send a verification code to the email address on file.</p>
+    <p>Enter your email and we'll send a verification code to that address.</p>
   </div>
 
   <div class="fp-card">
     <form [formGroup]="requestForm" (ngSubmit)="onSubmit()" class="fp-form">
       <input-field
-        label="Username"
-        placeholder="Enter your username"
-        [leadingIcon]="icons.AtSignIcon"
-        [control]="requestForm.controls.username"
-        [errorMessages]="{ required: 'Username is required' }"
+        label="Email"
+        placeholder="Enter your email"
+        [leadingIcon]="icons.EmailIcon"
+        [control]="requestForm.controls.email"
+        [errorMessages]="{
+          required: 'Email is required',
+          pattern: 'Email must be a valid address',
+        }"
       />
 
       <button

@@ -45,21 +45,6 @@
       </div>
       <div class="input-group">
         <input-field
-          label="Username"
-          placeholder="e.g. mohamed.ahmed"
-          [leadingIcon]="icons.AtSignIcon"
-          [control]="staffForm.controls.username"
-          [errorMessages]="{
-            required: 'Username is required',
-            minlength: 'Username must be at least 3 characters',
-            maxlength: 'Username must not exceed 30 characters',
-            pattern:
-              'Username must start with a lowercase letter and contain only lowercase letters, digits, dots, underscores, or hyphens (no consecutive or trailing separators)',
-          }"
-        />
-      </div>
-      <div class="input-group">
-        <input-field
           label="Email"
           placeholder="e.g. mohamed.ahmed@gmail.com"
           [leadingIcon]="icons.EmailIcon"

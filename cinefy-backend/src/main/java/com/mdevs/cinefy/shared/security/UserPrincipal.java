@@ -21,7 +21,7 @@ public class UserPrincipal implements UserDetails {
 
     private final UserType type;
 
-    private final String username;
+    private final String email;
 
     private final String password;
 
@@ -31,13 +31,18 @@ public class UserPrincipal implements UserDetails {
 
     private static final String ROLE_PREFIX = "ROLE_";
 
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
     public static UserPrincipal fromStaffMember(StaffMember staffMember) {
         String position = staffMember.getPosition().name();
         return new UserPrincipal(
                 staffMember.getId(),
                 staffMember.getUuid(),
                 UserType.STAFF_MEMBER,
-                staffMember.getUsername(),
+                staffMember.getEmail(),
                 staffMember.getPassword(),
                 position,
                 List.of(new SimpleGrantedAuthority(ROLE_PREFIX + position)));

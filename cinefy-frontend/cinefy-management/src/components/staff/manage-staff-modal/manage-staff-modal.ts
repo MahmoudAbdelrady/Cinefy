@@ -10,14 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  AtSignIcon,
-  CheckIcon,
-  EmailIcon,
-  KeyIcon,
-  PhoneIcon,
-  UserIcon,
-} from '../../../shared/icons';
+import { CheckIcon, EmailIcon, KeyIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import {
   ModalComponent,
@@ -45,12 +38,7 @@ import {
   type WeekDay,
 } from '../../../shared/types';
 import { StaffService } from '../../../services';
-import {
-  EMAIL_PATTERN,
-  NAME_PATTERN,
-  PASSWORD_PATTERN,
-  USERNAME_PATTERN,
-} from '../../../shared/validation';
+import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
 import { assignableStaffPositions } from '../../../shared/access';
 
 @Component({
@@ -75,7 +63,6 @@ export class ManageStaffModalComponent {
     EmailIcon,
     PhoneIcon,
     UserIcon,
-    AtSignIcon,
     KeyIcon,
   };
 
@@ -124,15 +111,6 @@ export class ManageStaffModalComponent {
         Validators.minLength(2),
         Validators.maxLength(50),
         Validators.pattern(NAME_PATTERN),
-      ],
-    }),
-    username: new FormControl('', {
-      nonNullable: true,
-      validators: [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(30),
-        Validators.pattern(USERNAME_PATTERN),
       ],
     }),
     email: new FormControl('', {
@@ -255,7 +233,6 @@ export class ManageStaffModalComponent {
       this.staffForm.patchValue({
         firstName: member.firstName,
         lastName: member.lastName,
-        username: member.username,
         email: member.email,
         phoneCountry: country,
         phoneNumber: nationalNumber,
@@ -301,7 +278,6 @@ export class ManageStaffModalComponent {
     const payload: StaffMemberPayload = {
       firstName: value.firstName,
       lastName: value.lastName,
-      username: value.username,
       email: value.email,
       phoneNumber: toE164Digits(this.staffForm.controls.phoneCountry, value.phoneNumber),
       position: value.position!,
