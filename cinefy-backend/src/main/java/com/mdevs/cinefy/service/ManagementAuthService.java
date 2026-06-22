@@ -9,6 +9,7 @@ import com.mdevs.cinefy.entity.Otp;
 import com.mdevs.cinefy.entity.enums.OtpType;
 import com.mdevs.cinefy.entity.enums.StaffPosition;
 import com.mdevs.cinefy.entity.enums.UserType;
+import com.mdevs.cinefy.repository.StaffMemberRepository;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
@@ -44,6 +45,8 @@ public class ManagementAuthService {
 
     private final StaffMemberService staffMemberService;
 
+    private final StaffMemberRepository staffMemberRepository;
+
     @Value("${cinefy.jwt.refresh-token-rotation-threshold}")
     private long refreshTokenRotationThreshold;
 
@@ -60,7 +63,7 @@ public class ManagementAuthService {
     }
 
     public TokenPairDTO login(ManagementLoginDTO dto) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail().trim().toLowerCase(), dto.getPassword()));
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         JwtClaims jwtClaims = JwtClaims.fromPrincipal(principal);
 
@@ -100,7 +103,7 @@ public class ManagementAuthService {
     }
 
     public void forgotPassword(ForgotPasswordDTO dto) {
-        staffMemberService.findByUsername(dto.getUsername()).ifPresent(staffMember -> {
+        staffMemberRepository.findByEmail(dto.getEmail().trim().toLowerCase()).ifPresent(staffMember -> {
             if (staffMember.getPosition().equals(StaffPosition.ADMIN)) {
                 return;
             }

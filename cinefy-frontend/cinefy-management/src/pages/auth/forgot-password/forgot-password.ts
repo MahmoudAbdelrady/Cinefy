@@ -23,12 +23,12 @@ export class ForgotPasswordPage {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly stage = signal<ForgotPasswordStage>('request');
-  protected readonly username = signal('');
+  protected readonly email = signal('');
   protected readonly code = signal('');
   private readonly requestingNewCode = signal(false);
 
-  protected onRequested(username: string) {
-    this.username.set(username);
+  protected onRequested(email: string) {
+    this.email.set(email);
     this.stage.set('otp');
   }
 
@@ -49,7 +49,7 @@ export class ForgotPasswordPage {
     if (this.requestingNewCode()) return;
     this.requestingNewCode.set(true);
     this.authService
-      .forgotPassword({ username: this.username() })
+      .forgotPassword({ email: this.email() })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

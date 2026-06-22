@@ -1,6 +1,8 @@
 package com.mdevs.cinefy.dto.auth;
 
+import com.mdevs.cinefy.shared.validation.ValidationPatterns;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,8 +10,9 @@ import lombok.Setter;
 @Setter
 public class ManagementLoginDTO {
 
-    @NotBlank(message = "Username is required")
-    private String username;
+    @NotBlank(message = "Email is required")
+    @Pattern(regexp = ValidationPatterns.EMAIL, message = ValidationPatterns.EMAIL_MESSAGE)
+    private String email;
 
     @NotBlank(message = "Password is required")
     private String password;

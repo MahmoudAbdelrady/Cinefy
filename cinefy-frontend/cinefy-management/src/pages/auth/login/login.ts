@@ -7,7 +7,8 @@ import { NgpButton } from 'ng-primitives/button';
 import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
-import { ArrowRightIcon, AtSignIcon, PasswordIcon } from '../../../shared/icons';
+import { EMAIL_PATTERN } from '../../../shared/validation';
+import { ArrowRightIcon, EmailIcon, PasswordIcon } from '../../../shared/icons';
 
 @Component({
   selector: 'login-page',
@@ -24,7 +25,7 @@ import { ArrowRightIcon, AtSignIcon, PasswordIcon } from '../../../shared/icons'
 })
 export class LoginPage {
   protected readonly icons = {
-    AtSignIcon,
+    EmailIcon,
     PasswordIcon,
     ArrowRightIcon,
   };
@@ -37,9 +38,9 @@ export class LoginPage {
   protected readonly submitting = signal(false);
 
   protected readonly loginForm = new FormGroup({
-    username: new FormControl('', {
+    email: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(EMAIL_PATTERN)],
     }),
     password: new FormControl('', {
       nonNullable: true,
@@ -59,7 +60,7 @@ export class LoginPage {
         error: () => {
           this.submitting.set(false);
           this.loginForm.controls.password.reset();
-          this.toastService.error('Invalid username or password');
+          this.toastService.error('Invalid email or password');
         },
       });
   }

@@ -29,7 +29,7 @@ export class OtpStep {
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly username = input<string>('');
+  readonly email = input<string>('');
 
   readonly verified = output<string>();
   readonly back = output<void>();
@@ -57,7 +57,7 @@ export class OtpStep {
     if (this.resending() || this.resendCountdown() > 0) return;
     this.resending.set(true);
     this.authService
-      .forgotPassword({ username: this.username() })
+      .forgotPassword({ email: this.email() })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

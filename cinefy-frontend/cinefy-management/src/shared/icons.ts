@@ -3,7 +3,6 @@ export {
   LucideArrowLeft as ArrowLeftIcon,
   LucideArrowRight as ArrowRightIcon,
   LucideArrowUp as ArrowUpIcon,
-  LucideAtSign as AtSignIcon,
   LucideBriefcaseBusiness as BriefCaseIcon,
   LucideCalendar as CalendarIcon,
   LucideCalendarClock as CalendarClockIcon,

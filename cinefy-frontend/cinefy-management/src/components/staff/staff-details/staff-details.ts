@@ -1,14 +1,7 @@
 import { afterNextRender, Component, computed, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
-import {
-  BriefCaseIcon,
-  CalendarIcon,
-  EditIcon,
-  EmailIcon,
-  PhoneIcon,
-  AtSignIcon,
-} from '../../../shared/icons';
+import { BriefCaseIcon, CalendarIcon, EditIcon, EmailIcon, PhoneIcon } from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
 import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
@@ -40,7 +33,6 @@ export class StaffDetailsComponent {
     EditIcon,
     EmailIcon,
     PhoneIcon,
-    AtSignIcon,
     BriefCaseIcon,
   };
 

@@ -13,4 +13,8 @@ public final class ValidationPatterns {
     public static final String NAME = "^\\p{L}+([ '\\-]\\p{L}+)*$";
 
     public static final String NAME_MESSAGE = "Name may only contain letters, spaces, hyphens, and apostrophes";
+
+    public static final String EMAIL = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
+
+    public static final String EMAIL_MESSAGE = "Email must be a valid address";
 }

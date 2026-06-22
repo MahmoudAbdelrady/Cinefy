@@ -42,7 +42,6 @@ interface StaffMemberDetail {
   id: string;
   firstName: string;
   lastName: string;
-  username: string;
   email: string;
   phoneNumber: string;
   position: UserPosition;
@@ -65,7 +64,6 @@ interface CurrentStaffMember {
 interface StaffMemberPayload {
   firstName: string;
   lastName: string;
-  username: string;
   phoneNumber: string;
   email: string;
   password?: string;
