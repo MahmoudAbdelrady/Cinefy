@@ -14,7 +14,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(indexes = {
-        @Index(columnList = "CODE"),
         @Index(columnList = "TYPE_ID"),
         @Index(columnList = "STATUS"),
         @Index(columnList = "CREATED_AT")

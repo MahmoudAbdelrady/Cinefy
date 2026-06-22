@@ -10,10 +10,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
-@Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"HALL_ID", "CATEGORY"}),
-        indexes = @Index(columnList = "HALL_ID")
-)
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"HALL_ID", "CATEGORY"}))
 public class HallCategoryPrice extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

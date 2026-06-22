@@ -9,9 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(indexes = {
-        @Index(columnList = "CODE")
-})
 public class HallType extends BaseEntity {
 
     @Column(nullable = false)
