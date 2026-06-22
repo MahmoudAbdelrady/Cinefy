@@ -1,7 +1,5 @@
 @use '../../_fp-shared' as *;
 
-@include fp-host;
-
 .fp-heading {
   @include fp-heading;
 }

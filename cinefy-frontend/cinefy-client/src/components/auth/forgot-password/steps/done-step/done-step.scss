@@ -2,8 +2,6 @@
 @use 'cinefy-ui/styles/mixins' as *;
 @use '../../_fp-shared' as *;
 
-@include fp-host;
-
 .fp-done {
   text-align: center;
 

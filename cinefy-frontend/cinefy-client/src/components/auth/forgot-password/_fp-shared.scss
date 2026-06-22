@@ -1,19 +1,6 @@
 @use '../../../shared/styles/colors' as *;
 @use 'cinefy-ui/styles/mixins' as *;
 
-// Shared styling for the forgot-password step components. Keeps the client's
-// flat, card-less auth design (heading + form in the centered column) consistent
-// across every stage. Each step `@use`s this and applies the mixins.
-
-// Each step is a custom element (inline by default); make its host fill the
-// auth column so the form stretches to the full width in any container.
-@mixin fp-host {
-  :host {
-    display: block;
-    width: 100%;
-  }
-}
-
 @mixin fp-heading {
   margin-bottom: 32px;
 
