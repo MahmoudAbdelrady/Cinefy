@@ -12,7 +12,7 @@
   } @else if (highlightedMovies.value()!.length) {
     <featured-carousel [slides]="highlightedMovies.value()!" />
   }
-  <div class="now-showing-movies">
+  <section class="now-showing-movies">
     <div class="ms-header">
       <h3>Now Showing</h3>
       <a routerLink="/movies">View All</a>
@@ -66,8 +66,8 @@
         }
       }
     </div>
-  </div>
-  <div class="upcoming-movies">
+  </section>
+  <section class="upcoming-movies">
     <div class="ms-header">
       <h3>Coming Soon</h3>
     </div>
@@ -112,5 +112,5 @@
         }
       }
     </div>
-  </div>
+  </section>
 </div>

@@ -155,6 +155,17 @@ Planned but not yet implemented: `/statistics`, `/settings`.
 - File naming: `component-name.ts`, `component-name.html`, `component-name.scss` (no `.component` suffix).
 - `protected` for template-bound properties; `private readonly` for injected services; inputs/outputs are public (`readonly` with no visibility keyword).
 
+### Semantic HTML
+
+Reach for the element that describes the content. `<div>` is correct **only** for a generic box with no semantic meaning (a flex/grid wrapper, a card body, a scrim/spacer/decorative layer) — that's the majority of layout markup and stays a `<div>`. Use a real element wherever one fits:
+
+- **Landmarks** — `<header>` / `<footer>` for page or app top/bottom bars, `<main>` for the primary content region (once per page), `<nav>` for a set of navigation links (sidebar, header nav, breadcrumbs), `<aside>` for a complementary region (e.g. the sidebar shell). See [`layout/app-layout/app-layout.html`](src/layout/app-layout/app-layout.html) (`<header>` + `<main>`) and [`components/sidebar/sidebar.html`](src/components/sidebar/sidebar.html) (`<aside>` shell + `<nav>` link list).
+- **`<section>`** — a titled region that **contains a heading** (`<h2>`–`<h4>`). A dashboard panel, a profile card, a named stat group. **Never** add `<section>` to a wrapper with no heading — an empty `<section>` is noise for screen readers; use a `<div>` there.
+- **`<ul>`/`<li>`** — any repeated list of items (an `@for` rendering cards/rows that read as a list). The `@for` goes on the `<li>` inside a `<ul>`; keep the list classes, just swap the tags.
+- **Inline / interactive** — `<button>` for actions, `<a routerLink>` for navigation, `<h1>`–`<h6>` for headings, `<form>`/`<label>` for forms. These are already used correctly across the app — don't downgrade them to `<div>` + `(click)`.
+
+Do **not** do a blanket "replace every div" sweep — over-applying `<section>`/`<article>` is as wrong as everything-a-div. Convert in a focused landmark/list pass, and **verify the build after each file** (the Angular template compiler flags mismatched closing tags). When swapping a tag, check the SCSS for any tag-qualified selector (`div.foo`) — Cinefy's are class-based, so tag swaps are normally safe and cause no layout change (`<section>`/`<nav>`/`<aside>` are all `display: block` like `<div>`).
+
 ### Class Member Order
 
 All component classes follow the order set by [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-config-modal.ts). New components should match it; touching an existing one is a good time to bring it in line.

@@ -64,14 +64,14 @@
           }
 
           @if (movie.synopsis; as synopsis) {
-            <div class="md-section">
+            <section class="md-section">
               <h3>Synopsis</h3>
               <p class="md-synopsis">{{ synopsis }}</p>
-            </div>
+            </section>
           }
 
           @if (directors().length && cast().length) {
-            <div class="md-section">
+            <section class="md-section">
               <h3>Cast & Crew</h3>
               <div class="md-crew">
                 @for (member of directors(); track $index) {
@@ -98,7 +98,7 @@
                   </div>
                 }
               </div>
-            </div>
+            </section>
           }
         </div>
       </div>

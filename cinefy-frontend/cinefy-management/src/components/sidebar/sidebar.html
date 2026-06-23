@@ -1,7 +1,7 @@
 @if (sidebarService.isOpen()) {
   <div class="sidebar-backdrop" (click)="sidebarService.close()"></div>
 }
-<div class="sidebar-container" [class.is-open]="sidebarService.isOpen()">
+<aside class="sidebar-container" [class.is-open]="sidebarService.isOpen()">
   <div class="header">
     <div class="header-left">
       <div class="site-icon"></div>
@@ -14,7 +14,7 @@
       <svg [lucideIcon]="icons.XIcon" [size]="20"></svg>
     </button>
   </div>
-  <div class="pages">
+  <nav class="pages">
     @for (tab of tabs(); track tab.path) {
       <a
         class="page-item"
@@ -27,5 +27,5 @@
         <span>{{ tab.label }}</span>
       </a>
     }
-  </div>
-</div>
+  </nav>
+</aside>
