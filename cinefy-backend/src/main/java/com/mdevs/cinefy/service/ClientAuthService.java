@@ -1,7 +1,9 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.auth.LoginDTO;
+import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
+import com.mdevs.cinefy.dto.auth.VerifyOtpDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.Otp;
@@ -20,6 +22,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -54,13 +57,29 @@ public class ClientAuthService {
             throw new ForbiddenException("Account is not verified", ErrorCode.ACCOUNT_NOT_VERIFIED);
         }
 
-        JwtClaims jwtClaims = JwtClaims.fromPrincipal(principal);
+        return generateTokens(client);
+    }
+
+    public void verifyOtp(VerifyOtpDTO dto) {
+        otpService.validate(dto.getCode(), OtpType.fromString(dto.getType()));
+    }
+
+    @Transactional
+    public TokenPairDTO verifyClient(OtpCodeDTO dto) {
+        Otp otp = otpService.validate(dto.getCode(), OtpType.EMAIL_VERIFICATION);
+        Client client = clientService.markVerified(otp.getUserId());
+        otpService.consume(otp);
+        return generateTokens(client);
+    }
+
+    // =========================== Helpers ===========================
+
+    private TokenPairDTO generateTokens(Client client) {
+        JwtClaims jwtClaims = JwtClaims.fromPrincipal(UserPrincipal.fromClient(client));
         String accessToken = jwtUtil.generateToken(TokenType.ACCESS, jwtClaims);
         String refreshToken = jwtUtil.generateToken(TokenType.REFRESH, jwtClaims);
         return new TokenPairDTO(accessToken, refreshToken);
     }
-
-    // =========================== Helpers ===========================
 
     private void sendVerificationOtp(Client client) {
         Otp otp;

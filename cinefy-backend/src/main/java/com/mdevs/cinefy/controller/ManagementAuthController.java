@@ -2,9 +2,9 @@ package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
+import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
-import com.mdevs.cinefy.dto.auth.VerifyResetCodeDTO;
 import com.mdevs.cinefy.service.ManagementAuthService;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
@@ -105,7 +105,7 @@ public class ManagementAuthController {
 
     @PublicApi
     @PostMapping("/verify-reset-code")
-    public ResponseEntity<Void> verifyResetCode(@Valid @RequestBody VerifyResetCodeDTO dto) {
+    public ResponseEntity<Void> verifyResetCode(@Valid @RequestBody OtpCodeDTO dto) {
         managementAuthService.verifyResetCode(dto);
         return ResponseEntity.noContent().build();
     }

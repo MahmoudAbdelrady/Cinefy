@@ -1,7 +1,9 @@
 package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.auth.LoginDTO;
+import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
+import com.mdevs.cinefy.dto.auth.VerifyOtpDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.service.ClientAuthService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
@@ -45,10 +47,27 @@ public class ClientAuthController {
     }
 
     @PublicApi
+    @PostMapping("/verify-otp")
+    public ResponseEntity<Void> verifyOtp(@Valid @RequestBody VerifyOtpDTO dto) {
+        clientAuthService.verifyOtp(dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PublicApi
+    @PostMapping("/verify")
+    public ResponseEntity<Void> verify(@Valid @RequestBody OtpCodeDTO dto) {
+        TokenPairDTO tokens = clientAuthService.verifyClient(dto);
+        return authCookieResponse(tokens);
+    }
+
+    @PublicApi
     @PostMapping("/login")
     public ResponseEntity<Void> login(@Valid @RequestBody LoginDTO dto) {
         TokenPairDTO tokens = clientAuthService.login(dto);
+        return authCookieResponse(tokens);
+    }
 
+    private ResponseEntity<Void> authCookieResponse(TokenPairDTO tokens) {
         ResponseCookie accessTokenCookie = cookieUtil.buildAccessTokenCookie(tokens.accessToken(), accessTokenExpiration);
         ResponseCookie refreshTokenCookie = cookieUtil.buildRefreshTokenCookie(tokens.refreshToken(), refreshTokenExpiration, AUTH_PATH);
         ResponseCookie csrfTokenCookie = cookieUtil.buildCsrfTokenCookie(UUID.randomUUID().toString(), refreshTokenExpiration);

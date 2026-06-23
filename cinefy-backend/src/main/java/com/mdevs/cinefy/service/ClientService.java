@@ -8,6 +8,7 @@ import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.ClientRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
@@ -54,7 +55,25 @@ public class ClientService implements UserDetailsService {
         return clientRepository.save(client);
     }
 
+    @Transactional
+    public Client markVerified(Long userId) {
+        Client client = findClientById(userId);
+        if (client.isVerified()) {
+            return client;
+        }
+        client.setVerified(true);
+        return clientRepository.save(client);
+    }
+
     // =========================== Helpers ===========================
+
+    private Client findClientById(Long id) {
+        Client client = clientRepository.findOne(id);
+        if (client == null) {
+            throw new NotFoundException("Client not found");
+        }
+        return client;
+    }
 
     private void validateSignUp(String normalizedEmail, String normalizedPhoneNumber) {
         if (clientRepository.existsByEmail(normalizedEmail)) {

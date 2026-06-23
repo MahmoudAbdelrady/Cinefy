@@ -2,9 +2,9 @@ package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
+import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
-import com.mdevs.cinefy.dto.auth.VerifyResetCodeDTO;
 import com.mdevs.cinefy.entity.Otp;
 import com.mdevs.cinefy.entity.enums.OtpType;
 import com.mdevs.cinefy.entity.enums.StaffPosition;
@@ -123,7 +123,7 @@ public class ManagementAuthService {
         });
     }
 
-    public void verifyResetCode(VerifyResetCodeDTO dto) {
+    public void verifyResetCode(OtpCodeDTO dto) {
         otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
     }
 

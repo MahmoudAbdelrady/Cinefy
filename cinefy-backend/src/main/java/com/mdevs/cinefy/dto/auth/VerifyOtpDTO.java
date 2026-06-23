@@ -6,8 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class VerifyResetCodeDTO {
+public class VerifyOtpDTO {
 
     @NotBlank(message = "Code is required")
     private String code;
+
+    @NotBlank(message = "Type is required")
+    private String type;
 }
