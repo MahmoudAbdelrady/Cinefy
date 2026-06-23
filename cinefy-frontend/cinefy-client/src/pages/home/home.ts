@@ -11,6 +11,8 @@ import { FeaturedCarouselComponent } from '../../components';
 import { MoviesService } from '../../services';
 import { ClapperboardIcon, CalendarIcon, TriangleAlertIcon } from '../../shared/icons';
 
+const NOW_SHOWING_LIMIT = 5;
+
 @Component({
   selector: 'home-page',
   imports: [
@@ -33,14 +35,12 @@ export class HomePage {
 
   private readonly moviesService = inject(MoviesService);
 
-  private static readonly NOW_SHOWING_LIMIT = 5;
-
   protected readonly highlightedMovies = rxResource({
     stream: () => this.moviesService.getHighlighted(),
   });
 
   protected readonly nowShowingMovies = rxResource({
-    stream: () => this.moviesService.getNowShowing(HomePage.NOW_SHOWING_LIMIT),
+    stream: () => this.moviesService.getNowShowing(NOW_SHOWING_LIMIT),
   });
 
   protected readonly upcomingMovies = rxResource({

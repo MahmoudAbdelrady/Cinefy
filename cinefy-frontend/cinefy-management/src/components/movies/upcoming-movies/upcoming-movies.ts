@@ -22,6 +22,8 @@ import {
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MoviesService, ShowtimeEventsService } from '../../../services';
 
+const COMING_SOON_WINDOW_DAYS = 10;
+
 @Component({
   selector: 'upcoming-movies',
   imports: [
@@ -49,8 +51,6 @@ export class UpcomingMoviesComponent {
   private readonly moviesService = inject(MoviesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly destroyRef = inject(DestroyRef);
-
-  private static readonly COMING_SOON_WINDOW_DAYS = 10;
 
   protected readonly loading = signal(true);
   protected readonly movies = signal<UpcomingMovie[]>([]);
@@ -116,7 +116,7 @@ export class UpcomingMoviesComponent {
     const release = new Date(releaseDate);
     if (Number.isNaN(release.getTime())) return false;
     const diffDays = differenceInCalendarDays(release, new Date());
-    return diffDays >= 0 && diffDays <= UpcomingMoviesComponent.COMING_SOON_WINDOW_DAYS;
+    return diffDays >= 0 && diffDays <= COMING_SOON_WINDOW_DAYS;
   }
 
   protected isAnnouncePending(movieId: number): boolean {

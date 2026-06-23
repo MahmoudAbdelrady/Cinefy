@@ -14,6 +14,9 @@ import { DurationPipe } from 'cinefy-ui/pipes';
 import { HighlightedMovie } from '../../../shared/types';
 import { TrailerModalComponent } from '../../movies/trailer-modal/trailer-modal';
 
+const AUTO_ADVANCE_INTERVAL = 5000; // 5 seconds
+const SWIPE_THRESHOLD = 20; // 20 pixels
+
 @Component({
   selector: 'featured-carousel',
   imports: [
@@ -35,9 +38,6 @@ export class FeaturedCarouselComponent implements OnDestroy {
     ChevronLeftIcon,
     ChevronRightIcon,
   };
-
-  private static readonly AUTO_ADVANCE_INTERVAL = 5000; // 5 seconds
-  private static readonly SWIPE_THRESHOLD = 20; // 20 pixels
 
   readonly slides = input.required<HighlightedMovie[]>();
 
@@ -73,7 +73,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
     if (this.touchStartX === undefined) return;
     const deltaX = event.changedTouches[0].clientX - this.touchStartX;
     this.touchStartX = undefined;
-    if (Math.abs(deltaX) < FeaturedCarouselComponent.SWIPE_THRESHOLD) return; // if distance is less than threshold pixels, ignore it
+    if (Math.abs(deltaX) < SWIPE_THRESHOLD) return; // if distance is less than threshold pixels, ignore it
     if (deltaX < 0) this.next();
     else this.previous();
   }
@@ -86,7 +86,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
   private startAutoAdvance(): void {
     this.intervalId = setInterval(
       () => this.currentIndex.update((index) => (index + 1) % this.slides().length),
-      FeaturedCarouselComponent.AUTO_ADVANCE_INTERVAL,
+      AUTO_ADVANCE_INTERVAL,
     );
   }
 

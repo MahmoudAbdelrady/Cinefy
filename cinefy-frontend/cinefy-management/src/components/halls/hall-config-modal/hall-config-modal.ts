@@ -81,6 +81,14 @@ interface HallStatusEntry {
   label: string;
 }
 
+const AUTO_HALL_STATUSES: HallStatus[] = ['SCHEDULED', 'NOW_SHOWING'];
+
+const SELECTABLE_HALL_STATUS_ENTRIES = (
+  Object.entries(HALL_STATUS_LABELS) as [HallStatus, string][]
+)
+  .filter(([value]) => !AUTO_HALL_STATUSES.includes(value))
+  .map(([value, label]) => ({ value, label }));
+
 @Component({
   selector: 'hall-config-modal',
   imports: [
@@ -117,18 +125,10 @@ export class HallConfigModalComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly discardTrigger = viewChild<ElementRef>('discardTrigger');
 
-  private static readonly AUTO_HALL_STATUSES: HallStatus[] = ['SCHEDULED', 'NOW_SHOWING'];
-
-  private static readonly SELECTABLE_HALL_STATUS_ENTRIES = (
-    Object.entries(HALL_STATUS_LABELS) as [HallStatus, string][]
-  )
-    .filter(([value]) => !HallConfigModalComponent.AUTO_HALL_STATUSES.includes(value))
-    .map(([value, label]) => ({ value, label }));
-
   protected readonly hallStatusEntries = computed<HallStatusEntry[]>(() => {
     const current = this.selectedHallData()?.status;
-    const base = HallConfigModalComponent.SELECTABLE_HALL_STATUS_ENTRIES;
-    if (current && HallConfigModalComponent.AUTO_HALL_STATUSES.includes(current)) {
+    const base = SELECTABLE_HALL_STATUS_ENTRIES;
+    if (current && AUTO_HALL_STATUSES.includes(current)) {
       return [...base, { value: current, label: HALL_STATUS_LABELS[current] }];
     }
     return base;
@@ -136,7 +136,7 @@ export class HallConfigModalComponent {
 
   protected readonly isStatusLocked = computed(() => {
     const current = this.selectedHallData()?.status;
-    return current ? HallConfigModalComponent.AUTO_HALL_STATUSES.includes(current) : false;
+    return current ? AUTO_HALL_STATUSES.includes(current) : false;
   });
 
   protected readonly seatCategoryItems: SeatCategoryItem[] = Object.entries(

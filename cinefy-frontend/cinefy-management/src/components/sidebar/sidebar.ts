@@ -20,6 +20,15 @@ interface SidebarTab {
   path: string;
 }
 
+const ALL_TABS: SidebarTab[] = [
+  { label: 'Dashboard', icon: HouseIcon, path: '/' },
+  { label: 'Halls', icon: LayoutIcon, path: '/halls' },
+  { label: 'Movies', icon: ClapperboardIcon, path: '/movies' },
+  { label: 'Statistics', icon: ChartColumnIcon, path: '/statistics' },
+  { label: 'Payment', icon: CreditCardIcon, path: '/payment' },
+  { label: 'Staff', icon: UsersIcon, path: '/staff' },
+];
+
 @Component({
   selector: 'sidebar-component',
   imports: [LucideDynamicIcon, RouterLink, RouterLinkActive],
@@ -33,20 +42,11 @@ export class SidebarComponent {
   protected sidebarService = inject(SidebarService);
   private readonly staffService = inject(StaffService);
 
-  private static readonly ALL_TABS: SidebarTab[] = [
-    { label: 'Dashboard', icon: HouseIcon, path: '/' },
-    { label: 'Halls', icon: LayoutIcon, path: '/halls' },
-    { label: 'Movies', icon: ClapperboardIcon, path: '/movies' },
-    { label: 'Statistics', icon: ChartColumnIcon, path: '/statistics' },
-    { label: 'Payment', icon: CreditCardIcon, path: '/payment' },
-    { label: 'Staff', icon: UsersIcon, path: '/staff' },
-  ];
-
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
 
   protected readonly tabs = computed(() => {
     const user = this.currentUser();
     if (!user) return [];
-    return SidebarComponent.ALL_TABS.filter((tab) => canAccessRoute(tab.path, user.position));
+    return ALL_TABS.filter((tab) => canAccessRoute(tab.path, user.position));
   });
 }

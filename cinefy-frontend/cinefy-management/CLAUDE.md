@@ -159,10 +159,12 @@ Planned but not yet implemented: `/statistics`, `/settings`.
 
 All component classes follow the order set by [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-config-modal.ts). New components should match it; touching an existing one is a good time to bring it in line.
 
+**Constants live at module scope, not as class fields.** A value that's a pure constant (a literal, a config number, a static array/map, or anything derived purely from those — e.g. `MAX_GRID_DIMENSION`, `AUTO_HALL_STATUSES`, `SELECTABLE_HALL_STATUS_ENTRIES` in `hall-config-modal.ts`) is declared as a module-level `const` in `SCREAMING_SNAKE_CASE` above the `@Component` decorator (after imports / any interfaces), **not** as a `private static readonly` field. References inside the class use the bare name. Only keep a thin in-class `protected readonly` bridge field (e.g. `maxGridDimension = MAX_GRID_DIMENSION`) when the template needs to bind the value — that bridge goes in bucket 4 below.
+
 1. `protected readonly icons = { ... }` — lucide icon map / UI dict.
 2. `private readonly` injected services (`inject(...)`) and `DestroyRef`.
 3. `private readonly` `viewChild` / `contentChild` / `ElementRef` references.
-4. `private static readonly` constants and any `protected readonly` computeds derived purely from those constants (keep them adjacent).
+4. `protected readonly` template bridges to module constants (e.g. `maxGridDimension = MAX_GRID_DIMENSION`) and any `protected readonly` computeds derived purely from module constants (keep them adjacent).
 5. Public **signal inputs** (`input()` / `input.required()`), then **outputs** (`output()`).
 6. **Signal state** (`signal(...)`) — public → protected → private, grouped by feature.
 7. **Reactive forms** (`protected readonly someForm = new FormGroup({ ... })`).

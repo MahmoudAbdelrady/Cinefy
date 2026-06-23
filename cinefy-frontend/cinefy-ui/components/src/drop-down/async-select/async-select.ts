@@ -27,6 +27,8 @@ import { LoadingSpinnerComponent } from "../../loading-spinner/loading-spinner";
 import { FieldErrorComponent } from "../../field-error/field-error";
 import type { PaginatedResponse } from "cinefy-ui/types";
 
+const SEARCH_DEBOUNCE_MS = 300;
+
 @Component({
   selector: "async-select",
   imports: [
@@ -52,8 +54,6 @@ export class AsyncSelectComponent<T> {
   };
   private readonly destroyRef = inject(DestroyRef);
 
-  private static readonly SEARCH_DEBOUNCE_MS = 300;
-
   readonly multi = input(false);
   readonly label: InputSignal<string | null> = input<string | null>(null);
   readonly hint: InputSignal<string | null> = input<string | null>(null);
@@ -63,12 +63,24 @@ export class AsyncSelectComponent<T> {
   readonly clearable = input(false);
   readonly searchable = input(false);
   readonly pageSize = input(20);
-  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>(null);
-  readonly initialValue: InputSignal<T | T[] | null> = input<T | T[] | null>(null);
-  readonly control: InputSignal<FormControl | null> = input<FormControl | null>(null);
+  readonly container: InputSignal<string | HTMLElement | null> = input<
+    string | HTMLElement | null
+  >(null);
+  readonly initialValue: InputSignal<T | T[] | null> = input<T | T[] | null>(
+    null,
+  );
+  readonly control: InputSignal<FormControl | null> = input<FormControl | null>(
+    null,
+  );
   readonly errorMessages = input<Record<string, string>>({});
   readonly fetchFn =
-    input.required<(page: number, size: number, search?: string) => Observable<PaginatedResponse<T> | T[]>>();
+    input.required<
+      (
+        page: number,
+        size: number,
+        search?: string,
+      ) => Observable<PaginatedResponse<T> | T[]>
+    >();
   readonly displayFn = input.required<(item: T) => string>();
   readonly valueFn = input.required<(item: T) => string>();
 
@@ -81,11 +93,17 @@ export class AsyncSelectComponent<T> {
   protected readonly selectedItems = signal<T[]>([]);
   protected readonly searchTerm = signal("");
 
-  protected readonly triggerLabel = computed<{ text: string; extra: number } | null>(() => {
+  protected readonly triggerLabel = computed<{
+    text: string;
+    extra: number;
+  } | null>(() => {
     const items = this.selectedItems();
     if (!items.length) return null;
     const displayFn = this.displayFn();
-    return { text: displayFn(items[0]), extra: this.multi() ? items.length - 1 : 0 };
+    return {
+      text: displayFn(items[0]),
+      extra: this.multi() ? items.length - 1 : 0,
+    };
   });
 
   protected readonly comboboxValue = computed<T | T[] | null>(() => {
@@ -105,14 +123,16 @@ export class AsyncSelectComponent<T> {
     const term = this.searchTerm().trim().toLowerCase();
     if (!term) return this.items();
     const displayFn = this.displayFn();
-    return this.items().filter((item) => displayFn(item).toLowerCase().includes(term));
+    return this.items().filter((item) =>
+      displayFn(item).toLowerCase().includes(term),
+    );
   });
 
   constructor() {
     toObservable(this.searchInput)
       .pipe(
         skip(1),
-        debounceTime(AsyncSelectComponent.SEARCH_DEBOUNCE_MS),
+        debounceTime(SEARCH_DEBOUNCE_MS),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -183,7 +203,11 @@ export class AsyncSelectComponent<T> {
     if (this.isFlat) return;
     const el = event.target as HTMLElement;
     const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 32;
-    if (nearBottom && !this.loading() && this.currentPage + 1 < this.totalPages) {
+    if (
+      nearBottom &&
+      !this.loading() &&
+      this.currentPage + 1 < this.totalPages
+    ) {
       this.fetchPage(this.currentPage + 1);
     }
   }
