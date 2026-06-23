@@ -94,7 +94,7 @@
                         <button
                           class="btn-delete"
                           [disabled]="deletingTypeId() === type.id"
-                          (click)="$event.stopPropagation(); deleteType(type); deleteTrigger.hide()"
+                          (click)="$event.stopPropagation(); deleteType(type)"
                         >
                           @if (deletingTypeId() === type.id) {
                             <loading-spinner variant="xs" />
