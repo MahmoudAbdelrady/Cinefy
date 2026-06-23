@@ -17,12 +17,7 @@
         }"
       />
 
-      <button
-        ngpButton
-        type="submit"
-        class="fp-submit"
-        [disabled]="requestForm.invalid || submitting()"
-      >
+      <button type="submit" class="fp-submit" [disabled]="requestForm.invalid || submitting()">
         @if (submitting()) {
           <loading-spinner variant="sm" />
           <span>Sending code…</span>

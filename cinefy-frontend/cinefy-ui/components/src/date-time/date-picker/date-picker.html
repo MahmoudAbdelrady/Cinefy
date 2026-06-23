@@ -1,7 +1,6 @@
 <div class="date-picker-wrapper">
   <button
     type="button"
-    ngpButton
     class="dp-trigger"
     [class.dp-error]="control().touched && control().errors"
     [ngpPopoverTrigger]="calendarPopover"
@@ -36,11 +35,11 @@
     (ngpDatePickerFocusedDateChange)="onFocusedDateChange($event)"
   >
     <div class="dp-header">
-      <button type="button" ngpButton ngpDatePickerPreviousMonth class="dp-nav-btn">
+      <button type="button" ngpDatePickerPreviousMonth class="dp-nav-btn">
         <svg [lucideIcon]="icons.ChevronLeftIcon" [size]="16"></svg>
       </button>
       <div ngpDatePickerLabel class="dp-label">{{ monthLabel() }}</div>
-      <button type="button" ngpButton ngpDatePickerNextMonth class="dp-nav-btn">
+      <button type="button" ngpDatePickerNextMonth class="dp-nav-btn">
         <svg [lucideIcon]="icons.ChevronRightIcon" [size]="16"></svg>
       </button>
     </div>
@@ -57,7 +56,9 @@
           <div class="dp-week">
             <ng-template ngpDatePickerCellRender let-date>
               <div ngpDatePickerCell class="dp-cell">
-                <button type="button" ngpButton ngpDatePickerDateButton class="dp-day">{{ date.getDate() }}</button>
+                <button type="button" ngpDatePickerDateButton class="dp-day">
+                  {{ date.getDate() }}
+                </button>
               </div>
             </ng-template>
           </div>

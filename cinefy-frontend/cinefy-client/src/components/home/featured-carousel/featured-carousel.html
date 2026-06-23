@@ -41,7 +41,6 @@
           @if (slide.movieDetails.trailerUrl; as trailerUrl) {
             <button
               class="fc-trailer-btn btn-base"
-              ngpButton
               [ngpDialogTrigger]="trailerDialog"
               (click)="stopAutoAdvance()"
               (ngpDialogTriggerClosed)="restartAutoAdvance()"

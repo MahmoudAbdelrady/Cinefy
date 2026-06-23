@@ -37,7 +37,7 @@
         }
       </p>
 
-      <button ngpButton type="submit" class="fp-submit" [disabled]="!complete() || verifying()">
+      <button type="submit" class="fp-submit" [disabled]="!complete() || verifying()">
         @if (verifying()) {
           <loading-spinner variant="sm" />
           <span>Verifying…</span>

@@ -19,7 +19,6 @@ import {
   WarningIcon,
   XIcon,
 } from '../../../shared/icons';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import {
   ModalComponent,
@@ -44,7 +43,6 @@ function notBlankValidator(control: AbstractControl): ValidationErrors | null {
   imports: [
     ReactiveFormsModule,
     LucideDynamicIcon,
-    NgpButton,
     NgpPopover,
     NgpPopoverTrigger,
     ModalComponent,

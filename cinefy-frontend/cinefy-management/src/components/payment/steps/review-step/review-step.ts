@@ -9,7 +9,6 @@ import {
   XIcon,
   ZapIcon,
 } from '../../../../shared/icons';
-import { NgpButton } from 'ng-primitives/button';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { RelativeTimePipe } from 'cinefy-ui/pipes';
 import { PaymentMethodService } from '../../../../services';
@@ -28,7 +27,7 @@ export interface TestResultState {
 
 @Component({
   selector: 'review-step',
-  imports: [LucideDynamicIcon, NgpButton, LoadingSpinnerComponent, RelativeTimePipe],
+  imports: [LucideDynamicIcon, LoadingSpinnerComponent, RelativeTimePipe],
   templateUrl: './review-step.html',
   styleUrl: './review-step.scss',
 })

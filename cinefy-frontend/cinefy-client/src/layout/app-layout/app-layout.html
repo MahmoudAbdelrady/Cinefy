@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="alh-info">
-        <button class="alh-tickets-btn btn-primary" ngpButton [ngpDialogTrigger]="myTicketsDialog">
+        <button class="alh-tickets-btn btn-primary" [ngpDialogTrigger]="myTicketsDialog">
           <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
           <span class="tb-text">My Tickets</span>
           <span class="tb-count">2</span>
@@ -19,7 +19,7 @@
         <ng-template #myTicketsDialog let-close="close">
           <my-tickets-list [close]="close" />
         </ng-template>
-        <button class="alh-user-info" ngpButton [ngpMenuTrigger]="userInfoMenu">
+        <button class="alh-user-info" [ngpMenuTrigger]="userInfoMenu">
           <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
         </button>
         <ng-template #userInfoMenu>

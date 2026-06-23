@@ -11,7 +11,6 @@ import {
 } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
 import { differenceInCalendarDays } from 'date-fns';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   LoadingSpinnerComponent,
@@ -27,7 +26,6 @@ import { MoviesService, ShowtimeEventsService } from '../../../services';
   selector: 'upcoming-movies',
   imports: [
     LucideDynamicIcon,
-    NgpButton,
     NgpDialogTrigger,
     Switch,
     LoadingSpinnerComponent,

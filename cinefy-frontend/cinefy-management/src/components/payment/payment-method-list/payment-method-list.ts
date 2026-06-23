@@ -24,7 +24,6 @@ import {
   WebhookIcon,
   ZapIcon,
 } from '../../../shared/icons';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
@@ -56,7 +55,6 @@ import {
     LoadingSpinnerComponent,
     EmptyStateComponent,
     ManagePaymentModalComponent,
-    NgpButton,
     DatePipe,
     RelativeTimePipe,
   ],

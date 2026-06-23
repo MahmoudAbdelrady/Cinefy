@@ -9,7 +9,6 @@
     <div modal-header-actions>
       @if (!loadingHall() && !loadHallError()) {
         <button
-          ngpButton
           class="mode-toggle-btn"
           [class.edit]="!isEditMode()"
           [class.view]="isEditMode()"
@@ -31,8 +30,8 @@
             You have unsaved changes. Switching to view mode will discard them.
           </p>
           <div modal-footer class="discard-footer">
-            <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
-            <button ngpButton class="btn-danger" (click)="confirmDiscard(close)">Discard</button>
+            <button class="btn-secondary" (click)="close()">Cancel</button>
+            <button class="btn-danger" (click)="confirmDiscard(close)">Discard</button>
           </div>
         </app-modal>
       </ng-template>
@@ -274,9 +273,8 @@
     @if (!isViewMode()) {
       <div modal-footer class="hall-config-modal-footer">
         <div class="save-btns">
-          <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
+          <button class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
           <button
-            ngpButton
             class="btn-primary"
             (click)="saveHall()"
             [disabled]="hallForm.invalid || !hasChanges() || saving()"

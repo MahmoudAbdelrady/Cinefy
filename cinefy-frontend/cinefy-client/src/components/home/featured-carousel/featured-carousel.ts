@@ -1,7 +1,6 @@
 import { afterNextRender, Component, computed, input, OnDestroy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   ClockIcon,
@@ -20,7 +19,6 @@ import { TrailerModalComponent } from '../../movies/trailer-modal/trailer-modal'
   imports: [
     RouterLink,
     LucideDynamicIcon,
-    NgpButton,
     NgpDialogTrigger,
     TrailerModalComponent,
     MediaImageComponent,

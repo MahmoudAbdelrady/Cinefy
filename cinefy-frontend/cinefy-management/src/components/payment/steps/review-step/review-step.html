@@ -97,7 +97,7 @@
             }
           </p>
         </div>
-        <button ngpButton class="btn-primary" [disabled]="loading()" (click)="runTest()">
+        <button class="btn-primary" [disabled]="loading()" (click)="runTest()">
           @if (loading()) {
             <loading-spinner variant="sm" />
             <span>Testing…</span>

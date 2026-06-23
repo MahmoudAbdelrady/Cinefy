@@ -35,7 +35,6 @@ import {
   StickyNoteIcon,
   WarningIcon,
 } from '../../../shared/icons';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
 import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
@@ -54,7 +53,6 @@ import { canManage as canManagePosition } from '../../../shared/access';
     DatePipe,
     DecimalPipe,
     LucideDynamicIcon,
-    NgpButton,
     NgpDialogTrigger,
     LoadingSpinnerComponent,
     Time12hPipe,

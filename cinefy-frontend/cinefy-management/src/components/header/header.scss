@@ -73,7 +73,7 @@
       gap: 12px;
     }
 
-    button[ngpButton] {
+    button {
       @include flex-align;
       gap: 8px;
       padding: 10px 16px;
@@ -113,8 +113,8 @@
       }
     }
 
-    button[ngpButton].secondary-btn,
-    button[ngpButton]:has(.secondary-btn) {
+    button.secondary-btn,
+    button:has(.secondary-btn) {
       background: #ffffff;
       color: $blue-600;
       border: 1px solid $blue-300;
@@ -130,7 +130,7 @@
 .user-info-container {
   position: relative;
 
-  > button[ngpButton] {
+  > button {
     @include flex-align;
     gap: 12px;
     padding: 6px 12px 6px 6px;

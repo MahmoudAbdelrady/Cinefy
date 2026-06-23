@@ -1,4 +1,10 @@
-import { Component, computed, input, linkedSignal, type InputSignal } from "@angular/core";
+import {
+  Component,
+  computed,
+  input,
+  linkedSignal,
+  type InputSignal,
+} from "@angular/core";
 import { FormControl, Validators } from "@angular/forms";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { startWith, switchMap } from "rxjs";
@@ -13,8 +19,10 @@ import {
   NgpDatePickerPreviousMonth,
   NgpDatePickerRowRender,
 } from "ng-primitives/date-picker";
-import { NgpNativeDateAdapter, provideDateAdapter } from "ng-primitives/date-time";
-import { NgpButton } from "ng-primitives/button";
+import {
+  NgpNativeDateAdapter,
+  provideDateAdapter,
+} from "ng-primitives/date-time";
 import { NgpPopover, NgpPopoverTrigger } from "ng-primitives/popover";
 import { LucideDynamicIcon } from "@lucide/angular";
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from "../../icons";
@@ -34,7 +42,6 @@ const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     NgpDatePickerNextMonth,
     NgpDatePickerPreviousMonth,
     NgpDatePickerRowRender,
-    NgpButton,
     NgpPopover,
     NgpPopoverTrigger,
     LucideDynamicIcon,
@@ -54,16 +61,21 @@ export class DatePicker {
   protected readonly weekdays = WEEKDAY_LABELS;
   protected readonly today = new Date();
 
-  readonly control: InputSignal<FormControl<Date | null>> = input.required<FormControl<Date | null>>();
+  readonly control: InputSignal<FormControl<Date | null>> =
+    input.required<FormControl<Date | null>>();
   readonly placeholder = input<string>("Select a date");
   readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly min = input<Date | undefined>(undefined);
   readonly max = input<Date | undefined>(undefined);
   readonly errorMessages = input<Record<string, string>>({});
-  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>(null);
+  readonly container: InputSignal<string | HTMLElement | null> = input<
+    string | HTMLElement | null
+  >(null);
 
   private readonly controlValue = toSignal(
-    toObservable(this.control).pipe(switchMap((c) => c.valueChanges.pipe(startWith(c.value)))),
+    toObservable(this.control).pipe(
+      switchMap((c) => c.valueChanges.pipe(startWith(c.value))),
+    ),
   );
 
   protected readonly value = computed(() => this.controlValue() ?? undefined);
@@ -78,7 +90,9 @@ export class DatePicker {
     });
   });
 
-  protected readonly focusedDate = linkedSignal(() => this.value() ?? this.today);
+  protected readonly focusedDate = linkedSignal(
+    () => this.value() ?? this.today,
+  );
 
   protected readonly monthLabel = computed(() =>
     this.focusedDate().toLocaleDateString(undefined, {

@@ -4,7 +4,6 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { NgpButton } from 'ng-primitives/button';
 import { InputField, LoadingSpinnerComponent, PasswordChecklist } from 'cinefy-ui/components';
 import { linkConfirmPassword } from 'cinefy-ui/forms';
 import { ArrowRightIcon, PasswordIcon } from '../../../../../shared/icons';
@@ -17,7 +16,6 @@ import { AuthService } from '../../../../../services/auth';
   imports: [
     ReactiveFormsModule,
     LucideDynamicIcon,
-    NgpButton,
     InputField,
     LoadingSpinnerComponent,
     PasswordChecklist,

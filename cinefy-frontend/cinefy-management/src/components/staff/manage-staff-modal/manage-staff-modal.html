@@ -160,9 +160,8 @@
   }
   <div modal-footer class="manage-staff-modal-footer">
     <div class="save-btns">
-      <button ngpButton class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
+      <button class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
       <button
-        ngpButton
         class="btn-primary"
         (click)="saveMember()"
         [disabled]="staffForm.invalid || saving() || (isEdit() && !hasChanges())"

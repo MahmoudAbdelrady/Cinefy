@@ -4,7 +4,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   EmptyStateComponent,
@@ -25,7 +24,6 @@ interface CrewMember {
   selector: 'movie-detail-page',
   imports: [
     LucideDynamicIcon,
-    NgpButton,
     NgpDialogTrigger,
     EmptyStateComponent,
     LoadingSpinnerComponent,

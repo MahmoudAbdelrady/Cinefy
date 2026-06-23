@@ -11,7 +11,6 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, EMPTY, switchMap, tap } from 'rxjs';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpFormField } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
@@ -26,7 +25,6 @@ import { MoviesService } from '../../../services';
   selector: 'movie-picker',
   imports: [
     FormsModule,
-    NgpButton,
     NgpSearch,
     NgpSearchClear,
     NgpInput,

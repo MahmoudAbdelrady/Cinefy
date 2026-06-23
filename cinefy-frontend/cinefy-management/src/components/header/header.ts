@@ -4,7 +4,6 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import { ChevronDownIcon, LogoutIcon, MenuIcon, UserIcon } from '../../shared/icons';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { AuthService, HeaderActionsService, SidebarService, StaffService } from '../../services';
@@ -21,7 +20,6 @@ interface DropDownMenuItem {
   selector: 'header-component',
   imports: [
     LucideDynamicIcon,
-    NgpButton,
     NgpMenu,
     NgpMenuItem,
     NgpMenuTrigger,

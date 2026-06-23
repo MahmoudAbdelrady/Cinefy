@@ -83,7 +83,7 @@
 // reads on top of the saturated gradient.
 
 :host ::ng-deep app-modal .modal-header-actions {
-  button[ngpButton] {
+  button {
     @include flex-align;
     @include lucide-icon-fix;
     gap: 6px;

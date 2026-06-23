@@ -1,6 +1,8 @@
 <div class="input-field-wrapper">
   @if (label(); as labelText) {
-  <label class="if-label" [attr.data-required]="required ? '' : null">{{ labelText }}</label>
+  <label class="if-label" [attr.data-required]="required ? '' : null"
+    >{{ labelText }}</label
+  >
   }
 
   <div
@@ -24,8 +26,11 @@
       (paste)="onClipboardEvent($event)"
     />
     @if (type() === 'password') {
-    <button ngpButton type="button" class="if-toggle" (click)="toggleShowPassword()">
-      <svg [lucideIcon]="showPassword() ? icons.EyeOffIcon : icons.EyeIcon" [size]="18"></svg>
+    <button type="button" class="if-toggle" (click)="toggleShowPassword()">
+      <svg
+        [lucideIcon]="showPassword() ? icons.EyeOffIcon : icons.EyeIcon"
+        [size]="18"
+      ></svg>
     </button>
     }
   </div>

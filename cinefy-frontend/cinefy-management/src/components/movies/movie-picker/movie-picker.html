@@ -9,7 +9,7 @@
         type="search"
         placeholder="Search for a movie…"
       />
-      <button ngpSearchClear ngpButton>Clear</button>
+      <button ngpSearchClear>Clear</button>
     </div>
   </div>
   @if (movieSearchQuery().length === 0) {
@@ -54,13 +54,7 @@
       }
     </div>
     @if (hasMore()) {
-      <button
-        type="button"
-        ngpButton
-        class="load-more"
-        [disabled]="loadingMore()"
-        (click)="loadMore()"
-      >
+      <button type="button" class="load-more" [disabled]="loadingMore()" (click)="loadMore()">
         @if (loadingMore()) {
           <loading-spinner variant="sm" />
           <span>Loading…</span>

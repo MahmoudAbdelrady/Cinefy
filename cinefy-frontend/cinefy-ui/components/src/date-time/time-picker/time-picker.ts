@@ -4,7 +4,6 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { startWith, switchMap } from "rxjs";
 import { LucideDynamicIcon } from "@lucide/angular";
 import { ChevronDownIcon, ChevronUpIcon, ClockIcon } from "../../icons";
-import { NgpButton } from "ng-primitives/button";
 import { NgpPopover, NgpPopoverTrigger } from "ng-primitives/popover";
 import { FieldErrorComponent } from "../../field-error/field-error";
 
@@ -14,7 +13,12 @@ const pad = (n: number) => n.toString().padStart(2, "0");
 
 @Component({
   selector: "time-picker",
-  imports: [LucideDynamicIcon, NgpButton, NgpPopover, NgpPopoverTrigger, FieldErrorComponent],
+  imports: [
+    LucideDynamicIcon,
+    NgpPopover,
+    NgpPopoverTrigger,
+    FieldErrorComponent,
+  ],
   templateUrl: "./time-picker.html",
   styleUrl: "./time-picker.scss",
 })
@@ -25,13 +29,18 @@ export class TimePicker {
     ChevronUpIcon,
   };
 
-  readonly control: InputSignal<FormControl<string | null>> = input.required<FormControl<string | null>>();
+  readonly control: InputSignal<FormControl<string | null>> =
+    input.required<FormControl<string | null>>();
   readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
-  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>(null);
+  readonly container: InputSignal<string | HTMLElement | null> = input<
+    string | HTMLElement | null
+  >(null);
 
   private readonly controlValue = toSignal(
-    toObservable(this.control).pipe(switchMap((c) => c.valueChanges.pipe(startWith(c.value)))),
+    toObservable(this.control).pipe(
+      switchMap((c) => c.valueChanges.pipe(startWith(c.value))),
+    ),
   );
 
   private readonly value = computed(() => this.controlValue() ?? null);
@@ -49,7 +58,9 @@ export class TimePicker {
     return mod === 0 ? 12 : mod;
   });
 
-  protected readonly period = computed<Period>(() => (this.parts().hour24 < 12 ? "AM" : "PM"));
+  protected readonly period = computed<Period>(() =>
+    this.parts().hour24 < 12 ? "AM" : "PM",
+  );
 
   protected readonly displayLabel = computed(() => {
     const { hour24, minute, hasValue } = this.parts();

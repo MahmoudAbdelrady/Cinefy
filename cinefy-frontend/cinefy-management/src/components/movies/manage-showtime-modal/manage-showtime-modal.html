@@ -114,9 +114,8 @@
 
   @if (activeMovie()) {
     <div modal-footer class="manage-footer">
-      <button ngpButton class="btn-secondary" (click)="close()()">Cancel</button>
+      <button class="btn-secondary" (click)="close()()">Cancel</button>
       <button
-        ngpButton
         class="btn-primary"
         [disabled]="showtimeForm.invalid || submitDisabled()"
         (click)="onSubmit()"

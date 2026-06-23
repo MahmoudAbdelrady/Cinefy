@@ -41,7 +41,6 @@
                   </div>
                   <div class="action-buttons editing">
                     <button
-                      ngpButton
                       type="submit"
                       title="Save"
                       [disabled]="editTypeForm.invalid || savingTypeId() === type.id"
@@ -55,7 +54,7 @@
                         [class.spin]="savingTypeId() === type.id"
                       ></svg>
                     </button>
-                    <button ngpButton type="button" (click)="cancelEditType()" title="Cancel">
+                    <button type="button" (click)="cancelEditType()" title="Cancel">
                       <svg [lucideIcon]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></svg>
                     </button>
                   </div>
@@ -66,11 +65,10 @@
                 </div>
                 <span class="type-name">{{ type.name }}</span>
                 <div class="action-buttons">
-                  <button ngpButton (click)="startEditingType(type)">
+                  <button (click)="startEditingType(type)">
                     <svg [lucideIcon]="icons.EditIcon" [size]="14" [strokeWidth]="2.5"></svg>
                   </button>
                   <button
-                    ngpButton
                     [ngpPopoverTrigger]="deleteConfirm"
                     ngpPopoverTriggerPlacement="top"
                     ngpPopoverTriggerOffset="8"
@@ -88,14 +86,12 @@
                       <p>This action cannot be undone.</p>
                       <div class="delete-confirm-actions">
                         <button
-                          ngpButton
                           class="btn-cancel"
                           (click)="$event.stopPropagation(); deleteTrigger.hide()"
                         >
                           Cancel
                         </button>
                         <button
-                          ngpButton
                           class="btn-delete"
                           [disabled]="deletingTypeId() === type.id"
                           (click)="$event.stopPropagation(); deleteType(type); deleteTrigger.hide()"
@@ -144,12 +140,7 @@
             />
           </div>
           <div class="action-buttons editing">
-            <button
-              ngpButton
-              type="submit"
-              title="Save"
-              [disabled]="newTypeForm.invalid || addingType()"
-            >
+            <button type="submit" title="Save" [disabled]="newTypeForm.invalid || addingType()">
               <svg
                 [lucideIcon]="addingType() ? icons.LoaderIcon : icons.CheckIcon"
                 [size]="14"
@@ -157,13 +148,13 @@
                 [class.spin]="addingType()"
               ></svg>
             </button>
-            <button ngpButton type="button" (click)="cancelAddType()" title="Cancel">
+            <button type="button" (click)="cancelAddType()" title="Cancel">
               <svg [lucideIcon]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></svg>
             </button>
           </div>
         </form>
       } @else {
-        <button ngpButton class="btn-add-new-type" (click)="startAddingType()">
+        <button class="btn-add-new-type" (click)="startAddingType()">
           <svg [lucideIcon]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></svg>
           Add new type
         </button>

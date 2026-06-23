@@ -1,11 +1,10 @@
 import { Component, computed, input, model, output } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
 import type { Seat, SeatCategory } from '../../../shared/types';
 import { rowLabel, seatStats } from '../seat-layout';
 
 @Component({
   selector: 'hall-layout-editor',
-  imports: [NgpButton],
+  imports: [],
   templateUrl: './hall-layout-editor.html',
   styleUrl: './hall-layout-editor.scss',
 })

@@ -37,7 +37,6 @@ import {
   ShowtimesService,
 } from '../../../services';
 import { NgpTextarea } from 'ng-primitives/textarea';
-import { NgpButton } from 'ng-primitives/button';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
 
 function notInPastValidator(control: AbstractControl): ValidationErrors | null {
@@ -69,7 +68,6 @@ function combineDateAndTime(date: Date, time: string): string {
     TimePicker,
     AsyncSelectComponent,
     NgpTextarea,
-    NgpButton,
     ModalComponent,
     MoviePickerComponent,
     MediaImageComponent,

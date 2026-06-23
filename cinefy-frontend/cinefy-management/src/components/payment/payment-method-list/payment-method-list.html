@@ -35,7 +35,7 @@
               </div>
             </div>
             <div class="mih-actions">
-              <button [ngpMenuTrigger]="paymentActionsMenu" ngpButton>
+              <button [ngpMenuTrigger]="paymentActionsMenu">
                 <svg [lucideIcon]="icons.EllipsisIcon" size="16"></svg>
               </button>
 
@@ -114,7 +114,6 @@
 
                   <div modal-footer class="delete-modal-footer">
                     <button
-                      ngpButton
                       class="btn-secondary"
                       [disabled]="deletingMethodIds().has(paymentMethod.id)"
                       (click)="close()"
@@ -122,7 +121,6 @@
                       Cancel
                     </button>
                     <button
-                      ngpButton
                       class="btn-danger"
                       [disabled]="deletingMethodIds().has(paymentMethod.id)"
                       (click)="deletePaymentMethod(paymentMethod.id, close)"
@@ -230,7 +228,6 @@
             @let isDraft = paymentMethod.status === 'DRAFT';
             <div class="mi-footer">
               <button
-                ngpButton
                 [class]="isDraft ? 'btn-success' : 'btn-secondary'"
                 [disabled]="updatingStatusMethodIds().has(paymentMethod.id)"
                 (click)="updateStatus(paymentMethod.id, 'ACTIVE')"

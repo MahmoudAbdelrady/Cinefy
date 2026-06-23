@@ -73,16 +73,16 @@
             </div>
           </div>
           <div class="staff-actions">
-            <button ngpButton class="sa-btn sa-btn-view" [ngpDialogTrigger]="viewDialog">
+            <button class="sa-btn sa-btn-view" [ngpDialogTrigger]="viewDialog">
               <svg [lucideIcon]="icons.EyeIcon" [size]="16"></svg>
               <span>View</span>
             </button>
             @if (canManageRow(member)) {
-              <button ngpButton class="sa-btn sa-btn-edit" (click)="openEditDialog(member.id)">
+              <button class="sa-btn sa-btn-edit" (click)="openEditDialog(member.id)">
                 <svg [lucideIcon]="icons.EditIcon" [size]="16"></svg>
                 <span>Edit</span>
               </button>
-              <button ngpButton class="sa-btn sa-btn-delete" [ngpDialogTrigger]="deleteDialog">
+              <button class="sa-btn sa-btn-delete" [ngpDialogTrigger]="deleteDialog">
                 <svg [lucideIcon]="icons.DeleteIcon" [size]="16"></svg>
                 <span>Delete</span>
               </button>
@@ -121,7 +121,6 @@
 
                 <div modal-footer class="delete-modal-footer">
                   <button
-                    ngpButton
                     class="btn-secondary"
                     [disabled]="deletingStaffIds().has(member.id)"
                     (click)="close()"
@@ -129,7 +128,6 @@
                     Cancel
                   </button>
                   <button
-                    ngpButton
                     class="btn-danger"
                     [disabled]="deletingStaffIds().has(member.id)"
                     (click)="deleteStaffMember(member.id, close)"

@@ -2,7 +2,6 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { UserIcon, TicketIcon, LogoutIcon, ClapperboardIcon } from '../../shared/icons';
@@ -20,7 +19,6 @@ interface DropDownMenuItem {
     RouterOutlet,
     RouterLink,
     LucideDynamicIcon,
-    NgpButton,
     NgpMenu,
     NgpMenuItem,
     NgpMenuTrigger,
