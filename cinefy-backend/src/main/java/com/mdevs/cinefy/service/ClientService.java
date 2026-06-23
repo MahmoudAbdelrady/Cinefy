@@ -7,7 +7,9 @@ import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.ClientRepository;
+import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
@@ -38,7 +40,7 @@ public class ClientService implements UserDetailsService {
     }
 
     @Transactional
-    public void signUp(SignUpDTO dto) {
+    public Client createClient(SignUpDTO dto) {
         String normalizedEmail = dto.getEmail().trim().toLowerCase();
         String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
         validateSignUp(normalizedEmail, normalizedPhoneNumber);
@@ -51,10 +53,38 @@ public class ClientService implements UserDetailsService {
         client.setPhoneNumber(normalizedPhoneNumber);
         client.setPassword(passwordEncoder.encode(dto.getPassword()));
 
+        return clientRepository.save(client);
+    }
+
+    @Transactional
+    public Client markVerified(Long userId) {
+        Client client = findClientById(userId);
+        if (client.isVerified()) {
+            return client;
+        }
+        client.setVerified(true);
+        return clientRepository.save(client);
+    }
+
+    @Transactional
+    public void updatePassword(Long id, String rawPassword) {
+        Client client = findClientById(id);
+        if (passwordEncoder.matches(rawPassword, client.getPassword())) {
+            throw new BusinessException("New password must be different from the current password", ErrorCode.PASSWORD_REUSED);
+        }
+        client.setPassword(passwordEncoder.encode(rawPassword));
         clientRepository.save(client);
     }
 
     // =========================== Helpers ===========================
+
+    private Client findClientById(Long id) {
+        Client client = clientRepository.findOne(id);
+        if (client == null) {
+            throw new NotFoundException("Client not found");
+        }
+        return client;
+    }
 
     private void validateSignUp(String normalizedEmail, String normalizedPhoneNumber) {
         if (clientRepository.existsByEmail(normalizedEmail)) {
