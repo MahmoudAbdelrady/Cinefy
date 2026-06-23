@@ -3,7 +3,6 @@ package com.mdevs.cinefy.service;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
-import com.mdevs.cinefy.dto.auth.VerifyOtpDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.Otp;
@@ -60,8 +59,8 @@ public class ClientAuthService {
         return generateTokens(client);
     }
 
-    public void verifyOtp(VerifyOtpDTO dto) {
-        otpService.validate(dto.getCode(), OtpType.fromString(dto.getType()));
+    public void verifyResetCode(OtpCodeDTO dto) {
+        otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
     }
 
     @Transactional

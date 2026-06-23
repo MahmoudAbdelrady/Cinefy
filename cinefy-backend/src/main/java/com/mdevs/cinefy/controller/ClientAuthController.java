@@ -3,7 +3,6 @@ package com.mdevs.cinefy.controller;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
-import com.mdevs.cinefy.dto.auth.VerifyOtpDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.service.ClientAuthService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
@@ -47,9 +46,9 @@ public class ClientAuthController {
     }
 
     @PublicApi
-    @PostMapping("/verify-otp")
-    public ResponseEntity<Void> verifyOtp(@Valid @RequestBody VerifyOtpDTO dto) {
-        clientAuthService.verifyOtp(dto);
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<Void> verifyResetCode(@Valid @RequestBody OtpCodeDTO dto) {
+        clientAuthService.verifyResetCode(dto);
         return ResponseEntity.noContent().build();
     }
 
