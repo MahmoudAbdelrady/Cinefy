@@ -7,6 +7,7 @@ import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.service.ClientAuthService;
+import com.mdevs.cinefy.service.JwtSessionService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.utils.CookieUtil;
@@ -33,6 +34,8 @@ import java.util.UUID;
 public class ClientAuthController {
 
     private final ClientAuthService clientAuthService;
+
+    private final JwtSessionService jwtSessionService;
 
     private final CookieUtil cookieUtil;
 
@@ -89,14 +92,14 @@ public class ClientAuthController {
     @PublicApi
     @GetMapping("/session")
     public ResponseEntity<Void> session(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
-        boolean valid = clientAuthService.isRefreshTokenValid(refreshToken);
+        boolean valid = jwtSessionService.isRefreshTokenValid(refreshToken);
         return valid ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @PublicApi
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
-        TokenPairDTO tokens = clientAuthService.refresh(refreshToken);
+        TokenPairDTO tokens = jwtSessionService.refresh(refreshToken);
 
         ResponseCookie accessTokenCookie = cookieUtil.buildAccessTokenCookie(tokens.accessToken(), accessTokenExpiration);
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok()
@@ -115,7 +118,7 @@ public class ClientAuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(value = JwtUtil.ACCESS_TOKEN_COOKIE) String accessToken,
                                        @CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE) String refreshToken) {
-        clientAuthService.logout(accessToken, refreshToken);
+        jwtSessionService.logout(accessToken, refreshToken);
 
         ResponseCookie clearedAccessTokenCookie = cookieUtil.buildAccessTokenCookie("", 0);
         ResponseCookie clearedRefreshTokenCookie = cookieUtil.buildRefreshTokenCookie("", 0, AUTH_PATH);

@@ -14,14 +14,9 @@ import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
-import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -35,8 +30,6 @@ public class ManagementAuthService {
 
     private final JwtUtil jwtUtil;
 
-    private final InvalidJwtService invalidJwtService;
-
     private final OtpService otpService;
 
     private final EmailService emailService;
@@ -44,9 +37,6 @@ public class ManagementAuthService {
     private final StaffMemberService staffMemberService;
 
     private final StaffMemberRepository staffMemberRepository;
-
-    @Value("${cinefy.jwt.refresh-token-rotation-threshold}")
-    private long refreshTokenRotationThreshold;
 
     // ========================= Public API =========================
 
@@ -58,49 +48,6 @@ public class ManagementAuthService {
         String accessToken = jwtUtil.generateToken(TokenType.ACCESS, jwtClaims);
         String refreshToken = jwtUtil.generateToken(TokenType.REFRESH, jwtClaims);
         return new TokenPairDTO(accessToken, refreshToken);
-    }
-
-    public void logout(String accessToken, String refreshToken) {
-        // Losing the blocklist race here IS success
-        invalidJwtService.tryInvalidate(accessToken);
-        invalidJwtService.tryInvalidate(refreshToken);
-    }
-
-    public boolean isRefreshTokenValid(String refreshToken) {
-        if (StringUtils.isEmpty(refreshToken)) {
-            return false;
-        }
-        Claims claims;
-        try {
-            claims = jwtUtil.parseToken(refreshToken).getPayload();
-        } catch (JwtException ex) {
-            return false;
-        }
-        return jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) && !invalidJwtService.isBlocklisted(claims.getId());
-    }
-
-    @Transactional
-    public TokenPairDTO refresh(String refreshToken) {
-        if (StringUtils.isEmpty(refreshToken)) {
-            throw new UnauthorizedException("Invalid refresh token");
-        }
-        Claims claims = jwtUtil.parseToken(refreshToken).getPayload();
-        if (!jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) || invalidJwtService.isBlocklisted(claims.getId())) {
-            throw new UnauthorizedException("Invalid refresh token");
-        }
-
-        JwtClaims jwtClaims = JwtClaims.from(claims);
-        String newAccessToken = jwtUtil.generateToken(TokenType.ACCESS, jwtClaims);
-
-        String newRefreshToken = null;
-        if (jwtUtil.getRemainingValidity(claims) < refreshTokenRotationThreshold) {
-            // Claim the old token first. If a concurrent refresh already consumed it, reject.
-            if (!invalidJwtService.tryInvalidate(refreshToken)) {
-                throw new UnauthorizedException("Invalid refresh token");
-            }
-            newRefreshToken = jwtUtil.generateToken(TokenType.REFRESH, jwtClaims);
-        }
-        return new TokenPairDTO(newAccessToken, newRefreshToken);
     }
 
     public void forgotPassword(ForgotPasswordDTO dto) {
