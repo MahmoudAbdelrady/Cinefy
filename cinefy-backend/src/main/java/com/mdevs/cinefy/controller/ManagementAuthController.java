@@ -76,7 +76,7 @@ public class ManagementAuthController {
     @PublicApi
     @GetMapping("/session")
     public ResponseEntity<Void> session(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
-        boolean valid = StringUtils.isNotEmpty(refreshToken) && managementAuthService.isRefreshTokenValid(refreshToken);
+        boolean valid = managementAuthService.isRefreshTokenValid(refreshToken);
         return valid ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 

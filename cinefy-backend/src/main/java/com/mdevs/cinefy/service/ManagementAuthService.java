@@ -50,16 +50,6 @@ public class ManagementAuthService {
 
     // ========================= Public API =========================
 
-    public boolean isRefreshTokenValid(String refreshToken) {
-        Claims claims;
-        try {
-            claims = jwtUtil.parseToken(refreshToken).getPayload();
-        } catch (JwtException ex) {
-            return false;
-        }
-        return jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) && !invalidJwtService.isBlocklisted(claims.getId());
-    }
-
     public TokenPairDTO login(LoginDTO dto) {
         Authentication authentication = authManagers.management().authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail().trim().toLowerCase(), dto.getPassword()));
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
@@ -74,6 +64,19 @@ public class ManagementAuthService {
         // Losing the blocklist race here IS success
         invalidJwtService.tryInvalidate(accessToken);
         invalidJwtService.tryInvalidate(refreshToken);
+    }
+
+    public boolean isRefreshTokenValid(String refreshToken) {
+        if (StringUtils.isEmpty(refreshToken)) {
+            return false;
+        }
+        Claims claims;
+        try {
+            claims = jwtUtil.parseToken(refreshToken).getPayload();
+        } catch (JwtException ex) {
+            return false;
+        }
+        return jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) && !invalidJwtService.isBlocklisted(claims.getId());
     }
 
     @Transactional

@@ -18,6 +18,7 @@ import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,6 +73,19 @@ public class ClientAuthService {
         // Losing the blocklist race here IS success
         invalidJwtService.tryInvalidate(accessToken);
         invalidJwtService.tryInvalidate(refreshToken);
+    }
+
+    public boolean isRefreshTokenValid(String refreshToken) {
+        if (StringUtils.isEmpty(refreshToken)) {
+            return false;
+        }
+        Claims claims;
+        try {
+            claims = jwtUtil.parseToken(refreshToken).getPayload();
+        } catch (JwtException ex) {
+            return false;
+        }
+        return jwtUtil.getTokenType(claims).equals(TokenType.REFRESH) && !invalidJwtService.isBlocklisted(claims.getId());
     }
 
     @Transactional
