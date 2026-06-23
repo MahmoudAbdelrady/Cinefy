@@ -270,24 +270,24 @@
         </div>
       </div>
     </div>
-    @if (!isViewMode()) {
-      <div modal-footer class="hall-config-modal-footer">
-        <div class="save-btns">
-          <button class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
-          <button
-            class="btn-primary"
-            (click)="saveHall()"
-            [disabled]="hallForm.invalid || !hasChanges() || saving()"
-          >
-            @if (saving()) {
-              <loading-spinner variant="sm" />
-              <span>{{ selectedHallId() ? 'Saving…' : 'Creating…' }}</span>
-            } @else {
-              {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}
-            }
-          </button>
-        </div>
+  }
+  @if (!isViewMode()) {
+    <div modal-footer class="hall-config-modal-footer">
+      <div class="save-btns">
+        <button class="btn-secondary cancel-btn" (click)="close()()">Cancel</button>
+        <button
+          class="btn-primary"
+          (click)="saveHall()"
+          [disabled]="hallForm.invalid || !hasChanges() || saving()"
+        >
+          @if (saving()) {
+            <loading-spinner variant="sm" />
+            <span>{{ selectedHallId() ? 'Saving…' : 'Creating…' }}</span>
+          } @else {
+            {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}
+          }
+        </button>
       </div>
-    }
+    </div>
   }
 </app-modal>
