@@ -63,6 +63,12 @@
     flex: 1;
     @include flex-center;
     padding: 40px 24px;
+
+    .alc-shell {
+      display: grid;
+      width: 100%;
+      max-width: 460px;
+    }
   }
 
   .alc-footer {
