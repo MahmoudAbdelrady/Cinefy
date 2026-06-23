@@ -71,6 +71,13 @@ public class ClientAuthController {
     }
 
     @PublicApi
+    @GetMapping("/session")
+    public ResponseEntity<Void> session(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
+        boolean valid = clientAuthService.isRefreshTokenValid(refreshToken);
+        return valid ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @PublicApi
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
         TokenPairDTO tokens = clientAuthService.refresh(refreshToken);
@@ -88,14 +95,7 @@ public class ClientAuthController {
 
         return responseBuilder.build();
     }
-
-    @PublicApi
-    @GetMapping("/session")
-    public ResponseEntity<Void> session(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
-        boolean valid = clientAuthService.isRefreshTokenValid(refreshToken);
-        return valid ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-
+    
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(value = JwtUtil.ACCESS_TOKEN_COOKIE) String accessToken,
                                        @CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE) String refreshToken) {

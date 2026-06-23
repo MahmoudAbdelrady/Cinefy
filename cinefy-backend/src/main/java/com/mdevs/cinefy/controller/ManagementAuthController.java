@@ -55,6 +55,13 @@ public class ManagementAuthController {
     }
 
     @PublicApi
+    @GetMapping("/session")
+    public ResponseEntity<Void> session(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
+        boolean valid = managementAuthService.isRefreshTokenValid(refreshToken);
+        return valid ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    
+    @PublicApi
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
         TokenPairDTO tokens = managementAuthService.refresh(refreshToken);
@@ -71,13 +78,6 @@ public class ManagementAuthController {
         }
 
         return responseBuilder.build();
-    }
-
-    @PublicApi
-    @GetMapping("/session")
-    public ResponseEntity<Void> session(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
-        boolean valid = managementAuthService.isRefreshTokenValid(refreshToken);
-        return valid ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @PostMapping("/logout")
