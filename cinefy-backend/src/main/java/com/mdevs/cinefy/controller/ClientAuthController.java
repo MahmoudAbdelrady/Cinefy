@@ -1,7 +1,9 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
+import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.service.ClientAuthService;
@@ -50,9 +52,23 @@ public class ClientAuthController {
     }
 
     @PublicApi
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordDTO dto) {
+        clientAuthService.forgotPassword(dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PublicApi
     @PostMapping("/verify-reset-code")
     public ResponseEntity<Void> verifyResetCode(@Valid @RequestBody OtpCodeDTO dto) {
         clientAuthService.verifyResetCode(dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PublicApi
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordDTO dto) {
+        clientAuthService.resetPassword(dto);
         return ResponseEntity.noContent().build();
     }
 

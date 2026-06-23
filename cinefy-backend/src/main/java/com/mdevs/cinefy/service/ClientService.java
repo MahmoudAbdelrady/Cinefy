@@ -7,6 +7,7 @@ import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.ClientRepository;
+import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
@@ -63,6 +64,16 @@ public class ClientService implements UserDetailsService {
         }
         client.setVerified(true);
         return clientRepository.save(client);
+    }
+
+    @Transactional
+    public void updatePassword(Long id, String rawPassword) {
+        Client client = findClientById(id);
+        if (passwordEncoder.matches(rawPassword, client.getPassword())) {
+            throw new BusinessException("New password must be different from the current password", ErrorCode.PASSWORD_REUSED);
+        }
+        client.setPassword(passwordEncoder.encode(rawPassword));
+        clientRepository.save(client);
     }
 
     // =========================== Helpers ===========================

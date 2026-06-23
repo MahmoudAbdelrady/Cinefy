@@ -1,7 +1,9 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
+import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.entity.Client;
@@ -112,8 +114,34 @@ public class ClientAuthService {
         return new TokenPairDTO(newAccessToken, newRefreshToken);
     }
 
+    public void forgotPassword(ForgotPasswordDTO dto) {
+        clientRepository.findByEmail(dto.getEmail().trim().toLowerCase()).ifPresent(client -> {
+            // TODO: Will be moved to Redis - SET NX approach
+            Otp otp;
+            try {
+                otp = otpService.create(client.getId(), UserType.CLIENT, OtpType.RESET_PASSWORD);
+            } catch (DataIntegrityViolationException ex) {
+                // A concurrent request already issued an active reset code for this user
+                return;
+            }
+
+            emailService.sendPasswordResetOtp(
+                    client.getEmail(),
+                    client.getFirstName(),
+                    otp.getCode(),
+                    otpService.getExpiryMinutes());
+        });
+    }
+
     public void verifyResetCode(OtpCodeDTO dto) {
         otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordDTO dto) {
+        Otp otp = otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
+        clientService.updatePassword(otp.getUserId(), dto.getNewPassword());
+        otpService.consume(otp);
     }
 
     @Transactional
