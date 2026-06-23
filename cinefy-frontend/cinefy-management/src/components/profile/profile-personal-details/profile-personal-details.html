@@ -66,17 +66,16 @@
       </div>
 
       <div class="panel-footer">
-        <button type="button" class="btn-cancel" (click)="cancelEditing()">Cancel</button>
+        <button type="button" class="btn-secondary" (click)="cancelEditing()">Cancel</button>
         <button
           type="submit"
-          class="btn-save"
+          class="btn-primary panel-submit"
           [disabled]="personalForm.invalid || !hasChanges() || saving()"
         >
           @if (saving()) {
             <loading-spinner variant="xs" />
             <span>Saving…</span>
           } @else {
-            <svg [lucideIcon]="icons.SaveIcon" [size]="16" [strokeWidth]="2.5"></svg>
             <span>Save changes</span>
           }
         </button>

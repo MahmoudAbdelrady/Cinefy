@@ -100,25 +100,13 @@
   justify-content: flex-end;
   width: 100%;
 
-  .cancel-btn {
-    padding: 8px 24px;
-    color: $gray-700;
-    border: 1px solid $gray-300;
-    border-radius: $radius-md;
-    transition: all 150ms ease;
-
-    &:hover {
-      background-color: $gray-200;
-    }
-  }
-
   .save-btns {
     @include flex-align;
     gap: 12px;
   }
 
   @include below-phone {
-    .cancel-btn,
+    .btn-secondary,
     .btn-primary {
       width: 100%;
     }

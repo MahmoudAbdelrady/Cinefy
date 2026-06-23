@@ -81,29 +81,8 @@
     gap: 12px;
   }
 
-  .btn-save {
-    @include flex-center;
-    gap: 8px;
+  .panel-submit {
     @include lucide-icon-fix;
-    padding: 8px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #ffffff;
-    background-color: $blue-600;
-    border-radius: $radius-md;
-    box-shadow: $shadow-xs;
-    transition: background-color 150ms ease;
-    cursor: pointer;
-
-    &:hover:not(:disabled) {
-      background-color: $blue-700;
-    }
-
-    &:disabled {
-      background-color: $gray-300;
-      box-shadow: none;
-      cursor: not-allowed;
-    }
   }
 }
 

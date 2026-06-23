@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { KeyIcon, SaveIcon } from '../../../shared/icons';
+import { KeyIcon } from '../../../shared/icons';
 import { InputField, LoadingSpinnerComponent, PasswordChecklist } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { linkConfirmPassword } from 'cinefy-ui/forms';
@@ -25,7 +25,6 @@ import type { ApiError } from '../../../shared/types';
 })
 export class ProfilePasswordComponent {
   protected readonly icons = {
-    SaveIcon,
     KeyIcon,
   };
 
