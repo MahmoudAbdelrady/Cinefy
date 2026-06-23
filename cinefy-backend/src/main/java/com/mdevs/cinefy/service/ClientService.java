@@ -38,7 +38,7 @@ public class ClientService implements UserDetailsService {
     }
 
     @Transactional
-    public void signUp(SignUpDTO dto) {
+    public Client createClient(SignUpDTO dto) {
         String normalizedEmail = dto.getEmail().trim().toLowerCase();
         String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
         validateSignUp(normalizedEmail, normalizedPhoneNumber);
@@ -51,7 +51,7 @@ public class ClientService implements UserDetailsService {
         client.setPhoneNumber(normalizedPhoneNumber);
         client.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        clientRepository.save(client);
+        return clientRepository.save(client);
     }
 
     // =========================== Helpers ===========================

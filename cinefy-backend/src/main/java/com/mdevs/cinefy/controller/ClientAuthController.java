@@ -4,7 +4,6 @@ import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.service.ClientAuthService;
-import com.mdevs.cinefy.service.ClientService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
 import com.mdevs.cinefy.utils.CookieUtil;
 import jakarta.validation.Valid;
@@ -26,8 +25,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ClientAuthController {
 
-    private final ClientService clientService;
-
     private final ClientAuthService clientAuthService;
 
     private final CookieUtil cookieUtil;
@@ -43,7 +40,7 @@ public class ClientAuthController {
     @PublicApi
     @PostMapping("/sign-up")
     public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpDTO dto) {
-        clientService.signUp(dto);
+        clientAuthService.signUp(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
