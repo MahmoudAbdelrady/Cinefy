@@ -7,6 +7,9 @@ import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.Otp;
 import com.mdevs.cinefy.entity.enums.OtpType;
 import com.mdevs.cinefy.entity.enums.UserType;
+import com.mdevs.cinefy.repository.ClientRepository;
+import com.mdevs.cinefy.shared.exception.ErrorCode;
+import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
 import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
@@ -28,13 +31,38 @@ public class ClientAuthService {
 
     private final ClientService clientService;
 
+    private final ClientRepository clientRepository;
+
     private final OtpService otpService;
 
     private final EmailService emailService;
 
+    // ========================= Public API =========================
+
     public void signUp(SignUpDTO dto) {
         Client client = clientService.createClient(dto);
+        sendVerificationOtp(client);
+    }
 
+    public TokenPairDTO login(LoginDTO dto) {
+        Authentication authentication = authManagers.client().authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail().trim().toLowerCase(), dto.getPassword()));
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        Client client = clientRepository.findOne(principal.getId());
+        if (!client.isVerified()) {
+            sendVerificationOtp(client);
+            throw new ForbiddenException("Account is not verified", ErrorCode.ACCOUNT_NOT_VERIFIED);
+        }
+
+        JwtClaims jwtClaims = JwtClaims.fromPrincipal(principal);
+        String accessToken = jwtUtil.generateToken(TokenType.ACCESS, jwtClaims);
+        String refreshToken = jwtUtil.generateToken(TokenType.REFRESH, jwtClaims);
+        return new TokenPairDTO(accessToken, refreshToken);
+    }
+
+    // =========================== Helpers ===========================
+
+    private void sendVerificationOtp(Client client) {
         Otp otp;
         try {
             otp = otpService.create(client.getId(), UserType.CLIENT, OtpType.EMAIL_VERIFICATION);
@@ -48,15 +76,5 @@ public class ClientAuthService {
                 client.getFirstName(),
                 otp.getCode(),
                 otpService.getExpiryMinutes());
-    }
-
-    public TokenPairDTO login(LoginDTO dto) {
-        Authentication authentication = authManagers.client().authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail().trim().toLowerCase(), dto.getPassword()));
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        JwtClaims jwtClaims = JwtClaims.fromPrincipal(principal);
-
-        String accessToken = jwtUtil.generateToken(TokenType.ACCESS, jwtClaims);
-        String refreshToken = jwtUtil.generateToken(TokenType.REFRESH, jwtClaims);
-        return new TokenPairDTO(accessToken, refreshToken);
     }
 }
