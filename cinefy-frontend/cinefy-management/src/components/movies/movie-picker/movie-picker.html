@@ -1,16 +1,11 @@
 <div class="movie-picker">
-  <div ngpFormField class="search-bar">
-    <div ngpSearch>
-      <svg [lucideIcon]="icons.SearchIcon"></svg>
-      <input
-        [value]="movieSearchQuery()"
-        (input)="movieSearchQuery.set($event.target.value)"
-        ngpInput
-        type="search"
-        placeholder="Search for a movie…"
-      />
-      <button ngpSearchClear>Clear</button>
-    </div>
+  <div class="search-bar">
+    <input-field
+      [control]="searchControl"
+      [leadingIcon]="icons.SearchIcon"
+      [clearable]="true"
+      placeholder="Search for a movie…"
+    />
   </div>
   @if (movieSearchQuery().length === 0) {
     <div class="search-placeholder">

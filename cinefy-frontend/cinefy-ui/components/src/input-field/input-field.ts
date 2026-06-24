@@ -8,9 +8,11 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { startWith, switchMap } from "rxjs";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { LucideDynamicIcon, LucideIcon } from "@lucide/angular";
-import { EyeIcon, EyeOffIcon } from "../icons";
+import { EyeIcon, EyeOffIcon, XIcon } from "../icons";
 import { NgpInput } from "ng-primitives/input";
 import { FieldErrorComponent } from "../field-error/field-error";
 
@@ -31,6 +33,7 @@ export class InputField {
   protected readonly icons = {
     EyeIcon,
     EyeOffIcon,
+    XIcon,
   };
 
   private readonly inputEl = viewChild<ElementRef<HTMLInputElement>>("inputEl");
@@ -47,8 +50,16 @@ export class InputField {
   readonly blockClipboard = input<boolean>(false);
   readonly size: InputSignal<InputFieldSize> = input<InputFieldSize>("md");
   readonly autoFocus = input<boolean>(false);
+  readonly clearable = input<boolean>(false);
 
   protected readonly showPassword = signal(false);
+
+  private readonly controlValue = toSignal(
+    toObservable(this.control).pipe(
+      switchMap((c) => c.valueChanges.pipe(startWith(c.value))),
+    ),
+    { initialValue: "" },
+  );
 
   constructor() {
     afterNextRender(() => {
@@ -61,6 +72,11 @@ export class InputField {
     return this.showPassword() ? "text" : "password";
   });
 
+  protected readonly showClear = computed(
+    () =>
+      this.clearable() && this.type() !== "password" && !!this.controlValue(),
+  );
+
   protected get required(): boolean {
     const c = this.control();
     return c.hasValidator(Validators.required) && c.enabled;
@@ -68,6 +84,11 @@ export class InputField {
 
   protected toggleShowPassword() {
     this.showPassword.update((v) => !v);
+  }
+
+  protected clear() {
+    this.control().setValue("");
+    this.inputEl()?.nativeElement.focus();
   }
 
   protected onClipboardEvent(event: ClipboardEvent) {

@@ -8,32 +8,19 @@ import {
   signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, EMPTY, switchMap, tap } from 'rxjs';
-import { NgpFormField } from 'ng-primitives/form-field';
-import { NgpInput } from 'ng-primitives/input';
-import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
+import { FormControl } from '@angular/forms';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, EMPTY, startWith, switchMap, tap } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { ChevronRightIcon, ClapperboardIcon, SearchIcon } from '../../../shared/icons';
-import { LoadingSpinnerComponent, MediaImageComponent } from 'cinefy-ui/components';
+import { InputField, LoadingSpinnerComponent, MediaImageComponent } from 'cinefy-ui/components';
 import { MovieSearchResult } from '../../../shared/types';
 import { SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE } from '../../../shared/constants';
 import { MoviesService } from '../../../services';
 
 @Component({
   selector: 'movie-picker',
-  imports: [
-    FormsModule,
-    NgpSearch,
-    NgpSearchClear,
-    NgpInput,
-    NgpFormField,
-    LucideDynamicIcon,
-    LoadingSpinnerComponent,
-    MediaImageComponent,
-    DatePipe,
-  ],
+  imports: [InputField, LucideDynamicIcon, LoadingSpinnerComponent, MediaImageComponent, DatePipe],
   templateUrl: './movie-picker.html',
   styleUrl: './movie-picker.scss',
 })
@@ -49,21 +36,26 @@ export class MoviePickerComponent {
 
   readonly movieSelected = output<MovieSearchResult>();
 
-  protected readonly movieSearchQuery = signal('');
+  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+
   protected readonly loading = signal(false);
   protected readonly loadingMore = signal(false);
   protected readonly movies = signal<MovieSearchResult[]>([]);
   protected readonly currentPage = signal(0);
   protected readonly totalPages = signal(0);
 
-  protected readonly hasMore = computed(() => this.currentPage() < this.totalPages() - 1);
+  protected readonly movieSearchQuery = toSignal(
+    this.searchControl.valueChanges.pipe(startWith(this.searchControl.value)),
+    { initialValue: '' },
+  );
 
-  private readonly movieSearchQuery$ = toObservable(this.movieSearchQuery);
+  protected readonly hasMore = computed(() => this.currentPage() < this.totalPages() - 1);
 
   constructor() {
     afterNextRender(() => {
-      this.movieSearchQuery$
+      this.searchControl.valueChanges
         .pipe(
+          startWith(this.searchControl.value),
           debounceTime(SEARCH_DEBOUNCE_MS),
           distinctUntilChanged(),
           tap((query) => {
