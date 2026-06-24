@@ -5,11 +5,9 @@ import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.entity.enums.UserType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -28,7 +26,7 @@ public class UserPrincipal implements UserDetails {
 
     private final String position;
 
-    private final Collection<? extends GrantedAuthority> authorities;
+    private final List<SimpleGrantedAuthority> authorities;
 
     private static final String ROLE_PREFIX = "ROLE_";
 
@@ -61,6 +59,9 @@ public class UserPrincipal implements UserDetails {
     }
 
     public static UserPrincipal fromJwtClaims(JwtClaims claims) {
+        List<SimpleGrantedAuthority> authorities = claims.position() == null || claims.position().isEmpty()
+                ? List.of()
+                : List.of(new SimpleGrantedAuthority(ROLE_PREFIX + claims.position()));
         return new UserPrincipal(
                 null,
                 claims.uuid(),
@@ -68,6 +69,6 @@ public class UserPrincipal implements UserDetails {
                 null,
                 null,
                 claims.position(),
-                List.of(new SimpleGrantedAuthority(ROLE_PREFIX + claims.position())));
+                authorities);
     }
 }

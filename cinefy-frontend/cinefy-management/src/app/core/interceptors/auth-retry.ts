@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { AuthService, StaffService } from '../../../services';
+import { AuthService } from '../../../services';
 
 // Auth endpoints must not trigger refresh-retry.
 const EXCLUDED_AUTH_PATHS = [
@@ -13,7 +13,6 @@ const EXCLUDED_AUTH_PATHS = [
 
 export const authRetryInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  const staffService = inject(StaffService);
   const router = inject(Router);
 
   return next(req).pipe(
@@ -27,7 +26,6 @@ export const authRetryInterceptor: HttpInterceptorFn = (req, next) => {
         switchMap(() => next(req)),
         catchError(() => {
           authService.clearAuthState();
-          staffService.clearCurrentStaffMember();
           router.navigateByUrl('/login');
           return throwError(() => error);
         }),

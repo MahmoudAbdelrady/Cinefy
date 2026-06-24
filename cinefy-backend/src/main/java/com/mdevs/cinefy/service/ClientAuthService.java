@@ -92,7 +92,7 @@ public class ClientAuthService {
     }
 
     @Transactional
-    public TokenPairDTO verifyClient(OtpCodeDTO dto) {
+    public TokenPairDTO verifyAccount(OtpCodeDTO dto) {
         Otp otp = otpService.validate(dto.getCode(), OtpType.EMAIL_VERIFICATION);
         Client client = clientService.markVerified(otp.getUserId());
         otpService.consume(otp);

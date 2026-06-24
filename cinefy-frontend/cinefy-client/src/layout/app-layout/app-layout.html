@@ -19,19 +19,37 @@
         <ng-template #myTicketsDialog let-close="close">
           <my-tickets-list [close]="close" />
         </ng-template>
-        <button class="alh-user-info" [ngpMenuTrigger]="userInfoMenu">
-          <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
-        </button>
-        <ng-template #userInfoMenu>
-          <div class="user-info-menu-items" ngpMenu>
-            @for (item of userInfoMenuItems; track item.label) {
-              <button class="uim-item" ngpMenuItem (click)="item.action()">
-                <svg [lucideIcon]="item.icon" [size]="16"></svg>
-                <span>{{ item.label }}</span>
-              </button>
-            }
+        @if (isAuthenticated.isLoading() || currentUser.isLoading()) {
+          <div class="alh-auth-loading">
+            <loading-spinner variant="sm" />
           </div>
-        </ng-template>
+        } @else if (isAuthenticated.value()) {
+          <button class="alh-user-info" [ngpMenuTrigger]="userInfoMenu">
+            <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
+          </button>
+          <ng-template #userInfoMenu>
+            <div class="user-info-menu-items" ngpMenu>
+              @if (userDisplayName()) {
+                <div class="uim-name">{{ userDisplayName() }}</div>
+              }
+              @for (item of userInfoMenuItems; track item.label) {
+                <button class="uim-item" ngpMenuItem (click)="item.action()">
+                  <svg [lucideIcon]="item.icon" [size]="16"></svg>
+                  <span>{{ item.label }}</span>
+                </button>
+              }
+            </div>
+          </ng-template>
+        } @else {
+          <a class="alh-auth-btn btn-secondary" routerLink="/membership/login">
+            <svg [lucideIcon]="icons.LoginIcon" [size]="16"></svg>
+            <span class="ab-text">Login</span>
+          </a>
+          <a class="alh-auth-btn btn-primary" routerLink="/membership/signup">
+            <svg [lucideIcon]="icons.SignupIcon" [size]="16"></svg>
+            <span class="ab-text">Sign up</span>
+          </a>
+        }
       </div>
     </div>
   </header>
