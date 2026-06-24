@@ -26,9 +26,9 @@
     </div>
   } @else if (movies().length > 0) {
     <div class="search-count">{{ movies().length }} movies found</div>
-    <div class="movie-items">
+    <ul class="movie-items">
       @for (movie of movies(); track movie.id) {
-        <div class="movie-item" (click)="onPick(movie)">
+        <li class="movie-item" (click)="onPick(movie)">
           <div class="mi-info">
             <div class="mi-img">
               <media-image [src]="movie.posterUrl" alt="{{ movie.title }} Poster" [iconSize]="20" />
@@ -50,9 +50,9 @@
               <svg [lucideIcon]="icons.ChevronRightIcon"></svg>
             </div>
           </div>
-        </div>
+        </li>
       }
-    </div>
+    </ul>
     @if (hasMore()) {
       <button type="button" class="load-more" [disabled]="loadingMore()" (click)="loadMore()">
         @if (loadingMore()) {

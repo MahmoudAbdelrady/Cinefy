@@ -30,9 +30,9 @@
         <loading-spinner variant="xl" />
       </div>
     } @else {
-      <div class="ah-items-container">
+      <ul class="ah-items-container">
         @for (hall of filteredHalls(); track hall.id) {
-          <div class="ah-item">
+          <li class="ah-item">
             <div class="ahi-info">
               <div class="ahi-info-icon">
                 <svg [lucideIcon]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></svg>
@@ -122,7 +122,7 @@
                 </app-modal>
               </ng-template>
             </div>
-          </div>
+          </li>
         } @empty {
           <empty-state
             [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.LayoutIcon"
@@ -130,7 +130,7 @@
             [description]="hasFilters() ? 'Try adjusting your filters.' : null"
           />
         }
-      </div>
+      </ul>
     }
   </div>
 </div>

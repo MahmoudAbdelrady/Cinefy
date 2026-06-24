@@ -1,5 +1,5 @@
 <div class="payment-method-list-container">
-  <div class="payment-method-items">
+  <ul class="payment-method-items">
     @if (loading()) {
       <div class="pm-loading">
         <loading-spinner variant="md" />
@@ -8,7 +8,7 @@
       @for (paymentMethod of paymentMethods(); track paymentMethod.id) {
         @let rotationStatus = getRotationStatus(paymentMethod);
         @let successTone = getSuccessRateTone(paymentMethod.successRate);
-        <div class="method-item" [attr.data-status]="paymentMethod.status">
+        <li class="method-item" [attr.data-status]="paymentMethod.status">
           <div class="mi-header">
             <div class="mih-info">
               <div class="mihi-details">
@@ -245,7 +245,7 @@
               </button>
             </div>
           }
-        </div>
+        </li>
       } @empty {
         <empty-state
           class="pm-empty"
@@ -255,5 +255,5 @@
         />
       }
     }
-  </div>
+  </ul>
 </div>

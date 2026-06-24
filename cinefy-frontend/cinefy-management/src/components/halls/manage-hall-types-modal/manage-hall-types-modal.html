@@ -18,9 +18,9 @@
           <loading-spinner variant="lg" />
         </div>
       } @else {
-        <div class="existing-types-list">
+        <ul class="existing-types-list">
           @for (type of hallTypes(); track type.id) {
-            <div class="existing-type-item">
+            <li class="existing-type-item">
               @if (editingTypeId() === type.id) {
                 <form
                   class="edit-type-form"
@@ -108,7 +108,7 @@
                   </ng-template>
                 </div>
               }
-            </div>
+            </li>
           } @empty {
             <empty-state
               [icon]="icons.TagIcon"
@@ -116,7 +116,7 @@
               description="Add your first type below to get started"
             />
           }
-        </div>
+        </ul>
       }
     </div>
     <div class="new-type-container">

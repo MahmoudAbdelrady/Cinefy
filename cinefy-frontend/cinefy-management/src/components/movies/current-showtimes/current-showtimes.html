@@ -31,10 +31,10 @@
         <loading-spinner variant="md" />
       </div>
     } @else {
-      <div class="cs-grid">
+      <ul class="cs-grid">
         @for (item of filteredMovies(); track item.movieDetails.id) {
           @let shMovie = item.movieDetails;
-          <div class="movie-card" [class.movie-card--highlighted]="shMovie.highlighted">
+          <li class="movie-card" [class.movie-card--highlighted]="shMovie.highlighted">
             <div class="mc-identity">
               <div class="mci-poster">
                 <media-image
@@ -222,7 +222,7 @@
                 </div>
               </app-modal>
             </ng-template>
-          </div>
+          </li>
         } @empty {
           <empty-state
             class="cs-empty"
@@ -235,7 +235,7 @@
             "
           />
         }
-      </div>
+      </ul>
     }
   </div>
 </div>

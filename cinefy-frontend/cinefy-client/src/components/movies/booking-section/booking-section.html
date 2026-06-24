@@ -22,19 +22,21 @@
       }
     </div>
   } @else {
-    <div class="bs-dates">
+    <ul class="bs-dates">
       @for (option of dates(); track option.date) {
-        <button
-          class="bs-date"
-          [class.active]="option.date === activeDate()"
-          (click)="selectDate(option.date)"
-        >
-          <span class="bs-date-month">{{ option.month }}</span>
-          <span class="bs-date-day">{{ option.day }}</span>
-          <span class="bs-date-label">{{ option.label }}</span>
-        </button>
+        <li>
+          <button
+            class="bs-date"
+            [class.active]="option.date === activeDate()"
+            (click)="selectDate(option.date)"
+          >
+            <span class="bs-date-month">{{ option.month }}</span>
+            <span class="bs-date-day">{{ option.day }}</span>
+            <span class="bs-date-label">{{ option.label }}</span>
+          </button>
+        </li>
       }
-    </div>
+    </ul>
 
     @if (showtimesResource.isLoading()) {
       <div class="bs-formats-loading">
@@ -47,23 +49,25 @@
         description="Something went wrong. Please try again later."
       />
     } @else {
-      <div class="bs-formats">
+      <ul class="bs-formats">
         @for (group of dayShowtimes(); track group.hallType) {
-          <div class="bs-format">
+          <li class="bs-format">
             <div class="bs-format-header">
               <h3>{{ group.hallType }}</h3>
             </div>
-            <div class="bs-times">
+            <ul class="bs-times">
               @for (showtime of group.showtimes; track showtime.id) {
-                <a class="bs-time" routerLink="/movies/{{ movieId() }}/seats/{{ showtime.id }}">
-                  <span>{{ showtime.time | time12h }}</span>
-                  @if (showtime.is3D) {
-                    <span class="bs-time-badge">3D</span>
-                  }
-                </a>
+                <li>
+                  <a class="bs-time" routerLink="/movies/{{ movieId() }}/seats/{{ showtime.id }}">
+                    <span>{{ showtime.time | time12h }}</span>
+                    @if (showtime.is3D) {
+                      <span class="bs-time-badge">3D</span>
+                    }
+                  </a>
+                </li>
               }
-            </div>
-          </div>
+            </ul>
+          </li>
         } @empty {
           <empty-state
             [icon]="icons.CalendarIcon"
@@ -71,7 +75,7 @@
             description="Try another date above."
           />
         }
-      </div>
+      </ul>
     }
   }
 </section>

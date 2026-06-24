@@ -76,6 +76,10 @@
   @include flex-column;
 }
 
+.staff-members {
+  @include flex-column;
+}
+
 .staff-member {
   @include flex-between;
   gap: 16px;

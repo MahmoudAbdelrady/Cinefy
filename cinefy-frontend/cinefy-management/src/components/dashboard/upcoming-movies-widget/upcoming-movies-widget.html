@@ -9,9 +9,9 @@
     </div>
   </div>
   <div class="upcoming-movies-container">
-    <div class="um-list">
+    <ul class="um-list">
       @for (movie of upcomingMovies; track movie.title) {
-        <div class="um-card">
+        <li class="um-card">
           <div class="umc-poster">
             <media-image [src]="movie.posterUrl" [alt]="movie.title" [iconSize]="20" />
           </div>
@@ -37,9 +37,9 @@
               <div class="umc-date">{{ releaseDate | date: 'MMM d' }}</div>
             }
           </div>
-        </div>
+        </li>
       }
-    </div>
+    </ul>
     <div class="um-actions">
       <a [routerLink]="'/movies'">View All Upcoming</a>
     </div>

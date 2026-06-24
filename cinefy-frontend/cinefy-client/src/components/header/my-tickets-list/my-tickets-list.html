@@ -1,7 +1,7 @@
 <app-modal modalTitle="My Tickets" [description]="description()" width="512px" [close]="close()">
-  <div class="bookings-list">
+  <ul class="bookings-list">
     @for (booking of myBookings; track booking.id) {
-      <div class="booking-item">
+      <li class="booking-item">
         <div class="bi-movie-poster">
           <img [src]="booking.moviePosterUrl" alt="{{ booking.movieTitle }} poster" />
         </div>
@@ -35,12 +35,12 @@
             </button>
           </div>
         </div>
-      </div>
+      </li>
     } @empty {
       <empty-state
         [icon]="icons.TicketIcon"
         title="Bookings you start will wait here until you complete them."
       />
     }
-  </div>
+  </ul>
 </app-modal>

@@ -32,9 +32,9 @@
             }}
             scheduled
           </div>
-          <div class="ds-items">
+          <ul class="ds-items">
             @for (showtimeDetail of movieShowtimeDetails(); track showtimeDetail.id) {
-              <div class="ds-item">
+              <li class="ds-item">
                 <div class="ds-info">
                   <div class="dsi-details">
                     <span class="dsid-time">{{ showtimeDetail.time | time12h }}</span>
@@ -154,9 +154,9 @@
                     }
                   </div>
                 }
-              </div>
+              </li>
             }
-          </div>
+          </ul>
         </div>
       </div>
     </div>
