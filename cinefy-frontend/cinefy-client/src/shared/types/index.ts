@@ -16,6 +16,7 @@ export type {
   ForgotPasswordPayload,
   ResetPasswordPayload,
 } from './auth';
+export type { CurrentUser } from './clients';
 export type { ApiError, ApiErrorCode } from './api';
 export type { BookingShowtime, HallTypeShowtimes, SeatSelection } from './booking';
 export { SEAT_KIND_LABEL } from './seats';

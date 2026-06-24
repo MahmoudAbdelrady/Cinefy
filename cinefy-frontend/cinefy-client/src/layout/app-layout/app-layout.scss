@@ -118,6 +118,28 @@ $max-width: 1152px;
   }
 }
 
+.alh-auth-btn {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  text-decoration: none;
+}
+
+.ab-text {
+  @include below-mobile {
+    display: none;
+  }
+}
+
+.alh-auth-loading {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  color: rgba($color-foreground, 0.7);
+}
+
 .alh-user-info {
   @include flex-center;
   @include lucide-icon-fix;
@@ -149,6 +171,15 @@ $max-width: 1152px;
   border-radius: $radius-md;
   box-shadow: $shadow-overlay;
   z-index: 50;
+}
+
+.uim-name {
+  padding: 6px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $color-foreground;
+  border-bottom: 1px solid $color-border;
+  margin-bottom: 4px;
 }
 
 .uim-item {

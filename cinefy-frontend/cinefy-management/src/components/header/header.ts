@@ -61,7 +61,6 @@ export class HeaderComponent {
       .logout()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        this.staffService.clearCurrentStaffMember();
         this.router.navigateByUrl('/login');
       });
   }

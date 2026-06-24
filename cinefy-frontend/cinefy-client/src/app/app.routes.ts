@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from '../layout/app-layout/app-layout';
 import { AuthLayout } from '../layout/auth-layout/auth-layout';
+import { authGuard, guestGuard } from '../shared/guards';
 import {
   ForgotPasswordPage,
   HomePage,
@@ -15,6 +16,7 @@ export const routes: Routes = [
   {
     path: 'membership',
     component: AuthLayout,
+    canActivate: [guestGuard],
     children: [
       {
         path: 'login',
@@ -49,6 +51,7 @@ export const routes: Routes = [
       {
         path: 'movies/:movieId/seats/:showtimeId',
         component: SeatSelectionPage,
+        canActivate: [authGuard],
       },
     ],
   },

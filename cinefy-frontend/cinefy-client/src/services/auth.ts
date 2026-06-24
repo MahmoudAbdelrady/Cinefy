@@ -8,10 +8,12 @@ import type {
   ForgotPasswordPayload,
   ResetPasswordPayload,
 } from '../shared/types';
+import { ClientService } from './clients';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly clientService = inject(ClientService);
 
   private readonly authStatus = signal<boolean | null>(null);
 
@@ -36,7 +38,7 @@ export class AuthService {
   logout(): Observable<void> {
     return this.http
       .post<void>('/clients/auth/logout', null)
-      .pipe(tap(() => this.authStatus.set(false)));
+      .pipe(tap(() => this.clearAuthState()));
   }
 
   forgotPassword(data: ForgotPasswordPayload): Observable<void> {
@@ -75,5 +77,6 @@ export class AuthService {
 
   clearAuthState(): void {
     this.authStatus.set(false);
+    this.clientService.clearCurrentUser();
   }
 }
