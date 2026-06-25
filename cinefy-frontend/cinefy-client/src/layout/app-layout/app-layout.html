@@ -23,11 +23,11 @@
         <ng-template #myTicketsDialog let-close="close">
           <my-tickets-list [close]="close" />
         </ng-template>
-        @if (isAuthenticated.isLoading() || currentUser.isLoading()) {
+        @if (isAuthenticatedLoading() || currentUserLoading()) {
           <div class="alh-auth-loading">
             <loading-spinner variant="sm" />
           </div>
-        } @else if (isAuthenticated.value()) {
+        } @else if (isAuthenticated()) {
           <button class="alh-user" ngpButton [ngpMenuTrigger]="userInfoMenu">
             <span class="alh-user-icon">
               <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>

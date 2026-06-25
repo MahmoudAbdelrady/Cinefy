@@ -1,5 +1,5 @@
-import { Component, computed, DestroyRef, inject } from '@angular/core';
-import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
@@ -17,6 +17,7 @@ import {
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { MyTicketsListComponent } from '../../components';
 import { AuthService, ClientService } from '../../services';
+import type { CurrentUser } from '../../shared/types';
 
 interface DropDownMenuItem {
   icon: LucideIcon;
@@ -62,15 +63,46 @@ export class AppLayout {
     { icon: LogoutIcon, label: 'Logout', action: () => this.logout() },
   ];
 
-  protected readonly isAuthenticated = rxResource({
-    stream: () => this.authService.isAuthenticated(),
-  });
+  protected readonly isAuthenticatedLoading = signal(true);
+  protected readonly currentUserLoading = signal(true);
 
-  protected readonly currentUser = rxResource({
-    params: () => (this.isAuthenticated.value() ? {} : undefined),
-    stream: () => this.clientService.getCurrentUser(),
-  });
-  protected readonly userDisplayName = computed(() => this.currentUser.value()?.fullName ?? '');
+  protected readonly isAuthenticated = signal(false);
+  protected readonly currentUser = signal<CurrentUser | null>(null);
+  protected readonly userDisplayName = computed(() => this.currentUser()?.fullName ?? '');
+
+  constructor() {
+    afterNextRender(() => {
+      this.authService
+        .isAuthenticated()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (authenticated) => {
+            this.isAuthenticated.set(authenticated);
+            this.isAuthenticatedLoading.set(false);
+            if (authenticated) {
+              this.loadCurrentUser();
+            } else {
+              this.currentUserLoading.set(false);
+            }
+          },
+        });
+    });
+  }
+
+  private loadCurrentUser(): void {
+    this.clientService
+      .getCurrentUser()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (user) => {
+          this.currentUser.set(user);
+          this.currentUserLoading.set(false);
+        },
+        error: () => {
+          this.currentUserLoading.set(false);
+        },
+      });
+  }
 
   protected logout(): void {
     this.authService
