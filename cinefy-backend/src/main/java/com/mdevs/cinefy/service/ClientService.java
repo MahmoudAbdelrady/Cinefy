@@ -3,6 +3,7 @@ package com.mdevs.cinefy.service;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+import com.mdevs.cinefy.dto.client.CurrentClientDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.User;
@@ -10,6 +11,7 @@ import com.mdevs.cinefy.repository.ClientRepository;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import com.mdevs.cinefy.shared.security.SecurityUtil;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
@@ -37,6 +39,16 @@ public class ClientService implements UserDetailsService {
         Client client = clientRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Client not found with email: " + email));
         return UserPrincipal.fromClient(client);
+    }
+
+    public CurrentClientDTO getCurrentClient() {
+        Client client = findClientByUuid(SecurityUtil.getCurrentUserUuid());
+        return new CurrentClientDTO(
+                client.getUuid(),
+                client.getFirstName(),
+                client.getLastName(),
+                client.getFullName(),
+                client.getEmail());
     }
 
     @Transactional
@@ -77,6 +89,11 @@ public class ClientService implements UserDetailsService {
     }
 
     // =========================== Helpers ===========================
+
+    private Client findClientByUuid(String uuid) {
+        return clientRepository.findByUuid(uuid)
+                .orElseThrow(() -> new NotFoundException("Client not found"));
+    }
 
     private Client findClientById(Long id) {
         Client client = clientRepository.findOne(id);

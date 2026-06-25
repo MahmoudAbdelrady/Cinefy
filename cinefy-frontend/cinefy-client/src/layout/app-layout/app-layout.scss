@@ -166,11 +166,10 @@ $max-width: 1152px;
   color: rgba($color-foreground, 0.7);
 }
 
-.alh-user-info {
-  @include flex-center;
-  @include lucide-icon-fix;
-  width: 36px;
+.alh-user {
+  @include flex-align;
   height: 36px;
+  padding: 0 8px 0 0;
   border-radius: $radius-full;
   color: rgba($color-foreground, 0.7);
   cursor: pointer;
@@ -181,6 +180,26 @@ $max-width: 1152px;
   &:hover {
     color: $color-foreground;
     background-color: $color-accent;
+  }
+
+  @include below-mobile {
+    padding: 0;
+  }
+}
+
+.alh-user-icon {
+  @include flex-center;
+  @include lucide-icon-fix;
+  width: 36px;
+  height: 36px;
+}
+
+.alh-user-name {
+  font-size: 14px;
+  font-weight: 500;
+
+  @include below-mobile {
+    display: none;
   }
 }
 
@@ -197,15 +216,6 @@ $max-width: 1152px;
   border-radius: $radius-md;
   box-shadow: $shadow-overlay;
   z-index: 50;
-}
-
-.uim-name {
-  padding: 6px 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: $color-foreground;
-  border-bottom: 1px solid $color-border;
-  margin-bottom: 4px;
 }
 
 .uim-item {

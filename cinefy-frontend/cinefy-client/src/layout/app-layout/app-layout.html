@@ -28,14 +28,16 @@
             <loading-spinner variant="sm" />
           </div>
         } @else if (isAuthenticated.value()) {
-          <button class="alh-user-info" ngpButton [ngpMenuTrigger]="userInfoMenu">
-            <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
+          <button class="alh-user" ngpButton [ngpMenuTrigger]="userInfoMenu">
+            <span class="alh-user-icon">
+              <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
+            </span>
+            @if (userDisplayName()) {
+              <span class="alh-user-name">{{ userDisplayName() }}</span>
+            }
           </button>
           <ng-template #userInfoMenu>
             <div class="user-info-menu-items" ngpMenu>
-              @if (userDisplayName()) {
-                <div class="uim-name">{{ userDisplayName() }}</div>
-              }
               @for (item of userInfoMenuItems; track item.label) {
                 <button class="uim-item" ngpMenuItem (click)="item.action()">
                   <svg [lucideIcon]="item.icon" [size]="16"></svg>
