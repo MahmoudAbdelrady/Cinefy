@@ -11,9 +11,13 @@
         </div>
       </div>
       <div class="alh-info">
-        <button class="alh-tickets-btn btn-primary" ngpButton [ngpDialogTrigger]="myTicketsDialog">
-          <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
-          <span class="tb-text">My Tickets</span>
+        <button
+          class="alh-tickets-btn btn-primary"
+          title="My Tickets"
+          ngpButton
+          [ngpDialogTrigger]="myTicketsDialog"
+        >
+          <svg [lucideIcon]="icons.TicketIcon" [size]="18"></svg>
           <span class="tb-count">2</span>
         </button>
         <ng-template #myTicketsDialog let-close="close">
@@ -41,14 +45,17 @@
             </div>
           </ng-template>
         } @else {
-          <a class="alh-auth-btn btn-secondary" routerLink="/membership/login">
-            <svg [lucideIcon]="icons.LoginIcon" [size]="16"></svg>
-            <span class="ab-text">Login</span>
-          </a>
-          <a class="alh-auth-btn btn-primary" routerLink="/membership/signup">
-            <svg [lucideIcon]="icons.SignupIcon" [size]="16"></svg>
-            <span class="ab-text">Sign up</span>
-          </a>
+          <span class="alh-divider"></span>
+          <div class="alh-auth">
+            <a class="alh-auth-btn btn-secondary" routerLink="/membership/login">
+              <svg [lucideIcon]="icons.LoginIcon" [size]="16"></svg>
+              <span class="ab-text">Login</span>
+            </a>
+            <a class="alh-auth-btn btn-primary" routerLink="/membership/signup">
+              <svg [lucideIcon]="icons.SignupIcon" [size]="16"></svg>
+              <span class="ab-text">Sign up</span>
+            </a>
+          </div>
         }
       </div>
     </div>

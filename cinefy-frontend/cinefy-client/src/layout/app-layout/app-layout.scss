@@ -29,11 +29,20 @@ $max-width: 1152px;
   width: min(100%, #{$max-width});
   margin: 0 auto;
   padding: 0 16px;
+
+  @include below-phone {
+    gap: 12px;
+    padding: 0 12px;
+  }
 }
 
 .alh-tabs {
   @include flex-align;
   gap: 24px;
+
+  @include below-phone {
+    gap: 16px;
+  }
 }
 
 .alh-main-tab {
@@ -59,6 +68,10 @@ $max-width: 1152px;
   font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.025em;
+
+  @include below-phone {
+    display: none;
+  }
 }
 
 .alh-sub-tabs {
@@ -85,14 +98,27 @@ $max-width: 1152px;
 
 .alh-info {
   @include flex-align;
-  gap: 8px;
+  gap: 14px;
 }
 
 .alh-tickets-btn {
   position: relative;
+  @include flex-center;
   @include lucide-icon-fix;
+  width: 36px;
   height: 36px;
-  padding: 0 16px;
+  padding: 0;
+}
+
+.alh-divider {
+  width: 1px;
+  height: 24px;
+  background-color: $color-border;
+}
+
+.alh-auth {
+  @include flex-align;
+  gap: 8px;
 }
 
 .tb-count {
@@ -112,12 +138,6 @@ $max-width: 1152px;
   line-height: 1;
 }
 
-.tb-text {
-  @include below-mobile {
-    display: none;
-  }
-}
-
 .alh-auth-btn {
   @include flex-align;
   @include lucide-icon-fix;
@@ -125,6 +145,12 @@ $max-width: 1152px;
   height: 36px;
   padding: 0 16px;
   text-decoration: none;
+
+  @include below-mobile {
+    justify-content: center;
+    width: 36px;
+    padding: 0;
+  }
 }
 
 .ab-text {
