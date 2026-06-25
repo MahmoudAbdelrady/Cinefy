@@ -3,14 +3,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { interval, takeWhile } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { InputOtp } from 'cinefy-ui/components';
+import { InputOtp, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ArrowLeftIcon, ArrowRightIcon } from '../../../shared/icons';
 
 const RESEND_COOLDOWN_SECONDS = 10 * 60;
 
 @Component({
   selector: 'auth-otp-step',
-  imports: [FormsModule, LucideDynamicIcon, InputOtp],
+  imports: [FormsModule, LucideDynamicIcon, InputOtp, LoadingSpinnerComponent],
   templateUrl: './otp-step.html',
   styleUrl: './otp-step.scss',
 })
@@ -25,8 +25,11 @@ export class OtpStep {
   readonly heading = input.required<string>();
   readonly subheading = input.required<string>();
   readonly showBack = input(true);
+  readonly submitting = input(false);
+  readonly resending = input(false);
 
   readonly verified = output<string>();
+  readonly resend = output<void>();
   readonly back = output<void>();
 
   protected readonly code = signal('');
@@ -41,13 +44,14 @@ export class OtpStep {
   });
 
   protected onResend() {
-    if (this.resendCountdown() > 0) return;
+    if (this.resendCountdown() > 0 || this.resending()) return;
     this.code.set('');
+    this.resend.emit();
     this.startResendCooldown();
   }
 
   protected onSubmit() {
-    if (!this.complete()) return;
+    if (!this.complete() || this.submitting()) return;
     this.verified.emit(this.code());
   }
 

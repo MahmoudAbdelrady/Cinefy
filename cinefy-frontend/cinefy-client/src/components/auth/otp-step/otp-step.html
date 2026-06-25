@@ -14,13 +14,19 @@
       @if (resendCountdown() > 0) {
         <span class="fp-otp-cooldown">{{ resendLabel() }}</span>
       } @else {
-        <button type="button" class="fp-otp-resend" (click)="onResend()">Resend code</button>
+        <button type="button" class="fp-otp-resend" [disabled]="resending()" (click)="onResend()">
+          {{ resending() ? 'Sending…' : 'Resend code' }}
+        </button>
       }
     </p>
 
-    <button type="submit" class="btn-primary fp-submit" [disabled]="!complete()">
-      <span>Verify code</span>
-      <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+    <button type="submit" class="btn-primary fp-submit" [disabled]="!complete() || submitting()">
+      @if (submitting()) {
+        <loading-spinner variant="xs" />
+      } @else {
+        <span>Verify code</span>
+        <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+      }
     </button>
   </form>
 

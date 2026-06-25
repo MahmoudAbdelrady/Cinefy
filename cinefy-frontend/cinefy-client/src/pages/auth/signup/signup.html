@@ -66,9 +66,17 @@
           }"
         />
 
-        <button type="submit" class="btn-primary sp-submit" [disabled]="signupForm.invalid">
-          <span>Create account</span>
-          <svg class="sp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+        <button
+          type="submit"
+          class="btn-primary sp-submit"
+          [disabled]="signupForm.invalid || submitting()"
+        >
+          @if (submitting()) {
+            <loading-spinner variant="xs" />
+          } @else {
+            <span>Create account</span>
+            <svg class="sp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+          }
         </button>
       </form>
 
@@ -84,7 +92,10 @@
         heading="Verify your account"
         subheading="We emailed a 6-digit code to confirm your account. Enter it below to finish signing up."
         [showBack]="false"
-        (verified)="onVerified()"
+        [submitting]="verifying()"
+        [resending]="resending()"
+        (verified)="onVerified($event)"
+        (resend)="onResend()"
       />
     }
   }

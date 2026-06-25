@@ -1,16 +1,20 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
   InputField,
+  LoadingSpinnerComponent,
   PhoneInput,
   phoneNumberValidator,
+  toE164Digits,
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
 import { OAuthButtonsComponent, OtpStep } from '../../../components';
 import { AuthFormStage } from '../../../shared/types';
+import { AuthService } from '../../../services';
 import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
 import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/icons';
 
@@ -22,6 +26,7 @@ import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/i
     LucideDynamicIcon,
     InputField,
     PhoneInput,
+    LoadingSpinnerComponent,
     OAuthButtonsComponent,
     OtpStep,
   ],
@@ -37,8 +42,13 @@ export class SignUpPage {
   };
 
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly stage = signal<AuthFormStage>('form');
+  protected readonly submitting = signal(false);
+  protected readonly verifying = signal(false);
+  protected readonly resending = signal(false);
 
   protected readonly signupForm = new FormGroup({
     firstName: new FormControl('', {
@@ -84,11 +94,49 @@ export class SignUpPage {
   }
 
   protected onSubmit() {
-    if (this.signupForm.invalid) return;
-    this.stage.set('verify');
+    if (this.signupForm.invalid || this.submitting()) return;
+
+    const value = this.signupForm.getRawValue();
+    this.submitting.set(true);
+
+    this.authService
+      .signUp({
+        firstName: value.firstName,
+        lastName: value.lastName,
+        email: value.email,
+        phoneNumber: toE164Digits(this.signupForm.controls.phoneCountry, value.phoneNumber),
+        password: value.password,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.submitting.set(false);
+          this.stage.set('verify');
+        },
+        error: () => this.submitting.set(false),
+      });
   }
 
-  protected onVerified() {
-    this.router.navigateByUrl('/');
+  protected onVerified(code: string) {
+    if (this.verifying()) return;
+    this.verifying.set(true);
+
+    this.authService
+      .verifyAccount({ code })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.router.navigateByUrl('/'),
+        error: () => this.verifying.set(false),
+      });
+  }
+
+  protected onResend() {
+    if (this.resending()) return;
+    this.resending.set(true);
+
+    // TODO(api): no resend endpoint exists yet. Once the backend adds one
+    // (e.g. POST /clients/auth/resend-verification keyed on email), call it
+    // here with `this.signupForm.controls.email.value` and clear `resending` on settle.
+    this.resending.set(false);
   }
 }
