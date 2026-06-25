@@ -4,6 +4,7 @@ import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
+import com.mdevs.cinefy.dto.auth.SendOtpDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.entity.Client;
@@ -45,7 +46,7 @@ public class ClientAuthService {
 
     public void signUp(SignUpDTO dto) {
         Client client = clientService.createClient(dto);
-        sendVerificationOtp(client);
+        dispatchOtp(client, OtpType.EMAIL_VERIFICATION);
     }
 
     public TokenPairDTO login(LoginDTO dto) {
@@ -54,7 +55,7 @@ public class ClientAuthService {
 
         Client client = clientRepository.findOne(principal.getId());
         if (!client.isVerified()) {
-            sendVerificationOtp(client);
+            dispatchOtp(client, OtpType.EMAIL_VERIFICATION);
             throw new ForbiddenException("Account is not verified", ErrorCode.ACCOUNT_NOT_VERIFIED);
         }
 
@@ -62,22 +63,11 @@ public class ClientAuthService {
     }
 
     public void forgotPassword(ForgotPasswordDTO dto) {
-        clientRepository.findByEmail(dto.getEmail().trim().toLowerCase()).ifPresent(client -> {
-            // TODO: Will be moved to Redis - SET NX approach
-            Otp otp;
-            try {
-                otp = otpService.create(client.getId(), UserType.CLIENT, OtpType.RESET_PASSWORD);
-            } catch (DataIntegrityViolationException ex) {
-                // A concurrent request already issued an active reset code for this user
-                return;
-            }
+        issueOtpByEmail(dto.getEmail(), OtpType.RESET_PASSWORD);
+    }
 
-            emailService.sendPasswordResetOtp(
-                    client.getEmail(),
-                    client.getFirstName(),
-                    otp.getCode(),
-                    otpService.getExpiryMinutes());
-        });
+    public void sendOtp(SendOtpDTO dto) {
+        issueOtpByEmail(dto.getEmail(), OtpType.fromString(dto.getOtpType()));
     }
 
     public void verifyResetCode(OtpCodeDTO dto) {
@@ -108,19 +98,36 @@ public class ClientAuthService {
         return new TokenPairDTO(accessToken, refreshToken);
     }
 
-    private void sendVerificationOtp(Client client) {
+    private void issueOtpByEmail(String email, OtpType otpType) {
+        clientRepository.findByEmail(email.trim().toLowerCase()).ifPresent(client -> {
+            if (otpType.equals(OtpType.EMAIL_VERIFICATION) && client.isVerified()) {
+                return;
+            }
+            dispatchOtp(client, otpType);
+        });
+    }
+
+    private void dispatchOtp(Client client, OtpType otpType) {
+        // TODO: Will be moved to Redis - SET NX approach
         Otp otp;
         try {
-            otp = otpService.create(client.getId(), UserType.CLIENT, OtpType.EMAIL_VERIFICATION);
+            otp = otpService.create(client.getId(), UserType.CLIENT, otpType);
         } catch (DataIntegrityViolationException ex) {
-            // A concurrent request already issued an active verification code for this user
+            // A concurrent request already issued an active code of this type for this user
             return;
         }
 
-        emailService.sendEmailVerificationOtp(
-                client.getEmail(),
-                client.getFirstName(),
-                otp.getCode(),
-                otpService.getExpiryMinutes());
+        switch (otpType) {
+            case EMAIL_VERIFICATION -> emailService.sendEmailVerificationOtp(
+                    client.getEmail(),
+                    client.getFirstName(),
+                    otp.getCode(),
+                    otpService.getExpiryMinutes());
+            case RESET_PASSWORD -> emailService.sendPasswordResetOtp(
+                    client.getEmail(),
+                    client.getFirstName(),
+                    otp.getCode(),
+                    otpService.getExpiryMinutes());
+        }
     }
 }

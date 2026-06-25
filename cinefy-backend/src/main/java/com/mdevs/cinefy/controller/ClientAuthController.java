@@ -4,6 +4,7 @@ import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
+import com.mdevs.cinefy.dto.auth.SendOtpDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.service.ClientAuthService;
@@ -40,6 +41,13 @@ public class ClientAuthController {
     public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpDTO dto) {
         clientAuthService.signUp(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PublicApi
+    @PostMapping("/send-otp")
+    public ResponseEntity<Void> sendOtp(@Valid @RequestBody SendOtpDTO dto) {
+        clientAuthService.sendOtp(dto);
+        return ResponseEntity.noContent().build();
     }
 
     @PublicApi
