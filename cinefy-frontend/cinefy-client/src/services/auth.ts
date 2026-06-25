@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { catchError, finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
 import type {
   SignUpPayload,
@@ -34,9 +34,9 @@ export class AuthService {
     return this.http.post<void>('/clients/auth/send-otp', data);
   }
 
-  login(data: LoginPayload): Observable<void> {
+  login(data: LoginPayload, context?: HttpContext): Observable<void> {
     return this.http
-      .post<void>('/clients/auth/login', data)
+      .post<void>('/clients/auth/login', data, { context })
       .pipe(tap(() => this.authStatus.set(true)));
   }
 
