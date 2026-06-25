@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -44,6 +44,8 @@ export class SignUpPage {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly otpStep = viewChild(OtpStep);
 
   protected readonly stage = signal<AuthFormStage>('form');
   protected readonly submitting = signal(false);
@@ -134,9 +136,15 @@ export class SignUpPage {
     if (this.resending()) return;
     this.resending.set(true);
 
-    // TODO(api): no resend endpoint exists yet. Once the backend adds one
-    // (e.g. POST /clients/auth/resend-verification keyed on email), call it
-    // here with `this.signupForm.controls.email.value` and clear `resending` on settle.
-    this.resending.set(false);
+    this.authService
+      .sendOtp({ email: this.signupForm.controls.email.value, otpType: 'EMAIL_VERIFICATION' })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.resending.set(false);
+          this.otpStep()?.startResendCooldown();
+        },
+        error: () => this.resending.set(false),
+      });
   }
 }

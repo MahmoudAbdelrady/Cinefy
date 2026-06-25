@@ -13,6 +13,8 @@ export type {
   SignUpPayload,
   LoginPayload,
   OtpCodePayload,
+  OtpType,
+  SendOtpPayload,
   ForgotPasswordPayload,
   ResetPasswordPayload,
 } from './auth';

@@ -5,6 +5,7 @@ import type {
   SignUpPayload,
   LoginPayload,
   OtpCodePayload,
+  SendOtpPayload,
   ForgotPasswordPayload,
   ResetPasswordPayload,
 } from '../shared/types';
@@ -27,6 +28,10 @@ export class AuthService {
     return this.http
       .post<void>('/clients/auth/verify-account', data)
       .pipe(tap(() => this.authStatus.set(true)));
+  }
+
+  sendOtp(data: SendOtpPayload): Observable<void> {
+    return this.http.post<void>('/clients/auth/send-otp', data);
   }
 
   login(data: LoginPayload): Observable<void> {

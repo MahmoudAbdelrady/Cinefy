@@ -43,11 +43,20 @@ export class OtpStep {
     return `You can resend in ${minutes}:${String(remainder).padStart(2, '0')}`;
   });
 
+  startResendCooldown() {
+    this.resendCountdown.set(RESEND_COOLDOWN_SECONDS);
+    interval(1000)
+      .pipe(
+        takeWhile(() => this.resendCountdown() > 0),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.resendCountdown.update((seconds) => seconds - 1));
+  }
+
   protected onResend() {
     if (this.resendCountdown() > 0 || this.resending()) return;
     this.code.set('');
     this.resend.emit();
-    this.startResendCooldown();
   }
 
   protected onSubmit() {
@@ -57,15 +66,5 @@ export class OtpStep {
 
   protected onBack() {
     this.back.emit();
-  }
-
-  private startResendCooldown() {
-    this.resendCountdown.set(RESEND_COOLDOWN_SECONDS);
-    interval(1000)
-      .pipe(
-        takeWhile(() => this.resendCountdown() > 0),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => this.resendCountdown.update((seconds) => seconds - 1));
   }
 }
