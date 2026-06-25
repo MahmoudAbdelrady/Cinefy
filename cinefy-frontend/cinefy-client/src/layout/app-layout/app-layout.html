@@ -39,8 +39,17 @@
           <ng-template #userInfoMenu>
             <div class="user-info-menu-items" ngpMenu>
               @for (item of userInfoMenuItems; track item.label) {
-                <button class="uim-item" ngpMenuItem (click)="item.action()">
-                  <svg [lucideIcon]="item.icon" [size]="16"></svg>
+                <button
+                  class="uim-item"
+                  ngpMenuItem
+                  [disabled]="item.loading?.() ?? false"
+                  (click)="item.action()"
+                >
+                  @if (item.loading?.()) {
+                    <loading-spinner variant="sm" />
+                  } @else {
+                    <svg [lucideIcon]="item.icon" [size]="16"></svg>
+                  }
                   <span>{{ item.label }}</span>
                 </button>
               }

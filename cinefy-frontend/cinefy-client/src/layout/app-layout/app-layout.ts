@@ -1,4 +1,12 @@
-import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+  Signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
 import { RouterLink } from '@angular/router';
@@ -23,6 +31,7 @@ interface DropDownMenuItem {
   icon: LucideIcon;
   label: string;
   action: () => void;
+  loading?: Signal<boolean>;
 }
 
 @Component({
@@ -58,13 +67,19 @@ export class AppLayout {
 
   protected readonly currentYear = new Date().getFullYear();
 
-  protected readonly userInfoMenuItems: DropDownMenuItem[] = [
-    { icon: UserIcon, label: 'Profile', action: () => this.router.navigateByUrl('/profile') },
-    { icon: LogoutIcon, label: 'Logout', action: () => this.logout() },
-  ];
-
   protected readonly isAuthenticatedLoading = signal(true);
   protected readonly currentUserLoading = signal(true);
+  protected readonly logoutLoading = signal(false);
+
+  protected readonly userInfoMenuItems: DropDownMenuItem[] = [
+    { icon: UserIcon, label: 'Profile', action: () => this.router.navigateByUrl('/profile') },
+    {
+      icon: LogoutIcon,
+      label: 'Logout',
+      action: () => this.logout(),
+      loading: this.logoutLoading,
+    },
+  ];
 
   protected readonly isAuthenticated = signal(false);
   protected readonly currentUser = signal<CurrentUser | null>(null);
@@ -105,9 +120,14 @@ export class AppLayout {
   }
 
   protected logout(): void {
+    if (this.logoutLoading()) return;
+    this.logoutLoading.set(true);
     this.authService
       .logout()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: () => this.router.navigateByUrl('/') });
+      .subscribe({
+        next: () => this.router.navigateByUrl('/membership/login'),
+        error: () => this.logoutLoading.set(false),
+      });
   }
 }
