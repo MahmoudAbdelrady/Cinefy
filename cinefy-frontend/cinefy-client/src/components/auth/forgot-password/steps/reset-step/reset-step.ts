@@ -8,7 +8,7 @@ import { linkConfirmPassword } from 'cinefy-ui/forms';
 import { PASSWORD_PATTERN } from '../../../../../shared/validation';
 import type { ApiError } from '../../../../../shared/types';
 import { AuthService } from '../../../../../services';
-import { ArrowRightIcon, LockIcon, TriangleAlertIcon } from '../../../../../shared/icons';
+import { ArrowRightIcon, LockIcon } from '../../../../../shared/icons';
 
 @Component({
   selector: 'fp-reset-step',
