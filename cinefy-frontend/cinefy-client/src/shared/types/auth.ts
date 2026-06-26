@@ -24,8 +24,16 @@ export interface OtpCodePayload {
   code: string;
 }
 
-export interface ForgotPasswordPayload {
+export type OtpType = 'EMAIL_VERIFICATION' | 'RESET_PASSWORD';
+
+export interface SendOtpPayload {
   email: string;
+  otpType: OtpType;
+}
+
+export interface VerifyOtpPayload {
+  code: string;
+  otpType: OtpType;
 }
 
 export interface ResetPasswordPayload {

@@ -55,6 +55,7 @@ export class OtpStep {
   protected onResend() {
     if (this.resending() || this.resendCountdown() > 0) return;
     this.resending.set(true);
+    this.onCodeChange('');
     this.authService
       .forgotPassword({ email: this.email() })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -64,7 +65,7 @@ export class OtpStep {
           this.startResendCooldown();
           this.code.set('');
           this.error.set(null);
-          this.toast.success('We sent a new code to your email.');
+          this.toast.success('A new code has been sent to your email.');
         },
         error: () => this.resending.set(false),
       });

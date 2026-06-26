@@ -10,4 +10,6 @@ public class OtpCodeDTO {
 
     @NotBlank(message = "Code is required")
     private String code;
+
+    private String otpType;
 }

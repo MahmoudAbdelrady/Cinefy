@@ -79,9 +79,9 @@ export class ResetStep {
         },
         error: (err: HttpErrorResponse) => {
           this.submitting.set(false);
-          const body = err.error as ApiError | null;
-          if (body?.errorCode === 'OTP_INVALID') this.codeRejected.set(true);
-          if (body?.errorCode === 'PASSWORD_REUSED') this.resetForm.reset();
+          const errorResponse = err.error as ApiError | null;
+          if (errorResponse?.errorCode === 'OTP_INVALID') this.codeRejected.set(true);
+          if (errorResponse?.errorCode === 'PASSWORD_REUSED') this.resetForm.reset();
         },
       });
   }

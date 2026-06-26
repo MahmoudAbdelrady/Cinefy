@@ -1,11 +1,12 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { catchError, finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
 import type {
   SignUpPayload,
   LoginPayload,
   OtpCodePayload,
-  ForgotPasswordPayload,
+  SendOtpPayload,
+  VerifyOtpPayload,
   ResetPasswordPayload,
 } from '../shared/types';
 import { ClientService } from './clients';
@@ -29,9 +30,13 @@ export class AuthService {
       .pipe(tap(() => this.authStatus.set(true)));
   }
 
-  login(data: LoginPayload): Observable<void> {
+  sendOtp(data: SendOtpPayload): Observable<void> {
+    return this.http.post<void>('/clients/auth/send-otp', data);
+  }
+
+  login(data: LoginPayload, context?: HttpContext): Observable<void> {
     return this.http
-      .post<void>('/clients/auth/login', data)
+      .post<void>('/clients/auth/login', data, { context })
       .pipe(tap(() => this.authStatus.set(true)));
   }
 
@@ -41,12 +46,8 @@ export class AuthService {
       .pipe(tap(() => this.clearAuthState()));
   }
 
-  forgotPassword(data: ForgotPasswordPayload): Observable<void> {
-    return this.http.post<void>('/clients/auth/forgot-password', data);
-  }
-
-  verifyResetCode(data: OtpCodePayload): Observable<void> {
-    return this.http.post<void>('/clients/auth/verify-reset-code', data);
+  verifyOtp(data: VerifyOtpPayload): Observable<void> {
+    return this.http.post<void>('/clients/auth/verify-otp', data);
   }
 
   resetPassword(data: ResetPasswordPayload): Observable<void> {

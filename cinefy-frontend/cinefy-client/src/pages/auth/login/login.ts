@@ -1,10 +1,15 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { InputField } from 'cinefy-ui/components';
+import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { OAuthButtonsComponent, OtpStep } from '../../../components';
-import { AuthFormStage } from '../../../shared/types';
+import { AuthFormStage, ApiError } from '../../../shared/types';
+import { ToastService } from 'cinefy-ui/services';
+import { AuthService } from '../../../services';
+import { skipErrorToast } from '../../../app/core/interceptors';
 import { EMAIL_PATTERN } from '../../../shared/validation';
 import { ArrowRightIcon, EmailIcon, LockIcon } from '../../../shared/icons';
 
@@ -15,6 +20,7 @@ import { ArrowRightIcon, EmailIcon, LockIcon } from '../../../shared/icons';
     RouterLink,
     LucideDynamicIcon,
     InputField,
+    LoadingSpinnerComponent,
     OAuthButtonsComponent,
     OtpStep,
   ],
@@ -29,8 +35,12 @@ export class LoginPage {
   };
 
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly stage = signal<AuthFormStage>('form');
+  protected readonly submitting = signal(false);
 
   protected readonly loginForm = new FormGroup({
     email: new FormControl('', {
@@ -43,12 +53,30 @@ export class LoginPage {
     }),
   });
 
+  protected readonly verifyAccount = (code: string) => this.authService.verifyAccount({ code });
+
   protected onSubmit() {
-    if (this.loginForm.invalid) return;
-    // TODO(api): if login fails because the account isn't verified
-    // (the backend re-sends an OTP), switch to the verify stage instead:
-    //   this.stage.set('verify');
-    this.router.navigateByUrl('/');
+    if (this.loginForm.invalid || this.submitting()) return;
+
+    const value = this.loginForm.getRawValue();
+    this.submitting.set(true);
+
+    this.authService
+      .login({ email: value.email, password: value.password }, skipErrorToast())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.router.navigateByUrl('/'),
+        error: (error: HttpErrorResponse) => {
+          this.submitting.set(false);
+          const errorResponse = error.error as ApiError | null;
+          if (errorResponse?.errorCode === 'ACCOUNT_NOT_VERIFIED') {
+            this.stage.set('verify');
+            return;
+          }
+          this.loginForm.controls.password.reset();
+          this.toastService.error(errorResponse?.message ?? 'Invalid email or password');
+        },
+      });
   }
 
   protected onVerified() {

@@ -32,9 +32,23 @@
       }"
     />
 
-    <button type="submit" class="btn-primary fp-submit" [disabled]="resetForm.invalid">
-      <span>Save new password</span>
-      <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+    <button
+      type="submit"
+      class="btn-primary fp-submit"
+      [disabled]="resetForm.invalid || submitting()"
+    >
+      @if (submitting()) {
+        <loading-spinner variant="xs" />
+      } @else {
+        <span>Save new password</span>
+        <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+      }
     </button>
+
+    @if (codeRejected()) {
+      <button type="button" class="fp-request-code" (click)="onRequestNewCode()">
+        Request a new code
+      </button>
+    }
   </form>
 </div>
