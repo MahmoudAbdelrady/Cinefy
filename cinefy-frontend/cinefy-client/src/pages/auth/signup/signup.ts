@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -45,12 +45,8 @@ export class SignUpPage {
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly otpStep = viewChild(OtpStep);
-
   protected readonly stage = signal<AuthFormStage>('form');
   protected readonly submitting = signal(false);
-  protected readonly verifying = signal(false);
-  protected readonly resending = signal(false);
 
   protected readonly signupForm = new FormGroup({
     firstName: new FormControl('', {
@@ -89,6 +85,8 @@ export class SignUpPage {
     }),
   });
 
+  protected readonly verifyAccount = (code: string) => this.authService.verifyAccount({ code });
+
   constructor() {
     this.signupForm.controls.phoneNumber.addValidators(
       phoneNumberValidator(this.signupForm.controls.phoneCountry),
@@ -119,32 +117,7 @@ export class SignUpPage {
       });
   }
 
-  protected onVerified(code: string) {
-    if (this.verifying()) return;
-    this.verifying.set(true);
-
-    this.authService
-      .verifyAccount({ code })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.router.navigateByUrl('/'),
-        error: () => this.verifying.set(false),
-      });
-  }
-
-  protected onResend() {
-    if (this.resending()) return;
-    this.resending.set(true);
-
-    this.authService
-      .sendOtp({ email: this.signupForm.controls.email.value, otpType: 'EMAIL_VERIFICATION' })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.resending.set(false);
-          this.otpStep()?.startResendCooldown();
-        },
-        error: () => this.resending.set(false),
-      });
+  protected onVerified() {
+    this.router.navigateByUrl('/');
   }
 }

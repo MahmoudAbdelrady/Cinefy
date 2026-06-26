@@ -31,8 +31,9 @@ export interface SendOtpPayload {
   otpType: OtpType;
 }
 
-export interface ForgotPasswordPayload {
-  email: string;
+export interface VerifyOtpPayload {
+  code: string;
+  otpType: OtpType;
 }
 
 export interface ResetPasswordPayload {

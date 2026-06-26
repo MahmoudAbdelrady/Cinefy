@@ -17,9 +17,17 @@
       }"
     />
 
-    <button type="submit" class="btn-primary fp-submit" [disabled]="requestForm.invalid">
-      <span>Send reset code</span>
-      <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+    <button
+      type="submit"
+      class="btn-primary fp-submit"
+      [disabled]="requestForm.invalid || submitting()"
+    >
+      @if (submitting()) {
+        <loading-spinner variant="xs" />
+      } @else {
+        <span>Send reset code</span>
+        <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+      }
     </button>
   </form>
 

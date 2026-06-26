@@ -7,7 +7,12 @@
   <form (ngSubmit)="onSubmit()">
     <label class="fp-otp-label">Verification code</label>
 
-    <input-otp [(value)]="code" (completeChange)="complete.set($event)" />
+    <input-otp
+      [value]="code()"
+      [error]="error()"
+      (valueChange)="onCodeChange($event)"
+      (completeChange)="complete.set($event)"
+    />
 
     <p class="fp-otp-meta">
       <span>Didn't get a code?</span>
@@ -20,8 +25,8 @@
       }
     </p>
 
-    <button type="submit" class="btn-primary fp-submit" [disabled]="!complete() || submitting()">
-      @if (submitting()) {
+    <button type="submit" class="btn-primary fp-submit" [disabled]="!complete() || verifying()">
+      @if (verifying()) {
         <loading-spinner variant="xs" />
       } @else {
         <span>Verify code</span>

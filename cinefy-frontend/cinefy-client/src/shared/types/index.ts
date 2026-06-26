@@ -15,7 +15,7 @@ export type {
   OtpCodePayload,
   OtpType,
   SendOtpPayload,
-  ForgotPasswordPayload,
+  VerifyOtpPayload,
   ResetPasswordPayload,
 } from './auth';
 export type { CurrentUser } from './clients';

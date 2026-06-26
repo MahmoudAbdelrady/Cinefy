@@ -6,7 +6,7 @@ import type {
   LoginPayload,
   OtpCodePayload,
   SendOtpPayload,
-  ForgotPasswordPayload,
+  VerifyOtpPayload,
   ResetPasswordPayload,
 } from '../shared/types';
 import { ClientService } from './clients';
@@ -46,12 +46,8 @@ export class AuthService {
       .pipe(tap(() => this.clearAuthState()));
   }
 
-  forgotPassword(data: ForgotPasswordPayload): Observable<void> {
-    return this.http.post<void>('/clients/auth/forgot-password', data);
-  }
-
-  verifyResetCode(data: OtpCodePayload): Observable<void> {
-    return this.http.post<void>('/clients/auth/verify-reset-code', data);
+  verifyOtp(data: VerifyOtpPayload): Observable<void> {
+    return this.http.post<void>('/clients/auth/verify-otp', data);
   }
 
   resetPassword(data: ResetPasswordPayload): Observable<void> {

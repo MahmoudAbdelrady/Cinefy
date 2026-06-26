@@ -91,11 +91,11 @@
       <auth-otp-step
         heading="Verify your account"
         subheading="We emailed a 6-digit code to confirm your account. Enter it below to finish signing up."
+        otpType="EMAIL_VERIFICATION"
         [showBack]="false"
-        [submitting]="verifying()"
-        [resending]="resending()"
-        (verified)="onVerified($event)"
-        (resend)="onResend()"
+        [email]="signupForm.controls.email.value"
+        [verifyFn]="verifyAccount"
+        (verified)="onVerified()"
       />
     }
   }

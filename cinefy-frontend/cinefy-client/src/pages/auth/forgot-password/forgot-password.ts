@@ -1,4 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ToastService } from 'cinefy-ui/services';
 import { OtpStep } from '../../../components';
 import {
   DoneStep,
@@ -7,6 +9,7 @@ import {
   RequestStep,
   ResetStep,
 } from '../../../components/auth/forgot-password';
+import { AuthService } from '../../../services';
 
 @Component({
   selector: 'forgot-password-page',
@@ -15,15 +18,25 @@ import {
   styleUrl: './forgot-password.scss',
 })
 export class ForgotPasswordPage {
+  private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly stage = signal<ForgotPasswordStage>('request');
+
   protected readonly email = signal('');
+  protected readonly code = signal('');
+
+  protected readonly verifyOtp = (code: string) =>
+    this.authService.verifyOtp({ code, otpType: 'RESET_PASSWORD' });
 
   protected onRequested(email: string) {
     this.email.set(email);
     this.stage.set('otp');
   }
 
-  protected onVerified() {
+  protected onVerified(code: string) {
+    this.code.set(code);
     this.stage.set('reset');
   }
 
@@ -33,5 +46,16 @@ export class ForgotPasswordPage {
 
   protected onReset() {
     this.stage.set('done');
+  }
+
+  protected onRequestNewCode() {
+    this.authService
+      .sendOtp({ email: this.email(), otpType: 'RESET_PASSWORD' })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.code.set('');
+        this.stage.set('otp');
+        this.toastService.success('A new code has been sent to your email.');
+      });
   }
 }

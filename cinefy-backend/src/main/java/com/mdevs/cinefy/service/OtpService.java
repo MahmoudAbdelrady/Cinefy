@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +42,12 @@ public class OtpService {
         return otp;
     }
 
+    @Transactional
+    public Optional<Otp> validateAndConsume(String code, OtpType type) {
+        Otp otp = validate(code, type);
+        return consume(otp) ? Optional.of(otp) : Optional.empty();
+    }
+
     /**
      * @throws org.springframework.dao.DataIntegrityViolationException if a concurrent caller already issued an OTP
      */
@@ -58,8 +65,8 @@ public class OtpService {
     }
 
     @Transactional
-    public void consume(Otp otp) {
-        otpRepository.delete(otp);
+    public boolean consume(Otp otp) {
+        return otpRepository.deleteByIdReturningCount(otp.getId()) == 1;
     }
 
     // =========================== Helpers ===========================

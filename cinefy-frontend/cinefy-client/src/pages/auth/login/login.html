@@ -58,11 +58,11 @@
       <auth-otp-step
         heading="Verify your account"
         subheading="Your account isn't verified yet. We emailed a 6-digit code — enter it below to finish setting up."
+        otpType="EMAIL_VERIFICATION"
         [showBack]="false"
-        [submitting]="verifying()"
-        [resending]="resending()"
-        (verified)="onVerified($event)"
-        (resend)="onResend()"
+        [email]="loginForm.controls.email.value"
+        [verifyFn]="verifyAccount"
+        (verified)="onVerified()"
       />
     }
   }

@@ -195,6 +195,8 @@ $max-width: 1152px;
 }
 
 .alh-user-name {
+  @include text-truncate;
+  max-width: 160px;
   font-size: 14px;
   font-weight: 500;
 
