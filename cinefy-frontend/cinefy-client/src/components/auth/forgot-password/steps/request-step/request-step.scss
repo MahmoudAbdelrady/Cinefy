@@ -1,0 +1,17 @@
+@use '../../_fp-shared' as *;
+
+.fp-heading {
+  @include fp-heading;
+}
+
+.fp-form {
+  @include fp-form;
+}
+
+.fp-submit {
+  @include fp-submit;
+}
+
+.fp-back-link {
+  @include fp-back-link;
+}

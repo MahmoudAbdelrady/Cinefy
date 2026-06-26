@@ -1,0 +1,38 @@
+<div class="fp-stage">
+  <div class="fp-heading">
+    <h1>Forgot your password?</h1>
+    <p>Enter your email and we'll send a code to reset it.</p>
+  </div>
+
+  <form class="fp-form" [formGroup]="requestForm" (ngSubmit)="onSubmit()">
+    <input-field
+      label="Email"
+      type="text"
+      placeholder="Enter your email"
+      [leadingIcon]="icons.EmailIcon"
+      [control]="requestForm.controls.email"
+      [errorMessages]="{
+        required: 'Email is required',
+        pattern: 'Email must be a valid address',
+      }"
+    />
+
+    <button
+      type="submit"
+      class="btn-primary fp-submit"
+      [disabled]="requestForm.invalid || submitting()"
+    >
+      @if (submitting()) {
+        <loading-spinner variant="xs" />
+      } @else {
+        <span>Send reset code</span>
+        <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+      }
+    </button>
+  </form>
+
+  <a class="fp-back-link" routerLink="../login">
+    <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="16"></svg>
+    <span>Back to sign in</span>
+  </a>
+</div>

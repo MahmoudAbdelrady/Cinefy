@@ -1,8 +1,37 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from '../layout/app-layout/app-layout';
-import { HomePage, MovieDetailPage, MoviesPage, SeatSelectionPage } from '../pages';
+import { AuthLayout } from '../layout/auth-layout/auth-layout';
+import { authGuard, guestGuard } from '../shared/guards';
+import {
+  ForgotPasswordPage,
+  HomePage,
+  LoginPage,
+  MovieDetailPage,
+  MoviesPage,
+  SeatSelectionPage,
+  SignUpPage,
+} from '../pages';
 
 export const routes: Routes = [
+  {
+    path: 'membership',
+    component: AuthLayout,
+    canActivate: [guestGuard],
+    children: [
+      {
+        path: 'login',
+        component: LoginPage,
+      },
+      {
+        path: 'signup',
+        component: SignUpPage,
+      },
+      {
+        path: 'forgot-password',
+        component: ForgotPasswordPage,
+      },
+    ],
+  },
   {
     path: '',
     component: AppLayout,
@@ -22,6 +51,7 @@ export const routes: Routes = [
       {
         path: 'movies/:movieId/seats/:showtimeId',
         component: SeatSelectionPage,
+        canActivate: [authGuard],
       },
     ],
   },

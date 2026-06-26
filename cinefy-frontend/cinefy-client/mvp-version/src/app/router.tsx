@@ -8,8 +8,19 @@ import { CheckoutPage } from '@/pages/checkout/CheckoutPage'
 import { ConfirmationPage } from '@/pages/confirmation/ConfirmationPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
 import { NotFoundPage } from '@/pages/not-found/NotFoundPage'
+import { LoginPage } from '@/pages/auth/LoginPage'
+import { SignUpPage } from '@/pages/auth/SignUpPage'
+import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage'
+import { OtpPage } from '@/pages/auth/OtpPage'
+import { ChangePasswordPage } from '@/pages/auth/ChangePasswordPage'
 
 export const router = createBrowserRouter([
+  // Auth screens live outside RootLayout — no navbar/footer chrome.
+  { path: '/login', element: <LoginPage /> },
+  { path: '/signup', element: <SignUpPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/verify', element: <OtpPage /> },
+  { path: '/change-password', element: <ChangePasswordPage /> },
   {
     path: '/',
     element: <RootLayout />,

@@ -7,12 +7,13 @@
   <div class="lp-card">
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="lp-form">
       <input-field
-        label="Username"
-        placeholder="Enter your username"
-        [leadingIcon]="icons.AtSignIcon"
-        [control]="loginForm.controls.username"
+        label="Email"
+        placeholder="Enter your email"
+        [leadingIcon]="icons.EmailIcon"
+        [control]="loginForm.controls.email"
         [errorMessages]="{
-          required: 'Username is required',
+          required: 'Email is required',
+          pattern: 'Email must be a valid address',
         }"
       />
 

@@ -5,7 +5,8 @@ import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpButton } from 'ng-primitives/button';
 import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
-import { ArrowLeftIcon, ArrowRightIcon, AtSignIcon } from '../../../../../shared/icons';
+import { ArrowLeftIcon, ArrowRightIcon, EmailIcon } from '../../../../../shared/icons';
+import { EMAIL_PATTERN } from '../../../../../shared/validation';
 import { AuthService } from '../../../../../services/auth';
 
 @Component({
@@ -23,7 +24,7 @@ import { AuthService } from '../../../../../services/auth';
 })
 export class RequestStep {
   protected readonly icons = {
-    AtSignIcon,
+    EmailIcon,
     ArrowRightIcon,
     ArrowLeftIcon,
   };
@@ -36,23 +37,23 @@ export class RequestStep {
   protected readonly submitting = signal(false);
 
   protected readonly requestForm = new FormGroup({
-    username: new FormControl('', {
+    email: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(EMAIL_PATTERN)],
     }),
   });
 
   protected onSubmit() {
     if (this.requestForm.invalid || this.submitting()) return;
     this.submitting.set(true);
-    const username = this.requestForm.controls.username.value;
+    const email = this.requestForm.controls.email.value;
     this.authService
-      .forgotPassword({ username })
+      .forgotPassword({ email })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.submitting.set(false);
-          this.requested.emit(username);
+          this.requested.emit(email);
         },
         error: () => this.submitting.set(false),
       });

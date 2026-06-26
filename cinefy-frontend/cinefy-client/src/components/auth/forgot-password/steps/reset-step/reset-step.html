@@ -1,0 +1,62 @@
+<div class="fp-stage">
+  <div class="fp-heading">
+    <h1>Set a new password</h1>
+    <p>Choose a strong password you haven't used before.</p>
+  </div>
+
+  <form class="fp-form" [formGroup]="resetForm" (ngSubmit)="onSubmit()">
+    <input-field
+      label="New password"
+      type="password"
+      placeholder="Enter your password"
+      [leadingIcon]="icons.LockIcon"
+      [control]="resetForm.controls.newPassword"
+      [errorMessages]="{ required: 'Password is required' }"
+    />
+
+    <div class="fp-confirm">
+      <input-field
+        label="Confirm new password"
+        type="password"
+        placeholder="Confirm your password"
+        [leadingIcon]="icons.LockIcon"
+        [control]="resetForm.controls.confirmPassword"
+        [errorMessages]="{ required: 'Please confirm your password' }"
+      />
+      @if (resetForm.hasError('mismatch')) {
+        <p class="fp-mismatch">
+          <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="12" [strokeWidth]="2.4"></svg>
+          Passwords don't match.
+        </p>
+      }
+    </div>
+
+    <ul class="fp-checklist">
+      @for (check of checks(); track $index) {
+        <li class="fp-check" [class.fp-check--ok]="check.ok">
+          <svg [lucideIcon]="icons.CircleCheckIcon" [size]="14" [strokeWidth]="2.4"></svg>
+          {{ check.label }}
+        </li>
+      }
+    </ul>
+
+    <button
+      type="submit"
+      class="btn-primary fp-submit"
+      [disabled]="resetForm.invalid || submitting()"
+    >
+      @if (submitting()) {
+        <loading-spinner variant="xs" />
+      } @else {
+        <span>Save new password</span>
+        <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+      }
+    </button>
+
+    @if (codeRejected()) {
+      <button type="button" class="fp-request-code" (click)="onRequestNewCode()">
+        Request a new code
+      </button>
+    }
+  </form>
+</div>

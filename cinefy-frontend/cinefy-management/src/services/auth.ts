@@ -7,11 +7,12 @@ import type {
   VerifyResetCodePayload,
   ResetPasswordPayload,
 } from '../shared/types';
-import { skipErrorToast } from '../app/core/interceptors';
+import { StaffService } from './staff';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly staffService = inject(StaffService);
 
   // null = not yet checked this app session; true/false = known. Read by the route guards.
   private readonly authStatus = signal<boolean | null>(null);
@@ -28,7 +29,7 @@ export class AuthService {
   logout(): Observable<void> {
     return this.http
       .post<void>('/management/auth/logout', null)
-      .pipe(tap(() => this.authStatus.set(false)));
+      .pipe(tap(() => this.clearAuthState()));
   }
 
   forgotPassword(data: ForgotPasswordPayload): Observable<void> {
@@ -36,9 +37,7 @@ export class AuthService {
   }
 
   verifyResetCode(data: VerifyResetCodePayload): Observable<void> {
-    return this.http.post<void>('/management/auth/verify-reset-code', data, {
-      context: skipErrorToast(),
-    });
+    return this.http.post<void>('/management/auth/verify-reset-code', data);
   }
 
   resetPassword(data: ResetPasswordPayload): Observable<void> {
@@ -69,5 +68,6 @@ export class AuthService {
 
   clearAuthState(): void {
     this.authStatus.set(false);
+    this.staffService.clearCurrentStaffMember();
   }
 }

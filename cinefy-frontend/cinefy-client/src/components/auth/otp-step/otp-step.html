@@ -1,0 +1,44 @@
+<div class="fp-stage">
+  <div class="fp-heading">
+    <h1>{{ heading() }}</h1>
+    <p>{{ subheading() }}</p>
+  </div>
+
+  <form (ngSubmit)="onSubmit()">
+    <label class="fp-otp-label">Verification code</label>
+
+    <input-otp
+      [value]="code()"
+      [error]="error()"
+      (valueChange)="onCodeChange($event)"
+      (completeChange)="complete.set($event)"
+    />
+
+    <p class="fp-otp-meta">
+      <span>Didn't get a code?</span>
+      @if (resendCountdown() > 0) {
+        <span class="fp-otp-cooldown">{{ resendLabel() }}</span>
+      } @else {
+        <button type="button" class="fp-otp-resend" [disabled]="resending()" (click)="onResend()">
+          {{ resending() ? 'Sending…' : 'Resend code' }}
+        </button>
+      }
+    </p>
+
+    <button type="submit" class="btn-primary fp-submit" [disabled]="!complete() || verifying()">
+      @if (verifying()) {
+        <loading-spinner variant="xs" />
+      } @else {
+        <span>Verify code</span>
+        <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+      }
+    </button>
+  </form>
+
+  @if (showBack()) {
+    <button type="button" class="fp-back-link" (click)="onBack()">
+      <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="16"></svg>
+      <span>Use a different email</span>
+    </button>
+  }
+</div>

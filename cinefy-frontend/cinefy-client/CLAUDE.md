@@ -39,6 +39,7 @@ When writing or porting components, **be SSR-safe**:
 - Guard browser-only APIs (`window`, `document`, `localStorage`, `IntersectionObserver`) — use `afterNextRender`/`afterRender`, `isPlatformBrowser`, or `@angular/ssr` patterns so they don't execute during server render.
 - Prefer CSS-driven effects over JS measurement (hover, reveal, scrims) — they SSR cleanly.
 - Remote poster/backdrop images stay as plain `<img>` (with `loading`) so they render server-side without client-only image libraries.
+- **Decide where a fetch belongs by "does it belong in the server render?"** — public, SEO-relevant, identical-for-everyone reads (movie lists, detail pages) **should** render server-side: load them with `rxResource` (its default runs during SSR — that's correct here). Per-user / identity-bearing / browser-only data (auth/session, anything reading cookies/`localStorage`/`window`) **must not** render server-side: do it in `afterNextRender` with a plain `.subscribe()` or direct call — **not** `rxResource`. Forcing `rxResource` to be client-only means idle-gating its `params` on a browser flag, which adds more state than a simple `afterNextRender` subscription saves (see `app-layout.ts`: the auth/`getCurrentUser` chain runs in `afterNextRender` so the server renders the neutral spinner and the browser — which has the cookies — does the one real check).
 
 ## Project Structure
 

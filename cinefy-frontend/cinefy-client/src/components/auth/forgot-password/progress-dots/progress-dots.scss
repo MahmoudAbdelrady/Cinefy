@@ -1,0 +1,59 @@
+@use '../../../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+
+.progress-dots-container {
+  @include flex-center;
+  gap: 6px;
+  margin-bottom: 28px;
+}
+
+.fp-dot-group {
+  @include flex-column;
+  align-items: center;
+  gap: 6px;
+}
+
+.fp-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: $radius-full;
+  background-color: $color-secondary;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+
+  &--active {
+    background-color: $color-primary;
+    box-shadow: 0 0 0 4px rgba($color-primary, 0.2);
+  }
+
+  &--done {
+    background-color: $color-primary;
+  }
+}
+
+.fp-dot-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  color: $color-muted-foreground;
+  transition: color 150ms ease;
+
+  &--lit {
+    color: $color-foreground;
+  }
+}
+
+.fp-connector {
+  display: block;
+  width: 40px;
+  height: 1px;
+  margin-bottom: 20px;
+  background-color: $color-border;
+  transition: background-color 150ms ease;
+
+  &--done {
+    background-color: $color-primary;
+  }
+}

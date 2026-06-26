@@ -2,7 +2,9 @@ package com.mdevs.cinefy.config.general;
 
 import com.mdevs.cinefy.filter.CsrfValidationFilter;
 import com.mdevs.cinefy.filter.JwtAuthenticationFilter;
+import com.mdevs.cinefy.service.ClientService;
 import com.mdevs.cinefy.service.StaffMemberService;
+import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
 import com.mdevs.cinefy.shared.security.CinefyAuthenticationEntryPoint;
 import com.mdevs.cinefy.shared.security.CinefyApiAuthorizationManager;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -29,6 +32,8 @@ public class SecurityConfig {
 
     private final StaffMemberService staffMemberService;
 
+    private final ClientService clientService;
+
     private final PasswordEncoder passwordEncoder;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -40,10 +45,8 @@ public class SecurityConfig {
     private final CsrfValidationFilter csrfValidationFilter;
 
     @Bean
-    public AuthenticationManager managementAuthenticationManager() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(staffMemberService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return new ProviderManager(provider);
+    public CinefyAuthManagers cinefyAuthManagers() {
+        return new CinefyAuthManagers(buildManager(staffMemberService), buildManager(clientService));
     }
 
     @Bean
@@ -69,5 +72,11 @@ public class SecurityConfig {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private AuthenticationManager buildManager(UserDetailsService userDetailsService) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return new ProviderManager(provider);
     }
 }

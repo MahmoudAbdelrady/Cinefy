@@ -17,6 +17,10 @@ public interface OtpRepository extends BaseRepository<Otp> {
     boolean existsByCode(String code);
 
     @Modifying
+    @Query("DELETE FROM Otp o WHERE o.id = :id")
+    int deleteByIdReturningCount(@Param("id") Long id);
+
+    @Modifying
     @Query("DELETE FROM Otp o WHERE o.userId = :userId AND o.userType = :userType AND o.type = :type")
     void deleteByUserIdAndUserTypeAndType(@Param("userId") Long userId,
                                           @Param("userType") UserType userType,

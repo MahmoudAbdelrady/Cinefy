@@ -4,7 +4,13 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { baseUrlInterceptor } from './core/interceptors';
+import {
+  baseUrlInterceptor,
+  csrfInterceptor,
+  authRetryInterceptor,
+  errorToastInterceptor,
+} from './core/interceptors';
+import { provideCinefyToast } from 'cinefy-ui/services';
 import { provideMenuConfig } from 'ng-primitives/menu';
 
 export const appConfig: ApplicationConfig = {
@@ -12,7 +18,16 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withFetch(), withInterceptors([baseUrlInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([
+        baseUrlInterceptor,
+        csrfInterceptor,
+        authRetryInterceptor,
+        errorToastInterceptor,
+      ]),
+    ),
+    provideCinefyToast(),
     provideMenuConfig({ scrollBehavior: 'reposition' }),
   ],
 };

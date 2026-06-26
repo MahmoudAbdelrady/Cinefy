@@ -1,14 +1,13 @@
 package com.mdevs.cinefy.shared.security;
 
+import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.entity.enums.UserType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -21,15 +20,20 @@ public class UserPrincipal implements UserDetails {
 
     private final UserType type;
 
-    private final String username;
+    private final String email;
 
     private final String password;
 
     private final String position;
 
-    private final Collection<? extends GrantedAuthority> authorities;
+    private final List<SimpleGrantedAuthority> authorities;
 
     private static final String ROLE_PREFIX = "ROLE_";
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
 
     public static UserPrincipal fromStaffMember(StaffMember staffMember) {
         String position = staffMember.getPosition().name();
@@ -37,13 +41,27 @@ public class UserPrincipal implements UserDetails {
                 staffMember.getId(),
                 staffMember.getUuid(),
                 UserType.STAFF_MEMBER,
-                staffMember.getUsername(),
+                staffMember.getEmail(),
                 staffMember.getPassword(),
                 position,
                 List.of(new SimpleGrantedAuthority(ROLE_PREFIX + position)));
     }
 
+    public static UserPrincipal fromClient(Client client) {
+        return new UserPrincipal(
+                client.getId(),
+                client.getUuid(),
+                UserType.CLIENT,
+                client.getEmail(),
+                client.getPassword(),
+                null,
+                List.of());
+    }
+
     public static UserPrincipal fromJwtClaims(JwtClaims claims) {
+        List<SimpleGrantedAuthority> authorities = claims.position() == null || claims.position().isEmpty()
+                ? List.of()
+                : List.of(new SimpleGrantedAuthority(ROLE_PREFIX + claims.position()));
         return new UserPrincipal(
                 null,
                 claims.uuid(),
@@ -51,6 +69,6 @@ public class UserPrincipal implements UserDetails {
                 null,
                 null,
                 claims.position(),
-                List.of(new SimpleGrantedAuthority(ROLE_PREFIX + claims.position())));
+                authorities);
     }
 }

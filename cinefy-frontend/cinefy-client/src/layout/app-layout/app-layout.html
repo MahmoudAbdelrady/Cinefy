@@ -11,27 +11,63 @@
         </div>
       </div>
       <div class="alh-info">
-        <button class="alh-tickets-btn btn-primary" ngpButton [ngpDialogTrigger]="myTicketsDialog">
-          <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
-          <span class="tb-text">My Tickets</span>
+        <button
+          class="alh-tickets-btn btn-primary"
+          title="My Tickets"
+          ngpButton
+          [ngpDialogTrigger]="myTicketsDialog"
+        >
+          <svg [lucideIcon]="icons.TicketIcon" [size]="18"></svg>
           <span class="tb-count">2</span>
         </button>
         <ng-template #myTicketsDialog let-close="close">
           <my-tickets-list [close]="close" />
         </ng-template>
-        <button class="alh-user-info" ngpButton [ngpMenuTrigger]="userInfoMenu">
-          <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
-        </button>
-        <ng-template #userInfoMenu>
-          <div class="user-info-menu-items" ngpMenu>
-            @for (item of userInfoMenuItems; track item.label) {
-              <button class="uim-item" ngpMenuItem (click)="item.action()">
-                <svg [lucideIcon]="item.icon" [size]="16"></svg>
-                <span>{{ item.label }}</span>
-              </button>
-            }
+        @if (isAuthenticatedLoading() || currentUserLoading()) {
+          <div class="alh-auth-loading">
+            <loading-spinner variant="sm" />
           </div>
-        </ng-template>
+        } @else if (isAuthenticated()) {
+          <button class="alh-user" ngpButton [ngpMenuTrigger]="userInfoMenu">
+            <span class="alh-user-icon">
+              <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
+            </span>
+            @if (userDisplayName()) {
+              <span class="alh-user-name">{{ userDisplayName() }}</span>
+            }
+          </button>
+          <ng-template #userInfoMenu>
+            <div class="user-info-menu-items" ngpMenu>
+              @for (item of userInfoMenuItems; track item.label) {
+                <button
+                  class="uim-item"
+                  ngpMenuItem
+                  [disabled]="item.loading?.() ?? false"
+                  (click)="item.action()"
+                >
+                  @if (item.loading?.()) {
+                    <loading-spinner variant="sm" />
+                  } @else {
+                    <svg [lucideIcon]="item.icon" [size]="16"></svg>
+                  }
+                  <span>{{ item.label }}</span>
+                </button>
+              }
+            </div>
+          </ng-template>
+        } @else {
+          <span class="alh-divider"></span>
+          <div class="alh-auth">
+            <a class="alh-auth-btn btn-secondary" routerLink="/membership/login">
+              <svg [lucideIcon]="icons.LoginIcon" [size]="16"></svg>
+              <span class="ab-text">Login</span>
+            </a>
+            <a class="alh-auth-btn btn-primary" routerLink="/membership/signup">
+              <svg [lucideIcon]="icons.SignupIcon" [size]="16"></svg>
+              <span class="ab-text">Sign up</span>
+            </a>
+          </div>
+        }
       </div>
     </div>
   </header>

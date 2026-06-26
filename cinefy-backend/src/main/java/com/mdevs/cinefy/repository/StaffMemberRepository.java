@@ -14,7 +14,7 @@ public interface StaffMemberRepository extends BaseRepository<StaffMember> {
 
     Optional<StaffMember> findByUuid(String uuid);
 
-    Optional<StaffMember> findByUsername(String username);
+    Optional<StaffMember> findByEmail(String email);
 
     @Query("SELECT s FROM StaffMember s " +
             "WHERE s.position != 'ADMIN' "
@@ -30,10 +30,6 @@ public interface StaffMemberRepository extends BaseRepository<StaffMember> {
             "COALESCE(SUM(CASE WHEN s.position = 'USHER' THEN 1 ELSE 0 END), 0)) " +
             "FROM StaffMember s")
     PositionCoverageProjection getPositionCoverage();
-
-    boolean existsByUsername(String username);
-
-    boolean existsByUsernameAndIdNot(String username, Long id);
 
     boolean existsByEmail(String email);
 

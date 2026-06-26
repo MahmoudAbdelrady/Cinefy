@@ -25,14 +25,46 @@ public class EmailService {
 
     @Async
     public void sendPasswordResetOtp(String to, String name, String code, int expiryMinutes) {
-        Map<String, Object> variables = Map.of(
-                "name", name,
-                "code", code,
-                "expiryMinutes", expiryMinutes);
-        send(to, "Reset your password", "reset-password-otp", variables);
+        sendOtpVerification(
+                to,
+                "Reset your password",
+                "Reset your password",
+                "We received a request to reset your password. Use the verification code below to continue. "
+                        + "Do not share this code with anyone.",
+                "If you didn't request a password reset, you can safely ignore this email — your password will remain unchanged.",
+                name,
+                code,
+                expiryMinutes);
+    }
+
+    @Async
+    public void sendEmailVerificationOtp(String to, String name, String code, int expiryMinutes) {
+        sendOtpVerification(
+                to,
+                "Verify your email",
+                "Verify your email",
+                "Welcome to Cinefy! Use the verification code below to confirm your email address and activate your "
+                        + "account. Do not share this code with anyone.",
+                "If you didn't create a Cinefy account, you can safely ignore this email.",
+                name,
+                code,
+                expiryMinutes);
     }
 
     // =========================== Helpers ===========================
+
+    private void sendOtpVerification(String to, String title, String heading, String intro, String disclaimer,
+                                     String name, String code, int expiryMinutes) {
+        Map<String, Object> variables = Map.of(
+                "title", title,
+                "heading", heading,
+                "intro", intro,
+                "disclaimer", disclaimer,
+                "name", name,
+                "code", code,
+                "expiryMinutes", expiryMinutes);
+        send(to, title, "otp-verification-template", variables);
+    }
 
     private void send(String to, String subject, String templateName, Map<String, Object> variables) {
         try {

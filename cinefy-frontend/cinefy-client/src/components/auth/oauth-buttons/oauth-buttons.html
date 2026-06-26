@@ -1,0 +1,10 @@
+<div class="ob-divider">or continue with</div>
+
+<div class="ob-grid">
+  @for (provider of providers; track provider.code) {
+    <button type="button" class="btn-base ob-btn" (click)="provider.authenticate()">
+      <img class="ob-icon" [src]="provider.iconSrc" [alt]="provider.label" />
+      <span>{{ provider.label }}</span>
+    </button>
+  }
+</div>

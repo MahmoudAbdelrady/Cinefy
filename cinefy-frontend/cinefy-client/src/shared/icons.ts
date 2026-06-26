@@ -3,6 +3,10 @@ export {
   LucideTicket as TicketIcon,
   LucideClapperboard as ClapperboardIcon,
   LucideLogOut as LogoutIcon,
+  LucideLogIn as LoginIcon,
+  LucideUserPlus as SignupIcon,
+  LucideMail as EmailIcon,
+  LucideLock as LockIcon,
   LucideClock as ClockIcon,
   LucideCalendar as CalendarIcon,
   LucideMapPin as MapPinIcon,
@@ -19,4 +23,6 @@ export {
   LucideSlidersHorizontal as SlidersHorizontalIcon,
   LucideX as XIcon,
   LucideTriangleAlert as TriangleAlertIcon,
+  LucideCircleCheck as CircleCheckIcon,
+  LucideShieldCheck as ShieldCheckIcon,
 } from '@lucide/angular';

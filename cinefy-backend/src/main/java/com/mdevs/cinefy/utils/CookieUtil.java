@@ -16,8 +16,6 @@ public class CookieUtil {
 
     private static final String ROOT_PATH = "/";
 
-    private static final String AUTH_PATH = "/management/auth";
-
     @Value("${cinefy.cookie.secure}")
     private boolean secure;
 
@@ -37,8 +35,8 @@ public class CookieUtil {
         return build(JwtUtil.ACCESS_TOKEN_COOKIE, value, expirationMs, false, ROOT_PATH);
     }
 
-    public ResponseCookie buildRefreshTokenCookie(String value, long expirationMs) {
-        return build(JwtUtil.REFRESH_TOKEN_COOKIE, value, expirationMs, true, AUTH_PATH);
+    public ResponseCookie buildRefreshTokenCookie(String value, long expirationMs, String path) {
+        return build(JwtUtil.REFRESH_TOKEN_COOKIE, value, expirationMs, true, path);
     }
 
     public ResponseCookie buildCsrfTokenCookie(String value, long expirationMs) {

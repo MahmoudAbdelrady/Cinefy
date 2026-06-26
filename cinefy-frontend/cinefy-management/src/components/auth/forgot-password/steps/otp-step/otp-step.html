@@ -9,18 +9,11 @@
       <label class="fp-otp-label">Verification code</label>
 
       <input-otp
-        [(value)]="code"
+        [value]="code"
         [error]="error()"
         (valueChange)="onCodeChange($event)"
         (completeChange)="complete.set($event)"
       />
-
-      @if (error(); as errorText) {
-        <p class="fp-otp-error">
-          <svg [lucideIcon]="icons.AlertIcon" [size]="14" [strokeWidth]="2.2"></svg>
-          {{ errorText }}
-        </p>
-      }
 
       <p class="fp-otp-meta">
         <span>Didn't get a code?</span>
@@ -51,6 +44,6 @@
 
   <button type="button" class="fp-back-link" (click)="onBack()">
     <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="14" [strokeWidth]="2"></svg>
-    Use a different username
+    Use a different email
   </button>
 </div>
