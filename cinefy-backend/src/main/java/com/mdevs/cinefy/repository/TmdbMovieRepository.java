@@ -17,15 +17,35 @@ import java.util.Set;
 public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
 
     @Modifying
-    @Query("""
-            DELETE FROM TmdbMovie m
-            WHERE NOT EXISTS (SELECT 1 FROM Showtime s WHERE s.tmdbMovie = m)
-            AND (m.isAnnounced = false OR m.releaseDate <= :today)
-            """)
-    int deleteOrphans(@Param("today") LocalDate today);
+    @Query(
+            value = """
+                    DELETE FROM TMDB_MOVIES WHERE ID IN (
+                        SELECT ID FROM TMDB_MOVIES m
+                        WHERE NOT EXISTS (SELECT 1 FROM SHOWTIMES s WHERE s.TMDB_MOVIE_ID = m.ID)
+                        AND (m.IS_ANNOUNCED = false OR m.RELEASE_DATE <= :cutoffDate)
+                        ORDER BY m.ID
+                        LIMIT :batchSize
+                    )
+                    """,
+            nativeQuery = true
+    )
+    int deleteOrphansBatch(@Param("cutoffDate") LocalDate cutoffDate, @Param("batchSize") int batchSize);
 
-    @Query("SELECT m FROM TmdbMovie m WHERE m.isAnnounced = true AND m.releaseDate > :today ORDER BY m.releaseDate ASC")
-    List<TmdbMovie> findAnnouncedUpcoming(@Param("today") LocalDate today);
+    @Modifying
+    @Query("""
+            UPDATE TmdbMovie m SET m.isHighlighted = false
+            WHERE m.isHighlighted = true
+            AND NOT EXISTS (
+                SELECT 1 FROM Showtime s
+                WHERE s.tmdbMovie = m AND s.status IN :committedStatuses
+            )
+            AND (m.isAnnounced = false OR m.releaseDate <= :cutoffDate)
+            """)
+    int demoteIneligibleHighlighted(@Param("cutoffDate") LocalDate cutoffDate,
+                                    @Param("committedStatuses") Set<ShowtimeStatus> committedStatuses);
+
+    @Query("SELECT m FROM TmdbMovie m WHERE m.isAnnounced = true AND m.releaseDate > :cutoffDate ORDER BY m.releaseDate ASC")
+    List<TmdbMovie> findAnnouncedUpcoming(@Param("cutoffDate") LocalDate cutoffDate);
 
     @Query("""
             SELECT m AS movie, (COUNT(s.id) > 0) AS hasCommittedShowtime
@@ -33,13 +53,13 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
             LEFT JOIN Showtime s ON s.tmdbMovie = m AND s.status IN :statuses
             WHERE m.isHighlighted = true
             AND (
-                (m.isAnnounced = true AND m.releaseDate > :today)
+                (m.isAnnounced = true AND m.releaseDate > :cutoffDate)
                 OR s.id IS NOT NULL
             )
             GROUP BY m
             ORDER BY m.releaseDate DESC
             """)
-    List<MovieWithCommittedShowtimeProjection> findHighlightedWithBookingFlag(@Param("today") LocalDate today, @Param("statuses") Set<ShowtimeStatus> statuses);
+    List<MovieWithCommittedShowtimeProjection> findHighlightedWithBookingFlag(@Param("cutoffDate") LocalDate cutoffDate, @Param("statuses") Set<ShowtimeStatus> statuses);
 
     @Query("""
             SELECT m AS movie, (MAX(CASE WHEN s.is3D = true THEN 1 ELSE 0 END) > 0) AS is3D, STRING_AGG(ht.name, ',') AS hallTypes

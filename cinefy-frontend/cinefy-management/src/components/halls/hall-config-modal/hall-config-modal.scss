@@ -86,14 +86,28 @@
     @include flex-between;
     padding: 12px;
     border-radius: $radius-md;
-    border: 1px solid $gray-200;
+    border: 2px solid $gray-200;
     background-color: $gray-50;
-    margin-top: 12px;
+    margin-top: 16px;
+    cursor: pointer;
+    transition: all 150ms ease;
 
-    > span {
+    &:hover {
+      border-color: $gray-300;
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+
+      &:hover {
+        border-color: $gray-200;
+      }
+    }
+
+    .sg-label-text {
       font-size: 14px;
       font-weight: 500;
-      color: $gray-700;
+      color: $gray-900;
     }
   }
 }

@@ -12,6 +12,7 @@
         placeholder="Enter your password"
         [leadingIcon]="icons.LockIcon"
         [control]="resetForm.controls.newPassword"
+        [blockClipboard]="true"
         [errorMessages]="{
           required: 'Password is required',
           pattern: 'Password is too weak',
@@ -26,6 +27,7 @@
       placeholder="Confirm your password"
       [leadingIcon]="icons.LockIcon"
       [control]="resetForm.controls.confirmPassword"
+      [blockClipboard]="true"
       [errorMessages]="{
         required: 'Please confirm your password',
         mismatch: 'Passwords do not match',

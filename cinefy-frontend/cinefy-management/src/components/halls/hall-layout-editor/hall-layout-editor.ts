@@ -1,14 +1,20 @@
 import { Component, computed, input, model, output } from '@angular/core';
+import { EmptyStateComponent } from 'cinefy-ui/components';
 import type { Seat, SeatCategory } from '../../../shared/types';
+import { LayoutTemplateIcon } from '../../../shared/icons';
 import { rowLabel, seatStats } from '../seat-layout';
 
 @Component({
   selector: 'hall-layout-editor',
-  imports: [],
+  imports: [EmptyStateComponent],
   templateUrl: './hall-layout-editor.html',
   styleUrl: './hall-layout-editor.scss',
 })
 export class HallLayoutEditorComponent {
+  protected readonly icons = {
+    LayoutTemplateIcon,
+  };
+
   readonly selectedSeatType = input<SeatCategory>('NORMAL');
   readonly selectedOnsiteOnly = input(false);
   readonly disabled = input(false);
@@ -18,6 +24,8 @@ export class HallLayoutEditorComponent {
   readonly layoutReset = output<void>();
 
   protected readonly rowLabel = rowLabel;
+
+  protected readonly hasLayout = computed(() => (this.seatLayout()[0]?.length ?? 0) > 0);
 
   protected readonly stats = computed(() => seatStats(this.seatLayout()));
 

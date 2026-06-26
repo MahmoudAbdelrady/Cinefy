@@ -125,14 +125,14 @@
               [container]="modal.panelEl()"
               (selectionChange)="onHallTypeChange($event)"
             />
-            <div class="switch-group">
-              <span>Supports 3D</span>
+            <label class="switch-group" [class.disabled]="isViewMode()">
+              <span class="sg-label-text">Supports 3D</span>
               <cui-switch
                 [checked]="supports3DValue()"
                 [disabled]="isViewMode()"
                 (checkedChange)="hallForm.controls.supports3D.setValue($event)"
               />
-            </div>
+            </label>
           </div>
           @if (!isViewMode()) {
             <div class="input-group">

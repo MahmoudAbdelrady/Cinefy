@@ -19,7 +19,7 @@ export function rowLabelToIndex(label: string): number {
   return (repeat - 1) * 26 + letterCode;
 }
 
-export function createDefaultGrid(rows = 10, cols = 12): Seat[][] {
+export function createSeatGrid(rows: number, cols: number): Seat[][] {
   return Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => ({ type: 'NORMAL' as SeatCategory, onsiteOnly: false })),
   );

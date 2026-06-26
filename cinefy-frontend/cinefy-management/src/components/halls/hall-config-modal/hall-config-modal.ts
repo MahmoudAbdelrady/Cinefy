@@ -53,13 +53,7 @@ import {
 } from '../../../shared/types';
 import { HallLayoutEditorComponent } from '../hall-layout-editor/hall-layout-editor';
 import { HallsService } from '../../../services';
-import {
-  createDefaultGrid,
-  resizeGrid,
-  rowLabel,
-  rowLabelToIndex,
-  seatStats,
-} from '../seat-layout';
+import { createSeatGrid, resizeGrid, rowLabel, rowLabelToIndex, seatStats } from '../seat-layout';
 
 const MAX_GRID_DIMENSION = 50;
 
@@ -214,7 +208,7 @@ export class HallConfigModalComponent {
     { initialValue: null },
   );
   protected readonly seatLayout = linkedSignal<{ rows: number; cols: number }, Seat[][]>({
-    source: () => ({ rows: this.numRowsValue() ?? 10, cols: this.seatsPerRowValue() ?? 12 }),
+    source: () => ({ rows: this.numRowsValue() ?? 0, cols: this.seatsPerRowValue() ?? 0 }),
     computation: ({ rows, cols }, previous) => resizeGrid(previous?.value ?? [], rows, cols),
   });
 
@@ -368,7 +362,7 @@ export class HallConfigModalComponent {
         normalPrice: null,
         vipPrice: null,
       });
-      this.seatLayout.set(createDefaultGrid());
+      this.seatLayout.set([]);
     }
   }
 
@@ -384,7 +378,7 @@ export class HallConfigModalComponent {
         normalPrice: null,
         vipPrice: null,
       });
-      this.seatLayout.set(createDefaultGrid());
+      this.seatLayout.set([]);
     }
   }
 
@@ -517,7 +511,7 @@ export class HallConfigModalComponent {
   }
 
   private convertApiLayoutToSeatGrid(layout: SeatLayout, rows: number, cols: number): Seat[][] {
-    const grid: Seat[][] = createDefaultGrid(rows, cols);
+    const grid: Seat[][] = createSeatGrid(rows, cols);
 
     const onSiteOnlySet = new Set(layout.onSiteOnly ?? []);
 

@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -26,9 +27,29 @@ public class TmdbSyncJob {
     public void syncTmdbMovies() {
         log.info("TMDB sync job: starting");
 
-        int deleted = tmdbMovieService.deleteOrphans();
+        int demoted = tmdbMovieService.demoteIneligibleHighlighted();
+        log.info("TMDB sync job: demoted {} stale highlighted movies", demoted);
+
+        int deleted = deleteOrphanMovies();
         log.info("TMDB sync job: deleted {} orphan movies", deleted);
 
+        RefreshResult refresh = refreshMovies();
+
+        log.info("TMDB sync job: done (demoted={}, deleted={}, refreshed={}, failed={})", demoted, deleted, refresh.refreshed(), refresh.failed());
+    }
+
+    private int deleteOrphanMovies() {
+        LocalDate today = LocalDate.now();
+        int deleted = 0;
+        int deletedBatch;
+        do {
+            deletedBatch = tmdbMovieService.deleteOrphanBatch(today, BATCH_SIZE);
+            deleted += deletedBatch;
+        } while (deletedBatch == BATCH_SIZE);
+        return deleted;
+    }
+
+    private RefreshResult refreshMovies() {
         long maxId = 0L;
         int refreshed = 0;
         int failed = 0;
@@ -50,6 +71,9 @@ public class TmdbSyncJob {
             maxId = batch.getLast().getId();
         }
 
-        log.info("TMDB sync job: done (deleted={}, refreshed={}, failed={})", deleted, refreshed, failed);
+        return new RefreshResult(refreshed, failed);
+    }
+
+    private record RefreshResult(int refreshed, int failed) {
     }
 }

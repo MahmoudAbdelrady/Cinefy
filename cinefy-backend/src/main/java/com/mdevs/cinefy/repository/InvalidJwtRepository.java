@@ -13,8 +13,8 @@ public interface InvalidJwtRepository extends BaseRepository<InvalidJwt> {
 
     @Modifying
     @Query(
-            value = "DELETE FROM INVALID_JWTS WHERE ID IN (SELECT ID FROM INVALID_JWTS WHERE EXPIRATION_DATE < :now ORDER BY ID LIMIT :batchSize)",
+            value = "DELETE FROM INVALID_JWTS WHERE ID IN (SELECT ID FROM INVALID_JWTS WHERE EXPIRATION_DATE < :cutoffDate ORDER BY ID LIMIT :batchSize)",
             nativeQuery = true
     )
-    int deleteExpiredBatch(@Param("now") LocalDateTime now, @Param("batchSize") int batchSize);
+    int deleteExpiredBatch(@Param("cutoffDate") LocalDateTime cutoffDate, @Param("batchSize") int batchSize);
 }

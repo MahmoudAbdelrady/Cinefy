@@ -71,6 +71,11 @@
   gap: 12px;
   overflow: auto;
   scrollbar-gutter: stable;
+
+  empty-state {
+    margin: auto;
+  }
+
   min-width: 0;
   flex: 1;
   padding-top: 4px;

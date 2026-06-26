@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.job;
 
-import com.mdevs.cinefy.repository.OtpRepository;
+import com.mdevs.cinefy.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,7 +15,7 @@ public class OtpCleanupJob {
 
     private static final int BATCH_SIZE = 100;
 
-    private final OtpRepository otpRepository;
+    private final OtpService otpService;
 
     @Scheduled(cron = "0 0 3 * * *")
     public void deleteExpiredOtps() {
@@ -23,7 +23,7 @@ public class OtpCleanupJob {
         int total = 0;
         int deleted;
         do {
-            deleted = otpRepository.deleteExpiredBatch(now, BATCH_SIZE);
+            deleted = otpService.deleteExpiredBatch(now, BATCH_SIZE);
             total += deleted;
         } while (deleted == BATCH_SIZE);
 

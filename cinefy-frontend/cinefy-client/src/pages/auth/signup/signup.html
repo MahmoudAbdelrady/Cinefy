@@ -60,6 +60,7 @@
             placeholder="At least 8 characters"
             [leadingIcon]="icons.LockIcon"
             [control]="signupForm.controls.password"
+            [blockClipboard]="true"
             [errorMessages]="{
               required: 'Password is required',
               pattern: 'Password is too weak',
@@ -67,6 +68,19 @@
           />
           <password-checklist [control]="signupForm.controls.password" />
         </div>
+
+        <input-field
+          label="Confirm password"
+          type="password"
+          placeholder="Re-enter the new password"
+          [leadingIcon]="icons.LockIcon"
+          [control]="signupForm.controls.confirmPassword"
+          [blockClipboard]="true"
+          [errorMessages]="{
+            required: 'Please confirm your password',
+            mismatch: 'Passwords do not match',
+          }"
+        />
 
         <button
           type="submit"
