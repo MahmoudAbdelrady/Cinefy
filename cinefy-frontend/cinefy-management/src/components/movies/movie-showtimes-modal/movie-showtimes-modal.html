@@ -32,9 +32,9 @@
             }}
             scheduled
           </div>
-          <div class="ds-items">
+          <ul class="ds-items">
             @for (showtimeDetail of movieShowtimeDetails(); track showtimeDetail.id) {
-              <div class="ds-item">
+              <li class="ds-item">
                 <div class="ds-info">
                   <div class="dsi-details">
                     <span class="dsid-time">{{ showtimeDetail.time | time12h }}</span>
@@ -52,7 +52,6 @@
                     <div class="dsi-actions">
                       @if (showtimeDetail.status === 'DRAFT') {
                         <button
-                          ngpButton
                           class="dsi-action dsi-action-publish"
                           title="Publish"
                           [disabled]="publishingShowtimeIds().has(showtimeDetail.id)"
@@ -67,7 +66,6 @@
                       }
                       @if (showtimeDetail.status !== 'RUNNING') {
                         <button
-                          ngpButton
                           class="dsi-action dsi-action-edit"
                           title="Edit"
                           (click)="onEditShowtime(showtimeDetail)"
@@ -75,7 +73,6 @@
                           <svg [lucideIcon]="icons.EditIcon" [size]="14"></svg>
                         </button>
                         <button
-                          ngpButton
                           class="dsi-action dsi-action-delete"
                           title="Delete"
                           [ngpDialogTrigger]="deleteDialog"
@@ -112,9 +109,8 @@
                       </div>
 
                       <div modal-footer class="delete-modal-footer">
-                        <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+                        <button class="btn-secondary" (click)="close()">Cancel</button>
                         <button
-                          ngpButton
                           class="btn-danger"
                           [disabled]="deletingShowtimeIds().has(showtimeDetail.id)"
                           (click)="onDeleteShowtime(showtimeDetail.id, close)"
@@ -158,9 +154,9 @@
                     }
                   </div>
                 }
-              </div>
+              </li>
             }
-          </div>
+          </ul>
         </div>
       </div>
     </div>
@@ -168,7 +164,6 @@
   @if (canManage() && !loadingDates() && movieShowtimes(); as data) {
     <div modal-footer class="movie-showtimes-footer" [class.has-drafts]="hasAnyDrafts()">
       <button
-        ngpButton
         [class]="hasAnyDrafts() ? 'btn-add-outlined' : 'btn-add-solid'"
         (click)="onAddShowtime()"
       >
@@ -179,7 +174,6 @@
       <div class="publish-cluster">
         @if (hasOtherDrafts()) {
           <button
-            ngpButton
             [class]="hasDayDrafts() ? 'btn-publish-outlined' : 'btn-publish-solid'"
             [disabled]="publishingAll()"
             (click)="onPublishAllDrafts()"
@@ -194,7 +188,6 @@
         }
         @if (hasDayDrafts()) {
           <button
-            ngpButton
             class="btn-publish-solid"
             [disabled]="publishingDay()"
             (click)="onPublishDayDrafts()"

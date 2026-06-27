@@ -21,6 +21,11 @@
   color: $blue-600;
 }
 
+.hall-config-error {
+  @include flex-center;
+  min-height: 65vh;
+}
+
 // ─── Hall Information ───────────────────────────────────────────────────────────
 
 .hall-information {
@@ -81,14 +86,28 @@
     @include flex-between;
     padding: 12px;
     border-radius: $radius-md;
-    border: 1px solid $gray-200;
+    border: 2px solid $gray-200;
     background-color: $gray-50;
-    margin-top: 12px;
+    margin-top: 16px;
+    cursor: pointer;
+    transition: all 150ms ease;
 
-    > span {
+    &:hover {
+      border-color: $gray-300;
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+
+      &:hover {
+        border-color: $gray-200;
+      }
+    }
+
+    .sg-label-text {
       font-size: 14px;
       font-weight: 500;
-      color: $gray-700;
+      color: $gray-900;
     }
   }
 }
@@ -410,25 +429,13 @@
   justify-content: flex-end;
   width: 100%;
 
-  .cancel-btn {
-    padding: 8px 24px;
-    color: $gray-700;
-    border: 1px solid $gray-300;
-    border-radius: $radius-md;
-    transition: all 150ms ease;
-
-    &:hover {
-      background-color: $gray-200;
-    }
-  }
-
   .save-btns {
     @include flex-align;
     gap: 12px;
   }
 
   @include below-phone {
-    .cancel-btn,
+    .btn-secondary,
     .btn-primary {
       width: 100%;
     }

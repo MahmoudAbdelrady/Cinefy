@@ -14,8 +14,6 @@ import type {
 export class HallsService {
   private readonly http = inject(HttpClient);
 
-  // ========================= Hall Types =========================
-
   getHallTypes(): Observable<HallType[]> {
     return this.http.get<HallType[]>('/halls/types');
   }
@@ -31,8 +29,6 @@ export class HallsService {
   deleteHallType(id: string): Observable<void> {
     return this.http.delete<void>(`/halls/types/${id}`);
   }
-
-  // ============================= Halls ===========================
 
   getHalls(excludeHallId?: string, statuses?: HallStatus[]): Observable<HallSummary[]> {
     const params = {

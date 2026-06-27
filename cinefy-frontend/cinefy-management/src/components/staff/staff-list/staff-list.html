@@ -9,6 +9,7 @@
         <input-field
           [control]="searchControl"
           [leadingIcon]="icons.SearchIcon"
+          [clearable]="true"
           placeholder="Search staff…"
         />
       </div>
@@ -30,132 +31,132 @@
         <loading-spinner variant="md" />
       </div>
     } @else {
-      @for (member of staffMembers(); track member.id) {
-        <div class="staff-member">
-          <div class="staff-info">
-            <div class="si-img" [attr.data-position]="member.position">
-              <span class="si-img-ink"></span>
-              <span class="si-img-glow"></span>
-              <span class="si-img-initials">{{ getInitials(member.fullName) }}</span>
-            </div>
-            <div class="si-details">
-              <div class="sid-name-box">
-                <span class="sidb-name">{{ member.fullName }}</span>
-                <div class="sidb-position" [attr.data-position]="member.position">
-                  <span class="sidbp-dot"></span>
-                  <span>{{ positionLabels[member.position] }}</span>
-                </div>
+      <ul class="staff-members">
+        @for (member of staffMembers(); track member.id) {
+          <li class="staff-member">
+            <div class="staff-info">
+              <div class="si-img" [attr.data-position]="member.position">
+                <span class="si-img-ink"></span>
+                <span class="si-img-glow"></span>
+                <span class="si-img-initials">{{ getInitials(member.fullName) }}</span>
               </div>
-              <div class="sid-contact">
-                <div class="sidc-item">
-                  <svg [lucideIcon]="icons.EmailIcon" [size]="14"></svg>
-                  <span>{{ member.email }}</span>
-                </div>
-                <div class="sidc-item">
-                  <svg [lucideIcon]="icons.PhoneIcon" [size]="14"></svg>
-                  <span>{{ member.phoneNumber | phoneFormat }}</span>
-                </div>
-                <div class="sidc-item">
-                  <svg [lucideIcon]="icons.CalendarIcon" [size]="14"></svg>
-                  <span>
-                    {{ weekDayLabels[member.workingDayStart] }} –
-                    {{ weekDayLabels[member.workingDayEnd] }}
-                  </span>
-                </div>
-                <div class="sidc-item">
-                  <svg [lucideIcon]="icons.ClockIcon" [size]="14"></svg>
-                  <span>
-                    {{ member.workingHourStart | time12h }} –
-                    {{ member.workingHourEnd | time12h }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="staff-actions">
-            <button ngpButton class="sa-btn sa-btn-view" [ngpDialogTrigger]="viewDialog">
-              <svg [lucideIcon]="icons.EyeIcon" [size]="16"></svg>
-              <span>View</span>
-            </button>
-            @if (canManageRow(member)) {
-              <button ngpButton class="sa-btn sa-btn-edit" (click)="openEditDialog(member.id)">
-                <svg [lucideIcon]="icons.EditIcon" [size]="16"></svg>
-                <span>Edit</span>
-              </button>
-              <button ngpButton class="sa-btn sa-btn-delete" [ngpDialogTrigger]="deleteDialog">
-                <svg [lucideIcon]="icons.DeleteIcon" [size]="16"></svg>
-                <span>Delete</span>
-              </button>
-            }
-
-            <ng-template #viewDialog let-close="close">
-              <staff-details
-                [staffMemberId]="member.id"
-                [close]="close"
-                (editRequested)="openEditDialog($event)"
-              />
-            </ng-template>
-            <ng-template #deleteDialog let-close="close">
-              <app-modal modalTitle="Delete Staff Member" [close]="close" width="448px">
-                <div class="delete-modal-content">
-                  <div class="dmc-icon">
-                    <svg [lucideIcon]="icons.AlertIcon" [size]="24" [strokeWidth]="2"></svg>
+              <div class="si-details">
+                <div class="sid-name-box">
+                  <span class="sidb-name">{{ member.fullName }}</span>
+                  <div class="sidb-position" [attr.data-position]="member.position">
+                    <span class="sidbp-dot"></span>
+                    <span>{{ positionLabels[member.position] }}</span>
                   </div>
-                  <p class="dmc-message">
-                    Are you sure you want to remove <strong>{{ member.fullName }}</strong> from the
-                    staff roster? This action cannot be undone and will revoke their access
-                    immediately.
-                  </p>
-                  <div class="dmc-warning">
-                    <svg [lucideIcon]="icons.AlertIcon" [size]="16" [strokeWidth]="2"></svg>
-                    <div>
-                      <p><strong>Warning:</strong></p>
-                      <ul>
-                        <li>Their login credentials will be revoked</li>
-                        <li>Active shift assignments will be cleared</li>
-                        <li>Historical attendance records will be archived</li>
-                      </ul>
+                </div>
+                <div class="sid-contact">
+                  <div class="sidc-item">
+                    <svg [lucideIcon]="icons.EmailIcon" [size]="14"></svg>
+                    <span>{{ member.email }}</span>
+                  </div>
+                  <div class="sidc-item">
+                    <svg [lucideIcon]="icons.PhoneIcon" [size]="14"></svg>
+                    <span>{{ member.phoneNumber | phoneFormat }}</span>
+                  </div>
+                  <div class="sidc-item">
+                    <svg [lucideIcon]="icons.CalendarIcon" [size]="14"></svg>
+                    <span>
+                      {{ weekDayLabels[member.workingDayStart] }} –
+                      {{ weekDayLabels[member.workingDayEnd] }}
+                    </span>
+                  </div>
+                  <div class="sidc-item">
+                    <svg [lucideIcon]="icons.ClockIcon" [size]="14"></svg>
+                    <span>
+                      {{ member.workingHourStart | time12h }} –
+                      {{ member.workingHourEnd | time12h }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="staff-actions">
+              <button class="sa-btn sa-btn-view" [ngpDialogTrigger]="viewDialog">
+                <svg [lucideIcon]="icons.EyeIcon" [size]="16"></svg>
+                <span>View</span>
+              </button>
+              @if (canManageRow(member)) {
+                <button class="sa-btn sa-btn-edit" (click)="openEditDialog(member.id)">
+                  <svg [lucideIcon]="icons.EditIcon" [size]="16"></svg>
+                  <span>Edit</span>
+                </button>
+                <button class="sa-btn sa-btn-delete" [ngpDialogTrigger]="deleteDialog">
+                  <svg [lucideIcon]="icons.DeleteIcon" [size]="16"></svg>
+                  <span>Delete</span>
+                </button>
+              }
+
+              <ng-template #viewDialog let-close="close">
+                <staff-details
+                  [staffMemberId]="member.id"
+                  [close]="close"
+                  (editRequested)="openEditDialog($event)"
+                />
+              </ng-template>
+              <ng-template #deleteDialog let-close="close">
+                <app-modal modalTitle="Delete Staff Member" [close]="close" width="448px">
+                  <div class="delete-modal-content">
+                    <div class="dmc-icon">
+                      <svg [lucideIcon]="icons.AlertIcon" [size]="24" [strokeWidth]="2"></svg>
+                    </div>
+                    <p class="dmc-message">
+                      Are you sure you want to remove <strong>{{ member.fullName }}</strong> from
+                      the staff roster? This action cannot be undone and will revoke their access
+                      immediately.
+                    </p>
+                    <div class="dmc-warning">
+                      <svg [lucideIcon]="icons.AlertIcon" [size]="16" [strokeWidth]="2"></svg>
+                      <div>
+                        <p><strong>Warning:</strong></p>
+                        <ul>
+                          <li>Their login credentials will be revoked</li>
+                          <li>Active shift assignments will be cleared</li>
+                          <li>Historical attendance records will be archived</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div modal-footer class="delete-modal-footer">
-                  <button
-                    ngpButton
-                    class="btn-secondary"
-                    [disabled]="deletingStaffIds().has(member.id)"
-                    (click)="close()"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    ngpButton
-                    class="btn-danger"
-                    [disabled]="deletingStaffIds().has(member.id)"
-                    (click)="deleteStaffMember(member.id, close)"
-                  >
-                    @if (deletingStaffIds().has(member.id)) {
-                      <span>Deleting…</span>
-                    } @else {
-                      <span>Delete Member</span>
-                    }
-                  </button>
-                </div>
-              </app-modal>
-            </ng-template>
-          </div>
-        </div>
-      } @empty {
-        <empty-state
-          [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.UsersIcon"
-          [title]="hasFilters() ? 'No staff members found' : 'No staff members yet'"
-          [description]="
-            hasFilters()
-              ? 'Try adjusting your filters.'
-              : 'Add a staff member to start building your cinema team.'
-          "
-        />
-      }
+                  <div modal-footer class="delete-modal-footer">
+                    <button
+                      class="btn-secondary"
+                      [disabled]="deletingStaffIds().has(member.id)"
+                      (click)="close()"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      class="btn-danger"
+                      [disabled]="deletingStaffIds().has(member.id)"
+                      (click)="deleteStaffMember(member.id, close)"
+                    >
+                      @if (deletingStaffIds().has(member.id)) {
+                        <span>Deleting…</span>
+                      } @else {
+                        <span>Delete Member</span>
+                      }
+                    </button>
+                  </div>
+                </app-modal>
+              </ng-template>
+            </div>
+          </li>
+        } @empty {
+          <empty-state
+            [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.UsersIcon"
+            [title]="hasFilters() ? 'No staff members found' : 'No staff members yet'"
+            [description]="
+              hasFilters()
+                ? 'Try adjusting your filters.'
+                : 'Add a staff member to start building your cinema team.'
+            "
+          />
+        }
+      </ul>
     }
   </div>
   <pagination-component

@@ -26,7 +26,6 @@ import {
   SlidersHorizontalIcon,
   UsersIcon,
 } from '../../../shared/icons';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   ModalComponent,
@@ -62,7 +61,6 @@ import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
     PaginationComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
-    NgpButton,
     NgpDialogTrigger,
     ModalComponent,
     StaffDetailsComponent,

@@ -14,6 +14,7 @@ export {
   LucideCalendar as CalendarIcon,
   LucideClock as ClockIcon,
   LucideCircleCheckBig as CircleCheckBigIcon,
+  LucideCircleCheck as CircleCheckIcon,
   LucideCircleX as CircleXIcon,
   LucideClapperboard as ClapperboardIcon,
 } from "@lucide/angular";

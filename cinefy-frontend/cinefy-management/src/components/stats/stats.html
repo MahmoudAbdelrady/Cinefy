@@ -1,6 +1,6 @@
-<div class="statistics">
+<ul class="statistics">
   @for (card of cards(); track card.label; let i = $index) {
-    <div class="stat-card" [class]="VARIANTS[i % VARIANTS.length]">
+    <li class="stat-card" [class]="VARIANTS[i % VARIANTS.length]">
       <span class="sc-rule"></span>
 
       <div class="sc-head">
@@ -13,6 +13,6 @@
       <div class="sc-value">
         <span class="sc-value-inner">{{ card.value }}</span>
       </div>
-    </div>
+    </li>
   }
-</div>
+</ul>

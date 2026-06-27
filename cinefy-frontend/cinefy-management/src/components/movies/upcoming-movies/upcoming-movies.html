@@ -23,6 +23,7 @@
         <input-field
           [control]="searchControl"
           [leadingIcon]="icons.SearchIcon"
+          [clearable]="true"
           placeholder="Search movies…"
         />
       </div>
@@ -34,9 +35,9 @@
         <loading-spinner variant="md" />
       </div>
     } @else {
-      <div class="um-list">
+      <ul class="um-list">
         @for (upcomingMovie of filteredMovies(); track upcomingMovie.id) {
-          <div class="movie-card">
+          <li class="movie-card">
             <div class="mc-main">
               <div class="mc-img">
                 <media-image
@@ -71,7 +72,7 @@
                   </div>
                 }
                 <div class="mc-actions">
-                  <button ngpButton [ngpDialogTrigger]="scheduleDialog">Schedule Showtimes</button>
+                  <button [ngpDialogTrigger]="scheduleDialog">Schedule Showtimes</button>
                 </div>
 
                 <ng-template #scheduleDialog let-close="close">
@@ -155,7 +156,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </li>
         } @empty {
           <empty-state
             class="um-empty"
@@ -164,7 +165,7 @@
             [description]="hasFilters() ? 'Try adjusting your filters.' : null"
           />
         }
-      </div>
+      </ul>
     }
   </div>
 </div>

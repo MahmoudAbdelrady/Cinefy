@@ -12,7 +12,12 @@
       placeholder="e.g. Paymob Credit Cards"
       hint="Choose a name that tells configurations apart at a glance — gateway, type, or environment usually works well."
       [control]="form().controls.name"
-      [errorMessages]="{ required: 'Display name is required' }"
+      [errorMessages]="{
+        required: 'Display name is required',
+        maxlength: 'Display name must not exceed 50 characters',
+        pattern:
+          'Name may only contain letters, numbers, single spaces, and hyphens, with no leading or trailing spaces',
+      }"
     />
     <div class="input-group">
       <label>Provider</label>

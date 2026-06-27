@@ -14,7 +14,7 @@ export type Currency = keyof typeof CURRENCY_LABELS;
 export function buildIntegrationForm() {
   return new FormGroup({
     integrationId: new FormControl<number | null>(null, {
-      validators: [Validators.required, Validators.min(1)],
+      validators: [Validators.required, Validators.pattern(/^[1-9]\d*$/)],
     }),
     currency: new FormControl<Currency | null>(null, {
       validators: [Validators.required],

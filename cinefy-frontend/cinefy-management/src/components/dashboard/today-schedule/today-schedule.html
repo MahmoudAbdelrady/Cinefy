@@ -10,9 +10,9 @@
       </div>
     </div>
   </div>
-  <div class="today-schedule-list">
+  <ul class="today-schedule-list">
     @for (movie of todayScheduleMovies; track movie.title) {
-      <div class="ts-card" [class.in-progress]="movie.status === 'In Progress'">
+      <li class="ts-card" [class.in-progress]="movie.status === 'In Progress'">
         <div class="ts-poster">
           <img [src]="movie.poster" [alt]="movie.title" />
         </div>
@@ -48,9 +48,9 @@
             <svg [lucideIcon]="icons.ChevronRightIcon" [size]="16"></svg>
           </div>
         </div>
-      </div>
+      </li>
     }
-  </div>
+  </ul>
   <div class="ts-actions">
     <a [routerLink]="'/movies'">View Full Schedule</a>
   </div>

@@ -1,13 +1,15 @@
 <div class="input-field-wrapper">
   @if (label(); as labelText) {
-  <label class="if-label" [attr.data-required]="required ? '' : null">{{ labelText }}</label>
+  <label class="if-label" [attr.data-required]="required ? '' : null"
+    >{{ labelText }}</label
+  >
   }
 
   <div
     class="if-input"
     [attr.data-size]="size()"
     [class.has-leading]="!!leadingIcon()"
-    [class.has-trailing]="type() === 'password'"
+    [class.has-trailing]="type() === 'password' || showClear()"
   >
     @if (leadingIcon(); as icon) {
     <svg class="if-leading" [lucideIcon]="icon" [size]="18"></svg>
@@ -24,8 +26,15 @@
       (paste)="onClipboardEvent($event)"
     />
     @if (type() === 'password') {
-    <button ngpButton type="button" class="if-toggle" (click)="toggleShowPassword()">
-      <svg [lucideIcon]="showPassword() ? icons.EyeOffIcon : icons.EyeIcon" [size]="18"></svg>
+    <button type="button" class="if-toggle" (click)="toggleShowPassword()">
+      <svg
+        [lucideIcon]="showPassword() ? icons.EyeOffIcon : icons.EyeIcon"
+        [size]="18"
+      ></svg>
+    </button>
+    } @else if (showClear()) {
+    <button type="button" class="if-toggle" (click)="clear()">
+      <svg [lucideIcon]="icons.XIcon" [size]="18"></svg>
     </button>
     }
   </div>

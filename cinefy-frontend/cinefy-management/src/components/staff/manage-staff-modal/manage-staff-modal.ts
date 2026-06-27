@@ -15,6 +15,7 @@ import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import {
   ModalComponent,
   InputField,
+  PasswordChecklist,
   CustomSelectComponent,
   LoadingSpinnerComponent,
   DEFAULT_COUNTRY,
@@ -46,6 +47,7 @@ import { assignableStaffPositions } from '../../../shared/access';
   imports: [
     ModalComponent,
     InputField,
+    PasswordChecklist,
     PhoneInput,
     CustomSelectComponent,
     NgpRadioGroup,

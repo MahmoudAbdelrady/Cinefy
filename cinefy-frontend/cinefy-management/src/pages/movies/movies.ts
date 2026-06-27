@@ -11,7 +11,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { PlusIcon } from '../../shared/icons';
 import { canManage as canManagePosition } from '../../shared/access';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   CurrentShowtimesComponent,
@@ -25,7 +24,6 @@ import { HeaderActionsService, StaffService } from '../../services';
   selector: 'movies-page',
   imports: [
     LucideDynamicIcon,
-    NgpButton,
     NgpDialogTrigger,
     ManageShowtimeModalComponent,
     MoviesStatisticsComponent,

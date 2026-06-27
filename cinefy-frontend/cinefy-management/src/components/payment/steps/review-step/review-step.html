@@ -21,7 +21,7 @@
           </div>
           <div class="rsh-info">
             <h4>{{ payment.name || '—' }}</h4>
-            <span>{{ typeLabels[payment.type] }} · {{ payment.currency }}</span>
+            <span>{{ typeLabels[payment.type] }} • {{ payment.currency }}</span>
           </div>
         </div>
         <div class="rsc-tag" [attr.data-is-test]="payment.testMode">
@@ -97,7 +97,7 @@
             }
           </p>
         </div>
-        <button ngpButton class="btn-primary" [disabled]="loading()" (click)="runTest()">
+        <button class="btn-primary" [disabled]="loading()" (click)="runTest()">
           @if (loading()) {
             <loading-spinner variant="sm" />
             <span>Testing…</span>
@@ -115,9 +115,9 @@
           <div class="rsctr-info">
             <h5>
               @if (result.fromPriorSession) {
-                Last test {{ isFailure ? 'failed' : 'passed' }}
+                Last test: {{ isFailure ? 'Failed' : 'Passed' }}
                 @if (result.testedAt) {
-                  · <span class="rsctr-time">{{ result.testedAt | relativeTime }}</span>
+                  • <span class="rsctr-time">{{ result.testedAt | relativeTime }}</span>
                 }
               } @else {
                 {{ isFailure ? 'Connection failed' : 'Connection successful' }}

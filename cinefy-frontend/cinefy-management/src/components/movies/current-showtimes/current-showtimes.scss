@@ -231,7 +231,7 @@
   min-width: 0;
 
   span:not(:last-child)::after {
-    content: '·';
+    content: '•';
     margin: 0 6px;
     color: $gray-400;
   }

@@ -53,16 +53,32 @@
           [numberControl]="signupForm.controls.phoneNumber"
         />
 
+        <div class="input-group">
+          <input-field
+            label="Password"
+            type="password"
+            placeholder="At least 8 characters"
+            [leadingIcon]="icons.LockIcon"
+            [control]="signupForm.controls.password"
+            [blockClipboard]="true"
+            [errorMessages]="{
+              required: 'Password is required',
+              pattern: 'Password is too weak',
+            }"
+          />
+          <password-checklist [control]="signupForm.controls.password" />
+        </div>
+
         <input-field
-          label="Password"
+          label="Confirm password"
           type="password"
-          placeholder="At least 8 characters"
+          placeholder="Re-enter the new password"
           [leadingIcon]="icons.LockIcon"
-          [control]="signupForm.controls.password"
+          [control]="signupForm.controls.confirmPassword"
+          [blockClipboard]="true"
           [errorMessages]="{
-            required: 'Password is required',
-            pattern:
-              'Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a symbol',
+            required: 'Please confirm your password',
+            mismatch: 'Passwords do not match',
           }"
         />
 

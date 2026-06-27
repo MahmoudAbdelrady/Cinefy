@@ -5,76 +5,6 @@
 
 .search-bar {
   margin-bottom: 16px;
-
-  [ngpSearch] {
-    position: relative;
-  }
-
-  svg {
-    display: flex;
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: $gray-400;
-    pointer-events: none;
-    width: 20px;
-    height: 20px;
-  }
-
-  input[ngpInput] {
-    width: 100%;
-    padding: 12px 80px 12px 48px;
-    border: 1px solid $gray-300;
-    border-radius: $radius-xl;
-    font-size: 16px;
-    color: $gray-900;
-    background: #ffffff;
-    transition:
-      border-color 150ms ease,
-      box-shadow 150ms ease;
-
-    &::placeholder {
-      color: $gray-400;
-    }
-
-    &:focus {
-      outline: none;
-      border-color: transparent;
-      box-shadow: 0 0 0 2px $blue-500;
-    }
-
-    &::-webkit-search-cancel-button {
-      display: none;
-    }
-  }
-
-  button[ngpSearchClear] {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 4px 10px;
-    font-size: 12px;
-    font-weight: 500;
-    color: $gray-500;
-    background: transparent;
-    border: none;
-    border-radius: $radius-md;
-    cursor: pointer;
-    transition:
-      color 150ms ease,
-      background-color 150ms ease;
-
-    &:hover {
-      color: $gray-700;
-      background: $gray-100;
-    }
-
-    &[data-empty] {
-      display: none;
-    }
-  }
 }
 
 .search-placeholder {
@@ -232,7 +162,7 @@
     white-space: nowrap;
 
     &:not(:last-child)::after {
-      content: '·';
+      content: '•';
       margin-left: 8px;
       color: $gray-400;
     }
@@ -260,11 +190,6 @@
 }
 
 @include below-phone {
-  .search-bar input[ngpInput] {
-    padding: 10px 72px 10px 44px;
-    font-size: 15px;
-  }
-
   .search-placeholder {
     padding: 32px 12px;
   }

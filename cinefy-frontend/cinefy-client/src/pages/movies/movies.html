@@ -10,6 +10,7 @@
         placeholder="Search by title…"
         [control]="searchControl"
         [leadingIcon]="icons.SearchIcon"
+        [clearable]="true"
       />
     </div>
 
@@ -82,7 +83,7 @@
         {{ filteredMovies().length === 1 ? 'result' : 'results' }}</span
       >
       @if (hasFilters()) {
-        <span class="ms-divider">·</span>
+        <span class="ms-divider">•</span>
       }
       @if (trimmedSearch()) {
         <span class="filter-chip">
@@ -119,33 +120,37 @@
     </div>
 
     @if (filteredMovies().length) {
-      <div class="movies-grid">
+      <ul class="movies-grid">
         @for (movie of filteredMovies(); track movie.id) {
-          <a
-            class="movie-card reveal"
-            routerLink="/movies/{{ movie.id }}"
-            [style.animation-delay.ms]="$index * 70"
-          >
-            <div class="mc-poster">
-              <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
-              <div class="mc-poster-overlay">
-                <button class="mc-tickets-btn btn-primary">Get Tickets</button>
+          <li>
+            <a
+              class="movie-card reveal"
+              routerLink="/movies/{{ movie.id }}"
+              [style.animation-delay.ms]="$index * 70"
+            >
+              <div class="mc-poster">
+                <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
+                <div class="mc-poster-overlay">
+                  <button class="mc-tickets-btn btn-primary">Get Tickets</button>
+                </div>
               </div>
-            </div>
-            <div class="mc-meta">
-              <div class="mc-title">
-                <h4>{{ movie.title }}</h4>
-                @if (movie.is3D) {
-                  <span>3D</span>
-                }
+              <div class="mc-meta">
+                <div class="mc-title">
+                  <h4>{{ movie.title }}</h4>
+                  @if (movie.is3D) {
+                    <span>3D</span>
+                  }
+                </div>
+                <div class="mc-subtitle">
+                  @if (movie.genres?.length) {
+                    <p>{{ movie.genres!.join(', ') }}</p>
+                  }
+                </div>
               </div>
-              <div class="mc-subtitle">
-                <p>{{ movie.genres?.join(', ') }}</p>
-              </div>
-            </div>
-          </a>
+            </a>
+          </li>
         }
-      </div>
+      </ul>
     } @else {
       <div class="movies-empty">
         <empty-state

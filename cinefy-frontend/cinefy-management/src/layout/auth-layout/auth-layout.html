@@ -1,15 +1,19 @@
 <div class="auth-layout-container">
   <div class="alc-header">
-    <div class="alch-icon">
-      <svg [lucideIcon]="icons.ClapperboardIcon" [size]="17" [strokeWidth]="2.3"></svg>
-    </div>
-    <div class="alch-info">
-      <h3>Cinefy</h3>
-      <p>Management Console</p>
-    </div>
+    <a class="alch-brand" routerLink="/login">
+      <div class="alch-icon">
+        <svg [lucideIcon]="icons.ClapperboardIcon" [size]="17" [strokeWidth]="2.3"></svg>
+      </div>
+      <div class="alch-info">
+        <h3>Cinefy</h3>
+        <p>Management Console</p>
+      </div>
+    </a>
   </div>
   <div class="alc-content">
-    <router-outlet />
+    <div class="alc-shell">
+      <router-outlet />
+    </div>
   </div>
   <div class="alc-footer">
     <span>v1.0.0</span>

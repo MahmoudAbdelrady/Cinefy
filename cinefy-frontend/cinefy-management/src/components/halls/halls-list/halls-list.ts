@@ -11,7 +11,6 @@ import {
   TagIcon,
   UsersIcon,
 } from '../../../shared/icons';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -35,7 +34,6 @@ import { HallsService } from '../../../services';
   selector: 'halls-list',
   imports: [
     LucideDynamicIcon,
-    NgpButton,
     NgpDialogTrigger,
     InputField,
     CustomSelectComponent,

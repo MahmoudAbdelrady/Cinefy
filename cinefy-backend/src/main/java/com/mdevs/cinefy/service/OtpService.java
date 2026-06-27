@@ -69,6 +69,11 @@ public class OtpService {
         return otpRepository.deleteByIdReturningCount(otp.getId()) == 1;
     }
 
+    @Transactional
+    public int deleteExpiredBatch(LocalDateTime cutoffDate, int batchSize) {
+        return otpRepository.deleteExpiredBatch(cutoffDate, batchSize);
+    }
+
     // =========================== Helpers ===========================
 
     private String generateUniqueCode() {

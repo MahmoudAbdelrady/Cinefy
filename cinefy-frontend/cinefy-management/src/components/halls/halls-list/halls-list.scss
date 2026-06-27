@@ -159,7 +159,7 @@
 
 .ahidc-item {
   @include flex-align;
-  gap: 4px;
+  gap: 6px;
   @include lucide-icon-fix;
 
   &.current-movie {
@@ -183,7 +183,7 @@
 // ─── Status Badges ──────────────────────────────────────────────────────────────
 
 .ahidh-status {
-  &[data-status='NOW_SHOWING'] {
+  &[data-status='ACTIVE'] {
     background-color: $green-100;
     color: $green-700;
   }
@@ -225,7 +225,7 @@
     justify-content: flex-end;
   }
 
-  button[ngpButton] {
+  button {
     @include flex-align;
     @include lucide-icon-fix;
     gap: 8px;

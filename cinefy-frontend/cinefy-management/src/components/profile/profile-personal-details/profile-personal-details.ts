@@ -2,14 +2,7 @@ import { Component, computed, DestroyRef, inject, input, output, signal } from '
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
-import {
-  SaveIcon,
-  EditIcon,
-  EmailIcon,
-  PhoneIcon,
-  LockIcon,
-  UserIcon,
-} from '../../../shared/icons';
+import { EditIcon, EmailIcon, PhoneIcon, LockIcon, UserIcon } from '../../../shared/icons';
 import {
   InputField,
   LoadingSpinnerComponent,
@@ -44,7 +37,6 @@ export class ProfilePersonalDetailsComponent {
     EmailIcon,
     PhoneIcon,
     EditIcon,
-    SaveIcon,
     UserIcon,
     LockIcon,
   };

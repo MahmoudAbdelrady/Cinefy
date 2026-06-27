@@ -1,5 +1,5 @@
 <div class="payment-method-list-container">
-  <div class="payment-method-items">
+  <ul class="payment-method-items">
     @if (loading()) {
       <div class="pm-loading">
         <loading-spinner variant="md" />
@@ -8,7 +8,7 @@
       @for (paymentMethod of paymentMethods(); track paymentMethod.id) {
         @let rotationStatus = getRotationStatus(paymentMethod);
         @let successTone = getSuccessRateTone(paymentMethod.successRate);
-        <div class="method-item" [attr.data-status]="paymentMethod.status">
+        <li class="method-item" [attr.data-status]="paymentMethod.status">
           <div class="mi-header">
             <div class="mih-info">
               <div class="mihi-details">
@@ -24,7 +24,7 @@
                   </div>
                   <div class="mihi-meta-row">
                     <span class="mihi-meta-type">{{ typeLabels[paymentMethod.type] }}</span>
-                    <span class="mihi-meta-divider">·</span>
+                    <span class="mihi-meta-divider">•</span>
                     <span class="mihi-meta-currency">{{ paymentMethod.currency }}</span>
                   </div>
                 </div>
@@ -35,7 +35,7 @@
               </div>
             </div>
             <div class="mih-actions">
-              <button [ngpMenuTrigger]="paymentActionsMenu" ngpButton>
+              <button [ngpMenuTrigger]="paymentActionsMenu">
                 <svg [lucideIcon]="icons.EllipsisIcon" size="16"></svg>
               </button>
 
@@ -114,7 +114,6 @@
 
                   <div modal-footer class="delete-modal-footer">
                     <button
-                      ngpButton
                       class="btn-secondary"
                       [disabled]="deletingMethodIds().has(paymentMethod.id)"
                       (click)="close()"
@@ -122,7 +121,6 @@
                       Cancel
                     </button>
                     <button
-                      ngpButton
                       class="btn-danger"
                       [disabled]="deletingMethodIds().has(paymentMethod.id)"
                       (click)="deletePaymentMethod(paymentMethod.id, close)"
@@ -142,7 +140,7 @@
           <div class="mi-content">
             <div class="mic-meta-strip">
               <div class="mics-rate" [attr.data-tone]="successTone">
-                <span class="mics-rate-label">Success rate · 30d</span>
+                <span class="mics-rate-label">Success rate • 30d</span>
                 <span class="mics-rate-value">{{ paymentMethod.successRate ?? '—' }}</span>
                 <div class="mics-rate-tone">
                   <span class="mics-rate-tone-dot"></span>
@@ -176,7 +174,7 @@
                     }
                     @if (paymentMethod.testedAt) {
                       <span class="mics-tested-at"
-                        >· {{ paymentMethod.testedAt | relativeTime }}</span
+                        >• {{ paymentMethod.testedAt | relativeTime }}</span
                       >
                     }
                     @if (
@@ -230,7 +228,6 @@
             @let isDraft = paymentMethod.status === 'DRAFT';
             <div class="mi-footer">
               <button
-                ngpButton
                 [class]="isDraft ? 'btn-success' : 'btn-secondary'"
                 [disabled]="updatingStatusMethodIds().has(paymentMethod.id)"
                 (click)="updateStatus(paymentMethod.id, 'ACTIVE')"
@@ -248,7 +245,7 @@
               </button>
             </div>
           }
-        </div>
+        </li>
       } @empty {
         <empty-state
           class="pm-empty"
@@ -258,5 +255,5 @@
         />
       }
     }
-  </div>
+  </ul>
 </div>

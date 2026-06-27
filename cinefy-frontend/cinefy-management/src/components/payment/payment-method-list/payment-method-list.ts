@@ -24,7 +24,6 @@ import {
   WebhookIcon,
   ZapIcon,
 } from '../../../shared/icons';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpMenuTrigger, NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
@@ -42,6 +41,11 @@ import {
   type PaymentMethodType,
 } from '../../../shared/types';
 
+const CREDENTIALS_RECENT_DAYS = 30;
+const CREDENTIALS_DUE_DAYS = 90;
+const HEALTHY_SUCCESS_RATE = 95;
+const WATCH_SUCCESS_RATE = 80;
+
 @Component({
   selector: 'payment-method-list',
   imports: [
@@ -56,7 +60,6 @@ import {
     LoadingSpinnerComponent,
     EmptyStateComponent,
     ManagePaymentModalComponent,
-    NgpButton,
     DatePipe,
     RelativeTimePipe,
   ],
@@ -83,11 +86,6 @@ export class PaymentMethodListComponent {
   private readonly paymentMethodService = inject(PaymentMethodService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
-
-  private static readonly CREDENTIALS_RECENT_DAYS = 30;
-  private static readonly CREDENTIALS_DUE_DAYS = 90;
-  private static readonly HEALTHY_SUCCESS_RATE = 95;
-  private static readonly WATCH_SUCCESS_RATE = 80;
 
   protected readonly typeLabels = PAYMENT_METHOD_TYPE_LABELS;
   protected readonly statusLabels = PAYMENT_METHOD_STATUS_LABELS;
@@ -211,9 +209,9 @@ export class PaymentMethodListComponent {
     const rotatedAt = new Date(method.credentialsRotatedAt);
     const daysSinceRotation = differenceInCalendarDays(new Date(), rotatedAt);
 
-    if (daysSinceRotation < PaymentMethodListComponent.CREDENTIALS_RECENT_DAYS) {
+    if (daysSinceRotation < CREDENTIALS_RECENT_DAYS) {
       return 'recent';
-    } else if (daysSinceRotation < PaymentMethodListComponent.CREDENTIALS_DUE_DAYS) {
+    } else if (daysSinceRotation < CREDENTIALS_DUE_DAYS) {
       return 'due';
     } else {
       return 'overdue';
@@ -226,8 +224,8 @@ export class PaymentMethodListComponent {
     if (!match) return 'empty';
     const value = parseFloat(match[1]);
     if (isNaN(value) || value === 0) return 'empty';
-    if (value >= PaymentMethodListComponent.HEALTHY_SUCCESS_RATE) return 'healthy';
-    if (value >= PaymentMethodListComponent.WATCH_SUCCESS_RATE) return 'watch';
+    if (value >= HEALTHY_SUCCESS_RATE) return 'healthy';
+    if (value >= WATCH_SUCCESS_RATE) return 'watch';
     return 'degraded';
   }
 

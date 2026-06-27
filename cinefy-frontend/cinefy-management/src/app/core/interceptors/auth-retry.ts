@@ -24,9 +24,11 @@ export const authRetryInterceptor: HttpInterceptorFn = (req, next) => {
 
       return authService.refresh().pipe(
         switchMap(() => next(req)),
-        catchError(() => {
-          authService.clearAuthState();
-          router.navigateByUrl('/login');
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 401) {
+            authService.clearAuthState();
+            router.navigateByUrl('/login');
+          }
           return throwError(() => error);
         }),
       );

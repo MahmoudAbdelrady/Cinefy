@@ -73,7 +73,7 @@
       gap: 12px;
     }
 
-    button[ngpButton] {
+    button {
       @include flex-align;
       gap: 8px;
       padding: 10px 16px;
@@ -113,8 +113,8 @@
       }
     }
 
-    button[ngpButton].secondary-btn,
-    button[ngpButton]:has(.secondary-btn) {
+    button.secondary-btn,
+    button:has(.secondary-btn) {
       background: #ffffff;
       color: $blue-600;
       border: 1px solid $blue-300;
@@ -130,7 +130,7 @@
 .user-info-container {
   position: relative;
 
-  > button[ngpButton] {
+  > button {
     @include flex-align;
     gap: 12px;
     padding: 6px 12px 6px 6px;
@@ -217,8 +217,13 @@
   transition: background-color 150ms ease;
   cursor: pointer;
 
-  &:hover {
+  &:not(:disabled):hover {
     background-color: $gray-50;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   svg {
@@ -232,7 +237,7 @@
     padding-top: 10px;
     border-top: 1px solid $gray-100;
 
-    &:hover {
+    &:not(:disabled):hover {
       background-color: $red-50;
     }
 

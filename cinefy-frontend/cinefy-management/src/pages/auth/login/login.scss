@@ -2,12 +2,6 @@
 @use 'cinefy-ui/styles/mixins' as *;
 @use '../../../components/auth/auth-card' as *;
 
-:host {
-  display: block;
-  width: 100%;
-  max-width: 460px;
-}
-
 .login-page {
   width: 100%;
 }

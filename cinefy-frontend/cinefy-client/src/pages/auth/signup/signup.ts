@@ -6,12 +6,14 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
   InputField,
+  PasswordChecklist,
   LoadingSpinnerComponent,
   PhoneInput,
   phoneNumberValidator,
   toE164Digits,
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
+import { linkConfirmPassword } from 'cinefy-ui/forms';
 import { OAuthButtonsComponent, OtpStep } from '../../../components';
 import { AuthFormStage } from '../../../shared/types';
 import { AuthService } from '../../../services';
@@ -25,6 +27,7 @@ import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/i
     RouterLink,
     LucideDynamicIcon,
     InputField,
+    PasswordChecklist,
     PhoneInput,
     LoadingSpinnerComponent,
     OAuthButtonsComponent,
@@ -83,6 +86,10 @@ export class SignUpPage {
       nonNullable: true,
       validators: [Validators.required, Validators.pattern(PASSWORD_PATTERN)],
     }),
+    confirmPassword: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
   });
 
   protected readonly verifyAccount = (code: string) => this.authService.verifyAccount({ code });
@@ -90,6 +97,11 @@ export class SignUpPage {
   constructor() {
     this.signupForm.controls.phoneNumber.addValidators(
       phoneNumberValidator(this.signupForm.controls.phoneCountry),
+    );
+    linkConfirmPassword(
+      this.signupForm.controls.password,
+      this.signupForm.controls.confirmPassword,
+      this.destroyRef,
     );
   }
 

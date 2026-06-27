@@ -39,6 +39,11 @@
   }
 }
 
+.input-group {
+  @include flex-column;
+  gap: 8px;
+}
+
 .sp-submit {
   @include lucide-icon-fix;
   width: 100%;

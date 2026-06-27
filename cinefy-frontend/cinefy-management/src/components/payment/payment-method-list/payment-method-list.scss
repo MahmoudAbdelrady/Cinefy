@@ -252,7 +252,7 @@
 .mih-actions {
   flex-shrink: 0;
 
-  > button[ngpButton] {
+  > button {
     @include flex-center;
     width: 28px;
     height: 28px;

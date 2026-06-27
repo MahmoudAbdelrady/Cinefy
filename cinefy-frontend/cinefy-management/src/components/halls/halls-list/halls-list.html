@@ -9,6 +9,7 @@
         <input-field
           [control]="searchControl"
           [leadingIcon]="icons.SearchIcon"
+          [clearable]="true"
           placeholder="Search halls…"
         />
       </div>
@@ -30,9 +31,9 @@
         <loading-spinner variant="xl" />
       </div>
     } @else {
-      <div class="ah-items-container">
+      <ul class="ah-items-container">
         @for (hall of filteredHalls(); track hall.id) {
-          <div class="ah-item">
+          <li class="ah-item">
             <div class="ahi-info">
               <div class="ahi-info-icon">
                 <svg [lucideIcon]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></svg>
@@ -40,11 +41,9 @@
               <div class="ahi-info-details">
                 <div class="ahid-header">
                   <h4>{{ hall.name }}</h4>
-                  @if (hall.status && hall.status !== 'ACTIVE') {
-                    <p class="ahidh-status" [attr.data-status]="hall.status">
-                      {{ statusLabels[hall.status] }}
-                    </p>
-                  }
+                  <p class="ahidh-status" [attr.data-status]="hall.status">
+                    {{ statusLabels[hall.status] }}
+                  </p>
                 </div>
                 <div class="ahid-content">
                   <div class="ahidc-item">
@@ -63,11 +62,11 @@
               </div>
             </div>
             <div class="ahi-actions">
-              <button ngpButton [ngpDialogTrigger]="viewDialog">
+              <button [ngpDialogTrigger]="viewDialog">
                 <svg [lucideIcon]="icons.EyeIcon" [size]="16" [strokeWidth]="2.5"></svg>
                 <span>View</span>
               </button>
-              <button ngpButton [ngpDialogTrigger]="deleteDialog">
+              <button [ngpDialogTrigger]="deleteDialog">
                 <svg [lucideIcon]="icons.DeleteIcon" [size]="16" [strokeWidth]="2.5"></svg>
                 <span>Delete</span>
               </button>
@@ -105,9 +104,8 @@
                   </div>
 
                   <div modal-footer class="delete-modal-footer">
-                    <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+                    <button class="btn-secondary" (click)="close()">Cancel</button>
                     <button
-                      ngpButton
                       class="btn-danger"
                       [disabled]="deletingHallId() === hall.id"
                       (click)="deleteHall(hall, close)"
@@ -123,7 +121,7 @@
                 </app-modal>
               </ng-template>
             </div>
-          </div>
+          </li>
         } @empty {
           <empty-state
             [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.LayoutIcon"
@@ -131,7 +129,7 @@
             [description]="hasFilters() ? 'Try adjusting your filters.' : null"
           />
         }
-      </div>
+      </ul>
     }
   </div>
 </div>

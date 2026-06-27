@@ -6,7 +6,6 @@ import java.util.Arrays;
 
 public enum HallStatus {
     SCHEDULED,
-    NOW_SHOWING,
     ACTIVE,
     INACTIVE,
     UNDER_MAINTENANCE;

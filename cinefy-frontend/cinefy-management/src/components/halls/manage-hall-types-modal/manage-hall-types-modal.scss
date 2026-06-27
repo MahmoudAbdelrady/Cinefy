@@ -205,6 +205,8 @@
     gap: 8px;
 
     button {
+      @include flex-center;
+      gap: 6px;
       flex: 1;
       padding: 6px 12px;
       font-size: 13px;

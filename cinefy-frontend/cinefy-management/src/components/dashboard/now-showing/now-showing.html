@@ -15,9 +15,9 @@
       ></a>
     </div>
   </div>
-  <div class="now-showing-movies">
+  <ul class="now-showing-movies">
     @for (movie of nowShowingMovies; track movie.title) {
-      <div class="nsm-card">
+      <li class="nsm-card">
         <div class="nsm-poster">
           <img [src]="movie.poster" [alt]="movie.title" />
         </div>
@@ -53,7 +53,7 @@
           <button>View Details</button>
           <button>Edit</button>
         </div>
-      </div>
+      </li>
     }
-  </div>
+  </ul>
 </div>

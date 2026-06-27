@@ -10,7 +10,7 @@ import {
   isValidPhoneNumber,
   parsePhoneNumberFromString,
   type CountryCode,
-} from "libphonenumber-js";
+} from "libphonenumber-js/mobile";
 import examples from "libphonenumber-js/examples.mobile.json";
 
 export type PhoneCountryCode = CountryCode;

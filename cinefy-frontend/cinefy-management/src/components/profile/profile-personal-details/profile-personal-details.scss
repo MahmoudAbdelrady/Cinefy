@@ -53,20 +53,6 @@
   }
 }
 
-.btn-cancel {
-  padding: 8px 20px;
-  font-size: 14px;
-  color: $gray-700;
-  border: 1px solid $gray-300;
-  border-radius: $radius-md;
-  transition: background-color 150ms ease;
-  cursor: pointer;
-
-  &:hover {
-    background-color: $gray-200;
-  }
-}
-
 // ─── Read-only info grid ───────────────────────────────────────────────────────
 
 .info-grid {

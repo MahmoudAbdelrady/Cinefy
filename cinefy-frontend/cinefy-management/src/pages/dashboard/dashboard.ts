@@ -14,7 +14,6 @@ import {
   TicketIcon,
   TrendingUpIcon,
 } from '../../shared/icons';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import {
   NowShowingComponent,
@@ -37,7 +36,6 @@ interface DropDownMenuItem {
     NowShowingComponent,
     UpcomingMoviesWidgetComponent,
     TodayScheduleComponent,
-    NgpButton,
     NgpMenu,
     NgpMenuItem,
     NgpMenuTrigger,

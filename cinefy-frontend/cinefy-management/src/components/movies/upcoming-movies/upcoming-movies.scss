@@ -285,7 +285,7 @@
   word-break: break-word;
 
   .mci-item:not(:last-child)::after {
-    content: '·';
+    content: '•';
     margin: 0 6px;
   }
 }

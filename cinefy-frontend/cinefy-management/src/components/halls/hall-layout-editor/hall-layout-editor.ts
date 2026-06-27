@@ -1,89 +1,42 @@
-import { Component, computed, input, linkedSignal, output } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
+import { Component, computed, input, model, output } from '@angular/core';
+import { EmptyStateComponent } from 'cinefy-ui/components';
 import type { Seat, SeatCategory } from '../../../shared/types';
-
-interface SeatStats {
-  normal: number;
-  vip: number;
-  onsiteOnly: number;
-  total: number;
-}
+import { LayoutTemplateIcon } from '../../../shared/icons';
+import { rowLabel, seatStats } from '../seat-layout';
 
 @Component({
   selector: 'hall-layout-editor',
-  imports: [NgpButton],
+  imports: [EmptyStateComponent],
   templateUrl: './hall-layout-editor.html',
   styleUrl: './hall-layout-editor.scss',
 })
 export class HallLayoutEditorComponent {
-  readonly numRows = input(10);
-  readonly seatsPerRow = input(12);
+  protected readonly icons = {
+    LayoutTemplateIcon,
+  };
+
   readonly selectedSeatType = input<SeatCategory>('NORMAL');
   readonly selectedOnsiteOnly = input(false);
   readonly disabled = input(false);
 
-  readonly seatChanged = output<void>();
+  readonly seatLayout = model<Seat[][]>([]);
+
   readonly layoutReset = output<void>();
 
-  private readonly _seatLayout = linkedSignal<{ rows: number; cols: number }, Seat[][]>({
-    source: () => ({ rows: this.numRows(), cols: this.seatsPerRow() }),
-    computation: ({ rows, cols }, previous) => {
-      const prev = previous?.value ?? [];
-      const layout: Seat[][] = [];
-      for (let i = 0; i < rows; i++) {
-        const row: Seat[] = [];
-        for (let j = 0; j < cols; j++) {
-          if (i < prev.length && j < prev[i].length) {
-            row.push(prev[i][j]);
-          } else {
-            row.push({ type: 'NORMAL', onsiteOnly: false });
-          }
-        }
-        layout.push(row);
-      }
-      return layout;
-    },
-  });
-  readonly seatLayout = this._seatLayout.asReadonly();
+  protected readonly rowLabel = rowLabel;
+
+  protected readonly hasLayout = computed(() => (this.seatLayout()[0]?.length ?? 0) > 0);
+
+  protected readonly stats = computed(() => seatStats(this.seatLayout()));
 
   protected readonly rowLabelWidth = computed(() => {
-    const rows = this.numRows();
-    const maxChars = rows <= 0 ? 1 : this.rowLabel(rows - 1).length;
+    const rows = this.seatLayout().length;
+    const maxChars = rows <= 0 ? 1 : rowLabel(rows - 1).length;
     return Math.max(24, maxChars * 10);
   });
 
-  readonly stats = computed<SeatStats>(() => {
-    let normal = 0;
-    let vip = 0;
-    let onsiteOnly = 0;
-    let total = 0;
-
-    for (const row of this.seatLayout()) {
-      for (const seat of row) {
-        if (seat.type !== 'AISLE') {
-          total++;
-          if (seat.type === 'NORMAL') normal++;
-          else if (seat.type === 'VIP') vip++;
-          if (seat.onsiteOnly) onsiteOnly++;
-        }
-      }
-    }
-
-    return { normal, vip, onsiteOnly, total };
-  });
-
-  rowLabel(index: number): string {
-    const letter = String.fromCharCode(65 + (index % 26));
-    const repeat = Math.floor(index / 26) + 1;
-    return letter.repeat(repeat);
-  }
-
-  setLayout(layout: Seat[][]) {
-    this._seatLayout.set(layout);
-  }
-
   protected seatTitle(rowIndex: number, seatIndex: number, seat: Seat): string {
-    const id = `${this.rowLabel(rowIndex)}${seatIndex + 1}`;
+    const id = `${rowLabel(rowIndex)}${seatIndex + 1}`;
     const action = this.disabled() ? '' : ' - Click to change';
     if (seat.type === 'AISLE') return `${id} (Aisle)${action}`;
     const label = seat.type === 'VIP' ? 'VIP' : 'Normal';
@@ -95,20 +48,13 @@ export class HallLayoutEditorComponent {
     if (this.disabled()) return;
     const type = this.selectedSeatType();
     const onsiteOnly = type === 'AISLE' ? false : this.selectedOnsiteOnly();
-    const currentSeat = this._seatLayout()[rowIndex]?.[colIndex];
-    const layoutChanged =
-      currentSeat && (currentSeat.type !== type || currentSeat.onsiteOnly !== onsiteOnly);
 
-    this._seatLayout.update((layout) =>
+    this.seatLayout.update((layout) =>
       layout.map((row, ri) =>
         ri === rowIndex
           ? row.map((seat, ci) => (ci === colIndex ? { type, onsiteOnly } : seat))
           : row,
       ),
     );
-
-    if (layoutChanged) {
-      this.seatChanged.emit();
-    }
   }
 }

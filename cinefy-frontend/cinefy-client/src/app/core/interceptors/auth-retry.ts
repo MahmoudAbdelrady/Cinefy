@@ -22,8 +22,10 @@ export const authRetryInterceptor: HttpInterceptorFn = (req, next) => {
 
       return authService.refresh().pipe(
         switchMap(() => next(req)),
-        catchError(() => {
-          authService.clearAuthState();
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 401) {
+            authService.clearAuthState();
+          }
           return throwError(() => error);
         }),
       );

@@ -106,7 +106,7 @@ public class TmdbMovieService {
     // ========================= Public API =========================
 
     public Page<MovieSearchResultDTO> searchMovies(String query, Pageable pageable) {
-        Page<MovieSearchResultDTO> page = fetchMoviePage("/search/movie?query={query}&page={page}", pageable, query, pageable.getPageNumber() + 1);
+        Page<MovieSearchResultDTO> page = fetchMoviePage("/search/movie?region=us&query={query}&page={page}", pageable, query, pageable.getPageNumber() + 1);
         return new PageImpl<>(page.getContent(), pageable, page.getTotalElements());
     }
 
@@ -249,8 +249,13 @@ public class TmdbMovieService {
     }
 
     @Transactional
-    public int deleteOrphans() {
-        return tmdbMovieRepository.deleteOrphans(LocalDate.now());
+    public int demoteIneligibleHighlighted() {
+        return tmdbMovieRepository.demoteIneligibleHighlighted(LocalDate.now(), ShowtimeStatus.COMMITTED_STATUSES);
+    }
+
+    @Transactional
+    public int deleteOrphanBatch(LocalDate cutoffDate, int batchSize) {
+        return tmdbMovieRepository.deleteOrphansBatch(cutoffDate, batchSize);
     }
 
     // =========================== Helpers ===========================

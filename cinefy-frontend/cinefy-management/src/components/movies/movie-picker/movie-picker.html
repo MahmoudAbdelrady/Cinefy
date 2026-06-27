@@ -1,16 +1,11 @@
 <div class="movie-picker">
-  <div ngpFormField class="search-bar">
-    <div ngpSearch>
-      <svg [lucideIcon]="icons.SearchIcon"></svg>
-      <input
-        [value]="movieSearchQuery()"
-        (input)="movieSearchQuery.set($event.target.value)"
-        ngpInput
-        type="search"
-        placeholder="Search for a movie…"
-      />
-      <button ngpSearchClear ngpButton>Clear</button>
-    </div>
+  <div class="search-bar">
+    <input-field
+      [control]="searchControl"
+      [leadingIcon]="icons.SearchIcon"
+      [clearable]="true"
+      placeholder="Search for a movie…"
+    />
   </div>
   @if (movieSearchQuery().length === 0) {
     <div class="search-placeholder">
@@ -26,9 +21,9 @@
     </div>
   } @else if (movies().length > 0) {
     <div class="search-count">{{ movies().length }} movies found</div>
-    <div class="movie-items">
+    <ul class="movie-items">
       @for (movie of movies(); track movie.id) {
-        <div class="movie-item" (click)="onPick(movie)">
+        <li class="movie-item" (click)="onPick(movie)">
           <div class="mi-info">
             <div class="mi-img">
               <media-image [src]="movie.posterUrl" alt="{{ movie.title }} Poster" [iconSize]="20" />
@@ -50,17 +45,11 @@
               <svg [lucideIcon]="icons.ChevronRightIcon"></svg>
             </div>
           </div>
-        </div>
+        </li>
       }
-    </div>
+    </ul>
     @if (hasMore()) {
-      <button
-        type="button"
-        ngpButton
-        class="load-more"
-        [disabled]="loadingMore()"
-        (click)="loadMore()"
-      >
+      <button type="button" class="load-more" [disabled]="loadingMore()" (click)="loadMore()">
         @if (loadingMore()) {
           <loading-spinner variant="sm" />
           <span>Loading…</span>

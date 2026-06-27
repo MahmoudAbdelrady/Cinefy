@@ -1,7 +1,6 @@
 <div class="time-picker-wrapper">
   <button
     type="button"
-    ngpButton
     class="tp-trigger"
     [class.has-error]="control().touched && control().errors"
     [ngpPopoverTrigger]="timePopover"
@@ -13,14 +12,16 @@
     [attr.data-empty]="displayLabel() ? null : ''"
   >
     <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
-    <span class="tp-trigger-label">{{ displayLabel() || 'Select a time' }}</span>
+    <span class="tp-trigger-label"
+      >{{ displayLabel() || 'Select a time' }}</span
+    >
   </button>
 
   <ng-template #timePopover>
     <div ngpPopover class="tp-popover">
       <div class="tp-fields">
         <div class="tp-field">
-          <button type="button" ngpButton class="tp-step" (click)="stepHour(1)">
+          <button type="button" class="tp-step" (click)="stepHour(1)">
             <svg [lucideIcon]="icons.ChevronUpIcon" [size]="14"></svg>
           </button>
           <input
@@ -33,7 +34,7 @@
             (blur)="onHourBlur($event)"
             (keydown.enter)="$event.target.blur()"
           />
-          <button type="button" ngpButton class="tp-step" (click)="stepHour(-1)">
+          <button type="button" class="tp-step" (click)="stepHour(-1)">
             <svg [lucideIcon]="icons.ChevronDownIcon" [size]="14"></svg>
           </button>
         </div>
@@ -41,7 +42,7 @@
         <span class="tp-colon">:</span>
 
         <div class="tp-field">
-          <button type="button" ngpButton class="tp-step" (click)="stepMinute(1)">
+          <button type="button" class="tp-step" (click)="stepMinute(1)">
             <svg [lucideIcon]="icons.ChevronUpIcon" [size]="14"></svg>
           </button>
           <input
@@ -54,7 +55,7 @@
             (blur)="onMinuteBlur($event)"
             (keydown.enter)="$event.target.blur()"
           />
-          <button type="button" ngpButton class="tp-step" (click)="stepMinute(-1)">
+          <button type="button" class="tp-step" (click)="stepMinute(-1)">
             <svg [lucideIcon]="icons.ChevronDownIcon" [size]="14"></svg>
           </button>
         </div>
@@ -62,7 +63,6 @@
         <div class="tp-period">
           <button
             type="button"
-            ngpButton
             class="tp-period-btn"
             [attr.data-active]="period() === 'AM' ? '' : null"
             (click)="setPeriod('AM')"
@@ -71,7 +71,6 @@
           </button>
           <button
             type="button"
-            ngpButton
             class="tp-period-btn"
             [attr.data-active]="period() === 'PM' ? '' : null"
             (click)="setPeriod('PM')"

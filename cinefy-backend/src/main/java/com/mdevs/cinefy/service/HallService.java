@@ -34,6 +34,8 @@ public class HallService {
 
     private final ShowtimeRepository showtimeRepository;
 
+    private static final int MAX_GRID_DIMENSION = 50;
+
     private static final Pattern POSITION_PATTERN = Pattern.compile("^([A-Z]+)([0-9]+)$");
 
     // ========================= Hall Types =========================
@@ -88,7 +90,7 @@ public class HallService {
     }
 
     public HallDetailDTO getHall(String uuid) {
-        Hall hall = findHall(uuid);
+        Hall hall = findHallWithLayout(uuid);
 
         HallTypeDTO type = new HallTypeDTO();
         type.setId(hall.getType().getUuid());
@@ -108,7 +110,7 @@ public class HallService {
     }
 
     public HallLayoutDTO getHallLayout(String uuid) {
-        return getHallLayout(findHall(uuid));
+        return getHallLayout(findHallWithLayout(uuid));
     }
 
     @Transactional
@@ -124,7 +126,7 @@ public class HallService {
 
     @Transactional
     public HallSummaryDTO updateHall(String uuid, HallDTO dto) {
-        Hall hall = findHall(uuid);
+        Hall hall = findHallWithLayout(uuid);
         validateHall(dto, hall.getId());
         validateHallMutability(hall, dto);
 
@@ -145,7 +147,7 @@ public class HallService {
 
     @Transactional
     public void deleteHall(String uuid) {
-        Hall hall = findHall(uuid);
+        Hall hall = findHallWithLayout(uuid);
         if (showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.LIVE_STATUSES)) {
             throw new BusinessException("Cannot delete this hall while it has active showtimes");
         }
@@ -156,6 +158,10 @@ public class HallService {
 
     public Hall findHall(String uuid) {
         return hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found with id: " + uuid));
+    }
+
+    public Hall findHallWithLayout(String uuid) {
+        return hallRepository.findByUuidWithLayout(uuid).orElseThrow(() -> new NotFoundException("Hall not found with id: " + uuid));
     }
 
     private HallType findHallType(String uuid) {
@@ -175,6 +181,10 @@ public class HallService {
         boolean exists = excludeId == null ? hallRepository.existsByCode(code) : hallRepository.existsByCodeAndIdNot(code, excludeId);
         if (exists) {
             throw new BusinessException("A hall with a similar name to '" + dto.getName() + "' already exists");
+        }
+
+        if (dto.getNumberOfRows() > MAX_GRID_DIMENSION || dto.getSeatsPerRow() > MAX_GRID_DIMENSION) {
+            throw new BusinessException("Number of rows and seats per row cannot exceed " + MAX_GRID_DIMENSION);
         }
 
         Map<String, List<String>> categories = dto.getLayout() != null ? dto.getLayout().getCategories() : null;

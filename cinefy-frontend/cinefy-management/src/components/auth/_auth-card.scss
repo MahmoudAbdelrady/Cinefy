@@ -82,6 +82,7 @@
   }
 
   &:disabled {
+    transition: none;
     background-color: $gray-300;
     box-shadow: none;
     cursor: not-allowed;

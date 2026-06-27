@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.job;
 
-import com.mdevs.cinefy.repository.InvalidJwtRepository;
+import com.mdevs.cinefy.service.InvalidJwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,7 +15,7 @@ public class InvalidJwtCleanupJob {
 
     private static final int BATCH_SIZE = 100;
 
-    private final InvalidJwtRepository invalidJwtRepository;
+    private final InvalidJwtService invalidJwtService;
 
     @Scheduled(cron = "0 0 3 * * *")
     public void deleteExpiredInvalidJwts() {
@@ -23,7 +23,7 @@ public class InvalidJwtCleanupJob {
         int total = 0;
         int deleted;
         do {
-            deleted = invalidJwtRepository.deleteExpiredBatch(now, BATCH_SIZE);
+            deleted = invalidJwtService.deleteExpiredBatch(now, BATCH_SIZE);
             total += deleted;
         } while (deleted == BATCH_SIZE);
 

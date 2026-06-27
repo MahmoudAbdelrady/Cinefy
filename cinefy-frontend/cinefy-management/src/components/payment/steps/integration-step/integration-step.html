@@ -16,7 +16,10 @@
         [control]="form().controls.integrationId"
         [leadingIcon]="icons.WebhookIcon"
         [monospace]="true"
-        [errorMessages]="{ required: 'Integration ID is required' }"
+        [errorMessages]="{
+          required: 'Integration ID is required',
+          pattern: 'Integration ID must be a positive whole number',
+        }"
       />
       <help-hint title="Where to find it">
         <strong>Developers → Payment Integrations</strong>. Each row shows a numeric ID. Pick the

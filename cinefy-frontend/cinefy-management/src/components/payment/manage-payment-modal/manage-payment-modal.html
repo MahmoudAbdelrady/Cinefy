@@ -41,14 +41,13 @@
     </div>
     <div class="action-btns">
       @if (currentStep() > 0) {
-        <button ngpButton class="btn-secondary" [disabled]="saving()" (click)="goToPreviousStep()">
+        <button class="btn-secondary" [disabled]="saving()" (click)="goToPreviousStep()">
           Back
         </button>
       }
 
       @let isLastStep = currentStep() === steps().length - 1;
       <button
-        ngpButton
         class="btn-primary"
         [disabled]="!currentStepValid() || saving()"
         (click)="isLastStep ? save() : goToNextStep()"

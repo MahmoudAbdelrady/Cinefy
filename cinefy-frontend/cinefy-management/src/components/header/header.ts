@@ -1,11 +1,11 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, DestroyRef, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject, Signal, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import { ChevronDownIcon, LogoutIcon, MenuIcon, UserIcon } from '../../shared/icons';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
+import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { AuthService, HeaderActionsService, SidebarService, StaffService } from '../../services';
 import { USER_POSITION_LABELS } from '../../shared/types';
 
@@ -13,11 +13,19 @@ interface DropDownMenuItem {
   icon: LucideIcon;
   label: string;
   action: () => void;
+  loading?: Signal<boolean>;
 }
 
 @Component({
   selector: 'header-component',
-  imports: [LucideDynamicIcon, NgpButton, NgpMenu, NgpMenuItem, NgpMenuTrigger, NgTemplateOutlet],
+  imports: [
+    LucideDynamicIcon,
+    NgpMenu,
+    NgpMenuItem,
+    NgpMenuTrigger,
+    NgTemplateOutlet,
+    LoadingSpinnerComponent,
+  ],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
@@ -34,9 +42,16 @@ export class HeaderComponent {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly loggingOut = signal(false);
+
   protected readonly userInfoMenuItems: DropDownMenuItem[] = [
     { icon: UserIcon, label: 'Profile', action: () => this.router.navigateByUrl('/profile') },
-    { icon: LogoutIcon, label: 'Logout', action: () => this.logout() },
+    {
+      icon: LogoutIcon,
+      label: 'Logout',
+      action: () => this.logout(),
+      loading: this.loggingOut,
+    },
   ];
 
   protected headerActionsTemplate = this.headerActionsService.template;
@@ -57,11 +72,14 @@ export class HeaderComponent {
   }
 
   private logout() {
+    if (this.loggingOut()) return;
+    this.loggingOut.set(true);
     this.authService
       .logout()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.router.navigateByUrl('/login');
+      .subscribe({
+        next: () => this.router.navigateByUrl('/login'),
+        error: () => this.loggingOut.set(false),
       });
   }
 }

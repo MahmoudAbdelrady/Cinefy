@@ -14,7 +14,6 @@
         <button
           class="alh-tickets-btn btn-primary"
           title="My Tickets"
-          ngpButton
           [ngpDialogTrigger]="myTicketsDialog"
         >
           <svg [lucideIcon]="icons.TicketIcon" [size]="18"></svg>
@@ -28,7 +27,7 @@
             <loading-spinner variant="sm" />
           </div>
         } @else if (isAuthenticated()) {
-          <button class="alh-user" ngpButton [ngpMenuTrigger]="userInfoMenu">
+          <button class="alh-user" [ngpMenuTrigger]="userInfoMenu">
             <span class="alh-user-icon">
               <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
             </span>

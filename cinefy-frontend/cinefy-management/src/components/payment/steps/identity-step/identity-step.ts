@@ -5,12 +5,17 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { CheckIcon } from '../../../../shared/icons';
 import { InputField, CustomSelectComponent } from 'cinefy-ui/components';
 import { PAYMENT_METHOD_TYPE_LABELS, type PaymentMethodType } from '../../../../shared/types';
+import { RESOURCE_NAME_PATTERN } from '../../../../shared/validation';
 
 export function buildIdentityForm() {
   return new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [
+        Validators.required,
+        Validators.maxLength(50),
+        Validators.pattern(RESOURCE_NAME_PATTERN),
+      ],
     }),
     type: new FormControl<PaymentMethodType | null>(null, {
       validators: [Validators.required],

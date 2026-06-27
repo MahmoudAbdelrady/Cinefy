@@ -20,6 +20,7 @@
         <input-field
           [control]="searchControl"
           [leadingIcon]="icons.SearchIcon"
+          [clearable]="true"
           placeholder="Search movies…"
         />
       </div>
@@ -31,10 +32,10 @@
         <loading-spinner variant="md" />
       </div>
     } @else {
-      <div class="cs-grid">
+      <ul class="cs-grid">
         @for (item of filteredMovies(); track item.movieDetails.id) {
           @let shMovie = item.movieDetails;
-          <div class="movie-card" [class.movie-card--highlighted]="shMovie.highlighted">
+          <li class="movie-card" [class.movie-card--highlighted]="shMovie.highlighted">
             <div class="mc-identity">
               <div class="mci-poster">
                 <media-image
@@ -118,16 +119,13 @@
               }
 
               <div class="mcf-actions">
-                <button ngpButton class="mcfa-view" [ngpDialogTrigger]="viewShowtimesDialog">
-                  View
-                </button>
+                <button class="mcfa-view" [ngpDialogTrigger]="viewShowtimesDialog">View</button>
                 @if (canManage()) {
-                  <button ngpButton class="mcfa-add" [ngpDialogTrigger]="addShowtimeDialog">
+                  <button class="mcfa-add" [ngpDialogTrigger]="addShowtimeDialog">
                     <svg [lucideIcon]="icons.PlusIcon" [size]="15"></svg>
                     <span>Add Showtime</span>
                   </button>
                   <button
-                    ngpButton
                     class="mcfa-delete"
                     [ngpDialogTrigger]="deleteDialog"
                     [disabled]="deletingShowtimeIds().has(shMovie.id)"
@@ -210,9 +208,8 @@
                 </div>
 
                 <div modal-footer class="delete-modal-footer">
-                  <button ngpButton class="btn-secondary" (click)="close()">Cancel</button>
+                  <button class="btn-secondary" (click)="close()">Cancel</button>
                   <button
-                    ngpButton
                     class="btn-danger"
                     [disabled]="deletingShowtimeIds().has(shMovie.id)"
                     (click)="deleteShowtime(shMovie.id, close)"
@@ -226,7 +223,7 @@
                 </div>
               </app-modal>
             </ng-template>
-          </div>
+          </li>
         } @empty {
           <empty-state
             class="cs-empty"
@@ -239,7 +236,7 @@
             "
           />
         }
-      </div>
+      </ul>
     }
   </div>
 </div>

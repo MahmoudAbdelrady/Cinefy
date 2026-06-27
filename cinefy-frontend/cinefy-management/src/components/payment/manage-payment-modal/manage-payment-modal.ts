@@ -31,6 +31,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { LockIcon } from '../../../shared/icons';
 import { PaymentMethodService } from '../../../services';
 import type { PaymentMethod, PaymentMethodSummary } from '../../../shared/types';
+import { NO_WHITESPACE_PATTERN } from '../../../shared/validation';
 
 @Component({
   selector: 'manage-payment-modal',
@@ -150,8 +151,8 @@ export class ManagePaymentModalComponent {
       testMode: identity.environment.value === 'sandbox',
       currency: integration.currency.value ?? '',
       publicKey: credentials.publicKey.value,
-      secretKey: credentials.secretKey.value,
-      hmacSecret: credentials.hmacSecret.value,
+      secretKey: credentials.secretKey.value || null,
+      hmacSecret: credentials.hmacSecret.value || null,
       integrationId: integration.integrationId.value ?? 0,
       connectionTestRequested: this.connectionTestRequested(),
     };
@@ -209,11 +210,11 @@ export class ManagePaymentModalComponent {
     const secretCtrl = this.form.controls.credentials.controls.secretKey;
     const hmacCtrl = this.form.controls.credentials.controls.hmacSecret;
     if (editMode) {
-      secretCtrl.clearValidators();
-      hmacCtrl.clearValidators();
+      secretCtrl.setValidators(Validators.pattern(NO_WHITESPACE_PATTERN));
+      hmacCtrl.setValidators(Validators.pattern(NO_WHITESPACE_PATTERN));
     } else {
-      secretCtrl.setValidators(Validators.required);
-      hmacCtrl.setValidators(Validators.required);
+      secretCtrl.setValidators([Validators.required, Validators.pattern(NO_WHITESPACE_PATTERN)]);
+      hmacCtrl.setValidators([Validators.required, Validators.pattern(NO_WHITESPACE_PATTERN)]);
     }
     secretCtrl.updateValueAndValidity();
     hmacCtrl.updateValueAndValidity();

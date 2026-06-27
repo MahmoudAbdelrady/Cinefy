@@ -33,12 +33,7 @@
         </div>
       </div>
 
-      <button
-        ngpButton
-        type="submit"
-        class="lp-submit"
-        [disabled]="loginForm.invalid || submitting()"
-      >
+      <button type="submit" class="lp-submit" [disabled]="loginForm.invalid || submitting()">
         @if (submitting()) {
           <loading-spinner variant="sm" />
           <span>Signing in…</span>
