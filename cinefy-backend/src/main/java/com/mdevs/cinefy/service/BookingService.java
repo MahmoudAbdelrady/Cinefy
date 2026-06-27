@@ -46,7 +46,7 @@ public class BookingService {
     // =========================== Helpers ===========================
 
     private Showtime findBookableShowtime(String uuid) {
-        Showtime showtime = showtimeRepository.findByUuidWithHallLayout(uuid)
+        Showtime showtime = showtimeRepository.findByUuidWithHall(uuid)
                 .orElseThrow(() -> new NotFoundException("Showtime not found: " + uuid));
         if (!ShowtimeStatus.COMMITTED_STATUSES.contains(showtime.getStatus())) {
             throw new BusinessException("This showtime is not available for booking");

@@ -230,6 +230,8 @@
                       [errorMessages]="{
                         required: 'Normal price is required',
                         min: 'Price must be at least 1',
+                        max: 'Price is too large',
+                        maxDecimals: 'Price can have at most 2 decimal places',
                       }"
                     />
                   </div>
@@ -239,7 +241,7 @@
                     <div class="tpi-label">
                       <span class="tpi-label-icon vip"></span>
                       <span class="tpi-label-text" [attr.data-required]="!isViewMode() ? '' : null"
-                        >VIP Seat</span
+                        >VIP</span
                       >
                     </div>
                     <input-field
@@ -250,6 +252,8 @@
                       [errorMessages]="{
                         required: 'VIP price is required',
                         min: 'Price must be at least 1',
+                        max: 'Price is too large',
+                        maxDecimals: 'Price can have at most 2 decimal places',
                       }"
                     />
                   </div>

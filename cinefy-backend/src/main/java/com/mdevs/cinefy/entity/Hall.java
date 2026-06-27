@@ -1,13 +1,18 @@
 package com.mdevs.cinefy.entity;
 
+import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.entity.enums.HallStatus;
+import com.mdevs.cinefy.entity.enums.SeatCategory;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -43,11 +48,13 @@ public class Hall extends BaseEntity {
     @Column(nullable = false)
     private boolean supports3D = false;
 
-    @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<HallCategoryPrice> categoryPrices = new HashSet<>();
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "JSONB", nullable = false)
+    private HallLayout layout = new HallLayout(Map.of(), List.of());
 
-    @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Seat> seats = new HashSet<>();
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "JSONB", nullable = false)
+    private Map<SeatCategory, BigDecimal> categoryPrices = Map.of();
 
     public Hall(String name) {
         this.name = name;

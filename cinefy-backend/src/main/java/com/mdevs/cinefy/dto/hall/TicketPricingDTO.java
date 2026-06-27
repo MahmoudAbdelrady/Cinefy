@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.dto.hall;
 
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -17,5 +18,6 @@ public class TicketPricingDTO {
 
     @NotNull(message = "Price is required")
     @DecimalMin(value = "0", inclusive = false, message = "Ticket price must be greater than 0")
+    @Digits(integer = 8, fraction = 2, message = "Ticket price must have at most 2 decimal places")
     private BigDecimal price;
 }

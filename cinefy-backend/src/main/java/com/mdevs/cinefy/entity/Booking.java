@@ -25,10 +25,6 @@ public class Booking extends BaseEntity {
     @JoinColumn(nullable = false)
     private Showtime showtime;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(nullable = false)
-    private Seat seat;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private Client client;
 
