@@ -159,7 +159,7 @@
 
 .ahidc-item {
   @include flex-align;
-  gap: 4px;
+  gap: 6px;
   @include lucide-icon-fix;
 
   &.current-movie {
