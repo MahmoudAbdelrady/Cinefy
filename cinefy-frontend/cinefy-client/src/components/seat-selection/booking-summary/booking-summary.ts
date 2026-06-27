@@ -1,5 +1,6 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { InfoIcon } from '../../../shared/icons';
 import { SEAT_KIND_LABEL, type Seat, type SeatCategory } from '../../../shared/types';
@@ -24,10 +25,10 @@ export class BookingSummaryComponent {
     InfoIcon,
   };
 
+  private readonly router = inject(Router);
+
   readonly selectedSeats = input.required<Seat[]>();
   readonly prices = input.required<Record<SeatCategory, number>>();
-
-  readonly proceed = output<void>();
 
   protected readonly lines = computed<CategoryLine[]>(() => {
     const prices = this.prices();
@@ -46,4 +47,9 @@ export class BookingSummaryComponent {
   protected readonly total = computed(() =>
     this.lines().reduce((sum, line) => sum + line.total, 0),
   );
+
+  protected proceedToPayment() {
+    // TODO: Call `/reserve` endpoint here before navigating to checkout
+    this.router.navigateByUrl('/checkout');
+  }
 }

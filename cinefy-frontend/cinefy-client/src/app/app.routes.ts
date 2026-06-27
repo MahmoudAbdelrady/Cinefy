@@ -3,6 +3,7 @@ import { AppLayout } from '../layout/app-layout/app-layout';
 import { AuthLayout } from '../layout/auth-layout/auth-layout';
 import { authGuard, guestGuard } from '../shared/guards';
 import {
+  CheckoutPage,
   ForgotPasswordPage,
   HomePage,
   LoginPage,
@@ -51,6 +52,10 @@ export const routes: Routes = [
       {
         path: 'movies/:movieId/seats/:showtimeId',
         component: SeatSelectionPage,
+      },
+      {
+        path: 'checkout',
+        component: CheckoutPage,
         canActivate: [authGuard],
       },
     ],

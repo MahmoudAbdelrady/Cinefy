@@ -1,0 +1,322 @@
+@use '../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+// ─── Page shell ──────────────────────────────────────────────────────────────
+.co-page {
+  display: block;
+  width: 100%;
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.co-back {
+  @include flex-align;
+
+  gap: 8px;
+  width: fit-content;
+  margin-bottom: 24px;
+  padding: 6px 12px;
+  border-radius: $radius-md;
+  font-size: 14px;
+  font-weight: 500;
+  color: $color-foreground;
+  text-decoration: none;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: $color-accent;
+  }
+}
+
+.co-head {
+  @include flex-between;
+
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.co-title {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+// ─── Countdown timer ─────────────────────────────────────────────────────────
+.co-timer {
+  @include flex-align;
+
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid rgba($color-border, 0.5);
+  border-radius: $radius-full;
+  background: $color-card;
+  color: $color-foreground;
+  font-family: $font-mono;
+  font-size: 14px;
+
+  &.expiring {
+    border-color: rgba($color-destructive, 0.6);
+    background: rgba($color-destructive, 0.1);
+    color: $color-destructive;
+  }
+}
+
+.co-timer-value {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+// ─── Layout grid ─────────────────────────────────────────────────────────────
+.co-grid {
+  display: grid;
+  gap: 32px;
+
+  @include from-desktop {
+    grid-template-columns: 1fr 360px;
+  }
+}
+
+.co-card {
+  border: 1px solid rgba($color-border, 0.5);
+  border-radius: $radius-xl;
+  background: $color-card;
+  padding: 24px;
+}
+
+// ─── Payment form ────────────────────────────────────────────────────────────
+.co-card-title {
+  @include flex-align;
+
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: 600;
+
+  svg {
+    color: $color-primary;
+  }
+}
+
+.co-form {
+  @include flex-column;
+
+  gap: 16px;
+}
+
+.co-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+// ─── Order summary ───────────────────────────────────────────────────────────
+.co-summary {
+  @include from-desktop {
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+  }
+}
+
+.co-summary-card {
+  overflow: hidden;
+  padding: 0;
+}
+
+.co-summary-movie {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+}
+
+.co-summary-poster {
+  flex-shrink: 0;
+  width: 80px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: $radius-lg;
+}
+
+.co-summary-meta {
+  min-width: 0;
+
+  > * + * {
+    margin-top: 4px;
+  }
+}
+
+.co-summary-movie-title {
+  @include text-truncate;
+
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.co-summary-line {
+  font-family: $font-mono;
+  font-size: 12px;
+  color: $color-muted-foreground;
+}
+
+.co-divider {
+  border-top: 1px solid rgba($color-border, 0.5);
+}
+
+.co-divider-tight {
+  margin: 4px 0;
+}
+
+.co-summary-rows {
+  @include flex-column;
+
+  gap: 8px;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.co-row {
+  @include flex-between;
+
+  color: $color-muted-foreground;
+
+  dd {
+    font-family: $font-mono;
+    color: $color-foreground;
+  }
+}
+
+.co-total {
+  @include flex-between;
+
+  align-items: center;
+  padding-top: 4px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.co-total-value {
+  font-family: $font-mono;
+  color: $color-primary;
+}
+
+// ─── Summary actions ─────────────────────────────────────────────────────────
+.co-actions {
+  @include flex-column;
+
+  gap: 8px;
+  padding: 0 20px 20px;
+}
+
+.co-pay {
+  width: 100%;
+  height: 44px;
+  font-weight: 600;
+}
+
+.co-cancel {
+  width: 100%;
+  height: 44px;
+  padding-block: 0;
+  color: $color-muted-foreground;
+
+  &:hover:not(:disabled) {
+    color: $color-destructive;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+// ─── Cancel-confirm dialog ───────────────────────────────────────────────────
+.co-cancel-modal-content {
+  text-align: center;
+}
+
+.ccm-icon {
+  @include flex-center;
+
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border-radius: $radius-full;
+  background: rgba($color-destructive, 0.15);
+
+  svg {
+    display: flex;
+    color: $color-destructive;
+  }
+}
+
+.ccm-message {
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: $color-muted-foreground;
+
+  strong {
+    color: $color-foreground;
+  }
+}
+
+.co-dialog-footer {
+  @include flex-align;
+
+  gap: 12px;
+  width: 100%;
+
+  button {
+    flex: 1;
+  }
+}
+
+// ─── Cancelled view ──────────────────────────────────────────────────────────
+.co-cancelled {
+  @include flex-column;
+
+  align-items: center;
+  width: 100%;
+  max-width: 512px;
+  margin: 0 auto;
+  padding: 48px 16px;
+}
+
+.co-cancelled-head {
+  @include flex-column;
+
+  align-items: center;
+  text-align: center;
+
+  h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  p {
+    margin-top: 4px;
+    color: $color-muted-foreground;
+  }
+}
+
+.co-cancelled-badge {
+  @include flex-center;
+
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  border-radius: $radius-full;
+  background: rgba($color-destructive, 0.15);
+  color: $color-destructive;
+  box-shadow: 0 0 0 4px rgba($color-destructive, 0.1);
+}
+
+.co-cancelled-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+  animation-delay: 120ms;
+}

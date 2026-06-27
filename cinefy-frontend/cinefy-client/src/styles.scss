@@ -37,7 +37,9 @@
   --cui-accent-subtle: #{$color-secondary};
   --cui-highlight: #{$color-primary};
   --cui-highlight-ring: #{$color-primary};
-  --cui-danger: #{$color-destructive};
+  // Danger button: light text on a darker red that lightens on hover.
+  --cui-danger-text: #{$color-foreground};
+  --cui-danger: #{$color-destructive-strong};
   --cui-danger-hover: #{$color-destructive};
   --cui-success: #{$color-primary};
   --cui-success-hover: #{$color-primary};
