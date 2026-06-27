@@ -15,7 +15,7 @@ interface ShowtimeDraft {
   dateTime: string; // ISO 8601 LocalDateTime, e.g. '2026-04-25T19:30:00'
   hallId: string;
   is3D: boolean;
-  specialNotes: string;
+  specialNotes: string | null;
 }
 
 interface Showtime {

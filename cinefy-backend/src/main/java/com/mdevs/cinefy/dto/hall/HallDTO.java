@@ -1,10 +1,13 @@
 package com.mdevs.cinefy.dto.hall;
 
+import com.mdevs.cinefy.shared.validation.ValidationPatterns;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +18,8 @@ import java.util.List;
 public class HallDTO {
 
     @NotBlank(message = "Name is required")
+    @Size(max = 50, message = "Name must not exceed 50 characters")
+    @Pattern(regexp = ValidationPatterns.RESOURCE_NAME, message = ValidationPatterns.RESOURCE_NAME_MESSAGE)
     private String name;
 
     @NotNull(message = "Number of rows is required")

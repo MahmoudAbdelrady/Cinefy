@@ -1,13 +1,6 @@
 import { afterNextRender, Component, inject, input, signal } from '@angular/core';
 
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CheckIcon,
@@ -29,14 +22,7 @@ import {
 import { ToastService } from 'cinefy-ui/services';
 import { HallsService } from '../../../services';
 import { HallType } from '../../../shared/types';
-
-function notBlankValidator(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (typeof value === 'string' && value.length > 0 && value.trim().length === 0) {
-    return { notBlank: true };
-  }
-  return null;
-}
+import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
 
 @Component({
   selector: 'manage-hall-types-modal',
@@ -81,20 +67,30 @@ export class ManageHallTypesModalComponent {
   protected readonly newTypeForm = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, notBlankValidator],
+      validators: [
+        Validators.required,
+        Validators.maxLength(30),
+        Validators.pattern(RESOURCE_NAME_PATTERN),
+      ],
     }),
   });
 
   protected readonly editTypeForm = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, notBlankValidator],
+      validators: [
+        Validators.required,
+        Validators.maxLength(30),
+        Validators.pattern(RESOURCE_NAME_PATTERN),
+      ],
     }),
   });
 
   protected readonly nameErrorMessages: Record<string, string> = {
     required: 'Hall Type name is required',
-    notBlank: "Hall Type name can't be empty",
+    maxlength: 'Hall Type name must not exceed 30 characters',
+    pattern:
+      'Name may only contain letters, numbers, single spaces, and hyphens, with no leading or trailing spaces',
   };
 
   constructor() {

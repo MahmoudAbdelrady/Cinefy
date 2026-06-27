@@ -53,6 +53,7 @@ import {
 } from '../../../shared/types';
 import { HallLayoutEditorComponent } from '../hall-layout-editor/hall-layout-editor';
 import { HallsService } from '../../../services';
+import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
 import { createSeatGrid, resizeGrid, rowLabel, rowLabelToIndex, seatStats } from '../seat-layout';
 
 const MAX_GRID_DIMENSION = 50;
@@ -164,7 +165,11 @@ export class HallConfigModalComponent {
   protected readonly hallForm = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [
+        Validators.required,
+        Validators.maxLength(50),
+        Validators.pattern(RESOURCE_NAME_PATTERN),
+      ],
     }),
     numberOfRows: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(1), Validators.max(MAX_GRID_DIMENSION)],

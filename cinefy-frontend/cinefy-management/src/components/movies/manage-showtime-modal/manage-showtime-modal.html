@@ -105,7 +105,10 @@
           ></textarea>
           <field-error
             [control]="showtimeForm.controls.specialNotes"
-            [messages]="{ maxlength: 'Special notes cannot exceed 255 characters' }"
+            [messages]="{
+              maxlength: 'Special notes cannot exceed 255 characters',
+              pattern: 'Special notes cannot be only whitespace',
+            }"
           />
         </div>
       </form>

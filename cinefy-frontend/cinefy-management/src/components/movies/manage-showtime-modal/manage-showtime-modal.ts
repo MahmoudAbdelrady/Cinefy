@@ -112,7 +112,7 @@ export class ManageShowtimeModalComponent {
     is3D: new FormControl(false, { nonNullable: true }),
     specialNotes: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(255)],
+      validators: [Validators.maxLength(255), Validators.pattern(/.*\S.*/s)],
     }),
   });
 
@@ -257,7 +257,7 @@ export class ManageShowtimeModalComponent {
       dateTime: combineDateAndTime(value.date!, value.time!),
       hallId: value.hallId!,
       is3D: value.is3D,
-      specialNotes: value.specialNotes,
+      specialNotes: value.specialNotes.trim() || null,
     };
   }
 }

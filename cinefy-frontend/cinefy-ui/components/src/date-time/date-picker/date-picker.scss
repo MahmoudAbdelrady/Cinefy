@@ -6,6 +6,11 @@
   width: 100%;
 }
 
+.date-picker-wrapper {
+  @include flex-column;
+  gap: 8px;
+}
+
 .dp-trigger {
   @include flex-align;
   @include lucide-icon-fix;

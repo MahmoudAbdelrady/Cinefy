@@ -28,8 +28,8 @@ interface PaymentMethod {
   testMode: boolean;
   currency: string;
   publicKey: string;
-  secretKey: string;
-  hmacSecret: string;
+  secretKey: string | null;
+  hmacSecret: string | null;
   integrationId: number;
   connectionTestRequested: boolean;
 }

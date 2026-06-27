@@ -62,7 +62,12 @@
               label="Hall Name"
               placeholder="e.g. Hall 1, VIP Hall, IMAX"
               [control]="hallForm.controls.name"
-              [errorMessages]="{ required: 'Hall name is required' }"
+              [errorMessages]="{
+                required: 'Hall name is required',
+                maxlength: 'Hall name must not exceed 50 characters',
+                pattern:
+                  'Name may only contain letters, numbers, single spaces, and hyphens, with no leading or trailing spaces',
+              }"
             />
           </div>
           <div class="number-input-group">
