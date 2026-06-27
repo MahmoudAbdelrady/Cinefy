@@ -183,7 +183,7 @@
 // ─── Status Badges ──────────────────────────────────────────────────────────────
 
 .ahidh-status {
-  &[data-status='NOW_SHOWING'] {
+  &[data-status='ACTIVE'] {
     background-color: $green-100;
     color: $green-700;
   }

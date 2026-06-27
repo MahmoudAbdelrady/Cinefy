@@ -235,7 +235,7 @@ public class ShowtimeService {
             throw new BusinessException("Movie is required");
         }
 
-        if (!List.of(HallStatus.ACTIVE, HallStatus.SCHEDULED, HallStatus.NOW_SHOWING).contains(hall.getStatus())) {
+        if (!List.of(HallStatus.ACTIVE, HallStatus.SCHEDULED).contains(hall.getStatus())) {
             throw new BusinessException("Hall '" + hall.getName() + "' is not available");
         }
 

@@ -76,12 +76,12 @@ interface HallStatusEntry {
   label: string;
 }
 
-const AUTO_HALL_STATUSES: HallStatus[] = ['SCHEDULED', 'NOW_SHOWING'];
+const AUTO_HALL_STATUS: HallStatus = 'SCHEDULED';
 
 const SELECTABLE_HALL_STATUS_ENTRIES = (
   Object.entries(HALL_STATUS_LABELS) as [HallStatus, string][]
 )
-  .filter(([value]) => !AUTO_HALL_STATUSES.includes(value))
+  .filter(([value]) => value !== AUTO_HALL_STATUS)
   .map(([value, label]) => ({ value, label }));
 
 @Component({
@@ -123,7 +123,7 @@ export class HallConfigModalComponent {
   protected readonly hallStatusEntries = computed<HallStatusEntry[]>(() => {
     const current = this.selectedHallData()?.status;
     const base = SELECTABLE_HALL_STATUS_ENTRIES;
-    if (current && AUTO_HALL_STATUSES.includes(current)) {
+    if (current === AUTO_HALL_STATUS) {
       return [...base, { value: current, label: HALL_STATUS_LABELS[current] }];
     }
     return base;
@@ -131,7 +131,7 @@ export class HallConfigModalComponent {
 
   protected readonly isStatusLocked = computed(() => {
     const current = this.selectedHallData()?.status;
-    return current ? AUTO_HALL_STATUSES.includes(current) : false;
+    return current === AUTO_HALL_STATUS;
   });
 
   protected readonly seatCategoryItems: SeatCategoryItem[] = Object.entries(

@@ -41,11 +41,9 @@
               <div class="ahi-info-details">
                 <div class="ahid-header">
                   <h4>{{ hall.name }}</h4>
-                  @if (hall.status && hall.status !== 'ACTIVE') {
-                    <p class="ahidh-status" [attr.data-status]="hall.status">
-                      {{ statusLabels[hall.status] }}
-                    </p>
-                  }
+                  <p class="ahidh-status" [attr.data-status]="hall.status">
+                    {{ statusLabels[hall.status] }}
+                  </p>
                 </div>
                 <div class="ahid-content">
                   <div class="ahidc-item">
