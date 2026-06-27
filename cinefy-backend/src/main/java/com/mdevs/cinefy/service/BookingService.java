@@ -5,12 +5,15 @@ import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
+import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,6 +21,8 @@ import java.util.List;
 public class BookingService {
 
     private final ShowtimeRepository showtimeRepository;
+
+    private final BookingRepository bookingRepository;
 
     private final HallService hallService;
 
@@ -31,6 +36,11 @@ public class BookingService {
         hallLayout.getLayout().setReserved(getReservedSeats(showtime));
 
         return toSeatSelectionDTO(showtime, hall, hallLayout);
+    }
+
+    @Transactional
+    public int deleteExpiredPendingBookings(LocalDateTime cutOffDate) {
+        return bookingRepository.deleteExpiredPending(cutOffDate);
     }
 
     // =========================== Helpers ===========================
