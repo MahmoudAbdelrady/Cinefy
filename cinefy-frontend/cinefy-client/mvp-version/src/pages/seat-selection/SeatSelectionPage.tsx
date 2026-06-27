@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
-import { ArrowLeft, Clock, Info } from 'lucide-react'
+import { ArrowLeft, Clock, Info, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import {
   AISLE_AFTER_COLS,
@@ -29,14 +37,17 @@ export function SeatSelectionPage() {
   const hall = useMemo(() => buildHall(), [])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [secondsLeft, setSecondsLeft] = useState(HOLD_SECONDS)
+  const [confirmingCancel, setConfirmingCancel] = useState(false)
+  const [cancelled, setCancelled] = useState(false)
 
   useEffect(() => {
-    if (secondsLeft <= 0) return
+    if (cancelled || secondsLeft <= 0) return
     const id = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000)
     return () => clearInterval(id)
-  }, [secondsLeft])
+  }, [secondsLeft, cancelled])
 
   if (!movie || !showtime) return <Missing movieId={movieId} />
+  if (cancelled) return <Cancelled movieId={movie.id} />
 
   const toggle = (seat: Seat) => {
     if (seat.taken) return
@@ -84,16 +95,38 @@ export function SeatSelectionPage() {
             </p>
           </div>
 
-          <div
-            className={cn(
-              'ml-auto flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-sm',
-              secondsLeft <= 60
-                ? 'border-destructive/60 bg-destructive/10 text-destructive'
-                : 'border-border/50 bg-card text-foreground',
-            )}
-          >
-            <Clock className="size-4" />
-            <span className="tabular-nums font-medium">{formatCountdown(secondsLeft)}</span>
+          <div className="ml-auto flex items-center gap-3">
+            <div className="hidden flex-col items-end leading-tight sm:flex">
+              <span className="flex items-center gap-1.5 text-sm font-medium">
+                <span className="size-2 animate-pulse rounded-full bg-amber" />
+                Reservation active
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Seats held for a limited time
+              </span>
+            </div>
+
+            <div
+              className={cn(
+                'flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-sm',
+                secondsLeft <= 60
+                  ? 'border-destructive/60 bg-destructive/10 text-destructive'
+                  : 'border-border/50 bg-card text-foreground',
+              )}
+            >
+              <Clock className="size-4" />
+              <span className="tabular-nums font-medium">{formatCountdown(secondsLeft)}</span>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmingCancel(true)}
+              className="gap-2 text-muted-foreground hover:border-destructive/60 hover:text-destructive"
+            >
+              <X className="size-4" />
+              <span className="hidden sm:inline">Cancel Booking</span>
+            </Button>
           </div>
         </div>
       </div>
@@ -188,6 +221,33 @@ export function SeatSelectionPage() {
           </div>
         </div>
       </div>
+
+      <Dialog open={confirmingCancel} onOpenChange={setConfirmingCancel}>
+        <DialogContent className="border-border/50 bg-popover sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cancel this booking?</DialogTitle>
+            <DialogDescription>
+              Your held seats will be released and you'll lose your place in the queue. This can't be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" onClick={() => setConfirmingCancel(false)}>
+              Keep booking
+            </Button>
+            <Button
+              className="gap-2 bg-destructive text-white hover:bg-destructive/90"
+              onClick={() => {
+                setConfirmingCancel(false)
+                setCancelled(true)
+              }}
+            >
+              <X className="size-4" />
+              Cancel Booking
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -279,6 +339,31 @@ function Missing({ movieId }: { movieId?: string }) {
       <Button asChild className="bg-amber text-primary-foreground hover:bg-amber/90">
         <Link to={movieId ? `/movies/${movieId}` : '/'}>Back</Link>
       </Button>
+    </div>
+  )
+}
+
+function Cancelled({ movieId }: { movieId: string }) {
+  return (
+    <div className="mx-auto flex w-full max-w-lg flex-col items-center px-4 py-12">
+      <div className="reveal flex flex-col items-center text-center">
+        <span className="mb-4 grid size-16 place-items-center rounded-full bg-destructive/15 text-destructive ring-4 ring-destructive/10">
+          <X className="size-8" strokeWidth={3} />
+        </span>
+        <h1 className="text-3xl font-bold tracking-tight">Booking cancelled</h1>
+        <p className="mt-1 text-muted-foreground">
+          Your booking has been cancelled and your seats have been released.
+        </p>
+      </div>
+
+      <div className="reveal mt-8 flex gap-3" style={{ animationDelay: '120ms' }}>
+        <Button asChild variant="outline">
+          <Link to={`/movies/${movieId}`}>Back to movie</Link>
+        </Button>
+        <Button asChild className="bg-amber text-primary-foreground hover:bg-amber/90">
+          <Link to="/">Browse movies</Link>
+        </Button>
+      </div>
     </div>
   )
 }
