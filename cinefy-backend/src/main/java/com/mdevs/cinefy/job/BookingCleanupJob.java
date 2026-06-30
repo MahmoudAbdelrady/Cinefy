@@ -13,14 +13,23 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class BookingCleanupJob {
 
+    private static final int BATCH_SIZE = 200;
+
     private final BookingService bookingService;
 
-    @Scheduled(cron = "0 */10 * * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void deleteExpiredPendingBookings() {
-        int deleted = bookingService.deleteExpiredPendingBookings(LocalDateTime.now());
+        LocalDateTime cutOffDate = LocalDateTime.now();
 
-        if (deleted > 0) {
-            log.info("Booking cleanup: deleted {} expired pending bookings", deleted);
+        int totalDeleted = 0;
+        int batchDeleted;
+        do {
+            batchDeleted = bookingService.deleteExpiredPendingBatch(cutOffDate, BATCH_SIZE);
+            totalDeleted += batchDeleted;
+        } while (batchDeleted == BATCH_SIZE);
+
+        if (totalDeleted > 0) {
+            log.info("Booking cleanup: deleted {} expired pending bookings", totalDeleted);
         }
     }
 }

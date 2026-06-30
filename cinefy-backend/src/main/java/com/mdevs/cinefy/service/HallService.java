@@ -165,6 +165,16 @@ public class HallService {
         return hallRepository.findByUuidWithType(uuid).orElseThrow(() -> new NotFoundException("Hall not found with id: " + uuid));
     }
 
+    public boolean isSeatInGrid(Hall hall, String position) {
+        Matcher matcher = POSITION_PATTERN.matcher(position);
+        if (!matcher.matches()) {
+            return false;
+        }
+        int rowIndex = toRowIndex(matcher.group(1));
+        int colNumber = Integer.parseInt(matcher.group(2));
+        return rowIndex >= 1 && rowIndex <= hall.getTotalRows() && colNumber >= 1 && colNumber <= hall.getTotalColumns();
+    }
+
     private HallType findHallType(String uuid) {
         return hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found with id: " + uuid));
     }

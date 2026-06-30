@@ -144,7 +144,7 @@ public class TmdbMovieService {
 
     public List<MovieSearchResultDTO> getAnnouncedUpcoming() {
         return tmdbMovieRepository.findAnnouncedUpcoming(LocalDate.now()).stream()
-                .map(movie -> populateBaseFields(new MovieSearchResultDTO(), movie))
+                .map(this::toSearchResult)
                 .toList();
     }
 
@@ -174,6 +174,10 @@ public class TmdbMovieService {
 
     public TmdbMovie findTmdbMovie(long tmdbId) {
         return tmdbMovieRepository.findById(tmdbId).orElseThrow(() -> new NotFoundException("Movie not found: " + tmdbId));
+    }
+
+    public MovieSearchResultDTO toSearchResult(TmdbMovie movie) {
+        return populateBaseFields(new MovieSearchResultDTO(), movie);
     }
 
     public TmdbMovie fetchAndCache(long tmdbId) {
