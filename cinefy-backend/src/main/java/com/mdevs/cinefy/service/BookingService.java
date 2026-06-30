@@ -97,7 +97,7 @@ public class BookingService {
             bookingRepository.save(booking);
         } catch (DataIntegrityViolationException e) {
             log.error("Booking save conflict for idempotency key {}: {}", idempotencyKey, e.getMessage(), e);
-            return handleSaveConflict(idempotencyKey, e);
+            return handleSaveConflict(idempotencyKey);
         }
 
         return toBookingDetailDTO(booking);
@@ -185,7 +185,7 @@ public class BookingService {
         }
     }
 
-    private BookingDetailDTO handleSaveConflict(String idempotencyKey, DataIntegrityViolationException e) {
+    private BookingDetailDTO handleSaveConflict(String idempotencyKey) {
         return bookingRepository.findByIdempotencyKey(idempotencyKey)
                 .map(this::toBookingDetailDTO)
                 .orElseThrow(() -> new BusinessException("One or more selected seats have been taken"));
