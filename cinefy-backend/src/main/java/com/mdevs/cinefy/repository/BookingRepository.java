@@ -13,7 +13,14 @@ import java.util.Optional;
 
 public interface BookingRepository extends BaseRepository<Booking> {
 
-    Optional<Booking> findByIdempotencyKey(String idempotencyKey);
+    @Query("""
+            SELECT b FROM Booking b
+            JOIN FETCH b.seats
+            JOIN FETCH b.showtime s
+            JOIN FETCH s.tmdbMovie
+            WHERE b.idempotencyKey = :idempotencyKey
+            """)
+    Optional<Booking> findByIdempotencyKeyWithDetail(@Param("idempotencyKey") String idempotencyKey);
 
     @Query("""
             SELECT bs FROM BookingSeat bs

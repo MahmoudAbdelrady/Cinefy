@@ -19,6 +19,7 @@ import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,9 @@ public class BookingService {
 
     private final TmdbMovieService tmdbMovieService;
 
+    @Lazy
+    private final BookingService self;
+
     private static final int HOLD_WINDOW_MINUTES = 10;
 
     private static final String REFERENCE_PREFIX = "CINEFY-";
@@ -68,14 +72,27 @@ public class BookingService {
         return toSeatSelectionDTO(showtime, hall, hallLayout);
     }
 
-    @Transactional
     public BookingDetailDTO createBooking(BookingRequestDTO dto, String idempotencyKey) {
         // TODO: throw on a key hit with a different payload (compare a stored request fingerprint) instead of blindly replaying.
-        Booking existing = bookingRepository.findByIdempotencyKey(idempotencyKey).orElse(null);
+        BookingDetailDTO existing = findExistingBooking(idempotencyKey);
         if (existing != null) {
-            return toBookingDetailDTO(existing);
+            return existing;
         }
 
+        try {
+            return self.persistBooking(dto, idempotencyKey);
+        } catch (DataIntegrityViolationException e) {
+            log.error("Booking save conflict for idempotency key {}: {}", idempotencyKey, e.getMessage(), e);
+            BookingDetailDTO recovered = findExistingBooking(idempotencyKey);
+            if (recovered == null) {
+                throw new BusinessException("One or more selected seats have been taken");
+            }
+            return recovered;
+        }
+    }
+
+    @Transactional
+    public BookingDetailDTO persistBooking(BookingRequestDTO dto, String idempotencyKey) {
         Showtime showtime = findBookableShowtime(dto.getShowtimeId());
         Hall hall = showtime.getHall();
 
@@ -93,12 +110,7 @@ public class BookingService {
         claimRequestedSeats(showtime, dto.getSeats());
         buildSeats(booking, showtime, hall, dto.getSeats());
 
-        try {
-            bookingRepository.save(booking);
-        } catch (DataIntegrityViolationException e) {
-            log.error("Booking save conflict for idempotency key {}: {}", idempotencyKey, e.getMessage(), e);
-            return handleSaveConflict(idempotencyKey);
-        }
+        bookingRepository.save(booking);
 
         return toBookingDetailDTO(booking);
     }
@@ -115,6 +127,12 @@ public class BookingService {
     }
 
     // =========================== Helpers ===========================
+
+    private BookingDetailDTO findExistingBooking(String idempotencyKey) {
+        return bookingRepository.findByIdempotencyKeyWithDetail(idempotencyKey)
+                .map(this::toBookingDetailDTO)
+                .orElse(null);
+    }
 
     private Showtime findBookableShowtime(String uuid) {
         Showtime showtime = showtimeRepository.findByUuidWithHall(uuid)
@@ -183,12 +201,6 @@ public class BookingService {
             seat.setTicketPrice(prices.get(category));
             booking.getSeats().add(seat);
         }
-    }
-
-    private BookingDetailDTO handleSaveConflict(String idempotencyKey) {
-        return bookingRepository.findByIdempotencyKey(idempotencyKey)
-                .map(this::toBookingDetailDTO)
-                .orElseThrow(() -> new BusinessException("One or more selected seats have been taken"));
     }
 
     private SeatCategory resolvePositionCategory(HallLayout layout, String position) {
