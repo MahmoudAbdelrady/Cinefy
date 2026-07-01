@@ -92,7 +92,7 @@ public class BookingService {
         try {
             return self.persistBooking(dto, idempotencyKey);
         } catch (DataIntegrityViolationException e) {
-            log.error("Booking save conflict for idempotency key {}: {}", idempotencyKey, e.getMessage(), e);
+            log.warn("Booking save conflict for idempotency key {}: {}", idempotencyKey, e.getMessage(), e);
             BookingDetailDTO recovered = findExistingBooking(idempotencyKey);
             if (recovered == null) {
                 throw new BusinessException("One or more selected seats have been taken");
@@ -125,6 +125,7 @@ public class BookingService {
         }
 
         claimRequestedSeats(showtime, dto.getSeats());
+        bookingRepository.flush(); // Flush the active=null releases before re-inserting the same seats.
         buildSeats(booking, showtime, hall, dto.getSeats(), user);
 
         bookingRepository.save(booking);
