@@ -160,8 +160,8 @@ public class BookingService {
             if (blocking) {
                 blockedPositions.add(activeSeat.getPosition());
             } else {
-                // No explicit save: flushed via Hibernate dirty checking.
-                activeSeat.setActive(false);
+                // No explicit save: flushed via Hibernate dirty checking. NULL for achieving partial unique constraint
+                activeSeat.setActive(null);
             }
         }
 
