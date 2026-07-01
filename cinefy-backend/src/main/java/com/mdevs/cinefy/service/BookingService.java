@@ -66,7 +66,7 @@ public class BookingService {
 
     private static final String REFERENCE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-    private static final int REFERENCE_LENGTH = 8;
+    private static final int REFERENCE_LENGTH = 10;
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
