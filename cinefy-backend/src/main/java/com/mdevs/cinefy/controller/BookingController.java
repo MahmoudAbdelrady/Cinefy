@@ -7,11 +7,14 @@ import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
 import com.mdevs.cinefy.service.BookingService;
 import com.mdevs.cinefy.service.ShowtimeService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
+import com.mdevs.cinefy.shared.validation.ValidationPatterns;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +30,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/booking")
 @RequiredArgsConstructor
+@Validated
 public class BookingController {
 
     private final ShowtimeService showtimeService;
@@ -56,7 +60,9 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<BookingDetailDTO> createBooking(@Valid @RequestBody BookingRequestDTO dto,
-                                                          @RequestHeader("Idempotency-Key") String idempotencyKey) {
+                                                          @RequestHeader("Idempotency-Key")
+                                                          @Pattern(regexp = ValidationPatterns.UUID, message = "Idempotency-Key header must be a valid UUID")
+                                                          String idempotencyKey) {
         return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(dto, idempotencyKey));
     }
 }

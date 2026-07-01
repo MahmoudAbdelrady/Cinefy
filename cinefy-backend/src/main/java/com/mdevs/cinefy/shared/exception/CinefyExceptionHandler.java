@@ -7,6 +7,8 @@ import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
 import com.mdevs.cinefy.utils.ExceptionResponseMaker;
 import io.jsonwebtoken.JwtException;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 
 @RestControllerAdvice
 public class CinefyExceptionHandler {
@@ -66,6 +69,21 @@ public class CinefyExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errorMap.put("field", fieldName);
             errorMap.put("message", errorMessage);
+            return errorMap;
+        }).toList();
+        return ExceptionResponseMaker.makeResponse("Validation Error", errorsList, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<?> handleConstraintViolationException(ConstraintViolationException exception) {
+        List<Map<String, String>> errorsList = exception.getConstraintViolations().stream().map(violation -> {
+            Map<String, String> errorMap = new HashMap<>();
+            String fieldName = StreamSupport.stream(violation.getPropertyPath().spliterator(), false)
+                    .reduce((first, second) -> second)
+                    .map(Path.Node::getName)
+                    .orElse(null);
+            errorMap.put("field", fieldName);
+            errorMap.put("message", violation.getMessage());
             return errorMap;
         }).toList();
         return ExceptionResponseMaker.makeResponse("Validation Error", errorsList, HttpStatus.BAD_REQUEST);
