@@ -84,7 +84,6 @@ public class BookingService {
     }
 
     public BookingDetailDTO createBooking(BookingRequestDTO dto, String idempotencyKey) {
-        // TODO: throw on a key hit with a different payload (compare a stored request fingerprint) instead of blindly replaying.
         BookingDetailDTO existing = findExistingBooking(idempotencyKey);
         if (existing != null) {
             return existing;
