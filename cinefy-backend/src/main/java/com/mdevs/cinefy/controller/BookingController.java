@@ -58,6 +58,7 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getSeatSelection(uuid));
     }
 
+    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
     @PostMapping
     public ResponseEntity<BookingDetailDTO> createBooking(@Valid @RequestBody BookingRequestDTO dto,
                                                           @RequestHeader("Idempotency-Key")

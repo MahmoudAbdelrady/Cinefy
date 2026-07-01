@@ -33,12 +33,31 @@ public interface BookingRepository extends BaseRepository<Booking> {
                                       @Param("positions") List<String> positions);
 
     @Query("""
+            SELECT bs.position FROM BookingSeat bs
+            WHERE bs.showtime.id = :showtimeId
+            AND (bs.booking.status = 'CONFIRMED' OR (bs.booking.status = 'PENDING' AND bs.booking.expiresAt > :now))
+            """)
+    List<String> findReservedPositions(@Param("showtimeId") Long showtimeId,
+                                       @Param("now") LocalDateTime now);
+
+    @Query("""
             SELECT b.id FROM Booking b
             WHERE b.status = 'PENDING'
             AND b.expiresAt < :cutOffDate
             ORDER BY b.expiresAt
             """)
     List<Long> findExpiredPendingIds(@Param("cutOffDate") LocalDateTime cutOffDate, Pageable pageable);
+
+    @Query("""
+            SELECT b.id FROM Booking b
+            WHERE b.status = 'PENDING'
+            AND b.expiresAt > :now
+            AND b.client.id = :clientId
+            AND b.showtime.id = :showtimeId
+            """)
+    List<Long> findActivePendingIdsByClientAndShowtime(@Param("now") LocalDateTime now,
+                                                       @Param("clientId") Long clientId,
+                                                       @Param("showtimeId") Long showtimeId);
 
     @Modifying
     @Query("DELETE FROM BookingSeat bs WHERE bs.booking.id IN :bookingIds")

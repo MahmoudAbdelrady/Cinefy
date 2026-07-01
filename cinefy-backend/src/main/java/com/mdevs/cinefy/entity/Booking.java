@@ -15,7 +15,11 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(indexes = @Index(columnList = "STATUS, EXPIRES_AT"))
+@Table(indexes = {
+        @Index(columnList = "STATUS, EXPIRES_AT"),
+        @Index(columnList = "CLIENT_ID"),
+        @Index(columnList = "BOOKED_BY_ID")
+})
 public class Booking extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -34,6 +38,9 @@ public class Booking extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Client client;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private StaffMember bookedBy;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<BookingSeat> seats = new HashSet<>();

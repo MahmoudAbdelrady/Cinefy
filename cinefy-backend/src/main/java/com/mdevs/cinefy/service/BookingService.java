@@ -8,15 +8,21 @@ import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
+import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.Showtime;
+import com.mdevs.cinefy.entity.StaffMember;
+import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.entity.enums.BookingStatus;
 import com.mdevs.cinefy.entity.enums.SeatCategory;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
+import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import com.mdevs.cinefy.shared.security.SecurityUtil;
+import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -47,6 +53,10 @@ public class BookingService {
 
     private final TmdbMovieService tmdbMovieService;
 
+    private final ClientService clientService;
+
+    private final StaffMemberService staffMemberService;
+
     @Lazy
     private final BookingService self;
 
@@ -67,7 +77,8 @@ public class BookingService {
         Hall hall = showtime.getHall();
 
         HallLayoutDTO hallLayout = hallService.getHallLayout(hall);
-        hallLayout.getLayout().setReserved(getReservedSeats(showtime));
+        List<String> reservedSeats = bookingRepository.findReservedPositions(showtime.getId(), LocalDateTime.now());
+        hallLayout.getLayout().setReserved(reservedSeats);
 
         return toSeatSelectionDTO(showtime, hall, hallLayout);
     }
@@ -96,7 +107,7 @@ public class BookingService {
         Showtime showtime = findBookableShowtime(dto.getShowtimeId());
         Hall hall = showtime.getHall();
 
-        // Todo: load current logged-in user. Check if they have an active reservation for the same showtime and delete it
+        User user = loadBookingUser(SecurityUtil.getCurrentUser());
 
         Booking booking = new Booking();
         booking.setShowtime(showtime);
@@ -107,8 +118,15 @@ public class BookingService {
         booking.setBookingReference(generateReference());
         booking.setExpiresAt(LocalDateTime.now().plusMinutes(HOLD_WINDOW_MINUTES));
 
+        if (user instanceof Client client) {
+            booking.setClient(client);
+            deletePendingBookingForClient(client.getId(), showtime.getId());
+        } else if (user instanceof StaffMember staffMember) {
+            booking.setBookedBy(staffMember);
+        }
+
         claimRequestedSeats(showtime, dto.getSeats());
-        buildSeats(booking, showtime, hall, dto.getSeats());
+        buildSeats(booking, showtime, hall, dto.getSeats(), user);
 
         bookingRepository.save(booking);
 
@@ -143,9 +161,19 @@ public class BookingService {
         return showtime;
     }
 
-    // TODO: populate from the BookingSeat rows (active = true) for this showtime
-    private List<String> getReservedSeats(Showtime showtime) {
-        return List.of();
+    private User loadBookingUser(UserPrincipal currentUser) {
+        return currentUser.getType().equals(UserType.CLIENT)
+                ? clientService.findClientByUuid(currentUser.getUuid())
+                : staffMemberService.findStaffMember(currentUser.getUuid());
+    }
+
+    private void deletePendingBookingForClient(Long clientId, Long showtimeId) {
+        List<Long> bookingIds = bookingRepository.findActivePendingIdsByClientAndShowtime(LocalDateTime.now(), clientId, showtimeId);
+        if (bookingIds.isEmpty()) {
+            return;
+        }
+        bookingRepository.deleteSeatsByBookingIds(bookingIds);
+        bookingRepository.deleteBookingsByIds(bookingIds);
     }
 
     private void claimRequestedSeats(Showtime showtime, List<String> requestedPositions) {
@@ -170,7 +198,7 @@ public class BookingService {
         }
     }
 
-    private void buildSeats(Booking booking, Showtime showtime, Hall hall, List<String> requestedPositions) {
+    private void buildSeats(Booking booking, Showtime showtime, Hall hall, List<String> requestedPositions, User user) {
         HallLayout layout = hall.getLayout();
         Map<SeatCategory, BigDecimal> prices = hall.getCategoryPrices();
         Set<String> seen = new LinkedHashSet<>();
@@ -188,8 +216,7 @@ public class BookingService {
                 throw new BusinessException("Seat '" + position + "' is an aisle and cannot be booked");
             }
 
-            // TODO: only staff member accounts are allowed to do it
-            if (layout.onSiteOnly().contains(position)) {
+            if (user instanceof Client && layout.onSiteOnly().contains(position)) {
                 throw new BusinessException("Seat '" + position + "' can only be booked on-site");
             }
 
