@@ -31,7 +31,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -84,13 +84,16 @@ public class BookingService {
     }
 
     public BookingDetailDTO createBooking(BookingRequestDTO dto, String idempotencyKey) {
-        BookingDetailDTO existing = findExistingBooking(idempotencyKey);
-        if (existing != null) {
-            return existing;
+        Booking existing = bookingRepository.findByIdempotencyKeyWithDetail(idempotencyKey).orElse(null);
+        boolean hasExpiredPending = existing != null
+                && existing.getStatus().equals(BookingStatus.PENDING)
+                && !existing.getExpiresAt().isAfter(LocalDateTime.now());
+        if (existing != null && !hasExpiredPending) {
+            return toBookingDetailDTO(existing);
         }
 
         try {
-            return self.persistBooking(dto, idempotencyKey);
+            return self.persistBooking(dto, idempotencyKey, existing);
         } catch (DataIntegrityViolationException e) {
             log.warn("Booking save conflict for idempotency key {}: {}", idempotencyKey, e.getMessage(), e);
             BookingDetailDTO recovered = findExistingBooking(idempotencyKey);
@@ -102,11 +105,23 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingDetailDTO persistBooking(BookingRequestDTO dto, String idempotencyKey) {
+    public BookingDetailDTO persistBooking(BookingRequestDTO dto, String idempotencyKey, Booking expiredBooking) {
         Showtime showtime = findBookableShowtime(dto.getShowtimeId());
         Hall hall = showtime.getHall();
 
         User user = loadBookingUser(SecurityUtil.getCurrentUser());
+        validateSeats(hall, dto.getSeats(), user);
+
+        if (expiredBooking != null) {
+            deleteBooking(expiredBooking);
+        }
+
+        if (user instanceof Client client) {
+            Booking mutated = mutateActivePendingBooking(client, showtime, hall, dto.getSeats(), idempotencyKey);
+            if (mutated != null) {
+                return toBookingDetailDTO(mutated);
+            }
+        }
 
         Booking booking = new Booking();
         booking.setShowtime(showtime);
@@ -119,14 +134,14 @@ public class BookingService {
 
         if (user instanceof Client client) {
             booking.setClient(client);
-            deletePendingBookingForClient(client.getId(), showtime.getId());
         } else if (user instanceof StaffMember staffMember) {
             booking.setBookedBy(staffMember);
         }
 
         claimRequestedSeats(showtime, dto.getSeats());
-        bookingRepository.flush(); // Flush the active=null releases before re-inserting the same seats.
-        buildSeats(booking, showtime, hall, dto.getSeats(), user);
+        for (String position : dto.getSeats()) {
+            booking.getSeats().add(buildSeat(booking, showtime, hall, position));
+        }
 
         bookingRepository.save(booking);
 
@@ -167,13 +182,65 @@ public class BookingService {
                 : staffMemberService.findStaffMember(currentUser.getUuid());
     }
 
-    private void deletePendingBookingForClient(Long clientId, Long showtimeId) {
-        List<Long> bookingIds = bookingRepository.findActivePendingIdsByClientAndShowtime(LocalDateTime.now(), clientId, showtimeId);
-        if (bookingIds.isEmpty()) {
-            return;
+    private void validateSeats(Hall hall, List<String> requestedPositions, User user) {
+        HallLayout layout = hall.getLayout();
+        Set<String> seen = new LinkedHashSet<>();
+        for (String position : requestedPositions) {
+            if (!seen.add(position)) {
+                throw new BusinessException("Duplicate seat in request: " + position);
+            }
+            if (!hallService.isSeatInGrid(hall, position)) {
+                throw new BusinessException("Seat '" + position + "' does not exist in this hall");
+            }
+            if (resolvePositionCategory(layout, position).equals(SeatCategory.AISLE)) {
+                throw new BusinessException("Seat '" + position + "' is an aisle and cannot be booked");
+            }
+            if (user instanceof Client && layout.onSiteOnly().contains(position)) {
+                throw new BusinessException("Seat '" + position + "' can only be booked on-site");
+            }
         }
-        bookingRepository.deleteSeatsByBookingIds(bookingIds);
-        bookingRepository.deleteBookingsByIds(bookingIds);
+    }
+
+    private void deleteBooking(Booking booking) {
+        bookingRepository.delete(booking);
+        bookingRepository.flush();
+    }
+
+    private Booking mutateActivePendingBooking(Client client, Showtime showtime, Hall hall,
+                                               List<String> requestedPositions, String idempotencyKey) {
+        Booking existing = bookingRepository
+                .findActivePendingByClientAndShowtime(LocalDateTime.now(), client.getId(), showtime.getId())
+                .orElse(null);
+        if (existing == null) {
+            return null;
+        }
+
+        Set<String> currentPositions = existing.getSeats().stream()
+                .map(BookingSeat::getPosition)
+                .collect(Collectors.toSet());
+        Set<String> requested = new LinkedHashSet<>(requestedPositions);
+
+        boolean overlaps = requested.stream().anyMatch(currentPositions::contains);
+        if (!overlaps) {
+            deleteBooking(existing);
+            return null;
+        }
+
+        existing.getSeats().removeIf(seat -> !requested.contains(seat.getPosition()));
+
+        List<String> addedPositions = requested.stream()
+                .filter(position -> !currentPositions.contains(position))
+                .toList();
+        if (!addedPositions.isEmpty()) {
+            claimRequestedSeats(showtime, addedPositions);
+            for (String position : addedPositions) {
+                existing.getSeats().add(buildSeat(existing, showtime, hall, position));
+            }
+        }
+        existing.setIdempotencyKey(idempotencyKey);
+
+        bookingRepository.save(existing);
+        return existing;
     }
 
     private void claimRequestedSeats(Showtime showtime, List<String> requestedPositions) {
@@ -188,7 +255,7 @@ public class BookingService {
             if (blocking) {
                 blockedPositions.add(activeSeat.getPosition());
             } else {
-                // No explicit save: flushed via Hibernate dirty checking. NULL for achieving partial unique constraint
+                // NULL, not false, so repeated releases don't collide on the partial unique constraint.
                 activeSeat.setActive(null);
             }
         }
@@ -196,38 +263,21 @@ public class BookingService {
         if (!blockedPositions.isEmpty()) {
             throw new BusinessException("Seat(s) already reserved: " + String.join(", ", blockedPositions));
         }
+
+        // Flush the active=null releases before the caller re-inserts the same seats.
+        bookingRepository.flush();
     }
 
-    private void buildSeats(Booking booking, Showtime showtime, Hall hall, List<String> requestedPositions, User user) {
-        HallLayout layout = hall.getLayout();
-        Map<SeatCategory, BigDecimal> prices = hall.getCategoryPrices();
-        Set<String> seen = new LinkedHashSet<>();
+    private BookingSeat buildSeat(Booking booking, Showtime showtime, Hall hall, String position) {
+        SeatCategory category = resolvePositionCategory(hall.getLayout(), position);
 
-        for (String position : requestedPositions) {
-            if (!seen.add(position)) {
-                throw new BusinessException("Duplicate seat in request: " + position);
-            }
-            if (!hallService.isSeatInGrid(hall, position)) {
-                throw new BusinessException("Seat '" + position + "' does not exist in this hall");
-            }
-
-            SeatCategory category = resolvePositionCategory(layout, position);
-            if (category.equals(SeatCategory.AISLE)) {
-                throw new BusinessException("Seat '" + position + "' is an aisle and cannot be booked");
-            }
-
-            if (user instanceof Client && layout.onSiteOnly().contains(position)) {
-                throw new BusinessException("Seat '" + position + "' can only be booked on-site");
-            }
-
-            BookingSeat seat = new BookingSeat();
-            seat.setBooking(booking);
-            seat.setShowtime(showtime);
-            seat.setPosition(position);
-            seat.setCategory(category);
-            seat.setTicketPrice(prices.get(category));
-            booking.getSeats().add(seat);
-        }
+        BookingSeat seat = new BookingSeat();
+        seat.setBooking(booking);
+        seat.setShowtime(showtime);
+        seat.setPosition(position);
+        seat.setCategory(resolvePositionCategory(hall.getLayout(), position));
+        seat.setTicketPrice(hall.getCategoryPrices().get(category));
+        return seat;
     }
 
     private SeatCategory resolvePositionCategory(HallLayout layout, String position) {

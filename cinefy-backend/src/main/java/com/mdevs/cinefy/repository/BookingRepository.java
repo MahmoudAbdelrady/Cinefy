@@ -49,15 +49,16 @@ public interface BookingRepository extends BaseRepository<Booking> {
     List<Long> findExpiredPendingIds(@Param("cutOffDate") LocalDateTime cutOffDate, Pageable pageable);
 
     @Query("""
-            SELECT b.id FROM Booking b
+            SELECT b FROM Booking b
+            JOIN FETCH b.seats
             WHERE b.status = 'PENDING'
             AND b.expiresAt > :now
             AND b.client.id = :clientId
             AND b.showtime.id = :showtimeId
             """)
-    List<Long> findActivePendingIdsByClientAndShowtime(@Param("now") LocalDateTime now,
-                                                       @Param("clientId") Long clientId,
-                                                       @Param("showtimeId") Long showtimeId);
+    Optional<Booking> findActivePendingByClientAndShowtime(@Param("now") LocalDateTime now,
+                                                           @Param("clientId") Long clientId,
+                                                           @Param("showtimeId") Long showtimeId);
 
     @Modifying
     @Query("DELETE FROM BookingSeat bs WHERE bs.booking.id IN :bookingIds")
