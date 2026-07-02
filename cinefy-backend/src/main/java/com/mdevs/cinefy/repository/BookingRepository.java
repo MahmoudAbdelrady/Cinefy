@@ -52,13 +52,11 @@ public interface BookingRepository extends BaseRepository<Booking> {
             SELECT b FROM Booking b
             JOIN FETCH b.seats
             WHERE b.onHold = true
-            AND b.expiresAt > :now
             AND b.client.id = :clientId
             AND b.showtime.id = :showtimeId
             """)
-    Optional<Booking> findActivePendingByClientAndShowtime(@Param("now") LocalDateTime now,
-                                                           @Param("clientId") Long clientId,
-                                                           @Param("showtimeId") Long showtimeId);
+    Optional<Booking> findOnHoldByClientAndShowtime(@Param("clientId") Long clientId,
+                                                    @Param("showtimeId") Long showtimeId);
 
     @Modifying
     @Query("DELETE FROM BookingSeat bs WHERE bs.booking.id IN :bookingIds")

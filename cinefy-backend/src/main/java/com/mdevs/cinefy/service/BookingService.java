@@ -209,9 +209,13 @@ public class BookingService {
     private Booking mutateActivePendingBooking(Client client, Showtime showtime, Hall hall,
                                                List<String> requestedPositions, String idempotencyKey) {
         Booking existing = bookingRepository
-                .findActivePendingByClientAndShowtime(LocalDateTime.now(), client.getId(), showtime.getId())
+                .findOnHoldByClientAndShowtime(client.getId(), showtime.getId())
                 .orElse(null);
         if (existing == null) {
+            return null;
+        }
+        if (!existing.getExpiresAt().isAfter(LocalDateTime.now())) {
+            deleteBooking(existing);
             return null;
         }
 
