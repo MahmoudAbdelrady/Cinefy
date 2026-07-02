@@ -15,11 +15,14 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(indexes = {
-        @Index(columnList = "STATUS, EXPIRES_AT"),
-        @Index(columnList = "CLIENT_ID"),
-        @Index(columnList = "BOOKED_BY_ID")
-})
+@Table(
+        uniqueConstraints = @UniqueConstraint(columnNames = {"CLIENT_ID", "SHOWTIME_ID", "ON_HOLD"}),
+        indexes = {
+                @Index(columnList = "ON_HOLD, EXPIRES_AT"),
+                @Index(columnList = "CLIENT_ID"),
+                @Index(columnList = "BOOKED_BY_ID")
+        }
+)
 public class Booking extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -52,8 +55,9 @@ public class Booking extends BaseEntity {
     private String bookingReference;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private BookingStatus status = BookingStatus.PENDING;
+    private BookingStatus status;
+
+    private Boolean onHold = true;
 
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime refundableUntil;

@@ -5,7 +5,6 @@ import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import java.util.Arrays;
 
 public enum BookingStatus {
-    PENDING,
     CONFIRMED,
     REFUNDED;
 

@@ -35,14 +35,14 @@ public interface BookingRepository extends BaseRepository<Booking> {
     @Query("""
             SELECT bs.position FROM BookingSeat bs
             WHERE bs.showtime.id = :showtimeId
-            AND (bs.booking.status = 'CONFIRMED' OR (bs.booking.status = 'PENDING' AND bs.booking.expiresAt > :now))
+            AND (bs.booking.status = 'CONFIRMED' OR (bs.booking.onHold = true AND bs.booking.expiresAt > :now))
             """)
     List<String> findReservedPositions(@Param("showtimeId") Long showtimeId,
                                        @Param("now") LocalDateTime now);
 
     @Query("""
             SELECT b.id FROM Booking b
-            WHERE b.status = 'PENDING'
+            WHERE b.onHold = true
             AND b.expiresAt < :cutOffDate
             ORDER BY b.expiresAt
             """)
@@ -51,7 +51,7 @@ public interface BookingRepository extends BaseRepository<Booking> {
     @Query("""
             SELECT b FROM Booking b
             JOIN FETCH b.seats
-            WHERE b.status = 'PENDING'
+            WHERE b.onHold = true
             AND b.expiresAt > :now
             AND b.client.id = :clientId
             AND b.showtime.id = :showtimeId

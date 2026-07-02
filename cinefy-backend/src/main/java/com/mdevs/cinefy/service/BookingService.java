@@ -86,7 +86,7 @@ public class BookingService {
     public BookingDetailDTO createBooking(BookingRequestDTO dto, String idempotencyKey) {
         Booking existing = bookingRepository.findByIdempotencyKeyWithDetail(idempotencyKey).orElse(null);
         boolean hasExpiredPending = existing != null
-                && existing.getStatus().equals(BookingStatus.PENDING)
+                && Boolean.TRUE.equals(existing.getOnHold())
                 && !existing.getExpiresAt().isAfter(LocalDateTime.now());
         if (existing != null && !hasExpiredPending) {
             return toBookingDetailDTO(existing);
@@ -250,8 +250,8 @@ public class BookingService {
         List<String> blockedPositions = new ArrayList<>();
         for (BookingSeat activeSeat : activeSeats) {
             Booking booking = activeSeat.getBooking();
-            boolean blocking = booking.getStatus().equals(BookingStatus.CONFIRMED)
-                    || (booking.getStatus().equals(BookingStatus.PENDING) && booking.getExpiresAt().isAfter(now));
+            boolean blocking = BookingStatus.CONFIRMED.equals(booking.getStatus())
+                    || (Boolean.TRUE.equals(booking.getOnHold()) && booking.getExpiresAt().isAfter(now));
             if (blocking) {
                 blockedPositions.add(activeSeat.getPosition());
             } else {
