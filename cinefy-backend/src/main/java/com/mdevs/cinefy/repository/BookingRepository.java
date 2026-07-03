@@ -41,6 +41,17 @@ public interface BookingRepository extends BaseRepository<Booking> {
                                        @Param("now") LocalDateTime now);
 
     @Query("""
+            SELECT bs.position FROM BookingSeat bs
+            WHERE bs.showtime.id = :showtimeId
+            AND bs.booking.onHold = true
+            AND bs.booking.expiresAt > :now
+            AND (bs.booking.client.id = :userId OR bs.booking.bookedBy.id = :userId)
+            """)
+    List<String> findMyReservedPositions(@Param("showtimeId") Long showtimeId,
+                                         @Param("userId") Long userId,
+                                         @Param("now") LocalDateTime now);
+
+    @Query("""
             SELECT b.id FROM Booking b
             WHERE b.onHold = true
             AND b.expiresAt < :cutOffDate

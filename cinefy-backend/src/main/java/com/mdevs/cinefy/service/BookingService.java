@@ -79,10 +79,17 @@ public class BookingService {
     public SeatSelectionDTO getSeatSelection(String showtimeUuid) {
         Showtime showtime = findBookableShowtime(showtimeUuid);
         Hall hall = showtime.getHall();
+        LocalDateTime now = LocalDateTime.now();
 
         HallLayoutDTO hallLayout = hallService.getHallLayout(hall);
-        List<String> reservedSeats = bookingRepository.findReservedPositions(showtime.getId(), LocalDateTime.now());
+        List<String> reservedSeats = bookingRepository.findReservedPositions(showtime.getId(), now);
         hallLayout.getLayout().setReserved(reservedSeats);
+
+        if (SecurityUtil.isAuthenticated()) {
+            User user = loadBookingUser(SecurityUtil.getCurrentUser());
+            List<String> myReservedSeats = bookingRepository.findMyReservedPositions(showtime.getId(), user.getId(), now);
+            hallLayout.getLayout().setMyReserved(myReservedSeats);
+        }
 
         return toSeatSelectionDTO(showtime, hall, hallLayout);
     }
