@@ -3,6 +3,7 @@ package com.mdevs.cinefy.service;
 import com.mdevs.cinefy.dto.booking.BookedSeatDTO;
 import com.mdevs.cinefy.dto.booking.BookingDetailDTO;
 import com.mdevs.cinefy.dto.booking.BookingRequestDTO;
+import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
@@ -20,6 +21,7 @@ import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.security.SecurityUtil;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
@@ -28,9 +30,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -83,6 +87,24 @@ public class BookingService {
         return toSeatSelectionDTO(showtime, hall, hallLayout);
     }
 
+    public List<BookingSummaryDTO> getActiveBookings() {
+        User user = loadBookingUser(SecurityUtil.getCurrentUser());
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Booking> bookings = user instanceof Client client
+                ? bookingRepository.findActiveOnHoldByClient(client.getId(), now)
+                : bookingRepository.findActiveOnHoldByBookedBy(user.getId(), now);
+
+        return bookings.stream().map(this::toBookingSummaryDTO).toList();
+    }
+
+    public BookingDetailDTO getActiveBookingDetails(String uuid) {
+        Booking booking = findBookingByUuidWithDetail(uuid);
+        validateBookingOwnership(booking);
+        validateBookingIsActive(booking);
+        return toBookingDetailDTO(booking);
+    }
+
     public BookingDetailDTO createBooking(BookingRequestDTO dto, String idempotencyKey) {
         Booking existing = bookingRepository.findByIdempotencyKeyWithDetail(idempotencyKey).orElse(null);
         boolean hasExpiredPending = existing != null
@@ -94,7 +116,7 @@ public class BookingService {
 
         try {
             return self.persistBooking(dto, idempotencyKey, existing);
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException | ObjectOptimisticLockingFailureException e) {
             log.warn("Booking save conflict for idempotency key {}: {}", idempotencyKey, e.getMessage(), e);
             BookingDetailDTO recovered = findExistingBooking(idempotencyKey);
             if (recovered == null) {
@@ -113,7 +135,7 @@ public class BookingService {
         validateSeats(hall, dto.getSeats(), user);
 
         if (expiredBooking != null) {
-            deleteBooking(expiredBooking);
+            bookingRepository.delete(expiredBooking);
         }
 
         if (user instanceof Client client) {
@@ -123,20 +145,7 @@ public class BookingService {
             }
         }
 
-        Booking booking = new Booking();
-        booking.setShowtime(showtime);
-        booking.setHall(hall);
-        booking.setHallName(hall.getName());
-        booking.setHallType(hall.getType().getName());
-        booking.setIdempotencyKey(idempotencyKey);
-        booking.setBookingReference(generateReference());
-        booking.setExpiresAt(LocalDateTime.now().plusMinutes(HOLD_WINDOW_MINUTES));
-
-        if (user instanceof Client client) {
-            booking.setClient(client);
-        } else if (user instanceof StaffMember staffMember) {
-            booking.setBookedBy(staffMember);
-        }
+        Booking booking = buildBooking(showtime, hall, user, idempotencyKey);
 
         claimRequestedSeats(showtime, dto.getSeats());
         for (String position : dto.getSeats()) {
@@ -146,6 +155,14 @@ public class BookingService {
         bookingRepository.save(booking);
 
         return toBookingDetailDTO(booking);
+    }
+
+    @Transactional
+    public void cancelBooking(String uuid) {
+        Booking booking = findBookingByUuidWithDetail(uuid);
+        validateBookingOwnership(booking);
+        validateBookingIsActive(booking);
+        bookingRepository.delete(booking);
     }
 
     @Transactional
@@ -176,6 +193,11 @@ public class BookingService {
         return showtime;
     }
 
+    private Booking findBookingByUuidWithDetail(String uuid) {
+        return bookingRepository.findByUuidWithDetail(uuid)
+                .orElseThrow(() -> new NotFoundException("Booking not found: " + uuid));
+    }
+
     private User loadBookingUser(UserPrincipal currentUser) {
         return currentUser.getType().equals(UserType.CLIENT)
                 ? clientService.findClientByUuid(currentUser.getUuid())
@@ -201,9 +223,21 @@ public class BookingService {
         }
     }
 
-    private void deleteBooking(Booking booking) {
-        bookingRepository.delete(booking);
-        bookingRepository.flush();
+    private void validateBookingOwnership(Booking booking) {
+        UserPrincipal currentUser = SecurityUtil.getCurrentUser();
+        String ownerUuid = currentUser.getType().equals(UserType.CLIENT)
+                ? (booking.getClient() == null ? null : booking.getClient().getUuid())
+                : (booking.getBookedBy() == null ? null : booking.getBookedBy().getUuid());
+        if (!currentUser.getUuid().equals(ownerUuid)) {
+            throw new ForbiddenException("You are not allowed to access this booking");
+        }
+    }
+
+    private void validateBookingIsActive(Booking booking) {
+        boolean active = Boolean.TRUE.equals(booking.getOnHold()) && booking.getExpiresAt().isAfter(LocalDateTime.now());
+        if (!active) {
+            throw new BusinessException("This booking is no longer active");
+        }
     }
 
     private Booking mutateActivePendingBooking(Client client, Showtime showtime, Hall hall,
@@ -215,7 +249,7 @@ public class BookingService {
             return null;
         }
         if (!existing.getExpiresAt().isAfter(LocalDateTime.now())) {
-            deleteBooking(existing);
+            bookingRepository.delete(existing);
             return null;
         }
 
@@ -226,7 +260,7 @@ public class BookingService {
 
         boolean overlaps = requested.stream().anyMatch(currentPositions::contains);
         if (!overlaps) {
-            deleteBooking(existing);
+            bookingRepository.delete(existing);
             return null;
         }
 
@@ -270,6 +304,25 @@ public class BookingService {
 
         // Flush the active=null releases before the caller re-inserts the same seats.
         bookingRepository.flush();
+    }
+
+    private Booking buildBooking(Showtime showtime, Hall hall, User user, String idempotencyKey) {
+        Booking booking = new Booking();
+        booking.setShowtime(showtime);
+        booking.setHall(hall);
+        booking.setHallName(hall.getName());
+        booking.setHallType(hall.getType().getName());
+        booking.setIdempotencyKey(idempotencyKey);
+        booking.setBookingReference(generateReference());
+        booking.setExpiresAt(LocalDateTime.now().plusMinutes(HOLD_WINDOW_MINUTES));
+
+        if (user instanceof Client client) {
+            booking.setClient(client);
+        } else if (user instanceof StaffMember staffMember) {
+            booking.setBookedBy(staffMember);
+        }
+
+        return booking;
     }
 
     private BookingSeat buildSeat(Booking booking, Showtime showtime, Hall hall, String position) {
@@ -316,14 +369,37 @@ public class BookingService {
                 .map(seat -> new BookedSeatDTO(seat.getPosition(), seat.getCategory(), seat.getTicketPrice()))
                 .toList();
 
+        Showtime showtime = booking.getShowtime();
+
         BookingDetailDTO dto = new BookingDetailDTO();
         dto.setId(booking.getUuid());
-        dto.setBookingReference(booking.getBookingReference());
         dto.setExpiresAt(booking.getExpiresAt());
-        dto.setMovie(tmdbMovieService.toSearchResult(booking.getShowtime().getTmdbMovie()));
+        dto.setMovie(tmdbMovieService.toSearchResult(showtime.getTmdbMovie()));
+        dto.setStartDateTime(showtime.getStartDateTime());
         dto.setHallName(booking.getHallName());
         dto.setHallType(booking.getHallType());
+        dto.set3D(showtime.is3D());
         dto.setSeats(seats);
         return dto;
+    }
+
+    private BookingSummaryDTO toBookingSummaryDTO(Booking booking) {
+        int totalTickets = booking.getSeats().size();
+        BigDecimal totalPrice = booking.getSeats().stream()
+                .map(BookingSeat::getTicketPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        Showtime showtime = booking.getShowtime();
+
+        return new BookingSummaryDTO(
+                booking.getUuid(),
+                booking.getExpiresAt(),
+                tmdbMovieService.toSearchResult(showtime.getTmdbMovie()),
+                showtime.getStartDateTime(),
+                booking.getHallName(),
+                booking.getHallType(),
+                showtime.is3D(),
+                totalTickets,
+                totalPrice);
     }
 }

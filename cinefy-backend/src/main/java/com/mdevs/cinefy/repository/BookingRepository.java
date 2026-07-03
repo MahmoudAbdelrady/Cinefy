@@ -58,6 +58,37 @@ public interface BookingRepository extends BaseRepository<Booking> {
     Optional<Booking> findOnHoldByClientAndShowtime(@Param("clientId") Long clientId,
                                                     @Param("showtimeId") Long showtimeId);
 
+    @Query("""
+            SELECT b FROM Booking b
+            JOIN FETCH b.seats
+            JOIN FETCH b.showtime s
+            JOIN FETCH s.tmdbMovie
+            WHERE b.onHold = true
+            AND b.expiresAt > :now
+            AND b.client.id = :clientId
+            """)
+    List<Booking> findActiveOnHoldByClient(@Param("clientId") Long clientId, @Param("now") LocalDateTime now);
+
+    @Query("""
+            SELECT b FROM Booking b
+            JOIN FETCH b.seats
+            JOIN FETCH b.showtime s
+            JOIN FETCH s.tmdbMovie
+            WHERE b.onHold = true
+            AND b.expiresAt > :now
+            AND b.bookedBy.id = :staffId
+            """)
+    List<Booking> findActiveOnHoldByBookedBy(@Param("staffId") Long staffId, @Param("now") LocalDateTime now);
+
+    @Query("""
+            SELECT b FROM Booking b
+            JOIN FETCH b.seats
+            JOIN FETCH b.showtime s
+            JOIN FETCH s.tmdbMovie
+            WHERE b.uuid = :uuid
+            """)
+    Optional<Booking> findByUuidWithDetail(@Param("uuid") String uuid);
+
     @Modifying
     @Query("DELETE FROM BookingSeat bs WHERE bs.booking.id IN :bookingIds")
     void deleteSeatsByBookingIds(@Param("bookingIds") List<Long> bookingIds);

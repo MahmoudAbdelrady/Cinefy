@@ -2,6 +2,7 @@ package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.booking.BookingDetailDTO;
 import com.mdevs.cinefy.dto.booking.BookingRequestDTO;
+import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
 import com.mdevs.cinefy.service.BookingService;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,11 +61,30 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
+    @GetMapping("/active")
+    public ResponseEntity<List<BookingSummaryDTO>> getActiveBookings() {
+        return ResponseEntity.ok(bookingService.getActiveBookings());
+    }
+
+    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
+    @GetMapping("/active/{uuid}")
+    public ResponseEntity<BookingDetailDTO> getActiveBookingDetails(@PathVariable String uuid) {
+        return ResponseEntity.ok(bookingService.getActiveBookingDetails(uuid));
+    }
+
+    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
     @PostMapping
     public ResponseEntity<BookingDetailDTO> createBooking(@Valid @RequestBody BookingRequestDTO dto,
                                                           @RequestHeader("Idempotency-Key")
                                                           @Pattern(regexp = ValidationPatterns.UUID, message = "Idempotency-Key header must be a valid UUID")
                                                           String idempotencyKey) {
         return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(dto, idempotencyKey));
+    }
+
+    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<Void> cancelBooking(@PathVariable String uuid) {
+        bookingService.cancelBooking(uuid);
+        return ResponseEntity.noContent().build();
     }
 }
