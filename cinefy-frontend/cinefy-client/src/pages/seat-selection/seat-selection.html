@@ -47,11 +47,19 @@
           <span class="ss-screen-label">Screen</span>
         </div>
 
-        <seat-map [rows]="hall()" (selectionChange)="selectedSeats.set($event)" />
+        <seat-map
+          [rows]="hall()"
+          [initialSelectedIds]="myReservedIds()"
+          (selectionChange)="selectedSeats.set($event)"
+        />
       </div>
 
       <div class="ss-summary">
-        <booking-summary [selectedSeats]="selectedSeats()" [prices]="prices()" />
+        <booking-summary
+          [showtimeId]="showtimeId()!"
+          [selectedSeats]="selectedSeats()"
+          [prices]="prices()"
+        />
       </div>
     </div>
   </div>

@@ -1,4 +1,4 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, computed, input, linkedSignal, output } from '@angular/core';
 import { SEAT_KIND_LABEL, type Seat, type SeatKind } from '../../../shared/types';
 
 interface LegendItem {
@@ -18,10 +18,13 @@ export class SeatMapComponent {
   );
 
   readonly rows = input.required<Seat[][]>();
+  readonly initialSelectedIds = input<string[]>([]);
 
   readonly selectionChange = output<Seat[]>();
 
-  private readonly selectedIds = signal<Set<string>>(new Set());
+  private readonly selectedIds = linkedSignal<Set<string>>(
+    () => new Set(this.initialSelectedIds()),
+  );
 
   private readonly selectedSeats = computed(() => {
     const ids = this.selectedIds();

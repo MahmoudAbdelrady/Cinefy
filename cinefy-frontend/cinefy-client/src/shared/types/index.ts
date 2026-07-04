@@ -20,7 +20,15 @@ export type {
 } from './auth';
 export type { CurrentUser } from './clients';
 export type { ApiError, ApiErrorCode } from './api';
-export type { BookingShowtime, HallTypeShowtimes, SeatSelection } from './booking';
+export type {
+  BookingShowtime,
+  HallTypeShowtimes,
+  SeatSelection,
+  BookingSummary,
+  BookedSeat,
+  BookingDetail,
+  BookingRequest,
+} from './booking';
 export { SEAT_KIND_LABEL } from './seats';
 export type {
   Seat,

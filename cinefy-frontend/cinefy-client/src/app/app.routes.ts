@@ -52,9 +52,10 @@ export const routes: Routes = [
       {
         path: 'movies/:movieId/seats/:showtimeId',
         component: SeatSelectionPage,
+        canActivate: [authGuard],
       },
       {
-        path: 'checkout',
+        path: 'checkout/:bookingId',
         component: CheckoutPage,
         canActivate: [authGuard],
       },

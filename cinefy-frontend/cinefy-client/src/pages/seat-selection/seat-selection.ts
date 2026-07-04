@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
@@ -19,7 +19,11 @@ import type {
 
 function seatKind(id: string, layout: SeatLayout): SeatKind {
   if (layout.categories.AISLE?.includes(id)) return 'AISLE';
-  if (layout.reserved.includes(id) || layout.onSiteOnly.includes(id)) return 'TAKEN';
+  if (
+    (layout.reserved.includes(id) && !layout.myReserved?.includes(id)) ||
+    layout.onSiteOnly.includes(id)
+  )
+    return 'TAKEN';
   if (layout.categories.VIP?.includes(id)) return 'VIP';
   return 'NORMAL';
 }
@@ -91,5 +95,15 @@ export class SeatSelectionPage {
     return layout ? priceByCategory(layout.ticketPricing) : ({} as Record<SeatCategory, number>);
   });
 
-  protected readonly selectedSeats = signal<Seat[]>([]);
+  protected readonly myReservedIds = computed<string[]>(
+    () => this.seatSelection()?.hallLayout.layout.myReserved ?? [],
+  );
+
+  protected readonly selectedSeats = linkedSignal<Seat[]>(() => {
+    const reserved = new Set(this.myReservedIds());
+    if (!reserved.size) return [];
+    return this.hall()
+      .flat()
+      .filter((seat) => reserved.has(seat.id));
+  });
 }

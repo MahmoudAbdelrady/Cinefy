@@ -1,9 +1,16 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { InfoIcon } from '../../../shared/icons';
-import { SEAT_KIND_LABEL, type Seat, type SeatCategory } from '../../../shared/types';
+import { BookingService } from '../../../services';
+import {
+  SEAT_KIND_LABEL,
+  type BookingRequest,
+  type Seat,
+  type SeatCategory,
+} from '../../../shared/types';
 
 interface CategoryLine {
   category: SeatCategory;
@@ -16,7 +23,7 @@ const CATEGORY_ORDER: SeatCategory[] = ['NORMAL', 'VIP'];
 
 @Component({
   selector: 'booking-summary',
-  imports: [LucideDynamicIcon, CurrencyPipe],
+  imports: [LucideDynamicIcon, CurrencyPipe, LoadingSpinnerComponent],
   templateUrl: './booking-summary.html',
   styleUrl: './booking-summary.scss',
 })
@@ -26,9 +33,13 @@ export class BookingSummaryComponent {
   };
 
   private readonly router = inject(Router);
+  private readonly bookingService = inject(BookingService);
 
+  readonly showtimeId = input.required<string>();
   readonly selectedSeats = input.required<Seat[]>();
   readonly prices = input.required<Record<SeatCategory, number>>();
+
+  protected readonly submitting = signal(false);
 
   protected readonly lines = computed<CategoryLine[]>(() => {
     const prices = this.prices();
@@ -49,7 +60,17 @@ export class BookingSummaryComponent {
   );
 
   protected proceedToPayment() {
-    // TODO: Call `/reserve` endpoint here before navigating to checkout
-    this.router.navigateByUrl('/checkout');
+    if (this.submitting()) return;
+
+    const request: BookingRequest = {
+      showtimeId: this.showtimeId(),
+      seats: this.selectedSeats().map((seat) => seat.id),
+    };
+    const idempotencyKey = crypto.randomUUID();
+    this.submitting.set(true);
+    this.bookingService.createBooking(request, idempotencyKey).subscribe({
+      next: (booking) => this.router.navigateByUrl(`/checkout/${booking.id}`),
+      error: () => this.submitting.set(false),
+    });
   }
 }

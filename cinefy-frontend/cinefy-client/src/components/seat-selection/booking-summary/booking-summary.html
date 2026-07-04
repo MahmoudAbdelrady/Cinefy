@@ -21,8 +21,17 @@
       <span class="bsum-total-value">{{ total() | currency: 'USD' }}</span>
     </div>
 
-    <button type="button" class="bsum-proceed btn-primary" (click)="proceedToPayment()">
-      Proceed to Payment
+    <button
+      type="button"
+      class="bsum-proceed btn-primary"
+      [disabled]="submitting()"
+      (click)="proceedToPayment()"
+    >
+      @if (submitting()) {
+        <loading-spinner variant="xs" />
+      } @else {
+        Proceed to Payment
+      }
     </button>
   }
 </div>
