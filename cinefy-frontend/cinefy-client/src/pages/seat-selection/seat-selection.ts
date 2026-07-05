@@ -1,13 +1,19 @@
-import { Component, computed, inject, linkedSignal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
+import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
-import { BookingSummaryComponent, HoldTimerComponent, SeatMapComponent } from '../../components';
+import { EmptyStateComponent, LoadingSpinnerComponent, ModalComponent } from 'cinefy-ui/components';
+import {
+  BookingCancelledComponent,
+  BookingSummaryComponent,
+  HoldTimerComponent,
+  SeatMapComponent,
+} from '../../components';
 import { BookingService } from '../../services';
-import { ArrowLeftIcon, TriangleAlertIcon } from '../../shared/icons';
+import { ArrowLeftIcon, TriangleAlertIcon, XIcon } from '../../shared/icons';
 import type {
   Seat,
   SeatCategory,
@@ -49,10 +55,13 @@ function priceByCategory(pricing: TicketPrice[]): Record<SeatCategory, number> {
   imports: [
     RouterLink,
     DatePipe,
+    NgpDialogTrigger,
     LucideDynamicIcon,
     SeatMapComponent,
     BookingSummaryComponent,
     HoldTimerComponent,
+    BookingCancelledComponent,
+    ModalComponent,
     EmptyStateComponent,
     LoadingSpinnerComponent,
   ],
@@ -63,6 +72,7 @@ export class SeatSelectionPage {
   protected readonly icons = {
     ArrowLeftIcon,
     TriangleAlertIcon,
+    XIcon,
   };
 
   private readonly route = inject(ActivatedRoute);
@@ -105,5 +115,11 @@ export class SeatSelectionPage {
       .filter((seat) => reserved.has(seat.id));
   });
 
+  protected readonly cancelled = signal(false);
+
   protected readonly expiresAt = computed(() => this.seatSelection()?.activeBooking?.expiresAt);
+
+  protected confirmCancel(): void {
+    this.cancelled.set(true);
+  }
 }

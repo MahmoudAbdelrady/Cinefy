@@ -9,6 +9,8 @@
     title="Couldn't load this showtime"
     description="Something went wrong. Please try again later."
   />
+} @else if (cancelled()) {
+  <booking-cancelled [movieId]="movieId()!" />
 } @else if (seatSelection(); as data) {
   <div class="seat-selection-container">
     <div class="ss-header">
@@ -32,7 +34,23 @@
           </p>
         </div>
 
-        <hold-timer class="ss-timer" [expiresAt]="expiresAt()" />
+        @if (expiresAt(); as heldUntil) {
+          <div class="ss-hold-cluster">
+            <div class="ss-reservation">
+              <span class="ss-reservation-status">
+                <span class="ss-reservation-dot"></span>
+                Reservation active
+              </span>
+            </div>
+
+            <hold-timer [expiresAt]="heldUntil" />
+
+            <button type="button" class="btn-base ss-cancel" [ngpDialogTrigger]="cancelDialog">
+              <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
+              <span class="ss-cancel-label">Cancel Booking</span>
+            </button>
+          </div>
+        }
       </div>
     </div>
 
@@ -60,4 +78,24 @@
       </div>
     </div>
   </div>
+
+  <ng-template #cancelDialog let-close="close">
+    <app-modal modalTitle="Cancel this booking?" width="448px" [close]="close">
+      <div class="ss-cancel-modal-content">
+        <div class="scm-icon">
+          <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
+        </div>
+        <p class="scm-message">
+          Your held seats will be released and you'll lose your place. This can't be undone.
+        </p>
+      </div>
+
+      <div modal-footer class="ss-dialog-footer">
+        <button type="button" class="btn-secondary" (click)="close()">Keep booking</button>
+        <button type="button" class="btn-danger" (click)="confirmCancel(); close()">
+          Cancel Booking
+        </button>
+      </div>
+    </app-modal>
+  </ng-template>
 }

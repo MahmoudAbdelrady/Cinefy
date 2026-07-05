@@ -146,6 +146,102 @@
   color: $color-muted-foreground;
 }
 
-.ss-timer {
+.ss-hold-cluster {
+  @include flex-align;
+
+  gap: 12px;
   margin-left: auto;
+}
+
+.ss-reservation {
+  display: none;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
+
+  @include from-mobile {
+    display: flex;
+  }
+}
+
+.ss-reservation-status {
+  @include flex-align;
+
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.ss-reservation-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: $radius-full;
+  background: $color-primary;
+  animation: ss-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.ss-cancel {
+  @include flex-align;
+
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  color: $color-muted-foreground;
+
+  &:hover {
+    border-color: rgba($color-destructive, 0.6);
+    color: $color-destructive;
+  }
+}
+
+.ss-cancel-label {
+  display: none;
+
+  @include from-mobile {
+    display: inline;
+  }
+}
+
+@keyframes ss-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// ─── Cancel-confirm dialog ───────────────────────────────────────────────────
+.ss-cancel-modal-content {
+  text-align: center;
+}
+
+.scm-icon {
+  @include flex-center;
+
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border-radius: $radius-full;
+  background: rgba($color-destructive, 0.15);
+
+  svg {
+    display: flex;
+    color: $color-destructive;
+  }
+}
+
+.scm-message {
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: $color-muted-foreground;
+}
+
+.ss-dialog-footer {
+  @include flex-align;
+
+  gap: 12px;
+  width: 100%;
+
+  button {
+    flex: 1;
+  }
 }

@@ -50,6 +50,7 @@ interface BookingDetail {
   id: string;
   expiresAt: string;
   movie: MovieSearchResult;
+  showtimeId: string;
   startDateTime: string;
   hallName: string;
   hallType: string;

@@ -14,7 +14,7 @@ import {
   MediaImageComponent,
   ModalComponent,
 } from 'cinefy-ui/components';
-import { HoldTimerComponent } from '../../components';
+import { BookingCancelledComponent, HoldTimerComponent } from '../../components';
 import { BookingService } from '../../services';
 import { skipErrorToast } from '../../app/core/interceptors';
 import {
@@ -36,6 +36,7 @@ import {
     MediaImageComponent,
     ModalComponent,
     HoldTimerComponent,
+    BookingCancelledComponent,
     EmptyStateComponent,
     LoadingSpinnerComponent,
     CurrencyPipe,
