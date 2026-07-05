@@ -1,146 +1,176 @@
-@if (cancelled()) {
-  <div class="co-cancelled">
-    <div class="co-cancelled-head reveal">
-      <span class="co-cancelled-badge">
-        <svg [lucideIcon]="icons.XIcon" [size]="32" [strokeWidth]="3"></svg>
-      </span>
-      <h1>Booking cancelled</h1>
-      <p>Your booking has been cancelled and your seats have been released.</p>
-    </div>
-
-    <div class="co-cancelled-actions reveal">
-      <a class="btn-secondary" routerLink="/movies/{{ summary.movieId }}">Back to movie</a>
-      <a class="btn-primary" routerLink="/movies">Browse movies</a>
-    </div>
+@if (bookingResource.isLoading()) {
+  <div class="co-loading">
+    <loading-spinner variant="lg" />
   </div>
-} @else {
-  <main class="co-page">
-    <a class="co-back" routerLink="/movies/{{ summary.movieId }}">
-      <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="16"></svg>
-      Back
-    </a>
+} @else if (bookingResource.error()) {
+  @if (notFound()) {
+    <empty-state
+      class="co-error"
+      [icon]="icons.TriangleAlertIcon"
+      title="Booking not found"
+      description="This booking doesn't exist or is no longer available."
+    />
+  } @else {
+    <empty-state
+      class="co-error"
+      [icon]="icons.TriangleAlertIcon"
+      title="Couldn't load this booking"
+      description="Something went wrong. Please try again later."
+    />
+  }
+} @else if (booking(); as summary) {
+  @if (cancelled()) {
+    <div class="co-cancelled">
+      <div class="co-cancelled-head reveal">
+        <span class="co-cancelled-badge">
+          <svg [lucideIcon]="icons.XIcon" [size]="32" [strokeWidth]="3"></svg>
+        </span>
+        <h1>Booking cancelled</h1>
+        <p>Your booking has been cancelled and your seats have been released.</p>
+      </div>
 
-    <div class="co-head">
-      <h1 class="co-title">Checkout</h1>
-
-      <div class="co-timer" [class.expiring]="expiring()">
-        <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
-        <span class="co-timer-value">{{ countdown() }}</span>
+      <div class="co-cancelled-actions reveal">
+        <a class="btn-secondary" routerLink="/movies/{{ summary.movie.id }}">Back to movie</a>
+        <a class="btn-primary" routerLink="/movies">Browse movies</a>
       </div>
     </div>
+  } @else {
+    <main class="co-page">
+      <a class="co-back" routerLink="/movies/{{ summary.movie.id }}">
+        <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="16"></svg>
+        Back
+      </a>
 
-    <div class="co-grid">
-      <section class="co-payment reveal">
-        <div class="co-card">
-          <h2 class="co-card-title">
-            <svg [lucideIcon]="icons.CreditCardIcon" [size]="16"></svg>
-            Payment details
-          </h2>
+      <div class="co-head">
+        <h1 class="co-title">Checkout</h1>
 
-          <form class="co-form" [formGroup]="paymentForm">
-            <input-field
-              label="Cardholder name"
-              placeholder="Alex Vance"
-              [control]="paymentForm.controls.cardholder"
-            />
-            <input-field
-              label="Card number"
-              placeholder="4242 4242 4242 4242"
-              [monospace]="true"
-              [control]="paymentForm.controls.cardNumber"
-            />
-            <div class="co-form-row">
-              <input-field
-                label="Expiry"
-                placeholder="MM / YY"
-                [monospace]="true"
-                [control]="paymentForm.controls.expiry"
-              />
-              <input-field
-                label="CVC"
-                type="number"
-                placeholder="123"
-                [monospace]="true"
-                [control]="paymentForm.controls.cvc"
-              />
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <aside class="co-summary reveal">
-        <div class="co-card co-summary-card">
-          <div class="co-summary-movie">
-            <div class="co-summary-poster">
-              <media-image [src]="summary.posterUrl" [alt]="summary.movieTitle + ' poster'" />
-            </div>
-            <div class="co-summary-meta">
-              <p class="co-summary-movie-title">{{ summary.movieTitle }}</p>
-              <p class="co-summary-line">{{ summary.hall }} · {{ summary.format }}</p>
-              <p class="co-summary-line">{{ summary.date }} · {{ summary.time }}</p>
-              <p class="co-summary-line">{{ summary.runtime }}</p>
-            </div>
+        @if (countdown(); as time) {
+          <div class="co-timer" [class.expiring]="expiring()">
+            <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
+            <span class="co-timer-value">{{ time }}</span>
           </div>
-
-          <div class="co-divider"></div>
-
-          <dl class="co-summary-rows">
-            <div class="co-row">
-              <dt>Seats ({{ summary.seats.length }})</dt>
-              <dd>{{ seatsLabel() }}</dd>
-            </div>
-            <div class="co-row">
-              <dt>Tickets</dt>
-              <dd>{{ seatsSubtotalCents() / 100 | currency: 'USD' }}</dd>
-            </div>
-            <div class="co-row">
-              <dt>Booking fee</dt>
-              <dd>{{ feesCents() / 100 | currency: 'USD' }}</dd>
-            </div>
-            <div class="co-divider co-divider-tight"></div>
-            <div class="co-total">
-              <dt>Total</dt>
-              <dd class="co-total-value">{{ totalCents() / 100 | currency: 'USD' }}</dd>
-            </div>
-          </dl>
-
-          <div class="co-actions">
-            <button type="button" class="btn-primary co-pay" [disabled]="processing()">
-              <svg [lucideIcon]="icons.LockIcon" [size]="16"></svg>
-              Pay {{ totalCents() / 100 | currency: 'USD' }}
-            </button>
-            <button
-              type="button"
-              class="btn-base co-cancel"
-              [disabled]="processing()"
-              [ngpDialogTrigger]="cancelDialog"
-            >
-              <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
-              Cancel Booking
-            </button>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </main>
-
-  <ng-template #cancelDialog let-close="close">
-    <app-modal modalTitle="Cancel this booking?" width="448px" [close]="close">
-      <div class="co-cancel-modal-content">
-        <div class="ccm-icon">
-          <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
-        </div>
-        <p class="ccm-message">
-          Your held seats will be released and you'll lose your place. This can't be undone.
-        </p>
+        }
       </div>
 
-      <div modal-footer class="co-dialog-footer">
-        <button type="button" class="btn-secondary" (click)="close()">Keep booking</button>
-        <button type="button" class="btn-danger" (click)="confirmCancel(); close()">
-          Cancel Booking
-        </button>
+      <div class="co-grid">
+        <section class="co-payment reveal">
+          <div class="co-card">
+            <h2 class="co-card-title">
+              <svg [lucideIcon]="icons.CreditCardIcon" [size]="16"></svg>
+              Payment details
+            </h2>
+
+            <form class="co-form" [formGroup]="paymentForm">
+              <input-field
+                label="Cardholder name"
+                placeholder="Alex Vance"
+                [control]="paymentForm.controls.cardholder"
+              />
+              <input-field
+                label="Card number"
+                placeholder="4242 4242 4242 4242"
+                [monospace]="true"
+                [control]="paymentForm.controls.cardNumber"
+              />
+              <div class="co-form-row">
+                <input-field
+                  label="Expiry"
+                  placeholder="MM / YY"
+                  [monospace]="true"
+                  [control]="paymentForm.controls.expiry"
+                />
+                <input-field
+                  label="CVC"
+                  type="number"
+                  placeholder="123"
+                  [monospace]="true"
+                  [control]="paymentForm.controls.cvc"
+                />
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <aside class="co-summary reveal">
+          <div class="co-card co-summary-card">
+            <div class="co-summary-movie">
+              <div class="co-summary-poster">
+                <media-image
+                  [src]="summary.movie.posterUrl"
+                  [alt]="summary.movie.title + ' poster'"
+                />
+              </div>
+              <div class="co-summary-meta">
+                <p class="co-summary-movie-title">{{ summary.movie.title }}</p>
+                <p class="co-summary-line co-summary-hall">
+                  <span>{{ summary.hallName }} · {{ summary.hallType }}</span>
+                  @if (summary.is3D) {
+                    <span class="co-3d-badge">3D</span>
+                  }
+                </p>
+                <p class="co-summary-line">
+                  {{ summary.startDateTime | date: 'EEE, MMM d, y' }} ·
+                  {{ summary.startDateTime | date: 'shortTime' }}
+                </p>
+              </div>
+            </div>
+
+            <div class="co-divider"></div>
+
+            <dl class="co-summary-rows">
+              <div class="co-row">
+                <dt>Seats ({{ summary.seats.length }})</dt>
+                <dd>{{ seatsLabel() }}</dd>
+              </div>
+              <div class="co-row">
+                <dt>Tickets</dt>
+                <dd>{{ seatsSubtotal() | currency: 'USD' }}</dd>
+              </div>
+              <div class="co-divider co-divider-tight"></div>
+              <div class="co-total">
+                <dt>Total</dt>
+                <dd class="co-total-value">{{ seatsSubtotal() | currency: 'USD' }}</dd>
+              </div>
+            </dl>
+
+            <div class="co-actions">
+              <button type="button" class="btn-primary co-pay" [disabled]="processing()">
+                <svg [lucideIcon]="icons.LockIcon" [size]="16"></svg>
+                Pay {{ seatsSubtotal() | currency: 'USD' }}
+              </button>
+              <button
+                type="button"
+                class="btn-base co-cancel"
+                [disabled]="processing()"
+                [ngpDialogTrigger]="cancelDialog"
+              >
+                <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
+                Cancel Booking
+              </button>
+            </div>
+          </div>
+        </aside>
       </div>
-    </app-modal>
-  </ng-template>
+    </main>
+
+    <ng-template #cancelDialog let-close="close">
+      <app-modal modalTitle="Cancel this booking?" width="448px" [close]="close">
+        <div class="co-cancel-modal-content">
+          <div class="ccm-icon">
+            <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
+          </div>
+          <p class="ccm-message">
+            Your held seats will be released and you'll lose your place. This can't be undone.
+          </p>
+        </div>
+
+        <div modal-footer class="co-dialog-footer">
+          <button type="button" class="btn-secondary" (click)="close()">Keep booking</button>
+          <button type="button" class="btn-danger" (click)="confirmCancel(); close()">
+            Cancel Booking
+          </button>
+        </div>
+      </app-modal>
+    </ng-template>
+  }
 }

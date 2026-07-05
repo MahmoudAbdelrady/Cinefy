@@ -1,11 +1,22 @@
-import { Component, computed, signal } from '@angular/core';
-import { afterNextRender } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { map } from 'rxjs';
+import { differenceInSeconds } from 'date-fns';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { InputField, MediaImageComponent, ModalComponent } from 'cinefy-ui/components';
+import {
+  EmptyStateComponent,
+  InputField,
+  LoadingSpinnerComponent,
+  MediaImageComponent,
+  ModalComponent,
+} from 'cinefy-ui/components';
+import { BookingService } from '../../services';
+import { skipErrorToast } from '../../app/core/interceptors';
 import {
   ArrowLeftIcon,
   ClockIcon,
@@ -14,22 +25,6 @@ import {
   TriangleAlertIcon,
   XIcon,
 } from '../../shared/icons';
-
-const FEE_CENTS = 150;
-const HOLD_SECONDS = 10 * 60;
-
-interface CheckoutSummary {
-  movieId: number;
-  movieTitle: string;
-  posterUrl: string;
-  hall: string;
-  format: string;
-  date: string;
-  time: string;
-  runtime: string;
-  seats: string[];
-  seatPriceCents: number;
-}
 
 function formatCountdown(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -47,7 +42,10 @@ function formatCountdown(seconds: number): string {
     InputField,
     MediaImageComponent,
     ModalComponent,
+    EmptyStateComponent,
+    LoadingSpinnerComponent,
     CurrencyPipe,
+    DatePipe,
   ],
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',
@@ -62,18 +60,27 @@ export class CheckoutPage {
     XIcon,
   };
 
-  protected readonly summary: CheckoutSummary = {
-    movieId: 1,
-    movieTitle: 'Dune: Part Two',
-    posterUrl: 'https://image.tmdb.org/t/p/w342/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
-    hall: 'Hall 3',
-    format: 'IMAX',
-    date: 'Sat, Jun 28, 2026',
-    time: '7:30 PM',
-    runtime: '2h 46m',
-    seats: ['F7', 'F8', 'F9'],
-    seatPriceCents: 1800,
-  };
+  private readonly route = inject(ActivatedRoute);
+  private readonly bookingService = inject(BookingService);
+
+  protected readonly bookingId = toSignal(
+    this.route.paramMap.pipe(map((params) => params.get('bookingId'))),
+  );
+
+  protected readonly bookingResource = rxResource({
+    params: () => this.bookingId() ?? undefined,
+    stream: ({ params: bookingId }) =>
+      this.bookingService.getActiveBookingDetails(bookingId, skipErrorToast()),
+  });
+
+  protected readonly booking = computed(() =>
+    this.bookingResource.hasValue() ? this.bookingResource.value() : undefined,
+  );
+
+  protected readonly notFound = computed(() => {
+    const error = this.bookingResource.error();
+    return error instanceof HttpErrorResponse && error.status === 404;
+  });
 
   protected readonly paymentForm = new FormGroup({
     cardholder: new FormControl('', { nonNullable: true }),
@@ -84,28 +91,39 @@ export class CheckoutPage {
 
   protected readonly processing = signal(false);
   protected readonly cancelled = signal(false);
-  protected readonly secondsLeft = signal(HOLD_SECONDS);
+  protected readonly secondsLeft = signal<number | null>(null);
 
-  protected readonly expiring = computed(() => this.secondsLeft() <= 60);
-  protected readonly countdown = computed(() => formatCountdown(this.secondsLeft()));
+  protected readonly expiring = computed(() => {
+    const seconds = this.secondsLeft();
+    return seconds !== null && seconds <= 60;
+  });
+  protected readonly countdown = computed(() => {
+    const seconds = this.secondsLeft();
+    return seconds === null ? null : formatCountdown(seconds);
+  });
 
-  protected readonly seatsSubtotalCents = computed(
-    () => this.summary.seats.length * this.summary.seatPriceCents,
+  protected readonly seatsSubtotal = computed(() =>
+    (this.booking()?.seats ?? []).reduce((sum, seat) => sum + seat.price, 0),
   );
-  protected readonly feesCents = computed(() => this.summary.seats.length * FEE_CENTS);
-  protected readonly totalCents = computed(() => this.seatsSubtotalCents() + this.feesCents());
 
-  protected readonly seatsLabel = computed(() => this.summary.seats.join(' · '));
+  protected readonly seatsLabel = computed(() =>
+    (this.booking()?.seats ?? []).map((seat) => seat.position).join(' · '),
+  );
 
   constructor() {
-    afterNextRender(() => {
+    effect((onCleanup) => {
+      const expiresAt = this.booking()?.expiresAt;
+      if (!expiresAt || this.cancelled()) return;
+
+      const remaining = () => Math.max(0, differenceInSeconds(expiresAt, Date.now()));
+      this.secondsLeft.set(remaining());
+      if (this.secondsLeft() === 0) return;
+
       const id = setInterval(() => {
-        if (this.cancelled() || this.secondsLeft() <= 0) {
-          clearInterval(id);
-          return;
-        }
-        this.secondsLeft.update((s) => Math.max(0, s - 1));
+        this.secondsLeft.set(remaining());
+        if (this.secondsLeft() === 0) clearInterval(id);
       }, 1000);
+      onCleanup(() => clearInterval(id));
     });
   }
 
