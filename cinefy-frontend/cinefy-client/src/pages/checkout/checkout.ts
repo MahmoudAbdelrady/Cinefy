@@ -1,5 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -56,6 +56,7 @@ export class CheckoutPage {
 
   private readonly route = inject(ActivatedRoute);
   private readonly bookingService = inject(BookingService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly bookingId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('bookingId'))),
@@ -84,6 +85,7 @@ export class CheckoutPage {
   });
 
   protected readonly processing = signal(false);
+  protected readonly cancelling = signal(false);
   protected readonly cancelled = signal(false);
 
   protected readonly timerExpiresAt = computed(() =>
@@ -98,7 +100,23 @@ export class CheckoutPage {
     (this.booking()?.seats ?? []).map((seat) => seat.position).join(' · '),
   );
 
-  protected confirmCancel(): void {
-    this.cancelled.set(true);
+  protected confirmCancel(close: () => void): void {
+    const booking = this.booking();
+    if (!booking || this.cancelling()) return;
+
+    this.cancelling.set(true);
+    this.bookingService
+      .cancelBooking(booking.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.cancelling.set(false);
+          close();
+          this.cancelled.set(true);
+        },
+        error: () => {
+          this.cancelling.set(false);
+        },
+      });
   }
 }

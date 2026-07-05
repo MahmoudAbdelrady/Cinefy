@@ -380,7 +380,7 @@ public class BookingService {
         List<String> positions = booking.getSeats().stream()
                 .map(BookingSeat::getPosition)
                 .toList();
-        return new ActiveBookingDTO(positions, booking.getExpiresAt());
+        return new ActiveBookingDTO(booking.getUuid(), positions, booking.getExpiresAt());
     }
 
     private BookingDetailDTO toBookingDetailDTO(Booking booking) {

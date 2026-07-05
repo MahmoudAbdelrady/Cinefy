@@ -147,9 +147,20 @@
         </div>
 
         <div modal-footer class="co-dialog-footer">
-          <button type="button" class="btn-secondary" (click)="close()">Keep booking</button>
-          <button type="button" class="btn-danger" (click)="confirmCancel(); close()">
-            Cancel Booking
+          <button type="button" class="btn-secondary" [disabled]="cancelling()" (click)="close()">
+            Keep booking
+          </button>
+          <button
+            type="button"
+            class="btn-danger"
+            [disabled]="cancelling()"
+            (click)="confirmCancel(close)"
+          >
+            @if (cancelling()) {
+              <loading-spinner variant="xs" />
+            } @else {
+              Cancel Booking
+            }
           </button>
         </div>
       </app-modal>

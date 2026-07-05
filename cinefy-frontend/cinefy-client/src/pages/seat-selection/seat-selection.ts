@@ -1,5 +1,5 @@
-import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, DestroyRef, inject, linkedSignal, signal } from '@angular/core';
+import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
@@ -77,6 +77,7 @@ export class SeatSelectionPage {
 
   private readonly route = inject(ActivatedRoute);
   private readonly bookingService = inject(BookingService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly movieId = toSignal(
     this.route.paramMap.pipe(map((params) => Number(params.get('movieId')))),
@@ -115,11 +116,28 @@ export class SeatSelectionPage {
       .filter((seat) => reserved.has(seat.id));
   });
 
+  protected readonly cancelling = signal(false);
   protected readonly cancelled = signal(false);
 
   protected readonly expiresAt = computed(() => this.seatSelection()?.activeBooking?.expiresAt);
 
-  protected confirmCancel(): void {
-    this.cancelled.set(true);
+  protected confirmCancel(close: () => void): void {
+    const activeBooking = this.seatSelection()?.activeBooking;
+    if (!activeBooking || this.cancelling()) return;
+
+    this.cancelling.set(true);
+    this.bookingService
+      .cancelBooking(activeBooking.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.cancelling.set(false);
+          close();
+          this.cancelled.set(true);
+        },
+        error: () => {
+          this.cancelling.set(false);
+        },
+      });
   }
 }

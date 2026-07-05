@@ -40,7 +40,7 @@ export class BookingService {
     return this.http.post<BookingDetail>('/booking', request, { headers });
   }
 
-  cancelBooking(uuid: string): Observable<void> {
-    return this.http.delete<void>(`/booking/${uuid}`);
+  cancelBooking(uuid: string, context?: HttpContext): Observable<void> {
+    return this.http.delete<void>(`/booking/${uuid}`, { context });
   }
 }

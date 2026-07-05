@@ -36,10 +36,10 @@
 
         @if (expiresAt(); as heldUntil) {
           <div class="ss-hold-cluster">
-            <div class="ss-reservation">
-              <span class="ss-reservation-status">
-                <span class="ss-reservation-dot"></span>
-                Reservation active
+            <div class="ss-booking">
+              <span class="ss-booking-status">
+                <span class="ss-booking-dot"></span>
+                Booking active
               </span>
             </div>
 
@@ -91,9 +91,20 @@
       </div>
 
       <div modal-footer class="ss-dialog-footer">
-        <button type="button" class="btn-secondary" (click)="close()">Keep booking</button>
-        <button type="button" class="btn-danger" (click)="confirmCancel(); close()">
-          Cancel Booking
+        <button type="button" class="btn-secondary" [disabled]="cancelling()" (click)="close()">
+          Keep booking
+        </button>
+        <button
+          type="button"
+          class="btn-danger"
+          [disabled]="cancelling()"
+          (click)="confirmCancel(close)"
+        >
+          @if (cancelling()) {
+            <loading-spinner variant="xs" />
+          } @else {
+            Cancel Booking
+          }
         </button>
       </div>
     </app-modal>
