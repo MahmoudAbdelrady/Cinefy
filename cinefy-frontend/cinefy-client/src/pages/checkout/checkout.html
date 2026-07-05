@@ -44,12 +44,7 @@
       <div class="co-head">
         <h1 class="co-title">Checkout</h1>
 
-        @if (countdown(); as time) {
-          <div class="co-timer" [class.expiring]="expiring()">
-            <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
-            <span class="co-timer-value">{{ time }}</span>
-          </div>
-        }
+        <hold-timer [expiresAt]="timerExpiresAt()" />
       </div>
 
       <div class="co-grid">

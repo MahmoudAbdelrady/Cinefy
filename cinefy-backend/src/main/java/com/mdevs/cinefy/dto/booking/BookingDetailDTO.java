@@ -18,6 +18,8 @@ public class BookingDetailDTO {
 
     private MovieSearchResultDTO movie;
 
+    private String showtimeId;
+
     private LocalDateTime startDateTime;
 
     private String hallName;

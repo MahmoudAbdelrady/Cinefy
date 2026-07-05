@@ -5,7 +5,6 @@ interface SeatLayout {
   };
   onSiteOnly: string[];
   reserved: string[];
-  myReserved?: string[];
 }
 
 type SeatCategory = 'NORMAL' | 'VIP';

@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.dto.booking;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SeatSelectionDTO {
 
     private String movieTitle;
@@ -23,4 +25,6 @@ public class SeatSelectionDTO {
     private boolean is3D;
 
     private HallLayoutDTO hallLayout;
+
+    private ActiveBookingDTO activeBooking;
 }

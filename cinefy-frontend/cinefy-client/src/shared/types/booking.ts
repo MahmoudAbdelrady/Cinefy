@@ -13,6 +13,11 @@ interface HallTypeShowtimes {
   showtimes: BookingShowtime[];
 }
 
+interface ActiveBooking {
+  positions: string[];
+  expiresAt: string;
+}
+
 interface SeatSelection {
   movieTitle: string;
   startDateTime: string;
@@ -20,6 +25,7 @@ interface SeatSelection {
   hallType: string;
   is3D: boolean;
   hallLayout: SeatLayoutResponse;
+  activeBooking?: ActiveBooking;
 }
 
 interface BookingSummary {
@@ -60,6 +66,7 @@ export type {
   BookingShowtime,
   HallTypeShowtimes,
   SeatSelection,
+  ActiveBooking,
   BookingSummary,
   BookedSeat,
   BookingDetail,

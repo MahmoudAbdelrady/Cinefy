@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.booking.ActiveBookingDTO;
 import com.mdevs.cinefy.dto.booking.BookedSeatDTO;
 import com.mdevs.cinefy.dto.booking.BookingDetailDTO;
 import com.mdevs.cinefy.dto.booking.BookingRequestDTO;
@@ -85,13 +86,15 @@ public class BookingService {
         List<String> reservedSeats = bookingRepository.findReservedPositions(showtime.getId(), now);
         hallLayout.getLayout().setReserved(reservedSeats);
 
+        ActiveBookingDTO activeBooking = null;
         if (SecurityUtil.isAuthenticated()) {
             User user = loadBookingUser(SecurityUtil.getCurrentUser());
-            List<String> myReservedSeats = bookingRepository.findMyReservedPositions(showtime.getId(), user.getId(), now);
-            hallLayout.getLayout().setMyReserved(myReservedSeats);
+            activeBooking = bookingRepository.findMyActiveBooking(showtime.getId(), user.getId(), now)
+                    .map(this::toActiveBookingDTO)
+                    .orElse(null);
         }
 
-        return toSeatSelectionDTO(showtime, hall, hallLayout);
+        return toSeatSelectionDTO(showtime, hall, hallLayout, activeBooking);
     }
 
     public List<BookingSummaryDTO> getActiveBookings() {
@@ -360,7 +363,8 @@ public class BookingService {
         return reference.toString();
     }
 
-    private SeatSelectionDTO toSeatSelectionDTO(Showtime showtime, Hall hall, HallLayoutDTO hallLayout) {
+    private SeatSelectionDTO toSeatSelectionDTO(Showtime showtime, Hall hall, HallLayoutDTO hallLayout,
+                                                ActiveBookingDTO activeBooking) {
         SeatSelectionDTO dto = new SeatSelectionDTO();
         dto.setMovieTitle(showtime.getTmdbMovie().getTitle());
         dto.setStartDateTime(showtime.getStartDateTime());
@@ -368,7 +372,15 @@ public class BookingService {
         dto.setHallType(hall.getType().getName());
         dto.set3D(showtime.is3D());
         dto.setHallLayout(hallLayout);
+        dto.setActiveBooking(activeBooking);
         return dto;
+    }
+
+    private ActiveBookingDTO toActiveBookingDTO(Booking booking) {
+        List<String> positions = booking.getSeats().stream()
+                .map(BookingSeat::getPosition)
+                .toList();
+        return new ActiveBookingDTO(positions, booking.getExpiresAt());
     }
 
     private BookingDetailDTO toBookingDetailDTO(Booking booking) {
@@ -382,6 +394,7 @@ public class BookingService {
         dto.setId(booking.getUuid());
         dto.setExpiresAt(booking.getExpiresAt());
         dto.setMovie(tmdbMovieService.toSearchResult(showtime.getTmdbMovie()));
+        dto.setShowtimeId(showtime.getUuid());
         dto.setStartDateTime(showtime.getStartDateTime());
         dto.setHallName(booking.getHallName());
         dto.setHallType(booking.getHallType());

@@ -24,6 +24,7 @@ export type {
   BookingShowtime,
   HallTypeShowtimes,
   SeatSelection,
+  ActiveBooking,
   BookingSummary,
   BookedSeat,
   BookingDetail,

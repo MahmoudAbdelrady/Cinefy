@@ -32,10 +32,7 @@
           </p>
         </div>
 
-        <!-- <div class="ss-timer" [class.expiring]="expiring()">
-        <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
-        <span class="ss-timer-value">{{ countdown() }}</span>
-      </div> -->
+        <hold-timer class="ss-timer" [expiresAt]="expiresAt()" />
       </div>
     </div>
 

@@ -1,11 +1,10 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
-import { differenceInSeconds } from 'date-fns';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
@@ -15,22 +14,16 @@ import {
   MediaImageComponent,
   ModalComponent,
 } from 'cinefy-ui/components';
+import { HoldTimerComponent } from '../../components';
 import { BookingService } from '../../services';
 import { skipErrorToast } from '../../app/core/interceptors';
 import {
   ArrowLeftIcon,
-  ClockIcon,
   CreditCardIcon,
   LockIcon,
   TriangleAlertIcon,
   XIcon,
 } from '../../shared/icons';
-
-function formatCountdown(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
 
 @Component({
   selector: 'checkout-page',
@@ -42,6 +35,7 @@ function formatCountdown(seconds: number): string {
     InputField,
     MediaImageComponent,
     ModalComponent,
+    HoldTimerComponent,
     EmptyStateComponent,
     LoadingSpinnerComponent,
     CurrencyPipe,
@@ -53,7 +47,6 @@ function formatCountdown(seconds: number): string {
 export class CheckoutPage {
   protected readonly icons = {
     ArrowLeftIcon,
-    ClockIcon,
     CreditCardIcon,
     LockIcon,
     TriangleAlertIcon,
@@ -91,16 +84,10 @@ export class CheckoutPage {
 
   protected readonly processing = signal(false);
   protected readonly cancelled = signal(false);
-  protected readonly secondsLeft = signal<number | null>(null);
 
-  protected readonly expiring = computed(() => {
-    const seconds = this.secondsLeft();
-    return seconds !== null && seconds <= 60;
-  });
-  protected readonly countdown = computed(() => {
-    const seconds = this.secondsLeft();
-    return seconds === null ? null : formatCountdown(seconds);
-  });
+  protected readonly timerExpiresAt = computed(() =>
+    this.cancelled() ? undefined : this.booking()?.expiresAt,
+  );
 
   protected readonly seatsSubtotal = computed(() =>
     (this.booking()?.seats ?? []).reduce((sum, seat) => sum + seat.price, 0),
@@ -109,23 +96,6 @@ export class CheckoutPage {
   protected readonly seatsLabel = computed(() =>
     (this.booking()?.seats ?? []).map((seat) => seat.position).join(' · '),
   );
-
-  constructor() {
-    effect((onCleanup) => {
-      const expiresAt = this.booking()?.expiresAt;
-      if (!expiresAt || this.cancelled()) return;
-
-      const remaining = () => Math.max(0, differenceInSeconds(expiresAt, Date.now()));
-      this.secondsLeft.set(remaining());
-      if (this.secondsLeft() === 0) return;
-
-      const id = setInterval(() => {
-        this.secondsLeft.set(remaining());
-        if (this.secondsLeft() === 0) clearInterval(id);
-      }, 1000);
-      onCleanup(() => clearInterval(id));
-    });
-  }
 
   protected confirmCancel(): void {
     this.cancelled.set(true);

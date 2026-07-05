@@ -5,7 +5,7 @@ import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
-import { BookingSummaryComponent, SeatMapComponent } from '../../components';
+import { BookingSummaryComponent, HoldTimerComponent, SeatMapComponent } from '../../components';
 import { BookingService } from '../../services';
 import { ArrowLeftIcon, TriangleAlertIcon } from '../../shared/icons';
 import type {
@@ -17,25 +17,22 @@ import type {
   TicketPrice,
 } from '../../shared/types';
 
-function seatKind(id: string, layout: SeatLayout): SeatKind {
+function seatKind(id: string, layout: SeatLayout, bookingPositions: Set<string>): SeatKind {
   if (layout.categories.AISLE?.includes(id)) return 'AISLE';
-  if (
-    (layout.reserved.includes(id) && !layout.myReserved?.includes(id)) ||
-    layout.onSiteOnly.includes(id)
-  )
+  if ((layout.reserved.includes(id) && !bookingPositions.has(id)) || layout.onSiteOnly.includes(id))
     return 'TAKEN';
   if (layout.categories.VIP?.includes(id)) return 'VIP';
   return 'NORMAL';
 }
 
-function buildHall(response: SeatLayoutResponse): Seat[][] {
+function buildHall(response: SeatLayoutResponse, bookingPositions: Set<string>): Seat[][] {
   const { numberOfRows, seatsPerRow, layout } = response;
   return Array.from({ length: numberOfRows }, (_, rowIdx) => {
     const row = String.fromCharCode(65 + rowIdx);
     return Array.from({ length: seatsPerRow }, (_, c) => {
       const number = c + 1;
       const id = `${row}${number}`;
-      return { id, row, number, kind: seatKind(id, layout) };
+      return { id, row, number, kind: seatKind(id, layout, bookingPositions) };
     });
   });
 }
@@ -55,6 +52,7 @@ function priceByCategory(pricing: TicketPrice[]): Record<SeatCategory, number> {
     LucideDynamicIcon,
     SeatMapComponent,
     BookingSummaryComponent,
+    HoldTimerComponent,
     EmptyStateComponent,
     LoadingSpinnerComponent,
   ],
@@ -87,7 +85,7 @@ export class SeatSelectionPage {
 
   protected readonly hall = computed<Seat[][]>(() => {
     const layout = this.seatSelection()?.hallLayout;
-    return layout ? buildHall(layout) : [];
+    return layout ? buildHall(layout, new Set(this.myReservedIds())) : [];
   });
 
   protected readonly prices = computed<Record<SeatCategory, number>>(() => {
@@ -96,7 +94,7 @@ export class SeatSelectionPage {
   });
 
   protected readonly myReservedIds = computed<string[]>(
-    () => this.seatSelection()?.hallLayout.layout.myReserved ?? [],
+    () => this.seatSelection()?.activeBooking?.positions ?? [],
   );
 
   protected readonly selectedSeats = linkedSignal<Seat[]>(() => {
@@ -106,4 +104,6 @@ export class SeatSelectionPage {
       .flat()
       .filter((seat) => reserved.has(seat.id));
   });
+
+  protected readonly expiresAt = computed(() => this.seatSelection()?.activeBooking?.expiresAt);
 }

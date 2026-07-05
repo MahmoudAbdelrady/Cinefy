@@ -146,27 +146,6 @@
   color: $color-muted-foreground;
 }
 
-// .ss-timer {
-//   @include flex-align;
-//
-//   gap: 8px;
-//   margin-left: auto;
-//   padding: 6px 12px;
-//   border: 1px solid rgba($color-border, 0.5);
-//   border-radius: 9999px;
-//   background: $color-card;
-//   color: $color-foreground;
-//   font-family: $font-mono;
-//   font-size: 14px;
-//
-//   &.expiring {
-//     border-color: rgba($color-destructive, 0.6);
-//     background: rgba($color-destructive, 0.1);
-//     color: $color-destructive;
-//   }
-// }
-//
-// .ss-timer-value {
-//   font-weight: 500;
-//   font-variant-numeric: tabular-nums;
-// }
+.ss-timer {
+  margin-left: auto;
+}
