@@ -6,21 +6,27 @@ import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeDatesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeListItemDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimesDTO;
+import com.mdevs.cinefy.dto.showtime.ShowtimeReservedSeatsProjection;
 import com.mdevs.cinefy.dto.showtime.MovieWithShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimeDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimeSummaryDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimesStatisticsDTO;
+import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.enums.HallStatus;
 import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
+import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.entity.TmdbMovie;
+import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeCountProjection;
 import com.mdevs.cinefy.dto.showtime.PublishShowtimesDTO;
+import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import com.mdevs.cinefy.shared.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,9 +51,13 @@ public class ShowtimeService {
 
     private final TmdbMovieRepository tmdbMovieRepository;
 
+    private final BookingRepository bookingRepository;
+
     private final HallService hallService;
 
     private final TmdbMovieService tmdbMovieService;
+
+    private final CurrentUserService currentUserService;
 
     private static final int CLEANUP_BUFFER_MINUTES = 15;
 
@@ -97,11 +107,21 @@ public class ShowtimeService {
     public List<HallTypeShowtimesDTO> getBookableShowtimesForDate(Long movieId, LocalDate date) {
         List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ShowtimeStatus.COMMITTED_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
 
+        List<Long> showtimeIds = showtimes.stream().map(Showtime::getId).toList();
+        User currentUser = SecurityUtil.isAuthenticated() ? currentUserService.loadCurrentUser() : null;
+        Long clientId = currentUser instanceof Client client ? client.getId() : null;
+        Long staffId = currentUser instanceof StaffMember staff ? staff.getId() : null;
+        Map<Long, Long> reservedSeatsByShowtime = bookingRepository.countReservedSeatsByShowtime(showtimeIds, LocalDateTime.now(), clientId, staffId)
+                .stream()
+                .collect(Collectors.toMap(ShowtimeReservedSeatsProjection::getShowtimeId, ShowtimeReservedSeatsProjection::getReservedSeats));
+
         Map<String, List<BookingShowtimeDTO>> grouped = showtimes.stream()
                 .collect(Collectors.groupingBy(
                         showtime -> showtime.getHall().getType().getName(),
                         LinkedHashMap::new,
-                        Collectors.mapping(this::toBookingShowtime, Collectors.toList())));
+                        Collectors.mapping(
+                                showtime -> toBookingShowtime(showtime, reservedSeatsByShowtime.getOrDefault(showtime.getId(), 0L)),
+                                Collectors.toList())));
 
         return grouped.entrySet().stream()
                 .map(entry -> new HallTypeShowtimesDTO(entry.getKey(), entry.getValue()))
@@ -325,12 +345,14 @@ public class ShowtimeService {
         return dto;
     }
 
-    private BookingShowtimeDTO toBookingShowtime(Showtime showtime) {
+    private BookingShowtimeDTO toBookingShowtime(Showtime showtime, long reservedSeats) {
+        Hall hall = showtime.getHall();
+        int capacity = hall.getTotalRows() * hall.getTotalColumns();
         return new BookingShowtimeDTO(
                 showtime.getUuid(),
                 showtime.getStartDateTime().toLocalTime().format(TIME_FORMATTER),
                 showtime.is3D(),
-                false);
+                reservedSeats >= capacity);
     }
 
     private MovieWithShowtimesDTO toMovieWithShowtimes(MovieShowtimeCountProjection counts, TmdbMovie movie) {

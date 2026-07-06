@@ -58,12 +58,22 @@
             <ul class="bs-times">
               @for (showtime of group.showtimes; track showtime.id) {
                 <li>
-                  <a class="bs-time" routerLink="/movies/{{ movieId() }}/seats/{{ showtime.id }}">
-                    <span>{{ showtime.time | time12h }}</span>
-                    @if (showtime.is3D) {
-                      <span class="bs-time-badge">3D</span>
-                    }
-                  </a>
+                  @if (showtime.fullyReserved) {
+                    <span class="bs-time sold-out">
+                      <span>{{ showtime.time | time12h }}</span>
+                      @if (showtime.is3D) {
+                        <span class="bs-time-badge">3D</span>
+                      }
+                      <span class="sold-out-badge">Sold Out</span>
+                    </span>
+                  } @else {
+                    <a class="bs-time" routerLink="/movies/{{ movieId() }}/seats/{{ showtime.id }}">
+                      <span>{{ showtime.time | time12h }}</span>
+                      @if (showtime.is3D) {
+                        <span class="bs-time-badge">3D</span>
+                      }
+                    </a>
+                  }
                 </li>
               }
             </ul>

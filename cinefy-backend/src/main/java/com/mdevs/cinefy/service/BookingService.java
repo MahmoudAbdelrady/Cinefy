@@ -58,9 +58,7 @@ public class BookingService {
 
     private final TmdbMovieService tmdbMovieService;
 
-    private final ClientService clientService;
-
-    private final StaffMemberService staffMemberService;
+    private final CurrentUserService currentUserService;
 
     @Lazy
     private final BookingService self;
@@ -88,7 +86,7 @@ public class BookingService {
 
         ActiveBookingDTO activeBooking = null;
         if (SecurityUtil.isAuthenticated()) {
-            User user = loadBookingUser(SecurityUtil.getCurrentUser());
+            User user = currentUserService.loadCurrentUser();
             activeBooking = bookingRepository.findMyActiveBooking(showtime.getId(), user.getId(), now)
                     .map(this::toActiveBookingDTO)
                     .orElse(null);
@@ -98,7 +96,7 @@ public class BookingService {
     }
 
     public List<BookingSummaryDTO> getActiveBookings() {
-        User user = loadBookingUser(SecurityUtil.getCurrentUser());
+        User user = currentUserService.loadCurrentUser();
         LocalDateTime now = LocalDateTime.now();
 
         List<Booking> bookings = user instanceof Client client
@@ -141,7 +139,7 @@ public class BookingService {
         Showtime showtime = findBookableShowtime(dto.getShowtimeId());
         Hall hall = showtime.getHall();
 
-        User user = loadBookingUser(SecurityUtil.getCurrentUser());
+        User user = currentUserService.loadCurrentUser();
         validateSeats(hall, dto.getSeats(), user);
 
         if (expiredBooking != null) {
@@ -206,12 +204,6 @@ public class BookingService {
     private Booking findBookingByUuidWithDetail(String uuid) {
         return bookingRepository.findByUuidWithDetail(uuid)
                 .orElseThrow(() -> new NotFoundException("Booking not found: " + uuid));
-    }
-
-    private User loadBookingUser(UserPrincipal currentUser) {
-        return currentUser.getType().equals(UserType.CLIENT)
-                ? clientService.findClientByUuid(currentUser.getUuid())
-                : staffMemberService.findStaffMember(currentUser.getUuid());
     }
 
     private void validateSeats(Hall hall, List<String> requestedPositions, User user) {
