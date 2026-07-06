@@ -60,6 +60,10 @@
   @include from-desktop {
     grid-template-columns: 1fr 360px;
   }
+
+  > * {
+    min-width: 0;
+  }
 }
 
 .co-card {
@@ -93,6 +97,10 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+
+  > * {
+    min-width: 0;
+  }
 }
 
 // ─── Order summary ───────────────────────────────────────────────────────────
@@ -138,25 +146,37 @@
   line-height: 1.25;
 }
 
-.co-summary-line {
-  font-family: $font-mono;
+.co-summary-facts {
+  @include flex-column;
+  gap: 6px;
   font-size: 12px;
-  color: $color-muted-foreground;
 }
 
-.co-summary-hall {
+.co-fact {
   @include flex-align;
   gap: 8px;
 }
 
-.co-3d-badge {
+.co-fact-label {
+  @include flex-align;
+  @include lucide-icon-fix;
   flex-shrink: 0;
-  padding: 0 6px;
-  border: 1px solid rgba($color-primary, 0.4);
-  border-radius: $radius-md;
-  font-size: 11px;
-  font-weight: 600;
-  color: $color-primary;
+  gap: 6px;
+  font-size: 13px;
+  color: $color-muted-foreground;
+}
+
+.co-fact-label-text {
+  @include below-mobile {
+    display: none;
+  }
+}
+
+.co-fact-value {
+  @include text-truncate;
+
+  font-family: $font-mono;
+  color: $color-foreground;
 }
 
 .co-divider {
@@ -173,17 +193,6 @@
   gap: 8px;
   padding: 20px;
   font-size: 14px;
-}
-
-.co-row {
-  @include flex-between;
-
-  color: $color-muted-foreground;
-
-  dd {
-    font-family: $font-mono;
-    color: $color-foreground;
-  }
 }
 
 .co-seats-header {
@@ -232,6 +241,12 @@
   padding-top: 4px;
   font-size: 16px;
   font-weight: 700;
+}
+
+.co-total-note {
+  font-size: 12px;
+  font-weight: 400;
+  color: $color-muted-foreground;
 }
 
 .co-total-value {

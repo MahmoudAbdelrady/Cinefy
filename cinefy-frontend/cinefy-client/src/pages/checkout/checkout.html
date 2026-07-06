@@ -84,16 +84,43 @@
               </div>
               <div class="co-summary-meta">
                 <p class="co-summary-movie-title">{{ summary.movie.title }}</p>
-                <p class="co-summary-line co-summary-hall">
-                  <span>{{ summary.hallName }} · {{ summary.hallType }}</span>
-                  @if (summary.is3D) {
-                    <span class="co-3d-badge">3D</span>
-                  }
-                </p>
-                <p class="co-summary-line">
-                  {{ summary.startDateTime | date: 'EEE, MMM d, y' }} ·
-                  {{ summary.startDateTime | date: 'shortTime' }}
-                </p>
+                <dl class="co-summary-facts">
+                  <div class="co-fact">
+                    <dt class="co-fact-label">
+                      <svg [lucideIcon]="icons.MapPinIcon" [size]="14"></svg>
+                      <span class="co-fact-label-text">Hall:</span>
+                    </dt>
+                    <dd class="co-fact-value">{{ summary.hallName }}</dd>
+                  </div>
+                  <div class="co-fact">
+                    <dt class="co-fact-label">
+                      <svg [lucideIcon]="icons.ClapperboardIcon" [size]="14"></svg>
+                      <span class="co-fact-label-text">Experience:</span>
+                    </dt>
+                    <dd class="co-fact-value">
+                      {{ summary.hallType }}
+                      @if (summary.is3D) {
+                        <span>(3D)</span>
+                      }
+                    </dd>
+                  </div>
+                  <div class="co-fact">
+                    <dt class="co-fact-label">
+                      <svg [lucideIcon]="icons.CalendarIcon" [size]="14"></svg>
+                      <span class="co-fact-label-text">Date:</span>
+                    </dt>
+                    <dd class="co-fact-value">
+                      {{ summary.startDateTime | date: 'EEE, MMM d, y' }}
+                    </dd>
+                  </div>
+                  <div class="co-fact">
+                    <dt class="co-fact-label">
+                      <svg [lucideIcon]="icons.ClockIcon" [size]="14"></svg>
+                      <span class="co-fact-label-text">Time:</span>
+                    </dt>
+                    <dd class="co-fact-value">{{ summary.startDateTime | date: 'shortTime' }}</dd>
+                  </div>
+                </dl>
               </div>
             </div>
 
@@ -115,13 +142,8 @@
                 }
               </ul>
               <div class="co-divider co-divider-tight"></div>
-              <div class="co-row">
-                <dt>Tickets</dt>
-                <dd>{{ seatsSubtotal() | currency: 'USD' }}</dd>
-              </div>
-              <div class="co-divider co-divider-tight"></div>
               <div class="co-total">
-                <dt>Total</dt>
+                <dt>Total <span class="co-total-note">(without VAT)</span></dt>
                 <dd class="co-total-value">{{ seatsSubtotal() | currency: 'USD' }}</dd>
               </div>
             </dl>

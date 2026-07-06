@@ -20,8 +20,12 @@ import { skipErrorToast } from '../../app/core/interceptors';
 import { SEAT_KIND_LABEL } from '../../shared/types';
 import {
   ArrowLeftIcon,
+  CalendarIcon,
+  ClapperboardIcon,
+  ClockIcon,
   CreditCardIcon,
   LockIcon,
+  MapPinIcon,
   TriangleAlertIcon,
   XIcon,
 } from '../../shared/icons';
@@ -49,8 +53,12 @@ import {
 export class CheckoutPage {
   protected readonly icons = {
     ArrowLeftIcon,
+    CalendarIcon,
+    ClapperboardIcon,
+    ClockIcon,
     CreditCardIcon,
     LockIcon,
+    MapPinIcon,
     TriangleAlertIcon,
     XIcon,
   };
