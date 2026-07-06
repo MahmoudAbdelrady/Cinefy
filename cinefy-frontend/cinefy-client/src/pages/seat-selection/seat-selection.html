@@ -54,29 +54,38 @@
       </div>
     </div>
 
-    <div class="ss-body">
-      <div class="ss-map">
-        <div class="ss-screen">
-          <div class="ss-screen-glow"></div>
-          <div class="ss-screen-line"></div>
-          <span class="ss-screen-label">Screen</span>
+    @if (data.fullyReserved) {
+      <empty-state
+        class="ss-sold-out"
+        [icon]="icons.TicketXIcon"
+        title="Sold out"
+        description="Every seat for this showtime is taken. Check another showtime or date."
+      />
+    } @else {
+      <div class="ss-body">
+        <div class="ss-map">
+          <div class="ss-screen">
+            <div class="ss-screen-glow"></div>
+            <div class="ss-screen-line"></div>
+            <span class="ss-screen-label">Screen</span>
+          </div>
+
+          <seat-map
+            [rows]="hall()"
+            [initialSelectedIds]="myReservedIds()"
+            (selectionChange)="selectedSeats.set($event)"
+          />
         </div>
 
-        <seat-map
-          [rows]="hall()"
-          [initialSelectedIds]="myReservedIds()"
-          (selectionChange)="selectedSeats.set($event)"
-        />
+        <div class="ss-summary">
+          <booking-summary
+            [showtimeId]="showtimeId()!"
+            [selectedSeats]="selectedSeats()"
+            [prices]="prices()"
+          />
+        </div>
       </div>
-
-      <div class="ss-summary">
-        <booking-summary
-          [showtimeId]="showtimeId()!"
-          [selectedSeats]="selectedSeats()"
-          [prices]="prices()"
-        />
-      </div>
-    </div>
+    }
   </div>
 
   <ng-template #cancelDialog let-close="close">

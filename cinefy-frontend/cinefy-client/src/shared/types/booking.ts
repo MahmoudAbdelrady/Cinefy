@@ -25,6 +25,7 @@ interface SeatSelection {
   hallName: string;
   hallType: string;
   is3D: boolean;
+  fullyReserved: boolean;
   hallLayout: SeatLayoutResponse;
   activeBooking?: ActiveBooking;
 }

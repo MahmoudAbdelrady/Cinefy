@@ -13,7 +13,7 @@ import {
   SeatMapComponent,
 } from '../../components';
 import { BookingService } from '../../services';
-import { ArrowLeftIcon, TriangleAlertIcon, XIcon } from '../../shared/icons';
+import { ArrowLeftIcon, TicketXIcon, TriangleAlertIcon, XIcon } from '../../shared/icons';
 import type {
   Seat,
   SeatCategory,
@@ -71,6 +71,7 @@ function priceByCategory(pricing: TicketPrice[]): Record<SeatCategory, number> {
 export class SeatSelectionPage {
   protected readonly icons = {
     ArrowLeftIcon,
+    TicketXIcon,
     TriangleAlertIcon,
     XIcon,
   };

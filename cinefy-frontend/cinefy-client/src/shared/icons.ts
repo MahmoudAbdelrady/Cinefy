@@ -1,6 +1,7 @@
 export {
   LucideUserRound as UserIcon,
   LucideTicket as TicketIcon,
+  LucideTicketX as TicketXIcon,
   LucideClapperboard as ClapperboardIcon,
   LucideLogOut as LogoutIcon,
   LucideLogIn as LoginIcon,

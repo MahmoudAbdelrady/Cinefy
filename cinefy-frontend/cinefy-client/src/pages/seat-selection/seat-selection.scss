@@ -8,7 +8,8 @@
 }
 
 .ss-loading,
-.ss-error {
+.ss-error,
+.ss-sold-out {
   @include flex-center;
 
   padding: 96px 16px;

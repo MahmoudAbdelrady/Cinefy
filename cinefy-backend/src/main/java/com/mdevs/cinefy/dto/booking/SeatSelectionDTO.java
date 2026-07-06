@@ -24,6 +24,8 @@ public class SeatSelectionDTO {
     @JsonProperty("is3D")
     private boolean is3D;
 
+    private boolean fullyReserved;
+
     private HallLayoutDTO hallLayout;
 
     private ActiveBookingDTO activeBooking;

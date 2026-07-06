@@ -92,7 +92,10 @@ public class BookingService {
                     .orElse(null);
         }
 
-        return toSeatSelectionDTO(showtime, hall, hallLayout, activeBooking);
+        int capacity = hall.getTotalRows() * hall.getTotalColumns();
+        boolean fullyReserved = reservedSeats.size() == capacity && activeBooking == null;
+
+        return toSeatSelectionDTO(showtime, hall, hallLayout, activeBooking, fullyReserved);
     }
 
     public List<BookingSummaryDTO> getActiveBookings() {
@@ -356,13 +359,14 @@ public class BookingService {
     }
 
     private SeatSelectionDTO toSeatSelectionDTO(Showtime showtime, Hall hall, HallLayoutDTO hallLayout,
-                                                ActiveBookingDTO activeBooking) {
+                                                ActiveBookingDTO activeBooking, boolean fullyReserved) {
         SeatSelectionDTO dto = new SeatSelectionDTO();
         dto.setMovieTitle(showtime.getTmdbMovie().getTitle());
         dto.setStartDateTime(showtime.getStartDateTime());
         dto.setHallName(hall.getName());
         dto.setHallType(hall.getType().getName());
         dto.set3D(showtime.is3D());
+        dto.setFullyReserved(fullyReserved);
         dto.setHallLayout(hallLayout);
         dto.setActiveBooking(activeBooking);
         return dto;
