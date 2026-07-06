@@ -1,4 +1,5 @@
 @use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
@@ -183,6 +184,45 @@
     font-family: $font-mono;
     color: $color-foreground;
   }
+}
+
+.co-seats-header {
+  color: $color-muted-foreground;
+}
+
+.co-seats {
+  @include flex-column;
+  @include scrollbar-thin;
+
+  gap: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.co-seat {
+  @include flex-between;
+
+  gap: 12px;
+}
+
+.co-seat-label {
+  @include flex-align;
+  gap: 8px;
+}
+
+.co-seat-position {
+  font-family: $font-mono;
+  font-weight: 500;
+  color: $color-primary;
+}
+
+.co-seat-category {
+  color: $color-muted-foreground;
+}
+
+.co-seat-price {
+  font-family: $font-mono;
+  color: $color-foreground;
 }
 
 .co-total {

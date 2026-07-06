@@ -100,10 +100,21 @@
             <div class="co-divider"></div>
 
             <dl class="co-summary-rows">
-              <div class="co-row">
+              <div class="co-seats-header">
                 <dt>Seats ({{ summary.seats.length }})</dt>
-                <dd>{{ seatsLabel() }}</dd>
               </div>
+              <ul class="co-seats">
+                @for (seat of summary.seats; track seat.position) {
+                  <li class="co-seat">
+                    <span class="co-seat-label">
+                      <span class="co-seat-position">{{ seat.position }}</span>
+                      <span class="co-seat-category">({{ seatKindLabel[seat.category] }})</span>
+                    </span>
+                    <span class="co-seat-price">{{ seat.price | currency: 'USD' }}</span>
+                  </li>
+                }
+              </ul>
+              <div class="co-divider co-divider-tight"></div>
               <div class="co-row">
                 <dt>Tickets</dt>
                 <dd>{{ seatsSubtotal() | currency: 'USD' }}</dd>

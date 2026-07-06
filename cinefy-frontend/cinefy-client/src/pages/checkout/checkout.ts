@@ -17,6 +17,7 @@ import {
 import { BookingCancelledComponent, HoldTimerComponent } from '../../components';
 import { BookingService } from '../../services';
 import { skipErrorToast } from '../../app/core/interceptors';
+import { SEAT_KIND_LABEL } from '../../shared/types';
 import {
   ArrowLeftIcon,
   CreditCardIcon,
@@ -96,9 +97,7 @@ export class CheckoutPage {
     (this.booking()?.seats ?? []).reduce((sum, seat) => sum + seat.price, 0),
   );
 
-  protected readonly seatsLabel = computed(() =>
-    (this.booking()?.seats ?? []).map((seat) => seat.position).join(' · '),
-  );
+  protected readonly seatKindLabel = SEAT_KIND_LABEL;
 
   protected confirmCancel(close: () => void): void {
     const booking = this.booking();
