@@ -11,22 +11,16 @@
         </div>
       </div>
       <div class="alh-info">
-        <button
-          class="alh-tickets-btn btn-primary"
-          title="My Tickets"
-          [ngpDialogTrigger]="myTicketsDialog"
-        >
-          <svg [lucideIcon]="icons.TicketIcon" [size]="18"></svg>
-          <span class="tb-count">2</span>
-        </button>
-        <ng-template #myTicketsDialog let-close="close">
-          <my-tickets-list [close]="close" />
-        </ng-template>
         @if (isAuthenticatedLoading() || currentUserLoading()) {
           <div class="alh-auth-loading">
             <loading-spinner variant="sm" />
           </div>
         } @else if (isAuthenticated()) {
+          <button class="alh-tickets-btn btn-primary" [ngpDialogTrigger]="myTicketsDialog">
+            <svg [lucideIcon]="icons.TicketIcon" [size]="18"></svg>
+            <span>My Tickets</span>
+          </button>
+          <span class="alh-divider"></span>
           <button class="alh-user" [ngpMenuTrigger]="userInfoMenu">
             <span class="alh-user-icon">
               <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
@@ -35,6 +29,9 @@
               <span class="alh-user-name">{{ userDisplayName() }}</span>
             }
           </button>
+          <ng-template #myTicketsDialog let-close="close">
+            <my-tickets-list [close]="close" />
+          </ng-template>
           <ng-template #userInfoMenu>
             <div class="user-info-menu-items" ngpMenu>
               @for (item of userInfoMenuItems; track item.label) {
@@ -55,7 +52,6 @@
             </div>
           </ng-template>
         } @else {
-          <span class="alh-divider"></span>
           <div class="alh-auth">
             <a class="alh-auth-btn btn-secondary" routerLink="/membership/login">
               <svg [lucideIcon]="icons.LoginIcon" [size]="16"></svg>
