@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { differenceInSeconds } from 'date-fns';
 import {
   EmptyStateComponent,
   LoadingSpinnerComponent,
@@ -87,5 +88,10 @@ export class MyTicketsListComponent {
           this.isLoading.set(false);
         },
       });
+  }
+
+  protected isExpiringSoon(booking: BookingSummary): boolean {
+    const secondsLeft = differenceInSeconds(booking.expiresAt, Date.now());
+    return secondsLeft > 0 && secondsLeft <= 120;
   }
 }

@@ -20,7 +20,15 @@
               />
             </div>
             <div class="bi-info">
-              <h3>{{ booking.movie.title }}</h3>
+              <div class="bi-header">
+                <h3>{{ booking.movie.title }}</h3>
+                @if (isExpiringSoon(booking)) {
+                  <span class="expiring-badge">
+                    <svg [lucideIcon]="icons.ClockIcon" [size]="12"></svg>
+                    Expiring soon
+                  </span>
+                }
+              </div>
               <div class="place-info">
                 <div class="pi-item">
                   <svg [lucideIcon]="icons.CalendarIcon" [size]="16"></svg>

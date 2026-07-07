@@ -28,7 +28,7 @@ export class HoldTimerComponent {
 
   protected readonly expiring = computed(() => {
     const seconds = this.secondsLeft();
-    return seconds !== null && seconds <= 60;
+    return seconds !== null && seconds <= 120;
   });
   protected readonly countdown = computed(() => {
     const seconds = this.secondsLeft();
