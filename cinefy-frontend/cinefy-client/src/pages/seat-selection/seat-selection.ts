@@ -16,7 +16,7 @@ import { BookingService } from '../../services';
 import { ArrowLeftIcon, TicketXIcon, TriangleAlertIcon, XIcon } from '../../shared/icons';
 import type {
   Seat,
-  SeatCategory,
+  SelectableSeatCategory,
   SeatKind,
   SeatLayout,
   SeatLayoutResponse,
@@ -43,10 +43,10 @@ function buildHall(response: SeatLayoutResponse, bookingPositions: Set<string>):
   });
 }
 
-function priceByCategory(pricing: TicketPrice[]): Record<SeatCategory, number> {
+function priceByCategory(pricing: TicketPrice[]): Record<SelectableSeatCategory, number> {
   return pricing.reduce(
     (acc, { seatCategory, price }) => ({ ...acc, [seatCategory]: price }),
-    {} as Record<SeatCategory, number>,
+    {} as Record<SelectableSeatCategory, number>,
   );
 }
 
@@ -100,9 +100,11 @@ export class SeatSelectionPage {
     return layout ? buildHall(layout, new Set(this.myReservedIds())) : [];
   });
 
-  protected readonly prices = computed<Record<SeatCategory, number>>(() => {
+  protected readonly prices = computed<Record<SelectableSeatCategory, number>>(() => {
     const layout = this.seatSelection()?.hallLayout;
-    return layout ? priceByCategory(layout.ticketPricing) : ({} as Record<SeatCategory, number>);
+    return layout
+      ? priceByCategory(layout.ticketPricing)
+      : ({} as Record<SelectableSeatCategory, number>);
   });
 
   protected readonly myReservedIds = computed<string[]>(

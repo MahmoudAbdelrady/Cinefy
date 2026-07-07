@@ -7,19 +7,20 @@ interface SeatLayout {
   reserved: string[];
 }
 
-type SeatCategory = 'NORMAL' | 'VIP';
+type SelectableSeatCategory = 'NORMAL' | 'VIP';
 
-type SeatKind = SeatCategory | 'TAKEN' | 'AISLE';
+type SeatKind = SelectableSeatCategory | 'TAKEN' | 'AISLE';
 
-const SEAT_KIND_LABEL: Record<Exclude<SeatKind, 'AISLE'>, string> = {
+const SEAT_KIND_LABEL: Record<SeatKind, string> = {
   NORMAL: 'Normal',
   VIP: 'Premium',
   TAKEN: 'Taken',
+  AISLE: 'Aisle',
 };
 
 interface TicketPrice {
   price: number;
-  seatCategory: SeatCategory;
+  seatCategory: SelectableSeatCategory;
 }
 
 interface SeatLayoutResponse {
@@ -37,4 +38,4 @@ interface Seat {
 }
 
 export { SEAT_KIND_LABEL };
-export type { Seat, SeatCategory, SeatKind, SeatLayout, SeatLayoutResponse, TicketPrice };
+export type { Seat, SelectableSeatCategory, SeatKind, SeatLayout, SeatLayoutResponse, TicketPrice };

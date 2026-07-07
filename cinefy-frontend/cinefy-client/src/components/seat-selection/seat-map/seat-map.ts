@@ -2,7 +2,7 @@ import { Component, computed, input, linkedSignal, output } from '@angular/core'
 import { SEAT_KIND_LABEL, type Seat, type SeatKind } from '../../../shared/types';
 
 interface LegendItem {
-  value: Exclude<SeatKind, 'AISLE'>;
+  value: SeatKind;
   label: string;
 }
 
@@ -13,9 +13,11 @@ interface LegendItem {
   styleUrl: './seat-map.scss',
 })
 export class SeatMapComponent {
-  protected readonly legendItems: LegendItem[] = Object.entries(SEAT_KIND_LABEL).map(
-    ([value, label]) => ({ value: value as LegendItem['value'], label }),
-  );
+  protected readonly legendItems: LegendItem[] = (
+    Object.entries(SEAT_KIND_LABEL) as [SeatKind, string][]
+  )
+    .filter(([value]) => value !== 'AISLE')
+    .map(([value, label]) => ({ value, label }));
 
   readonly rows = input.required<Seat[][]>();
   readonly initialSelectedIds = input<string[]>([]);

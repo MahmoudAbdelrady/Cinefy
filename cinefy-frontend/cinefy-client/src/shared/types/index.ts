@@ -33,7 +33,7 @@ export type {
 export { SEAT_KIND_LABEL } from './seats';
 export type {
   Seat,
-  SeatCategory,
+  SelectableSeatCategory,
   SeatKind,
   SeatLayout,
   SeatLayoutResponse,

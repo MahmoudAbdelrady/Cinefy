@@ -1,5 +1,5 @@
 import type { MovieSearchResult } from './movies';
-import type { SeatCategory, SeatLayoutResponse } from './seats';
+import type { SelectableSeatCategory, SeatLayoutResponse } from './seats';
 
 interface BookingShowtime {
   id: string;
@@ -44,7 +44,7 @@ interface BookingSummary {
 
 interface BookedSeat {
   position: string;
-  category: SeatCategory;
+  category: SelectableSeatCategory;
   price: number;
 }
 

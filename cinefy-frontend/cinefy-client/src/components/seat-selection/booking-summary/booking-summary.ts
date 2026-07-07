@@ -10,7 +10,7 @@ import {
   type BookedSeat,
   type BookingRequest,
   type Seat,
-  type SeatCategory,
+  type SelectableSeatCategory,
 } from '../../../shared/types';
 
 @Component({
@@ -30,14 +30,14 @@ export class BookingSummaryComponent {
 
   readonly showtimeId = input.required<string>();
   readonly selectedSeats = input.required<Seat[]>();
-  readonly prices = input.required<Record<SeatCategory, number>>();
+  readonly prices = input.required<Record<SelectableSeatCategory, number>>();
 
   protected readonly submitting = signal(false);
 
   protected readonly seats = computed<BookedSeat[]>(() => {
     const prices = this.prices();
     return this.selectedSeats().map((seat) => {
-      const category = seat.kind as SeatCategory;
+      const category = seat.kind as SelectableSeatCategory;
       return { position: seat.id, category, price: prices[category] };
     });
   });
