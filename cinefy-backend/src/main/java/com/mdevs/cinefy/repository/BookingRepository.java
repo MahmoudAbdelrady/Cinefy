@@ -96,6 +96,7 @@ public interface BookingRepository extends BaseRepository<Booking> {
             WHERE b.onHold = true
             AND b.expiresAt > :now
             AND b.client.id = :clientId
+            ORDER BY b.id
             """)
     List<Booking> findActiveOnHoldByClient(@Param("clientId") Long clientId, @Param("now") LocalDateTime now);
 
@@ -107,6 +108,7 @@ public interface BookingRepository extends BaseRepository<Booking> {
             WHERE b.onHold = true
             AND b.expiresAt > :now
             AND b.bookedBy.id = :staffId
+            ORDER BY b.id
             """)
     List<Booking> findActiveOnHoldByBookedBy(@Param("staffId") Long staffId, @Param("now") LocalDateTime now);
 
