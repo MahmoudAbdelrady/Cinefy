@@ -7,19 +7,11 @@ import { InfoIcon } from '../../../shared/icons';
 import { BookingService } from '../../../services';
 import {
   SEAT_KIND_LABEL,
+  type BookedSeat,
   type BookingRequest,
   type Seat,
   type SeatCategory,
 } from '../../../shared/types';
-
-interface CategoryLine {
-  category: SeatCategory;
-  label: string;
-  count: number;
-  total: number;
-}
-
-const CATEGORY_ORDER: SeatCategory[] = ['NORMAL', 'VIP'];
 
 @Component({
   selector: 'booking-summary',
@@ -31,6 +23,7 @@ export class BookingSummaryComponent {
   protected readonly icons = {
     InfoIcon,
   };
+  protected readonly seatKindLabel = SEAT_KIND_LABEL;
 
   private readonly router = inject(Router);
   private readonly bookingService = inject(BookingService);
@@ -41,22 +34,16 @@ export class BookingSummaryComponent {
 
   protected readonly submitting = signal(false);
 
-  protected readonly lines = computed<CategoryLine[]>(() => {
+  protected readonly seats = computed<BookedSeat[]>(() => {
     const prices = this.prices();
-    const counts = new Map<SeatCategory, number>();
-    for (const seat of this.selectedSeats()) {
-      if (seat.kind === 'NORMAL' || seat.kind === 'VIP') {
-        counts.set(seat.kind, (counts.get(seat.kind) ?? 0) + 1);
-      }
-    }
-    return CATEGORY_ORDER.filter((category) => counts.has(category)).map((category) => {
-      const count = counts.get(category)!;
-      return { category, label: SEAT_KIND_LABEL[category], count, total: count * prices[category] };
+    return this.selectedSeats().map((seat) => {
+      const category = seat.kind as SeatCategory;
+      return { position: seat.id, category, price: prices[category] };
     });
   });
 
   protected readonly total = computed(() =>
-    this.lines().reduce((sum, line) => sum + line.total, 0),
+    this.seats().reduce((sum, seat) => sum + seat.price, 0),
   );
 
   protected proceedToPayment() {
