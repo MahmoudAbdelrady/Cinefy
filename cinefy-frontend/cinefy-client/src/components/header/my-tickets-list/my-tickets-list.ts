@@ -1,63 +1,91 @@
-import { Component, computed, input } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EmptyStateComponent, ModalComponent } from 'cinefy-ui/components';
-import { CalendarIcon, GlassesIcon, TicketIcon, ArrowRightIcon } from '../../../shared/icons';
-
-interface Booking {
-  id: string;
-  movieTitle: string;
-  moviePosterUrl: string;
-  bookingDate: string;
-  bookingTime: string;
-  is3D: boolean;
-  totalTickets: number;
-  totalPrice: number;
-}
+import {
+  EmptyStateComponent,
+  LoadingSpinnerComponent,
+  MediaImageComponent,
+  ModalComponent,
+} from 'cinefy-ui/components';
+import { BookingService } from '../../../services';
+import type { BookingSummary } from '../../../shared/types';
+import {
+  CalendarIcon,
+  ClapperboardIcon,
+  ClockIcon,
+  TicketIcon,
+  ArrowRightIcon,
+  TriangleAlertIcon,
+} from '../../../shared/icons';
 
 @Component({
   selector: 'my-tickets-list',
-  imports: [LucideDynamicIcon, ModalComponent, EmptyStateComponent, CurrencyPipe],
+  imports: [
+    RouterLink,
+    LucideDynamicIcon,
+    ModalComponent,
+    EmptyStateComponent,
+    LoadingSpinnerComponent,
+    MediaImageComponent,
+    CurrencyPipe,
+    DatePipe,
+  ],
   templateUrl: './my-tickets-list.html',
   styleUrl: './my-tickets-list.scss',
 })
 export class MyTicketsListComponent {
   protected readonly icons = {
     CalendarIcon,
-    GlassesIcon,
+    ClapperboardIcon,
+    ClockIcon,
     TicketIcon,
     ArrowRightIcon,
+    TriangleAlertIcon,
   };
+
+  private readonly bookingService = inject(BookingService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly close = input.required<() => void>();
 
-  protected readonly myBookings: Booking[] = [
-    {
-      id: 'bk-3391',
-      movieTitle: 'Deadpool & Wolverine',
-      moviePosterUrl: 'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg',
-      bookingDate: 'Today',
-      bookingTime: '2:30 PM',
-      is3D: true,
-      totalTickets: 2,
-      totalPrice: 30.0,
-    },
-    {
-      id: 'bk-3370',
-      movieTitle: 'Inside Out 2',
-      moviePosterUrl: 'https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg',
-      bookingDate: 'Today',
-      bookingTime: '3:30 PM',
-      is3D: false,
-      totalTickets: 4,
-      totalPrice: 40.0,
-    },
-  ];
+  protected readonly bookings = signal<BookingSummary[]>([]);
+  protected readonly isLoading = signal(true);
+  protected readonly hasError = signal(false);
 
   protected readonly description = computed(() => {
-    const count = this.myBookings.length;
+    const count = this.bookings().length;
     return count
       ? `${count} booking${count > 1 ? 's' : ''} to complete`
       : 'No bookings in progress';
   });
+
+  constructor() {
+    afterNextRender(() => this.loadActiveBookings());
+  }
+
+  private loadActiveBookings(): void {
+    this.bookingService
+      .getActiveBookings()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (bookings) => {
+          this.bookings.set(bookings);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.hasError.set(true);
+          this.isLoading.set(false);
+        },
+      });
+  }
 }

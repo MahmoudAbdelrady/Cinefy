@@ -196,7 +196,15 @@
 }
 
 .co-seats-header {
-  color: $color-muted-foreground;
+  dt {
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .co-seats-count {
+    font-weight: 400;
+    color: $color-muted-foreground;
+  }
 }
 
 .co-seats {

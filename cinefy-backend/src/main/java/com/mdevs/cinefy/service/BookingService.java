@@ -206,7 +206,7 @@ public class BookingService {
 
     private Booking findBookingByUuidWithDetail(String uuid) {
         return bookingRepository.findByUuidWithDetail(uuid)
-                .orElseThrow(() -> new NotFoundException("Booking not found: " + uuid));
+                .orElseThrow(() -> new NotFoundException("Booking not found or it may have been expired"));
     }
 
     private void validateSeats(Hall hall, List<String> requestedPositions, User user) {

@@ -110,7 +110,7 @@
                       <span class="co-fact-label-text">Date:</span>
                     </dt>
                     <dd class="co-fact-value">
-                      {{ summary.startDateTime | date: 'EEE, MMM d, y' }}
+                      {{ summary.startDateTime | date: 'MMM d, y' }}
                     </dd>
                   </div>
                   <div class="co-fact">
@@ -128,7 +128,9 @@
 
             <dl class="co-summary-rows">
               <div class="co-seats-header">
-                <dt>Seats ({{ summary.seats.length }})</dt>
+                <dt>
+                  Seats <span class="co-seats-count">({{ summary.seats.length }})</span>
+                </dt>
               </div>
               <ul class="co-seats">
                 @for (seat of summary.seats; track seat.position) {

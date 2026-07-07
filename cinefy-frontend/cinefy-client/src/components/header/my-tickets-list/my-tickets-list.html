@@ -1,46 +1,69 @@
 <app-modal modalTitle="My Tickets" [description]="description()" width="512px" [close]="close()">
-  <ul class="bookings-list">
-    @for (booking of myBookings; track booking.id) {
-      <li class="booking-item">
-        <div class="bi-movie-poster">
-          <img [src]="booking.moviePosterUrl" alt="{{ booking.movieTitle }} poster" />
-        </div>
-        <div class="bi-data">
-          <div class="bi-info">
-            <h3>{{ booking.movieTitle }}</h3>
-            <div class="place-info">
-              <div class="pi-item">
-                <svg [lucideIcon]="icons.CalendarIcon" [size]="16"></svg>
-                <span>{{ booking.bookingDate }} at {{ booking.bookingTime }}</span>
-              </div>
-              <div class="pi-item">
-                <svg [lucideIcon]="icons.GlassesIcon" [size]="16"></svg>
-                <span>{{ booking.is3D ? '3D' : '2D' }}</span>
-              </div>
+  @if (isLoading()) {
+    <div class="tickets-status">
+      <loading-spinner variant="lg" />
+    </div>
+  } @else if (hasError()) {
+    <empty-state
+      [icon]="icons.TriangleAlertIcon"
+      title="We couldn't load your bookings. Please try again."
+    />
+  } @else {
+    <ul class="bookings-list">
+      @for (booking of bookings(); track booking.id) {
+        <li class="booking-item">
+          <div class="bi-main">
+            <div class="bi-movie-poster">
+              <media-image
+                [src]="booking.movie.posterUrl"
+                [alt]="booking.movie.title + ' poster'"
+              />
             </div>
-            <div class="pricing-info">
-              <div class="ticket-count">
-                <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
-                <span>x{{ booking.totalTickets }}</span>
+            <div class="bi-info">
+              <h3>{{ booking.movie.title }}</h3>
+              <div class="place-info">
+                <div class="pi-item">
+                  <svg [lucideIcon]="icons.CalendarIcon" [size]="16"></svg>
+                  <span>{{ booking.startDateTime | date: 'MMM d, y' }}</span>
+                </div>
+                <div class="pi-item">
+                  <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
+                  <span>{{ booking.startDateTime | date: 'shortTime' }}</span>
+                </div>
+                <div class="pi-item">
+                  <svg [lucideIcon]="icons.ClapperboardIcon" [size]="16"></svg>
+                  <span>
+                    {{ booking.hallType }}
+                    @if (booking.is3D) {
+                      <span>(3D)</span>
+                    }
+                  </span>
+                </div>
               </div>
-              <div class="total-price">
-                <span>{{ booking.totalPrice | currency: 'USD' }}</span>
+              <div class="pricing-info">
+                <div class="ticket-count">
+                  <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+                  <span>x{{ booking.totalTickets }}</span>
+                </div>
+                <div class="total-price">
+                  <span>{{ booking.totalPrice | currency: 'USD' }}</span>
+                </div>
               </div>
             </div>
           </div>
           <div class="bi-actions">
-            <button class="btn-primary">
+            <button class="btn-primary" routerLink="/checkout/{{ booking.id }}" (click)="close()()">
               <span>Proceed</span>
               <svg [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
             </button>
           </div>
-        </div>
-      </li>
-    } @empty {
-      <empty-state
-        [icon]="icons.TicketIcon"
-        title="Bookings you start will wait here until you complete them."
-      />
-    }
-  </ul>
+        </li>
+      } @empty {
+        <empty-state
+          [icon]="icons.TicketIcon"
+          title="Bookings you start will wait here until you complete them."
+        />
+      }
+    </ul>
+  }
 </app-modal>
