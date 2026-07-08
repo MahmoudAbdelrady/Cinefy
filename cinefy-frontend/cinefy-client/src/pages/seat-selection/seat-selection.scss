@@ -209,8 +209,9 @@
   }
 }
 
-// ─── Cancel-confirm dialog ───────────────────────────────────────────────────
-.ss-cancel-modal-content {
+// ─── Cancel-confirm & expired dialogs ────────────────────────────────────────
+.ss-cancel-modal-content,
+.ss-expired-modal-content {
   text-align: center;
 }
 

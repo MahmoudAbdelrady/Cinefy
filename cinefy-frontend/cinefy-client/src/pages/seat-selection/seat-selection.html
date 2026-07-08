@@ -43,12 +43,14 @@
               </span>
             </div>
 
-            <hold-timer [expiresAt]="heldUntil" />
+            <hold-timer [expiresAt]="heldUntil" (expired)="onExpired()" />
 
-            <button type="button" class="btn-base ss-cancel" [ngpDialogTrigger]="cancelDialog">
-              <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
-              <span class="ss-cancel-label">Cancel Booking</span>
-            </button>
+            @if (!bookingExpired()) {
+              <button type="button" class="btn-base ss-cancel" [ngpDialogTrigger]="cancelDialog">
+                <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
+                <span class="ss-cancel-label">Cancel Booking</span>
+              </button>
+            }
           </div>
         }
       </div>
@@ -61,7 +63,7 @@
         title="Sold out"
         description="Every seat for this showtime is taken. Check another showtime or date."
       />
-    } @else {
+    } @else if (!bookingExpired()) {
       <div class="ss-body">
         <div class="ss-map">
           <div class="ss-screen">
@@ -119,3 +121,20 @@
     </app-modal>
   </ng-template>
 }
+
+<ng-template #expiredDialog let-close="close">
+  <app-modal modalTitle="Booking expired" width="448px" [closeable]="false" [close]="close">
+    <div class="ss-expired-modal-content">
+      <div class="scm-icon">
+        <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
+      </div>
+      <p class="scm-message">Your seat hold ran out and your seats were released.</p>
+    </div>
+
+    <div modal-footer class="ss-dialog-footer">
+      <button type="button" class="btn-primary" (click)="reloadSeats(close)">
+        Pick seats again
+      </button>
+    </div>
+  </app-modal>
+</ng-template>

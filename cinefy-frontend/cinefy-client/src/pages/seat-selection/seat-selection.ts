@@ -1,9 +1,18 @@
-import { Component, computed, DestroyRef, inject, linkedSignal, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  linkedSignal,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { NgpDialogTrigger, NgpDialogManager } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EmptyStateComponent, LoadingSpinnerComponent, ModalComponent } from 'cinefy-ui/components';
 import {
@@ -78,7 +87,10 @@ export class SeatSelectionPage {
 
   private readonly route = inject(ActivatedRoute);
   private readonly bookingService = inject(BookingService);
+  private readonly dialogManager = inject(NgpDialogManager);
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly expiredDialog = viewChild.required<TemplateRef<unknown>>('expiredDialog');
 
   protected readonly movieId = toSignal(
     this.route.paramMap.pipe(map((params) => Number(params.get('movieId')))),
@@ -121,8 +133,20 @@ export class SeatSelectionPage {
 
   protected readonly cancelling = signal(false);
   protected readonly cancelled = signal(false);
+  protected readonly bookingExpired = signal(false);
 
   protected readonly expiresAt = computed(() => this.seatSelection()?.activeBooking?.expiresAt);
+
+  protected onExpired(): void {
+    this.bookingExpired.set(true);
+    this.dialogManager.open(this.expiredDialog() as TemplateRef<never>);
+  }
+
+  protected reloadSeats(close: () => void): void {
+    close();
+    this.bookingExpired.set(false);
+    this.seatSelectionResource.reload();
+  }
 
   protected confirmCancel(close: () => void): void {
     const activeBooking = this.seatSelection()?.activeBooking;

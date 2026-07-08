@@ -1,11 +1,19 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { NgpDialogTrigger, NgpDialogManager } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   EmptyStateComponent,
@@ -64,8 +72,12 @@ export class CheckoutPage {
   };
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly bookingService = inject(BookingService);
+  private readonly dialogManager = inject(NgpDialogManager);
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly expiredDialog = viewChild.required<TemplateRef<unknown>>('expiredDialog');
 
   protected readonly bookingId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('bookingId'))),
@@ -96,6 +108,7 @@ export class CheckoutPage {
   protected readonly processing = signal(false);
   protected readonly cancelling = signal(false);
   protected readonly cancelled = signal(false);
+  protected readonly bookingExpired = signal(false);
 
   protected readonly timerExpiresAt = computed(() =>
     this.cancelled() ? undefined : this.booking()?.expiresAt,
@@ -106,6 +119,19 @@ export class CheckoutPage {
   );
 
   protected readonly seatKindLabel = SEAT_KIND_LABEL;
+
+  protected onExpired(): void {
+    this.bookingExpired.set(true);
+    this.dialogManager.open(this.expiredDialog() as TemplateRef<never>);
+  }
+
+  protected goToSeatSelection(close: () => void): void {
+    const booking = this.booking();
+    close();
+    if (!booking) return;
+
+    this.router.navigateByUrl(`/movies/${booking.movie.id}/seats/${booking.showtimeId}`);
+  }
 
   protected confirmCancel(close: () => void): void {
     const booking = this.booking();

@@ -43,20 +43,19 @@ export class HoldTimerComponent {
         return;
       }
 
-      const remaining = () => Math.max(0, differenceInSeconds(expiresAt, Date.now()));
-      this.secondsLeft.set(remaining());
-      if (this.secondsLeft() === 0) {
-        this.expired.emit();
-        return;
-      }
-
-      const id = setInterval(() => {
-        this.secondsLeft.set(remaining());
-        if (this.secondsLeft() === 0) {
+      let emitted = false;
+      const tick = () => {
+        const remaining = Math.max(0, differenceInSeconds(expiresAt, Date.now()));
+        this.secondsLeft.set(remaining);
+        if (remaining === 0 && !emitted) {
+          emitted = true;
           clearInterval(id);
           this.expired.emit();
         }
-      }, 1000);
+      };
+
+      tick();
+      const id = setInterval(tick, 1000);
       onCleanup(() => clearInterval(id));
     });
   }

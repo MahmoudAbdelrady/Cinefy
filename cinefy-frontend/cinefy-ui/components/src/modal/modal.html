@@ -1,4 +1,4 @@
-<div ngpDialogOverlay class="modal-overlay">
+<div ngpDialogOverlay [ngpDialogOverlayCloseOnClick]="closeable()" class="modal-overlay">
   <div #panel ngpDialog class="modal-panel" [style.--modal-max-width]="width()">
     <div class="modal-header" [attr.data-custom]="customHeader() ? '' : null">
       @if (customHeader()) {
@@ -11,13 +11,14 @@
         <p ngpDialogDescription>{{ description() }}</p>
         }
       </div>
-      }
+      } @if (closeable()) {
       <div class="modal-header-actions">
         <ng-content select="[modal-header-actions]" />
         <button title="Close" class="modal-close-btn" (click)="close()()">
           <svg [lucideIcon]="icons.XIcon" [size]="20" [strokeWidth]="2"></svg>
         </button>
       </div>
+      }
     </div>
 
     <div class="modal-body" [style.padding]="bodyPadding()">
