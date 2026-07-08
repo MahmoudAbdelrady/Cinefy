@@ -144,7 +144,6 @@ export class CheckoutPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.cancelling.set(false);
           close();
           this.cancelled.set(true);
         },
