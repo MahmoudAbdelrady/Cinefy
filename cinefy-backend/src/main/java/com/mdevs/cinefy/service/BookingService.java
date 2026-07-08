@@ -240,7 +240,7 @@ public class BookingService {
 
     private Showtime findBookableShowtime(String uuid) {
         Showtime showtime = showtimeRepository.findByUuidWithHall(uuid)
-                .orElseThrow(() -> new NotFoundException("Showtime not found: " + uuid));
+                .orElseThrow(() -> new NotFoundException("Showtime not found"));
         LocalDateTime cutOffDate = LocalDateTime.now().plusMinutes(BOOKING_CUTOFF_MINUTES);
         if (!ShowtimeStatus.COMMITTED_STATUSES.contains(showtime.getStatus())
                 || showtime.getEndDateTime().isBefore(cutOffDate)) {

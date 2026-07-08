@@ -23,8 +23,8 @@ export class BookingService {
     });
   }
 
-  getSeatSelection(showtimeId: string): Observable<SeatSelection> {
-    return this.http.get<SeatSelection>(`/booking/showtimes/${showtimeId}`);
+  getSeatSelection(showtimeId: string, context?: HttpContext): Observable<SeatSelection> {
+    return this.http.get<SeatSelection>(`/booking/showtimes/${showtimeId}`, { context });
   }
 
   getActiveBookings(): Observable<BookingSummary[]> {

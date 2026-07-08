@@ -9,6 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
@@ -22,8 +23,10 @@ import {
   SeatMapComponent,
 } from '../../components';
 import { BookingService } from '../../services';
+import { skipErrorToast } from '../../app/core/interceptors';
 import { ArrowLeftIcon, TicketXIcon, TriangleAlertIcon, XIcon } from '../../shared/icons';
 import type {
+  ApiError,
   Seat,
   SelectableSeatCategory,
   SeatKind,
@@ -102,10 +105,17 @@ export class SeatSelectionPage {
 
   protected readonly seatSelectionResource = rxResource({
     params: () => this.showtimeId() ?? undefined,
-    stream: ({ params: showtimeId }) => this.bookingService.getSeatSelection(showtimeId),
+    stream: ({ params: showtimeId }) =>
+      this.bookingService.getSeatSelection(showtimeId, skipErrorToast()),
   });
 
   protected readonly seatSelection = computed(() => this.seatSelectionResource.value());
+
+  protected readonly errorMessage = computed(() => {
+    const error = this.seatSelectionResource.error();
+    const message = error instanceof HttpErrorResponse ? (error.error as ApiError)?.message : null;
+    return message ?? 'Something went wrong. Please try again later.';
+  });
 
   protected readonly hall = computed<Seat[][]>(() => {
     const layout = this.seatSelection()?.hallLayout;

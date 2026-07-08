@@ -3,21 +3,12 @@
     <loading-spinner variant="lg" />
   </div>
 } @else if (bookingResource.error()) {
-  @if (notFound()) {
-    <empty-state
-      class="co-error"
-      [icon]="icons.TriangleAlertIcon"
-      title="Booking not found"
-      description="This booking doesn't exist or is no longer available."
-    />
-  } @else {
-    <empty-state
-      class="co-error"
-      [icon]="icons.TriangleAlertIcon"
-      title="Couldn't load this booking"
-      description="Something went wrong. Please try again later."
-    />
-  }
+  <empty-state
+    class="co-error"
+    [icon]="icons.TriangleAlertIcon"
+    title="Couldn't load this booking"
+    [description]="errorMessage()"
+  />
 } @else if (booking(); as summary) {
   @if (cancelled()) {
     <booking-cancelled [movieId]="summary.movie.id" />

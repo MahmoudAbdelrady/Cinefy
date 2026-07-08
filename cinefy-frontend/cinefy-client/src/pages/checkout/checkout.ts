@@ -25,7 +25,7 @@ import {
 import { BookingCancelledComponent, HoldTimerComponent } from '../../components';
 import { BookingService } from '../../services';
 import { skipErrorToast } from '../../app/core/interceptors';
-import { SEAT_KIND_LABEL } from '../../shared/types';
+import { SEAT_KIND_LABEL, type ApiError } from '../../shared/types';
 import {
   ArrowLeftIcon,
   CalendarIcon,
@@ -93,9 +93,10 @@ export class CheckoutPage {
     this.bookingResource.hasValue() ? this.bookingResource.value() : undefined,
   );
 
-  protected readonly notFound = computed(() => {
+  protected readonly errorMessage = computed(() => {
     const error = this.bookingResource.error();
-    return error instanceof HttpErrorResponse && error.status === 404;
+    const message = error instanceof HttpErrorResponse ? (error.error as ApiError)?.message : null;
+    return message ?? 'Something went wrong. Please try again later.';
   });
 
   protected readonly paymentForm = new FormGroup({
