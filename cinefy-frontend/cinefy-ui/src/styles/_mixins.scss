@@ -32,6 +32,25 @@
   text-overflow: ellipsis;
 }
 
+@mixin scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cui-scrollbar-thumb) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--cui-scrollbar-thumb);
+    border-radius: 999px;
+  }
+}
+
 @mixin empty-state-block {
   @include flex-center;
   flex-direction: column;
