@@ -8,6 +8,9 @@ import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
+import com.mdevs.cinefy.dto.showtime.BookingShowtimeDTO;
+import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
+import com.mdevs.cinefy.dto.showtime.ShowtimeReservedSeatsProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import com.mdevs.cinefy.entity.Client;
@@ -37,8 +40,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +71,8 @@ public class BookingService {
 
     private static final int HOLD_WINDOW_MINUTES = 10;
 
+    private static final int BOOKING_CUTOFF_MINUTES = 60;
+
     private static final String REFERENCE_PREFIX = "CINEFY-";
 
     private static final String REFERENCE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -73,7 +81,42 @@ public class BookingService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
     // ========================= Public API =========================
+
+    public List<String> getBookableDates(Long movieId) {
+        LocalDateTime cutOffDate = LocalDateTime.now().plusMinutes(BOOKING_CUTOFF_MINUTES);
+        return showtimeRepository.findDistinctBookableShowtimeDates(movieId, ShowtimeStatus.COMMITTED_STATUSES, cutOffDate)
+                .stream()
+                .map(LocalDate::toString)
+                .toList();
+    }
+
+    public List<HallTypeShowtimesDTO> getBookableShowtimesForDate(Long movieId, LocalDate date) {
+        LocalDateTime cutOffDate = LocalDateTime.now().plusMinutes(BOOKING_CUTOFF_MINUTES);
+        List<Showtime> showtimes = showtimeRepository.findBookableByMovieAndDateRangeWithHall(movieId, ShowtimeStatus.COMMITTED_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay(), cutOffDate);
+
+        List<Long> showtimeIds = showtimes.stream().map(Showtime::getId).toList();
+        User currentUser = SecurityUtil.isAuthenticated() ? currentUserService.loadCurrentUser() : null;
+        Long clientId = currentUser instanceof Client client ? client.getId() : null;
+        Long staffId = currentUser instanceof StaffMember staff ? staff.getId() : null;
+        Map<Long, Long> reservedSeatsByShowtime = bookingRepository.countReservedSeatsByShowtime(showtimeIds, LocalDateTime.now(), clientId, staffId)
+                .stream()
+                .collect(Collectors.toMap(ShowtimeReservedSeatsProjection::getShowtimeId, ShowtimeReservedSeatsProjection::getReservedSeats));
+
+        Map<String, List<BookingShowtimeDTO>> grouped = showtimes.stream()
+                .collect(Collectors.groupingBy(
+                        showtime -> showtime.getHall().getType().getName(),
+                        LinkedHashMap::new,
+                        Collectors.mapping(
+                                showtime -> toBookingShowtime(showtime, reservedSeatsByShowtime.getOrDefault(showtime.getId(), 0L)),
+                                Collectors.toList())));
+
+        return grouped.entrySet().stream()
+                .map(entry -> new HallTypeShowtimesDTO(entry.getKey(), entry.getValue()))
+                .toList();
+    }
 
     public SeatSelectionDTO getSeatSelection(String showtimeUuid) {
         Showtime showtime = findBookableShowtime(showtimeUuid);
@@ -198,7 +241,9 @@ public class BookingService {
     private Showtime findBookableShowtime(String uuid) {
         Showtime showtime = showtimeRepository.findByUuidWithHall(uuid)
                 .orElseThrow(() -> new NotFoundException("Showtime not found: " + uuid));
-        if (!ShowtimeStatus.COMMITTED_STATUSES.contains(showtime.getStatus())) {
+        LocalDateTime cutOffDate = LocalDateTime.now().plusMinutes(BOOKING_CUTOFF_MINUTES);
+        if (!ShowtimeStatus.COMMITTED_STATUSES.contains(showtime.getStatus())
+                || showtime.getEndDateTime().isBefore(cutOffDate)) {
             throw new BusinessException("This showtime is not available for booking");
         }
         return showtime;
@@ -356,6 +401,16 @@ public class BookingService {
             reference.append(REFERENCE_ALPHABET.charAt(RANDOM.nextInt(REFERENCE_ALPHABET.length())));
         }
         return reference.toString();
+    }
+
+    private BookingShowtimeDTO toBookingShowtime(Showtime showtime, long reservedSeats) {
+        Hall hall = showtime.getHall();
+        int capacity = hall.getTotalRows() * hall.getTotalColumns();
+        return new BookingShowtimeDTO(
+                showtime.getUuid(),
+                showtime.getStartDateTime().toLocalTime().format(TIME_FORMATTER),
+                showtime.is3D(),
+                reservedSeats >= capacity);
     }
 
     private SeatSelectionDTO toSeatSelectionDTO(Showtime showtime, Hall hall, HallLayoutDTO hallLayout,

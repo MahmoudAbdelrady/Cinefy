@@ -6,7 +6,6 @@ import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
 import com.mdevs.cinefy.service.BookingService;
-import com.mdevs.cinefy.service.ShowtimeService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
 import com.mdevs.cinefy.shared.validation.ValidationPatterns;
 import jakarta.validation.Valid;
@@ -35,22 +34,20 @@ import java.util.List;
 @Validated
 public class BookingController {
 
-    private final ShowtimeService showtimeService;
-
     private final BookingService bookingService;
 
     @PublicApi
     @PreAuthorize("permitAll()")
     @GetMapping("/movies/{id}/dates")
     public ResponseEntity<List<String>> getBookableDates(@PathVariable long id) {
-        return ResponseEntity.ok(showtimeService.getBookableDates(id));
+        return ResponseEntity.ok(bookingService.getBookableDates(id));
     }
 
     @PublicApi
     @PreAuthorize("permitAll()")
     @GetMapping("/movies/{id}/showtimes")
     public ResponseEntity<List<HallTypeShowtimesDTO>> getBookableShowtimes(@PathVariable long id, @RequestParam LocalDate date) {
-        return ResponseEntity.ok(showtimeService.getBookableShowtimesForDate(id, date));
+        return ResponseEntity.ok(bookingService.getBookableShowtimesForDate(id, date));
     }
 
     @PublicApi

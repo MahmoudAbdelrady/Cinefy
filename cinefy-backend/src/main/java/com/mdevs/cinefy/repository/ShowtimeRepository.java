@@ -57,6 +57,18 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
     List<LocalDate> findDistinctShowtimeDatesByMovieAndStatuses(@Param("movieId") Long movieId,
                                                                 @Param("statuses") Set<ShowtimeStatus> statuses);
 
+    @Query("""
+            SELECT DISTINCT CAST(s.startDateTime AS LocalDate)
+            FROM Showtime s
+            WHERE s.tmdbMovie.id = :movieId
+            AND s.status IN :statuses
+            AND s.endDateTime > :cutOffDate
+            ORDER BY CAST(s.startDateTime AS LocalDate) ASC
+            """)
+    List<LocalDate> findDistinctBookableShowtimeDates(@Param("movieId") Long movieId,
+                                                      @Param("statuses") Set<ShowtimeStatus> statuses,
+                                                      @Param("cutOffDate") LocalDateTime cutOffDate);
+
     long countByTmdbMovieIdAndStatusIn(Long tmdbMovieId, Set<ShowtimeStatus> statuses);
 
     boolean existsByTmdbMovieIdAndStatusIn(Long tmdbMovieId, Set<ShowtimeStatus> statuses);
@@ -77,6 +89,23 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
                                                            @Param("statuses") Set<ShowtimeStatus> statuses,
                                                            @Param("startDateTime") LocalDateTime startDateTime,
                                                            @Param("endDateTime") LocalDateTime endDateTime);
+
+    @Query("""
+            SELECT s FROM Showtime s
+            JOIN FETCH s.hall h
+            JOIN FETCH h.type
+            WHERE s.tmdbMovie.id = :movieId
+            AND s.status IN :statuses
+            AND s.startDateTime >= :startDateTime
+            AND s.startDateTime < :endDateTime
+            AND s.endDateTime > :cutOffDate
+            ORDER BY s.startDateTime ASC
+            """)
+    List<Showtime> findBookableByMovieAndDateRangeWithHall(@Param("movieId") Long movieId,
+                                                           @Param("statuses") Set<ShowtimeStatus> statuses,
+                                                           @Param("startDateTime") LocalDateTime startDateTime,
+                                                           @Param("endDateTime") LocalDateTime endDateTime,
+                                                           @Param("cutOffDate") LocalDateTime cutOffDate);
 
     long countByStatusIn(Set<ShowtimeStatus> statuses);
 
