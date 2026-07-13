@@ -33,6 +33,7 @@ import {
   PlusIcon,
   SendIcon,
   StickyNoteIcon,
+  TicketIcon,
   WarningIcon,
 } from '../../../shared/icons';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
@@ -69,6 +70,7 @@ export class MovieShowtimesModal {
     MapPinIcon,
     SendIcon,
     StickyNoteIcon,
+    TicketIcon,
   };
 
   private readonly showtimesService = inject(ShowtimesService);

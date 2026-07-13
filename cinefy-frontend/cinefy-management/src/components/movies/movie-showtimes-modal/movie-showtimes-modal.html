@@ -50,6 +50,13 @@
                   </div>
                   @if (canManage()) {
                     <div class="dsi-actions">
+                      <button
+                        class="dsi-action dsi-action-reserve"
+                        title="Reserve seats"
+                        [ngpDialogTrigger]="reserveDialog"
+                      >
+                        <svg [lucideIcon]="icons.TicketIcon" [size]="14"></svg>
+                      </button>
                       @if (showtimeDetail.status === 'DRAFT') {
                         <button
                           class="dsi-action dsi-action-publish"
@@ -82,6 +89,16 @@
                       }
                     </div>
                   }
+
+                  <ng-template #reserveDialog let-close="close">
+                    <app-modal
+                      modalTitle="Reserve Seats"
+                      description="Select seats and complete the payment"
+                      [close]="close"
+                      width="1000px"
+                    >
+                    </app-modal>
+                  </ng-template>
 
                   <ng-template #deleteDialog let-close="close">
                     <app-modal modalTitle="Delete Showtime" [close]="close" width="448px">
