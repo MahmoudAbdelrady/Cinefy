@@ -14,3 +14,4 @@ export * from "./phone-input/phone-input";
 export * from "./date-time/date-picker/date-picker";
 export * from "./date-time/time-picker/time-picker";
 export * from "./switch/switch";
+export * from "./seat-map/seat-map";

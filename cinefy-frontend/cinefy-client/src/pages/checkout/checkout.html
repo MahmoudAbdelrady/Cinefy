@@ -129,7 +129,9 @@
                     <li class="co-seat">
                       <span class="co-seat-label">
                         <span class="co-seat-position">{{ seat.position }}</span>
-                        <span class="co-seat-category">({{ seatKindLabel[seat.category] }})</span>
+                        <span class="co-seat-category"
+                          >({{ seatCategoryLabel[seat.category] }})</span
+                        >
                       </span>
                       <span class="co-seat-price">{{ seat.price | currency: 'USD' }}</span>
                     </li>

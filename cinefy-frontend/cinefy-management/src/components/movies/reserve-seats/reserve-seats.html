@@ -1,0 +1,58 @@
+@if (loading()) {
+  <div class="rs-loading">
+    <loading-spinner variant="lg" />
+  </div>
+} @else if (failed()) {
+  <empty-state
+    [icon]="icons.WarningIcon"
+    title="Couldn't load the seat layout"
+    description="Something went wrong while loading this showtime's seats. Please try again."
+  />
+} @else if (seatSelection(); as selection) {
+  <div class="rs-layout">
+    <div class="rs-seats">
+      <div class="rs-screen">
+        <span>SCREEN</span>
+      </div>
+
+      <seat-map
+        [rows]="hall()"
+        [allowOnSiteOnly]="true"
+        (selectionChange)="onSelectionChange($event)"
+      />
+    </div>
+
+    <aside class="rs-summary">
+      <h3 class="rs-summary-title">Booking Summary</h3>
+
+      @if (pricedSeats().length === 0) {
+        <div class="rs-summary-empty">
+          <svg [lucideIcon]="icons.InfoIcon" [size]="28"></svg>
+          <p>Select seats to start a booking.</p>
+        </div>
+      } @else {
+        <ul class="rs-selected">
+          @for (entry of pricedSeats(); track entry.seat.id) {
+            <li class="rs-selected-item">
+              <span class="rss-seat">
+                <span class="rss-id">{{ entry.seat.id }}</span>
+                <span class="rss-kind">{{ seatCategoryLabel[entry.seat.category] }}</span>
+              </span>
+              <span class="rss-price">{{ entry.price | currency: 'USD' }}</span>
+            </li>
+          }
+        </ul>
+
+        <div class="rs-total">
+          <span>Total ({{ pricedSeats().length }})</span>
+          <span class="rs-total-value">{{ total() | currency: 'USD' }}</span>
+        </div>
+
+        <button class="btn-primary rs-book">
+          <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+          <span>Book</span>
+        </button>
+      }
+    </aside>
+  </div>
+}

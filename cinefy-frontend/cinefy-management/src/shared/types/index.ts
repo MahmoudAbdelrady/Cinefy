@@ -69,3 +69,4 @@ export type {
   PositionCoverageItem,
   CoverageChange,
 } from './staff';
+export type { ShowtimeSeatLayout, ShowtimeHallLayout, ShowtimeSeatSelection } from './booking';

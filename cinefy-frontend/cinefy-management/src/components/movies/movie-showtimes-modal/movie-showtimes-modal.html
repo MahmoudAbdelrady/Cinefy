@@ -93,10 +93,11 @@
                   <ng-template #reserveDialog let-close="close">
                     <app-modal
                       modalTitle="Reserve Seats"
-                      description="Select seats and complete the payment"
+                      [description]="getShowtimeSummary(showtimeDetail)"
                       [close]="close"
                       width="1000px"
                     >
+                      <reserve-seats [showtimeId]="showtimeDetail.id" />
                     </app-modal>
                   </ng-template>
 

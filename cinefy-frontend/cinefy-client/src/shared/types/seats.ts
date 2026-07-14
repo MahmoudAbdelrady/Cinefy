@@ -9,15 +9,6 @@ interface SeatLayout {
 
 type SelectableSeatCategory = 'NORMAL' | 'VIP';
 
-type SeatKind = SelectableSeatCategory | 'TAKEN' | 'AISLE';
-
-const SEAT_KIND_LABEL: Record<SeatKind, string> = {
-  NORMAL: 'Normal',
-  VIP: 'Premium',
-  TAKEN: 'Taken',
-  AISLE: 'Aisle',
-};
-
 interface TicketPrice {
   price: number;
   seatCategory: SelectableSeatCategory;
@@ -30,12 +21,4 @@ interface SeatLayoutResponse {
   ticketPricing: TicketPrice[];
 }
 
-interface Seat {
-  id: string;
-  row: string;
-  number: number;
-  kind: SeatKind;
-}
-
-export { SEAT_KIND_LABEL };
-export type { Seat, SelectableSeatCategory, SeatKind, SeatLayout, SeatLayoutResponse, TicketPrice };
+export type { SelectableSeatCategory, SeatLayout, SeatLayoutResponse, TicketPrice };

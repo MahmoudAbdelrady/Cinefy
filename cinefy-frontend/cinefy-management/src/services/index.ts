@@ -1,4 +1,5 @@
 export { AuthService } from './auth';
+export { BookingService } from './booking';
 export { HeaderActionsService } from './header-actions';
 export { HallsService } from './halls';
 export { MoviesService } from './movies';

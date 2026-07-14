@@ -12,7 +12,7 @@
         <li class="bsum-seat">
           <span class="bsum-seat-label">
             <span class="bsum-seat-position">{{ seat.position }}</span>
-            <span class="bsum-seat-category">({{ seatKindLabel[seat.category] }})</span>
+            <span class="bsum-seat-category">({{ seatCategoryLabel[seat.category] }})</span>
           </span>
           <span class="bsum-seat-price">{{ seat.price | currency: 'USD' }}</span>
         </li>

@@ -6,5 +6,4 @@ export { BookingSectionComponent } from './movies/booking-section/booking-sectio
 export { HoldTimerComponent } from './movies/hold-timer/hold-timer';
 export { BookingCancelledComponent } from './movies/booking-cancelled/booking-cancelled';
 export { TrailerModalComponent } from './movies/trailer-modal/trailer-modal';
-export { SeatMapComponent } from './seat-selection/seat-map/seat-map';
 export { BookingSummaryComponent } from './seat-selection/booking-summary/booking-summary';

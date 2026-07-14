@@ -30,12 +30,4 @@ export type {
   BookingDetail,
   BookingRequest,
 } from './booking';
-export { SEAT_KIND_LABEL } from './seats';
-export type {
-  Seat,
-  SelectableSeatCategory,
-  SeatKind,
-  SeatLayout,
-  SeatLayoutResponse,
-  TicketPrice,
-} from './seats';
+export type { SelectableSeatCategory, SeatLayout, SeatLayoutResponse, TicketPrice } from './seats';

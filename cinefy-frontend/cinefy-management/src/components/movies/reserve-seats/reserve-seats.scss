@@ -1,0 +1,146 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+.rs-loading {
+  @include flex-center;
+
+  padding: 64px 0;
+}
+
+.rs-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  align-items: start;
+  gap: 24px;
+
+  @include below-tablet {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rs-seats {
+  min-width: 0;
+}
+
+.rs-screen {
+  @include flex-center;
+
+  margin-bottom: 24px;
+  padding: 6px;
+  border-radius: $radius-md;
+  background: linear-gradient(to bottom, $gray-800, $gray-700);
+  box-shadow: $shadow-md;
+
+  span {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: #ffffff;
+  }
+}
+
+.rs-summary {
+  display: flex;
+  position: sticky;
+  top: 0;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  background-color: $gray-50;
+
+  @include below-tablet {
+    position: static;
+  }
+}
+
+.rs-summary-title {
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: $gray-900;
+}
+
+.rs-summary-empty {
+  @include flex-center;
+  @include lucide-icon-fix;
+
+  flex-direction: column;
+  gap: 8px;
+  padding: 40px 0;
+  color: $gray-500;
+
+  svg {
+    opacity: 0.4;
+  }
+
+  p {
+    font-size: 14px;
+  }
+}
+
+.rs-selected {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.rs-selected-item {
+  @include flex-between;
+
+  padding: 8px 12px;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  background-color: #ffffff;
+  font-size: 14px;
+}
+
+.rss-seat {
+  @include flex-align;
+
+  gap: 8px;
+}
+
+.rss-id {
+  font-weight: 600;
+  color: $gray-900;
+}
+
+.rss-kind {
+  font-size: 12px;
+  color: $gray-500;
+}
+
+.rss-price {
+  color: $gray-700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rs-total {
+  @include flex-between;
+
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid $gray-200;
+  font-weight: 600;
+  color: $gray-900;
+}
+
+.rs-total-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: $blue-600;
+  font-variant-numeric: tabular-nums;
+}
+
+.rs-book {
+  @include flex-center;
+
+  gap: 8px;
+  width: 100%;
+  margin-top: 20px;
+}

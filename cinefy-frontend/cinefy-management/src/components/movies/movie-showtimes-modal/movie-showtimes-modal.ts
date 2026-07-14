@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { format } from 'date-fns';
 import {
   EditableShowtime,
   MovieSummary,
@@ -39,6 +40,7 @@ import {
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
 import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ReserveSeatsComponent } from '../reserve-seats/reserve-seats';
 import { ToastService } from 'cinefy-ui/services';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { canManage as canManagePosition } from '../../../shared/access';
@@ -57,6 +59,7 @@ import { canManage as canManagePosition } from '../../../shared/access';
     NgpDialogTrigger,
     LoadingSpinnerComponent,
     Time12hPipe,
+    ReserveSeatsComponent,
   ],
   templateUrl: './movie-showtimes-modal.html',
   styleUrl: './movie-showtimes-modal.scss',
@@ -286,6 +289,12 @@ export class MovieShowtimesModal {
   protected getOccupancy(detail: MovieShowtimeListItem): number {
     if (detail.totalSeats === 0) return 0;
     return (detail.reservedSeats / detail.totalSeats) * 100;
+  }
+
+  protected getShowtimeSummary(detail: MovieShowtimeListItem): string {
+    const startDateTime = new Date(`${this.selectedTab()}T${detail.time}`);
+    const when = format(startDateTime, "MMM d, yyyy 'at' h:mm a");
+    return `${this.selectedMovie().title} · ${detail.hall.name} · ${when}`;
   }
 
   private runBulkPublish(

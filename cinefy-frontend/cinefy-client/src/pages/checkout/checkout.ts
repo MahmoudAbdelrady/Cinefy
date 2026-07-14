@@ -25,7 +25,8 @@ import {
 import { BookingCancelledComponent, HoldTimerComponent } from '../../components';
 import { BookingService } from '../../services';
 import { skipErrorToast } from '../../app/core/interceptors';
-import { SEAT_KIND_LABEL, type ApiError } from '../../shared/types';
+import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
+import type { ApiError } from '../../shared/types';
 import {
   ArrowLeftIcon,
   CalendarIcon,
@@ -119,7 +120,7 @@ export class CheckoutPage {
     (this.booking()?.seats ?? []).reduce((sum, seat) => sum + seat.price, 0),
   );
 
-  protected readonly seatKindLabel = SEAT_KIND_LABEL;
+  protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
 
   protected onExpired(): void {
     this.bookingExpired.set(true);

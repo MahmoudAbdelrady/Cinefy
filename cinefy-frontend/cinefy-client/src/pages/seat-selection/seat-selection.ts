@@ -15,30 +15,31 @@ import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
 import { NgpDialogTrigger, NgpDialogManager } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EmptyStateComponent, LoadingSpinnerComponent, ModalComponent } from 'cinefy-ui/components';
+import {
+  EmptyStateComponent,
+  LoadingSpinnerComponent,
+  ModalComponent,
+  SeatMapComponent,
+} from 'cinefy-ui/components';
 import {
   BookingCancelledComponent,
   BookingSummaryComponent,
   HoldTimerComponent,
-  SeatMapComponent,
 } from '../../components';
 import { BookingService } from '../../services';
 import { skipErrorToast } from '../../app/core/interceptors';
 import { ArrowLeftIcon, TicketXIcon, TriangleAlertIcon, XIcon } from '../../shared/icons';
+import type { Seat, SeatCategory } from 'cinefy-ui/types';
 import type {
   ApiError,
-  Seat,
   SelectableSeatCategory,
-  SeatKind,
   SeatLayout,
   SeatLayoutResponse,
   TicketPrice,
 } from '../../shared/types';
 
-function seatKind(id: string, layout: SeatLayout, bookingPositions: Set<string>): SeatKind {
+function seatCategory(id: string, layout: SeatLayout): SeatCategory {
   if (layout.categories.AISLE?.includes(id)) return 'AISLE';
-  if ((layout.reserved.includes(id) && !bookingPositions.has(id)) || layout.onSiteOnly.includes(id))
-    return 'TAKEN';
   if (layout.categories.VIP?.includes(id)) return 'VIP';
   return 'NORMAL';
 }
@@ -50,16 +51,22 @@ function buildHall(response: SeatLayoutResponse, bookingPositions: Set<string>):
     return Array.from({ length: seatsPerRow }, (_, c) => {
       const number = c + 1;
       const id = `${row}${number}`;
-      return { id, row, number, kind: seatKind(id, layout, bookingPositions) };
+      return {
+        id,
+        row,
+        number,
+        category: seatCategory(id, layout),
+        onSiteOnly: layout.onSiteOnly.includes(id),
+        taken: layout.reserved.includes(id) && !bookingPositions.has(id),
+      };
     });
   });
 }
 
 function priceByCategory(pricing: TicketPrice[]): Record<SelectableSeatCategory, number> {
-  return pricing.reduce(
-    (acc, { seatCategory, price }) => ({ ...acc, [seatCategory]: price }),
-    {} as Record<SelectableSeatCategory, number>,
-  );
+  return Object.fromEntries(
+    pricing.map(({ seatCategory, price }) => [seatCategory, price]),
+  ) as Record<SelectableSeatCategory, number>;
 }
 
 @Component({

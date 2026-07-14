@@ -3,15 +3,10 @@ import { CurrencyPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { SEAT_CATEGORY_LABEL, type Seat } from 'cinefy-ui/types';
 import { InfoIcon } from '../../../shared/icons';
 import { BookingService } from '../../../services';
-import {
-  SEAT_KIND_LABEL,
-  type BookedSeat,
-  type BookingRequest,
-  type Seat,
-  type SelectableSeatCategory,
-} from '../../../shared/types';
+import type { BookedSeat, BookingRequest, SelectableSeatCategory } from '../../../shared/types';
 
 @Component({
   selector: 'booking-summary',
@@ -23,7 +18,7 @@ export class BookingSummaryComponent {
   protected readonly icons = {
     InfoIcon,
   };
-  protected readonly seatKindLabel = SEAT_KIND_LABEL;
+  protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
 
   private readonly router = inject(Router);
   private readonly bookingService = inject(BookingService);
@@ -37,7 +32,7 @@ export class BookingSummaryComponent {
   protected readonly seats = computed<BookedSeat[]>(() => {
     const prices = this.prices();
     return this.selectedSeats().map((seat) => {
-      const category = seat.kind as SelectableSeatCategory;
+      const category = seat.category as SelectableSeatCategory;
       return { position: seat.id, category, price: prices[category] };
     });
   });
