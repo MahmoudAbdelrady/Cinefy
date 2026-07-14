@@ -11,136 +11,269 @@
 
 .rs-layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 365px;
   align-items: start;
   gap: 24px;
 
   @include below-tablet {
     grid-template-columns: 1fr;
   }
-}
 
-.rs-seats {
-  min-width: 0;
-}
+  .rs-seats {
+    min-width: 0;
 
-.rs-screen {
-  @include flex-center;
+    .rs-screen {
+      @include flex-center;
 
-  margin-bottom: 24px;
-  padding: 6px;
-  border-radius: $radius-md;
-  background: linear-gradient(to bottom, $gray-800, $gray-700);
-  box-shadow: $shadow-md;
+      margin-bottom: 24px;
+      padding: 6px;
+      border-radius: $radius-md;
+      background: linear-gradient(to bottom, $gray-800, $gray-700);
+      box-shadow: $shadow-md;
 
-  span {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    color: #ffffff;
+      span {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        color: #ffffff;
+      }
+    }
+  }
+
+  .rs-summary {
+    display: flex;
+    position: sticky;
+    top: 0;
+    flex-direction: column;
+    padding: 20px;
+    border: 1px solid $gray-200;
+    border-radius: $radius-lg;
+    background-color: $gray-50;
+
+    @include below-tablet {
+      position: static;
+    }
+
+    .rs-summary-title {
+      margin-bottom: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      color: $gray-900;
+    }
+
+    .rs-summary-empty {
+      @include flex-center;
+      @include lucide-icon-fix;
+
+      flex-direction: column;
+      gap: 8px;
+      padding: 40px 0;
+      color: $gray-500;
+
+      svg {
+        opacity: 0.4;
+      }
+
+      p {
+        font-size: 14px;
+      }
+    }
+
+    .rs-selected {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+
+      .rs-selected-item {
+        @include flex-between;
+
+        padding: 8px 12px;
+        border: 1px solid $gray-200;
+        border-radius: $radius-md;
+        background-color: #ffffff;
+        font-size: 14px;
+
+        .rss-seat {
+          @include flex-align;
+
+          gap: 8px;
+
+          .rss-id {
+            font-weight: 600;
+            color: $gray-900;
+          }
+
+          .rss-kind {
+            font-size: 12px;
+            color: $gray-500;
+          }
+        }
+
+        .rss-price {
+          color: $gray-700;
+          font-variant-numeric: tabular-nums;
+        }
+      }
+    }
+
+    .rs-total {
+      @include flex-between;
+
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid $gray-200;
+      font-weight: 600;
+      color: $gray-900;
+
+      .rs-total-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: $blue-600;
+        font-variant-numeric: tabular-nums;
+      }
+    }
+
+    .rs-book {
+      @include flex-center;
+
+      gap: 8px;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .rs-payment {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 20px;
+
+      .rs-payment-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .rs-change {
+          font-size: 12px;
+          color: $gray-600;
+
+          .rs-change-value {
+            font-weight: 600;
+            color: $gray-900;
+            font-variant-numeric: tabular-nums;
+          }
+        }
+      }
+
+      .rs-complete {
+        @include flex-center;
+
+        gap: 8px;
+        width: 100%;
+      }
+    }
+
+    .rs-cancel {
+      @include flex-center;
+
+      gap: 8px;
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px 24px;
+      border-radius: $radius-md;
+      font-size: 14px;
+      font-weight: 500;
+      color: $gray-600;
+      transition:
+        color 0.2s,
+        background-color 0.2s;
+
+      &:hover:not(:disabled) {
+        background-color: $red-50;
+        color: $red-600;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
   }
 }
 
-.rs-summary {
-  display: flex;
-  position: sticky;
-  top: 0;
-  flex-direction: column;
-  padding: 20px;
-  border: 1px solid $gray-200;
-  border-radius: $radius-lg;
-  background-color: $gray-50;
+.rs-cancel-modal-content {
+  text-align: center;
 
-  @include below-tablet {
-    position: static;
+  .rcm-icon {
+    @include flex-center;
+
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border-radius: $radius-full;
+    background-color: $red-50;
+
+    svg {
+      display: flex;
+      color: $red-600;
+    }
+  }
+
+  .rcm-message {
+    margin-bottom: 24px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: $gray-600;
   }
 }
 
-.rs-summary-title {
-  margin-bottom: 16px;
-  font-size: 16px;
-  font-weight: 600;
-  color: $gray-900;
+.rs-dialog-footer {
+  @include flex-align;
+
+  gap: 12px;
+  width: 100%;
+
+  button {
+    flex: 1;
+  }
 }
 
-.rs-summary-empty {
+.rs-done {
   @include flex-center;
   @include lucide-icon-fix;
 
   flex-direction: column;
-  gap: 8px;
-  padding: 40px 0;
-  color: $gray-500;
+  padding: 48px 24px;
+  text-align: center;
 
-  svg {
-    opacity: 0.4;
+  .rs-done-icon {
+    @include flex-center;
+
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    border-radius: $radius-full;
+    background-color: $green-100;
+    color: $green-600;
   }
 
-  p {
+  .rs-done-title {
+    margin-bottom: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: $gray-900;
+  }
+
+  .rs-done-message {
+    margin-bottom: 24px;
     font-size: 14px;
+    color: $gray-600;
   }
-}
 
-.rs-selected {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 220px;
-  overflow-y: auto;
-}
+  .rs-done-action {
+    @include flex-center;
 
-.rs-selected-item {
-  @include flex-between;
-
-  padding: 8px 12px;
-  border: 1px solid $gray-200;
-  border-radius: $radius-md;
-  background-color: #ffffff;
-  font-size: 14px;
-}
-
-.rss-seat {
-  @include flex-align;
-
-  gap: 8px;
-}
-
-.rss-id {
-  font-weight: 600;
-  color: $gray-900;
-}
-
-.rss-kind {
-  font-size: 12px;
-  color: $gray-500;
-}
-
-.rss-price {
-  color: $gray-700;
-  font-variant-numeric: tabular-nums;
-}
-
-.rs-total {
-  @include flex-between;
-
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid $gray-200;
-  font-weight: 600;
-  color: $gray-900;
-}
-
-.rs-total-value {
-  font-size: 18px;
-  font-weight: 700;
-  color: $blue-600;
-  font-variant-numeric: tabular-nums;
-}
-
-.rs-book {
-  @include flex-center;
-
-  gap: 8px;
-  width: 100%;
-  margin-top: 20px;
+    gap: 8px;
+  }
 }

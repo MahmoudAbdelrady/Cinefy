@@ -366,6 +366,48 @@ POST   /payment-methods/:id/status       # Toggle active/inactive
 - Responsive mixins: `below-phone/mobile/tablet/desktop` and `from-phone/mobile/tablet/desktop` (mobile-first by default).
 - **Flag new raw values before adding them** — if a color, shadow, gradient, or other "designed" value is not already in `src/shared/styles/`, surface it before writing: name the value, the closest existing token, and how they differ, then wait for the user to choose keep / replace with token / extract to shared. Doesn't apply to plain layout numbers (paddings, gaps, line-heights).
 
+### Nested SCSS
+
+**Write SCSS nested, not flat.** A rule for a child element belongs **inside** its parent's block, not as a sibling selector at the top level. This mirrors the template's structure in the stylesheet, so a block reads as one self-contained region and its parts can't drift away from it as the file grows.
+
+Nest by the **element's place in the template**, not by the class-name prefix. A `.rs-done-icon` that renders inside `.rs-done` nests under it — the shared prefix is a hint, but the template is what decides. Element selectors (`svg`, `p`, `span`) and state selectors (`&:hover`, `&:disabled`, `&.expiring`) nest the same way, as do responsive mixins (`@include below-tablet { ... }`).
+
+```scss
+// ✅ Nested — children live inside the parent
+.rs-done {
+  @include flex-center;
+
+  flex-direction: column;
+  padding: 48px 24px;
+
+  .rs-done-icon {
+    @include flex-center;
+
+    width: 64px;
+    height: 64px;
+    border-radius: $radius-full;
+    background-color: $green-100;
+  }
+
+  .rs-done-title {
+    font-size: 20px;
+    font-weight: 700;
+  }
+}
+
+// ❌ Flat — siblings at the top level, structure lost
+.rs-done { ... }
+.rs-done-icon { ... }
+.rs-done-title { ... }
+```
+
+Two limits:
+
+- **Don't use `&-` name concatenation** (`&-icon { }` to build `.rs-done-icon`). It saves a few characters but makes the full class name ungreppable — searching `rs-done-icon` finds nothing. Write the selector out in full inside the parent.
+- **Don't nest past ~3 levels.** Deep nesting produces long, high-specificity selectors that are hard to override. If a block gets that deep, the markup usually wants a flatter class instead.
+
+**Top-level siblings are still correct** for genuinely sibling regions — the stage-level blocks (`.rs-loading`, `.rs-layout`, `.rs-done`) or `:host`. Nesting expresses containment; it isn't a mandate to bury every rule.
+
 ### Prettier
 
 Configured in `package.json`: 100-char width, single quotes, Angular HTML parser.

@@ -23,4 +23,20 @@ interface ShowtimeSeatSelection {
   hallLayout: ShowtimeHallLayout;
 }
 
-export type { ShowtimeSeatLayout, ShowtimeHallLayout, ShowtimeSeatSelection };
+type PaymentType = 'CASH' | 'CARD';
+
+interface StaffBookingRequest {
+  showtimeId: string;
+  positions: string[];
+  paymentType: PaymentType;
+  paidAmount?: number;
+  paymentReference?: string;
+}
+
+export type {
+  ShowtimeSeatLayout,
+  ShowtimeHallLayout,
+  ShowtimeSeatSelection,
+  PaymentType,
+  StaffBookingRequest,
+};
