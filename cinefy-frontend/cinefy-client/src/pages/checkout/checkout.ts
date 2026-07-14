@@ -17,12 +17,13 @@ import { NgpDialogTrigger, NgpDialogManager } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   EmptyStateComponent,
+  HoldTimerComponent,
   InputField,
   LoadingSpinnerComponent,
   MediaImageComponent,
   ModalComponent,
 } from 'cinefy-ui/components';
-import { BookingCancelledComponent, HoldTimerComponent } from '../../components';
+import { BookingCancelledComponent } from '../../components';
 import { BookingService } from '../../services';
 import { skipErrorToast } from '../../app/core/interceptors';
 import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';

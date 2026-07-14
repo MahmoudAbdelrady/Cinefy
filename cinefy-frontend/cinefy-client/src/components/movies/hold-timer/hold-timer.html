@@ -1,6 +1,0 @@
-@if (countdown(); as time) {
-  <div class="hold-timer" [class.expiring]="expiring()">
-    <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
-    <span class="hold-timer-value">{{ time }}</span>
-  </div>
-}

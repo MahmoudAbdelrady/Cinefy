@@ -1,26 +1,28 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
-import { LucideDynamicIcon } from '@lucide/angular';
-import { differenceInSeconds } from 'date-fns';
-import { ClockIcon } from '../../../shared/icons';
+import { Component, computed, effect, input, InputSignal, output, signal } from "@angular/core";
+import { LucideDynamicIcon } from "@lucide/angular";
+import { differenceInSeconds } from "date-fns";
+import { ClockIcon } from "../icons";
+
+const EXPIRING_THRESHOLD_SECONDS = 120;
 
 function formatCountdown(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
 @Component({
-  selector: 'hold-timer',
+  selector: "hold-timer",
   imports: [LucideDynamicIcon],
-  templateUrl: './hold-timer.html',
-  styleUrl: './hold-timer.scss',
+  templateUrl: "./hold-timer.html",
+  styleUrl: "./hold-timer.scss",
 })
 export class HoldTimerComponent {
   protected readonly icons = {
     ClockIcon,
   };
 
-  readonly expiresAt = input<string>();
+  readonly expiresAt: InputSignal<string | undefined> = input<string>();
 
   readonly expired = output<void>();
 
@@ -28,7 +30,7 @@ export class HoldTimerComponent {
 
   protected readonly expiring = computed(() => {
     const seconds = this.secondsLeft();
-    return seconds !== null && seconds <= 120;
+    return seconds !== null && seconds <= EXPIRING_THRESHOLD_SECONDS;
   });
   protected readonly countdown = computed(() => {
     const seconds = this.secondsLeft();

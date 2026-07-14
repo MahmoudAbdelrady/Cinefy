@@ -152,6 +152,9 @@ importers:
       "@lucide/angular":
         specifier: ^1.18.0
         version: 1.18.0(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))
+      date-fns:
+        specifier: ^4.4.0
+        version: 4.4.0
       libphonenumber-js:
         specifier: ^1.13.2
         version: 1.13.3

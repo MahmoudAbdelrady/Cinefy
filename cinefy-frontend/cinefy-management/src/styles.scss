@@ -69,6 +69,12 @@
   --cui-seat-taken-border: #{$gray-300};
   --cui-seat-legend-surface: #{$gray-50};
 
+  // Hold timer
+  --cui-hold-timer-surface: #{$gray-50};
+  --cui-hold-timer-expiring-surface: #{$red-50};
+  --cui-hold-timer-expiring-border: #{$red-200};
+  --cui-hold-timer-expiring-text: #{$red-600};
+
   // Misc
   --cui-scrollbar-thumb: #{$gray-300};
 

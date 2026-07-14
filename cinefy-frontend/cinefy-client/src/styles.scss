@@ -84,6 +84,12 @@
   --cui-seat-taken-border: #{rgba($color-foreground, 0.15)};
   --cui-seat-legend-surface: #{rgba($color-card, 0.5)};
 
+  // Hold timer
+  --cui-hold-timer-surface: #{$color-card};
+  --cui-hold-timer-expiring-surface: #{rgba($color-destructive, 0.1)};
+  --cui-hold-timer-expiring-border: #{rgba($color-destructive, 0.6)};
+  --cui-hold-timer-expiring-text: #{$color-destructive};
+
   // Misc
   --cui-scrollbar-thumb: #{$color-secondary};
 }
