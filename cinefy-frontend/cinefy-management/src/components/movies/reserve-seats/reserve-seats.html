@@ -16,7 +16,7 @@
     <h3 class="rs-done-title">Payment complete</h3>
     <p class="rs-done-message">The seats are booked and the ticket has been issued.</p>
 
-    <button type="button" class="btn-primary rs-done-action" (click)="startNewBooking()">
+    <button type="button" class="btn-primary rs-done-action" (click)="resetBooking()">
       <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
       <span>Book more seats</span>
     </button>
@@ -62,9 +62,18 @@
         </div>
 
         @if (stage() === 'seats') {
-          <button type="button" class="btn-primary rs-book" (click)="onBook()">
-            <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
-            <span>Book</span>
+          <button
+            type="button"
+            class="btn-primary rs-book"
+            [disabled]="booking()"
+            (click)="onBook()"
+          >
+            @if (booking()) {
+              <loading-spinner variant="xs" />
+            } @else {
+              <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+              <span>Book</span>
+            }
           </button>
         } @else {
           <form class="rs-payment" [formGroup]="paymentForm" (ngSubmit)="completePayment()">
@@ -137,9 +146,20 @@
       </div>
 
       <div modal-footer class="rs-dialog-footer">
-        <button type="button" class="btn-secondary" (click)="close()">Keep booking</button>
-        <button type="button" class="btn-danger" (click)="cancelPayment(close)">
-          Cancel booking
+        <button type="button" class="btn-secondary" [disabled]="cancelling()" (click)="close()">
+          Keep booking
+        </button>
+        <button
+          type="button"
+          class="btn-danger"
+          [disabled]="cancelling()"
+          (click)="cancelPayment(close)"
+        >
+          @if (cancelling()) {
+            <loading-spinner variant="xs" />
+          } @else {
+            Cancel booking
+          }
         </button>
       </div>
     </app-modal>

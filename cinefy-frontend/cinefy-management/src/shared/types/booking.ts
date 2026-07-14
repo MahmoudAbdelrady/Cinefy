@@ -13,6 +13,12 @@ interface ShowtimeHallLayout {
   ticketPricing: TicketPricing[];
 }
 
+interface ActiveBooking {
+  id: string;
+  positions: string[];
+  expiresAt: string;
+}
+
 interface ShowtimeSeatSelection {
   movieTitle: string;
   startDateTime: string;
@@ -21,13 +27,21 @@ interface ShowtimeSeatSelection {
   is3D: boolean;
   fullyReserved: boolean;
   hallLayout: ShowtimeHallLayout;
+  activeBooking?: ActiveBooking;
 }
 
 type PaymentType = 'CASH' | 'CARD';
 
-interface StaffBookingRequest {
+interface BookingRequest {
   showtimeId: string;
-  positions: string[];
+  seats: string[];
+}
+
+interface Booking {
+  id: string;
+}
+
+interface StaffPaymentRequest {
   paymentType: PaymentType;
   paidAmount?: number;
   paymentReference?: string;
@@ -36,7 +50,10 @@ interface StaffBookingRequest {
 export type {
   ShowtimeSeatLayout,
   ShowtimeHallLayout,
+  ActiveBooking,
   ShowtimeSeatSelection,
   PaymentType,
-  StaffBookingRequest,
+  BookingRequest,
+  Booking,
+  StaffPaymentRequest,
 };

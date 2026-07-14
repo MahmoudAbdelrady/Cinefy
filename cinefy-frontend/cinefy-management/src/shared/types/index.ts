@@ -72,7 +72,10 @@ export type {
 export type {
   ShowtimeSeatLayout,
   ShowtimeHallLayout,
+  ActiveBooking,
   ShowtimeSeatSelection,
   PaymentType,
-  StaffBookingRequest,
+  BookingRequest,
+  Booking,
+  StaffPaymentRequest,
 } from './booking';

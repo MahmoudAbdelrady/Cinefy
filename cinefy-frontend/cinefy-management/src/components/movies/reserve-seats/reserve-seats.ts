@@ -1,5 +1,5 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
+import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
@@ -16,10 +16,12 @@ import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/typ
 import { BookingService } from '../../../services';
 import { CheckIcon, InfoIcon, TicketIcon, WarningIcon, XIcon } from '../../../shared/icons';
 import type {
+  Booking,
+  BookingRequest,
   PaymentType,
   ShowtimeHallLayout,
   ShowtimeSeatLayout,
-  StaffBookingRequest,
+  StaffPaymentRequest,
 } from '../../../shared/types';
 
 interface PaymentTypeEntry {
@@ -84,6 +86,7 @@ export class ReserveSeatsComponent {
   };
 
   private readonly bookingService = inject(BookingService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
   protected readonly paymentTypeEntries = PAYMENT_TYPE_ENTRIES;
@@ -93,6 +96,10 @@ export class ReserveSeatsComponent {
 
   protected readonly selectedSeats = signal<Seat[]>([]);
   protected readonly stage = signal<'seats' | 'payment' | 'done'>('seats');
+  protected readonly booking = signal(false);
+  protected readonly cancelling = signal(false);
+
+  private readonly activeBooking = signal<Booking | null>(null);
 
   protected readonly paymentForm = new FormGroup({
     paymentType: new FormControl<PaymentType | null>(null, {
@@ -151,8 +158,25 @@ export class ReserveSeatsComponent {
   }
 
   protected onBook(): void {
-    // TODO: Call /booking API
-    this.stage.set('payment');
+    const request: BookingRequest = {
+      showtimeId: this.showtimeId(),
+      seats: this.pricedSeats().map(({ seat }) => seat.id),
+    };
+    const idempotencyKey = crypto.randomUUID();
+
+    this.booking.set(true);
+    this.bookingService
+      .createBooking(request, idempotencyKey)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (booking) => {
+          this.booking.set(false);
+          this.activeBooking.set(booking);
+          this.seatSelectionResource.reload();
+          this.stage.set('payment');
+        },
+        error: () => this.booking.set(false),
+      });
   }
 
   protected onPaymentTypeChange(entry: PaymentTypeEntry): void {
@@ -172,12 +196,11 @@ export class ReserveSeatsComponent {
   }
 
   protected completePayment(): void {
+    const booking = this.activeBooking();
     const { paymentType, paidAmount, paymentReference } = this.paymentForm.getRawValue();
-    if (!paymentType) return;
+    if (!booking || !paymentType) return;
 
-    const request: StaffBookingRequest = {
-      showtimeId: this.showtimeId(),
-      positions: this.pricedSeats().map(({ seat }) => seat.id),
+    const request: StaffPaymentRequest = {
       paymentType,
       ...(paymentType === 'CASH'
         ? { paidAmount: paidAmount ?? 0 }
@@ -189,19 +212,29 @@ export class ReserveSeatsComponent {
     this.stage.set('done');
   }
 
-  protected startNewBooking(): void {
-    this.selectedSeats.set([]);
-    this.paymentForm.reset({ paymentType: null, paidAmount: null, paymentReference: '' });
-    this.stage.set('seats');
-    this.seatSelectionResource.reload();
+  protected cancelPayment(close: () => void): void {
+    const booking = this.activeBooking();
+    if (!booking || this.cancelling()) return;
+
+    this.cancelling.set(true);
+    this.bookingService
+      .cancelBooking(booking.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.cancelling.set(false);
+          this.resetBooking();
+          close();
+        },
+        error: () => this.cancelling.set(false),
+      });
   }
 
-  protected cancelPayment(close: () => void): void {
-    // TODO: Call backend for cancelling
+  protected resetBooking(): void {
     this.selectedSeats.set([]);
+    this.activeBooking.set(null);
     this.paymentForm.reset({ paymentType: null, paidAmount: null, paymentReference: '' });
     this.stage.set('seats');
     this.seatSelectionResource.reload();
-    close();
   }
 }
