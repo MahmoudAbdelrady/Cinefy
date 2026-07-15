@@ -25,6 +25,7 @@ import {
 } from 'cinefy-ui/components';
 import { BookingCancelledComponent } from '../../components';
 import { BookingService } from '../../services';
+import { comparePositions } from '../../shared/seat-position';
 import { skipErrorToast } from '../../app/core/interceptors';
 import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
 import type { ApiError } from '../../shared/types';
@@ -115,6 +116,10 @@ export class CheckoutPage {
 
   protected readonly timerExpiresAt = computed(() =>
     this.cancelled() ? undefined : this.booking()?.expiresAt,
+  );
+
+  protected readonly seats = computed(() =>
+    [...(this.booking()?.seats ?? [])].sort((a, b) => comparePositions(a.position, b.position)),
   );
 
   protected readonly seatsSubtotal = computed(() =>

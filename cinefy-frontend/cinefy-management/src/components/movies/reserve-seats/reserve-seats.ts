@@ -2,11 +2,13 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   input,
   linkedSignal,
   signal,
   TemplateRef,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -25,6 +27,7 @@ import {
 } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
 import { BookingService } from '../../../services';
+import { comparePositions } from '../../halls/seat-layout';
 import {
   CheckIcon,
   ClockIcon,
@@ -35,6 +38,7 @@ import {
 } from '../../../shared/icons';
 import type {
   ActiveBooking,
+  BookedSeat,
   BookingRequest,
   PaymentType,
   ShowtimeHallLayout,
@@ -151,21 +155,6 @@ export class ReserveSeatsComponent {
     this.activeBooking() ? 'payment' : 'seats',
   );
 
-  protected readonly bookedSeats = computed(() => this.activeBooking()?.seats ?? []);
-
-  protected readonly hall = computed<Seat[][]>(() => {
-    const layout = this.seatSelection()?.hallLayout;
-    return layout ? buildHall(layout, new Set(this.bookedSeats())) : [];
-  });
-
-  protected readonly selectedSeats = linkedSignal<Seat[]>(() => {
-    const booked = new Set(this.bookedSeats());
-    if (!booked.size) return [];
-    return this.hall()
-      .flat()
-      .filter((seat) => booked.has(seat.id));
-  });
-
   private readonly prices = computed<Partial<Record<SeatCategory, number>>>(() => {
     const pricing = this.seatSelection()?.hallLayout.ticketPricing ?? [];
     return pricing.reduce<Partial<Record<SeatCategory, number>>>(
@@ -174,10 +163,21 @@ export class ReserveSeatsComponent {
     );
   });
 
-  protected readonly pricedSeats = computed(() =>
-    this.selectedSeats()
-      .map((seat) => ({ seat, price: this.prices()[seat.category] ?? 0 }))
-      .sort((a, b) => a.seat.row.localeCompare(b.seat.row) || a.seat.number - b.seat.number),
+  protected readonly bookedSeats = signal<BookedSeat[]>([]);
+
+  protected readonly selectedSeats = linkedSignal<BookedSeat[]>(() => this.bookedSeats());
+
+  protected readonly bookedSeatIds = computed(() =>
+    this.bookedSeats().map((seat) => seat.position),
+  );
+
+  protected readonly hall = computed<Seat[][]>(() => {
+    const layout = this.seatSelection()?.hallLayout;
+    return layout ? buildHall(layout, new Set(this.bookedSeatIds())) : [];
+  });
+
+  protected readonly pricedSeats = computed<BookedSeat[]>(() =>
+    [...this.selectedSeats()].sort((a, b) => comparePositions(a.position, b.position)),
   );
 
   protected readonly total = computed(() =>
@@ -196,14 +196,35 @@ export class ReserveSeatsComponent {
   protected readonly paymentTypeLabel = (entry: PaymentTypeEntry) => entry.label;
   protected readonly paymentTypeValue = (entry: PaymentTypeEntry) => entry.value;
 
+  constructor() {
+    effect(() => {
+      const layout = this.seatSelection()?.hallLayout;
+      const seats = this.activeBooking()?.seats;
+      if (!layout || !seats || untracked(this.bookedSeats).length) return;
+
+      this.bookedSeats.set(
+        seats.map((position) => {
+          const category = seatCategory(position, layout.layout);
+          return { position, category, price: this.prices()[category] ?? 0 };
+        }),
+      );
+    });
+  }
+
   protected onSelectionChange(seats: Seat[]): void {
-    this.selectedSeats.set(seats);
+    this.selectedSeats.set(
+      seats.map((seat) => ({
+        position: seat.id,
+        category: seat.category,
+        price: this.prices()[seat.category] ?? 0,
+      })),
+    );
   }
 
   protected onBook(): void {
     const request: BookingRequest = {
       showtimeId: this.showtimeId(),
-      seats: this.pricedSeats().map(({ seat }) => seat.id),
+      seats: this.selectedSeats().map((seat) => seat.position),
     };
     const idempotencyKey = crypto.randomUUID();
 
@@ -212,8 +233,14 @@ export class ReserveSeatsComponent {
       .createBooking(request, idempotencyKey)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (detail) => {
           this.booking.set(false);
+          this.bookedSeats.set(detail.seats);
+          this.activeBooking.set({
+            id: detail.id,
+            seats: request.seats,
+            expiresAt: detail.expiresAt,
+          });
           this.seatSelectionResource.reload();
           this.stage.set('payment');
         },
@@ -278,7 +305,7 @@ export class ReserveSeatsComponent {
   }
 
   protected resetBooking(): void {
-    this.selectedSeats.set([]);
+    this.bookedSeats.set([]);
     this.activeBooking.set(null);
     this.paymentForm.reset({ paymentType: null, paidAmount: null, paymentReference: '' });
     this.stage.set('seats');

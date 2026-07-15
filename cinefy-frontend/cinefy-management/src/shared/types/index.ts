@@ -75,6 +75,8 @@ export type {
   ActiveBooking,
   ShowtimeSeatSelection,
   PaymentType,
+  BookedSeat,
+  BookingDetail,
   BookingRequest,
   StaffPaymentRequest,
 } from './booking';

@@ -125,7 +125,7 @@
                   </dt>
                 </div>
                 <ul class="co-seats">
-                  @for (seat of summary.seats; track seat.position) {
+                  @for (seat of seats(); track seat.position) {
                     <li class="co-seat">
                       <span class="co-seat-label">
                         <span class="co-seat-position">{{ seat.position }}</span>

@@ -1,4 +1,5 @@
 import type { SeatCategory, TicketPricing } from './halls';
+import type { MovieSearchResult } from './movies';
 
 interface ShowtimeSeatLayout {
   categories: Partial<Record<SeatCategory, string[]>>;
@@ -32,6 +33,24 @@ interface ShowtimeSeatSelection {
 
 type PaymentType = 'CASH' | 'CARD';
 
+interface BookedSeat {
+  position: string;
+  category: SeatCategory;
+  price: number;
+}
+
+interface BookingDetail {
+  id: string;
+  expiresAt: string;
+  movie: MovieSearchResult;
+  showtimeId: string;
+  startDateTime: string;
+  hallName: string;
+  hallType: string;
+  is3D: boolean;
+  seats: BookedSeat[];
+}
+
 interface BookingRequest {
   showtimeId: string;
   seats: string[];
@@ -49,6 +68,8 @@ export type {
   ActiveBooking,
   ShowtimeSeatSelection,
   PaymentType,
+  BookedSeat,
+  BookingDetail,
   BookingRequest,
   StaffPaymentRequest,
 };

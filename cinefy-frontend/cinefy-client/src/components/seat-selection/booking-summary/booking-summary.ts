@@ -6,6 +6,7 @@ import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat } from 'cinefy-ui/types';
 import { InfoIcon } from '../../../shared/icons';
 import { BookingService } from '../../../services';
+import { comparePositions } from '../../../shared/seat-position';
 import type { BookedSeat, BookingRequest, SelectableSeatCategory } from '../../../shared/types';
 
 @Component({
@@ -31,10 +32,12 @@ export class BookingSummaryComponent {
 
   protected readonly seats = computed<BookedSeat[]>(() => {
     const prices = this.prices();
-    return this.selectedSeats().map((seat) => {
-      const category = seat.category as SelectableSeatCategory;
-      return { position: seat.id, category, price: prices[category] };
-    });
+    return this.selectedSeats()
+      .map((seat) => {
+        const category = seat.category as SelectableSeatCategory;
+        return { position: seat.id, category, price: prices[category] };
+      })
+      .sort((a, b) => comparePositions(a.position, b.position));
   });
 
   protected readonly total = computed(() =>

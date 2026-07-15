@@ -30,7 +30,7 @@
 
       <seat-map
         [rows]="hall()"
-        [initialSelectedIds]="bookedSeats()"
+        [initialSelectedIds]="bookedSeatIds()"
         [allowOnSiteOnly]="true"
         (selectionChange)="onSelectionChange($event)"
       />
@@ -58,11 +58,11 @@
         </div>
       } @else {
         <ul class="rs-selected">
-          @for (entry of pricedSeats(); track entry.seat.id) {
+          @for (entry of pricedSeats(); track entry.position) {
             <li class="rs-selected-item">
               <span class="rss-seat">
-                <span class="rss-id">{{ entry.seat.id }}</span>
-                <span class="rss-kind">{{ seatCategoryLabel[entry.seat.category] }}</span>
+                <span class="rss-id">{{ entry.position }}</span>
+                <span class="rss-kind">{{ seatCategoryLabel[entry.category] }}</span>
               </span>
               <span class="rss-price">{{ entry.price | currency: 'USD' }}</span>
             </li>
