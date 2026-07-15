@@ -48,47 +48,6 @@
                       </span>
                     }
                   </div>
-                  @if (canManage()) {
-                    <div class="dsi-actions">
-                      <button
-                        class="dsi-action dsi-action-book"
-                        title="Book seats"
-                        [ngpDialogTrigger]="bookDialog"
-                      >
-                        <svg [lucideIcon]="icons.TicketIcon" [size]="14"></svg>
-                      </button>
-                      @if (showtimeDetail.status === 'DRAFT') {
-                        <button
-                          class="dsi-action dsi-action-publish"
-                          title="Publish"
-                          [disabled]="publishingShowtimeIds().has(showtimeDetail.id)"
-                          (click)="onPublishShowtime(showtimeDetail.id)"
-                        >
-                          @if (publishingShowtimeIds().has(showtimeDetail.id)) {
-                            <loading-spinner variant="xs" />
-                          } @else {
-                            <svg [lucideIcon]="icons.SendIcon" [size]="14"></svg>
-                          }
-                        </button>
-                      }
-                      @if (showtimeDetail.status !== 'RUNNING') {
-                        <button
-                          class="dsi-action dsi-action-edit"
-                          title="Edit"
-                          (click)="onEditShowtime(showtimeDetail)"
-                        >
-                          <svg [lucideIcon]="icons.EditIcon" [size]="14"></svg>
-                        </button>
-                        <button
-                          class="dsi-action dsi-action-delete"
-                          title="Delete"
-                          [ngpDialogTrigger]="deleteDialog"
-                        >
-                          <svg [lucideIcon]="icons.DeleteIcon" [size]="14"></svg>
-                        </button>
-                      }
-                    </div>
-                  }
 
                   <ng-template #bookDialog let-close="close">
                     <app-modal
@@ -172,6 +131,46 @@
                         (click)="toggleNote(showtimeDetail.id)"
                       >
                         {{ expanded ? 'View less' : 'View more…' }}
+                      </button>
+                    }
+                  </div>
+                }
+                @if (canManage()) {
+                  <div class="ds-actions">
+                    @if (showtimeDetail.status !== 'DRAFT') {
+                      <button class="dsi-action dsi-action-book" [ngpDialogTrigger]="bookDialog">
+                        <svg [lucideIcon]="icons.TicketIcon" [size]="15"></svg>
+                        <span>Book</span>
+                      </button>
+                    }
+                    @if (showtimeDetail.status === 'DRAFT') {
+                      <button
+                        class="dsi-action dsi-action-publish"
+                        [disabled]="publishingShowtimeIds().has(showtimeDetail.id)"
+                        (click)="onPublishShowtime(showtimeDetail.id)"
+                      >
+                        @if (publishingShowtimeIds().has(showtimeDetail.id)) {
+                          <loading-spinner variant="xs" />
+                        } @else {
+                          <svg [lucideIcon]="icons.SendIcon" [size]="15"></svg>
+                        }
+                        <span>Publish</span>
+                      </button>
+                    }
+                    @if (showtimeDetail.status !== 'RUNNING') {
+                      <button
+                        class="dsi-action dsi-action-edit"
+                        (click)="onEditShowtime(showtimeDetail)"
+                      >
+                        <svg [lucideIcon]="icons.EditIcon" [size]="15"></svg>
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        class="dsi-action dsi-action-delete"
+                        [ngpDialogTrigger]="deleteDialog"
+                      >
+                        <svg [lucideIcon]="icons.DeleteIcon" [size]="15"></svg>
+                        <span>Delete</span>
                       </button>
                     }
                   </div>

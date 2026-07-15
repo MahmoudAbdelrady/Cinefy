@@ -94,188 +94,206 @@
   @include from-tablet {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
-}
 
-.ds-item {
-  @include flex-column;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid $color-border;
-  border-radius: $radius-lg;
-  transition:
-    border-color 150ms ease,
-    background-color 150ms ease;
-
-  &:hover {
-    border-color: $blue-300;
-    background-color: rgba($blue-50, 0.5);
-  }
-}
-
-.ds-info {
-  @include flex-between;
-  gap: 12px;
-}
-
-.dsi-details {
-  @include flex-align;
-  gap: 12px;
-  flex-wrap: wrap;
-  min-width: 0;
-}
-
-.dsid-time {
-  font-size: 20px;
-  font-weight: 700;
-  color: $gray-900;
-}
-
-.dsid-location {
-  @include flex-align;
-  @include lucide-icon-fix;
-  gap: 6px;
-  font-size: 14px;
-  color: $gray-600;
-}
-
-.dsid-status {
-  padding: 4px 10px;
-  border-radius: $radius-full;
-  font-size: 12px;
-  font-weight: 600;
-  background-color: $green-100;
-  color: $green-700;
-
-  &[data-status='DRAFT'] {
-    background-color: $orange-100;
-    color: $orange-700;
-  }
-
-  &[data-status='RUNNING'] {
-    background-color: $blue-100;
-    color: $blue-700;
-  }
-}
-
-.dsi-actions {
-  @include flex-align;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.dsi-action {
-  @include flex-center;
-  @include lucide-icon-fix;
-  padding: 6px;
-  border-radius: $radius-md;
-  color: $gray-400;
-  cursor: pointer;
-  transition:
-    color 150ms ease,
-    background-color 150ms ease;
-
-  &.dsi-action-book:hover {
-    color: $green-600;
-    background-color: $green-100;
-  }
-
-  &.dsi-action-publish:hover {
-    color: $green-600;
-    background-color: $green-100;
-  }
-
-  &.dsi-action-edit:hover {
-    color: $blue-600;
-    background-color: $blue-100;
-  }
-
-  &.dsi-action-delete:hover {
-    color: $red-600;
-    background-color: rgba($red-400, 0.2);
-  }
-}
-
-.ds-notes {
-  @include flex-align;
-  @include lucide-icon-fix;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: $radius-md;
-  background-color: $gray-50;
-  color: $gray-600;
-  font-size: 12px;
-  font-style: italic;
-  width: 100%;
-  min-width: 0;
-
-  > svg {
-    flex-shrink: 0;
-    color: $gray-400;
-    align-self: flex-start;
-    margin-top: 2px;
-  }
-
-  .dsn-text {
-    @include text-truncate;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .dsn-toggle {
-    flex-shrink: 0;
-    padding: 0;
-    background: transparent;
-    border: none;
-    color: $blue-600;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 500;
-    cursor: pointer;
+  .ds-item {
+    @include flex-column;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid $color-border;
+    border-radius: $radius-lg;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease;
 
     &:hover {
-      color: $blue-700;
-      text-decoration: underline;
+      border-color: $blue-300;
+      background-color: rgba($blue-50, 0.5);
+    }
+
+    .ds-info {
+      min-width: 0;
+
+      .dsi-details {
+        @include flex-align;
+        gap: 12px;
+        flex-wrap: wrap;
+        min-width: 0;
+
+        .dsid-time {
+          font-size: 20px;
+          font-weight: 700;
+          color: $gray-900;
+        }
+
+        .dsid-location {
+          @include flex-align;
+          @include lucide-icon-fix;
+          gap: 6px;
+          font-size: 14px;
+          color: $gray-600;
+        }
+
+        .dsid-status {
+          padding: 4px 10px;
+          border-radius: $radius-full;
+          font-size: 12px;
+          font-weight: 600;
+          background-color: $green-100;
+          color: $green-700;
+
+          &[data-status='DRAFT'] {
+            background-color: $orange-100;
+            color: $orange-700;
+          }
+
+          &[data-status='RUNNING'] {
+            background-color: $blue-100;
+            color: $blue-700;
+          }
+        }
+      }
+    }
+
+    .ds-occupancy {
+      @include flex-align;
+      gap: 12px;
+
+      .dso-bar {
+        flex: 1;
+        height: 8px;
+        background-color: $gray-200;
+        border-radius: $radius-full;
+        overflow: hidden;
+
+        .dso-bar-fill {
+          height: 100%;
+          border-radius: $radius-full;
+          background: linear-gradient(to right, $blue-500, $purple-500);
+          transition: width 300ms ease;
+        }
+      }
+
+      .dso-percentage {
+        font-size: 12px;
+        color: $gray-500;
+        white-space: nowrap;
+        min-width: 96px;
+        text-align: right;
+      }
+    }
+
+    .ds-notes {
+      @include flex-align;
+      @include lucide-icon-fix;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: $radius-md;
+      background-color: $gray-50;
+      color: $gray-600;
+      font-size: 12px;
+      font-style: italic;
+      width: 100%;
+      min-width: 0;
+
+      > svg {
+        flex-shrink: 0;
+        color: $gray-400;
+        align-self: flex-start;
+        margin-top: 2px;
+      }
+
+      .dsn-text {
+        @include text-truncate;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .dsn-toggle {
+        flex-shrink: 0;
+        padding: 0;
+        background: transparent;
+        border: none;
+        color: $blue-600;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        cursor: pointer;
+
+        &:hover {
+          color: $blue-700;
+          text-decoration: underline;
+        }
+      }
+
+      &.expanded {
+        align-items: flex-start;
+
+        .dsn-text {
+          overflow: visible;
+          white-space: pre-wrap;
+          text-overflow: clip;
+          word-break: break-word;
+        }
+      }
+    }
+
+    .ds-actions {
+      @include flex-align;
+      gap: 8px;
+      margin-top: 4px;
+      padding-top: 12px;
+      border-top: 1px solid $color-border;
+
+      .dsi-action {
+        @include flex-center;
+        @include lucide-icon-fix;
+        flex: 1;
+        gap: 6px;
+        min-height: 36px;
+        padding: 8px 14px;
+        border: 1px solid $color-border;
+        border-radius: $radius-md;
+        font-size: 13px;
+        font-weight: 500;
+        color: $gray-600;
+        background-color: #ffffff;
+        cursor: pointer;
+        transition:
+          color 150ms ease,
+          border-color 150ms ease,
+          background-color 150ms ease;
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        &.dsi-action-book:hover:not(:disabled) {
+          color: $green-700;
+          border-color: $green-300;
+          background-color: $green-50;
+        }
+
+        &.dsi-action-publish:hover:not(:disabled) {
+          color: $green-700;
+          border-color: $green-300;
+          background-color: $green-50;
+        }
+
+        &.dsi-action-edit:hover:not(:disabled) {
+          color: $blue-700;
+          border-color: $blue-300;
+          background-color: $blue-50;
+        }
+
+        &.dsi-action-delete:hover:not(:disabled) {
+          color: $red-600;
+          border-color: rgba($red-400, 0.5);
+          background-color: $red-50;
+        }
+      }
     }
   }
-
-  &.expanded {
-    align-items: flex-start;
-
-    .dsn-text {
-      overflow: visible;
-      white-space: pre-wrap;
-      text-overflow: clip;
-      word-break: break-word;
-    }
-  }
-}
-
-.ds-occupancy {
-  @include flex-align;
-  gap: 12px;
-}
-
-.dso-bar {
-  flex: 1;
-  height: 8px;
-  background-color: $gray-200;
-  border-radius: $radius-full;
-  overflow: hidden;
-}
-
-.dso-bar-fill {
-  height: 100%;
-  border-radius: $radius-full;
-  background: linear-gradient(to right, $blue-500, $purple-500);
-  transition: width 300ms ease;
-}
-
-.dso-percentage {
-  font-size: 12px;
-  color: $gray-500;
-  white-space: nowrap;
-  min-width: 96px;
-  text-align: right;
 }
 
 .movie-showtimes-footer {
@@ -370,6 +388,67 @@
 
 // ─── Delete confirmation modal ───────────────────────────────────────────────
 
+.delete-modal-content {
+  text-align: center;
+
+  .dmc-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-full;
+    background-color: $red-50;
+    @include flex-center;
+    margin: 0 auto 16px;
+
+    svg {
+      display: flex;
+      color: $red-600;
+    }
+  }
+
+  .dmc-message {
+    font-size: 14px;
+    color: $gray-600;
+    line-height: 1.6;
+    margin-bottom: 24px;
+
+    strong {
+      color: $gray-900;
+    }
+  }
+
+  .dmc-warning {
+    @include flex-align;
+    gap: 8px;
+    text-align: left;
+    padding: 16px;
+    background-color: $red-50;
+    border: 1px solid rgba($red-400, 0.4);
+    border-radius: $radius-md;
+
+    > svg {
+      display: flex;
+      color: $red-600;
+      flex-shrink: 0;
+      align-self: flex-start;
+      margin-top: 2px;
+    }
+
+    p {
+      font-size: 14px;
+      color: $red-800;
+      margin-bottom: 4px;
+    }
+
+    ul {
+      font-size: 14px;
+      color: $red-800;
+      padding-left: 20px;
+      @include flex-column;
+      gap: 4px;
+    }
+  }
+}
+
 .delete-modal-footer {
   @include flex-align;
   gap: 12px;
@@ -377,66 +456,5 @@
 
   button {
     flex: 1;
-  }
-}
-
-.delete-modal-content {
-  text-align: center;
-}
-
-.dmc-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: $radius-full;
-  background-color: $red-50;
-  @include flex-center;
-  margin: 0 auto 16px;
-
-  svg {
-    display: flex;
-    color: $red-600;
-  }
-}
-
-.dmc-message {
-  font-size: 14px;
-  color: $gray-600;
-  line-height: 1.6;
-  margin-bottom: 24px;
-
-  strong {
-    color: $gray-900;
-  }
-}
-
-.dmc-warning {
-  @include flex-align;
-  gap: 8px;
-  text-align: left;
-  padding: 16px;
-  background-color: $red-50;
-  border: 1px solid rgba($red-400, 0.4);
-  border-radius: $radius-md;
-
-  > svg {
-    display: flex;
-    color: $red-600;
-    flex-shrink: 0;
-    align-self: flex-start;
-    margin-top: 2px;
-  }
-
-  p {
-    font-size: 14px;
-    color: $red-800;
-    margin-bottom: 4px;
-  }
-
-  ul {
-    font-size: 14px;
-    color: $red-800;
-    padding-left: 20px;
-    @include flex-column;
-    gap: 4px;
   }
 }
