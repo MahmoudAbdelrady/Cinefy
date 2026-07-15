@@ -63,12 +63,24 @@ public interface BookingRepository extends BaseRepository<Booking> {
             JOIN FETCH b.seats
             WHERE b.showtime.id = :showtimeId
             AND b.onHold = true
-            AND b.expiresAt > :now
-            AND (b.client.id = :userId OR b.bookedBy.id = :userId)
+            AND (CAST(:now AS LocalDateTime) IS NULL OR b.expiresAt > :now)
+            AND b.client.id = :clientId
             """)
-    Optional<Booking> findMyActiveBooking(@Param("showtimeId") Long showtimeId,
-                                          @Param("userId") Long userId,
-                                          @Param("now") LocalDateTime now);
+    Optional<Booking> findOnHoldByShowtimeAndClient(@Param("showtimeId") Long showtimeId,
+                                                    @Param("clientId") Long clientId,
+                                                    @Param("now") LocalDateTime now);
+
+    @Query("""
+            SELECT b FROM Booking b
+            JOIN FETCH b.seats
+            WHERE b.showtime.id = :showtimeId
+            AND b.onHold = true
+            AND (CAST(:now AS LocalDateTime) IS NULL OR b.expiresAt > :now)
+            AND b.bookedBy.id = :staffId
+            """)
+    Optional<Booking> findOnHoldByShowtimeAndBookedBy(@Param("showtimeId") Long showtimeId,
+                                                      @Param("staffId") Long staffId,
+                                                      @Param("now") LocalDateTime now);
 
     @Query("""
             SELECT b.id FROM Booking b
@@ -77,16 +89,6 @@ public interface BookingRepository extends BaseRepository<Booking> {
             ORDER BY b.expiresAt
             """)
     List<Long> findExpiredPendingIds(@Param("cutOffDate") LocalDateTime cutOffDate, Pageable pageable);
-
-    @Query("""
-            SELECT b FROM Booking b
-            JOIN FETCH b.seats
-            WHERE b.onHold = true
-            AND b.client.id = :clientId
-            AND b.showtime.id = :showtimeId
-            """)
-    Optional<Booking> findOnHoldByClientAndShowtime(@Param("clientId") Long clientId,
-                                                    @Param("showtimeId") Long showtimeId);
 
     @Query("""
             SELECT b FROM Booking b

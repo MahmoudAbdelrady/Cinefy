@@ -26,6 +26,7 @@ import {
   SeatMapComponent,
 } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
+import { ToastService } from 'cinefy-ui/services';
 import { BookingService } from '../../../services';
 import { comparePositions } from '../../halls/seat-layout';
 import {
@@ -110,6 +111,7 @@ export class ReserveSeatsComponent {
   };
 
   private readonly bookingService = inject(BookingService);
+  private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialogManager = inject(NgpDialogManager);
 
@@ -171,6 +173,10 @@ export class ReserveSeatsComponent {
     this.bookedSeats().map((seat) => seat.position),
   );
 
+  protected readonly selectedSeatIds = computed(() =>
+    this.selectedSeats().map((seat) => seat.position),
+  );
+
   protected readonly hall = computed<Seat[][]>(() => {
     const layout = this.seatSelection()?.hallLayout;
     return layout ? buildHall(layout, new Set(this.bookedSeatIds())) : [];
@@ -179,6 +185,14 @@ export class ReserveSeatsComponent {
   protected readonly pricedSeats = computed<BookedSeat[]>(() =>
     [...this.selectedSeats()].sort((a, b) => comparePositions(a.position, b.position)),
   );
+
+  protected readonly selectionChanged = computed(() => {
+    const selected = this.selectedSeatIds();
+    if (!selected.length) return false;
+
+    const booked = new Set(this.bookedSeatIds());
+    return selected.length !== booked.size || selected.some((position) => !booked.has(position));
+  });
 
   protected readonly total = computed(() =>
     this.pricedSeats().reduce((sum, { price }) => sum + price, 0),
@@ -224,7 +238,7 @@ export class ReserveSeatsComponent {
   protected onBook(): void {
     const request: BookingRequest = {
       showtimeId: this.showtimeId(),
-      seats: this.selectedSeats().map((seat) => seat.position),
+      seats: this.selectedSeatIds(),
     };
     const idempotencyKey = crypto.randomUUID();
 
@@ -234,6 +248,7 @@ export class ReserveSeatsComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (detail) => {
+          const updated = this.stage() === 'payment';
           this.booking.set(false);
           this.bookedSeats.set(detail.seats);
           this.activeBooking.set({
@@ -243,6 +258,9 @@ export class ReserveSeatsComponent {
           });
           this.seatSelectionResource.reload();
           this.stage.set('payment');
+          this.toastService.success(
+            updated ? 'Booking updated successfully' : 'Seats booked successfully',
+          );
         },
         error: () => this.booking.set(false),
       });
@@ -294,6 +312,7 @@ export class ReserveSeatsComponent {
           this.cancelling.set(false);
           this.resetBooking();
           close();
+          this.toastService.success('Booking cancelled successfully');
         },
         error: () => this.cancelling.set(false),
       });

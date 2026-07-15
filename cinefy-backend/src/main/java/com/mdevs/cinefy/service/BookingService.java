@@ -48,6 +48,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -130,7 +131,7 @@ public class BookingService {
         ActiveBookingDTO activeBooking = null;
         if (SecurityUtil.isAuthenticated()) {
             User user = currentUserService.loadCurrentUser();
-            activeBooking = bookingRepository.findMyActiveBooking(showtime.getId(), user.getId(), now)
+            activeBooking = findOnHoldBooking(showtime.getId(), user, now)
                     .map(this::toActiveBookingDTO)
                     .orElse(null);
         }
@@ -145,8 +146,8 @@ public class BookingService {
         User user = currentUserService.loadCurrentUser();
         LocalDateTime now = LocalDateTime.now();
 
-        List<Booking> bookings = user instanceof Client client
-                ? bookingRepository.findActiveOnHoldByClient(client.getId(), now)
+        List<Booking> bookings = user instanceof Client
+                ? bookingRepository.findActiveOnHoldByClient(user.getId(), now)
                 : bookingRepository.findActiveOnHoldByBookedBy(user.getId(), now);
 
         return bookings.stream().map(this::toBookingSummaryDTO).toList();
@@ -192,11 +193,9 @@ public class BookingService {
             bookingRepository.delete(expiredBooking);
         }
 
-        if (user instanceof Client client) {
-            Booking mutated = mutateActivePendingBooking(client, showtime, hall, dto.getSeats(), idempotencyKey);
-            if (mutated != null) {
-                return toBookingDetailDTO(mutated);
-            }
+        Booking mutated = mutateActivePendingBooking(user, showtime, hall, dto.getSeats(), idempotencyKey);
+        if (mutated != null) {
+            return toBookingDetailDTO(mutated);
         }
 
         Booking booking = buildBooking(showtime, hall, user, idempotencyKey);
@@ -254,6 +253,12 @@ public class BookingService {
                 .orElseThrow(() -> new NotFoundException("Booking not found or it may have been expired"));
     }
 
+    private Optional<Booking> findOnHoldBooking(Long showtimeId, User user, LocalDateTime now) {
+        return user instanceof Client
+                ? bookingRepository.findOnHoldByShowtimeAndClient(showtimeId, user.getId(), now)
+                : bookingRepository.findOnHoldByShowtimeAndBookedBy(showtimeId, user.getId(), now);
+    }
+
     private void validateSeats(Hall hall, List<String> requestedPositions, User user) {
         HallLayout layout = hall.getLayout();
         Set<String> seen = new LinkedHashSet<>();
@@ -290,11 +295,9 @@ public class BookingService {
         }
     }
 
-    private Booking mutateActivePendingBooking(Client client, Showtime showtime, Hall hall,
+    private Booking mutateActivePendingBooking(User user, Showtime showtime, Hall hall,
                                                List<String> requestedPositions, String idempotencyKey) {
-        Booking existing = bookingRepository
-                .findOnHoldByClientAndShowtime(client.getId(), showtime.getId())
-                .orElse(null);
+        Booking existing = findOnHoldBooking(showtime.getId(), user, null).orElse(null);
         if (existing == null) {
             return null;
         }

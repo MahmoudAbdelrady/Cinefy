@@ -131,6 +131,22 @@
               />
             }
 
+            @if (selectionChanged()) {
+              <button
+                type="button"
+                class="btn-primary rs-update"
+                [disabled]="booking()"
+                (click)="onBook()"
+              >
+                @if (booking()) {
+                  <loading-spinner variant="xs" />
+                } @else {
+                  <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+                  <span>Update booking</span>
+                }
+              </button>
+            }
+
             <button type="submit" class="btn-success rs-complete" [disabled]="paymentForm.invalid">
               <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
               <span>Complete payment</span>

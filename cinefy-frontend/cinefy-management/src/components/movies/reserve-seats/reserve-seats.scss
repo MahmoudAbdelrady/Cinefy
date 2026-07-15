@@ -182,6 +182,13 @@
         }
       }
 
+      .rs-update {
+        @include flex-center;
+
+        gap: 8px;
+        width: 100%;
+      }
+
       .rs-complete {
         @include flex-center;
 

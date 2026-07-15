@@ -51,9 +51,9 @@
                   @if (canManage()) {
                     <div class="dsi-actions">
                       <button
-                        class="dsi-action dsi-action-reserve"
-                        title="Reserve seats"
-                        [ngpDialogTrigger]="reserveDialog"
+                        class="dsi-action dsi-action-book"
+                        title="Book seats"
+                        [ngpDialogTrigger]="bookDialog"
                       >
                         <svg [lucideIcon]="icons.TicketIcon" [size]="14"></svg>
                       </button>
@@ -90,17 +90,17 @@
                     </div>
                   }
 
-                  <ng-template #reserveDialog let-close="close">
+                  <ng-template #bookDialog let-close="close">
                     <app-modal
-                      #reserveModal
-                      modalTitle="Reserve Seats"
+                      #bookModal
+                      modalTitle="Book Seats"
                       [description]="getShowtimeSummary(showtimeDetail)"
                       [close]="close"
                       width="1200px"
                     >
                       <reserve-seats
                         [showtimeId]="showtimeDetail.id"
-                        [container]="reserveModal.panelEl()"
+                        [container]="bookModal.panelEl()"
                       />
                     </app-modal>
                   </ng-template>
