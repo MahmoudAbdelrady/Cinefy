@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { Booking, BookingRequest, ShowtimeSeatSelection } from '../shared/types';
+import type { BookingRequest, ShowtimeSeatSelection } from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
@@ -11,9 +11,9 @@ export class BookingService {
     return this.http.get<ShowtimeSeatSelection>(`/booking/showtimes/${showtimeId}`);
   }
 
-  createBooking(request: BookingRequest, idempotencyKey: string): Observable<Booking> {
+  createBooking(request: BookingRequest, idempotencyKey: string): Observable<void> {
     const headers = new HttpHeaders({ 'Idempotency-Key': idempotencyKey });
-    return this.http.post<Booking>('/booking', request, { headers });
+    return this.http.post<void>('/booking', request, { headers });
   }
 
   cancelBooking(uuid: string): Observable<void> {

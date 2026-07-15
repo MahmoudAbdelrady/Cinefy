@@ -15,7 +15,7 @@ interface ShowtimeHallLayout {
 
 interface ActiveBooking {
   id: string;
-  positions: string[];
+  seats: string[];
   expiresAt: string;
 }
 
@@ -37,10 +37,6 @@ interface BookingRequest {
   seats: string[];
 }
 
-interface Booking {
-  id: string;
-}
-
 interface StaffPaymentRequest {
   paymentType: PaymentType;
   paidAmount?: number;
@@ -54,6 +50,5 @@ export type {
   ShowtimeSeatSelection,
   PaymentType,
   BookingRequest,
-  Booking,
   StaffPaymentRequest,
 };

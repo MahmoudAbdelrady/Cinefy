@@ -54,11 +54,17 @@
       position: static;
     }
 
-    .rs-summary-title {
+    .rs-summary-header {
+      @include flex-between;
+
+      gap: 12px;
       margin-bottom: 16px;
-      font-size: 16px;
-      font-weight: 600;
-      color: $gray-900;
+
+      .rs-summary-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: $gray-900;
+      }
     }
 
     .rs-summary-empty {

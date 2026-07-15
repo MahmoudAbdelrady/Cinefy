@@ -41,7 +41,7 @@ function seatCategory(id: string, layout: SeatLayout): SeatCategory {
   return 'NORMAL';
 }
 
-function buildHall(response: SeatLayoutResponse, bookingPositions: Set<string>): Seat[][] {
+function buildHall(response: SeatLayoutResponse, bookedSeats: Set<string>): Seat[][] {
   const { numberOfRows, seatsPerRow, layout } = response;
   return Array.from({ length: numberOfRows }, (_, rowIdx) => {
     const row = String.fromCharCode(65 + rowIdx);
@@ -54,7 +54,7 @@ function buildHall(response: SeatLayoutResponse, bookingPositions: Set<string>):
         number,
         category: seatCategory(id, layout),
         onSiteOnly: layout.onSiteOnly.includes(id),
-        taken: layout.reserved.includes(id) && !bookingPositions.has(id),
+        taken: layout.reserved.includes(id) && !bookedSeats.has(id),
       };
     });
   });
@@ -121,9 +121,13 @@ export class SeatSelectionPage {
     return message ?? 'Something went wrong. Please try again later.';
   });
 
+  protected readonly activeBooking = computed(() => this.seatSelection()?.activeBooking);
+
+  protected readonly bookedSeats = computed<string[]>(() => this.activeBooking()?.seats ?? []);
+
   protected readonly hall = computed<Seat[][]>(() => {
     const layout = this.seatSelection()?.hallLayout;
-    return layout ? buildHall(layout, new Set(this.myReservedIds())) : [];
+    return layout ? buildHall(layout, new Set(this.bookedSeats())) : [];
   });
 
   protected readonly prices = computed<Record<SelectableSeatCategory, number>>(() => {
@@ -133,23 +137,17 @@ export class SeatSelectionPage {
       : ({} as Record<SelectableSeatCategory, number>);
   });
 
-  protected readonly myReservedIds = computed<string[]>(
-    () => this.seatSelection()?.activeBooking?.positions ?? [],
-  );
-
   protected readonly selectedSeats = linkedSignal<Seat[]>(() => {
-    const reserved = new Set(this.myReservedIds());
-    if (!reserved.size) return [];
+    const booked = new Set(this.bookedSeats());
+    if (!booked.size) return [];
     return this.hall()
       .flat()
-      .filter((seat) => reserved.has(seat.id));
+      .filter((seat) => booked.has(seat.id));
   });
 
   protected readonly cancelling = signal(false);
   protected readonly cancelled = signal(false);
   protected readonly bookingExpired = signal(false);
-
-  protected readonly expiresAt = computed(() => this.seatSelection()?.activeBooking?.expiresAt);
 
   protected onExpired(): void {
     this.bookingExpired.set(true);
@@ -163,7 +161,7 @@ export class SeatSelectionPage {
   }
 
   protected confirmCancel(close: () => void): void {
-    const activeBooking = this.seatSelection()?.activeBooking;
+    const activeBooking = this.activeBooking();
     if (!activeBooking || this.cancelling()) return;
 
     this.cancelling.set(true);

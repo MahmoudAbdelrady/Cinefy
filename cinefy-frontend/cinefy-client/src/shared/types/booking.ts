@@ -15,7 +15,7 @@ interface HallTypeShowtimes {
 
 interface ActiveBooking {
   id: string;
-  positions: string[];
+  seats: string[];
   expiresAt: string;
 }
 

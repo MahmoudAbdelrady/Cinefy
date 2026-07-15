@@ -34,7 +34,7 @@
           </p>
         </div>
 
-        @if (expiresAt(); as heldUntil) {
+        @if (activeBooking(); as booking) {
           <div class="ss-hold-cluster">
             <div class="ss-booking">
               <span class="ss-booking-status">
@@ -43,7 +43,7 @@
               </span>
             </div>
 
-            <hold-timer [expiresAt]="heldUntil" (expired)="onExpired()" />
+            <hold-timer [expiresAt]="booking.expiresAt" (expired)="onExpired()" />
 
             @if (!bookingExpired()) {
               <button type="button" class="btn-base ss-cancel" [ngpDialogTrigger]="cancelDialog">
@@ -74,7 +74,7 @@
 
           <seat-map
             [rows]="hall()"
-            [initialSelectedIds]="myReservedIds()"
+            [initialSelectedIds]="bookedSeats()"
             (selectionChange)="selectedSeats.set($event)"
           />
         </div>

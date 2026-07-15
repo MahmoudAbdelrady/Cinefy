@@ -30,13 +30,20 @@
 
       <seat-map
         [rows]="hall()"
+        [initialSelectedIds]="bookedSeats()"
         [allowOnSiteOnly]="true"
         (selectionChange)="onSelectionChange($event)"
       />
     </div>
 
     <aside class="rs-summary">
-      <h3 class="rs-summary-title">Booking Summary</h3>
+      <div class="rs-summary-header">
+        <h3 class="rs-summary-title">Booking Summary</h3>
+
+        @if (activeBooking(); as booking) {
+          <hold-timer [expiresAt]="booking.expiresAt" (expired)="resetBooking()" />
+        }
+      </div>
 
       @if (pricedSeats().length === 0) {
         <div class="rs-summary-empty">

@@ -1,4 +1,12 @@
-import { Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -7,6 +15,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CustomSelectComponent,
   EmptyStateComponent,
+  HoldTimerComponent,
   InputField,
   LoadingSpinnerComponent,
   ModalComponent,
@@ -16,7 +25,7 @@ import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/typ
 import { BookingService } from '../../../services';
 import { CheckIcon, InfoIcon, TicketIcon, WarningIcon, XIcon } from '../../../shared/icons';
 import type {
-  Booking,
+  ActiveBooking,
   BookingRequest,
   PaymentType,
   ShowtimeHallLayout,
@@ -40,7 +49,7 @@ function seatCategory(id: string, layout: ShowtimeSeatLayout): SeatCategory {
   return 'NORMAL';
 }
 
-function buildHall(hallLayout: ShowtimeHallLayout): Seat[][] {
+function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Seat[][] {
   const { numberOfRows, seatsPerRow, layout } = hallLayout;
   return Array.from({ length: numberOfRows }, (_, rowIdx) => {
     const row = String.fromCharCode(65 + rowIdx);
@@ -53,7 +62,7 @@ function buildHall(hallLayout: ShowtimeHallLayout): Seat[][] {
         number,
         category: seatCategory(id, layout),
         onSiteOnly: layout.onSiteOnly.includes(id),
-        taken: layout.reserved.includes(id),
+        taken: layout.reserved.includes(id) && !bookedSeats.has(id),
       };
     });
   });
@@ -72,6 +81,7 @@ function buildHall(hallLayout: ShowtimeHallLayout): Seat[][] {
     CustomSelectComponent,
     InputField,
     ModalComponent,
+    HoldTimerComponent,
   ],
   templateUrl: './reserve-seats.html',
   styleUrl: './reserve-seats.scss',
@@ -94,12 +104,8 @@ export class ReserveSeatsComponent {
   readonly showtimeId = input.required<string>();
   readonly container = input<string | HTMLElement | null>(null);
 
-  protected readonly selectedSeats = signal<Seat[]>([]);
-  protected readonly stage = signal<'seats' | 'payment' | 'done'>('seats');
   protected readonly booking = signal(false);
   protected readonly cancelling = signal(false);
-
-  private readonly activeBooking = signal<Booking | null>(null);
 
   protected readonly paymentForm = new FormGroup({
     paymentType: new FormControl<PaymentType | null>(null, {
@@ -118,9 +124,27 @@ export class ReserveSeatsComponent {
   protected readonly failed = computed(() => !!this.seatSelectionResource.error());
   protected readonly seatSelection = computed(() => this.seatSelectionResource.value());
 
+  protected readonly activeBooking = linkedSignal<ActiveBooking | null>(
+    () => this.seatSelection()?.activeBooking ?? null,
+  );
+
+  protected readonly stage = linkedSignal<'seats' | 'payment' | 'done'>(() =>
+    this.activeBooking() ? 'payment' : 'seats',
+  );
+
+  protected readonly bookedSeats = computed(() => this.activeBooking()?.seats ?? []);
+
   protected readonly hall = computed<Seat[][]>(() => {
     const layout = this.seatSelection()?.hallLayout;
-    return layout ? buildHall(layout) : [];
+    return layout ? buildHall(layout, new Set(this.bookedSeats())) : [];
+  });
+
+  protected readonly selectedSeats = linkedSignal<Seat[]>(() => {
+    const booked = new Set(this.bookedSeats());
+    if (!booked.size) return [];
+    return this.hall()
+      .flat()
+      .filter((seat) => booked.has(seat.id));
   });
 
   private readonly prices = computed<Partial<Record<SeatCategory, number>>>(() => {
@@ -169,9 +193,8 @@ export class ReserveSeatsComponent {
       .createBooking(request, idempotencyKey)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (booking) => {
+        next: () => {
           this.booking.set(false);
-          this.activeBooking.set(booking);
           this.seatSelectionResource.reload();
           this.stage.set('payment');
         },

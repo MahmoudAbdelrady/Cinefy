@@ -76,6 +76,5 @@ export type {
   ShowtimeSeatSelection,
   PaymentType,
   BookingRequest,
-  Booking,
   StaffPaymentRequest,
 } from './booking';
