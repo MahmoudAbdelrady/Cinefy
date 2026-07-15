@@ -20,7 +20,17 @@
   }
 
   .rs-seats {
+    position: relative;
     min-width: 0;
+
+    .rs-seats-overlay {
+      @include flex-center;
+
+      position: absolute;
+      inset: 0;
+      border-radius: $radius-md;
+      background-color: rgba(#ffffff, 0.7);
+    }
 
     .rs-screen {
       @include flex-center;
@@ -227,6 +237,32 @@
   }
 
   .rcm-message {
+    margin-bottom: 24px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: $gray-600;
+  }
+}
+
+.rs-expired-modal-content {
+  text-align: center;
+
+  .rem-icon {
+    @include flex-center;
+
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border-radius: $radius-full;
+    background-color: $orange-50;
+
+    svg {
+      display: flex;
+      color: $orange-600;
+    }
+  }
+
+  .rem-message {
     margin-bottom: 24px;
     font-size: 14px;
     line-height: 1.6;

@@ -1,4 +1,4 @@
-@if (loading()) {
+@if (initialLoading()) {
   <div class="rs-loading">
     <loading-spinner variant="lg" />
   </div>
@@ -34,6 +34,12 @@
         [allowOnSiteOnly]="true"
         (selectionChange)="onSelectionChange($event)"
       />
+
+      @if (reloading()) {
+        <div class="rs-seats-overlay">
+          <loading-spinner variant="lg" />
+        </div>
+      }
     </div>
 
     <aside class="rs-summary">
@@ -41,7 +47,7 @@
         <h3 class="rs-summary-title">Booking Summary</h3>
 
         @if (activeBooking(); as booking) {
-          <hold-timer [expiresAt]="booking.expiresAt" (expired)="resetBooking()" />
+          <hold-timer [expiresAt]="booking.expiresAt" (expired)="onTimerExpired()" />
         }
       </div>
 
@@ -168,6 +174,23 @@
             Cancel booking
           }
         </button>
+      </div>
+    </app-modal>
+  </ng-template>
+
+  <ng-template #expiredDialog let-close="close">
+    <app-modal modalTitle="Booking expired" width="448px" [close]="close">
+      <div class="rs-expired-modal-content">
+        <div class="rem-icon">
+          <svg [lucideIcon]="icons.ClockIcon" [size]="24" [strokeWidth]="2"></svg>
+        </div>
+        <p class="rem-message">
+          The hold timer ran out and the seats were released. Start a new Booking to try again.
+        </p>
+      </div>
+
+      <div modal-footer class="rs-dialog-footer">
+        <button type="button" class="btn-primary" (click)="close()">Book again</button>
       </div>
     </app-modal>
   </ng-template>

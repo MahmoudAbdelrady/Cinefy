@@ -22,8 +22,6 @@
           ></svg>
         </button>
       }
-      <button #discardTrigger [ngpDialogTrigger]="discardDialog" hidden></button>
-
       <ng-template #discardDialog let-close="close">
         <app-modal modalTitle="Discard Changes" [close]="close" width="448px">
           <p class="discard-message">

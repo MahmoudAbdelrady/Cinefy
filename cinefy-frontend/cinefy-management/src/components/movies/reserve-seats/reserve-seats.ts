@@ -6,11 +6,13 @@ import {
   input,
   linkedSignal,
   signal,
+  TemplateRef,
+  viewChild,
 } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CustomSelectComponent,
@@ -23,7 +25,14 @@ import {
 } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
 import { BookingService } from '../../../services';
-import { CheckIcon, InfoIcon, TicketIcon, WarningIcon, XIcon } from '../../../shared/icons';
+import {
+  CheckIcon,
+  ClockIcon,
+  InfoIcon,
+  TicketIcon,
+  WarningIcon,
+  XIcon,
+} from '../../../shared/icons';
 import type {
   ActiveBooking,
   BookingRequest,
@@ -89,6 +98,7 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
 export class ReserveSeatsComponent {
   protected readonly icons = {
     CheckIcon,
+    ClockIcon,
     InfoIcon,
     TicketIcon,
     WarningIcon,
@@ -97,6 +107,9 @@ export class ReserveSeatsComponent {
 
   private readonly bookingService = inject(BookingService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogManager = inject(NgpDialogManager);
+
+  protected readonly expiredDialog = viewChild.required<TemplateRef<unknown>>('expiredDialog');
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
   protected readonly paymentTypeEntries = PAYMENT_TYPE_ENTRIES;
@@ -120,9 +133,15 @@ export class ReserveSeatsComponent {
     stream: ({ params: showtimeId }) => this.bookingService.getSeatSelection(showtimeId),
   });
 
-  protected readonly loading = computed(() => this.seatSelectionResource.isLoading());
   protected readonly failed = computed(() => !!this.seatSelectionResource.error());
   protected readonly seatSelection = computed(() => this.seatSelectionResource.value());
+
+  protected readonly initialLoading = computed(
+    () => this.seatSelectionResource.isLoading() && !this.seatSelection(),
+  );
+  protected readonly reloading = computed(
+    () => this.seatSelectionResource.isLoading() && !!this.seatSelection(),
+  );
 
   protected readonly activeBooking = linkedSignal<ActiveBooking | null>(
     () => this.seatSelection()?.activeBooking ?? null,
@@ -251,6 +270,11 @@ export class ReserveSeatsComponent {
         },
         error: () => this.cancelling.set(false),
       });
+  }
+
+  protected onTimerExpired(): void {
+    const dialogRef = this.dialogManager.open(this.expiredDialog() as never);
+    dialogRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetBooking());
   }
 
   protected resetBooking(): void {

@@ -4,12 +4,12 @@ import {
   computed,
   DestroyRef,
   effect,
-  ElementRef,
   inject,
   input,
   linkedSignal,
   output,
   signal,
+  TemplateRef,
   viewChild,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
@@ -33,7 +33,7 @@ import {
   StarIcon,
   WarningIcon,
 } from '../../../shared/icons';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { NgpDialogManager } from 'ng-primitives/dialog';
 import {
   ModalComponent,
   LoadingSpinnerComponent,
@@ -108,7 +108,6 @@ const SELECTABLE_HALL_STATUS_ENTRIES = (
     NgClass,
     ReactiveFormsModule,
     LucideDynamicIcon,
-    NgpDialogTrigger,
     Switch,
     ModalComponent,
     LoadingSpinnerComponent,
@@ -136,7 +135,8 @@ export class HallConfigModalComponent {
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly discardTrigger = viewChild<ElementRef>('discardTrigger');
+  private readonly dialogManager = inject(NgpDialogManager);
+  private readonly discardDialog = viewChild<TemplateRef<unknown>>('discardDialog');
 
   protected readonly hallStatusEntries = computed<HallStatusEntry[]>(() => {
     const current = this.selectedHallData()?.status;
@@ -371,7 +371,8 @@ export class HallConfigModalComponent {
 
   protected toggleEditMode() {
     if (this.isEditMode() && this.hasChanges()) {
-      this.discardTrigger()?.nativeElement.click();
+      const discardDialog = this.discardDialog();
+      if (discardDialog) this.dialogManager.open(discardDialog as never);
       return;
     }
     this.isEditMode.update((v) => !v);
