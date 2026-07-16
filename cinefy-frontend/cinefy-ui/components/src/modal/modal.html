@@ -1,5 +1,13 @@
 <div ngpDialogOverlay [ngpDialogOverlayCloseOnClick]="closeable()" class="modal-overlay">
-  <div #panel ngpDialog class="modal-panel" [style.--modal-max-width]="width()">
+  <div
+    #panel
+    ngpDialog
+    class="modal-panel"
+    [style.--modal-max-width]="width()"
+    [style.--modal-max-height]="height()"
+    [style.--modal-height]="fixedHeight()"
+    [attr.data-fixed-height]="fixedHeight() ? '' : null"
+  >
     <div class="modal-header" [attr.data-custom]="customHeader() ? '' : null">
       @if (customHeader()) {
       <ng-content select="[modal-header]" />

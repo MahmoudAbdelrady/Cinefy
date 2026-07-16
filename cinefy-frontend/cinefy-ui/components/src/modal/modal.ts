@@ -28,6 +28,8 @@ export class ModalComponent {
   readonly description = input<string>();
   readonly close = input.required<() => void>();
   readonly width = input<string>();
+  readonly height = input<string>();
+  readonly fixedHeight = input<string>();
   readonly bodyPadding = input<string>("24px");
   readonly customHeader = input<boolean>(false);
   readonly closeable = input<boolean>(true);
