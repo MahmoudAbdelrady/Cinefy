@@ -4,7 +4,7 @@ import type { MovieSearchResult } from './movies';
 interface ShowtimeSeatLayout {
   categories: Partial<Record<SeatCategory, string[]>>;
   onSiteOnly: string[];
-  reserved: string[];
+  booked: string[];
 }
 
 interface ShowtimeHallLayout {
@@ -26,7 +26,7 @@ interface ShowtimeSeatSelection {
   hallName: string;
   hallType: string;
   is3D: boolean;
-  fullyReserved: boolean;
+  fullyBooked: boolean;
   hallLayout: ShowtimeHallLayout;
   activeBooking?: ActiveBooking;
 }

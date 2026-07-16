@@ -58,7 +58,7 @@
                       [close]="close"
                       width="1200px"
                     >
-                      <reserve-seats
+                      <book-seats
                         [showtimeId]="showtimeDetail.id"
                         [container]="bookModal.panelEl()"
                       />
@@ -113,7 +113,7 @@
                     <div class="dso-bar-fill" [style.width.%]="getOccupancy(showtimeDetail)"></div>
                   </div>
                   <div class="dso-percentage">
-                    {{ showtimeDetail.reservedSeats }}/{{ showtimeDetail.totalSeats }} ({{
+                    {{ showtimeDetail.bookedSeats }}/{{ showtimeDetail.totalSeats }} ({{
                       getOccupancy(showtimeDetail) | number: '1.0-0'
                     }}%)
                   </div>

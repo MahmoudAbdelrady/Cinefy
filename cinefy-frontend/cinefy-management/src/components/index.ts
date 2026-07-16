@@ -15,7 +15,7 @@ export { MoviesStatisticsComponent } from './movies/movies-statistics/movies-sta
 export { CurrentShowtimesComponent } from './movies/current-showtimes/current-showtimes';
 export { UpcomingMoviesComponent } from './movies/upcoming-movies/upcoming-movies';
 export { MovieShowtimesModal } from './movies/movie-showtimes-modal/movie-showtimes-modal';
-export { ReserveSeatsComponent } from './movies/reserve-seats/reserve-seats';
+export { BookSeatsComponent } from './movies/book-seats/book-seats';
 export { ManagePaymentModalComponent } from './payment/manage-payment-modal/manage-payment-modal';
 export { Stepper } from './stepper/stepper';
 export { PaymentMethodListComponent } from './payment/payment-method-list/payment-method-list';

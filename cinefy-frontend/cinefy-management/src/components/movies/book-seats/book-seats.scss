@@ -3,13 +3,13 @@
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
-.rs-loading {
+.bs-loading {
   @include flex-center;
 
   padding: 64px 0;
 }
 
-.rs-layout {
+.bs-layout {
   display: grid;
   grid-template-columns: 1fr 365px;
   align-items: start;
@@ -19,11 +19,11 @@
     grid-template-columns: 1fr;
   }
 
-  .rs-seats {
+  .bs-seats {
     position: relative;
     min-width: 0;
 
-    .rs-seats-overlay {
+    .bs-seats-overlay {
       @include flex-center;
 
       position: absolute;
@@ -32,7 +32,7 @@
       background-color: rgba(#ffffff, 0.7);
     }
 
-    .rs-screen {
+    .bs-screen {
       @include flex-center;
 
       margin-bottom: 24px;
@@ -50,7 +50,7 @@
     }
   }
 
-  .rs-summary {
+  .bs-summary {
     display: flex;
     position: sticky;
     top: 0;
@@ -64,20 +64,20 @@
       position: static;
     }
 
-    .rs-summary-header {
+    .bs-summary-header {
       @include flex-between;
 
       gap: 12px;
       margin-bottom: 16px;
 
-      .rs-summary-title {
+      .bs-summary-title {
         font-size: 16px;
         font-weight: 600;
         color: $gray-900;
       }
     }
 
-    .rs-summary-empty {
+    .bs-summary-empty {
       @include flex-center;
       @include lucide-icon-fix;
 
@@ -95,14 +95,14 @@
       }
     }
 
-    .rs-selected {
+    .bs-selected {
       display: flex;
       flex-direction: column;
       gap: 8px;
       max-height: 220px;
       overflow-y: auto;
 
-      .rs-selected-item {
+      .bs-selected-item {
         @include flex-between;
 
         padding: 8px 12px;
@@ -134,7 +134,7 @@
       }
     }
 
-    .rs-total {
+    .bs-total {
       @include flex-between;
 
       margin-top: 16px;
@@ -143,7 +143,7 @@
       font-weight: 600;
       color: $gray-900;
 
-      .rs-total-value {
+      .bs-total-value {
         font-size: 18px;
         font-weight: 700;
         color: $blue-600;
@@ -151,7 +151,7 @@
       }
     }
 
-    .rs-book {
+    .bs-book {
       @include flex-center;
 
       gap: 8px;
@@ -159,22 +159,22 @@
       margin-top: 20px;
     }
 
-    .rs-payment {
+    .bs-payment {
       display: flex;
       flex-direction: column;
       gap: 16px;
       margin-top: 20px;
 
-      .rs-payment-field {
+      .bs-payment-field {
         display: flex;
         flex-direction: column;
         gap: 6px;
 
-        .rs-change {
+        .bs-change {
           font-size: 12px;
           color: $gray-600;
 
-          .rs-change-value {
+          .bs-change-value {
             font-weight: 600;
             color: $gray-900;
             font-variant-numeric: tabular-nums;
@@ -182,14 +182,14 @@
         }
       }
 
-      .rs-update {
+      .bs-update {
         @include flex-center;
 
         gap: 8px;
         width: 100%;
       }
 
-      .rs-complete {
+      .bs-complete {
         @include flex-center;
 
         gap: 8px;
@@ -197,7 +197,7 @@
       }
     }
 
-    .rs-cancel {
+    .bs-cancel {
       @include flex-center;
 
       gap: 8px;
@@ -225,7 +225,7 @@
   }
 }
 
-.rs-cancel-modal-content {
+.bs-cancel-modal-content {
   text-align: center;
 
   .rcm-icon {
@@ -251,7 +251,7 @@
   }
 }
 
-.rs-expired-modal-content {
+.bs-expired-modal-content {
   text-align: center;
 
   .rem-icon {
@@ -277,7 +277,7 @@
   }
 }
 
-.rs-dialog-footer {
+.bs-dialog-footer {
   @include flex-align;
 
   gap: 12px;
@@ -288,7 +288,7 @@
   }
 }
 
-.rs-done {
+.bs-done {
   @include flex-center;
   @include lucide-icon-fix;
 
@@ -296,7 +296,7 @@
   padding: 48px 24px;
   text-align: center;
 
-  .rs-done-icon {
+  .bs-done-icon {
     @include flex-center;
 
     width: 64px;
@@ -307,20 +307,20 @@
     color: $green-600;
   }
 
-  .rs-done-title {
+  .bs-done-title {
     margin-bottom: 8px;
     font-size: 20px;
     font-weight: 700;
     color: $gray-900;
   }
 
-  .rs-done-message {
+  .bs-done-message {
     margin-bottom: 24px;
     font-size: 14px;
     color: $gray-600;
   }
 
-  .rs-done-action {
+  .bs-done-action {
     @include flex-center;
 
     gap: 8px;

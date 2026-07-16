@@ -1,5 +1,5 @@
 @if (initialLoading()) {
-  <div class="rs-loading">
+  <div class="bs-loading">
     <loading-spinner variant="lg" />
   </div>
 } @else if (failed()) {
@@ -9,22 +9,22 @@
     description="Something went wrong while loading this showtime's seats. Please try again."
   />
 } @else if (stage() === 'done') {
-  <div class="rs-done">
-    <div class="rs-done-icon">
+  <div class="bs-done">
+    <div class="bs-done-icon">
       <svg [lucideIcon]="icons.CheckIcon" [size]="32" [strokeWidth]="3"></svg>
     </div>
-    <h3 class="rs-done-title">Payment complete</h3>
-    <p class="rs-done-message">The seats are booked and the ticket has been issued.</p>
+    <h3 class="bs-done-title">Payment complete</h3>
+    <p class="bs-done-message">The seats are booked and the ticket has been issued.</p>
 
-    <button type="button" class="btn-primary rs-done-action" (click)="resetBooking()">
+    <button type="button" class="btn-primary bs-done-action" (click)="resetBooking()">
       <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
       <span>Book more seats</span>
     </button>
   </div>
 } @else if (seatSelection(); as selection) {
-  <div class="rs-layout">
-    <div class="rs-seats">
-      <div class="rs-screen">
+  <div class="bs-layout">
+    <div class="bs-seats">
+      <div class="bs-screen">
         <span>SCREEN</span>
       </div>
 
@@ -36,15 +36,15 @@
       />
 
       @if (reloading()) {
-        <div class="rs-seats-overlay">
+        <div class="bs-seats-overlay">
           <loading-spinner variant="lg" />
         </div>
       }
     </div>
 
-    <aside class="rs-summary">
-      <div class="rs-summary-header">
-        <h3 class="rs-summary-title">Booking Summary</h3>
+    <aside class="bs-summary">
+      <div class="bs-summary-header">
+        <h3 class="bs-summary-title">Booking Summary</h3>
 
         @if (activeBooking(); as booking) {
           <hold-timer [expiresAt]="booking.expiresAt" (expired)="onTimerExpired()" />
@@ -52,14 +52,14 @@
       </div>
 
       @if (pricedSeats().length === 0) {
-        <div class="rs-summary-empty">
+        <div class="bs-summary-empty">
           <svg [lucideIcon]="icons.InfoIcon" [size]="28"></svg>
           <p>Select seats to start a booking.</p>
         </div>
       } @else {
-        <ul class="rs-selected">
+        <ul class="bs-selected">
           @for (entry of pricedSeats(); track entry.position) {
-            <li class="rs-selected-item">
+            <li class="bs-selected-item">
               <span class="rss-seat">
                 <span class="rss-id">{{ entry.position }}</span>
                 <span class="rss-kind">{{ seatCategoryLabel[entry.category] }}</span>
@@ -69,15 +69,15 @@
           }
         </ul>
 
-        <div class="rs-total">
+        <div class="bs-total">
           <span>Total ({{ pricedSeats().length }})</span>
-          <span class="rs-total-value">{{ total() | currency: 'USD' }}</span>
+          <span class="bs-total-value">{{ total() | currency: 'USD' }}</span>
         </div>
 
         @if (stage() === 'seats') {
           <button
             type="button"
-            class="btn-primary rs-book"
+            class="btn-primary bs-book"
             [disabled]="booking()"
             (click)="onBook()"
           >
@@ -89,7 +89,7 @@
             }
           </button>
         } @else {
-          <form class="rs-payment" [formGroup]="paymentForm" (ngSubmit)="completePayment()">
+          <form class="bs-payment" [formGroup]="paymentForm" (ngSubmit)="completePayment()">
             <custom-select
               label="Payment type"
               [required]="true"
@@ -104,7 +104,7 @@
             />
 
             @if (paymentForm.controls.paymentType.value === 'CASH') {
-              <div class="rs-payment-field">
+              <div class="bs-payment-field">
                 <input-field
                   type="number"
                   placeholder="Enter paid amount"
@@ -116,9 +116,9 @@
                 />
 
                 @if (change(); as changeDue) {
-                  <p class="rs-change">
+                  <p class="bs-change">
                     Change:
-                    <span class="rs-change-value">{{ changeDue | currency: 'USD' }}</span>
+                    <span class="bs-change-value">{{ changeDue | currency: 'USD' }}</span>
                   </p>
                 }
               </div>
@@ -134,7 +134,7 @@
             @if (selectionChanged()) {
               <button
                 type="button"
-                class="btn-primary rs-update"
+                class="btn-primary bs-update"
                 [disabled]="booking()"
                 (click)="onBook()"
               >
@@ -147,14 +147,14 @@
               </button>
             }
 
-            <button type="submit" class="btn-success rs-complete" [disabled]="paymentForm.invalid">
+            <button type="submit" class="btn-success bs-complete" [disabled]="paymentForm.invalid">
               <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
               <span>Complete payment</span>
             </button>
           </form>
         }
 
-        <button type="button" class="rs-cancel" [ngpDialogTrigger]="cancelDialog">
+        <button type="button" class="bs-cancel" [ngpDialogTrigger]="cancelDialog">
           <svg [lucideIcon]="icons.XIcon" [size]="15"></svg>
           <span>Cancel booking</span>
         </button>
@@ -164,7 +164,7 @@
 
   <ng-template #cancelDialog let-close="close">
     <app-modal modalTitle="Cancel this booking?" width="448px" [close]="close">
-      <div class="rs-cancel-modal-content">
+      <div class="bs-cancel-modal-content">
         <div class="rcm-icon">
           <svg [lucideIcon]="icons.WarningIcon" [size]="24" [strokeWidth]="2"></svg>
         </div>
@@ -174,7 +174,7 @@
         </p>
       </div>
 
-      <div modal-footer class="rs-dialog-footer">
+      <div modal-footer class="bs-dialog-footer">
         <button type="button" class="btn-secondary" [disabled]="cancelling()" (click)="close()">
           Keep booking
         </button>
@@ -196,7 +196,7 @@
 
   <ng-template #expiredDialog let-close="close">
     <app-modal modalTitle="Booking expired" width="448px" [close]="close">
-      <div class="rs-expired-modal-content">
+      <div class="bs-expired-modal-content">
         <div class="rem-icon">
           <svg [lucideIcon]="icons.ClockIcon" [size]="24" [strokeWidth]="2"></svg>
         </div>
@@ -205,7 +205,7 @@
         </p>
       </div>
 
-      <div modal-footer class="rs-dialog-footer">
+      <div modal-footer class="bs-dialog-footer">
         <button type="button" class="btn-primary" (click)="close()">Book again</button>
       </div>
     </app-modal>

@@ -26,7 +26,7 @@ interface Showtime {
   status: ShowtimeStatus;
   specialNotes: string;
   is3D: boolean;
-  reservedSeats: number;
+  bookedSeats: number;
   totalSeats: number;
 }
 
@@ -55,7 +55,7 @@ interface MovieShowtimeListItem {
   status: ShowtimeStatus;
   specialNotes: string;
   is3D: boolean;
-  reservedSeats: number;
+  bookedSeats: number;
   totalSeats: number;
 }
 

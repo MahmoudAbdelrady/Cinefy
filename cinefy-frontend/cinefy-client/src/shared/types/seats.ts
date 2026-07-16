@@ -4,7 +4,7 @@ interface SeatLayout {
     VIP?: string[];
   };
   onSiteOnly: string[];
-  reserved: string[];
+  booked: string[];
 }
 
 type SelectableSeatCategory = 'NORMAL' | 'VIP';

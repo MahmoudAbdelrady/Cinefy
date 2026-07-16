@@ -249,7 +249,7 @@ public class HallService {
             throw new BusinessException("Cannot modify status of this hall while it has active showtimes");
         }
 
-        // @TODO --> This could be changed to depend on the number of reserved seats instead
+        // @TODO --> This could be changed to depend on the number of booked seats instead
         if (hasCriticalConfigChange(hall, dto) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.COMMITTED_STATUSES)) {
             throw new BusinessException("Cannot modify the configuration of this hall while it has active showtimes");
         }

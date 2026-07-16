@@ -40,7 +40,7 @@ import {
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
 import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
-import { ReserveSeatsComponent } from '../reserve-seats/reserve-seats';
+import { BookSeatsComponent } from '../book-seats/book-seats';
 import { ToastService } from 'cinefy-ui/services';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { canManage as canManagePosition } from '../../../shared/access';
@@ -59,7 +59,7 @@ import { canManage as canManagePosition } from '../../../shared/access';
     NgpDialogTrigger,
     LoadingSpinnerComponent,
     Time12hPipe,
-    ReserveSeatsComponent,
+    BookSeatsComponent,
   ],
   templateUrl: './movie-showtimes-modal.html',
   styleUrl: './movie-showtimes-modal.scss',
@@ -288,7 +288,7 @@ export class MovieShowtimesModal {
 
   protected getOccupancy(detail: MovieShowtimeListItem): number {
     if (detail.totalSeats === 0) return 0;
-    return (detail.reservedSeats / detail.totalSeats) * 100;
+    return (detail.bookedSeats / detail.totalSeats) * 100;
   }
 
   protected getShowtimeSummary(detail: MovieShowtimeListItem): string {
@@ -469,7 +469,7 @@ export class MovieShowtimesModal {
       status: showtime.status,
       specialNotes: showtime.specialNotes,
       is3D: showtime.is3D,
-      reservedSeats: showtime.reservedSeats,
+      bookedSeats: showtime.bookedSeats,
       totalSeats: showtime.totalSeats,
     };
   }

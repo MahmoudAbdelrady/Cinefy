@@ -54,7 +54,7 @@ function buildHall(response: SeatLayoutResponse, bookedSeats: Set<string>): Seat
         number,
         category: seatCategory(id, layout),
         onSiteOnly: layout.onSiteOnly.includes(id),
-        taken: layout.reserved.includes(id) && !bookedSeats.has(id),
+        taken: layout.booked.includes(id) && !bookedSeats.has(id),
       };
     });
   });

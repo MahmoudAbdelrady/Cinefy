@@ -11,6 +11,6 @@ public record BookingShowtimeDTO(
         @JsonProperty("is3D")
         boolean is3D,
 
-        boolean fullyReserved
+        boolean fullyBooked
 ) {
 }

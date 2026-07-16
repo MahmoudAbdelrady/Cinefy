@@ -76,14 +76,14 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
         number,
         category: seatCategory(id, layout),
         onSiteOnly: layout.onSiteOnly.includes(id),
-        taken: layout.reserved.includes(id) && !bookedSeats.has(id),
+        taken: layout.booked.includes(id) && !bookedSeats.has(id),
       };
     });
   });
 }
 
 @Component({
-  selector: 'reserve-seats',
+  selector: 'book-seats',
   imports: [
     CurrencyPipe,
     ReactiveFormsModule,
@@ -97,10 +97,10 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
     ModalComponent,
     HoldTimerComponent,
   ],
-  templateUrl: './reserve-seats.html',
-  styleUrl: './reserve-seats.scss',
+  templateUrl: './book-seats.html',
+  styleUrl: './book-seats.scss',
 })
-export class ReserveSeatsComponent {
+export class BookSeatsComponent {
   protected readonly icons = {
     CheckIcon,
     ClockIcon,

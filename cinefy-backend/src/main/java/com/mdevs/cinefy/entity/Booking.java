@@ -18,6 +18,7 @@ import java.util.Set;
 @Table(
         uniqueConstraints = @UniqueConstraint(columnNames = {"CLIENT_ID", "SHOWTIME_ID", "ON_HOLD"}),
         indexes = {
+                @Index(columnList = "SHOWTIME_ID"),
                 @Index(columnList = "ON_HOLD, EXPIRES_AT"),
                 @Index(columnList = "CLIENT_ID"),
                 @Index(columnList = "BOOKED_BY_ID")

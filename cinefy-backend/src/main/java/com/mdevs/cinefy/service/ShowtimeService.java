@@ -15,10 +15,13 @@ import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeCountProjection;
 import com.mdevs.cinefy.dto.showtime.PublishShowtimesDTO;
+import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
+import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import com.mdevs.cinefy.shared.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +42,8 @@ import java.util.stream.Collectors;
 public class ShowtimeService {
 
     private final ShowtimeRepository showtimeRepository;
+
+    private final BookingRepository bookingRepository;
 
     private final TmdbMovieRepository tmdbMovieRepository;
 
@@ -76,11 +81,19 @@ public class ShowtimeService {
             throw new NotFoundException("No showtimes found for the provided movie on " + date);
         }
 
+        List<Long> showtimeIds = showtimes.stream().map(Showtime::getId).toList();
+        Long staffId = SecurityUtil.getCurrentUser().getId();
+        Map<Long, Integer> bookedSeatsByShowtime = bookingRepository.countBookedSeatsByShowtime(showtimeIds, LocalDateTime.now(), null, staffId)
+                .stream()
+                .collect(Collectors.toMap(ShowtimeBookedSeatsProjection::getShowtimeId, ShowtimeBookedSeatsProjection::getBookedSeats));
+
         long numberOfDrafts = showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count();
 
         MovieShowtimesDTO dto = new MovieShowtimesDTO();
         dto.setNumberOfDrafts(numberOfDrafts);
-        dto.setShowtimes(showtimes.stream().map(this::toMovieShowtimeListItem).toList());
+        dto.setShowtimes(showtimes.stream()
+                .map(showtime -> toMovieShowtimeListItem(showtime, bookedSeatsByShowtime.getOrDefault(showtime.getId(), 0)))
+                .toList());
         return dto;
     }
 
@@ -133,7 +146,7 @@ public class ShowtimeService {
     @Transactional
     public ShowtimeSummaryDTO updateShowtime(String uuid, ShowtimeDTO dto) {
         Showtime showtime = findShowtime(uuid);
-        // @TODO --> This should be changed to depend on the number of reserved seats instead for the published status
+        // @TODO --> This should be changed to depend on the number of booked seats instead for the published status
         if (!ShowtimeStatus.ACTIVE_STATUSES.contains(showtime.getStatus())) {
             throw new BusinessException("Cannot update a showtime that's not draft or published");
         }
@@ -157,7 +170,7 @@ public class ShowtimeService {
     @Transactional
     public void deleteShowtime(String uuid) {
         Showtime showtime = findShowtime(uuid);
-        // @TODO --> This should be changed to depend on the number of reserved seats instead of the published status
+        // @TODO --> This should be changed to depend on the number of booked seats instead of the published status
         if (!ShowtimeStatus.ACTIVE_STATUSES.contains(showtime.getStatus())) {
             throw new BusinessException("Cannot delete a showtime that's not draft or published");
         }
@@ -175,7 +188,7 @@ public class ShowtimeService {
             throw new NotFoundException("No showtimes found for the provided movie");
         }
 
-        // @TODO --> This should be changed to depend on the number of reserved seats instead of the published status
+        // @TODO --> This should be changed to depend on the number of booked seats instead of the published status
         if (showtimes.stream().anyMatch(s -> !ShowtimeStatus.ACTIVE_STATUSES.contains(s.getStatus()))) {
             throw new BusinessException("Cannot delete a showtime that's not draft or published");
         }
@@ -287,7 +300,7 @@ public class ShowtimeService {
         return showtime;
     }
 
-    private MovieShowtimeListItemDTO toMovieShowtimeListItem(Showtime showtime) {
+    private MovieShowtimeListItemDTO toMovieShowtimeListItem(Showtime showtime, int bookedSeats) {
         Hall hall = showtime.getHall();
         MovieShowtimeListItemDTO dto = new MovieShowtimeListItemDTO();
         dto.setId(showtime.getUuid());
@@ -296,7 +309,7 @@ public class ShowtimeService {
         dto.setStatus(showtime.getStatus().name());
         dto.setSpecialNotes(showtime.getSpecialNotes());
         dto.set3D(showtime.is3D());
-        dto.setReservedSeats(0);
+        dto.setBookedSeats(bookedSeats);
         dto.setTotalSeats(hall.getTotalRows() * hall.getTotalColumns());
         return dto;
     }
@@ -319,7 +332,7 @@ public class ShowtimeService {
         dto.setStatus(showtime.getStatus().name());
         dto.setSpecialNotes(showtime.getSpecialNotes());
         dto.set3D(showtime.is3D());
-        dto.setReservedSeats(0);
+        dto.setBookedSeats(0);
         dto.setTotalSeats(hall.getTotalRows() * hall.getTotalColumns());
         return dto;
     }

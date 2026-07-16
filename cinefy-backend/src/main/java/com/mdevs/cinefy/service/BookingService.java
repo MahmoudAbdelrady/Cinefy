@@ -10,7 +10,7 @@ import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
 import com.mdevs.cinefy.dto.showtime.BookingShowtimeDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
-import com.mdevs.cinefy.dto.showtime.ShowtimeReservedSeatsProjection;
+import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import com.mdevs.cinefy.entity.Client;
@@ -102,16 +102,16 @@ public class BookingService {
         User currentUser = SecurityUtil.isAuthenticated() ? currentUserService.loadCurrentUser() : null;
         Long clientId = currentUser instanceof Client client ? client.getId() : null;
         Long staffId = currentUser instanceof StaffMember staff ? staff.getId() : null;
-        Map<Long, Long> reservedSeatsByShowtime = bookingRepository.countReservedSeatsByShowtime(showtimeIds, LocalDateTime.now(), clientId, staffId)
+        Map<Long, Integer> bookedSeatsByShowtime = bookingRepository.countBookedSeatsByShowtime(showtimeIds, LocalDateTime.now(), clientId, staffId)
                 .stream()
-                .collect(Collectors.toMap(ShowtimeReservedSeatsProjection::getShowtimeId, ShowtimeReservedSeatsProjection::getReservedSeats));
+                .collect(Collectors.toMap(ShowtimeBookedSeatsProjection::getShowtimeId, ShowtimeBookedSeatsProjection::getBookedSeats));
 
         Map<String, List<BookingShowtimeDTO>> grouped = showtimes.stream()
                 .collect(Collectors.groupingBy(
                         showtime -> showtime.getHall().getType().getName(),
                         LinkedHashMap::new,
                         Collectors.mapping(
-                                showtime -> toBookingShowtime(showtime, reservedSeatsByShowtime.getOrDefault(showtime.getId(), 0L)),
+                                showtime -> toBookingShowtime(showtime, bookedSeatsByShowtime.getOrDefault(showtime.getId(), 0)),
                                 Collectors.toList())));
 
         return grouped.entrySet().stream()
@@ -125,8 +125,8 @@ public class BookingService {
         LocalDateTime now = LocalDateTime.now();
 
         HallLayoutDTO hallLayout = hallService.getHallLayout(hall);
-        List<String> reservedSeats = bookingRepository.findReservedPositions(showtime.getId(), now);
-        hallLayout.getLayout().setReserved(reservedSeats);
+        List<String> bookedSeats = bookingRepository.findBookedPositions(showtime.getId(), now);
+        hallLayout.getLayout().setBooked(bookedSeats);
 
         ActiveBookingDTO activeBooking = null;
         if (SecurityUtil.isAuthenticated()) {
@@ -137,9 +137,9 @@ public class BookingService {
         }
 
         int capacity = hall.getTotalRows() * hall.getTotalColumns();
-        boolean fullyReserved = reservedSeats.size() == capacity && activeBooking == null;
+        boolean fullyBooked = bookedSeats.size() == capacity && activeBooking == null;
 
-        return toSeatSelectionDTO(showtime, hall, hallLayout, activeBooking, fullyReserved);
+        return toSeatSelectionDTO(showtime, hall, hallLayout, activeBooking, fullyBooked);
     }
 
     public List<BookingSummaryDTO> getActiveBookings() {
@@ -352,7 +352,7 @@ public class BookingService {
         }
 
         if (!blockedPositions.isEmpty()) {
-            throw new BusinessException("Seat(s) already reserved: " + String.join(", ", blockedPositions));
+            throw new BusinessException("Seat(s) already booked: " + String.join(", ", blockedPositions));
         }
 
         // Flush the active=null releases before the caller re-inserts the same seats.
@@ -406,25 +406,25 @@ public class BookingService {
         return reference.toString();
     }
 
-    private BookingShowtimeDTO toBookingShowtime(Showtime showtime, long reservedSeats) {
+    private BookingShowtimeDTO toBookingShowtime(Showtime showtime, int bookedSeats) {
         Hall hall = showtime.getHall();
         int capacity = hall.getTotalRows() * hall.getTotalColumns();
         return new BookingShowtimeDTO(
                 showtime.getUuid(),
                 showtime.getStartDateTime().toLocalTime().format(TIME_FORMATTER),
                 showtime.is3D(),
-                reservedSeats >= capacity);
+                bookedSeats >= capacity);
     }
 
     private SeatSelectionDTO toSeatSelectionDTO(Showtime showtime, Hall hall, HallLayoutDTO hallLayout,
-                                                ActiveBookingDTO activeBooking, boolean fullyReserved) {
+                                                ActiveBookingDTO activeBooking, boolean fullyBooked) {
         SeatSelectionDTO dto = new SeatSelectionDTO();
         dto.setMovieTitle(showtime.getTmdbMovie().getTitle());
         dto.setStartDateTime(showtime.getStartDateTime());
         dto.setHallName(hall.getName());
         dto.setHallType(hall.getType().getName());
         dto.set3D(showtime.is3D());
-        dto.setFullyReserved(fullyReserved);
+        dto.setFullyBooked(fullyBooked);
         dto.setHallLayout(hallLayout);
         dto.setActiveBooking(activeBooking);
         return dto;

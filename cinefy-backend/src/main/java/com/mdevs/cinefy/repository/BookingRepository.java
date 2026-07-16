@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.repository;
 
-import com.mdevs.cinefy.dto.showtime.ShowtimeReservedSeatsProjection;
+import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import org.springframework.data.domain.Pageable;
@@ -38,11 +38,11 @@ public interface BookingRepository extends BaseRepository<Booking> {
             WHERE bs.showtime.id = :showtimeId
             AND (bs.booking.status = 'CONFIRMED' OR (bs.booking.onHold = true AND bs.booking.expiresAt > :now))
             """)
-    List<String> findReservedPositions(@Param("showtimeId") Long showtimeId,
-                                       @Param("now") LocalDateTime now);
+    List<String> findBookedPositions(@Param("showtimeId") Long showtimeId,
+                                     @Param("now") LocalDateTime now);
 
     @Query("""
-            SELECT bs.showtime.id AS showtimeId, COUNT(bs.id) AS reservedSeats
+            SELECT bs.showtime.id AS showtimeId, COUNT(bs.id) AS bookedSeats
             FROM BookingSeat bs
             JOIN bs.booking b
             WHERE bs.showtime.id IN :showtimeIds
@@ -53,10 +53,10 @@ public interface BookingRepository extends BaseRepository<Booking> {
                      AND (:staffId IS NULL OR b.bookedBy.id IS NULL OR b.bookedBy.id != :staffId)))
             GROUP BY bs.showtime.id
             """)
-    List<ShowtimeReservedSeatsProjection> countReservedSeatsByShowtime(@Param("showtimeIds") List<Long> showtimeIds,
-                                                                       @Param("now") LocalDateTime now,
-                                                                       @Param("clientId") Long clientId,
-                                                                       @Param("staffId") Long staffId);
+    List<ShowtimeBookedSeatsProjection> countBookedSeatsByShowtime(@Param("showtimeIds") List<Long> showtimeIds,
+                                                                   @Param("now") LocalDateTime now,
+                                                                   @Param("clientId") Long clientId,
+                                                                   @Param("staffId") Long staffId);
 
     @Query("""
             SELECT b FROM Booking b

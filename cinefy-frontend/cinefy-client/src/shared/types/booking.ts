@@ -5,7 +5,7 @@ interface BookingShowtime {
   id: string;
   time: string;
   is3D: boolean;
-  fullyReserved: boolean;
+  fullyBooked: boolean;
 }
 
 interface HallTypeShowtimes {
@@ -25,7 +25,7 @@ interface SeatSelection {
   hallName: string;
   hallType: string;
   is3D: boolean;
-  fullyReserved: boolean;
+  fullyBooked: boolean;
   hallLayout: SeatLayoutResponse;
   activeBooking?: ActiveBooking;
 }
