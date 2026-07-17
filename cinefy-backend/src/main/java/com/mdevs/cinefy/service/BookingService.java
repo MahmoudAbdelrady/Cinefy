@@ -136,8 +136,7 @@ public class BookingService {
                     .orElse(null);
         }
 
-        int capacity = hall.getTotalRows() * hall.getTotalColumns();
-        boolean fullyBooked = bookedSeats.size() == capacity && activeBooking == null;
+        boolean fullyBooked = bookedSeats.size() == hall.getCapacity() && activeBooking == null;
 
         return toSeatSelectionDTO(showtime, hall, hallLayout, activeBooking, fullyBooked);
     }
@@ -408,12 +407,11 @@ public class BookingService {
 
     private BookingShowtimeDTO toBookingShowtime(Showtime showtime, int bookedSeats) {
         Hall hall = showtime.getHall();
-        int capacity = hall.getTotalRows() * hall.getTotalColumns();
         return new BookingShowtimeDTO(
                 showtime.getUuid(),
                 showtime.getStartDateTime().toLocalTime().format(TIME_FORMATTER),
                 showtime.is3D(),
-                bookedSeats >= capacity);
+                bookedSeats >= hall.getCapacity());
     }
 
     private SeatSelectionDTO toSeatSelectionDTO(Showtime showtime, Hall hall, HallLayoutDTO hallLayout,

@@ -18,10 +18,7 @@ public class CurrentUserService {
     // ========================= Public API =========================
 
     public User loadCurrentUser() {
-        return loadUser(SecurityUtil.getCurrentUser());
-    }
-
-    public User loadUser(UserPrincipal principal) {
+        UserPrincipal principal = SecurityUtil.getCurrentUser();
         return principal.getType().equals(UserType.CLIENT)
                 ? clientService.findClientByUuid(principal.getUuid())
                 : staffMemberService.findStaffMember(principal.getUuid());

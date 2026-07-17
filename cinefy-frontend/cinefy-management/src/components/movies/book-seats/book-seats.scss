@@ -9,6 +9,12 @@
   padding: 64px 0;
 }
 
+.bs-sold-out {
+  @include flex-center;
+
+  padding: 64px 16px;
+}
+
 .bs-layout {
   display: grid;
   grid-template-columns: 1fr 365px;

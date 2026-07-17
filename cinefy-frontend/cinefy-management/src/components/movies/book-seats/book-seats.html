@@ -22,194 +22,207 @@
     </button>
   </div>
 } @else if (seatSelection(); as selection) {
-  <div class="bs-layout">
-    <div class="bs-seats">
-      <div class="bs-screen">
-        <span>SCREEN</span>
+  @if (selection.fullyBooked) {
+    <empty-state
+      class="bs-sold-out"
+      [icon]="icons.TicketXIcon"
+      title="Sold out"
+      description="Every seat for this showtime is taken. Check another showtime or date."
+    />
+  } @else {
+    <div class="bs-layout">
+      <div class="bs-seats">
+        <div class="bs-screen">
+          <span>SCREEN</span>
+        </div>
+
+        <seat-map
+          [rows]="hall()"
+          [initialSelectedIds]="bookedSeatIds()"
+          [allowOnSiteOnly]="true"
+          (selectionChange)="onSelectionChange($event)"
+        />
+
+        @if (reloading()) {
+          <div class="bs-seats-overlay">
+            <loading-spinner variant="lg" />
+          </div>
+        }
       </div>
 
-      <seat-map
-        [rows]="hall()"
-        [initialSelectedIds]="bookedSeatIds()"
-        [allowOnSiteOnly]="true"
-        (selectionChange)="onSelectionChange($event)"
-      />
+      <aside class="bs-summary">
+        <div class="bs-summary-header">
+          <h3 class="bs-summary-title">Booking Summary</h3>
 
-      @if (reloading()) {
-        <div class="bs-seats-overlay">
-          <loading-spinner variant="lg" />
+          @if (activeBooking(); as booking) {
+            <hold-timer [expiresAt]="booking.expiresAt" (expired)="onTimerExpired()" />
+          }
         </div>
-      }
+
+        @if (pricedSeats().length === 0) {
+          <div class="bs-summary-empty">
+            <svg [lucideIcon]="icons.InfoIcon" [size]="28"></svg>
+            <p>Select seats to start a booking.</p>
+          </div>
+        } @else {
+          <ul class="bs-selected">
+            @for (entry of pricedSeats(); track entry.position) {
+              <li class="bs-selected-item">
+                <span class="rss-seat">
+                  <span class="rss-id">{{ entry.position }}</span>
+                  <span class="rss-kind">{{ seatCategoryLabel[entry.category] }}</span>
+                </span>
+                <span class="rss-price">{{ entry.price | currency: 'USD' }}</span>
+              </li>
+            }
+          </ul>
+
+          <div class="bs-total">
+            <span>Total ({{ pricedSeats().length }})</span>
+            <span class="bs-total-value">{{ total() | currency: 'USD' }}</span>
+          </div>
+
+          @if (stage() === 'seats') {
+            <button
+              type="button"
+              class="btn-primary bs-book"
+              [disabled]="booking()"
+              (click)="onBook()"
+            >
+              @if (booking()) {
+                <loading-spinner variant="xs" />
+              } @else {
+                <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+                <span>Book</span>
+              }
+            </button>
+          } @else {
+            <form class="bs-payment" [formGroup]="paymentForm" (ngSubmit)="completePayment()">
+              <custom-select
+                label="Payment type"
+                [required]="true"
+                [items]="paymentTypeEntries"
+                [control]="paymentForm.controls.paymentType"
+                [displayFn]="paymentTypeLabel"
+                [valueFn]="paymentTypeValue"
+                [container]="container()"
+                placeholder="Select payment type"
+                [errorMessages]="{ required: 'Payment type is required' }"
+                (selectionChange)="onPaymentTypeChange($event)"
+              />
+
+              @if (paymentForm.controls.paymentType.value === 'CASH') {
+                <div class="bs-payment-field">
+                  <input-field
+                    type="number"
+                    placeholder="Enter paid amount"
+                    [control]="paymentForm.controls.paidAmount"
+                    [errorMessages]="{
+                      required: 'Paid amount is required',
+                      min: 'Amount must be at least ' + (total() | currency: 'USD'),
+                    }"
+                  />
+
+                  @if (change(); as changeDue) {
+                    <p class="bs-change">
+                      Change:
+                      <span class="bs-change-value">{{ changeDue | currency: 'USD' }}</span>
+                    </p>
+                  }
+                </div>
+              } @else if (paymentForm.controls.paymentType.value === 'CARD') {
+                <input-field
+                  placeholder="Enter payment reference"
+                  hint="The reference returned by the payment gateway."
+                  [control]="paymentForm.controls.paymentReference"
+                  [errorMessages]="{ required: 'Payment reference is required' }"
+                />
+              }
+
+              @if (selectionChanged()) {
+                <button
+                  type="button"
+                  class="btn-primary bs-update"
+                  [disabled]="booking()"
+                  (click)="onBook()"
+                >
+                  @if (booking()) {
+                    <loading-spinner variant="xs" />
+                  } @else {
+                    <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+                    <span>Update booking</span>
+                  }
+                </button>
+              }
+
+              <button
+                type="submit"
+                class="btn-success bs-complete"
+                [disabled]="paymentForm.invalid"
+              >
+                <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
+                <span>Complete payment</span>
+              </button>
+            </form>
+          }
+
+          @if (activeBooking()) {
+            <button type="button" class="bs-cancel" [ngpDialogTrigger]="cancelDialog">
+              <svg [lucideIcon]="icons.XIcon" [size]="15"></svg>
+              <span>Cancel booking</span>
+            </button>
+          }
+        }
+      </aside>
     </div>
 
-    <aside class="bs-summary">
-      <div class="bs-summary-header">
-        <h3 class="bs-summary-title">Booking Summary</h3>
-
-        @if (activeBooking(); as booking) {
-          <hold-timer [expiresAt]="booking.expiresAt" (expired)="onTimerExpired()" />
-        }
-      </div>
-
-      @if (pricedSeats().length === 0) {
-        <div class="bs-summary-empty">
-          <svg [lucideIcon]="icons.InfoIcon" [size]="28"></svg>
-          <p>Select seats to start a booking.</p>
-        </div>
-      } @else {
-        <ul class="bs-selected">
-          @for (entry of pricedSeats(); track entry.position) {
-            <li class="bs-selected-item">
-              <span class="rss-seat">
-                <span class="rss-id">{{ entry.position }}</span>
-                <span class="rss-kind">{{ seatCategoryLabel[entry.category] }}</span>
-              </span>
-              <span class="rss-price">{{ entry.price | currency: 'USD' }}</span>
-            </li>
-          }
-        </ul>
-
-        <div class="bs-total">
-          <span>Total ({{ pricedSeats().length }})</span>
-          <span class="bs-total-value">{{ total() | currency: 'USD' }}</span>
+    <ng-template #cancelDialog let-close="close">
+      <app-modal modalTitle="Cancel this booking?" width="448px" [close]="close">
+        <div class="bs-cancel-modal-content">
+          <div class="rcm-icon">
+            <svg [lucideIcon]="icons.WarningIcon" [size]="24" [strokeWidth]="2"></svg>
+          </div>
+          <p class="rcm-message">
+            The held seats will be released and made available to other customers. This can't be
+            undone.
+          </p>
         </div>
 
-        @if (stage() === 'seats') {
+        <div modal-footer class="bs-dialog-footer">
+          <button type="button" class="btn-secondary" [disabled]="cancelling()" (click)="close()">
+            Keep booking
+          </button>
           <button
             type="button"
-            class="btn-primary bs-book"
-            [disabled]="booking()"
-            (click)="onBook()"
+            class="btn-danger"
+            [disabled]="cancelling()"
+            (click)="cancelPayment(close)"
           >
-            @if (booking()) {
+            @if (cancelling()) {
               <loading-spinner variant="xs" />
             } @else {
-              <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
-              <span>Book</span>
+              Cancel booking
             }
           </button>
-        } @else {
-          <form class="bs-payment" [formGroup]="paymentForm" (ngSubmit)="completePayment()">
-            <custom-select
-              label="Payment type"
-              [required]="true"
-              [items]="paymentTypeEntries"
-              [control]="paymentForm.controls.paymentType"
-              [displayFn]="paymentTypeLabel"
-              [valueFn]="paymentTypeValue"
-              [container]="container()"
-              placeholder="Select payment type"
-              [errorMessages]="{ required: 'Payment type is required' }"
-              (selectionChange)="onPaymentTypeChange($event)"
-            />
-
-            @if (paymentForm.controls.paymentType.value === 'CASH') {
-              <div class="bs-payment-field">
-                <input-field
-                  type="number"
-                  placeholder="Enter paid amount"
-                  [control]="paymentForm.controls.paidAmount"
-                  [errorMessages]="{
-                    required: 'Paid amount is required',
-                    min: 'Amount must be at least ' + (total() | currency: 'USD'),
-                  }"
-                />
-
-                @if (change(); as changeDue) {
-                  <p class="bs-change">
-                    Change:
-                    <span class="bs-change-value">{{ changeDue | currency: 'USD' }}</span>
-                  </p>
-                }
-              </div>
-            } @else if (paymentForm.controls.paymentType.value === 'CARD') {
-              <input-field
-                placeholder="Enter payment reference"
-                hint="The reference returned by the payment gateway."
-                [control]="paymentForm.controls.paymentReference"
-                [errorMessages]="{ required: 'Payment reference is required' }"
-              />
-            }
-
-            @if (selectionChanged()) {
-              <button
-                type="button"
-                class="btn-primary bs-update"
-                [disabled]="booking()"
-                (click)="onBook()"
-              >
-                @if (booking()) {
-                  <loading-spinner variant="xs" />
-                } @else {
-                  <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
-                  <span>Update booking</span>
-                }
-              </button>
-            }
-
-            <button type="submit" class="btn-success bs-complete" [disabled]="paymentForm.invalid">
-              <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
-              <span>Complete payment</span>
-            </button>
-          </form>
-        }
-
-        @if (activeBooking()) {
-          <button type="button" class="bs-cancel" [ngpDialogTrigger]="cancelDialog">
-            <svg [lucideIcon]="icons.XIcon" [size]="15"></svg>
-            <span>Cancel booking</span>
-          </button>
-        }
-      }
-    </aside>
-  </div>
-
-  <ng-template #cancelDialog let-close="close">
-    <app-modal modalTitle="Cancel this booking?" width="448px" [close]="close">
-      <div class="bs-cancel-modal-content">
-        <div class="rcm-icon">
-          <svg [lucideIcon]="icons.WarningIcon" [size]="24" [strokeWidth]="2"></svg>
         </div>
-        <p class="rcm-message">
-          The held seats will be released and made available to other customers. This can't be
-          undone.
-        </p>
-      </div>
+      </app-modal>
+    </ng-template>
 
-      <div modal-footer class="bs-dialog-footer">
-        <button type="button" class="btn-secondary" [disabled]="cancelling()" (click)="close()">
-          Keep booking
-        </button>
-        <button
-          type="button"
-          class="btn-danger"
-          [disabled]="cancelling()"
-          (click)="cancelPayment(close)"
-        >
-          @if (cancelling()) {
-            <loading-spinner variant="xs" />
-          } @else {
-            Cancel booking
-          }
-        </button>
-      </div>
-    </app-modal>
-  </ng-template>
-
-  <ng-template #expiredDialog let-close="close">
-    <app-modal modalTitle="Booking expired" width="448px" [close]="close">
-      <div class="bs-expired-modal-content">
-        <div class="rem-icon">
-          <svg [lucideIcon]="icons.ClockIcon" [size]="24" [strokeWidth]="2"></svg>
+    <ng-template #expiredDialog let-close="close">
+      <app-modal modalTitle="Booking expired" width="448px" [close]="close">
+        <div class="bs-expired-modal-content">
+          <div class="rem-icon">
+            <svg [lucideIcon]="icons.ClockIcon" [size]="24" [strokeWidth]="2"></svg>
+          </div>
+          <p class="rem-message">
+            The hold timer ran out and the seats were released. Start a new Booking to try again.
+          </p>
         </div>
-        <p class="rem-message">
-          The hold timer ran out and the seats were released. Start a new Booking to try again.
-        </p>
-      </div>
 
-      <div modal-footer class="bs-dialog-footer">
-        <button type="button" class="btn-primary" (click)="close()">Book again</button>
-      </div>
-    </app-modal>
-  </ng-template>
+        <div modal-footer class="bs-dialog-footer">
+          <button type="button" class="btn-primary" (click)="close()">Book again</button>
+        </div>
+      </app-modal>
+    </ng-template>
+  }
 }

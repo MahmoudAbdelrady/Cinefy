@@ -63,6 +63,11 @@ public class Hall extends BaseEntity {
         }
     }
 
+    public int getCapacity() {
+        int aisleSeats = layout.categories().getOrDefault(SeatCategory.AISLE, List.of()).size();
+        return totalRows * totalColumns - aisleSeats;
+    }
+
     public static String toCode(String name) {
         return name.trim().toLowerCase().replace(" ", "_");
     }

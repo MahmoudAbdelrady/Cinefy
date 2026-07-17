@@ -174,6 +174,12 @@ export class MovieShowtimesModal {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((updated) => this.applyUpdatedShowtime(updated));
 
+    this.showtimeEvents.bookingChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ showtimeId, count, myOnHoldSeats }) =>
+        this.applyBookingChanged(showtimeId, count, myOnHoldSeats),
+      );
+
     afterRenderEffect(() => {
       const els = this.noteEls();
       const next = new Set<string>();
@@ -390,6 +396,12 @@ export class MovieShowtimesModal {
     }
   }
 
+  private applyBookingChanged(showtimeId: string, count: number, myOnHoldSeats: number): void {
+    this.movieShowtimeDetails.update((list) =>
+      list.map((s) => (s.id === showtimeId ? { ...s, bookedSeats: count, myOnHoldSeats } : s)),
+    );
+  }
+
   private applyLocalDeletion(id: string): { wasDraft: boolean; movieClosed: boolean } {
     const removed = this.movieShowtimeDetails().find((s) => s.id === id);
     if (!removed) return { wasDraft: false, movieClosed: false };
@@ -470,6 +482,7 @@ export class MovieShowtimesModal {
       specialNotes: showtime.specialNotes,
       is3D: showtime.is3D,
       bookedSeats: showtime.bookedSeats,
+      myOnHoldSeats: showtime.myOnHoldSeats,
       totalSeats: showtime.totalSeats,
     };
   }

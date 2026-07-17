@@ -17,6 +17,11 @@ export class ShowtimeEventsService {
     movieId: number;
     isHighlighted: boolean;
   }>();
+  private readonly _bookingChanged = new Subject<{
+    showtimeId: string;
+    count: number;
+    myOnHoldSeats: number;
+  }>();
 
   readonly created$ = this._created.asObservable();
   readonly updated$ = this._updated.asObservable();
@@ -25,6 +30,7 @@ export class ShowtimeEventsService {
   readonly singleDeleted$ = this._singleDeleted.asObservable();
   readonly committedChanged$ = this._committedChanged.asObservable();
   readonly highlightChanged$ = this._highlightChanged.asObservable();
+  readonly bookingChanged$ = this._bookingChanged.asObservable();
 
   notifyCreated(showtime: Showtime): void {
     this._created.next(showtime);
@@ -52,5 +58,9 @@ export class ShowtimeEventsService {
 
   notifyHighlightChanged(movieId: number, isHighlighted: boolean): void {
     this._highlightChanged.next({ movieId, isHighlighted });
+  }
+
+  notifyBookingChanged(showtimeId: string, count: number, myOnHoldSeats: number): void {
+    this._bookingChanged.next({ showtimeId, count, myOnHoldSeats });
   }
 }

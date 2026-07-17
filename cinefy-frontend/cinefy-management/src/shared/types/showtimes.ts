@@ -27,6 +27,7 @@ interface Showtime {
   specialNotes: string;
   is3D: boolean;
   bookedSeats: number;
+  myOnHoldSeats: number;
   totalSeats: number;
 }
 
@@ -56,6 +57,7 @@ interface MovieShowtimeListItem {
   specialNotes: string;
   is3D: boolean;
   bookedSeats: number;
+  myOnHoldSeats: number;
   totalSeats: number;
 }
 

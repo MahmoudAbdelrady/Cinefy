@@ -31,5 +31,7 @@ public class ShowtimeSummaryDTO {
 
     private int bookedSeats;
 
+    private int myOnHoldSeats;
+
     private int totalSeats;
 }

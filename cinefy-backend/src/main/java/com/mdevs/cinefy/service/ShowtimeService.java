@@ -12,16 +12,17 @@ import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.enums.HallStatus;
 import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
+import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.entity.TmdbMovie;
+import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeCountProjection;
 import com.mdevs.cinefy.dto.showtime.PublishShowtimesDTO;
-import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
+import com.mdevs.cinefy.dto.showtime.ShowtimeBookingCountsProjection;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
-import com.mdevs.cinefy.shared.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,8 @@ public class ShowtimeService {
     private final HallService hallService;
 
     private final TmdbMovieService tmdbMovieService;
+
+    private final CurrentUserService currentUserService;
 
     private static final int CLEANUP_BUFFER_MINUTES = 15;
 
@@ -82,17 +85,18 @@ public class ShowtimeService {
         }
 
         List<Long> showtimeIds = showtimes.stream().map(Showtime::getId).toList();
-        Long staffId = SecurityUtil.getCurrentUser().getId();
-        Map<Long, Integer> bookedSeatsByShowtime = bookingRepository.countBookedSeatsByShowtime(showtimeIds, LocalDateTime.now(), null, staffId)
+        User currentUser = currentUserService.loadCurrentUser();
+        Long staffId = currentUser instanceof StaffMember staff ? staff.getId() : null;
+        Map<Long, ShowtimeBookingCountsProjection> countsByShowtime = bookingRepository.countBookedAndHeldByShowtime(showtimeIds, LocalDateTime.now(), staffId)
                 .stream()
-                .collect(Collectors.toMap(ShowtimeBookedSeatsProjection::getShowtimeId, ShowtimeBookedSeatsProjection::getBookedSeats));
+                .collect(Collectors.toMap(ShowtimeBookingCountsProjection::getShowtimeId, Function.identity()));
 
         long numberOfDrafts = showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count();
 
         MovieShowtimesDTO dto = new MovieShowtimesDTO();
         dto.setNumberOfDrafts(numberOfDrafts);
         dto.setShowtimes(showtimes.stream()
-                .map(showtime -> toMovieShowtimeListItem(showtime, bookedSeatsByShowtime.getOrDefault(showtime.getId(), 0)))
+                .map(showtime -> toMovieShowtimeListItem(showtime, countsByShowtime.get(showtime.getId())))
                 .toList());
         return dto;
     }
@@ -140,7 +144,7 @@ public class ShowtimeService {
 
         hallService.updateHallStatus(hall, HallStatus.SCHEDULED);
 
-        return toSummaryDTO(showtime);
+        return toSummaryDTO(showtime, null);
     }
 
     @Transactional
@@ -164,7 +168,14 @@ public class ShowtimeService {
             hallService.updateHallStatus(hall, HallStatus.SCHEDULED);
         }
 
-        return toSummaryDTO(showtime);
+        User currentUser = currentUserService.loadCurrentUser();
+        Long staffId = currentUser instanceof StaffMember staff ? staff.getId() : null;
+        ShowtimeBookingCountsProjection counts = bookingRepository.countBookedAndHeldByShowtime(List.of(showtime.getId()), LocalDateTime.now(), staffId)
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+        return toSummaryDTO(showtime, counts);
     }
 
     @Transactional
@@ -300,7 +311,7 @@ public class ShowtimeService {
         return showtime;
     }
 
-    private MovieShowtimeListItemDTO toMovieShowtimeListItem(Showtime showtime, int bookedSeats) {
+    private MovieShowtimeListItemDTO toMovieShowtimeListItem(Showtime showtime, ShowtimeBookingCountsProjection counts) {
         Hall hall = showtime.getHall();
         MovieShowtimeListItemDTO dto = new MovieShowtimeListItemDTO();
         dto.setId(showtime.getUuid());
@@ -309,8 +320,9 @@ public class ShowtimeService {
         dto.setStatus(showtime.getStatus().name());
         dto.setSpecialNotes(showtime.getSpecialNotes());
         dto.set3D(showtime.is3D());
-        dto.setBookedSeats(bookedSeats);
-        dto.setTotalSeats(hall.getTotalRows() * hall.getTotalColumns());
+        dto.setBookedSeats(counts != null ? counts.getBookedSeats() : 0);
+        dto.setMyOnHoldSeats(counts != null ? counts.getMyOnHoldSeats() : 0);
+        dto.setTotalSeats(hall.getCapacity());
         return dto;
     }
 
@@ -322,7 +334,7 @@ public class ShowtimeService {
         return dto;
     }
 
-    private ShowtimeSummaryDTO toSummaryDTO(Showtime showtime) {
+    private ShowtimeSummaryDTO toSummaryDTO(Showtime showtime, ShowtimeBookingCountsProjection counts) {
         Hall hall = showtime.getHall();
         ShowtimeSummaryDTO dto = new ShowtimeSummaryDTO();
         dto.setId(showtime.getUuid());
@@ -332,8 +344,9 @@ public class ShowtimeService {
         dto.setStatus(showtime.getStatus().name());
         dto.setSpecialNotes(showtime.getSpecialNotes());
         dto.set3D(showtime.is3D());
-        dto.setBookedSeats(0);
-        dto.setTotalSeats(hall.getTotalRows() * hall.getTotalColumns());
+        dto.setBookedSeats(counts != null ? counts.getBookedSeats() : 0);
+        dto.setMyOnHoldSeats(counts != null ? counts.getMyOnHoldSeats() : 0);
+        dto.setTotalSeats(hall.getCapacity());
         return dto;
     }
 

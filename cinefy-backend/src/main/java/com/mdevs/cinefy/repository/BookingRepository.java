@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
+import com.mdevs.cinefy.dto.showtime.ShowtimeBookingCountsProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import org.springframework.data.domain.Pageable;
@@ -57,6 +58,20 @@ public interface BookingRepository extends BaseRepository<Booking> {
                                                                    @Param("now") LocalDateTime now,
                                                                    @Param("clientId") Long clientId,
                                                                    @Param("staffId") Long staffId);
+
+    @Query("""
+            SELECT bs.showtime.id AS showtimeId,
+                   COUNT(bs.id) AS bookedSeats,
+                   COUNT(CASE WHEN b.bookedBy.id = :staffId AND b.status IS NULL AND b.onHold = true THEN 1 END) AS myOnHoldSeats
+            FROM BookingSeat bs
+            JOIN bs.booking b
+            WHERE bs.showtime.id IN :showtimeIds
+            AND (b.status = 'CONFIRMED' OR (b.onHold = true AND b.expiresAt > :now))
+            GROUP BY bs.showtime.id
+            """)
+    List<ShowtimeBookingCountsProjection> countBookedAndHeldByShowtime(@Param("showtimeIds") List<Long> showtimeIds,
+                                                                       @Param("now") LocalDateTime now,
+                                                                       @Param("staffId") Long staffId);
 
     @Query("""
             SELECT b FROM Booking b

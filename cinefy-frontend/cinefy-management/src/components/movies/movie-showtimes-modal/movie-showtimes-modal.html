@@ -139,9 +139,19 @@
                 @if (canManage()) {
                   <div class="ds-actions">
                     @if (showtimeDetail.status !== 'DRAFT') {
-                      <button class="dsi-action dsi-action-book" [ngpDialogTrigger]="bookDialog">
+                      @let hasSoldOut =
+                        showtimeDetail.bookedSeats === showtimeDetail.totalSeats &&
+                        showtimeDetail.myOnHoldSeats === 0;
+                      <button
+                        class="dsi-action dsi-action-book"
+                        [ngpDialogTrigger]="bookDialog"
+                        [disabled]="hasSoldOut"
+                      >
                         <svg [lucideIcon]="icons.TicketIcon" [size]="15"></svg>
                         <span>Book</span>
+                        @if (hasSoldOut) {
+                          <span class="sold-out-badge">Sold Out</span>
+                        }
                       </button>
                     }
                     @if (showtimeDetail.status === 'DRAFT') {

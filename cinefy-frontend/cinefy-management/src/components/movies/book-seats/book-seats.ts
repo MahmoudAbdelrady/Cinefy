@@ -1,17 +1,16 @@
 import {
+  afterNextRender,
   Component,
   computed,
   DestroyRef,
-  effect,
   inject,
   input,
   linkedSignal,
   signal,
   TemplateRef,
-  untracked,
   viewChild,
 } from '@angular/core';
-import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
@@ -27,13 +26,14 @@ import {
 } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
 import { ToastService } from 'cinefy-ui/services';
-import { BookingService } from '../../../services';
+import { BookingService, ShowtimeEventsService } from '../../../services';
 import { comparePositions } from '../../halls/seat-layout';
 import {
   CheckIcon,
   ClockIcon,
   InfoIcon,
   TicketIcon,
+  TicketXIcon,
   WarningIcon,
   XIcon,
 } from '../../../shared/icons';
@@ -44,6 +44,7 @@ import type {
   PaymentType,
   ShowtimeHallLayout,
   ShowtimeSeatLayout,
+  ShowtimeSeatSelection,
   StaffPaymentRequest,
 } from '../../../shared/types';
 
@@ -106,11 +107,13 @@ export class BookSeatsComponent {
     ClockIcon,
     InfoIcon,
     TicketIcon,
+    TicketXIcon,
     WarningIcon,
     XIcon,
   };
 
   private readonly bookingService = inject(BookingService);
+  private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialogManager = inject(NgpDialogManager);
@@ -134,20 +137,12 @@ export class BookSeatsComponent {
     paymentReference: new FormControl('', { nonNullable: true }),
   });
 
-  private readonly seatSelectionResource = rxResource({
-    params: () => this.showtimeId(),
-    stream: ({ params: showtimeId }) => this.bookingService.getSeatSelection(showtimeId),
-  });
+  protected readonly seatSelection = signal<ShowtimeSeatSelection | null>(null);
+  protected readonly loading = signal(false);
+  protected readonly failed = signal(false);
 
-  protected readonly failed = computed(() => !!this.seatSelectionResource.error());
-  protected readonly seatSelection = computed(() => this.seatSelectionResource.value());
-
-  protected readonly initialLoading = computed(
-    () => this.seatSelectionResource.isLoading() && !this.seatSelection(),
-  );
-  protected readonly reloading = computed(
-    () => this.seatSelectionResource.isLoading() && !!this.seatSelection(),
-  );
+  protected readonly initialLoading = computed(() => this.loading() && !this.seatSelection());
+  protected readonly reloading = computed(() => this.loading() && !!this.seatSelection());
 
   protected readonly activeBooking = linkedSignal<ActiveBooking | null>(
     () => this.seatSelection()?.activeBooking ?? null,
@@ -211,18 +206,44 @@ export class BookSeatsComponent {
   protected readonly paymentTypeValue = (entry: PaymentTypeEntry) => entry.value;
 
   constructor() {
-    effect(() => {
-      const layout = this.seatSelection()?.hallLayout;
-      const seats = this.activeBooking()?.seats;
-      if (!layout || !seats || untracked(this.bookedSeats).length) return;
+    afterNextRender(() => this.loadSeatSelection());
+  }
 
-      this.bookedSeats.set(
-        seats.map((position) => {
-          const category = seatCategory(position, layout.layout);
-          return { position, category, price: this.prices()[category] ?? 0 };
-        }),
-      );
-    });
+  private loadSeatSelection(): void {
+    this.loading.set(true);
+    this.bookingService
+      .getSeatSelection(this.showtimeId())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (seatSelection) => {
+          this.seatSelection.set(seatSelection);
+          this.failed.set(false);
+          this.loading.set(false);
+          this.seedBookedSeats(seatSelection);
+          this.showtimeEvents.notifyBookingChanged(
+            this.showtimeId(),
+            seatSelection.hallLayout.layout.booked.length,
+            seatSelection.activeBooking?.seats.length ?? 0,
+          );
+        },
+        error: () => {
+          this.failed.set(true);
+          this.loading.set(false);
+        },
+      });
+  }
+
+  private seedBookedSeats(seatSelection: ShowtimeSeatSelection): void {
+    const seats = seatSelection.activeBooking?.seats;
+    if (!seats || this.bookedSeats().length) return;
+
+    const { layout } = seatSelection.hallLayout;
+    this.bookedSeats.set(
+      seats.map((position) => {
+        const category = seatCategory(position, layout);
+        return { position, category, price: this.prices()[category] ?? 0 };
+      }),
+    );
   }
 
   protected onSelectionChange(seats: Seat[]): void {
@@ -256,7 +277,7 @@ export class BookSeatsComponent {
             seats: request.seats,
             expiresAt: detail.expiresAt,
           });
-          this.seatSelectionResource.reload();
+          this.loadSeatSelection();
           this.stage.set('payment');
           this.toastService.success(
             updated ? 'Booking updated successfully' : 'Seats booked successfully',
@@ -328,6 +349,6 @@ export class BookSeatsComponent {
     this.activeBooking.set(null);
     this.paymentForm.reset({ paymentType: null, paidAmount: null, paymentReference: '' });
     this.stage.set('seats');
-    this.seatSelectionResource.reload();
+    this.loadSeatSelection();
   }
 }
