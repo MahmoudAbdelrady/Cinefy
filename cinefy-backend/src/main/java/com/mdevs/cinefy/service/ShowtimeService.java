@@ -61,27 +61,30 @@ public class ShowtimeService {
     // ========================= Public API =========================
 
     public MovieShowtimeDatesDTO getMovieShowtimeDates(Long movieId) {
-        // @TODO --> return empty list instead
         List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ShowtimeStatus.LIVE_STATUSES);
-        if (dates.isEmpty()) {
-            throw new NotFoundException("No showtimes found for the provided movie");
-        }
-
-        long numberOfDrafts = showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, Set.of(ShowtimeStatus.DRAFT));
-        long numberOfCommitted = showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, ShowtimeStatus.COMMITTED_STATUSES);
 
         MovieShowtimeDatesDTO dto = new MovieShowtimeDatesDTO();
-        dto.setNumberOfDrafts(numberOfDrafts);
-        dto.setNumberOfCommitted(numberOfCommitted);
+        if (dates.isEmpty()) {
+            dto.setNumberOfDrafts(0);
+            dto.setNumberOfCommitted(0);
+            dto.setDates(List.of());
+            return dto;
+        }
+
+        dto.setNumberOfDrafts(showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, Set.of(ShowtimeStatus.DRAFT)));
+        dto.setNumberOfCommitted(showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, ShowtimeStatus.COMMITTED_STATUSES));
         dto.setDates(dates.stream().map(LocalDate::toString).toList());
         return dto;
     }
 
     public MovieShowtimesDTO getMovieShowtimesForDate(Long movieId, LocalDate date) {
-        // @TODO --> return empty list instead
         List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ShowtimeStatus.LIVE_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+
+        MovieShowtimesDTO dto = new MovieShowtimesDTO();
         if (showtimes.isEmpty()) {
-            throw new NotFoundException("No showtimes found for the provided movie on " + date);
+            dto.setNumberOfDrafts(0);
+            dto.setShowtimes(List.of());
+            return dto;
         }
 
         List<Long> showtimeIds = showtimes.stream().map(Showtime::getId).toList();
@@ -91,10 +94,7 @@ public class ShowtimeService {
                 .stream()
                 .collect(Collectors.toMap(ShowtimeBookingCountsProjection::getShowtimeId, Function.identity()));
 
-        long numberOfDrafts = showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count();
-
-        MovieShowtimesDTO dto = new MovieShowtimesDTO();
-        dto.setNumberOfDrafts(numberOfDrafts);
+        dto.setNumberOfDrafts(showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count());
         dto.setShowtimes(showtimes.stream()
                 .map(showtime -> toMovieShowtimeListItem(showtime, countsByShowtime.get(showtime.getId())))
                 .toList());

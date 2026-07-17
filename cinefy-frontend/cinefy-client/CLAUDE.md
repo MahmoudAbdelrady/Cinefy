@@ -4,7 +4,7 @@
 
 Angular 21 **public-facing booking app** for the Cinefy cinema platform. Standalone components, signal-based state, **server-side rendered** (`@angular/ssr` with an Express host) — this is the customer-facing site where people browse movies and book seats, as opposed to the CSR-only `cinefy-management` admin dashboard. Custom SCSS design system; consumes the shared `cinefy-ui` library.
 
-> **Current state:** the home, movies-listing, and movie-detail pages are built and routed; the rest (seat selection, checkout) is still being ported. The fully-designed product lives as a **React reference mock** in `mvp-version/` and is ported screen-by-screen into the Angular app via the `mvp-to-real` skill. Most "build a page" work means mapping from `mvp-version/`, not writing from scratch. Pages already mapped, all inside the `AppLayout` shell (header with a user-info menu + "My Tickets" dialog, and a footer): **Home** (`/`) — a `featured-carousel` hero (auto-advancing highlighted-movie slides), a "Now Showing" rail, and a "Coming Soon"/upcoming rail; **Movies** (`/movies`) — a filterable grid (title search + experience/genre/rating selects); **Movie Detail** (`/movies/:movieId`) — backdrop, cast/crew, trailer dialog, and a `booking-section` (date strip + showtimes grouped by hall type). Data comes from `MoviesService`, `HallsService`, and `BookingService` (`services/`), loaded with `rxResource`.
+> **Current state:** the browse, booking, and auth flows are all built and routed. The fully-designed product lives as a **React reference mock** in `mvp-version/` and is ported screen-by-screen into the Angular app via the `mvp-to-real` skill. Most "build a page" work means mapping from `mvp-version/`, not writing from scratch. Two layout shells: the public **`AppLayout`** (header — logo/nav, a "My Tickets" dialog, and an authenticated user-info menu **or** Login/Sign-up buttons for anonymous users — plus a footer) and the **`AuthLayout`** shell for the `/membership/*` auth pages. Pages built: **Home** (`/`) — a `featured-carousel` hero (auto-advancing highlighted-movie slides), a "Now Showing" rail, and a "Coming Soon"/upcoming rail; **Movies** (`/movies`) — a filterable grid (title search + experience/genre/rating selects); **Movie Detail** (`/movies/:movieId`) — backdrop, cast/crew, trailer dialog, and a `booking-section` (date strip + showtimes grouped by hall type); **Seat Selection** (`/movies/:movieId/seats/:showtimeId`, `authGuard`); **Checkout** (`/checkout/:bookingId`, `authGuard`); and the auth pages under `/membership` — **Login**, **Sign-up**, **Forgot-password**. Data comes from `MoviesService`, `HallsService`, `BookingService`, `AuthService`, and `ClientService` (`services/`); browse reads load with `rxResource`, while auth/current-user data loads via `afterNextRender` + `.subscribe()` (see the SSR note below). Not yet built: a `/profile` page (`app-layout.ts` navigates to `/profile`, but no such page/route exists yet).
 
 ## Workspace Layout
 
@@ -32,7 +32,9 @@ pnpm serve:ssr:cinefy-client   # Run the built SSR server (node dist/cinefy-clie
 
 ## SSR — this app is server-rendered
 
-`cinefy-client` ships browser **and** server bundles. `src/server.ts` is the Express host; `src/app/app.routes.server.ts` declares render modes (currently `RenderMode.Server` for `**`); `src/app/app.config.server.ts` merges server providers onto the shared `appConfig`. Hydration is enabled with event replay (`provideClientHydration(withEventReplay())`).
+`cinefy-client` ships browser **and** server bundles. `src/server.ts` is the Express host; `src/app/app.routes.server.ts` declares render modes; `src/app/app.config.server.ts` merges server providers onto the shared `appConfig`. Hydration is enabled with event replay (`provideClientHydration(withEventReplay())`).
+
+Render modes reflect the auth boundary: the identity-bearing / auth-gated routes are `RenderMode.Client` — `membership/**` (login/signup/forgot-password), `movies/:movieId/seats/:showtimeId` (seat selection), and `checkout/:bookingId` — while everything else (`**`, the public browse pages) stays `RenderMode.Server`. This is the render-mode side of the fetch-placement rule below: auth is client state, so auth-gated pages render in-browser where the cookie lives (no flash, no cookie-forwarding into SSR).
 
 When writing or porting components, **be SSR-safe**:
 
@@ -46,31 +48,52 @@ When writing or porting components, **be SSR-safe**:
 ```
 src/
 ├── app/
+│   ├── core/interceptors/     # HTTP interceptors (registered in app.config.ts, in order; barrel: index.ts)
+│   │   ├── base-url.ts        # Prepends environment apiUrl (browser) / API_ORIGIN (SSR) to relative requests
+│   │   ├── csrf.ts            # Attaches CSRF token to mutating requests
+│   │   ├── auth-retry.ts      # On 401, refreshes the access token once (single-flight) and retries
+│   │   ├── error-toast.ts     # On HTTP error, shows a toast — skippable via the SKIP_ERROR_TOAST context
+│   │   └── error-toast-context.ts # SKIP_ERROR_TOAST token + skipErrorToast() helper
 │   ├── app.ts                  # Root component (hosts <router-outlet>)
-│   ├── app.routes.ts          # Client route definitions (AppLayout shell + child pages)
-│   ├── app.config.ts          # Browser providers (router, hydration)
+│   ├── app.routes.ts          # Route definitions (AuthLayout /membership shell + AppLayout shell + ** NotFound)
+│   ├── app.config.ts          # Browser providers: router, hydration, HttpClient + 4 interceptors, toast, ng-primitives menu
 │   ├── app.config.server.ts   # Server providers merged onto appConfig
-│   └── app.routes.server.ts   # Per-route SSR render modes (currently RenderMode.Server for **)
+│   └── app.routes.server.ts   # Per-route SSR render modes (auth-gated routes → Client; ** → Server)
 ├── layout/
-│   └── app-layout/            # Public shell: header (logo, nav, "My Tickets" dialog, user-info menu) + <router-outlet> + footer
+│   ├── app-layout/            # Public shell: header (logo, nav, "My Tickets" dialog, user-info menu or Login/Sign-up) + <router-outlet> + footer
+│   └── auth-layout/           # Guest shell for /membership/* (login, signup, forgot-password): logo + <router-outlet>
 ├── pages/                      # Route-level components (barrel: pages/index.ts)
 │   ├── home/                  # HomePage (/) — featured-carousel hero + "Now Showing" + upcoming rails
 │   ├── movies/                # MoviesPage (/movies) — filterable grid (search + experience/genre/rating selects)
-│   └── movie-detail/          # MovieDetailPage (/movies/:movieId) — backdrop, cast/crew, trailer + <booking-section>
+│   ├── movie-detail/          # MovieDetailPage (/movies/:movieId) — backdrop, cast/crew, trailer + <booking-section>
+│   ├── seat-selection/        # SeatSelectionPage (/movies/:movieId/seats/:showtimeId, authGuard) — seat map + summary
+│   ├── checkout/              # CheckoutPage (/checkout/:bookingId, authGuard)
+│   └── auth/                  # LoginPage, SignUpPage, ForgotPasswordPage (under /membership/*)
 ├── components/                 # Reusable UI components (barrel: components/index.ts)
 │   ├── home/featured-carousel/ # Auto-advancing hero carousel of highlighted-movie slides (backdrop, scrims, meta, Play CTA)
 │   ├── movies/trailer-modal/   # YouTube/trailer player dialog (trailerUrl + title inputs)
 │   ├── movies/booking-section/ # Date strip + showtimes (grouped by hall type) on the detail page; fetches BookingService
-│   └── header/my-tickets-list/ # In-progress bookings list shown inside the header's "My Tickets" modal
+│   ├── movies/booking-cancelled/ # Booking-cancelled state
+│   ├── seat-selection/booking-summary/ # Selected-seats summary panel on the seat-selection page
+│   ├── header/my-tickets-list/ # In-progress bookings list shown inside the header's "My Tickets" modal
+│   └── auth/                  # oauth-buttons/, otp-step/, and forgot-password/ (multi-step: progress-dots + steps/{request,reset,done}, own barrel + _fp-shared.scss)
 ├── services/                   # HTTP services (barrel: services/index.ts)
 │   ├── movies.ts              # MoviesService — getHighlighted / getNowShowing / getAnnouncedUpcoming / getMovieDetails
 │   ├── halls.ts              # HallsService — getHallTypes
-│   └── booking.ts            # BookingService — getBookableDates / getBookableShowtimes (public /booking/* endpoints)
+│   ├── booking.ts            # BookingService — getBookableDates/getBookableShowtimes (public) + getSeatSelection/getActiveBookings/getActiveBookingDetails/createBooking/cancelBooking (authed)
+│   ├── auth.ts               # AuthService — sign-up/verify-account/send-otp/login/logout/verify-otp/reset-password/session/refresh (refresh single-flighted)
+│   └── clients.ts            # ClientService — getCurrentUser (/clients/me) + clearCurrentUser
 ├── shared/
-│   ├── icons.ts               # Re-exports of lucide icons used in the app — sole source of glyphs (alias `X as XIcon`)
-│   ├── types/                 # Client-facing data shapes (barrel: types/index.ts) — movies.ts, halls.ts (HallType), booking.ts (BookingShowtime, HallTypeShowtimes)
+│   ├── icons.ts               # Re-exports of lucide icons from @lucide/angular — sole source of glyphs (alias `X as XIcon`)
+│   ├── guards/                # auth-guard (authGuard), guest-guard (guestGuard) (barrel: index.ts)
+│   ├── seat-position.ts       # comparePositions() seat-sorting helper
+│   ├── validation.ts          # Shared form regexes: EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN
+│   ├── types/                 # Client-facing data shapes (barrel: types/index.ts) — movies, halls, booking, auth, clients, api (ApiError/ApiErrorCode), seats
 │   └── styles/
-│       └── _colors.scss       # Color palette + typography vars; @forwards cinefy-ui radii — the single shared SCSS partial
+│       └── _colors.scss       # Color palette + typography vars; @forwards cinefy-ui radii — the single shared partial under shared/styles (see also the forgot-password _fp-shared.scss)
+├── environments/
+│   ├── environment.ts         # Dev: apiUrl = http://localhost:8080
+│   └── environment.prod.ts    # Prod: apiUrl = /api
 ├── main.ts                     # Browser bootstrap
 ├── main.server.ts             # Server bootstrap
 ├── server.ts                  # Express SSR host
@@ -80,11 +103,11 @@ src/
 mvp-version/                    # React 19 + Vite + Tailwind v4 + shadcn/ui design mock (the reference)
 ```
 
-Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, and `shared/types/index.ts` — import through them, not by deep path.
+Barrel exports exist at `components/index.ts` (+ a nested `components/auth/forgot-password/index.ts`), `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, and `shared/guards/index.ts` — import through them, not by deep path.
 
 ### Shared styles & the design system
 
-The shared SCSS lives in a **single partial**, `src/shared/styles/_colors.scss` (unlike management's `_colors`/`_shadows`/`_mixins` split). It holds the color palette **and** the typography vars (`$font-sans` = Geist, `$font-mono` = Geist Mono), and `@forward`s cinefy-ui's radii so `$radius-*` are available from the same import. Tokens were ported from `mvp-version/src/styles/index.css` (`oklch(...)` → hex). Dark-theme only.
+The shared SCSS under `shared/styles/` is a **single partial**, `src/shared/styles/_colors.scss` (unlike management's `_colors`/`_shadows`/`_mixins` split). It holds the color palette **and** the typography vars (`$font-sans` = Geist, `$font-mono` = Geist Mono), and `@forward`s cinefy-ui's radii so `$radius-*` are available from the same import. Tokens were ported from `mvp-version/src/styles/index.css` (`oklch(...)` → hex). Dark-theme only. (One component-local exception: `src/components/auth/forgot-password/_fp-shared.scss`, shared across the forgot-password step components.)
 
 Import it with `@use 'shared/styles/colors' as *;` (depth-adjust the relative prefix) — **never** hardcode raw values, and **never** `@import`. For shared mixins use `@use 'cinefy-ui/styles/mixins' as *;` (`flex-*`, `lucide-icon-fix`, `text-truncate`); for breakpoints `@use 'cinefy-ui/styles/breakpoints' as *;`. Prefer cinefy-ui's `var(--cui-*)` tokens / components / mixins where they already cover the need.
 
@@ -103,7 +126,7 @@ Token conventions:
 - **No Tailwind in output** — translate every utility to hand-written SCSS in the component's `.scss`; translate the underlying _token_, not the literal class string.
 - **Visual & behavioral parity** — colors, spacing, radius, shadows, gradients, hover/zoom, reveal animations, dialogs must match. The MVP is **dark-theme only**.
 - **Use pixels, not rems.** Always consider **responsive** design — translate `sm/md/lg/xl` (640/768/1024/1280) prefixes to SCSS media queries; add responsive behavior where the MVP lacks it.
-- **Icons:** `LucideAngularModule`, size via the `[size]` input — never via SCSS `svg { width/height }`.
+- **Icons:** import `LucideDynamicIcon` from `@lucide/angular` and render `<svg [lucideIcon]="icons.XIcon" [size]="N">`; size via the `[size]` input — never via SCSS `svg { width/height }`.
 - **shadcn/Radix primitives** (anything from `components/ui/*` — button, dialog, select, tabs, …): **stop and ask** — first check whether cinefy-ui provides it; otherwise ask before adding a headless lib or hand-rolling.
 - **Mock data layer** (`BookingsProvider`, `data/*.ts`) is placeholder — map the UI faithfully but **do not hardwire the mock data into the real app**; treat real data shapes as a decision to ask about, not invent.
 - React → Angular: `useState`→`signal()`, `useMemo`→`computed()`, `useEffect`→`effect()`/lifecycle; props→`input()`/`output()`; react-router→Angular router (`<Link to>`→`routerLink`, `useNavigate()`→`inject(Router)`, `useParams`/`useSearchParams`→`ActivatedRoute`, `<Outlet/>`→`<router-outlet>`).
@@ -119,17 +142,23 @@ These hold across the Cinefy frontend — see `cinefy-management/CLAUDE.md` for 
 - **Semantic HTML** — reach for the element that describes the content; `<div>` is only for a generic box with no meaning (flex/grid wrapper, card body, scrim/spacer/decorative layer). This matters **more here than in management** — the client is SSR + public-facing, so landmarks and sectioning have real SEO and accessibility payoff for anonymous users and crawlers. Use `<header>`/`<main>`/`<footer>` for the shell ([`layout/app-layout/app-layout.html`](src/layout/app-layout/app-layout.html)), `<nav>` for link sets, `<section>` **only** for a titled region that contains a heading (the home rails in [`pages/home/home.html`](src/pages/home/home.html), the `<h3>` regions in `pages/movie-detail/movie-detail.html`, the `<h2>`-led `components/movies/booking-section/booking-section.html`), and `<ul>`/`<li>` for any `@for` list (the `@for` goes on the `<li>`). Never add an empty `<section>` (one with no heading) — that's noise for screen readers; keep it a `<div>`. Don't do a blanket "replace every div" sweep — convert in a focused landmark/list pass and **verify the build after each file** (the template compiler flags mismatched closing tags). Selectors are class-based, so tag swaps cause no layout change. Full treatment in [`../cinefy-management/CLAUDE.md`](../cinefy-management/CLAUDE.md#semantic-html).
 - New components default to **SCSS styles** and **skip tests** (per `angular.json` schematics). Inline `selector`, external `templateUrl` + `styleUrl`; files named `name.ts`/`name.html`/`name.scss` (no `.component` suffix).
 - **Barrel exports** — pages and components are re-exported from `pages/index.ts` and `components/index.ts`; import through the barrel.
-- **Icons** — all lucide glyphs are re-exported from `src/shared/icons.ts` (aliased `Foo as FooIcon`); import from there, never from `lucide-angular` directly. Add new glyphs to that file. Size via the `[size]` input.
+- **Icons** — all lucide glyphs are re-exported from `src/shared/icons.ts` (aliased `Foo as FooIcon`, from `@lucide/angular`); import from there, never from `@lucide/angular` directly. Add new glyphs to that file. Size via the `[size]` input.
 - **Reactive forms** (`FormGroup` + `[formGroup]`) for any `<form (ngSubmit)>`; signal/template forms must import `FormsModule` so `<form>` has a directive.
 - **No accessibility attributes** (`aria-*`, `role`, `title`) and **no explanatory comments** unless explicitly requested. Write self-documenting code.
 - **No `-webkit-` prefixes / legacy fallbacks** — target modern browsers, write the standard property directly. The one exception is multi-line truncation: `display: -webkit-box` + `-webkit-box-orient: vertical` + `-webkit-line-clamp` are the only implemented mechanism, so they're load-bearing (pair `-webkit-line-clamp` with the standard `line-clamp` for the linter and future-proofing).
-- Shared form regexes live in a flat `src/shared/validation.ts` (create if reused).
+- Shared form regexes live in a flat `src/shared/validation.ts` (`EMAIL_PATTERN`, `NAME_PATTERN`, `PASSWORD_PATTERN`).
 - Prettier: `printWidth: 100`, `singleQuote: true`; HTML uses the angular parser.
 - TypeScript is **strict** (`strict`, `noImplicitOverride`, `noPropertyAccessFromIndexSignature`, `strictTemplates`).
 - After adding cinefy-ui exports, clear `.angular/cache` — Vite caches the lib pre-bundle and throws "does not provide an export named" until cleared (dev only).
 
 ## Backend contract
 
-The only contract with `cinefy-backend` is the HTTP API (documented in the backend `CLAUDE.md`). Frontend and backend version/deploy independently. Frontend branches on JSON `errorCode` (an `ApiErrorCode` union), not message text, when multiple 400s need distinct UI handling.
+The only contract with `cinefy-backend` is the HTTP API (documented in the backend `CLAUDE.md`). Frontend and backend version/deploy independently. Frontend branches on JSON `errorCode` (the `ApiErrorCode` union, `shared/types/api.ts` — currently `'ACCOUNT_NOT_VERIFIED' | 'OTP_INVALID' | 'PASSWORD_REUSED'`), not message text, when multiple 400s need distinct UI handling.
 
-This app consumes the **public** (`@PublicApi`, unauthenticated) read endpoints: `/movies/highlighted`, `/movies/now-showing`, `/movies/announced-upcoming`, `/movies/{id}` (raw TMDB id, not a uuid), and `/booking/movies/{id}/dates` + `/booking/movies/{id}/showtimes?date=`. **The client-facing list endpoints return an empty array, never 404, when there's nothing** (a movie with no bookable dates, a date with no showtimes) — the empty state is driven off `length === 0`, so don't treat empty as an error. A genuine 404 means the resource itself is absent (e.g. an unknown movie id on `/movies/{id}`) and is handled distinctly (see `movie-detail.ts`, which branches on `HttpErrorResponse.status === 404`).
+This app is now **auth-bearing** (JWT-in-cookie), so it consumes both public and authenticated endpoints:
+
+- **Public** (`@PublicApi`, unauthenticated) reads: `/movies/highlighted`, `/movies/now-showing`, `/movies/announced-upcoming`, `/movies/{id}` (raw TMDB id, not a uuid), `/halls/types`, and `/booking/movies/{id}/dates` + `/booking/movies/{id}/showtimes?date=`.
+- **Auth** (`AuthService`, `clients/auth/*`): `sign-up`, `verify-account`, `send-otp`, `login`, `logout`, `verify-otp`, `reset-password`, `GET session`, `refresh` (the refresh call is single-flighted). Current user: `GET /clients/me` (`ClientService`).
+- **Authenticated booking** (`BookingService`): `GET /booking/showtimes/{id}` (seat selection), `GET /booking/active`, `GET /booking/active/{uuid}`, `POST /booking` (sends an `Idempotency-Key` header), `DELETE /booking/{uuid}`.
+
+**The client-facing list endpoints return an empty array, never 404, when there's nothing** (a movie with no bookable dates, a date with no showtimes) — the empty state is driven off `length === 0`, so don't treat empty as an error. A genuine 404 means the resource itself is absent (e.g. an unknown movie id on `/movies/{id}`) and is handled distinctly (see `movie-detail.ts`, which branches on `HttpErrorResponse.status === 404`).

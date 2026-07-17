@@ -28,6 +28,7 @@ import {
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
+  CalendarIcon,
   DeleteIcon,
   EditIcon,
   MapPinIcon,
@@ -39,7 +40,7 @@ import {
 } from '../../../shared/icons';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
-import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ModalComponent, LoadingSpinnerComponent, EmptyStateComponent } from 'cinefy-ui/components';
 import { BookSeatsComponent } from '../book-seats/book-seats';
 import { ToastService } from 'cinefy-ui/services';
 import { Time12hPipe } from 'cinefy-ui/pipes';
@@ -58,6 +59,7 @@ import { canManage as canManagePosition } from '../../../shared/access';
     LucideDynamicIcon,
     NgpDialogTrigger,
     LoadingSpinnerComponent,
+    EmptyStateComponent,
     Time12hPipe,
     BookSeatsComponent,
   ],
@@ -66,6 +68,7 @@ import { canManage as canManagePosition } from '../../../shared/access';
 })
 export class MovieShowtimesModal {
   protected readonly icons = {
+    CalendarIcon,
     DeleteIcon,
     EditIcon,
     PlusIcon,
