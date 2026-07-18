@@ -44,7 +44,7 @@ import { ModalComponent, LoadingSpinnerComponent, EmptyStateComponent } from 'ci
 import { BookSeatsComponent } from '../book-seats/book-seats';
 import { ToastService } from 'cinefy-ui/services';
 import { Time12hPipe } from 'cinefy-ui/pipes';
-import { canManage as canManagePosition } from '../../../shared/access';
+import { canManage as canManagePosition, canBook as canBookPosition } from '../../../shared/access';
 
 @Component({
   selector: 'movie-showtimes-modal',
@@ -89,6 +89,10 @@ export class MovieShowtimesModal {
   protected readonly canManage = computed(() => {
     const user = this.currentUser();
     return user ? canManagePosition(user.position) : false;
+  });
+  protected readonly canBook = computed(() => {
+    const user = this.currentUser();
+    return user ? canBookPosition(user.position) : false;
   });
 
   private readonly noteEls = viewChildren<ElementRef<HTMLElement>>('noteText');

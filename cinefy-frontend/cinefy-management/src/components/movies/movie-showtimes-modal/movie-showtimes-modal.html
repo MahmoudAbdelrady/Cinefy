@@ -155,9 +155,9 @@
                       }
                     </div>
                   }
-                  @if (canManage()) {
+                  @if (canBook() || canManage()) {
                     <div class="ds-actions">
-                      @if (showtimeDetail.status !== 'DRAFT') {
+                      @if (showtimeDetail.status !== 'DRAFT' && canBook()) {
                         @let hasSoldOut =
                           showtimeDetail.bookedSeats === showtimeDetail.totalSeats &&
                           showtimeDetail.myOnHoldSeats === 0;
@@ -173,35 +173,37 @@
                           }
                         </button>
                       }
-                      @if (showtimeDetail.status === 'DRAFT') {
-                        <button
-                          class="dsi-action dsi-action-publish"
-                          [disabled]="publishingShowtimeIds().has(showtimeDetail.id)"
-                          (click)="onPublishShowtime(showtimeDetail.id)"
-                        >
-                          @if (publishingShowtimeIds().has(showtimeDetail.id)) {
-                            <loading-spinner variant="xs" />
-                          } @else {
-                            <svg [lucideIcon]="icons.SendIcon" [size]="15"></svg>
-                          }
-                          <span>Publish</span>
-                        </button>
-                      }
-                      @if (showtimeDetail.status !== 'RUNNING') {
-                        <button
-                          class="dsi-action dsi-action-edit"
-                          (click)="onEditShowtime(showtimeDetail)"
-                        >
-                          <svg [lucideIcon]="icons.EditIcon" [size]="15"></svg>
-                          <span>Edit</span>
-                        </button>
-                        <button
-                          class="dsi-action dsi-action-delete"
-                          [ngpDialogTrigger]="deleteDialog"
-                        >
-                          <svg [lucideIcon]="icons.DeleteIcon" [size]="15"></svg>
-                          <span>Delete</span>
-                        </button>
+                      @if (canManage()) {
+                        @if (showtimeDetail.status === 'DRAFT') {
+                          <button
+                            class="dsi-action dsi-action-publish"
+                            [disabled]="publishingShowtimeIds().has(showtimeDetail.id)"
+                            (click)="onPublishShowtime(showtimeDetail.id)"
+                          >
+                            @if (publishingShowtimeIds().has(showtimeDetail.id)) {
+                              <loading-spinner variant="xs" />
+                            } @else {
+                              <svg [lucideIcon]="icons.SendIcon" [size]="15"></svg>
+                            }
+                            <span>Publish</span>
+                          </button>
+                        }
+                        @if (showtimeDetail.status !== 'RUNNING') {
+                          <button
+                            class="dsi-action dsi-action-edit"
+                            (click)="onEditShowtime(showtimeDetail)"
+                          >
+                            <svg [lucideIcon]="icons.EditIcon" [size]="15"></svg>
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            class="dsi-action dsi-action-delete"
+                            [ngpDialogTrigger]="deleteDialog"
+                          >
+                            <svg [lucideIcon]="icons.DeleteIcon" [size]="15"></svg>
+                            <span>Delete</span>
+                          </button>
+                        }
                       }
                     </div>
                   }

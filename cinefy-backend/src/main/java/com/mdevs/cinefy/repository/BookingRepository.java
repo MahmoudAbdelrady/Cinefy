@@ -43,6 +43,16 @@ public interface BookingRepository extends BaseRepository<Booking> {
                                      @Param("now") LocalDateTime now);
 
     @Query("""
+            SELECT CASE WHEN COUNT(bs.id) > 0 THEN true ELSE false END
+            FROM BookingSeat bs
+            JOIN bs.booking b
+            WHERE bs.showtime.id IN :showtimeIds
+            AND (b.status = 'CONFIRMED' OR (b.onHold = true AND b.expiresAt > :now))
+            """)
+    boolean existsBookedSeatByShowtimeIn(@Param("showtimeIds") List<Long> showtimeIds,
+                                         @Param("now") LocalDateTime now);
+
+    @Query("""
             SELECT bs.showtime.id AS showtimeId, COUNT(bs.id) AS bookedSeats
             FROM BookingSeat bs
             JOIN bs.booking b

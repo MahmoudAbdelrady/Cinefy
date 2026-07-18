@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -150,10 +151,7 @@ public class ShowtimeService {
     @Transactional
     public ShowtimeSummaryDTO updateShowtime(String uuid, ShowtimeDTO dto) {
         Showtime showtime = findShowtime(uuid);
-        // @TODO --> This should be changed to depend on the number of booked seats instead for the published status
-        if (!ShowtimeStatus.ACTIVE_STATUSES.contains(showtime.getStatus())) {
-            throw new BusinessException("Cannot update a showtime that's not draft or published");
-        }
+        validateShowtimesMutable(List.of(showtime), "update");
 
         Hall previousHall = showtime.getHall();
         Hall hall = hallService.findHall(dto.getHallId());
@@ -181,10 +179,7 @@ public class ShowtimeService {
     @Transactional
     public void deleteShowtime(String uuid) {
         Showtime showtime = findShowtime(uuid);
-        // @TODO --> This should be changed to depend on the number of booked seats instead of the published status
-        if (!ShowtimeStatus.ACTIVE_STATUSES.contains(showtime.getStatus())) {
-            throw new BusinessException("Cannot delete a showtime that's not draft or published");
-        }
+        validateShowtimesMutable(List.of(showtime), "delete");
         Hall hall = showtime.getHall();
         showtimeRepository.delete(showtime);
         flipHallIfNoActiveShowtimes(hall, showtime.getId());
@@ -199,10 +194,7 @@ public class ShowtimeService {
             throw new NotFoundException("No showtimes found for the provided movie");
         }
 
-        // @TODO --> This should be changed to depend on the number of booked seats instead of the published status
-        if (showtimes.stream().anyMatch(s -> !ShowtimeStatus.ACTIVE_STATUSES.contains(s.getStatus()))) {
-            throw new BusinessException("Cannot delete a showtime that's not draft or published");
-        }
+        validateShowtimesMutable(showtimes, "delete");
 
         Set<Hall> affectedHalls = showtimes.stream().map(Showtime::getHall).collect(Collectors.toCollection(LinkedHashSet::new));
 
@@ -264,8 +256,28 @@ public class ShowtimeService {
         }
     }
 
+    private void validateShowtimesMutable(List<Showtime> showtimes, String action) {
+        boolean single = showtimes.size() == 1;
+        List<Long> publishedIds = new ArrayList<>();
+        for (Showtime showtime : showtimes) {
+            if (showtime.getStatus().equals(ShowtimeStatus.DRAFT)) {
+                continue;
+            }
+            if (!ShowtimeStatus.ACTIVE_STATUSES.contains(showtime.getStatus())) {
+                throw new BusinessException(single
+                        ? "Cannot " + action + " a showtime that's not draft or published"
+                        : "Cannot " + action + " showtimes that aren't draft or published");
+            }
+            publishedIds.add(showtime.getId());
+        }
+        if (!publishedIds.isEmpty() && bookingRepository.existsBookedSeatByShowtimeIn(publishedIds, LocalDateTime.now())) {
+            throw new BusinessException(single
+                    ? "Cannot " + action + " a published showtime that already has bookings"
+                    : "Cannot " + action + " published showtimes that already have bookings");
+        }
+    }
+
     private void flipHallIfNoActiveShowtimes(Hall hall, Long excludeId) {
-        // @TODO --> This should be changed to check other statuses
         boolean stillHasShowtimes = showtimeRepository.existsByHallAndStatusInAndIdNot(hall, ShowtimeStatus.LIVE_STATUSES, excludeId);
         if (!stillHasShowtimes) {
             hallService.updateHallStatus(hall, HallStatus.ACTIVE);

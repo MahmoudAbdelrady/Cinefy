@@ -26,6 +26,8 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
             """)
     boolean existsOverlapping(@Param("hall") Hall hall, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end, @Param("excludeId") Long excludeId);
 
+    boolean existsByHall(Hall hall);
+
     boolean existsByHallAndStatusIn(Hall hall, Set<ShowtimeStatus> statuses);
 
     boolean existsByHallAndStatusInAndIdNot(Hall hall, Set<ShowtimeStatus> statuses, Long id);

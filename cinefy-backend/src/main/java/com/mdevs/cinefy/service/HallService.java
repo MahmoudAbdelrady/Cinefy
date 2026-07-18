@@ -149,8 +149,8 @@ public class HallService {
     @Transactional
     public void deleteHall(String uuid) {
         Hall hall = findHallWithLayout(uuid);
-        if (showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.LIVE_STATUSES)) {
-            throw new BusinessException("Cannot delete this hall while it has active showtimes");
+        if (showtimeRepository.existsByHall(hall)) {
+            throw new BusinessException("Cannot delete this hall while it has showtimes");
         }
         hallRepository.delete(hall);
     }
@@ -249,7 +249,6 @@ public class HallService {
             throw new BusinessException("Cannot modify status of this hall while it has active showtimes");
         }
 
-        // @TODO --> This could be changed to depend on the number of booked seats instead
         if (hasCriticalConfigChange(hall, dto) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.COMMITTED_STATUSES)) {
             throw new BusinessException("Cannot modify the configuration of this hall while it has active showtimes");
         }
