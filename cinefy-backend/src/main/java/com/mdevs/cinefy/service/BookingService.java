@@ -465,6 +465,7 @@ public class BookingService {
 
         return new BookingSummaryDTO(
                 booking.getUuid(),
+                showtime.getUuid(),
                 booking.getExpiresAt(),
                 tmdbMovieService.toSearchResult(showtime.getTmdbMovie()),
                 showtime.getStartDateTime(),

@@ -1,0 +1,91 @@
+<app-modal
+  modalTitle="Active Bookings"
+  [description]="description()"
+  width="560px"
+  [close]="close()"
+>
+  @if (isLoading()) {
+    <div class="abl-status">
+      <loading-spinner variant="lg" />
+    </div>
+  } @else if (hasError()) {
+    <empty-state
+      [icon]="icons.WarningIcon"
+      title="We couldn't load the active bookings. Please try again."
+    />
+  } @else {
+    <ul class="abl-list">
+      @for (booking of bookings(); track booking.id) {
+        <li class="abl-item">
+          <div class="abli-poster">
+            <media-image
+              [src]="booking.movie.posterUrl"
+              [alt]="booking.movie.title + ' poster'"
+              [iconSize]="20"
+            />
+          </div>
+          <div class="abli-info">
+            <div class="abli-header">
+              <h3>{{ booking.movie.title }}</h3>
+              @if (isExpiringSoon(booking)) {
+                <span class="expiring-badge">
+                  <svg [lucideIcon]="icons.ClockIcon" [size]="12"></svg>
+                  <span>Expiring soon</span>
+                </span>
+              }
+            </div>
+            <div class="abli-meta">
+              <div class="abli-meta-item">
+                <svg [lucideIcon]="icons.CalendarIcon" [size]="14"></svg>
+                <span>{{ booking.startDateTime | date: 'MMM d, y' }}</span>
+              </div>
+              <div class="abli-meta-item">
+                <svg [lucideIcon]="icons.ClockIcon" [size]="14"></svg>
+                <span>{{ booking.startDateTime | date: 'shortTime' }}</span>
+              </div>
+              <div class="abli-meta-item">
+                <svg [lucideIcon]="icons.ClapperboardIcon" [size]="14"></svg>
+                <span>
+                  {{ booking.hallType }}
+                  @if (booking.is3D) {
+                    <span>(3D)</span>
+                  }
+                </span>
+              </div>
+            </div>
+            <div class="abli-pricing">
+              <span class="ticket-count">
+                <svg [lucideIcon]="icons.TicketIcon" [size]="14"></svg>
+                <span>x{{ booking.totalTickets }}</span>
+              </span>
+              <span class="total-price">{{ booking.totalPrice | currency: 'USD' }}</span>
+            </div>
+          </div>
+          <div class="abli-actions">
+            <button class="btn-primary" [ngpDialogTrigger]="bookDialog">
+              <svg [lucideIcon]="icons.TicketIcon" [size]="15"></svg>
+              <span>Complete</span>
+            </button>
+          </div>
+
+          <ng-template #bookDialog let-close="close">
+            <app-modal
+              #bookModal
+              modalTitle="Book Seats"
+              [description]="bookingSummary(booking)"
+              [close]="close"
+              width="1200px"
+            >
+              <book-seats [showtimeId]="booking.showtimeId" [container]="bookModal.panelEl()" />
+            </app-modal>
+          </ng-template>
+        </li>
+      } @empty {
+        <empty-state
+          [icon]="icons.TicketIcon"
+          title="Bookings you start will wait here until they're completed."
+        />
+      }
+    </ul>
+  }
+</app-modal>

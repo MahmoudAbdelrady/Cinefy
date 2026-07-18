@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 public record BookingSummaryDTO(
         String id,
 
+        String showtimeId,
+
         LocalDateTime expiresAt,
 
         MovieSearchResultDTO movie,

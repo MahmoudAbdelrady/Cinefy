@@ -1,11 +1,20 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { BookingDetail, BookingRequest, ShowtimeSeatSelection } from '../shared/types';
+import type {
+  BookingDetail,
+  BookingRequest,
+  BookingSummary,
+  ShowtimeSeatSelection,
+} from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
   private readonly http = inject(HttpClient);
+
+  getActiveBookings(): Observable<BookingSummary[]> {
+    return this.http.get<BookingSummary[]>('/booking/active');
+  }
 
   getSeatSelection(showtimeId: string): Observable<ShowtimeSeatSelection> {
     return this.http.get<ShowtimeSeatSelection>(`/booking/showtimes/${showtimeId}`);

@@ -56,6 +56,19 @@ interface BookingRequest {
   seats: string[];
 }
 
+interface BookingSummary {
+  id: string;
+  showtimeId: string;
+  expiresAt: string;
+  movie: MovieSearchResult;
+  startDateTime: string;
+  hallName: string;
+  hallType: string;
+  is3D: boolean;
+  totalTickets: number;
+  totalPrice: number;
+}
+
 interface StaffPaymentRequest {
   paymentType: PaymentType;
   paidAmount?: number;
@@ -71,5 +84,6 @@ export type {
   BookedSeat,
   BookingDetail,
   BookingRequest,
+  BookingSummary,
   StaffPaymentRequest,
 };
