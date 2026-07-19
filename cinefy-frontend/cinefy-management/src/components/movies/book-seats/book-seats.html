@@ -165,13 +165,12 @@
               </button>
             </form>
           }
-
-          @if (activeBooking()) {
-            <button type="button" class="bs-cancel" [ngpDialogTrigger]="cancelDialog">
-              <svg [lucideIcon]="icons.XIcon" [size]="15"></svg>
-              <span>Cancel booking</span>
-            </button>
-          }
+        }
+        @if (activeBooking()) {
+          <button type="button" class="bs-cancel" [ngpDialogTrigger]="cancelDialog">
+            <svg [lucideIcon]="icons.XIcon" [size]="15"></svg>
+            <span>Cancel booking</span>
+          </button>
         }
       </aside>
     </div>
