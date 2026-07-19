@@ -1,0 +1,334 @@
+@use '../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+.co-loading,
+.co-error {
+  @include flex-center;
+
+  padding: 96px 16px;
+}
+
+// ─── Page shell ──────────────────────────────────────────────────────────────
+.co-page {
+  display: block;
+  width: 100%;
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.co-back {
+  @include flex-align;
+
+  gap: 8px;
+  width: fit-content;
+  margin-bottom: 24px;
+  padding: 6px 12px;
+  border-radius: $radius-md;
+  font-size: 14px;
+  font-weight: 500;
+  color: $color-foreground;
+  text-decoration: none;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: $color-accent;
+  }
+}
+
+.co-head {
+  @include flex-between;
+
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.co-title {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+// ─── Layout grid ─────────────────────────────────────────────────────────────
+.co-grid {
+  display: grid;
+  gap: 32px;
+
+  @include from-desktop {
+    grid-template-columns: 1fr 360px;
+  }
+
+  > * {
+    min-width: 0;
+  }
+}
+
+.co-card {
+  border: 1px solid rgba($color-border, 0.5);
+  border-radius: $radius-xl;
+  background: $color-card;
+  padding: 24px;
+}
+
+// ─── Payment form ────────────────────────────────────────────────────────────
+.co-card-title {
+  @include flex-align;
+
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: 600;
+
+  svg {
+    color: $color-primary;
+  }
+}
+
+.co-form {
+  @include flex-column;
+
+  gap: 16px;
+}
+
+.co-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  > * {
+    min-width: 0;
+  }
+}
+
+// ─── Order summary ───────────────────────────────────────────────────────────
+.co-summary {
+  @include from-desktop {
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+  }
+}
+
+.co-summary-card {
+  overflow: hidden;
+  padding: 0;
+}
+
+.co-summary-movie {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+}
+
+.co-summary-poster {
+  flex-shrink: 0;
+  width: 80px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: $radius-lg;
+}
+
+.co-summary-meta {
+  min-width: 0;
+
+  > * + * {
+    margin-top: 4px;
+  }
+}
+
+.co-summary-movie-title {
+  @include text-truncate;
+
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.co-summary-facts {
+  @include flex-column;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.co-fact {
+  @include flex-align;
+  gap: 8px;
+}
+
+.co-fact-label {
+  @include flex-align;
+  @include lucide-icon-fix;
+  flex-shrink: 0;
+  gap: 6px;
+  font-size: 13px;
+  color: $color-muted-foreground;
+}
+
+.co-fact-label-text {
+  @include below-mobile {
+    display: none;
+  }
+}
+
+.co-fact-value {
+  @include text-truncate;
+
+  font-family: $font-mono;
+  color: $color-foreground;
+}
+
+.co-divider {
+  border-top: 1px solid rgba($color-border, 0.5);
+}
+
+.co-divider-tight {
+  margin: 4px 0;
+}
+
+.co-summary-rows {
+  @include flex-column;
+
+  gap: 8px;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.co-seats-header {
+  dt {
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .co-seats-count {
+    font-weight: 400;
+    color: $color-muted-foreground;
+  }
+}
+
+.co-seats {
+  @include flex-column;
+  @include scrollbar-thin;
+
+  gap: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.co-seat {
+  @include flex-between;
+
+  gap: 12px;
+}
+
+.co-seat-label {
+  @include flex-align;
+  gap: 8px;
+}
+
+.co-seat-position {
+  font-family: $font-mono;
+  font-weight: 500;
+  color: $color-primary;
+}
+
+.co-seat-category {
+  color: $color-muted-foreground;
+}
+
+.co-seat-price {
+  font-family: $font-mono;
+  color: $color-foreground;
+}
+
+.co-total {
+  @include flex-between;
+
+  align-items: center;
+  padding-top: 4px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.co-total-note {
+  font-size: 12px;
+  font-weight: 400;
+  color: $color-muted-foreground;
+}
+
+.co-total-value {
+  font-family: $font-mono;
+  color: $color-primary;
+}
+
+// ─── Summary actions ─────────────────────────────────────────────────────────
+.co-actions {
+  @include flex-column;
+
+  gap: 8px;
+  padding: 0 20px 20px;
+}
+
+.co-pay {
+  width: 100%;
+  height: 44px;
+  font-weight: 600;
+}
+
+.co-cancel {
+  width: 100%;
+  height: 44px;
+  padding-block: 0;
+  color: $color-muted-foreground;
+
+  &:hover:not(:disabled) {
+    color: $color-destructive;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+// ─── Cancel-confirm & expired dialogs ────────────────────────────────────────
+.co-cancel-modal-content,
+.co-expired-modal-content {
+  text-align: center;
+}
+
+.ccm-icon {
+  @include flex-center;
+
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border-radius: $radius-full;
+  background: rgba($color-destructive, 0.15);
+
+  svg {
+    display: flex;
+    color: $color-destructive;
+  }
+}
+
+.ccm-message {
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: $color-muted-foreground;
+
+  strong {
+    color: $color-foreground;
+  }
+}
+
+.co-dialog-footer {
+  @include flex-align;
+
+  gap: 12px;
+  width: 100%;
+
+  button {
+    flex: 1;
+  }
+}

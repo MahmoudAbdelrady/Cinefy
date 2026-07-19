@@ -2397,6 +2397,763 @@ function ProfileSection() {
   );
 }
 
+// ============================================================================
+// Staff Seat Reservation — book seats on behalf of a walk-in customer
+// ============================================================================
+
+type SeatKind = 'normal' | 'vip' | 'onsite' | 'empty';
+
+interface ReservationSeat {
+  id: string;
+  row: string;
+  number: number;
+  kind: SeatKind;
+  taken: boolean;
+}
+
+type PaymentType = 'CASH' | 'CARD';
+
+/** Mock wire payload — the real endpoint will be POST /bookings/:id/payment. */
+interface CompletePaymentRequest {
+  bookingId: string;
+  paymentType: PaymentType;
+  paidAmount?: number;
+  paymentReference?: string;
+}
+
+/** Mock wire response — the issued ticket returned by the payment endpoint. */
+interface IssuedTicket {
+  ticketId: string;
+  bookingId: string;
+  qrCode: string;
+  movieTitle: string;
+  hallName: string;
+  date: string;
+  time: string;
+  seats: string[];
+  totalAmount: number;
+  paymentType: PaymentType;
+  paidAmount?: number;
+  paymentReference?: string;
+  issuedAt: string;
+}
+
+const SEAT_ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+const SEAT_COLS = 12;
+const HOLD_SECONDS = 10 * 60;
+
+const SEAT_PRICE: Record<Exclude<SeatKind, 'empty'>, number> = {
+  normal: 120,
+  vip: 200,
+  onsite: 120,
+};
+
+const SEAT_KIND_LABEL: Record<Exclude<SeatKind, 'empty'>, string> = {
+  normal: 'Normal',
+  vip: 'VIP',
+  onsite: 'On-site',
+};
+
+/**
+ * Deterministic layout + taken pattern seeded off the showtime, so the same
+ * showtime always renders the same hall (no Math.random flicker on re-render).
+ */
+function buildReservationHall(seed: number, bookedSeats: number): ReservationSeat[][] {
+  let remaining = bookedSeats;
+  return SEAT_ROWS.map((row, rowIdx) => {
+    return Array.from({ length: SEAT_COLS }, (_, colIdx) => {
+      const number = colIdx + 1;
+      const mid = Math.floor(SEAT_COLS / 2);
+      const isAisle = (colIdx === mid - 1 || colIdx === mid) && rowIdx < SEAT_ROWS.length - 2;
+      const isVip = rowIdx >= SEAT_ROWS.length - 2;
+      const kind: SeatKind = isAisle ? 'empty' : isVip ? 'vip' : 'normal';
+
+      let taken = false;
+      if (kind !== 'empty' && remaining > 0) {
+        const h = (rowIdx * 31 + colIdx * 17 + seed * 7) % 100;
+        if (h < 45) {
+          taken = true;
+          remaining--;
+        }
+      }
+
+      return { id: `${row}${number}`, row, number, kind, taken };
+    });
+  });
+}
+
+function formatCountdown(seconds: number) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function formatMoney(amount: number) {
+  return `EGP ${amount.toFixed(2)}`;
+}
+
+function hashString(value: string) {
+  let h = 0;
+  for (let i = 0; i < value.length; i++) h = (h * 31 + value.charCodeAt(i)) | 0;
+  return h;
+}
+
+function newBookingId(showtimeId: number) {
+  return `BK-${String(showtimeId).padStart(4, '0')}-${Date.now().toString(36).toUpperCase()}`;
+}
+
+/** Placeholder QR — a deterministic dot matrix, swapped for a real code later. */
+function QrStub({ seed, size = 116 }: { seed: string; size?: number }) {
+  const cells = 21;
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+
+  const modules: boolean[] = [];
+  for (let i = 0; i < cells * cells; i++) {
+    h = (h * 1103515245 + 12345) >>> 0;
+    modules.push(((h >>> 16) & 1) === 1);
+  }
+
+  const isFinder = (r: number, c: number) =>
+    (r < 7 && c < 7) || (r < 7 && c >= cells - 7) || (r >= cells - 7 && c < 7);
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${cells} ${cells}`}
+      className="rounded-lg bg-white p-1 ring-1 ring-gray-200"
+      shapeRendering="crispEdges"
+    >
+      {Array.from({ length: cells }).map((_, r) =>
+        Array.from({ length: cells }).map((_, c) => {
+          if (isFinder(r, c)) return null;
+          if (!modules[r * cells + c]) return null;
+          return <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} fill="#111827" />;
+        }),
+      )}
+      {[
+        [0, 0],
+        [0, cells - 7],
+        [cells - 7, 0],
+      ].map(([r, c]) => (
+        <g key={`${r}-${c}`}>
+          <rect x={c} y={r} width={7} height={7} fill="#111827" />
+          <rect x={c + 1} y={r + 1} width={5} height={5} fill="#ffffff" />
+          <rect x={c + 2} y={r + 2} width={3} height={3} fill="#111827" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function SeatCell({
+  seat,
+  selected,
+  locked,
+  onToggle,
+}: {
+  seat: ReservationSeat;
+  selected: boolean;
+  locked: boolean;
+  onToggle: () => void;
+}) {
+  if (seat.kind === 'empty') return <span className="w-7 h-7" />;
+
+  const base =
+    'w-7 h-7 rounded-t-md rounded-b-sm border text-[10px] font-semibold transition-all flex items-center justify-center';
+
+  if (seat.taken) {
+    return (
+      <span
+        className={`${base} bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed`}
+        title={`${seat.id} · Taken`}
+      />
+    );
+  }
+
+  const kindClass =
+    seat.kind === 'vip'
+      ? 'bg-purple-100 border-purple-300 text-purple-700 hover:border-purple-500'
+      : 'bg-blue-100 border-blue-300 text-blue-700 hover:border-blue-500';
+
+  return (
+    <button
+      onClick={onToggle}
+      disabled={locked}
+      title={`${seat.id} · ${SEAT_KIND_LABEL[seat.kind]} · ${formatMoney(SEAT_PRICE[seat.kind])}`}
+      className={`${base} ${
+        selected
+          ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+          : `${kindClass} ${locked ? 'cursor-not-allowed opacity-70' : ''}`
+      }`}
+    >
+      {selected ? seat.number : ''}
+    </button>
+  );
+}
+
+function SeatLegendItem({ className, label }: { className: string; label: string }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span className={`w-3.5 h-3.5 rounded-t border ${className}`} />
+      {label}
+    </span>
+  );
+}
+
+function TicketDetail({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof Clock;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <Icon size={15} className="text-gray-400 flex-shrink-0" />
+      <div className="flex flex-1 items-baseline justify-between gap-3">
+        <dt className="text-gray-500">{label}</dt>
+        <dd className="font-medium text-gray-900">{value}</dd>
+      </div>
+    </div>
+  );
+}
+
+function IssuedTicketPanel({ ticket }: { ticket: IssuedTicket }) {
+  return (
+    <div className="p-6 flex justify-center">
+      <div className="w-full max-w-lg">
+        <div className="flex flex-col items-center text-center mb-6">
+          <span className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mb-3">
+            <Check size={28} className="text-green-600" strokeWidth={3} />
+          </span>
+          <h4 className="text-2xl font-bold text-gray-900">Payment complete</h4>
+          <p className="text-gray-600 mt-1">
+            The ticket has been issued — hand it to the customer.
+          </p>
+        </div>
+
+        <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-5 text-white">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-white/70">
+              Admit {ticket.seats.length}
+            </p>
+            <h5 className="text-2xl font-bold leading-tight mt-0.5">{ticket.movieTitle}</h5>
+          </div>
+
+          <div className="border-t border-dashed border-gray-300" />
+
+          <div className="flex items-center gap-6 p-6">
+            <dl className="flex-1 space-y-3 text-sm">
+              <TicketDetail icon={Calendar} label="Date" value={ticket.date} />
+              <TicketDetail icon={Clock} label="Time" value={ticket.time} />
+              <TicketDetail icon={MapPin} label="Hall" value={ticket.hallName} />
+              <TicketDetail icon={Ticket} label="Seats" value={ticket.seats.join(' · ')} />
+            </dl>
+
+            <div className="flex flex-col items-center gap-2 flex-shrink-0">
+              <QrStub seed={ticket.qrCode} />
+              <span className="text-[11px] text-gray-500 font-medium">{ticket.ticketId}</span>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-600">Payment</span>
+              <span className="font-semibold text-gray-900">
+                {ticket.paymentType === 'CASH' ? 'Cash' : 'Card'}
+              </span>
+            </div>
+            {ticket.paymentType === 'CASH' && ticket.paidAmount !== undefined && (
+              <>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Paid</span>
+                  <span className="text-gray-900 tabular-nums">
+                    {formatMoney(ticket.paidAmount)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Change</span>
+                  <span className="text-gray-900 tabular-nums">
+                    {formatMoney(ticket.paidAmount - ticket.totalAmount)}
+                  </span>
+                </div>
+              </>
+            )}
+            {ticket.paymentType === 'CARD' && ticket.paymentReference && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Reference</span>
+                <span className="text-gray-900 font-mono text-xs">{ticket.paymentReference}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+              <span className="font-semibold text-gray-900">Total</span>
+              <span className="text-lg font-bold text-blue-600 tabular-nums">
+                {formatMoney(ticket.totalAmount)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReservationStatusPanel({
+  tone,
+  icon,
+  title,
+  description,
+  onClose,
+}: {
+  tone: 'red' | 'orange';
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  onClose: () => void;
+}) {
+  const ring = tone === 'red' ? 'bg-red-100' : 'bg-orange-100';
+  return (
+    <div className="flex flex-col items-center text-center py-16 px-6">
+      <span className={`w-16 h-16 rounded-full ${ring} flex items-center justify-center mb-4`}>
+        {icon}
+      </span>
+      <h4 className="text-2xl font-bold text-gray-900">{title}</h4>
+      <p className="text-gray-600 mt-1 max-w-sm">{description}</p>
+      <button
+        onClick={onClose}
+        className="mt-6 px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors shadow-md font-semibold"
+      >
+        Close
+      </button>
+    </div>
+  );
+}
+
+function StaffReservationModal({ showtime, onClose }: { showtime: any; onClose: () => void }) {
+  const [stage, setStage] = useState<'seats' | 'payment' | 'ticket'>('seats');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [secondsLeft, setSecondsLeft] = useState(HOLD_SECONDS);
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
+  const [expired, setExpired] = useState(false);
+
+  const [paymentType, setPaymentType] = useState<'' | PaymentType>('');
+  const [paidAmount, setPaidAmount] = useState('');
+  const [paymentReference, setPaymentReference] = useState('');
+  const [ticket, setTicket] = useState<IssuedTicket | null>(null);
+
+  const [bookingId, setBookingId] = useState(() => newBookingId(showtime.id));
+  const [hall, setHall] = useState(() =>
+    buildReservationHall(showtime.id, showtime.bookedSeats),
+  );
+
+  // Hold timer — runs while the seats are held, stops once the ticket is issued
+  // or the booking is cancelled.
+  useEffect(() => {
+    if (stage === 'ticket' || cancelled || expired) return;
+    if (secondsLeft <= 0) {
+      setExpired(true);
+      return;
+    }
+    const id = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(id);
+  }, [secondsLeft, stage, cancelled, expired]);
+
+  const seatById = new Map(hall.flat().map((s) => [s.id, s]));
+  const selectedSeats = [...selected]
+    .map((id) => seatById.get(id)!)
+    .sort((a, b) => a.row.localeCompare(b.row) || a.number - b.number);
+
+  const total = selectedSeats.reduce(
+    (sum, s) => sum + SEAT_PRICE[s.kind as Exclude<SeatKind, 'empty'>],
+    0,
+  );
+
+  const enteredAmount = Number(paidAmount);
+  const amountEntered = paidAmount.trim() !== '' && !Number.isNaN(enteredAmount);
+  const amountIsValid = amountEntered && enteredAmount >= total;
+  const amountIsShort = amountEntered && enteredAmount < total;
+  const change = amountIsValid ? enteredAmount - total : 0;
+
+  const canCompletePayment =
+    paymentType === 'CASH'
+      ? amountIsValid
+      : paymentType === 'CARD'
+        ? paymentReference.trim().length > 0
+        : false;
+
+  const toggleSeat = (seat: ReservationSeat) => {
+    if (seat.taken || seat.kind === 'empty' || stage !== 'seats') return;
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(seat.id) ? next.delete(seat.id) : next.add(seat.id);
+      return next;
+    });
+  };
+
+  const completePayment = () => {
+    const payload: CompletePaymentRequest = {
+      bookingId,
+      paymentType: paymentType as PaymentType,
+      ...(paymentType === 'CASH'
+        ? { paidAmount: enteredAmount }
+        : { paymentReference: paymentReference.trim() }),
+    };
+
+    // TODO: POST this payload to the payment endpoint — the response is the
+    // issued ticket. Until the backend exists, the ticket is built locally.
+    console.log('completePayment →', payload);
+
+    setTicket({
+      ticketId: `TK-${Math.abs(hashString(bookingId)).toString(36).toUpperCase().slice(0, 8)}`,
+      bookingId,
+      qrCode: bookingId,
+      movieTitle: showtime.movieTitle,
+      hallName: showtime.hallName,
+      date: showtime.date,
+      time: showtime.time,
+      seats: selectedSeats.map((s) => s.id),
+      totalAmount: total,
+      paymentType: payload.paymentType,
+      paidAmount: payload.paidAmount,
+      paymentReference: payload.paymentReference,
+      issuedAt: new Date().toISOString(),
+    });
+    setStage('ticket');
+  };
+
+  // Start another booking on the same showtime — the seats just sold are now
+  // genuinely occupied, so they carry over as taken into the fresh hall.
+  const startNewBooking = () => {
+    const sold = new Set(ticket?.seats ?? []);
+    setHall((prev) =>
+      prev.map((row) => row.map((s) => (sold.has(s.id) ? { ...s, taken: true } : s))),
+    );
+    setBookingId(newBookingId(showtime.id));
+    setSelected(new Set());
+    setPaymentType('');
+    setPaidAmount('');
+    setPaymentReference('');
+    setTicket(null);
+    setSecondsLeft(HOLD_SECONDS);
+    setStage('seats');
+  };
+
+  const timerCritical = secondsLeft <= 60;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Modal Header */}
+        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h3 className="text-2xl font-bold text-gray-900 truncate">
+                {stage === 'ticket' ? 'Ticket Issued' : 'Reserve Seats'}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1 flex items-center gap-2 flex-wrap">
+                <span className="font-medium">{showtime.movieTitle}</span>
+                <span className="text-gray-300">·</span>
+                <span className="flex items-center gap-1">
+                  <MapPin size={13} />
+                  {showtime.hallName}
+                </span>
+                <span className="text-gray-300">·</span>
+                <span>
+                  {showtime.date} at {showtime.time}
+                </span>
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {stage !== 'ticket' && !cancelled && !expired && (
+                <div
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium ${
+                    timerCritical
+                      ? 'border-red-300 bg-red-50 text-red-700'
+                      : 'border-gray-300 bg-white text-gray-700'
+                  }`}
+                >
+                  <Clock size={15} />
+                  <span className="tabular-nums">{formatCountdown(secondsLeft)}</span>
+                </div>
+              )}
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Content */}
+        <div className="flex-1 overflow-y-auto">
+          {cancelled ? (
+            <ReservationStatusPanel
+              tone="red"
+              icon={<X size={32} className="text-red-600" strokeWidth={3} />}
+              title="Booking cancelled"
+              description="The held seats have been released and are available again."
+              onClose={onClose}
+            />
+          ) : expired ? (
+            <ReservationStatusPanel
+              tone="orange"
+              icon={<Clock size={32} className="text-orange-600" />}
+              title="Reservation expired"
+              description="The hold timer ran out and the seats were released. Start a new reservation to try again."
+              onClose={onClose}
+            />
+          ) : stage === 'ticket' && ticket ? (
+            <IssuedTicketPanel ticket={ticket} />
+          ) : (
+            <div className="flex flex-col lg:flex-row">
+              {/* Seat map */}
+              <div className="flex-1 p-6 border-b lg:border-b-0 lg:border-r border-gray-200">
+                <div className="overflow-x-auto pb-2">
+                  <div className="flex flex-col gap-2 min-w-max mx-auto">
+                    <div className="mb-5 bg-gradient-to-b from-gray-800 to-gray-700 rounded-md py-1.5 shadow-md">
+                      <p className="text-center text-white text-xs font-semibold tracking-wide">
+                        SCREEN
+                      </p>
+                    </div>
+
+                    {hall.map((row) => (
+                      <div key={row[0].row} className="flex items-center justify-center gap-3">
+                        <span className="w-5 text-center text-xs font-semibold text-gray-400">
+                          {row[0].row}
+                        </span>
+                        <div className="flex gap-1.5">
+                          {row.map((seat) => (
+                            <SeatCell
+                              key={seat.id}
+                              seat={seat}
+                              selected={selected.has(seat.id)}
+                              locked={stage !== 'seats'}
+                              onToggle={() => toggleSeat(seat)}
+                            />
+                          ))}
+                        </div>
+                        <span className="w-5 text-center text-xs font-semibold text-gray-400">
+                          {row[0].row}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-gray-600">
+                  <SeatLegendItem className="bg-blue-100 border-blue-300" label="Normal" />
+                  <SeatLegendItem className="bg-purple-100 border-purple-300" label="VIP" />
+                  <SeatLegendItem className="bg-blue-600 border-blue-600" label="Selected" />
+                  <SeatLegendItem className="bg-gray-200 border-gray-300" label="Taken" />
+                </div>
+              </div>
+
+              {/* Summary + payment */}
+              <div className="w-full lg:w-80 flex-shrink-0 p-6 bg-gray-50">
+                <h4 className="font-semibold text-gray-900 mb-4">Booking Summary</h4>
+
+                {selectedSeats.length === 0 ? (
+                  <div className="flex flex-col items-center gap-2 py-10 text-center text-gray-500">
+                    <Info size={28} className="opacity-40" />
+                    <p className="text-sm">Select seats to start a booking.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-5">
+                    <div className="max-h-44 overflow-y-auto space-y-2 pr-1">
+                      {selectedSeats.map((seat) => (
+                        <div
+                          key={seat.id}
+                          className="flex items-center justify-between text-sm bg-white border border-gray-200 rounded-lg px-3 py-2"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-900">{seat.id}</span>
+                            <span className="text-xs text-gray-500">
+                              {SEAT_KIND_LABEL[seat.kind as Exclude<SeatKind, 'empty'>]}
+                            </span>
+                          </span>
+                          <span className="text-gray-700 tabular-nums">
+                            {formatMoney(SEAT_PRICE[seat.kind as Exclude<SeatKind, 'empty'>])}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                      <span className="font-semibold text-gray-900">
+                        Total ({selectedSeats.length})
+                      </span>
+                      <span className="text-lg font-bold text-blue-600 tabular-nums">
+                        {formatMoney(total)}
+                      </span>
+                    </div>
+
+                    {stage === 'seats' ? (
+                      <button
+                        onClick={() => setStage('payment')}
+                        className="w-full px-6 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors shadow-md font-semibold flex items-center justify-center gap-2"
+                      >
+                        <Ticket size={16} />
+                        Book
+                      </button>
+                    ) : (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                            Payment type
+                          </label>
+                          <select
+                            value={paymentType}
+                            onChange={(e) => {
+                              setPaymentType(e.target.value as '' | PaymentType);
+                              setPaidAmount('');
+                              setPaymentReference('');
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          >
+                            <option value="">Select payment type</option>
+                            <option value="CASH">Cash</option>
+                            <option value="CARD">Card</option>
+                          </select>
+                        </div>
+
+                        {paymentType === 'CASH' && (
+                          <div>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={paidAmount}
+                              onChange={(e) => setPaidAmount(e.target.value)}
+                              placeholder="Enter paid amount"
+                              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:border-transparent ${
+                                amountIsShort
+                                  ? 'border-red-300 focus:ring-red-500'
+                                  : 'border-gray-300 focus:ring-blue-500'
+                              }`}
+                            />
+                            {amountIsShort && (
+                              <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                                <AlertCircle size={13} />
+                                Amount must be at least {formatMoney(total)}
+                              </p>
+                            )}
+                            {amountIsValid && (
+                              <p className="mt-1.5 text-xs text-gray-600">
+                                Change:{' '}
+                                <span className="font-semibold text-gray-900 tabular-nums">
+                                  {formatMoney(change)}
+                                </span>
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {paymentType === 'CARD' && (
+                          <div>
+                            <input
+                              type="text"
+                              value={paymentReference}
+                              onChange={(e) => setPaymentReference(e.target.value)}
+                              placeholder="Enter payment reference"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                            <p className="mt-1.5 text-xs text-gray-500">
+                              The reference returned by the payment gateway.
+                            </p>
+                          </div>
+                        )}
+
+                        <button
+                          onClick={completePayment}
+                          disabled={!canCompletePayment}
+                          className="w-full px-6 py-2.5 bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors shadow-md font-semibold flex items-center justify-center gap-2"
+                        >
+                          <Check size={16} />
+                          Complete payment
+                        </button>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => setConfirmingCancel(true)}
+                      className="w-full px-6 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                    >
+                      <X size={15} />
+                      Cancel booking
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Ticket footer */}
+        {stage === 'ticket' && ticket && (
+          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-end gap-3">
+            <button
+              onClick={startNewBooking}
+              className="px-5 py-2 text-blue-600 hover:bg-blue-50 border border-blue-200 rounded-lg transition-colors font-semibold flex items-center gap-2"
+            >
+              <Plus size={16} />
+              Book more seats
+            </button>
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors shadow-md font-semibold"
+            >
+              Done
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Cancel Booking Confirmation */}
+      {confirmingCancel && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle size={24} className="text-red-600" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+              Cancel this booking?
+            </h3>
+            <p className="text-gray-600 text-center mb-6">
+              The held seats will be released and made available to other customers. This can't be
+              undone.
+            </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setConfirmingCancel(false)}
+                className="flex-1 px-6 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300"
+              >
+                Keep booking
+              </button>
+              <button
+                onClick={() => {
+                  setConfirmingCancel(false);
+                  setCancelled(true);
+                }}
+                className="flex-1 px-6 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-colors shadow-md"
+              >
+                Cancel booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [showAddHallModal, setShowAddHallModal] = useState(false);
@@ -2412,6 +3169,7 @@ export default function App() {
   const [showDeleteShowtimeConfirm, setShowDeleteShowtimeConfirm] = useState(false);
   const [showDeleteAllShowtimesConfirm, setShowDeleteAllShowtimesConfirm] = useState(false);
   const [showViewShowtimesModal, setShowViewShowtimesModal] = useState(false);
+  const [reservingShowtime, setReservingShowtime] = useState<any>(null);
   const [showScheduleMovieModal, setShowScheduleMovieModal] = useState(false);
   const [scheduleSelectedMovie, setScheduleSelectedMovie] = useState<any>(null);
   const [selectedMovie, setSelectedMovie] = useState<any>(null);
@@ -5767,6 +6525,13 @@ export default function App() {
                             </div>
                             <div className="flex gap-1">
                               <button
+                                onClick={() => setReservingShowtime(showtime)}
+                                className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-100 rounded-md transition-colors"
+                                title="Reserve seats"
+                              >
+                                <Ticket size={15} />
+                              </button>
+                              <button
                                 onClick={() => {
                                   setSelectedShowtime(showtime);
                                   setShowViewShowtimesModal(false);
@@ -5928,6 +6693,14 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Staff Seat Reservation Modal */}
+      {reservingShowtime && (
+        <StaffReservationModal
+          showtime={reservingShowtime}
+          onClose={() => setReservingShowtime(null)}
+        />
       )}
 
       {/* Delete All Showtimes Confirmation Modal */}

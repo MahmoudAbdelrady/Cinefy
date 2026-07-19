@@ -1,7 +1,13 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { HallTypeShowtimes, SeatSelection } from '../shared/types';
+import type {
+  BookingDetail,
+  BookingRequest,
+  BookingSummary,
+  HallTypeShowtimes,
+  SeatSelection,
+} from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
@@ -17,7 +23,24 @@ export class BookingService {
     });
   }
 
-  getSeatSelection(showtimeId: string): Observable<SeatSelection> {
-    return this.http.get<SeatSelection>(`/booking/showtimes/${showtimeId}`);
+  getSeatSelection(showtimeId: string, context?: HttpContext): Observable<SeatSelection> {
+    return this.http.get<SeatSelection>(`/booking/showtimes/${showtimeId}`, { context });
+  }
+
+  getActiveBookings(): Observable<BookingSummary[]> {
+    return this.http.get<BookingSummary[]>('/booking/active');
+  }
+
+  getActiveBookingDetails(uuid: string, context?: HttpContext): Observable<BookingDetail> {
+    return this.http.get<BookingDetail>(`/booking/active/${uuid}`, { context });
+  }
+
+  createBooking(request: BookingRequest, idempotencyKey: string): Observable<BookingDetail> {
+    const headers = new HttpHeaders({ 'Idempotency-Key': idempotencyKey });
+    return this.http.post<BookingDetail>('/booking', request, { headers });
+  }
+
+  cancelBooking(uuid: string, context?: HttpContext): Observable<void> {
+    return this.http.delete<void>(`/booking/${uuid}`, { context });
   }
 }

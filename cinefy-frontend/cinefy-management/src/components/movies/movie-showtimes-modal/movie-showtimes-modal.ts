@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { format } from 'date-fns';
 import {
   EditableShowtime,
   MovieSummary,
@@ -27,20 +28,23 @@ import {
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
+  CalendarIcon,
   DeleteIcon,
   EditIcon,
   MapPinIcon,
   PlusIcon,
   SendIcon,
   StickyNoteIcon,
+  TicketIcon,
   WarningIcon,
 } from '../../../shared/icons';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
-import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { ModalComponent, LoadingSpinnerComponent, EmptyStateComponent } from 'cinefy-ui/components';
+import { BookSeatsComponent } from '../book-seats/book-seats';
 import { ToastService } from 'cinefy-ui/services';
 import { Time12hPipe } from 'cinefy-ui/pipes';
-import { canManage as canManagePosition } from '../../../shared/access';
+import { canManage as canManagePosition, canBook as canBookPosition } from '../../../shared/access';
 
 @Component({
   selector: 'movie-showtimes-modal',
@@ -55,13 +59,16 @@ import { canManage as canManagePosition } from '../../../shared/access';
     LucideDynamicIcon,
     NgpDialogTrigger,
     LoadingSpinnerComponent,
+    EmptyStateComponent,
     Time12hPipe,
+    BookSeatsComponent,
   ],
   templateUrl: './movie-showtimes-modal.html',
   styleUrl: './movie-showtimes-modal.scss',
 })
 export class MovieShowtimesModal {
   protected readonly icons = {
+    CalendarIcon,
     DeleteIcon,
     EditIcon,
     PlusIcon,
@@ -69,6 +76,7 @@ export class MovieShowtimesModal {
     MapPinIcon,
     SendIcon,
     StickyNoteIcon,
+    TicketIcon,
   };
 
   private readonly showtimesService = inject(ShowtimesService);
@@ -81,6 +89,10 @@ export class MovieShowtimesModal {
   protected readonly canManage = computed(() => {
     const user = this.currentUser();
     return user ? canManagePosition(user.position) : false;
+  });
+  protected readonly canBook = computed(() => {
+    const user = this.currentUser();
+    return user ? canBookPosition(user.position) : false;
   });
 
   private readonly noteEls = viewChildren<ElementRef<HTMLElement>>('noteText');
@@ -168,6 +180,12 @@ export class MovieShowtimesModal {
     this.showtimeEvents.updated$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((updated) => this.applyUpdatedShowtime(updated));
+
+    this.showtimeEvents.showtimeOccupancyChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ showtimeId, count, myOnHoldSeats }) =>
+        this.applyShowtimeOccupancyChange(showtimeId, count, myOnHoldSeats),
+      );
 
     afterRenderEffect(() => {
       const els = this.noteEls();
@@ -283,7 +301,13 @@ export class MovieShowtimesModal {
 
   protected getOccupancy(detail: MovieShowtimeListItem): number {
     if (detail.totalSeats === 0) return 0;
-    return (detail.reservedSeats / detail.totalSeats) * 100;
+    return (detail.bookedSeats / detail.totalSeats) * 100;
+  }
+
+  protected getShowtimeSummary(detail: MovieShowtimeListItem): string {
+    const startDateTime = new Date(`${this.selectedTab()}T${detail.time}`);
+    const when = format(startDateTime, "MMM d, yyyy 'at' h:mm a");
+    return `${this.selectedMovie().title} · ${detail.hall.name} · ${when}`;
   }
 
   private runBulkPublish(
@@ -379,6 +403,16 @@ export class MovieShowtimesModal {
     }
   }
 
+  private applyShowtimeOccupancyChange(
+    showtimeId: string,
+    count: number,
+    myOnHoldSeats: number,
+  ): void {
+    this.movieShowtimeDetails.update((list) =>
+      list.map((s) => (s.id === showtimeId ? { ...s, bookedSeats: count, myOnHoldSeats } : s)),
+    );
+  }
+
   private applyLocalDeletion(id: string): { wasDraft: boolean; movieClosed: boolean } {
     const removed = this.movieShowtimeDetails().find((s) => s.id === id);
     if (!removed) return { wasDraft: false, movieClosed: false };
@@ -458,7 +492,8 @@ export class MovieShowtimesModal {
       status: showtime.status,
       specialNotes: showtime.specialNotes,
       is3D: showtime.is3D,
-      reservedSeats: showtime.reservedSeats,
+      bookedSeats: showtime.bookedSeats,
+      myOnHoldSeats: showtime.myOnHoldSeats,
       totalSeats: showtime.totalSeats,
     };
   }

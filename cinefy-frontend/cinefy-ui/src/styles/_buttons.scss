@@ -47,7 +47,7 @@
 
 .btn-danger {
   @extend .btn-base;
-  color: var(--cui-text-on-accent);
+  color: var(--cui-danger-text);
   background-color: var(--cui-danger);
   box-shadow: var(--cui-button-shadow-strong);
 

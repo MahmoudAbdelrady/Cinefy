@@ -4,16 +4,23 @@ import {
   computed,
   DestroyRef,
   effect,
-  ElementRef,
   inject,
   input,
   linkedSignal,
   output,
   signal,
+  TemplateRef,
   viewChild,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -26,7 +33,7 @@ import {
   StarIcon,
   WarningIcon,
 } from '../../../shared/icons';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { NgpDialogManager } from 'ng-primitives/dialog';
 import {
   ModalComponent,
   LoadingSpinnerComponent,
@@ -57,6 +64,17 @@ import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
 import { createSeatGrid, resizeGrid, rowLabel, rowLabelToIndex, seatStats } from '../seat-layout';
 
 const MAX_GRID_DIMENSION = 50;
+const MAX_PRICE_DECIMALS = 2;
+const MAX_PRICE = 99_999_999.99;
+
+function maxDecimals(decimals: number): ValidatorFn {
+  return (control): ValidationErrors | null => {
+    const value = control.value;
+    if (value == null || value === '') return null;
+    const fraction = String(value).split('.')[1];
+    return fraction && fraction.length > decimals ? { maxDecimals: true } : null;
+  };
+}
 
 interface LayoutBaseline {
   numberOfRows: number;
@@ -90,7 +108,6 @@ const SELECTABLE_HALL_STATUS_ENTRIES = (
     NgClass,
     ReactiveFormsModule,
     LucideDynamicIcon,
-    NgpDialogTrigger,
     Switch,
     ModalComponent,
     LoadingSpinnerComponent,
@@ -118,7 +135,8 @@ export class HallConfigModalComponent {
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly discardTrigger = viewChild<ElementRef>('discardTrigger');
+  private readonly dialogManager = inject(NgpDialogManager);
+  private readonly discardDialog = viewChild<TemplateRef<unknown>>('discardDialog');
 
   protected readonly hallStatusEntries = computed<HallStatusEntry[]>(() => {
     const current = this.selectedHallData()?.status;
@@ -265,13 +283,23 @@ export class HallConfigModalComponent {
       const vipCtrl = this.hallForm.controls.vipPrice;
 
       if (this.hasNormalSeats()) {
-        normalCtrl.setValidators([Validators.required, Validators.min(1)]);
+        normalCtrl.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(MAX_PRICE),
+          maxDecimals(MAX_PRICE_DECIMALS),
+        ]);
       } else {
         normalCtrl.clearValidators();
       }
 
       if (this.hasVipSeats()) {
-        vipCtrl.setValidators([Validators.required, Validators.min(1)]);
+        vipCtrl.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(MAX_PRICE),
+          maxDecimals(MAX_PRICE_DECIMALS),
+        ]);
       } else {
         vipCtrl.clearValidators();
       }
@@ -343,7 +371,8 @@ export class HallConfigModalComponent {
 
   protected toggleEditMode() {
     if (this.isEditMode() && this.hasChanges()) {
-      this.discardTrigger()?.nativeElement.click();
+      const discardDialog = this.discardDialog();
+      if (discardDialog) this.dialogManager.open(discardDialog as never);
       return;
     }
     this.isEditMode.update((v) => !v);

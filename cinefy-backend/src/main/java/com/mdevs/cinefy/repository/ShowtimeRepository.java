@@ -26,23 +26,22 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
             """)
     boolean existsOverlapping(@Param("hall") Hall hall, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end, @Param("excludeId") Long excludeId);
 
+    boolean existsByHall(Hall hall);
+
     boolean existsByHallAndStatusIn(Hall hall, Set<ShowtimeStatus> statuses);
 
     boolean existsByHallAndStatusInAndIdNot(Hall hall, Set<ShowtimeStatus> statuses, Long id);
 
     Optional<Showtime> findByUuid(String uuid);
 
-    // NOTE: Suffers from two-collection fetch (categoryPrices x seats).
     @Query("""
             SELECT s FROM Showtime s
             JOIN FETCH s.tmdbMovie
             JOIN FETCH s.hall h
             JOIN FETCH h.type
-            JOIN FETCH h.seats
-            JOIN FETCH h.categoryPrices
             WHERE s.uuid = :uuid
             """)
-    Optional<Showtime> findByUuidWithHallLayout(@Param("uuid") String uuid);
+    Optional<Showtime> findByUuidWithHall(@Param("uuid") String uuid);
 
     @Query("SELECT s FROM Showtime s WHERE s.tmdbMovie.id = :movieId AND s.status = :status AND (CAST(:startDateTime AS LocalDateTime) IS NULL OR s.startDateTime >= :startDateTime) AND (CAST(:endDateTime AS LocalDateTime) IS NULL OR s.startDateTime < :endDateTime)")
     List<Showtime> findByTmdbMovieAndStatusAndStartDateTimeInRange(@Param("movieId") Long movieId,
@@ -59,6 +58,18 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
             """)
     List<LocalDate> findDistinctShowtimeDatesByMovieAndStatuses(@Param("movieId") Long movieId,
                                                                 @Param("statuses") Set<ShowtimeStatus> statuses);
+
+    @Query("""
+            SELECT DISTINCT CAST(s.startDateTime AS LocalDate)
+            FROM Showtime s
+            WHERE s.tmdbMovie.id = :movieId
+            AND s.status IN :statuses
+            AND s.endDateTime > :cutOffDate
+            ORDER BY CAST(s.startDateTime AS LocalDate) ASC
+            """)
+    List<LocalDate> findDistinctBookableShowtimeDates(@Param("movieId") Long movieId,
+                                                      @Param("statuses") Set<ShowtimeStatus> statuses,
+                                                      @Param("cutOffDate") LocalDateTime cutOffDate);
 
     long countByTmdbMovieIdAndStatusIn(Long tmdbMovieId, Set<ShowtimeStatus> statuses);
 
@@ -80,6 +91,23 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
                                                            @Param("statuses") Set<ShowtimeStatus> statuses,
                                                            @Param("startDateTime") LocalDateTime startDateTime,
                                                            @Param("endDateTime") LocalDateTime endDateTime);
+
+    @Query("""
+            SELECT s FROM Showtime s
+            JOIN FETCH s.hall h
+            JOIN FETCH h.type
+            WHERE s.tmdbMovie.id = :movieId
+            AND s.status IN :statuses
+            AND s.startDateTime >= :startDateTime
+            AND s.startDateTime < :endDateTime
+            AND s.endDateTime > :cutOffDate
+            ORDER BY s.startDateTime ASC
+            """)
+    List<Showtime> findBookableByMovieAndDateRangeWithHall(@Param("movieId") Long movieId,
+                                                           @Param("statuses") Set<ShowtimeStatus> statuses,
+                                                           @Param("startDateTime") LocalDateTime startDateTime,
+                                                           @Param("endDateTime") LocalDateTime endDateTime,
+                                                           @Param("cutOffDate") LocalDateTime cutOffDate);
 
     long countByStatusIn(Set<ShowtimeStatus> statuses);
 

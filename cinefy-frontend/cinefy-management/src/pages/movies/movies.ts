@@ -9,10 +9,11 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { PlusIcon } from '../../shared/icons';
-import { canManage as canManagePosition } from '../../shared/access';
+import { PlusIcon, TicketIcon } from '../../shared/icons';
+import { canManage as canManagePosition, canBook as canBookPosition } from '../../shared/access';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
+  ActiveBookingsListComponent,
   CurrentShowtimesComponent,
   ManageShowtimeModalComponent,
   MoviesStatisticsComponent,
@@ -29,6 +30,7 @@ import { HeaderActionsService, StaffService } from '../../services';
     MoviesStatisticsComponent,
     CurrentShowtimesComponent,
     UpcomingMoviesComponent,
+    ActiveBookingsListComponent,
   ],
   templateUrl: './movies.html',
   styleUrl: './movies.scss',
@@ -36,6 +38,7 @@ import { HeaderActionsService, StaffService } from '../../services';
 export class MoviesPage implements OnInit {
   protected readonly icons = {
     PlusIcon,
+    TicketIcon,
   };
 
   private headerActions = inject(HeaderActionsService);
@@ -47,6 +50,10 @@ export class MoviesPage implements OnInit {
   protected readonly canManage = computed(() => {
     const user = this.currentUser();
     return user ? canManagePosition(user.position) : false;
+  });
+  protected readonly canBook = computed(() => {
+    const user = this.currentUser();
+    return user ? canBookPosition(user.position) : false;
   });
 
   ngOnInit(): void {

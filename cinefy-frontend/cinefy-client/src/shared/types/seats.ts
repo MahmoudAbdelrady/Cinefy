@@ -4,22 +4,14 @@ interface SeatLayout {
     VIP?: string[];
   };
   onSiteOnly: string[];
-  reserved: string[];
+  booked: string[];
 }
 
-type SeatCategory = 'NORMAL' | 'VIP';
-
-type SeatKind = SeatCategory | 'TAKEN' | 'AISLE';
-
-const SEAT_KIND_LABEL: Record<Exclude<SeatKind, 'AISLE'>, string> = {
-  NORMAL: 'Normal',
-  VIP: 'Premium',
-  TAKEN: 'Taken',
-};
+type SelectableSeatCategory = 'NORMAL' | 'VIP';
 
 interface TicketPrice {
   price: number;
-  seatCategory: SeatCategory;
+  seatCategory: SelectableSeatCategory;
 }
 
 interface SeatLayoutResponse {
@@ -29,12 +21,4 @@ interface SeatLayoutResponse {
   ticketPricing: TicketPrice[];
 }
 
-interface Seat {
-  id: string;
-  row: string;
-  number: number;
-  kind: SeatKind;
-}
-
-export { SEAT_KIND_LABEL };
-export type { Seat, SeatCategory, SeatKind, SeatLayout, SeatLayoutResponse, TicketPrice };
+export type { SelectableSeatCategory, SeatLayout, SeatLayoutResponse, TicketPrice };

@@ -32,7 +32,7 @@ public class CookieUtil {
     }
 
     public ResponseCookie buildAccessTokenCookie(String value, long expirationMs) {
-        return build(JwtUtil.ACCESS_TOKEN_COOKIE, value, expirationMs, false, ROOT_PATH);
+        return build(JwtUtil.ACCESS_TOKEN_COOKIE, value, expirationMs, true, ROOT_PATH);
     }
 
     public ResponseCookie buildRefreshTokenCookie(String value, long expirationMs, String path) {

@@ -69,3 +69,15 @@ export type {
   PositionCoverageItem,
   CoverageChange,
 } from './staff';
+export type {
+  ShowtimeSeatLayout,
+  ShowtimeHallLayout,
+  ActiveBooking,
+  ShowtimeSeatSelection,
+  PaymentType,
+  BookedSeat,
+  BookingDetail,
+  BookingRequest,
+  BookingSummary,
+  StaffPaymentRequest,
+} from './booking';

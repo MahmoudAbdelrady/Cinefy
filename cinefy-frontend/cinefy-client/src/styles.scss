@@ -37,7 +37,9 @@
   --cui-accent-subtle: #{$color-secondary};
   --cui-highlight: #{$color-primary};
   --cui-highlight-ring: #{$color-primary};
-  --cui-danger: #{$color-destructive};
+  // Danger button: light text on a darker red that lightens on hover.
+  --cui-danger-text: #{$color-foreground};
+  --cui-danger: #{$color-destructive-strong};
   --cui-danger-hover: #{$color-destructive};
   --cui-success: #{$color-primary};
   --cui-success-hover: #{$color-primary};
@@ -65,6 +67,28 @@
   --cui-toast-error-border: #{rgba($color-destructive, 0.4)};
   --cui-toast-error-text: #{$color-popover-foreground};
   --cui-toast-error-icon: #{$color-destructive};
+
+  // Seat map
+  --cui-seat-normal-surface: #{rgba($color-seat-premium, 0.5)};
+  --cui-seat-normal-border: #{$color-seat-premium};
+  --cui-seat-normal-hover-border: #{rgba($color-seat-premium, 0.9)};
+  --cui-seat-normal-text: #{$color-foreground};
+  --cui-seat-vip-surface: #{rgba($color-seat-recliner, 0.4)};
+  --cui-seat-vip-border: #{rgba($color-seat-recliner, 0.6)};
+  --cui-seat-vip-hover-border: #{rgba($color-seat-recliner, 0.9)};
+  --cui-seat-vip-text: #{$color-foreground};
+  --cui-seat-selected-surface: #{$color-primary};
+  --cui-seat-selected-border: #{$color-primary};
+  --cui-seat-selected-text: #{$color-primary-foreground};
+  --cui-seat-taken-surface: #{$color-seat-taken};
+  --cui-seat-taken-border: #{rgba($color-foreground, 0.15)};
+  --cui-seat-legend-surface: #{rgba($color-card, 0.5)};
+
+  // Hold timer
+  --cui-hold-timer-surface: #{$color-card};
+  --cui-hold-timer-expiring-surface: #{rgba($color-destructive, 0.1)};
+  --cui-hold-timer-expiring-border: #{rgba($color-destructive, 0.6)};
+  --cui-hold-timer-expiring-text: #{$color-destructive};
 
   // Misc
   --cui-scrollbar-thumb: #{$color-secondary};

@@ -1,15 +1,22 @@
-import type { SeatLayoutResponse } from './seats';
+import type { MovieSearchResult } from './movies';
+import type { SelectableSeatCategory, SeatLayoutResponse } from './seats';
 
 interface BookingShowtime {
   id: string;
   time: string;
   is3D: boolean;
-  fullyReserved: boolean;
+  fullyBooked: boolean;
 }
 
 interface HallTypeShowtimes {
   hallType: string;
   showtimes: BookingShowtime[];
+}
+
+interface ActiveBooking {
+  id: string;
+  seats: string[];
+  expiresAt: string;
 }
 
 interface SeatSelection {
@@ -18,7 +25,53 @@ interface SeatSelection {
   hallName: string;
   hallType: string;
   is3D: boolean;
+  fullyBooked: boolean;
   hallLayout: SeatLayoutResponse;
+  activeBooking?: ActiveBooking;
 }
 
-export type { BookingShowtime, HallTypeShowtimes, SeatSelection };
+interface BookingSummary {
+  id: string;
+  expiresAt: string;
+  movie: MovieSearchResult;
+  startDateTime: string;
+  hallName: string;
+  hallType: string;
+  is3D: boolean;
+  totalTickets: number;
+  totalPrice: number;
+}
+
+interface BookedSeat {
+  position: string;
+  category: SelectableSeatCategory;
+  price: number;
+}
+
+interface BookingDetail {
+  id: string;
+  expiresAt: string;
+  movie: MovieSearchResult;
+  showtimeId: string;
+  startDateTime: string;
+  hallName: string;
+  hallType: string;
+  is3D: boolean;
+  seats: BookedSeat[];
+}
+
+interface BookingRequest {
+  showtimeId: string;
+  seats: string[];
+}
+
+export type {
+  BookingShowtime,
+  HallTypeShowtimes,
+  SeatSelection,
+  ActiveBooking,
+  BookingSummary,
+  BookedSeat,
+  BookingDetail,
+  BookingRequest,
+};

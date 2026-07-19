@@ -11,6 +11,8 @@ const ROUTE_ACCESS: Record<string, readonly UserPosition[]> = {
 
 const MANAGEMENT_POSITIONS: readonly UserPosition[] = ['ADMIN', 'MANAGER'];
 
+const BOOKING_POSITIONS: readonly UserPosition[] = ['ADMIN', 'MANAGER', 'CASHIER'];
+
 export function canAccessRoute(path: string, position: UserPosition): boolean {
   const allowed = ROUTE_ACCESS[path];
   return allowed?.includes(position) ?? true;
@@ -18,6 +20,10 @@ export function canAccessRoute(path: string, position: UserPosition): boolean {
 
 export function canManage(position: UserPosition): boolean {
   return MANAGEMENT_POSITIONS.includes(position);
+}
+
+export function canBook(position: UserPosition): boolean {
+  return BOOKING_POSITIONS.includes(position);
 }
 
 export function canManageStaffMember(

@@ -32,7 +32,9 @@ src/
 │   ├── core/interceptors/              # HTTP interceptors (registered in app.config.ts, in order)
 │   │   ├── base-url.ts                 # Prepends environment apiUrl to relative HTTP requests
 │   │   ├── csrf.ts                     # Attaches CSRF token to mutating requests
-│   │   └── auth-retry.ts               # On 401, refreshes the access token and retries once
+│   │   ├── auth-retry.ts               # On 401, refreshes the access token and retries once
+│   │   ├── error-toast.ts              # On HTTP error, shows a toast (skippable via SKIP_ERROR_TOAST context)
+│   │   └── error-toast-context.ts      # SKIP_ERROR_TOAST token + skipErrorToast() helper
 │   ├── app.ts                          # Root component
 │   ├── app.routes.ts                   # Route definitions (AppLayout + AuthLayout, guarded)
 │   └── app.config.ts                   # Providers (router, HTTP + interceptors, toast, menu)
@@ -48,7 +50,7 @@ src/
 │   │   └── manage-hall-types-modal/    # Hall type CRUD
 │   ├── movies/                         # movie-picker, current-showtimes, upcoming-movies,
 │   │                                   #   movie-showtimes-modal, manage-showtime-modal,
-│   │                                   #   movies-statistics
+│   │                                   #   movies-statistics, book-seats (seat selection + on-site payment)
 │   ├── payment/
 │   │   ├── manage-payment-modal/       # Wizard for create/edit payment method
 │   │   ├── payment-method-list/        # List + status toggles
@@ -66,7 +68,9 @@ src/
 │   └── stepper/                        # Wizard step indicator
 │                                       # Shared UI (input-field, field-error, loading-spinner,
 │                                       # custom-select, async-select, phone-input, toast,
-│                                       # modal, pagination, date-picker, time-picker, switch) lives in cinefy-ui.
+│                                       # modal, pagination, date-picker, time-picker, switch,
+│                                       # empty-state, seat-map, hold-timer, not-found) lives in cinefy-ui.
+│                                       #   empty-state: inputs [icon]/[title]/[description]; add class="fill" to stretch to full height.
 │                                       #   switch (<cui-switch>): size md|sm, color accent|highlight;
 │                                       #     [checked]/[disabled] inputs, (checkedChange) output.
 │                                       #   custom-select: static items[] + client-side search.
@@ -89,7 +93,8 @@ src/
 │   ├── payment/                        # Payment methods page (/payment)
 │   ├── staff/                          # Staff management page (/staff)
 │   ├── profile/                        # Current-user profile page (/profile)
-│   └── access-denied/                  # Shown when a route's position check fails
+│   ├── access-denied/                  # Shown when a route's position check fails
+│   └── not-found/                      # 404 page (wildcard ** route, authed)
 ├── layout/
 │   ├── app-layout/                     # Authed shell: sidebar + header + <router-outlet>
 │   └── auth-layout/                    # Guest shell for /login + /forgot-password
@@ -98,7 +103,8 @@ src/
 │   ├── halls.ts                        # Hall & hall-type CRUD (HttpClient)
 │   ├── movies.ts                       # Movie search + detail
 │   ├── showtimes.ts                    # Showtime CRUD + publish + stats
-│   ├── showtime-events.ts              # Cross-component showtime update signals
+│   ├── booking.ts                      # Seat-selection fetch + create/cancel booking (on-site)
+│   ├── showtime-events.ts              # Cross-component event bus (RxJS Subjects): created$/updated$/published$/deleted$/singleDeleted$/committedChanged$/highlightChanged$/bookingChanged$
 │   ├── staff.ts                        # Staff CRUD + position coverage + current-user (/staff/me) cache
 │   ├── payment-method.ts               # Payment method CRUD + connection testing
 │   ├── header-actions.ts               # Signal-based template injection for header
@@ -108,12 +114,13 @@ src/
 │   ├── icons.ts                        # Re-exports of lucide icons used in the app — sole source of glyphs
 │   ├── access.ts                       # Position → allowed-route/action rules (canAccessRoute, canManage, ...)
 │   ├── validation.ts                   # Shared form regexes (password/email/name/username patterns)
+│   ├── constants/                      # UI constants (SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE)
 │   ├── guards/                         # auth-guard, guest-guard, position-guard (route CanActivate/CanMatch)
-│   ├── types/                          # halls, movies, showtimes, staff, payment, stats, auth, api
+│   ├── types/                          # halls, movies, showtimes, booking, staff, payment, stats, auth, api
 │   └── styles/
 │       ├── _colors.scss                # Full color palette ($gray-*, $blue-*, etc.) — project-owned
 │       ├── _shadows.scss                # $shadow-xs/sm/md/lg + focus-ring tokens — project-owned
-│       └── _mixins.scss                # Management-only mixins: icon-box, empty-state-block. Shared flex-*/lucide-icon-fix/text-truncate come from cinefy-ui.
+│       └── _mixins.scss                # Management-only mixins: icon-box. Shared flex-*/lucide-icon-fix/text-truncate come from cinefy-ui.
 │                                       # Breakpoints, shared mixins, and button styles come from cinefy-ui via @use.
 │                                       # src/styles.scss bridges $colors/$shadows → var(--cui-*) for the lib's components.
 ├── environments/
@@ -140,6 +147,8 @@ Two layout shells, each gated by a guard:
 '' (AuthLayout, canActivate: guestGuard)       # redirects away if already authenticated
 ├── /login           → LoginPage
 └── /forgot-password → ForgotPasswordPage
+
+**                 → NotFoundPage      (canActivate: authGuard)   catch-all 404
 ```
 
 **Position-based access:** each protected route is declared twice — once with `canMatch: [positionCanMatch]` (renders the real page if the current staff position may access it) and once falling through to `AccessDeniedPage`. The position → route mapping lives in [`shared/access.ts`](src/shared/access.ts) (`canAccessRoute`), and `positionCanMatch` ([`shared/guards/position-guard.ts`](src/shared/guards/position-guard.ts)) reads it. `authGuard` / `guestGuard` ([`shared/guards/`](src/shared/guards/)) gate the two shells on authentication state.
@@ -266,7 +275,7 @@ Reference: [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-
 
 ### HTTP & API
 
-- Three functional interceptors run in order (registered in [`app.config.ts`](src/app/app.config.ts)): `baseUrlInterceptor` (prepends `environment.apiUrl` to relative URLs) → `csrfInterceptor` (attaches the CSRF token to mutating requests) → `authRetryInterceptor` (on a 401, calls the refresh endpoint once and retries the original request).
+- Four functional interceptors run in order (registered in [`app.config.ts`](src/app/app.config.ts)): `baseUrlInterceptor` (prepends `environment.apiUrl` to relative URLs) → `csrfInterceptor` (attaches the CSRF token to mutating requests) → `authRetryInterceptor` (on a 401, calls the refresh endpoint once and retries the original request) → `errorToastInterceptor` (on an error response, surfaces a toast unless the request carries the `SKIP_ERROR_TOAST` context).
 - **Auth is JWT-in-cookie** — tokens are HTTP-only cookies set/cleared by the backend; the frontend never reads or stores them. `AuthService` exposes login/logout/refresh/forgot-verify-reset; the refresh call is de-duplicated (`refresh$ ??= …`).
 - Services return `Observable<T>` — components subscribe or convert with `toSignal()`.
 - API uses **zero-indexed pages**; UI displays **1-indexed**.
@@ -336,6 +345,11 @@ DELETE /payment-methods/:id
 POST   /payment-methods/test-connection  # Pre-save connection test
 POST   /payment-methods/:id/test-connection
 POST   /payment-methods/:id/status       # Toggle active/inactive
+
+# Booking (on-site, via book-seats)
+GET    /booking/showtimes/:showtimeId    # Seat selection (layout + active booking)
+POST   /booking                          # Create booking (sends Idempotency-Key header)
+DELETE /booking/:id                      # Cancel booking
 ```
 
 ## Styling
@@ -352,7 +366,7 @@ POST   /payment-methods/:id/status       # Toggle active/inactive
 - Import colors: `@use 'shared/styles/colors' as *;`
 - Import shadows: `@use 'shared/styles/shadows' as *;`
 - Button styles (`btn-primary`, `btn-secondary`, `btn-danger`, `btn-success`) are emitted globally by `@use 'cinefy-ui/styles/buttons';` in `src/styles.scss` — apply via `class="btn-*"`, no per-file import needed.
-- Import management-only mixins (`icon-box`, `empty-state-block`): `@use 'shared/styles/mixins' as *;`
+- Import management-only mixins (`icon-box`): `@use 'shared/styles/mixins' as *;`
 - Import shared mixins (`flex-*`, `lucide-icon-fix`, `text-truncate`): `@use 'cinefy-ui/styles/mixins' as *;`
 - Import breakpoints (`below-*` / `from-*`): `@use 'cinefy-ui/styles/breakpoints' as *;`
 - A file may `@use` both `shared/styles/mixins` and `cinefy-ui/styles/mixins` when it needs both project-specific and shared mixins.
@@ -362,9 +376,51 @@ POST   /payment-methods/:id/status       # Toggle active/inactive
 - cinefy-ui's components consume runtime `var(--cui-*)` tokens (theming contract). Management's `src/styles.scss` maps its SCSS palette to those tokens once in a `:root { ... }` block — that's the single bridge. Component SCSS in management uses plain `$variables`, not `var()`.
 - Layout mixins: `flex-center`, `flex-align`, `flex-between`, `flex-column` (cinefy-ui).
 - Icon mixins: `icon-box($size)` (management), `lucide-icon-fix` (cinefy-ui, applied on the **parent** of `<lucide-icon>`, never inside a `lucide-icon { }` block).
-- Other mixins: `text-truncate` (cinefy-ui), `empty-state-block` (management).
+- Other mixins: `text-truncate` (cinefy-ui). The empty-state styling is baked into cinefy-ui's `<empty-state>` component (no mixin).
 - Responsive mixins: `below-phone/mobile/tablet/desktop` and `from-phone/mobile/tablet/desktop` (mobile-first by default).
 - **Flag new raw values before adding them** — if a color, shadow, gradient, or other "designed" value is not already in `src/shared/styles/`, surface it before writing: name the value, the closest existing token, and how they differ, then wait for the user to choose keep / replace with token / extract to shared. Doesn't apply to plain layout numbers (paddings, gaps, line-heights).
+
+### Nested SCSS
+
+**Write SCSS nested, not flat.** A rule for a child element belongs **inside** its parent's block, not as a sibling selector at the top level. This mirrors the template's structure in the stylesheet, so a block reads as one self-contained region and its parts can't drift away from it as the file grows.
+
+Nest by the **element's place in the template**, not by the class-name prefix. A `.rs-done-icon` that renders inside `.rs-done` nests under it — the shared prefix is a hint, but the template is what decides. Element selectors (`svg`, `p`, `span`) and state selectors (`&:hover`, `&:disabled`, `&.expiring`) nest the same way, as do responsive mixins (`@include below-tablet { ... }`).
+
+```scss
+// ✅ Nested — children live inside the parent
+.rs-done {
+  @include flex-center;
+
+  flex-direction: column;
+  padding: 48px 24px;
+
+  .rs-done-icon {
+    @include flex-center;
+
+    width: 64px;
+    height: 64px;
+    border-radius: $radius-full;
+    background-color: $green-100;
+  }
+
+  .rs-done-title {
+    font-size: 20px;
+    font-weight: 700;
+  }
+}
+
+// ❌ Flat — siblings at the top level, structure lost
+.rs-done { ... }
+.rs-done-icon { ... }
+.rs-done-title { ... }
+```
+
+Two limits:
+
+- **Don't use `&-` name concatenation** (`&-icon { }` to build `.rs-done-icon`). It saves a few characters but makes the full class name ungreppable — searching `rs-done-icon` finds nothing. Write the selector out in full inside the parent.
+- **Don't nest past ~3 levels.** Deep nesting produces long, high-specificity selectors that are hard to override. If a block gets that deep, the markup usually wants a flatter class instead.
+
+**Top-level siblings are still correct** for genuinely sibling regions — the stage-level blocks (`.bs-loading`, `.bs-layout`, `.bs-done`) or `:host`. Nesting expresses containment; it isn't a mandate to bury every rule.
 
 ### Prettier
 
@@ -373,13 +429,16 @@ Configured in `package.json`: 100-char width, single quotes, Angular HTML parser
 ## Domain Model
 
 ```
-HallStatus:    ACTIVE | SCHEDULED | NOW_SHOWING | UNDER_MAINTENANCE | INACTIVE
+HallStatus:    ACTIVE | SCHEDULED | UNDER_MAINTENANCE | INACTIVE
 SeatCategory:  NORMAL | VIP | AISLE
 
 Hall      → has HallType (by typeId), TicketPricing[] (per SeatCategory),
             seat layout (map of SeatCategory → seatId[])
 Movie     → TMDB-backed metadata; referenced by id from Showtimes
-Showtime  → ties a Movie + Hall + start time; published in batches
+Showtime  → ties a Movie + Hall + start time; published in batches;
+            carries bookedSeats / myOnHoldSeats / totalSeats counts for occupancy
+Booking   → holds seats for a Showtime (expiresAt), then confirmed with an on-site
+            StaffPayment (CASH → paidAmount, CARD → paymentReference)
 Staff     → has StaffPosition, EmploymentType, working days (start/end WeekDay),
             working hours, phone (digits only — frontend owns the `+`)
 PaymentMethod → has type, credentials, integration config; status toggled separately

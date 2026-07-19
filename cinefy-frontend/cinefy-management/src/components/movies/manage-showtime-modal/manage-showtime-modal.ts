@@ -257,7 +257,7 @@ export class ManageShowtimeModalComponent {
       dateTime: combineDateAndTime(value.date!, value.time!),
       hallId: value.hallId!,
       is3D: value.is3D,
-      specialNotes: value.specialNotes.trim() || null,
+      specialNotes: value.specialNotes?.trim() || null,
     };
   }
 }

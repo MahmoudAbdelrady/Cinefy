@@ -44,7 +44,7 @@ public class UserPrincipal implements UserDetails {
                 staffMember.getEmail(),
                 staffMember.getPassword(),
                 position,
-                List.of(new SimpleGrantedAuthority(ROLE_PREFIX + position)));
+                buildAuthorities(UserType.STAFF_MEMBER, position));
     }
 
     public static UserPrincipal fromClient(Client client) {
@@ -55,13 +55,10 @@ public class UserPrincipal implements UserDetails {
                 client.getEmail(),
                 client.getPassword(),
                 null,
-                List.of());
+                buildAuthorities(UserType.CLIENT, null));
     }
 
     public static UserPrincipal fromJwtClaims(JwtClaims claims) {
-        List<SimpleGrantedAuthority> authorities = claims.position() == null || claims.position().isEmpty()
-                ? List.of()
-                : List.of(new SimpleGrantedAuthority(ROLE_PREFIX + claims.position()));
         return new UserPrincipal(
                 null,
                 claims.uuid(),
@@ -69,6 +66,13 @@ public class UserPrincipal implements UserDetails {
                 null,
                 null,
                 claims.position(),
-                authorities);
+                buildAuthorities(claims.userType(), claims.position()));
+    }
+
+    private static List<SimpleGrantedAuthority> buildAuthorities(UserType type, String position) {
+        String role = type.equals(UserType.CLIENT) ? UserType.CLIENT.name() : position;
+        return role == null || role.isEmpty()
+                ? List.of()
+                : List.of(new SimpleGrantedAuthority(ROLE_PREFIX + role));
     }
 }

@@ -57,6 +57,7 @@ export {
   LucideStickyNote as StickyNoteIcon,
   LucideTag as TagIcon,
   LucideTicket as TicketIcon,
+  LucideTicketX as TicketXIcon,
   LucideTrash2 as DeleteIcon,
   LucideTrendingUp as TrendingUpIcon,
   LucideTriangleAlert as WarningIcon,

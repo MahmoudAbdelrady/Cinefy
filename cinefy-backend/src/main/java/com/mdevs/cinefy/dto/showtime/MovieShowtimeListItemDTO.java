@@ -22,7 +22,9 @@ public class MovieShowtimeListItemDTO {
     @JsonProperty("is3D")
     private boolean is3D;
 
-    private int reservedSeats;
+    private int bookedSeats;
+
+    private int myOnHoldSeats;
 
     private int totalSeats;
 }

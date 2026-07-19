@@ -144,7 +144,7 @@ public class TmdbMovieService {
 
     public List<MovieSearchResultDTO> getAnnouncedUpcoming() {
         return tmdbMovieRepository.findAnnouncedUpcoming(LocalDate.now()).stream()
-                .map(movie -> populateBaseFields(new MovieSearchResultDTO(), movie))
+                .map(this::toSearchResult)
                 .toList();
     }
 
@@ -174,6 +174,10 @@ public class TmdbMovieService {
 
     public TmdbMovie findTmdbMovie(long tmdbId) {
         return tmdbMovieRepository.findById(tmdbId).orElseThrow(() -> new NotFoundException("Movie not found: " + tmdbId));
+    }
+
+    public MovieSearchResultDTO toSearchResult(TmdbMovie movie) {
+        return populateBaseFields(new MovieSearchResultDTO(), movie);
     }
 
     public TmdbMovie fetchAndCache(long tmdbId) {
@@ -341,12 +345,12 @@ public class TmdbMovieService {
         MovieSearchResultDTO dto = new MovieSearchResultDTO();
         dto.setId(node.get("id").longValue());
         dto.setTitle(node.get("title").stringValue());
-        dto.setReleaseDate(node.path("release_date").stringValue());
+        dto.setReleaseDate(node.path("release_date").stringValue(null));
 
-        String posterPath = node.path("poster_path").stringValue();
+        String posterPath = node.path("poster_path").stringValue(null);
         dto.setPosterUrl(toImageUrl(POSTER_SIZE, posterPath));
 
-        String backdropPath = node.path("backdrop_path").stringValue();
+        String backdropPath = node.path("backdrop_path").stringValue(null);
         dto.setBackdropUrl(toImageUrl(BACKDROP_SIZE, backdropPath));
 
         List<String> genreNames = node.path("genre_ids").valueStream().map(g -> resolveGenre(g.asInt())).toList();

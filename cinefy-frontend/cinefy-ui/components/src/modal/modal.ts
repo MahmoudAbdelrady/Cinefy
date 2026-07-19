@@ -1,5 +1,11 @@
-import { Component, ElementRef, computed, input, type InputSignal, viewChild } from "@angular/core";
-import { NgpDialog, NgpDialogDescription, NgpDialogOverlay, NgpDialogTitle } from "ng-primitives/dialog";
+import { Component, ElementRef, computed, effect, input, type InputSignal, viewChild } from "@angular/core";
+import {
+  NgpDialog,
+  NgpDialogDescription,
+  NgpDialogOverlay,
+  NgpDialogTitle,
+  injectDialogRef,
+} from "ng-primitives/dialog";
 import { LucideDynamicIcon } from "@lucide/angular";
 import { XIcon } from "../icons";
 
@@ -14,14 +20,25 @@ export class ModalComponent {
     XIcon,
   };
 
+  private readonly dialogRef = injectDialogRef();
+
   private readonly panel = viewChild<ElementRef<HTMLElement>>("panel");
 
   readonly modalTitle: InputSignal<string | null> = input<string | null>(null);
   readonly description = input<string>();
   readonly close = input.required<() => void>();
   readonly width = input<string>();
+  readonly height = input<string>();
+  readonly fixedHeight = input<string>();
   readonly bodyPadding = input<string>("24px");
   readonly customHeader = input<boolean>(false);
+  readonly closeable = input<boolean>(true);
 
   readonly panelEl = computed(() => this.panel()?.nativeElement ?? null);
+
+  constructor() {
+    effect(() => {
+      this.dialogRef.closeOnEscape = this.closeable();
+    });
+  }
 }

@@ -90,7 +90,7 @@ public class ClientService implements UserDetailsService {
 
     // =========================== Helpers ===========================
 
-    private Client findClientByUuid(String uuid) {
+    public Client findClientByUuid(String uuid) {
         return clientRepository.findByUuid(uuid)
                 .orElseThrow(() -> new NotFoundException("Client not found"));
     }

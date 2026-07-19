@@ -32,21 +32,41 @@
   }
 }
 
-.bsum-lines {
+.bsum-seats {
+  @include scrollbar-thin;
+
   display: flex;
   flex-direction: column;
   gap: 8px;
+  max-height: 160px;
+  overflow-y: auto;
 }
 
-.bsum-line {
+.bsum-seat {
   @include flex-between;
 
+  gap: 12px;
   font-size: 14px;
+}
+
+.bsum-seat-label {
+  @include flex-align;
+  gap: 8px;
+}
+
+.bsum-seat-position {
+  font-family: $font-mono;
+  font-weight: 500;
+  color: $color-primary;
+}
+
+.bsum-seat-category {
   color: $color-muted-foreground;
 }
 
-.bsum-line-value {
+.bsum-seat-price {
   font-family: $font-mono;
+  color: $color-foreground;
 }
 
 .bsum-total {

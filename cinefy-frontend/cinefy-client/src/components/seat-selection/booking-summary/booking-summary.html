@@ -1,28 +1,40 @@
 <div class="bsum-card">
   <h3 class="bsum-heading">Booking Summary</h3>
 
-  @if (!lines().length) {
+  @if (!seats().length) {
     <div class="bsum-empty">
       <svg [lucideIcon]="icons.InfoIcon" [size]="32"></svg>
       <p>Please select your seats to proceed.</p>
     </div>
   } @else {
-    <div class="bsum-lines">
-      @for (line of lines(); track line.category) {
-        <div class="bsum-line">
-          <span class="bsum-line-label">{{ line.label }} ({{ line.count }})</span>
-          <span class="bsum-line-value">{{ line.total | currency: 'USD' }}</span>
-        </div>
+    <ul class="bsum-seats">
+      @for (seat of seats(); track seat.position) {
+        <li class="bsum-seat">
+          <span class="bsum-seat-label">
+            <span class="bsum-seat-position">{{ seat.position }}</span>
+            <span class="bsum-seat-category">({{ seatCategoryLabel[seat.category] }})</span>
+          </span>
+          <span class="bsum-seat-price">{{ seat.price | currency: 'USD' }}</span>
+        </li>
       }
-    </div>
+    </ul>
 
     <div class="bsum-total">
       <span>Total <span class="bsum-total-note">(without VAT)</span></span>
       <span class="bsum-total-value">{{ total() | currency: 'USD' }}</span>
     </div>
 
-    <button type="button" class="bsum-proceed btn-primary" (click)="proceed.emit()">
-      Proceed to Payment
+    <button
+      type="button"
+      class="bsum-proceed btn-primary"
+      [disabled]="submitting()"
+      (click)="proceedToPayment()"
+    >
+      @if (submitting()) {
+        <loading-spinner variant="xs" />
+      } @else {
+        Proceed to Payment
+      }
     </button>
   }
 </div>

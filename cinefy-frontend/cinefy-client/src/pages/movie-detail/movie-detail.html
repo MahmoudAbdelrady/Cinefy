@@ -3,21 +3,12 @@
     <loading-spinner variant="lg" />
   </div>
 } @else if (movieResource.error()) {
-  @if (notFound()) {
-    <empty-state
-      class="md-error"
-      [icon]="icons.TriangleAlertIcon"
-      title="Movie not found"
-      description="That movie isn't in our catalogue."
-    />
-  } @else {
-    <empty-state
-      class="md-error"
-      [icon]="icons.TriangleAlertIcon"
-      title="Failed to load this movie"
-      description="Something went wrong. Please try again later."
-    />
-  }
+  <empty-state
+    class="md-error"
+    [icon]="icons.TriangleAlertIcon"
+    title="Failed to load this movie"
+    [description]="errorMessage()"
+  />
 } @else if (movie(); as movie) {
   <div class="movie-detail">
     <div class="md-backdrop">

@@ -16,5 +16,5 @@ public class SeatLayoutDTO {
 
     private List<String> onSiteOnly;
 
-    private List<String> reserved;
+    private List<String> booked;
 }

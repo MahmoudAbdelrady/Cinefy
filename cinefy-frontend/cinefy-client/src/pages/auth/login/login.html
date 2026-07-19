@@ -30,7 +30,9 @@
               required: 'Password is required',
             }"
           />
-          <a class="lp-forgot" routerLink="../forgot-password">Forgot password?</a>
+          <a class="lp-forgot" routerLink="../forgot-password" queryParamsHandling="preserve">
+            Forgot password?
+          </a>
         </div>
 
         <button
@@ -51,7 +53,7 @@
 
       <p class="lp-footer">
         New to Cinefy?
-        <a routerLink="../signup">Create an account</a>
+        <a routerLink="../signup" queryParamsHandling="preserve">Create an account</a>
       </p>
     }
     @case ('verify') {

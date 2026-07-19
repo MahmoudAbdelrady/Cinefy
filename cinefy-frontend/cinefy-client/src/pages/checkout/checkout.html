@@ -1,0 +1,216 @@
+@if (bookingResource.isLoading()) {
+  <div class="co-loading">
+    <loading-spinner variant="lg" />
+  </div>
+} @else if (bookingResource.error()) {
+  <empty-state
+    class="co-error"
+    [icon]="icons.TriangleAlertIcon"
+    title="Couldn't load this booking"
+    [description]="errorMessage()"
+  />
+} @else if (booking(); as summary) {
+  @if (cancelled()) {
+    <booking-cancelled [movieId]="summary.movie.id" />
+  } @else {
+    <main class="co-page">
+      <a class="co-back" routerLink="/movies/{{ summary.movie.id }}/seats/{{ summary.showtimeId }}">
+        <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="16"></svg>
+        Back
+      </a>
+
+      <div class="co-head">
+        <h1 class="co-title">Checkout</h1>
+
+        <hold-timer [expiresAt]="timerExpiresAt()" (expired)="onExpired()" />
+      </div>
+
+      @if (!bookingExpired()) {
+        <div class="co-grid">
+          <section class="co-payment reveal">
+            <div class="co-card">
+              <h2 class="co-card-title">
+                <svg [lucideIcon]="icons.CreditCardIcon" [size]="16"></svg>
+                Payment details
+              </h2>
+
+              <form class="co-form" [formGroup]="paymentForm">
+                <input-field
+                  label="Cardholder name"
+                  placeholder="Alex Vance"
+                  [control]="paymentForm.controls.cardholder"
+                />
+                <input-field
+                  label="Card number"
+                  placeholder="4242 4242 4242 4242"
+                  [monospace]="true"
+                  [control]="paymentForm.controls.cardNumber"
+                />
+                <div class="co-form-row">
+                  <input-field
+                    label="Expiry"
+                    placeholder="MM / YY"
+                    [monospace]="true"
+                    [control]="paymentForm.controls.expiry"
+                  />
+                  <input-field
+                    label="CVC"
+                    type="number"
+                    placeholder="123"
+                    [monospace]="true"
+                    [control]="paymentForm.controls.cvc"
+                  />
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <aside class="co-summary reveal">
+            <div class="co-card co-summary-card">
+              <div class="co-summary-movie">
+                <div class="co-summary-poster">
+                  <media-image
+                    [src]="summary.movie.posterUrl"
+                    [alt]="summary.movie.title + ' poster'"
+                  />
+                </div>
+                <div class="co-summary-meta">
+                  <p class="co-summary-movie-title">{{ summary.movie.title }}</p>
+                  <dl class="co-summary-facts">
+                    <div class="co-fact">
+                      <dt class="co-fact-label">
+                        <svg [lucideIcon]="icons.MapPinIcon" [size]="14"></svg>
+                        <span class="co-fact-label-text">Hall:</span>
+                      </dt>
+                      <dd class="co-fact-value">{{ summary.hallName }}</dd>
+                    </div>
+                    <div class="co-fact">
+                      <dt class="co-fact-label">
+                        <svg [lucideIcon]="icons.ClapperboardIcon" [size]="14"></svg>
+                        <span class="co-fact-label-text">Experience:</span>
+                      </dt>
+                      <dd class="co-fact-value">
+                        {{ summary.hallType }}
+                        @if (summary.is3D) {
+                          <span>(3D)</span>
+                        }
+                      </dd>
+                    </div>
+                    <div class="co-fact">
+                      <dt class="co-fact-label">
+                        <svg [lucideIcon]="icons.CalendarIcon" [size]="14"></svg>
+                        <span class="co-fact-label-text">Date:</span>
+                      </dt>
+                      <dd class="co-fact-value">
+                        {{ summary.startDateTime | date: 'MMM d, y' }}
+                      </dd>
+                    </div>
+                    <div class="co-fact">
+                      <dt class="co-fact-label">
+                        <svg [lucideIcon]="icons.ClockIcon" [size]="14"></svg>
+                        <span class="co-fact-label-text">Time:</span>
+                      </dt>
+                      <dd class="co-fact-value">{{ summary.startDateTime | date: 'shortTime' }}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+
+              <div class="co-divider"></div>
+
+              <dl class="co-summary-rows">
+                <div class="co-seats-header">
+                  <dt>
+                    Seats <span class="co-seats-count">({{ summary.seats.length }})</span>
+                  </dt>
+                </div>
+                <ul class="co-seats">
+                  @for (seat of seats(); track seat.position) {
+                    <li class="co-seat">
+                      <span class="co-seat-label">
+                        <span class="co-seat-position">{{ seat.position }}</span>
+                        <span class="co-seat-category"
+                          >({{ seatCategoryLabel[seat.category] }})</span
+                        >
+                      </span>
+                      <span class="co-seat-price">{{ seat.price | currency: 'USD' }}</span>
+                    </li>
+                  }
+                </ul>
+                <div class="co-divider co-divider-tight"></div>
+                <div class="co-total">
+                  <dt>Total <span class="co-total-note">(without VAT)</span></dt>
+                  <dd class="co-total-value">{{ seatsSubtotal() | currency: 'USD' }}</dd>
+                </div>
+              </dl>
+
+              <div class="co-actions">
+                <button type="button" class="btn-primary co-pay" [disabled]="processing()">
+                  <svg [lucideIcon]="icons.LockIcon" [size]="16"></svg>
+                  Pay {{ seatsSubtotal() | currency: 'USD' }}
+                </button>
+                <button
+                  type="button"
+                  class="btn-base co-cancel"
+                  [disabled]="processing()"
+                  [ngpDialogTrigger]="cancelDialog"
+                >
+                  <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
+                  Cancel Booking
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      }
+    </main>
+
+    <ng-template #cancelDialog let-close="close">
+      <app-modal modalTitle="Cancel this booking?" width="448px" [close]="close">
+        <div class="co-cancel-modal-content">
+          <div class="ccm-icon">
+            <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
+          </div>
+          <p class="ccm-message">
+            Your held seats will be released and you'll lose your place. This can't be undone.
+          </p>
+        </div>
+
+        <div modal-footer class="co-dialog-footer">
+          <button type="button" class="btn-secondary" [disabled]="cancelling()" (click)="close()">
+            Keep booking
+          </button>
+          <button
+            type="button"
+            class="btn-danger"
+            [disabled]="cancelling()"
+            (click)="confirmCancel(close)"
+          >
+            @if (cancelling()) {
+              <loading-spinner variant="xs" />
+            } @else {
+              Cancel Booking
+            }
+          </button>
+        </div>
+      </app-modal>
+    </ng-template>
+  }
+}
+
+<ng-template #expiredDialog let-close="close">
+  <app-modal modalTitle="Booking expired" width="448px" [closeable]="false" [close]="close">
+    <div class="co-expired-modal-content">
+      <div class="ccm-icon">
+        <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
+      </div>
+      <p class="ccm-message">Your seat hold ran out and your seats were released.</p>
+    </div>
+
+    <div modal-footer class="co-dialog-footer">
+      <button type="button" class="btn-primary" (click)="goToSeatSelection(close)">
+        Back to seat selection
+      </button>
+    </div>
+  </app-modal>
+</ng-template>

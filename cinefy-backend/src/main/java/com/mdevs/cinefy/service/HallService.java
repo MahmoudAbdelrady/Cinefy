@@ -2,6 +2,7 @@ package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.hall.HallDTO;
 import com.mdevs.cinefy.dto.hall.HallDetailDTO;
+import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
 import com.mdevs.cinefy.dto.hall.HallSummaryDTO;
 import com.mdevs.cinefy.dto.hall.HallTypeDTO;
@@ -22,7 +23,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -148,8 +148,8 @@ public class HallService {
     @Transactional
     public void deleteHall(String uuid) {
         Hall hall = findHallWithLayout(uuid);
-        if (showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.LIVE_STATUSES)) {
-            throw new BusinessException("Cannot delete this hall while it has active showtimes");
+        if (showtimeRepository.existsByHall(hall)) {
+            throw new BusinessException("Cannot delete this hall while it has showtimes");
         }
         hallRepository.delete(hall);
     }
@@ -161,7 +161,17 @@ public class HallService {
     }
 
     public Hall findHallWithLayout(String uuid) {
-        return hallRepository.findByUuidWithLayout(uuid).orElseThrow(() -> new NotFoundException("Hall not found with id: " + uuid));
+        return hallRepository.findByUuidWithType(uuid).orElseThrow(() -> new NotFoundException("Hall not found with id: " + uuid));
+    }
+
+    public boolean isSeatInGrid(Hall hall, String position) {
+        Matcher matcher = POSITION_PATTERN.matcher(position);
+        if (!matcher.matches()) {
+            return false;
+        }
+        int rowIndex = toRowIndex(matcher.group(1));
+        int colNumber = Integer.parseInt(matcher.group(2));
+        return rowIndex >= 1 && rowIndex <= hall.getTotalRows() && colNumber >= 1 && colNumber <= hall.getTotalColumns();
     }
 
     private HallType findHallType(String uuid) {
@@ -235,48 +245,12 @@ public class HallService {
 
     private void validateHallMutability(Hall hall, HallDTO dto) {
         if (!hall.getStatus().equals(HallStatus.fromString(dto.getStatus())) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.LIVE_STATUSES)) {
-            throw new BusinessException("Cannot modify status of this hall while it has active showtimes");
+            throw new BusinessException("Cannot modify status of this hall while it has scheduled showtimes");
         }
 
-        // @TODO --> This could be changed to depend on the number of reserved seats instead
-        if (hasCriticalConfigChange(hall, dto) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.COMMITTED_STATUSES)) {
-            throw new BusinessException("Cannot modify the configuration of this hall while it has active showtimes");
+        if (showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.COMMITTED_STATUSES)) {
+            throw new BusinessException("Cannot modify this hall while it has published or running showtimes");
         }
-    }
-
-    private boolean hasCriticalConfigChange(Hall hall, HallDTO dto) {
-        return !hall.getName().equals(dto.getName())
-                || hall.getTotalRows() != dto.getNumberOfRows()
-                || hall.getTotalColumns() != dto.getSeatsPerRow()
-                || isPricingChanged(hall, dto.getTicketPricing())
-                || isLayoutChanged(hall, dto.getLayout());
-    }
-
-    private boolean isPricingChanged(Hall hall, List<TicketPricingDTO> incoming) {
-        Map<SeatCategory, BigDecimal> current = hall.getCategoryPrices().stream()
-                .collect(Collectors.toMap(HallCategoryPrice::getCategory, HallCategoryPrice::getTicketPrice));
-        Map<SeatCategory, BigDecimal> next = incoming.stream()
-                .collect(Collectors.toMap(p -> SeatCategory.fromString(p.getSeatCategory()), TicketPricingDTO::getPrice));
-        return !current.equals(next);
-    }
-
-    private boolean isLayoutChanged(Hall hall, SeatLayoutDTO incoming) {
-        SeatLayoutDTO currentLayout = toLayoutMap(hall);
-        Map<String, List<String>> currentCategories = currentLayout.getCategories();
-        Map<String, List<String>> incomingCategories = incoming != null && incoming.getCategories() != null ? incoming.getCategories() : Collections.emptyMap();
-        if (!categoryMapsEqual(currentCategories, incomingCategories)) return true;
-
-        Set<String> currentOnSiteOnly = new HashSet<>(currentLayout.getOnSiteOnly());
-        Set<String> incomingOnSiteOnly = incoming != null && incoming.getOnSiteOnly() != null ? new HashSet<>(incoming.getOnSiteOnly()) : Collections.emptySet();
-        return !currentOnSiteOnly.equals(incomingOnSiteOnly);
-    }
-
-    private boolean categoryMapsEqual(Map<String, List<String>> a, Map<String, List<String>> b) {
-        if (!a.keySet().equals(b.keySet())) return false;
-        for (var entry : a.entrySet()) {
-            if (!new HashSet<>(entry.getValue()).equals(new HashSet<>(b.get(entry.getKey())))) return false;
-        }
-        return true;
     }
 
     private void applyDtoToHall(Hall hall, HallDTO dto) {
@@ -291,28 +265,11 @@ public class HallService {
     }
 
     private void mergeCategoryPrices(Hall hall, List<TicketPricingDTO> pricingList) {
-        Map<SeatCategory, HallCategoryPrice> existing = new EnumMap<>(SeatCategory.class);
-        for (HallCategoryPrice cp : hall.getCategoryPrices()) {
-            existing.put(cp.getCategory(), cp);
-        }
-
-        Set<SeatCategory> incoming = EnumSet.noneOf(SeatCategory.class);
+        Map<SeatCategory, BigDecimal> prices = new EnumMap<>(SeatCategory.class);
         for (TicketPricingDTO pricing : pricingList) {
-            SeatCategory category = SeatCategory.fromString(pricing.getSeatCategory());
-            incoming.add(category);
-            HallCategoryPrice cp = existing.get(category);
-            if (cp != null) {
-                cp.setTicketPrice(pricing.getPrice());
-            } else {
-                cp = new HallCategoryPrice();
-                cp.setHall(hall);
-                cp.setCategory(category);
-                cp.setTicketPrice(pricing.getPrice());
-                hall.getCategoryPrices().add(cp);
-            }
+            prices.put(SeatCategory.fromString(pricing.getSeatCategory()), pricing.getPrice());
         }
-
-        hall.getCategoryPrices().removeIf(cp -> !incoming.contains(cp.getCategory()));
+        hall.setCategoryPrices(prices);
     }
 
     private void mergeSeats(Hall hall, int newRows, int newCols, SeatLayoutDTO layoutDTO) {
@@ -346,37 +303,10 @@ public class HallService {
             }
         }
 
-        for (int row = 1; row <= newRows; row++) {
-            String rowLabel = toRowLabel(row);
-            for (int col = 1; col <= newCols; col++) {
-                desired.putIfAbsent(rowLabel + col, SeatCategory.NORMAL);
-            }
-        }
+        Map<SeatCategory, List<String>> categoriesByEnum = new EnumMap<>(SeatCategory.class);
+        categories.forEach((category, positions) -> categoriesByEnum.put(SeatCategory.fromString(category), positions));
 
-        Map<String, Seat> existing = new HashMap<>();
-        for (Seat seat : hall.getSeats()) {
-            existing.put(seat.getPosition(), seat);
-        }
-
-        for (Map.Entry<String, SeatCategory> entry : desired.entrySet()) {
-            Seat seat = existing.get(entry.getKey());
-            if (seat != null) {
-                seat.setCategory(entry.getValue());
-                seat.setOnSiteOnly(onSiteOnlySet.contains(entry.getKey()));
-            } else {
-                Matcher m = POSITION_PATTERN.matcher(entry.getKey());
-                m.matches();
-                seat = new Seat();
-                seat.setHall(hall);
-                seat.setRowPosition(m.group(1));
-                seat.setColumnPosition(m.group(2));
-                seat.setCategory(entry.getValue());
-                seat.setOnSiteOnly(onSiteOnlySet.contains(entry.getKey()));
-                hall.getSeats().add(seat);
-            }
-        }
-
-        hall.getSeats().removeIf(seat -> !desired.containsKey(seat.getPosition()));
+        hall.setLayout(new HallLayout(categoriesByEnum, new ArrayList<>(onSiteOnlySet)));
     }
 
     private Map<String, SeatCategory> validateAndMapLayout(Hall hall, Map<String, List<String>> layout) {
@@ -430,35 +360,25 @@ public class HallService {
     }
 
     private List<TicketPricingDTO> toPricingList(Hall hall) {
-        return hall.getCategoryPrices().stream()
-                .map(cp -> {
+        return hall.getCategoryPrices().entrySet().stream()
+                .map(entry -> {
                     TicketPricingDTO pricing = new TicketPricingDTO();
-                    pricing.setSeatCategory(cp.getCategory().name());
-                    pricing.setPrice(cp.getTicketPrice());
+                    pricing.setSeatCategory(entry.getKey().name());
+                    pricing.setPrice(entry.getValue());
                     return pricing;
                 })
                 .toList();
     }
 
     private SeatLayoutDTO toLayoutMap(Hall hall) {
-        Map<String, List<String>> categories = hall.getSeats().stream()
-                .filter(seat -> !seat.getCategory().equals(SeatCategory.NORMAL))
-                .collect(Collectors.groupingBy(
-                        seat -> seat.getCategory().name(),
-                        Collectors.mapping(
-                                Seat::getPosition,
-                                Collectors.toList()
-                        )
-                ));
+        HallLayout layout = hall.getLayout();
 
-        List<String> onSiteOnly = hall.getSeats().stream()
-                .filter(Seat::isOnSiteOnly)
-                .map(Seat::getPosition)
-                .toList();
+        Map<String, List<String>> categories = new HashMap<>();
+        layout.categories().forEach((category, positions) -> categories.put(category.name(), positions));
 
         SeatLayoutDTO dto = new SeatLayoutDTO();
         dto.setCategories(categories);
-        dto.setOnSiteOnly(onSiteOnly);
+        dto.setOnSiteOnly(layout.onSiteOnly());
         return dto;
     }
 
@@ -480,15 +400,5 @@ public class HallService {
             index = index * 26 + (rowLabel.charAt(i) - 'A' + 1);
         }
         return index;
-    }
-
-    private String toRowLabel(int rowIndex) {
-        StringBuilder label = new StringBuilder();
-        while (rowIndex > 0) {
-            rowIndex--;
-            label.insert(0, (char) ('A' + rowIndex % 26));
-            rowIndex /= 26;
-        }
-        return label.toString();
     }
 }

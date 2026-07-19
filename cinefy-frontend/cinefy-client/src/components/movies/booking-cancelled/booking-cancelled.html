@@ -1,0 +1,14 @@
+<div class="booking-cancelled">
+  <div class="booking-cancelled-head reveal">
+    <span class="booking-cancelled-badge">
+      <svg [lucideIcon]="icons.XIcon" [size]="32" [strokeWidth]="3"></svg>
+    </span>
+    <h1>Booking cancelled</h1>
+    <p>Your booking has been cancelled and your seats have been released.</p>
+  </div>
+
+  <div class="booking-cancelled-actions reveal">
+    <a class="btn-secondary" routerLink="/movies/{{ movieId() }}">Back to movie</a>
+    <a class="btn-primary" routerLink="/movies">Browse movies</a>
+  </div>
+</div>

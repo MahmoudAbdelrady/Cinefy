@@ -22,11 +22,16 @@
   @include flex-column;
   width: 100%;
   max-width: var(--modal-max-width, 960px);
-  max-height: 90vh;
+  max-height: var(--modal-max-height, 90vh);
   background-color: var(--cui-surface-overlay);
   border-radius: $radius-xl;
   box-shadow: var(--cui-modal-shadow);
   overflow: hidden;
+
+  &[data-fixed-height] {
+    height: var(--modal-height);
+    max-height: none;
+  }
 
   &[data-enter] {
     animation: panel-enter 200ms ease-out;
@@ -96,7 +101,9 @@
 }
 
 .modal-body {
+  @include scrollbar-thin;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 

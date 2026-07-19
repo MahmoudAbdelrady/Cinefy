@@ -32,26 +32,21 @@
   text-overflow: ellipsis;
 }
 
-@mixin empty-state-block {
-  @include flex-center;
-  flex-direction: column;
-  gap: 8px;
-  padding: 64px 24px;
-  color: var(--cui-text-muted);
+@mixin scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cui-scrollbar-thumb) transparent;
 
-  svg {
-    display: flex;
-    margin-bottom: 4px;
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
   }
 
-  p {
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--cui-text-hint);
+  &::-webkit-scrollbar-track {
+    background: transparent;
   }
 
-  span {
-    font-size: 14px;
-    color: var(--cui-text-muted);
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--cui-scrollbar-thumb);
+    border-radius: 999px;
   }
 }

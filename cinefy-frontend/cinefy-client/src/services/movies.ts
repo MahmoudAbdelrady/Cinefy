@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
   HighlightedMovie,
@@ -25,7 +25,7 @@ export class MoviesService {
     return this.http.get<MovieSearchResult[]>('/movies/announced-upcoming');
   }
 
-  getMovieDetails(id: number): Observable<MovieDetail> {
-    return this.http.get<MovieDetail>(`/movies/${id}`);
+  getMovieDetails(id: number, context?: HttpContext): Observable<MovieDetail> {
+    return this.http.get<MovieDetail>(`/movies/${id}`, { context });
   }
 }

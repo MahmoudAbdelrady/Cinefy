@@ -7,8 +7,10 @@
     class="ss-error"
     [icon]="icons.TriangleAlertIcon"
     title="Couldn't load this showtime"
-    description="Something went wrong. Please try again later."
+    [description]="errorMessage()"
   />
+} @else if (cancelled()) {
+  <booking-cancelled [movieId]="movieId()!" />
 } @else if (seatSelection(); as data) {
   <div class="seat-selection-container">
     <div class="ss-header">
@@ -21,7 +23,7 @@
           <h1 class="ss-title">{{ data.movieTitle }}</h1>
           <p class="ss-meta">
             <span>
-              {{ data.startDateTime | date: 'EEE, MMM d' }} •
+              {{ data.startDateTime | date: 'MMM d' }} •
               {{ data.startDateTime | date: 'shortTime' }} • {{ data.hallName }} ({{
                 data.hallType
               }})
@@ -32,27 +34,107 @@
           </p>
         </div>
 
-        <!-- <div class="ss-timer" [class.expiring]="expiring()">
-        <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
-        <span class="ss-timer-value">{{ countdown() }}</span>
-      </div> -->
+        @if (activeBooking(); as booking) {
+          <div class="ss-hold-cluster">
+            <div class="ss-booking">
+              <span class="ss-booking-status">
+                <span class="ss-booking-dot"></span>
+                Booking active
+              </span>
+            </div>
+
+            <hold-timer [expiresAt]="booking.expiresAt" (expired)="onExpired()" />
+
+            @if (!bookingExpired()) {
+              <button type="button" class="btn-base ss-cancel" [ngpDialogTrigger]="cancelDialog">
+                <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
+                <span class="ss-cancel-label">Cancel Booking</span>
+              </button>
+            }
+          </div>
+        }
       </div>
     </div>
 
-    <div class="ss-body">
-      <div class="ss-map">
-        <div class="ss-screen">
-          <div class="ss-screen-glow"></div>
-          <div class="ss-screen-line"></div>
-          <span class="ss-screen-label">Screen</span>
+    @if (data.fullyBooked) {
+      <empty-state
+        class="ss-sold-out"
+        [icon]="icons.TicketXIcon"
+        title="Sold out"
+        description="Every seat for this showtime is taken. Check another showtime or date."
+      />
+    } @else if (!bookingExpired()) {
+      <div class="ss-body">
+        <div class="ss-map">
+          <div class="ss-screen">
+            <div class="ss-screen-glow"></div>
+            <div class="ss-screen-line"></div>
+            <span class="ss-screen-label">Screen</span>
+          </div>
+
+          <seat-map
+            [rows]="hall()"
+            [initialSelectedIds]="bookedSeats()"
+            (selectionChange)="selectedSeats.set($event)"
+          />
         </div>
 
-        <seat-map [rows]="hall()" (selectionChange)="selectedSeats.set($event)" />
+        <div class="ss-summary">
+          <booking-summary
+            [showtimeId]="showtimeId()!"
+            [selectedSeats]="selectedSeats()"
+            [prices]="prices()"
+          />
+        </div>
+      </div>
+    }
+  </div>
+
+  <ng-template #cancelDialog let-close="close">
+    <app-modal modalTitle="Cancel this booking?" width="448px" [close]="close">
+      <div class="ss-cancel-modal-content">
+        <div class="scm-icon">
+          <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
+        </div>
+        <p class="scm-message">
+          Your held seats will be released and you'll lose your place. This can't be undone.
+        </p>
       </div>
 
-      <div class="ss-summary">
-        <booking-summary [selectedSeats]="selectedSeats()" [prices]="prices()" />
+      <div modal-footer class="ss-dialog-footer">
+        <button type="button" class="btn-secondary" [disabled]="cancelling()" (click)="close()">
+          Keep booking
+        </button>
+        <button
+          type="button"
+          class="btn-danger"
+          [disabled]="cancelling()"
+          (click)="confirmCancel(close)"
+        >
+          @if (cancelling()) {
+            <loading-spinner variant="xs" />
+          } @else {
+            Cancel Booking
+          }
+        </button>
       </div>
-    </div>
-  </div>
+    </app-modal>
+  </ng-template>
 }
+
+<ng-template #expiredDialog let-close="close">
+  <app-modal modalTitle="Booking expired" width="448px" [closeable]="false" [close]="close">
+    <div class="ss-expired-modal-content">
+      <div class="scm-icon">
+        <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
+      </div>
+      <p class="scm-message">Your seat hold ran out and your seats were released.</p>
+    </div>
+
+    <div modal-footer class="ss-dialog-footer">
+      <button type="button" class="btn-primary" (click)="reloadSeats(close)">
+        Pick seats again
+      </button>
+    </div>
+  </app-modal>
+</ng-template>

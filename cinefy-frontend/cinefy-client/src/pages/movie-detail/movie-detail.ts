@@ -13,7 +13,9 @@ import {
 import { DurationPipe } from 'cinefy-ui/pipes';
 import { BookingSectionComponent, TrailerModalComponent } from '../../components';
 import { MoviesService } from '../../services';
+import { skipErrorToast } from '../../app/core/interceptors';
 import { ClockIcon, EyeIcon, PlayIcon, TriangleAlertIcon, UserIcon } from '../../shared/icons';
+import type { ApiError } from '../../shared/types';
 
 interface CrewMember {
   name: string;
@@ -54,14 +56,15 @@ export class MovieDetailPage {
 
   protected readonly movieResource = rxResource({
     params: () => this.movieId(),
-    stream: ({ params: id }) => this.moviesService.getMovieDetails(id),
+    stream: ({ params: id }) => this.moviesService.getMovieDetails(id, skipErrorToast()),
   });
 
   protected readonly movie = this.movieResource.value;
 
-  protected readonly notFound = computed(() => {
+  protected readonly errorMessage = computed(() => {
     const error = this.movieResource.error();
-    return error instanceof HttpErrorResponse && error.status === 404;
+    const message = error instanceof HttpErrorResponse ? (error.error as ApiError)?.message : null;
+    return message ?? 'Something went wrong. Please try again later.';
   });
 
   protected readonly directors = computed<CrewMember[]>(

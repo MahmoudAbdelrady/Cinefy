@@ -38,6 +38,7 @@
   --cui-accent-subtle: #{$blue-200};
   --cui-highlight: #{$orange-600};
   --cui-highlight-ring: #{$orange-500};
+  --cui-danger-text: #ffffff;
   --cui-danger: #{$red-600};
   --cui-danger-hover: #{$red-700};
   --cui-success: #{$green-600};
@@ -51,6 +52,28 @@
   // Media image (poster/backdrop/profile placeholder)
   --cui-media-placeholder-bg: #{$gray-100};
   --cui-media-placeholder-icon: #{$gray-400};
+
+  // Seat map
+  --cui-seat-normal-surface: #{$blue-100};
+  --cui-seat-normal-border: #{$blue-300};
+  --cui-seat-normal-hover-border: #{$blue-500};
+  --cui-seat-normal-text: #{$blue-700};
+  --cui-seat-vip-surface: #{$purple-100};
+  --cui-seat-vip-border: #{$purple-300};
+  --cui-seat-vip-hover-border: #{$purple-500};
+  --cui-seat-vip-text: #{$purple-700};
+  --cui-seat-selected-surface: #{$blue-600};
+  --cui-seat-selected-border: #{$blue-600};
+  --cui-seat-selected-text: #ffffff;
+  --cui-seat-taken-surface: #{$gray-200};
+  --cui-seat-taken-border: #{$gray-300};
+  --cui-seat-legend-surface: #{$gray-50};
+
+  // Hold timer
+  --cui-hold-timer-surface: #{$gray-50};
+  --cui-hold-timer-expiring-surface: #{$red-50};
+  --cui-hold-timer-expiring-border: #{$red-200};
+  --cui-hold-timer-expiring-text: #{$red-600};
 
   // Misc
   --cui-scrollbar-thumb: #{$gray-300};

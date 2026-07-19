@@ -191,7 +191,7 @@ public class StaffMemberService implements UserDetailsService {
 
     // =========================== Helpers ===========================
 
-    private StaffMember findStaffMember(String uuid) {
+    public StaffMember findStaffMember(String uuid) {
         return staffMemberRepository.findByUuid(uuid)
                 .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + uuid));
     }

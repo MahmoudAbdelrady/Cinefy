@@ -16,15 +16,8 @@ public interface HallRepository extends BaseRepository<Hall> {
 
     Optional<Hall> findByUuid(String uuid);
 
-    // NOTE: Suffers from two-collection fetch (categoryPrices x seats).
-    @Query("""
-            SELECT h FROM Hall h
-            JOIN FETCH h.type
-            JOIN FETCH h.categoryPrices
-            JOIN FETCH h.seats
-            WHERE h.uuid = :uuid
-            """)
-    Optional<Hall> findByUuidWithLayout(@Param("uuid") String uuid);
+    @Query("SELECT h FROM Hall h JOIN FETCH h.type WHERE h.uuid = :uuid")
+    Optional<Hall> findByUuidWithType(@Param("uuid") String uuid);
 
     @Query("SELECT h FROM Hall h JOIN FETCH h.type " +
             "WHERE (:excludeHallId IS NULL OR h.uuid != :excludeHallId) " +

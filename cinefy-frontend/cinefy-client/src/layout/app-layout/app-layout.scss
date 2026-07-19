@@ -102,12 +102,21 @@ $max-width: 1152px;
 }
 
 .alh-tickets-btn {
-  position: relative;
-  @include flex-center;
+  @include flex-align;
   @include lucide-icon-fix;
-  width: 36px;
+  gap: 8px;
   height: 36px;
-  padding: 0;
+  padding: 0 16px;
+
+  @include below-mobile {
+    justify-content: center;
+    width: 36px;
+    padding: 0;
+
+    span {
+      display: none;
+    }
+  }
 }
 
 .alh-divider {
@@ -119,23 +128,6 @@ $max-width: 1152px;
 .alh-auth {
   @include flex-align;
   gap: 8px;
-}
-
-.tb-count {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  @include flex-center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 4px;
-  border-radius: $radius-full;
-  background-color: $color-foreground;
-  color: $color-background;
-  font-family: $font-mono;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1;
 }
 
 .alh-auth-btn {

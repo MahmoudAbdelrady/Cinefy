@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
@@ -45,6 +45,7 @@ export class SignUpPage {
   };
 
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -130,6 +131,6 @@ export class SignUpPage {
   }
 
   protected onVerified() {
-    this.router.navigateByUrl('/');
+    this.router.navigateByUrl(this.route.snapshot.queryParamMap.get('redirectUrl') ?? '/');
   }
 }
