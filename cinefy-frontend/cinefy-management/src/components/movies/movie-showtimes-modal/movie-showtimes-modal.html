@@ -49,7 +49,12 @@
                       <span class="dsid-time">{{ showtimeDetail.time | time12h }}</span>
                       <div class="dsid-location">
                         <svg [lucideIcon]="icons.MapPinIcon" [size]="14"></svg>
-                        <span>{{ showtimeDetail.hall.name }}</span>
+                        <span
+                          >{{ showtimeDetail.hall.name }}
+                          @if (showtimeDetail.is3D) {
+                            (3D)
+                          }
+                        </span>
                       </div>
                       @if (canManage()) {
                         <span class="dsid-status" [attr.data-status]="showtimeDetail.status">
