@@ -188,7 +188,9 @@
                             <span>Publish</span>
                           </button>
                         }
-                        @if (showtimeDetail.status !== 'RUNNING') {
+                        @if (
+                          showtimeDetail.status !== 'RUNNING' && showtimeDetail.bookedSeats === 0
+                        ) {
                           <button
                             class="dsi-action dsi-action-edit"
                             (click)="onEditShowtime(showtimeDetail)"
