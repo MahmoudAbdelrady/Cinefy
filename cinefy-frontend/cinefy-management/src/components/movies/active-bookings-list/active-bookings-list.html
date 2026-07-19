@@ -62,7 +62,11 @@
             </div>
           </div>
           <div class="abli-actions">
-            <button class="btn-primary" [ngpDialogTrigger]="bookDialog">
+            <button
+              class="btn-primary"
+              [ngpDialogTrigger]="bookDialog"
+              (ngpDialogTriggerClosed)="loadActiveBookings()"
+            >
               <svg [lucideIcon]="icons.TicketIcon" [size]="15"></svg>
               <span>Complete</span>
             </button>

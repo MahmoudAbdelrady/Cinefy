@@ -181,10 +181,10 @@ export class MovieShowtimesModal {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((updated) => this.applyUpdatedShowtime(updated));
 
-    this.showtimeEvents.bookingChanged$
+    this.showtimeEvents.showtimeOccupancyChanged$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ showtimeId, count, myOnHoldSeats }) =>
-        this.applyBookingChanged(showtimeId, count, myOnHoldSeats),
+        this.applyShowtimeOccupancyChange(showtimeId, count, myOnHoldSeats),
       );
 
     afterRenderEffect(() => {
@@ -403,7 +403,11 @@ export class MovieShowtimesModal {
     }
   }
 
-  private applyBookingChanged(showtimeId: string, count: number, myOnHoldSeats: number): void {
+  private applyShowtimeOccupancyChange(
+    showtimeId: string,
+    count: number,
+    myOnHoldSeats: number,
+  ): void {
     this.movieShowtimeDetails.update((list) =>
       list.map((s) => (s.id === showtimeId ? { ...s, bookedSeats: count, myOnHoldSeats } : s)),
     );

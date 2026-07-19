@@ -74,13 +74,15 @@ export class ActiveBookingsListComponent {
     afterNextRender(() => this.loadActiveBookings());
   }
 
-  private loadActiveBookings(): void {
+  protected loadActiveBookings(): void {
+    this.isLoading.set(true);
     this.bookingService
       .getActiveBookings()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (bookings) => {
           this.bookings.set(bookings);
+          this.hasError.set(false);
           this.isLoading.set(false);
         },
         error: () => {

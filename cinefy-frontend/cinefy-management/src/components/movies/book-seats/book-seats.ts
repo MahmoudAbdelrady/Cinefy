@@ -220,7 +220,7 @@ export class BookSeatsComponent {
           this.failed.set(false);
           this.loading.set(false);
           this.seedBookedSeats(seatSelection);
-          this.showtimeEvents.notifyBookingChanged(
+          this.showtimeEvents.notifyShowtimeOccupancyChanged(
             this.showtimeId(),
             seatSelection.hallLayout.layout.booked.length,
             seatSelection.activeBooking?.seats.length ?? 0,
