@@ -23,7 +23,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -246,46 +245,12 @@ public class HallService {
 
     private void validateHallMutability(Hall hall, HallDTO dto) {
         if (!hall.getStatus().equals(HallStatus.fromString(dto.getStatus())) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.LIVE_STATUSES)) {
-            throw new BusinessException("Cannot modify status of this hall while it has active showtimes");
+            throw new BusinessException("Cannot modify status of this hall while it has scheduled showtimes");
         }
 
-        if (hasCriticalConfigChange(hall, dto) && showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.COMMITTED_STATUSES)) {
-            throw new BusinessException("Cannot modify the configuration of this hall while it has active showtimes");
+        if (showtimeRepository.existsByHallAndStatusIn(hall, ShowtimeStatus.COMMITTED_STATUSES)) {
+            throw new BusinessException("Cannot modify this hall while it has published or running showtimes");
         }
-    }
-
-    private boolean hasCriticalConfigChange(Hall hall, HallDTO dto) {
-        return !hall.getName().equals(dto.getName())
-                || hall.getTotalRows() != dto.getNumberOfRows()
-                || hall.getTotalColumns() != dto.getSeatsPerRow()
-                || isPricingChanged(hall, dto.getTicketPricing())
-                || isLayoutChanged(hall, dto.getLayout());
-    }
-
-    private boolean isPricingChanged(Hall hall, List<TicketPricingDTO> incoming) {
-        Map<SeatCategory, BigDecimal> current = hall.getCategoryPrices();
-        Map<SeatCategory, BigDecimal> next = incoming.stream()
-                .collect(Collectors.toMap(p -> SeatCategory.fromString(p.getSeatCategory()), TicketPricingDTO::getPrice));
-        return !current.equals(next);
-    }
-
-    private boolean isLayoutChanged(Hall hall, SeatLayoutDTO incoming) {
-        SeatLayoutDTO currentLayout = toLayoutMap(hall);
-        Map<String, List<String>> currentCategories = currentLayout.getCategories();
-        Map<String, List<String>> incomingCategories = incoming != null && incoming.getCategories() != null ? incoming.getCategories() : Collections.emptyMap();
-        if (!categoryMapsEqual(currentCategories, incomingCategories)) return true;
-
-        Set<String> currentOnSiteOnly = new HashSet<>(currentLayout.getOnSiteOnly());
-        Set<String> incomingOnSiteOnly = incoming != null && incoming.getOnSiteOnly() != null ? new HashSet<>(incoming.getOnSiteOnly()) : Collections.emptySet();
-        return !currentOnSiteOnly.equals(incomingOnSiteOnly);
-    }
-
-    private boolean categoryMapsEqual(Map<String, List<String>> a, Map<String, List<String>> b) {
-        if (!a.keySet().equals(b.keySet())) return false;
-        for (var entry : a.entrySet()) {
-            if (!new HashSet<>(entry.getValue()).equals(new HashSet<>(b.get(entry.getKey())))) return false;
-        }
-        return true;
     }
 
     private void applyDtoToHall(Hall hall, HallDTO dto) {
