@@ -17,6 +17,7 @@ import { useBookings } from '@/app/BookingsProvider'
 import {
   bookingTotalCents,
   PAYMENT_METHODS,
+  subtypeChip,
   type Booking,
   type PaymentMethod,
 } from '@/data/bookings'
@@ -138,24 +139,26 @@ function BillingPanel() {
 }
 
 function PaymentMethodRow({ method }: { method: PaymentMethod }) {
+  const groups = method.masked_pan.split('-')
+  const last = groups.length - 1
+
   return (
     <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-card p-4">
       <span className="grid h-10 w-14 shrink-0 place-items-center rounded-md bg-secondary font-mono text-xs font-semibold">
-        {method.brand === 'Mastercard' ? 'MC' : method.brand === 'Amex' ? 'AMEX' : 'VISA'}
+        {subtypeChip(method.card_subtype)}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="font-medium">
-          {method.brand} •••• {method.last4}
+        <p className="font-mono text-sm tracking-[0.12em]">
+          {groups.map((group, i) => (
+            <span key={i} className={i === last ? 'text-foreground' : 'text-muted-foreground/50'}>
+              {i === last ? group : '••••'}{' '}
+            </span>
+          ))}
         </p>
-        <p className="font-mono text-xs text-muted-foreground">Expires {method.expiry}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{method.card_subtype}</p>
       </div>
-      {method.primary && (
-        <Badge className="border-amber/20 bg-amber/10 text-amber hover:bg-amber/20">
-          Primary
-        </Badge>
-      )}
-      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-        Edit
+      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
+        Remove
       </Button>
     </div>
   )
