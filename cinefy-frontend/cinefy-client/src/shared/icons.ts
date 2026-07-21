@@ -20,6 +20,8 @@ export {
   LucideChevronLeft as ChevronLeftIcon,
   LucideChevronRight as ChevronRightIcon,
   LucideArrowLeft as ArrowLeftIcon,
+  LucideArrowUpRight as ArrowUpRightIcon,
+  LucideCheck as CheckIcon,
   LucideInfo as InfoIcon,
   LucideSearch as SearchIcon,
   LucideSlidersHorizontal as SlidersHorizontalIcon,

@@ -26,142 +26,183 @@
       </div>
 
       @if (!bookingExpired()) {
-        <div class="co-grid">
-          <section class="co-payment reveal">
-            <div class="co-card">
-              <h2 class="co-card-title">
-                <svg [lucideIcon]="icons.CreditCardIcon" [size]="16"></svg>
-                Payment details
-              </h2>
-
-              <form class="co-form" [formGroup]="paymentForm">
-                <input-field
-                  label="Cardholder name"
-                  placeholder="Alex Vance"
-                  [control]="paymentForm.controls.cardholder"
-                />
-                <input-field
-                  label="Card number"
-                  placeholder="4242 4242 4242 4242"
-                  [monospace]="true"
-                  [control]="paymentForm.controls.cardNumber"
-                />
-                <div class="co-form-row">
-                  <input-field
-                    label="Expiry"
-                    placeholder="MM / YY"
-                    [monospace]="true"
-                    [control]="paymentForm.controls.expiry"
-                  />
-                  <input-field
-                    label="CVC"
-                    type="number"
-                    placeholder="123"
-                    [monospace]="true"
-                    [control]="paymentForm.controls.cvc"
-                  />
-                </div>
-              </form>
+        <div class="co-stub reveal">
+          <div class="co-summary-movie">
+            <div class="co-summary-poster">
+              <media-image
+                [src]="summary.movie.posterUrl"
+                [alt]="summary.movie.title + ' poster'"
+              />
             </div>
-          </section>
-
-          <aside class="co-summary reveal">
-            <div class="co-card co-summary-card">
-              <div class="co-summary-movie">
-                <div class="co-summary-poster">
-                  <media-image
-                    [src]="summary.movie.posterUrl"
-                    [alt]="summary.movie.title + ' poster'"
-                  />
-                </div>
-                <div class="co-summary-meta">
-                  <p class="co-summary-movie-title">{{ summary.movie.title }}</p>
-                  <dl class="co-summary-facts">
-                    <div class="co-fact">
-                      <dt class="co-fact-label">
-                        <svg [lucideIcon]="icons.MapPinIcon" [size]="14"></svg>
-                        <span class="co-fact-label-text">Hall:</span>
-                      </dt>
-                      <dd class="co-fact-value">{{ summary.hallName }}</dd>
-                    </div>
-                    <div class="co-fact">
-                      <dt class="co-fact-label">
-                        <svg [lucideIcon]="icons.ClapperboardIcon" [size]="14"></svg>
-                        <span class="co-fact-label-text">Experience:</span>
-                      </dt>
-                      <dd class="co-fact-value">
-                        {{ summary.hallType }}
-                        @if (summary.is3D) {
-                          <span>(3D)</span>
-                        }
-                      </dd>
-                    </div>
-                    <div class="co-fact">
-                      <dt class="co-fact-label">
-                        <svg [lucideIcon]="icons.CalendarIcon" [size]="14"></svg>
-                        <span class="co-fact-label-text">Date:</span>
-                      </dt>
-                      <dd class="co-fact-value">
-                        {{ summary.startDateTime | date: 'MMM d, y' }}
-                      </dd>
-                    </div>
-                    <div class="co-fact">
-                      <dt class="co-fact-label">
-                        <svg [lucideIcon]="icons.ClockIcon" [size]="14"></svg>
-                        <span class="co-fact-label-text">Time:</span>
-                      </dt>
-                      <dd class="co-fact-value">{{ summary.startDateTime | date: 'shortTime' }}</dd>
-                    </div>
-                  </dl>
-                </div>
-              </div>
-
-              <div class="co-divider"></div>
-
-              <dl class="co-summary-rows">
-                <div class="co-seats-header">
-                  <dt>
-                    Seats <span class="co-seats-count">({{ summary.seats.length }})</span>
+            <div class="co-summary-meta">
+              <p class="co-summary-movie-title">{{ summary.movie.title }}</p>
+              <dl class="co-summary-facts">
+                <div class="co-fact">
+                  <dt class="co-fact-label">
+                    <svg [lucideIcon]="icons.MapPinIcon" [size]="14"></svg>
+                    <span class="co-fact-label-text">Hall:</span>
                   </dt>
+                  <dd class="co-fact-value">{{ summary.hallName }}</dd>
                 </div>
-                <ul class="co-seats">
-                  @for (seat of seats(); track seat.position) {
-                    <li class="co-seat">
-                      <span class="co-seat-label">
-                        <span class="co-seat-position">{{ seat.position }}</span>
-                        <span class="co-seat-category"
-                          >({{ seatCategoryLabel[seat.category] }})</span
-                        >
-                      </span>
-                      <span class="co-seat-price">{{ seat.price | currency: 'USD' }}</span>
-                    </li>
-                  }
-                </ul>
-                <div class="co-divider co-divider-tight"></div>
-                <div class="co-total">
-                  <dt>Total <span class="co-total-note">(without VAT)</span></dt>
-                  <dd class="co-total-value">{{ seatsSubtotal() | currency: 'USD' }}</dd>
+                <div class="co-fact">
+                  <dt class="co-fact-label">
+                    <svg [lucideIcon]="icons.ClapperboardIcon" [size]="14"></svg>
+                    <span class="co-fact-label-text">Experience:</span>
+                  </dt>
+                  <dd class="co-fact-value">
+                    {{ summary.hallType }}
+                    @if (summary.is3D) {
+                      <span>(3D)</span>
+                    }
+                  </dd>
+                </div>
+                <div class="co-fact">
+                  <dt class="co-fact-label">
+                    <svg [lucideIcon]="icons.CalendarIcon" [size]="14"></svg>
+                    <span class="co-fact-label-text">Date:</span>
+                  </dt>
+                  <dd class="co-fact-value">
+                    {{ summary.startDateTime | date: 'MMM d, y' }}
+                  </dd>
+                </div>
+                <div class="co-fact">
+                  <dt class="co-fact-label">
+                    <svg [lucideIcon]="icons.ClockIcon" [size]="14"></svg>
+                    <span class="co-fact-label-text">Time:</span>
+                  </dt>
+                  <dd class="co-fact-value">{{ summary.startDateTime | date: 'shortTime' }}</dd>
                 </div>
               </dl>
-
-              <div class="co-actions">
-                <button type="button" class="btn-primary co-pay" [disabled]="processing()">
-                  <svg [lucideIcon]="icons.LockIcon" [size]="16"></svg>
-                  Pay {{ seatsSubtotal() | currency: 'USD' }}
-                </button>
-                <button
-                  type="button"
-                  class="btn-base co-cancel"
-                  [disabled]="processing()"
-                  [ngpDialogTrigger]="cancelDialog"
-                >
-                  <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
-                  Cancel Booking
-                </button>
-              </div>
             </div>
-          </aside>
+          </div>
+
+          <div class="co-divider"></div>
+
+          <dl class="co-summary-rows">
+            <div class="co-seats-header">
+              <dt>
+                Seats <span class="co-seats-count">({{ summary.seats.length }})</span>
+              </dt>
+            </div>
+            <ul class="co-seats">
+              @for (seat of seats(); track seat.position) {
+                <li class="co-seat">
+                  <span class="co-seat-label">
+                    <span class="co-seat-position">{{ seat.position }}</span>
+                    <span class="co-seat-category">({{ seatCategoryLabel[seat.category] }})</span>
+                  </span>
+                  <span class="co-seat-price">{{ seat.price | currency: 'USD' }}</span>
+                </li>
+              }
+            </ul>
+            <div class="co-divider co-divider-tight"></div>
+            <div class="co-total">
+              <dt>Total <span class="co-total-note">(without VAT)</span></dt>
+              <dd class="co-total-value">{{ seatsSubtotal() | currency: 'USD' }}</dd>
+            </div>
+          </dl>
+
+          <div class="co-tear"><span class="co-tear-rule"></span></div>
+
+          <section class="co-payment">
+            @if (savedMethods().length) {
+              <h2 class="co-payment-title">Pay with a saved card</h2>
+
+              <ul class="co-cards">
+                @for (method of savedMethods(); track method.id) {
+                  <li>
+                    <label
+                      class="co-card-option"
+                      [class.co-card-option-selected]="isSelected(method)"
+                    >
+                      <input
+                        type="radio"
+                        name="saved-card"
+                        class="co-card-radio"
+                        [checked]="isSelected(method)"
+                        (change)="selectMethod(method)"
+                      />
+                      <span class="co-card-chip">{{ subtypeChip(method.cardSubtype) }}</span>
+                      <span class="co-card-detail">
+                        <span class="co-card-pan">{{ method.maskedPan }}</span>
+                        <span class="co-card-subtype">{{ method.cardSubtype }}</span>
+                      </span>
+                      <span class="co-card-tick">
+                        @if (isSelected(method)) {
+                          <svg [lucideIcon]="icons.CheckIcon" [size]="12" [strokeWidth]="3"></svg>
+                        }
+                      </span>
+                    </label>
+                  </li>
+                }
+              </ul>
+
+              <button
+                type="button"
+                class="btn-primary co-pay"
+                [disabled]="busy() || !selectedMethod()"
+                (click)="paySaved()"
+              >
+                @if (processing()) {
+                  <loading-spinner variant="xs" />
+                  Processing
+                } @else {
+                  Pay {{ seatsSubtotal() | currency: 'USD' }}
+                }
+              </button>
+
+              <div class="co-or"><span>or</span></div>
+
+              <button
+                type="button"
+                class="btn-base co-pay-new"
+                [disabled]="busy()"
+                (click)="payWithNewCard()"
+              >
+                <span class="co-pay-label">
+                  @if (redirecting()) {
+                    <loading-spinner variant="xs" />
+                    Opening payment page
+                  } @else {
+                    Pay with another card
+                  }
+                </span>
+                <svg [lucideIcon]="icons.ArrowUpRightIcon" [size]="16"></svg>
+              </button>
+            } @else {
+              <h2 class="co-payment-title">Payment</h2>
+
+              <button
+                type="button"
+                class="btn-primary co-pay co-pay-only"
+                [disabled]="busy()"
+                (click)="payWithNewCard()"
+              >
+                <span class="co-pay-label">
+                  @if (redirecting()) {
+                    <loading-spinner variant="xs" />
+                    Opening payment page
+                  } @else {
+                    Pay {{ seatsSubtotal() | currency: 'USD' }}
+                  }
+                </span>
+                <svg [lucideIcon]="icons.ArrowUpRightIcon" [size]="16"></svg>
+              </button>
+            }
+
+            <p class="co-payment-note">Your seats stay held while you pay.</p>
+          </section>
         </div>
+
+        <button
+          type="button"
+          class="btn-base co-cancel"
+          [disabled]="busy()"
+          [ngpDialogTrigger]="cancelDialog"
+        >
+          <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
+          Cancel booking
+        </button>
       }
     </main>
 

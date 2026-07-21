@@ -10,7 +10,6 @@ import {
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { NgpDialogTrigger, NgpDialogManager } from 'ng-primitives/dialog';
@@ -18,7 +17,6 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   EmptyStateComponent,
   HoldTimerComponent,
-  InputField,
   LoadingSpinnerComponent,
   MediaImageComponent,
   ModalComponent,
@@ -31,24 +29,35 @@ import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
 import type { ApiError } from '../../shared/types';
 import {
   ArrowLeftIcon,
+  ArrowUpRightIcon,
   CalendarIcon,
+  CheckIcon,
   ClapperboardIcon,
   ClockIcon,
-  CreditCardIcon,
-  LockIcon,
   MapPinIcon,
   TriangleAlertIcon,
   XIcon,
 } from '../../shared/icons';
 
+interface SavedPaymentMethod {
+  id: string;
+  maskedPan: string;
+  cardSubtype: string;
+}
+
+const SUBTYPE_CHIP: Record<string, string> = {
+  mastercard: 'MC',
+  visa: 'VISA',
+  amex: 'AMEX',
+  americanexpress: 'AMEX',
+};
+
 @Component({
   selector: 'checkout-page',
   imports: [
     RouterLink,
-    ReactiveFormsModule,
     NgpDialogTrigger,
     LucideDynamicIcon,
-    InputField,
     MediaImageComponent,
     ModalComponent,
     HoldTimerComponent,
@@ -64,11 +73,11 @@ import {
 export class CheckoutPage {
   protected readonly icons = {
     ArrowLeftIcon,
+    ArrowUpRightIcon,
     CalendarIcon,
+    CheckIcon,
     ClapperboardIcon,
     ClockIcon,
-    CreditCardIcon,
-    LockIcon,
     MapPinIcon,
     TriangleAlertIcon,
     XIcon,
@@ -102,17 +111,34 @@ export class CheckoutPage {
     return message ?? 'Something went wrong. Please try again later.';
   });
 
-  protected readonly paymentForm = new FormGroup({
-    cardholder: new FormControl('', { nonNullable: true }),
-    cardNumber: new FormControl('', { nonNullable: true }),
-    expiry: new FormControl('', { nonNullable: true }),
-    cvc: new FormControl('', { nonNullable: true }),
-  });
-
   protected readonly processing = signal(false);
+  protected readonly redirecting = signal(false);
   protected readonly cancelling = signal(false);
   protected readonly cancelled = signal(false);
   protected readonly bookingExpired = signal(false);
+
+  // TODO: load from the saved-cards endpoint once the backend exposes it.
+  protected readonly savedMethods = signal<SavedPaymentMethod[]>([
+    {
+      id: 'uuias8asf4ascijwq-askascn',
+      maskedPan: 'xxxx-xxxx-xxxx-0008',
+      cardSubtype: 'MasterCard',
+    },
+    {
+      id: 'asfqwqwf-8qw9848',
+      maskedPan: 'xxxx-xxxx-xxxx-1234',
+      cardSubtype: 'Visa',
+    },
+  ]);
+  protected readonly selectedId = signal('');
+
+  protected readonly selectedMethod = computed(() =>
+    this.savedMethods().find((method) => method.id === this.selectedId()),
+  );
+
+  protected readonly busy = computed(
+    () => this.processing() || this.redirecting() || this.bookingExpired(),
+  );
 
   protected readonly timerExpiresAt = computed(() =>
     this.cancelled() ? undefined : this.booking()?.expiresAt,
@@ -127,6 +153,31 @@ export class CheckoutPage {
   );
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
+
+  protected readonly isSelected = (method: SavedPaymentMethod) => method.id === this.selectedId();
+
+  protected readonly subtypeChip = (cardSubtype: string) => {
+    const key = cardSubtype.toLowerCase().replace(/\s+/g, '');
+    return SUBTYPE_CHIP[key] ?? cardSubtype.slice(0, 4).toUpperCase();
+  };
+
+  protected selectMethod(method: SavedPaymentMethod): void {
+    this.selectedId.set(method.id);
+  }
+
+  protected paySaved(): void {
+    if (this.busy() || !this.selectedMethod()) return;
+
+    this.processing.set(true);
+    // TODO: charge the selected saved card once the endpoint exists.
+  }
+
+  protected payWithNewCard(): void {
+    if (this.busy()) return;
+
+    this.redirecting.set(true);
+    // TODO: request the provider redirect URL and send the browser to it.
+  }
 
   protected onExpired(): void {
     this.bookingExpired.set(true);
