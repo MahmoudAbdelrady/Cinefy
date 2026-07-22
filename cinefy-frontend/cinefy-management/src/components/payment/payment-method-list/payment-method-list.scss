@@ -132,29 +132,6 @@
   }
 }
 
-.mihi-name-badge {
-  flex-shrink: 0;
-  padding: 2px 8px;
-  border-radius: $radius-sm;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border: 1px solid;
-
-  &[data-is-test='false'] {
-    background-color: $blue-50;
-    color: $blue-700;
-    border-color: $blue-200;
-  }
-
-  &[data-is-test='true'] {
-    background-color: $purple-50;
-    color: $purple-600;
-    border-color: $purple-200;
-  }
-}
-
 .mihi-meta-row {
   @include flex-align;
   gap: 6px;

@@ -21,8 +21,6 @@ public class PaymentMethodDTO {
     @NotBlank(message = "Type is required")
     private String type;
 
-    private boolean isTestMode = true;
-
     @NotBlank(message = "Currency is required")
     @Size(min = 3, max = 3, message = "Currency must be a 3-letter ISO 4217 code")
     private String currency;

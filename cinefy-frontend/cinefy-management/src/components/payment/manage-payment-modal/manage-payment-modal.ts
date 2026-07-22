@@ -110,7 +110,7 @@ export class ManagePaymentModalComponent {
   protected readonly steps = computed<StepperStep[]>(() => [
     {
       label: 'Identify method',
-      description: 'Set a name and environment',
+      description: 'Set a name and type',
       content: this.identityTpl(),
     },
     {
@@ -148,7 +148,6 @@ export class ManagePaymentModalComponent {
     return {
       name: identity.name.value,
       type: identity.type.value ?? 'CARD',
-      testMode: identity.environment.value === 'sandbox',
       currency: integration.currency.value ?? '',
       publicKey: credentials.publicKey.value,
       secretKey: credentials.secretKey.value || null,
@@ -231,7 +230,6 @@ export class ManagePaymentModalComponent {
           this.form.controls.identity.patchValue({
             name: detail.name,
             type: detail.type,
-            environment: detail.testMode ? 'sandbox' : 'production',
           });
           this.form.controls.credentials.controls.publicKey.setValue(detail.publicKey);
           this.form.controls.integration.patchValue({

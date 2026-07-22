@@ -10,7 +10,7 @@
     <input-field
       label="Display Name"
       placeholder="e.g. Paymob Credit Cards"
-      hint="Choose a name that tells configurations apart at a glance — gateway, type, or environment usually works well."
+      hint="Choose a name that tells configurations apart at a glance — gateway or type usually works well."
       [control]="form().controls.name"
       [errorMessages]="{
         required: 'Display name is required',
@@ -34,37 +34,5 @@
       [errorMessages]="{ required: 'Type is required' }"
       (selectionChange)="onTypeChange($event)"
     />
-    <div class="input-group">
-      <label data-required>Environment</label>
-      <div
-        ngpRadioGroup
-        class="radio-group"
-        [ngpRadioGroupValue]="form().controls.environment.value"
-        (ngpRadioGroupValueChange)="form().controls.environment.setValue($event!)"
-      >
-        <div ngpRadioItem ngpRadioItemValue="sandbox" class="radio-item">
-          <div class="env-row">
-            <div class="env-badge">Sandbox</div>
-            <svg class="env-check" [lucideIcon]="icons.CheckIcon" [size]="18"></svg>
-          </div>
-          <h3 class="env-title">Test Environment</h3>
-          <p class="env-desc">
-            No real money is moved. Use test cards to walk through the full booking flow safely.
-            Recommended for first-time setup.
-          </p>
-        </div>
-        <div ngpRadioItem ngpRadioItemValue="production" class="radio-item">
-          <div class="env-row">
-            <div class="env-badge">Production</div>
-            <svg class="env-check" [lucideIcon]="icons.CheckIcon" [size]="18"></svg>
-          </div>
-          <h3 class="env-title">Live Environment</h3>
-          <p class="env-desc">
-            Real charges go through. Only switch here once you've tested in sandbox and your Paymob
-            account is verified.
-          </p>
-        </div>
-      </div>
-    </div>
   </form>
 </div>
