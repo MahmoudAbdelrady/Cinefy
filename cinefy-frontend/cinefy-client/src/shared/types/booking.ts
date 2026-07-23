@@ -65,6 +65,10 @@ interface BookingRequest {
   seats: string[];
 }
 
+interface PaymentCheckout {
+  checkoutUrl: string;
+}
+
 export type {
   BookingShowtime,
   HallTypeShowtimes,
@@ -74,4 +78,5 @@ export type {
   BookedSeat,
   BookingDetail,
   BookingRequest,
+  PaymentCheckout,
 };

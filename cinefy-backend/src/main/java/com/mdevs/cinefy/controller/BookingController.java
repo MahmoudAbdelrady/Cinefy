@@ -4,6 +4,7 @@ import com.mdevs.cinefy.dto.booking.BookingDetailDTO;
 import com.mdevs.cinefy.dto.booking.BookingRequestDTO;
 import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
+import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
 import com.mdevs.cinefy.service.BookingService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
@@ -83,5 +84,11 @@ public class BookingController {
     public ResponseEntity<Void> cancelBooking(@PathVariable String uuid) {
         bookingService.cancelBooking(uuid);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('CLIENT')")
+    @PostMapping("/{uuid}/pay")
+    public ResponseEntity<PaymentCheckoutDTO> payBooking(@PathVariable String uuid) {
+        return ResponseEntity.ok(bookingService.createPaymentCheckout(uuid));
     }
 }

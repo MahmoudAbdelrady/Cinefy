@@ -45,6 +45,10 @@ public class PaymentMethodService {
         return toDetailDTO(findPaymentMethod(uuid));
     }
 
+    public List<PaymentMethod> findActiveMethods() {
+        return paymentMethodRepository.findAllByStatusAndCurrencyAndProvider(PaymentMethodStatus.ACTIVE, "EGP", PaymentProvider.PAYMOB);
+    }
+
     @Transactional
     public PaymentMethodSummaryDTO createPaymentMethod(PaymentMethodDTO dto) {
         validateCreatePaymentMethod(dto);

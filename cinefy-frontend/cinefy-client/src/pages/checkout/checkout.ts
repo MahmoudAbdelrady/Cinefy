@@ -173,10 +173,21 @@ export class CheckoutPage {
   }
 
   protected payWithNewCard(): void {
-    if (this.busy()) return;
+    const booking = this.booking();
+    if (!booking || this.busy()) return;
 
     this.redirecting.set(true);
-    // TODO: request the provider redirect URL and send the browser to it.
+    this.bookingService
+      .payBooking(booking.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ checkoutUrl }) => {
+          window.location.href = checkoutUrl;
+        },
+        error: () => {
+          this.redirecting.set(false);
+        },
+      });
   }
 
   protected onExpired(): void {

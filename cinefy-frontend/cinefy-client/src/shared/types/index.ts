@@ -29,5 +29,6 @@ export type {
   BookedSeat,
   BookingDetail,
   BookingRequest,
+  PaymentCheckout,
 } from './booking';
 export type { SelectableSeatCategory, SeatLayout, SeatLayoutResponse, TicketPrice } from './seats';

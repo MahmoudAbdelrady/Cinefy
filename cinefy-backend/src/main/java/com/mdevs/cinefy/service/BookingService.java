@@ -8,6 +8,7 @@ import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
+import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
 import com.mdevs.cinefy.dto.showtime.BookingShowtimeDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
@@ -66,6 +67,8 @@ public class BookingService {
     private final TmdbMovieService tmdbMovieService;
 
     private final CurrentUserService currentUserService;
+
+    private final PaymentService paymentService;
 
     @Lazy
     private final BookingService self;
@@ -218,6 +221,27 @@ public class BookingService {
     }
 
     @Transactional
+    public PaymentCheckoutDTO createPaymentCheckout(String uuid) {
+        // Lock first, then re-read to fetch the associations in one join instead of lazy-loading them one by one
+        findBookingByUuidForUpdate(uuid);
+        Booking booking = findBookingByUuidWithDetail(uuid);
+
+        validateBookingOwnership(booking);
+        validateBookingIsActive(booking);
+
+        BookingStatus status = booking.getStatus();
+        if (status != null && !status.equals(BookingStatus.PENDING_PAYMENT)) {
+            throw new BusinessException("This booking has already been paid for");
+        }
+        if (status == null) {
+            booking.setExpiresAt(LocalDateTime.now().plusMinutes(HOLD_WINDOW_MINUTES));
+            booking.setStatus(BookingStatus.PENDING_PAYMENT);
+        }
+
+        return paymentService.createCheckout(booking);
+    }
+
+    @Transactional
     public int deleteExpiredPendingBatch(LocalDateTime cutOffDate, int batchSize) {
         List<Long> bookingIds = bookingRepository.findExpiredPendingIds(cutOffDate, PageRequest.of(0, batchSize));
         if (bookingIds.isEmpty()) {
@@ -249,6 +273,11 @@ public class BookingService {
 
     private Booking findBookingByUuidWithDetail(String uuid) {
         return bookingRepository.findByUuidWithDetail(uuid)
+                .orElseThrow(() -> new NotFoundException("Booking not found or it may have been expired"));
+    }
+
+    private Booking findBookingByUuidForUpdate(String uuid) {
+        return bookingRepository.findByUuidForUpdate(uuid)
                 .orElseThrow(() -> new NotFoundException("Booking not found or it may have been expired"));
     }
 

@@ -6,6 +6,7 @@ import type {
   BookingRequest,
   BookingSummary,
   HallTypeShowtimes,
+  PaymentCheckout,
   SeatSelection,
 } from '../shared/types';
 
@@ -42,5 +43,9 @@ export class BookingService {
 
   cancelBooking(uuid: string, context?: HttpContext): Observable<void> {
     return this.http.delete<void>(`/booking/${uuid}`, { context });
+  }
+
+  payBooking(uuid: string): Observable<PaymentCheckout> {
+    return this.http.post<PaymentCheckout>(`/booking/${uuid}/pay`, null);
   }
 }
