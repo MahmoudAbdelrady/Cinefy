@@ -4,14 +4,19 @@ import com.mdevs.cinefy.dto.booking.BookingDetailDTO;
 import com.mdevs.cinefy.dto.booking.BookingRequestDTO;
 import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
+import com.mdevs.cinefy.dto.payment.CardTokenCallbackDTO;
+import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
 import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
+import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
 import com.mdevs.cinefy.service.BookingService;
+import com.mdevs.cinefy.service.PaymentService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
 import com.mdevs.cinefy.shared.validation.ValidationPatterns;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,10 +30,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import tools.jackson.databind.JsonNode;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/booking")
 @RequiredArgsConstructor
@@ -36,6 +43,8 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+
+    private final PaymentService paymentService;
 
     @PublicApi
     @PreAuthorize("permitAll()")
@@ -90,5 +99,19 @@ public class BookingController {
     @PostMapping("/{uuid}/pay")
     public ResponseEntity<PaymentCheckoutDTO> payBooking(@PathVariable String uuid) {
         return ResponseEntity.ok(bookingService.createPaymentCheckout(uuid));
+    }
+
+    @PublicApi
+    @PreAuthorize("permitAll()")
+    @PostMapping("/payment-callback")
+    public ResponseEntity<Void> handlePaymentCallback(@RequestBody JsonNode payload, @RequestParam String hmac) {
+        PaymentCallbackData callback = paymentService.handleCallback(payload, hmac);
+
+        switch (callback) {
+            case TransactionCallbackDTO transaction -> bookingService.applyPaymentResult(transaction);
+            case CardTokenCallbackDTO _ -> log.info("Card token callback received");
+        }
+
+        return ResponseEntity.ok().build();
     }
 }

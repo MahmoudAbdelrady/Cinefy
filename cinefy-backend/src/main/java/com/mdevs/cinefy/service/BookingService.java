@@ -9,6 +9,7 @@ import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
 import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
+import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.dto.showtime.BookingShowtimeDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
@@ -32,6 +33,7 @@ import com.mdevs.cinefy.shared.security.SecurityUtil;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
@@ -239,6 +241,40 @@ public class BookingService {
         }
 
         return paymentService.createCheckout(booking);
+    }
+
+    @Transactional
+    public void applyPaymentResult(TransactionCallbackDTO transaction) {
+        Long bookingId = parsePaymentBookingId(transaction.orderReference());
+        Booking booking = bookingRepository.findByIdForUpdate(bookingId).orElse(null);
+
+        if (booking == null) {
+            if (transaction.success()) {
+                log.warn("Successful payment for a booking that no longer exists: bookingId={}", bookingId);
+                // TODO: trigger refund flow — the customer paid for a booking that was already cleaned up.
+            }
+            return;
+        }
+
+        if (transaction.isRefunded() || transaction.isVoided()) {
+            booking.setStatus(BookingStatus.REFUNDED);
+            return;
+        }
+        if (!transaction.success()) {
+            return;
+        }
+
+        if (BookingStatus.CONFIRMED.equals(booking.getStatus())) {
+            log.warn("Duplicate successful payment for an already-confirmed booking: bookingId={}", bookingId);
+            // TODO: trigger refund flow — the customer was charged twice for the same booking.
+            return;
+        }
+
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setOnHold(null);
+        booking.setPaymentTransactionId(transaction.id());
+        // TODO: set refundable until date
+        bookingRepository.save(booking);
     }
 
     @Transactional
@@ -503,5 +539,16 @@ public class BookingService {
                 showtime.is3D(),
                 totalTickets,
                 totalPrice);
+    }
+
+    private Long parsePaymentBookingId(String orderReference) {
+        if (StringUtils.isEmpty(orderReference)) {
+            throw new BusinessException("Payment callback is missing the order reference");
+        }
+        try {
+            return Long.parseLong(StringUtils.substringBefore(orderReference, "-"));
+        } catch (NumberFormatException e) {
+            throw new BusinessException("Unrecognized order reference: " + orderReference);
+        }
     }
 }

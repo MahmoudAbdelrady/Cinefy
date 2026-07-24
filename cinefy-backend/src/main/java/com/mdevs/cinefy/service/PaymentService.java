@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
 import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionRequestDTO;
@@ -13,6 +14,7 @@ import com.mdevs.cinefy.shared.payment.PaymobClient;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -44,6 +46,16 @@ public class PaymentService {
         PaymobIntentionDTO intention = paymobClient.createIntention(credentialCipher.decrypt(primaryMethod.getSecretKey()), request);
 
         return new PaymentCheckoutDTO(paymobClient.getUnifiedCheckoutUrl(primaryMethod.getPublicKey(), intention.clientSecret()));
+    }
+
+    public PaymentCallbackData handleCallback(JsonNode payload, String hmac) {
+        List<PaymentMethod> activeMethods = paymentMethodService.findActiveMethods();
+        if (activeMethods.isEmpty()) {
+            throw new BusinessException("Online payment is currently unavailable");
+        }
+
+        String hmacSecret = credentialCipher.decrypt(activeMethods.getFirst().getHmacKey());
+        return paymobClient.parseCallback(payload, hmacSecret, hmac);
     }
 
     // =========================== Helpers ===========================

@@ -58,6 +58,9 @@ public class Booking extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
+    @Column(unique = true)
+    private String paymentTransactionId;
+
     private Boolean onHold = true;
 
     @Column(columnDefinition = "TIMESTAMP(0)")
