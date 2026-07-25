@@ -10,13 +10,13 @@ import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
 import com.mdevs.cinefy.service.BookingService;
+import com.mdevs.cinefy.service.ClientPaymentMethodService;
 import com.mdevs.cinefy.service.PaymentService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
 import com.mdevs.cinefy.shared.validation.ValidationPatterns;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +35,6 @@ import tools.jackson.databind.JsonNode;
 import java.time.LocalDate;
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/booking")
 @RequiredArgsConstructor
@@ -45,6 +44,8 @@ public class BookingController {
     private final BookingService bookingService;
 
     private final PaymentService paymentService;
+
+    private final ClientPaymentMethodService clientPaymentMethodService;
 
     @PublicApi
     @PreAuthorize("permitAll()")
@@ -109,7 +110,7 @@ public class BookingController {
 
         switch (callback) {
             case TransactionCallbackDTO transaction -> bookingService.applyPaymentResult(transaction);
-            case CardTokenCallbackDTO _ -> log.info("Card token callback received");
+            case CardTokenCallbackDTO token -> clientPaymentMethodService.createMethod(token);
         }
 
         return ResponseEntity.ok().build();

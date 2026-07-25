@@ -105,7 +105,11 @@
           <div class="co-tear"><span class="co-tear-rule"></span></div>
 
           <section class="co-payment">
-            @if (savedMethods().length) {
+            @if (loadingMethods()) {
+              <div class="co-methods-loading">
+                <loading-spinner variant="md" />
+              </div>
+            } @else if (savedMethods().length) {
               <h2 class="co-payment-title">Pay with a saved card</h2>
 
               <ul class="co-cards">
@@ -122,10 +126,10 @@
                         [checked]="isSelected(method)"
                         (change)="selectMethod(method)"
                       />
-                      <span class="co-card-chip">{{ subtypeChip(method.cardSubtype) }}</span>
+                      <span class="co-card-chip">{{ brandChip(method.cardBrand) }}</span>
                       <span class="co-card-detail">
-                        <span class="co-card-pan">{{ method.maskedPan }}</span>
-                        <span class="co-card-subtype">{{ method.cardSubtype }}</span>
+                        <span class="co-card-pan">{{ method.cardNumber }}</span>
+                        <span class="co-card-subtype">{{ method.cardBrand }}</span>
                       </span>
                       <span class="co-card-tick">
                         @if (isSelected(method)) {

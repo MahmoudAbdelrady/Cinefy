@@ -6,7 +6,7 @@ public record CardTokenCallbackDTO(
 
         String maskedPan,
 
-        String name,
+        String brand,
 
         String email
 ) implements PaymentCallbackData {

@@ -243,6 +243,12 @@
   display: block;
   padding: 20px;
 
+  .co-methods-loading {
+    @include flex-center;
+
+    padding: 32px 16px;
+  }
+
   .co-payment-title {
     margin-bottom: 12px;
     font-family: $font-mono;

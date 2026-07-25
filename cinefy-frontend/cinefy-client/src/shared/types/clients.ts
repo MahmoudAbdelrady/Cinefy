@@ -5,3 +5,9 @@ export interface CurrentUser {
   fullName: string;
   email: string;
 }
+
+export interface ClientPaymentMethod {
+  id: string;
+  cardBrand: string;
+  cardNumber: string;
+}

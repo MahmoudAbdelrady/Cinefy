@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   Component,
   computed,
   DestroyRef,
@@ -22,11 +23,11 @@ import {
   ModalComponent,
 } from 'cinefy-ui/components';
 import { BookingCancelledComponent } from '../../components';
-import { BookingService } from '../../services';
+import { BookingService, ClientService } from '../../services';
 import { comparePositions } from '../../shared/seat-position';
 import { skipErrorToast } from '../../app/core/interceptors';
 import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
-import type { ApiError } from '../../shared/types';
+import type { ApiError, ClientPaymentMethod } from '../../shared/types';
 import {
   ArrowLeftIcon,
   ArrowUpRightIcon,
@@ -38,12 +39,6 @@ import {
   TriangleAlertIcon,
   XIcon,
 } from '../../shared/icons';
-
-interface SavedPaymentMethod {
-  id: string;
-  maskedPan: string;
-  cardSubtype: string;
-}
 
 const SUBTYPE_CHIP: Record<string, string> = {
   mastercard: 'MC',
@@ -86,6 +81,7 @@ export class CheckoutPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly bookingService = inject(BookingService);
+  private readonly clientService = inject(ClientService);
   private readonly dialogManager = inject(NgpDialogManager);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -117,19 +113,8 @@ export class CheckoutPage {
   protected readonly cancelled = signal(false);
   protected readonly bookingExpired = signal(false);
 
-  // TODO: load from the saved-cards endpoint once the backend exposes it.
-  protected readonly savedMethods = signal<SavedPaymentMethod[]>([
-    {
-      id: 'uuias8asf4ascijwq-askascn',
-      maskedPan: 'xxxx-xxxx-xxxx-0008',
-      cardSubtype: 'MasterCard',
-    },
-    {
-      id: 'asfqwqwf-8qw9848',
-      maskedPan: 'xxxx-xxxx-xxxx-1234',
-      cardSubtype: 'Visa',
-    },
-  ]);
+  protected readonly savedMethods = signal<ClientPaymentMethod[]>([]);
+  protected readonly loadingMethods = signal(true);
   protected readonly selectedId = signal('');
 
   protected readonly selectedMethod = computed(() =>
@@ -154,14 +139,29 @@ export class CheckoutPage {
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
 
-  protected readonly isSelected = (method: SavedPaymentMethod) => method.id === this.selectedId();
+  protected readonly isSelected = (method: ClientPaymentMethod) => method.id === this.selectedId();
 
-  protected readonly subtypeChip = (cardSubtype: string) => {
-    const key = cardSubtype.toLowerCase().replace(/\s+/g, '');
-    return SUBTYPE_CHIP[key] ?? cardSubtype.slice(0, 4).toUpperCase();
+  protected readonly brandChip = (cardBrand: string) => {
+    const key = cardBrand.toLowerCase().replace(/\s+/g, '');
+    return SUBTYPE_CHIP[key] ?? cardBrand.slice(0, 4).toUpperCase();
   };
 
-  protected selectMethod(method: SavedPaymentMethod): void {
+  constructor() {
+    afterNextRender(() => {
+      this.clientService
+        .getPaymentMethods()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (methods) => {
+            this.savedMethods.set(methods);
+            this.loadingMethods.set(false);
+          },
+          error: () => this.loadingMethods.set(false),
+        });
+    });
+  }
+
+  protected selectMethod(method: ClientPaymentMethod): void {
     this.selectedId.set(method.id);
   }
 
