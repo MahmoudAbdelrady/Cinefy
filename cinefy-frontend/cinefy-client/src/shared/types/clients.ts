@@ -11,3 +11,7 @@ export interface ClientPaymentMethod {
   cardBrand: string;
   cardNumber: string;
 }
+
+export interface SavedCardPaymentRequest {
+  paymentMethodId: string;
+}

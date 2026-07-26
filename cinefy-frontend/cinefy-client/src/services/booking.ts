@@ -7,6 +7,7 @@ import type {
   BookingSummary,
   HallTypeShowtimes,
   PaymentCheckout,
+  SavedCardPaymentRequest,
   SeatSelection,
 } from '../shared/types';
 
@@ -47,5 +48,10 @@ export class BookingService {
 
   payBooking(uuid: string): Observable<PaymentCheckout> {
     return this.http.post<PaymentCheckout>(`/booking/${uuid}/pay`, null);
+  }
+
+  paySavedCard(uuid: string, paymentMethodId: string): Observable<PaymentCheckout> {
+    const payload: SavedCardPaymentRequest = { paymentMethodId };
+    return this.http.post<PaymentCheckout>(`/booking/${uuid}/pay-saved-card`, payload);
   }
 }

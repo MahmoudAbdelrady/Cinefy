@@ -4,9 +4,11 @@ import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
 import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionRequestDTO;
+import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import com.mdevs.cinefy.entity.Client;
+import com.mdevs.cinefy.entity.ClientPaymentMethod;
 import com.mdevs.cinefy.entity.PaymentMethod;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
@@ -36,16 +38,22 @@ public class PaymentService {
     // ========================= Public API =========================
 
     public PaymentCheckoutDTO createCheckout(Booking booking) {
-        List<PaymentMethod> activeMethods = paymentMethodService.findActiveMethods();
-        if (activeMethods.isEmpty()) {
-            throw new BusinessException("Online payment is currently unavailable");
-        }
-
+        List<PaymentMethod> activeMethods = findActiveMethods();
         PaymentMethod primaryMethod = activeMethods.getFirst();
-        PaymobIntentionRequestDTO request = toIntentionRequest(booking, activeMethods, primaryMethod.getCurrency());
-        PaymobIntentionDTO intention = paymobClient.createIntention(credentialCipher.decrypt(primaryMethod.getSecretKey()), request);
+        PaymobIntentionDTO intention = createIntention(booking, activeMethods, primaryMethod);
 
         return new PaymentCheckoutDTO(paymobClient.getUnifiedCheckoutUrl(primaryMethod.getPublicKey(), intention.clientSecret()));
+    }
+
+    public PaymobPayResponseDTO payWithSavedCard(Booking booking, ClientPaymentMethod paymentMethod) {
+        List<PaymentMethod> activeMethods = findActiveMethods();
+        PaymentMethod primaryMethod = activeMethods.getFirst();
+        PaymobIntentionDTO intention = createIntention(booking, activeMethods, primaryMethod);
+
+        return paymobClient.pay(
+                paymentMethod.getToken(),
+                intention.paymentKey(),
+                credentialCipher.decrypt(primaryMethod.getHmacKey()));
     }
 
     public PaymentCallbackData handleCallback(JsonNode payload, String hmac) {
@@ -59,6 +67,19 @@ public class PaymentService {
     }
 
     // =========================== Helpers ===========================
+
+    private List<PaymentMethod> findActiveMethods() {
+        List<PaymentMethod> activeMethods = paymentMethodService.findActiveMethods();
+        if (activeMethods.isEmpty()) {
+            throw new BusinessException("Online payment is currently unavailable");
+        }
+        return activeMethods;
+    }
+
+    private PaymobIntentionDTO createIntention(Booking booking, List<PaymentMethod> activeMethods, PaymentMethod primaryMethod) {
+        PaymobIntentionRequestDTO request = toIntentionRequest(booking, activeMethods, primaryMethod.getCurrency());
+        return paymobClient.createIntention(credentialCipher.decrypt(primaryMethod.getSecretKey()), request);
+    }
 
     private PaymobIntentionRequestDTO toIntentionRequest(Booking booking, List<PaymentMethod> activeMethods, String currency) {
         long amount = booking.getSeats().stream()

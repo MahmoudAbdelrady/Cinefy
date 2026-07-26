@@ -6,6 +6,7 @@ import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.ClientPaymentMethod;
 import com.mdevs.cinefy.repository.ClientPaymentMethodRepository;
 import com.mdevs.cinefy.repository.ClientRepository;
+import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,11 @@ public class ClientPaymentMethodService {
                 .stream()
                 .map(this::toDTO)
                 .toList();
+    }
+
+    public ClientPaymentMethod findByUuid(String uuid) {
+        return clientPaymentMethodRepository.findByUuid(uuid)
+                .orElseThrow(() -> new NotFoundException("Payment method not found"));
     }
 
     @Transactional

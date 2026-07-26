@@ -7,6 +7,7 @@ import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.payment.CardTokenCallbackDTO;
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
 import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
+import com.mdevs.cinefy.dto.payment.SavedCardPaymentDTO;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
 import com.mdevs.cinefy.service.BookingService;
@@ -100,6 +101,14 @@ public class BookingController {
     @PostMapping("/{uuid}/pay")
     public ResponseEntity<PaymentCheckoutDTO> payBooking(@PathVariable String uuid) {
         return ResponseEntity.ok(bookingService.createPaymentCheckout(uuid));
+    }
+
+    @PreAuthorize("hasRole('CLIENT')")
+    @PostMapping("/{uuid}/pay-saved-card")
+    public ResponseEntity<PaymentCheckoutDTO> paySavedCard(@PathVariable String uuid,
+                                                           @Valid @RequestBody SavedCardPaymentDTO dto) {
+        PaymentCheckoutDTO checkoutDTO = bookingService.paySavedCard(uuid, dto);
+        return checkoutDTO != null ? ResponseEntity.ok(checkoutDTO) : ResponseEntity.noContent().build();
     }
 
     @PublicApi

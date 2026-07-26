@@ -118,12 +118,14 @@
                     <label
                       class="co-card-option"
                       [class.co-card-option-selected]="isSelected(method)"
+                      [class.co-card-option-disabled]="busy()"
                     >
                       <input
                         type="radio"
                         name="saved-card"
                         class="co-card-radio"
                         [checked]="isSelected(method)"
+                        [disabled]="busy()"
                         (change)="selectMethod(method)"
                       />
                       <span class="co-card-chip">{{ brandChip(method.cardBrand) }}</span>

@@ -4,6 +4,7 @@ import com.mdevs.cinefy.dto.payment.CardTokenCallbackDTO;
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionRequestDTO;
+import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
 import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
@@ -45,6 +46,8 @@ public class PaymobClient {
     private static final String INTENTION_PATH = "/v1/intention/";
 
     private static final String UNIFIED_CHECKOUT_PATH = "/unifiedcheckout/";
+
+    private static final String PAY_PATH = "/api/acceptance/payments/pay";
 
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
 
@@ -151,6 +154,37 @@ public class PaymobClient {
         }
     }
 
+    public PaymobPayResponseDTO pay(String cardToken, String paymentToken, String hmacSecret) {
+        try {
+            JsonNode response = restClient.post()
+                    .uri(PAY_PATH)
+                    .header("Content-Type", "application/json")
+                    .body(Map.of(
+                            "source", Map.of(
+                                    "identifier", cardToken,
+                                    "subtype", "TOKEN"
+                            ),
+                            "payment_token", paymentToken
+                    ))
+                    .retrieve()
+                    .body(JsonNode.class);
+            if (response == null) {
+                throw new BusinessException("Paymob returned an empty payment response");
+            }
+
+            verifyHmac(response, TRANSACTION_HMAC_FIELDS, hmacSecret, response.path("hmac").asString(null));
+
+            return toPayResponse(response);
+        } catch (HttpClientErrorException e) {
+            log.warn("Paymob saved-card payment failed: status={} body={}", e.getStatusCode(), e.getResponseBodyAsString());
+            String message = extractErrorDetail(e.getResponseBodyAsString(), "Paymob rejected the payment request");
+            throw new BusinessException(message);
+        } catch (RestClientException e) {
+            log.warn("Paymob saved-card payment failed: {}", e.getMessage());
+            throw new IllegalStateException("Could not reach Paymob: " + e.getMessage());
+        }
+    }
+
     public String getUnifiedCheckoutUrl(String publicKey, String clientSecret) {
         return apiBaseUrl + UNIFIED_CHECKOUT_PATH + "?publicKey=" + publicKey + "&clientSecret=" + clientSecret;
     }
@@ -159,25 +193,31 @@ public class PaymobClient {
         String type = payload.path("type").asString(null);
         JsonNode obj = payload.path("obj");
 
-        verifyCallback(type, obj, hmacSecret, receivedHmac);
+        boolean isTransaction = TRANSACTION_TYPE.equals(type);
 
-        return TRANSACTION_TYPE.equals(type)
-                ? toTransactionCallback(obj)
-                : toCardTokenCallback(obj);
+        List<String> fields = isTransaction ? TRANSACTION_HMAC_FIELDS : TOKEN_HMAC_FIELDS;
+        verifyHmac(obj, fields, hmacSecret, receivedHmac);
+
+        return isTransaction ? toTransactionCallback(obj) : toCardTokenCallback(obj);
     }
 
     // =========================== Helpers ===========================
 
-    private void verifyCallback(String type, JsonNode obj, String hmacSecret, String receivedHmac) {
-        List<String> fields = TRANSACTION_TYPE.equals(type) ? TRANSACTION_HMAC_FIELDS : TOKEN_HMAC_FIELDS;
-        String expectedHmac = calculateHmac(concatenateHmacFields(obj, fields), hmacSecret);
+    private void verifyHmac(JsonNode obj, List<String> fields, String hmacSecret, String receivedHmac) {
+        if (StringUtils.isEmpty(receivedHmac)) {
+            log.warn("Paymob response rejected: no HMAC to verify against");
+            throw new BusinessException("Invalid payment signature");
+        }
+
+        String concatenated = concatenateHmacFields(obj, fields);
+        String expectedHmac = calculateHmac(concatenated, hmacSecret);
 
         boolean valid = MessageDigest.isEqual(
                 expectedHmac.getBytes(StandardCharsets.UTF_8),
                 receivedHmac.toLowerCase().getBytes(StandardCharsets.UTF_8));
         if (!valid) {
-            log.warn("Paymob callback rejected: HMAC mismatch for type={}", type);
-            throw new BusinessException("Invalid callback signature");
+            log.warn("Paymob response rejected: HMAC mismatch over fields={} concatenated={}", fields, concatenated);
+            throw new BusinessException("Invalid payment signature");
         }
     }
 
@@ -193,6 +233,21 @@ public class PaymobClient {
         }
 
         return new PaymobIntentionDTO(paymentKey, clientSecret);
+    }
+
+    private PaymobPayResponseDTO toPayResponse(JsonNode response) {
+        String id = response.path("id").asString(null);
+        if (StringUtils.isEmpty(id)) {
+            throw new BusinessException("Paymob returned an incomplete payment response");
+        }
+
+        return new PaymobPayResponseDTO(
+                id,
+                response.path("pending").asBoolean(false),
+                response.path("success").asBoolean(false),
+                response.path("data.message").asString(null),
+                response.path("redirection_url").asString(null),
+                response.path("merchant_order_id").asString(null));
     }
 
     private TransactionCallbackDTO toTransactionCallback(JsonNode obj) {
@@ -227,15 +282,28 @@ public class PaymobClient {
     private String concatenateHmacFields(JsonNode obj, List<String> fields) {
         StringBuilder builder = new StringBuilder();
         for (String field : fields) {
-            JsonNode value = obj;
-            for (String segment : field.split("\\.")) {
-                value = value.path(segment);
-            }
+            JsonNode value = resolveHmacField(obj, field);
             if (!value.isMissingNode() && !value.isNull()) {
                 builder.append(value.asString());
             }
         }
         return builder.toString();
+    }
+
+    private JsonNode resolveHmacField(JsonNode obj, String field) {
+        JsonNode literal = obj.path(field);
+        if (!literal.isMissingNode()) {
+            return literal;
+        }
+
+        JsonNode value = obj;
+        for (String segment : field.split("\\.")) {
+            if (!value.isObject()) {
+                return value;
+            }
+            value = value.path(segment);
+        }
+        return value;
     }
 
     private String calculateHmac(String payload, String hmacSecret) {

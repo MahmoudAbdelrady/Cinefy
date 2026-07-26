@@ -166,10 +166,26 @@ export class CheckoutPage {
   }
 
   protected paySaved(): void {
-    if (this.busy() || !this.selectedMethod()) return;
+    const booking = this.booking();
+    const method = this.selectedMethod();
+    if (!booking || !method || this.busy()) return;
 
     this.processing.set(true);
-    // TODO: charge the selected saved card once the endpoint exists.
+    this.bookingService
+      .paySavedCard(booking.id, method.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ checkoutUrl }) => {
+          if (checkoutUrl) {
+            window.location.href = checkoutUrl;
+            return;
+          }
+          this.processing.set(false);
+        },
+        error: () => {
+          this.processing.set(false);
+        },
+      });
   }
 
   protected payWithNewCard(): void {
@@ -182,7 +198,11 @@ export class CheckoutPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ({ checkoutUrl }) => {
-          window.location.href = checkoutUrl;
+          if (checkoutUrl) {
+            window.location.href = checkoutUrl;
+            return;
+          }
+          this.redirecting.set(false);
         },
         error: () => {
           this.redirecting.set(false);

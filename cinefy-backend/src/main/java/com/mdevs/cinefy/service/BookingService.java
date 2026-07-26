@@ -9,6 +9,8 @@ import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
 import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
+import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
+import com.mdevs.cinefy.dto.payment.SavedCardPaymentDTO;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.dto.showtime.BookingShowtimeDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
@@ -16,6 +18,7 @@ import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import com.mdevs.cinefy.entity.Client;
+import com.mdevs.cinefy.entity.ClientPaymentMethod;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.StaffMember;
@@ -71,6 +74,8 @@ public class BookingService {
     private final CurrentUserService currentUserService;
 
     private final PaymentService paymentService;
+
+    private final ClientPaymentMethodService clientPaymentMethodService;
 
     @Lazy
     private final BookingService self;
@@ -224,23 +229,28 @@ public class BookingService {
 
     @Transactional
     public PaymentCheckoutDTO createPaymentCheckout(String uuid) {
-        // Lock first, then re-read to fetch the associations in one join instead of lazy-loading them one by one
-        findBookingByUuidForUpdate(uuid);
-        Booking booking = findBookingByUuidWithDetail(uuid);
-
-        validateBookingOwnership(booking);
-        validateBookingIsActive(booking);
-
-        BookingStatus status = booking.getStatus();
-        if (status != null && !status.equals(BookingStatus.PENDING_PAYMENT)) {
-            throw new BusinessException("This booking has already been paid for");
-        }
-        if (status == null) {
-            booking.setExpiresAt(LocalDateTime.now().plusMinutes(HOLD_WINDOW_MINUTES));
-            booking.setStatus(BookingStatus.PENDING_PAYMENT);
-        }
+        Booking booking = prepareBookingForPayment(uuid);
 
         return paymentService.createCheckout(booking);
+    }
+
+    @Transactional
+    public PaymentCheckoutDTO paySavedCard(String uuid, SavedCardPaymentDTO dto) {
+        Booking booking = prepareBookingForPayment(uuid);
+        ClientPaymentMethod paymentMethod = clientPaymentMethodService.findByUuid(dto.getPaymentMethodId());
+
+        PaymobPayResponseDTO result = paymentService.payWithSavedCard(booking, paymentMethod);
+
+        if (result.success()) {
+            validatePaymentBookingMatch(booking, result.orderReference());
+            confirmPaidBooking(booking, result.id());
+            return null;
+        }
+        if (result.pending()) {
+            return new PaymentCheckoutDTO(result.redirectionUrl());
+        }
+
+        throw new BusinessException(StringUtils.defaultIfEmpty(result.message(), "The payment was declined"));
     }
 
     @Transactional
@@ -258,6 +268,7 @@ public class BookingService {
 
         if (transaction.isRefunded() || transaction.isVoided()) {
             booking.setStatus(BookingStatus.REFUNDED);
+            bookingRepository.save(booking);
             return;
         }
         if (!transaction.success()) {
@@ -265,16 +276,18 @@ public class BookingService {
         }
 
         if (BookingStatus.CONFIRMED.equals(booking.getStatus())) {
-            log.warn("Duplicate successful payment for an already-confirmed booking: bookingId={}", bookingId);
+            if (booking.getPaymentTransactionId().equals(transaction.id())) {
+                log.info("Payment callback for a booking already confirmed by this transaction: bookingId={} transactionId={}", bookingId, transaction.id());
+                return;
+            }
+
+            log.warn("Duplicate successful payment for an already-confirmed booking: bookingId={} confirmedBy={} chargedBy={}",
+                    bookingId, booking.getPaymentTransactionId(), transaction.id());
             // TODO: trigger refund flow — the customer was charged twice for the same booking.
             return;
         }
 
-        booking.setStatus(BookingStatus.CONFIRMED);
-        booking.setOnHold(null);
-        booking.setPaymentTransactionId(transaction.id());
-        // TODO: set refundable until date
-        bookingRepository.save(booking);
+        confirmPaidBooking(booking, transaction.id());
     }
 
     @Transactional
@@ -357,6 +370,42 @@ public class BookingService {
         if (!active) {
             throw new BusinessException("This booking is no longer active");
         }
+    }
+
+    private void validatePaymentBookingMatch(Booking booking, String orderReference) {
+        Long paidBookingId = parsePaymentBookingId(orderReference);
+        if (!booking.getId().equals(paidBookingId)) {
+            log.warn("Saved-card payment resolved to a different booking: expected={} actual={}", booking.getId(), paidBookingId);
+            throw new BusinessException("The payment could not be matched to this booking");
+        }
+    }
+
+    private void confirmPaidBooking(Booking booking, String transactionId) {
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setOnHold(null);
+        booking.setPaymentTransactionId(transactionId);
+        // TODO: set refundable until date
+        bookingRepository.save(booking);
+    }
+
+    private Booking prepareBookingForPayment(String uuid) {
+        // Lock first, then re-read to fetch the associations in one join instead of lazy-loading them one by one
+        findBookingByUuidForUpdate(uuid);
+        Booking booking = findBookingByUuidWithDetail(uuid);
+
+        validateBookingOwnership(booking);
+        validateBookingIsActive(booking);
+
+        BookingStatus status = booking.getStatus();
+        if (status != null && !status.equals(BookingStatus.PENDING_PAYMENT)) {
+            throw new BusinessException("This booking has already been paid for");
+        }
+        if (status == null) {
+            booking.setExpiresAt(LocalDateTime.now().plusMinutes(HOLD_WINDOW_MINUTES));
+            booking.setStatus(BookingStatus.PENDING_PAYMENT);
+        }
+
+        return booking;
     }
 
     private Booking mutateActivePendingBooking(User user, Showtime showtime, Hall hall,

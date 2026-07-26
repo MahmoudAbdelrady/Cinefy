@@ -66,7 +66,7 @@ interface BookingRequest {
 }
 
 interface PaymentCheckout {
-  checkoutUrl: string;
+  checkoutUrl: string | null;
 }
 
 export type {
