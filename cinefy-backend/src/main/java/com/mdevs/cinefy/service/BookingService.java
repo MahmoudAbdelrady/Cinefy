@@ -230,7 +230,6 @@ public class BookingService {
     @Transactional
     public PaymentCheckoutDTO createPaymentCheckout(String uuid) {
         Booking booking = prepareBookingForPayment(uuid);
-
         return paymentService.createCheckout(booking);
     }
 
@@ -281,8 +280,7 @@ public class BookingService {
                 return;
             }
 
-            log.warn("Duplicate successful payment for an already-confirmed booking: bookingId={} confirmedBy={} chargedBy={}",
-                    bookingId, booking.getPaymentTransactionId(), transaction.id());
+            log.warn("Duplicate successful payment for an already-confirmed booking: bookingId={} confirmedBy={} chargedBy={}", bookingId, booking.getPaymentTransactionId(), transaction.id());
             // TODO: trigger refund flow — the customer was charged twice for the same booking.
             return;
         }
