@@ -14,6 +14,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
+    path: 'booking-confirmation/:bookingId',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: '**',
     renderMode: RenderMode.Server,
   },

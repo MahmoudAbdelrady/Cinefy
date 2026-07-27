@@ -29,4 +29,5 @@ export {
   LucideTriangleAlert as TriangleAlertIcon,
   LucideCircleCheck as CircleCheckIcon,
   LucideShieldCheck as ShieldCheckIcon,
+  LucideRotateCcw as RotateCcwIcon,
 } from '@lucide/angular';

@@ -1,0 +1,123 @@
+<main class="cf-page">
+  <div class="cf-head reveal">
+    @switch (paymentState()) {
+      @case ('pending') {
+        <span class="cf-badge cf-badge-pending">
+          <loading-spinner variant="xl" />
+        </span>
+      }
+      @case ('failed') {
+        <span class="cf-badge cf-badge-failed">
+          <svg [lucideIcon]="icons.XIcon" [size]="32" [strokeWidth]="3"></svg>
+        </span>
+      }
+      @default {
+        <span class="cf-badge cf-badge-success">
+          <svg [lucideIcon]="icons.CheckIcon" [size]="32" [strokeWidth]="3"></svg>
+        </span>
+      }
+    }
+
+    <h1 class="cf-title">{{ heading().title }}</h1>
+    <p class="cf-note">{{ heading().note }}</p>
+  </div>
+
+  <div class="cf-ticket reveal">
+    <div class="cf-ticket-hero">
+      <div class="cf-ticket-scrim"></div>
+      <div class="cf-ticket-hero-meta">
+        <h2 class="cf-movie-title">Movie title</h2>
+      </div>
+    </div>
+
+    <div class="cf-tear"></div>
+
+    <div class="cf-ticket-body">
+      <dl class="cf-details">
+        <div class="cf-detail">
+          <dt class="cf-detail-label">
+            <svg [lucideIcon]="icons.MapPinIcon" [size]="16"></svg>
+            <span>Hall</span>
+          </dt>
+          <dd class="cf-detail-value">Hall 5</dd>
+        </div>
+        <div class="cf-detail">
+          <dt class="cf-detail-label">
+            <svg [lucideIcon]="icons.ClapperboardIcon" [size]="16"></svg>
+            <span>Experience</span>
+          </dt>
+          <dd class="cf-detail-value">IMAX (3D)</dd>
+        </div>
+        <div class="cf-detail">
+          <dt class="cf-detail-label">
+            <svg [lucideIcon]="icons.CalendarIcon" [size]="16"></svg>
+            <span>Date</span>
+          </dt>
+          <dd class="cf-detail-value">Jun 12, 2026</dd>
+        </div>
+        <div class="cf-detail">
+          <dt class="cf-detail-label">
+            <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
+            <span>Time</span>
+          </dt>
+          <dd class="cf-detail-value">2:30 PM</dd>
+        </div>
+        <div class="cf-detail cf-detail-seats">
+          <dt class="cf-detail-label">
+            <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+            <span>Seats ({{ seats().length }})</span>
+          </dt>
+          <dd class="cf-detail-value">
+            <ul class="cf-seats">
+              @for (position of seatPositions(); track $index) {
+                <li class="cf-seat">{{ position }}</li>
+              }
+            </ul>
+          </dd>
+        </div>
+      </dl>
+
+      @if (paymentState() === 'success') {
+        <div class="cf-qr-block">
+          <div class="cf-qr">
+            @for (cell of qrCells(); track $index) {
+              <span class="cf-qr-cell" [class.cf-qr-cell-on]="cell"></span>
+            }
+          </div>
+          <span class="cf-reference">#BOOKING-REF</span>
+        </div>
+      }
+    </div>
+
+    <div class="cf-ticket-foot">
+      <span class="cf-paid-label">{{ paymentState() === 'success' ? 'Paid' : 'Total' }}</span>
+      <span class="cf-paid-value" [class.cf-paid-value-void]="paymentState() === 'failed'">
+        $34.00
+      </span>
+    </div>
+  </div>
+
+  @if (paymentState() === 'pending') {
+    <p class="cf-pending-note reveal">
+      This page will update automatically. Please do not submit another payment.
+    </p>
+  } @else {
+    <div class="cf-actions reveal">
+      @if (paymentState() === 'failed') {
+        <a class="btn-primary cf-action" routerLink="/checkout/{{ bookingId() }}">
+          <svg [lucideIcon]="icons.RotateCcwIcon" [size]="16"></svg>
+          Try again
+        </a>
+      } @else {
+        <a class="btn-secondary cf-action" routerLink="/movies">
+          <svg [lucideIcon]="icons.ClapperboardIcon" [size]="16"></svg>
+          Browse movies
+        </a>
+        <a class="btn-primary cf-action" routerLink="/profile">
+          <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+          View my bookings
+        </a>
+      }
+    </div>
+  }
+</main>
