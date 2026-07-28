@@ -189,6 +189,14 @@ public class PaymobClient {
         return apiBaseUrl + UNIFIED_CHECKOUT_PATH + "?publicKey=" + publicKey + "&clientSecret=" + clientSecret;
     }
 
+    public TransactionCallbackDTO parseRedirect(Map<String, String> params, String hmacSecret) {
+        // Paymob sends the transaction fields as flat query params
+        JsonNode payload = objectMapper.valueToTree(params);
+        verifyHmac(payload, TRANSACTION_HMAC_FIELDS, hmacSecret, params.get("hmac"));
+
+        return toTransactionCallback(payload);
+    }
+
     public PaymentCallbackData parseCallback(JsonNode payload, String hmacSecret, String receivedHmac) {
         String type = payload.path("type").asString(null);
         JsonNode obj = payload.path("obj");
@@ -251,12 +259,18 @@ public class PaymobClient {
     }
 
     private TransactionCallbackDTO toTransactionCallback(JsonNode obj) {
+        // The webhook nests the reference under "order"; the browser redirect sends it flat
+        JsonNode orderReference = obj.path("order").path("merchant_order_id");
+        if (orderReference.isMissingNode() || orderReference.isNull()) {
+            orderReference = obj.path("merchant_order_id");
+        }
+
         return new TransactionCallbackDTO(
                 obj.path("id").asString(null),
                 obj.path("success").asBoolean(false),
                 obj.path("is_refunded").asBoolean(false),
                 obj.path("is_voided").asBoolean(false),
-                obj.path("order").path("merchant_order_id").asString(null));
+                orderReference.asString(null));
     }
 
     private CardTokenCallbackDTO toCardTokenCallback(JsonNode obj) {

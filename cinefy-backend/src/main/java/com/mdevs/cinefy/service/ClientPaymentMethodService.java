@@ -35,8 +35,9 @@ public class ClientPaymentMethodService {
                 .toList();
     }
 
-    public ClientPaymentMethod findByUuid(String uuid) {
-        return clientPaymentMethodRepository.findByUuid(uuid)
+    public ClientPaymentMethod findOwnedByCurrentClient(String uuid) {
+        Long clientId = currentUserService.loadCurrentUser().getId();
+        return clientPaymentMethodRepository.findByUuidAndClientId(uuid, clientId)
                 .orElseThrow(() -> new NotFoundException("Payment method not found"));
     }
 

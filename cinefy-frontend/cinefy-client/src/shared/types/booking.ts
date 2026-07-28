@@ -65,8 +65,8 @@ interface BookingRequest {
   seats: string[];
 }
 
-interface PaymentCheckout {
-  checkoutUrl: string | null;
+interface PaymentRedirection {
+  redirectionUrl: string;
 }
 
 export type {
@@ -78,5 +78,5 @@ export type {
   BookedSeat,
   BookingDetail,
   BookingRequest,
-  PaymentCheckout,
+  PaymentRedirection,
 };

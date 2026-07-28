@@ -9,7 +9,7 @@ public interface ClientPaymentMethodRepository extends BaseRepository<ClientPaym
 
     List<ClientPaymentMethod> findAllByClientId(Long clientId);
 
-    Optional<ClientPaymentMethod> findByUuid(String uuid);
+    Optional<ClientPaymentMethod> findByUuidAndClientId(String uuid, Long clientId);
 
     boolean existsByToken(String token);
 }

@@ -1,14 +1,16 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.config.general.AppConfig;
 import com.mdevs.cinefy.dto.booking.ActiveBookingDTO;
 import com.mdevs.cinefy.dto.booking.BookedSeatDTO;
+import com.mdevs.cinefy.dto.booking.BookingConfirmationDTO;
 import com.mdevs.cinefy.dto.booking.BookingDetailDTO;
 import com.mdevs.cinefy.dto.booking.BookingRequestDTO;
 import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
-import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
+import com.mdevs.cinefy.dto.payment.PaymentRedirectionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
 import com.mdevs.cinefy.dto.payment.SavedCardPaymentDTO;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
@@ -24,11 +26,13 @@ import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.entity.enums.BookingStatus;
+import com.mdevs.cinefy.entity.enums.PaymentState;
 import com.mdevs.cinefy.entity.enums.SeatCategory;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
+import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
@@ -93,6 +97,8 @@ public class BookingService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
+    private static final String BOOKING_CONFIRMATION_PATH = "/booking-confirmation/";
 
     // ========================= Public API =========================
 
@@ -169,6 +175,15 @@ public class BookingService {
         return toBookingDetailDTO(booking);
     }
 
+    public BookingConfirmationDTO getBookingConfirmation(String uuid) {
+        Booking booking = findBookingByUuidWithDetail(uuid);
+        validateBookingOwnership(booking);
+        if (booking.getStatus() == null) {
+            throw new BusinessException("No payment has been attempted for this booking", ErrorCode.PAYMENT_NOT_ATTEMPTED);
+        }
+        return toBookingConfirmationDTO(booking);
+    }
+
     public BookingDetailDTO createBooking(BookingRequestDTO dto, String idempotencyKey) {
         Booking existing = bookingRepository.findByIdempotencyKeyWithDetail(idempotencyKey).orElse(null);
         boolean hasExpiredPending = existing != null
@@ -228,25 +243,24 @@ public class BookingService {
     }
 
     @Transactional
-    public PaymentCheckoutDTO createPaymentCheckout(String uuid) {
+    public PaymentRedirectionDTO createPaymentCheckout(String uuid) {
         Booking booking = prepareBookingForPayment(uuid);
         return paymentService.createCheckout(booking);
     }
 
     @Transactional
-    public PaymentCheckoutDTO paySavedCard(String uuid, SavedCardPaymentDTO dto) {
+    public PaymentRedirectionDTO paySavedCard(String uuid, SavedCardPaymentDTO dto) {
         Booking booking = prepareBookingForPayment(uuid);
-        ClientPaymentMethod paymentMethod = clientPaymentMethodService.findByUuid(dto.getPaymentMethodId());
+        ClientPaymentMethod paymentMethod = clientPaymentMethodService.findOwnedByCurrentClient(dto.getPaymentMethodId());
 
         PaymobPayResponseDTO result = paymentService.payWithSavedCard(booking, paymentMethod);
 
         if (result.success()) {
-            validatePaymentBookingMatch(booking, result.orderReference());
             confirmPaidBooking(booking, result.id());
-            return null;
+            return new PaymentRedirectionDTO(buildBookingConfirmationUrl(booking.getUuid()));
         }
         if (result.pending()) {
-            return new PaymentCheckoutDTO(result.redirectionUrl());
+            return new PaymentRedirectionDTO(result.redirectionUrl());
         }
 
         throw new BusinessException(StringUtils.defaultIfEmpty(result.message(), "The payment was declined"));
@@ -254,12 +268,12 @@ public class BookingService {
 
     @Transactional
     public void applyPaymentResult(TransactionCallbackDTO transaction) {
-        Long bookingId = parsePaymentBookingId(transaction.orderReference());
-        Booking booking = bookingRepository.findByIdForUpdate(bookingId).orElse(null);
+        String bookingUuid = parsePaymentBookingUuid(transaction.orderReference());
+        Booking booking = bookingRepository.findByUuidForUpdate(bookingUuid).orElse(null);
 
         if (booking == null) {
             if (transaction.success()) {
-                log.warn("Successful payment for a booking that no longer exists: bookingId={}", bookingId);
+                log.warn("Successful payment for a booking that no longer exists: bookingUuid={}", bookingUuid);
                 // TODO: trigger refund flow — the customer paid for a booking that was already cleaned up.
             }
             return;
@@ -271,21 +285,31 @@ public class BookingService {
             return;
         }
         if (!transaction.success()) {
+            if (BookingStatus.PENDING_PAYMENT.equals(booking.getStatus())) {
+                // Marks the booking as having a failed attempt; cleared when a new payment starts
+                booking.setPaymentTransactionId(transaction.id());
+                bookingRepository.save(booking);
+            }
             return;
         }
 
-        if (BookingStatus.CONFIRMED.equals(booking.getStatus())) {
-            if (booking.getPaymentTransactionId().equals(transaction.id())) {
-                log.info("Payment callback for a booking already confirmed by this transaction: bookingId={} transactionId={}", bookingId, transaction.id());
+        BookingStatus status = booking.getStatus();
+        if (BookingStatus.isSettled(status)) {
+            if (transaction.id().equals(booking.getPaymentTransactionId())) {
+                log.info("Payment callback for a booking already settled by this transaction: bookingUuid={} status={} transactionId={}", bookingUuid, status, transaction.id());
                 return;
             }
 
-            log.warn("Duplicate successful payment for an already-confirmed booking: bookingId={} confirmedBy={} chargedBy={}", bookingId, booking.getPaymentTransactionId(), transaction.id());
-            // TODO: trigger refund flow — the customer was charged twice for the same booking.
+            log.warn("Successful payment for a booking already settled by another transaction: bookingUuid={} status={} settledBy={} chargedBy={}", bookingUuid, status, booking.getPaymentTransactionId(), transaction.id());
+            // TODO: trigger refund flow — the booking is already settled, so this charge cannot be honoured.
             return;
         }
 
         confirmPaidBooking(booking, transaction.id());
+    }
+
+    public String resolvePaymentRedirectUrl(TransactionCallbackDTO transaction) {
+        return buildBookingConfirmationUrl(parsePaymentBookingUuid(transaction.orderReference()));
     }
 
     @Transactional
@@ -370,20 +394,14 @@ public class BookingService {
         }
     }
 
-    private void validatePaymentBookingMatch(Booking booking, String orderReference) {
-        Long paidBookingId = parsePaymentBookingId(orderReference);
-        if (!booking.getId().equals(paidBookingId)) {
-            log.warn("Saved-card payment resolved to a different booking: expected={} actual={}", booking.getId(), paidBookingId);
-            throw new BusinessException("The payment could not be matched to this booking");
-        }
-    }
-
     private void confirmPaidBooking(Booking booking, String transactionId) {
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setOnHold(null);
         booking.setPaymentTransactionId(transactionId);
         // TODO: set refundable until date
         bookingRepository.save(booking);
+        
+        // TODO: send email with the ticket
     }
 
     private Booking prepareBookingForPayment(String uuid) {
@@ -395,13 +413,14 @@ public class BookingService {
         validateBookingIsActive(booking);
 
         BookingStatus status = booking.getStatus();
-        if (status != null && !status.equals(BookingStatus.PENDING_PAYMENT)) {
+        if (BookingStatus.isSettled(status)) {
             throw new BusinessException("This booking has already been paid for");
         }
         if (status == null) {
             booking.setExpiresAt(LocalDateTime.now().plusMinutes(HOLD_WINDOW_MINUTES));
             booking.setStatus(BookingStatus.PENDING_PAYMENT);
         }
+        booking.setPaymentTransactionId(null);
 
         return booking;
     }
@@ -567,6 +586,33 @@ public class BookingService {
         return dto;
     }
 
+    private BookingConfirmationDTO toBookingConfirmationDTO(Booking booking) {
+        List<BookedSeatDTO> seats = booking.getSeats().stream()
+                .map(seat -> new BookedSeatDTO(seat.getPosition(), seat.getCategory(), seat.getTicketPrice()))
+                .toList();
+
+        BigDecimal totalPrice = booking.getSeats().stream()
+                .map(BookingSeat::getTicketPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        PaymentState paymentState = resolvePaymentState(booking);
+        Showtime showtime = booking.getShowtime();
+
+        BookingConfirmationDTO dto = new BookingConfirmationDTO();
+        dto.setId(booking.getUuid());
+        dto.setPaymentState(paymentState);
+        dto.setBookingReference(booking.getBookingReference());
+        dto.setTicketToken(paymentState.equals(PaymentState.CONFIRMED) ? booking.getTicketToken() : null);
+        dto.setMovie(tmdbMovieService.toSearchResult(showtime.getTmdbMovie()));
+        dto.setStartDateTime(showtime.getStartDateTime());
+        dto.setHallName(booking.getHallName());
+        dto.setHallType(booking.getHallType());
+        dto.set3D(showtime.is3D());
+        dto.setSeats(seats);
+        dto.setTotalPrice(totalPrice);
+        return dto;
+    }
+
     private BookingSummaryDTO toBookingSummaryDTO(Booking booking) {
         int totalTickets = booking.getSeats().size();
         BigDecimal totalPrice = booking.getSeats().stream()
@@ -588,14 +634,35 @@ public class BookingService {
                 totalPrice);
     }
 
-    private Long parsePaymentBookingId(String orderReference) {
+    private String buildBookingConfirmationUrl(String bookingUuid) {
+        return AppConfig.getFrontendClientUrl() + BOOKING_CONFIRMATION_PATH + bookingUuid;
+    }
+
+    private PaymentState resolvePaymentState(Booking booking) {
+        BookingStatus status = booking.getStatus();
+        if (status.equals(BookingStatus.CONFIRMED)) {
+            return PaymentState.CONFIRMED;
+        }
+        if (status.equals(BookingStatus.REFUNDED)) {
+            return PaymentState.REFUNDED;
+        }
+        if (status.equals(BookingStatus.PENDING_PAYMENT)
+                && booking.getPaymentTransactionId() == null
+                && booking.getExpiresAt().isAfter(LocalDateTime.now())) {
+            return PaymentState.PENDING;
+        }
+        return PaymentState.FAILED;
+    }
+
+    private String parsePaymentBookingUuid(String orderReference) {
         if (StringUtils.isEmpty(orderReference)) {
             throw new BusinessException("Payment callback is missing the order reference");
         }
-        try {
-            return Long.parseLong(StringUtils.substringBefore(orderReference, "-"));
-        } catch (NumberFormatException e) {
+
+        String uuid = StringUtils.substringBefore(orderReference, PaymentService.REFERENCE_SEPARATOR);
+        if (StringUtils.isEmpty(uuid)) {
             throw new BusinessException("Unrecognized order reference: " + orderReference);
         }
+        return uuid;
     }
 }

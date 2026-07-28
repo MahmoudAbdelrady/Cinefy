@@ -1,10 +1,11 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
-import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
+import com.mdevs.cinefy.dto.payment.PaymentRedirectionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
+import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import com.mdevs.cinefy.entity.Client;
@@ -20,6 +21,7 @@ import tools.jackson.databind.JsonNode;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -31,18 +33,20 @@ public class PaymentService {
 
     private final CredentialCipher credentialCipher;
 
+    public static final String REFERENCE_SEPARATOR = "_";
+
     private static final int INTENTION_EXPIRATION_SECONDS = 600;
 
     private static final BigDecimal PIASTRES_PER_POUND = BigDecimal.valueOf(100);
 
     // ========================= Public API =========================
 
-    public PaymentCheckoutDTO createCheckout(Booking booking) {
+    public PaymentRedirectionDTO createCheckout(Booking booking) {
         List<PaymentMethod> activeMethods = findActiveMethods();
         PaymentMethod primaryMethod = activeMethods.getFirst();
         PaymobIntentionDTO intention = createIntention(booking, activeMethods, primaryMethod);
 
-        return new PaymentCheckoutDTO(paymobClient.getUnifiedCheckoutUrl(primaryMethod.getPublicKey(), intention.clientSecret()));
+        return new PaymentRedirectionDTO(paymobClient.getUnifiedCheckoutUrl(primaryMethod.getPublicKey(), intention.clientSecret()));
     }
 
     public PaymobPayResponseDTO payWithSavedCard(Booking booking, ClientPaymentMethod paymentMethod) {
@@ -64,6 +68,11 @@ public class PaymentService {
 
         String hmacSecret = credentialCipher.decrypt(activeMethods.getFirst().getHmacKey());
         return paymobClient.parseCallback(payload, hmacSecret, hmac);
+    }
+
+    public TransactionCallbackDTO handleRedirect(Map<String, String> params) {
+        String hmacSecret = credentialCipher.decrypt(findActiveMethods().getFirst().getHmacKey());
+        return paymobClient.parseRedirect(params, hmacSecret);
     }
 
     // =========================== Helpers ===========================
@@ -106,7 +115,7 @@ public class PaymentService {
                 integrationIds,
                 List.of(item),
                 toBillingData(booking.getClient()),
-                booking.getId() + "-" + System.currentTimeMillis(),
+                booking.getUuid() + REFERENCE_SEPARATOR + System.currentTimeMillis(),
                 INTENTION_EXPIRATION_SECONDS);
     }
 

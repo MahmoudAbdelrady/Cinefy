@@ -1,12 +1,13 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.dto.booking.BookingConfirmationDTO;
 import com.mdevs.cinefy.dto.booking.BookingDetailDTO;
 import com.mdevs.cinefy.dto.booking.BookingRequestDTO;
 import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.payment.CardTokenCallbackDTO;
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
-import com.mdevs.cinefy.dto.payment.PaymentCheckoutDTO;
+import com.mdevs.cinefy.dto.payment.PaymentRedirectionDTO;
 import com.mdevs.cinefy.dto.payment.SavedCardPaymentDTO;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
@@ -33,8 +34,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tools.jackson.databind.JsonNode;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/booking")
@@ -82,6 +85,12 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
+    @GetMapping("/{uuid}/confirmation")
+    public ResponseEntity<BookingConfirmationDTO> getBookingConfirmation(@PathVariable String uuid) {
+        return ResponseEntity.ok(bookingService.getBookingConfirmation(uuid));
+    }
+
+    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
     @PostMapping
     public ResponseEntity<BookingDetailDTO> createBooking(@Valid @RequestBody BookingRequestDTO dto,
                                                           @RequestHeader("Idempotency-Key")
@@ -99,16 +108,27 @@ public class BookingController {
 
     @PreAuthorize("hasRole('CLIENT')")
     @PostMapping("/{uuid}/pay")
-    public ResponseEntity<PaymentCheckoutDTO> payBooking(@PathVariable String uuid) {
+    public ResponseEntity<PaymentRedirectionDTO> payBooking(@PathVariable String uuid) {
         return ResponseEntity.ok(bookingService.createPaymentCheckout(uuid));
     }
 
     @PreAuthorize("hasRole('CLIENT')")
     @PostMapping("/{uuid}/pay-saved-card")
-    public ResponseEntity<PaymentCheckoutDTO> paySavedCard(@PathVariable String uuid,
-                                                           @Valid @RequestBody SavedCardPaymentDTO dto) {
-        PaymentCheckoutDTO checkoutDTO = bookingService.paySavedCard(uuid, dto);
-        return checkoutDTO != null ? ResponseEntity.ok(checkoutDTO) : ResponseEntity.noContent().build();
+    public ResponseEntity<PaymentRedirectionDTO> paySavedCard(@PathVariable String uuid,
+                                                              @Valid @RequestBody SavedCardPaymentDTO dto) {
+        return ResponseEntity.ok(bookingService.paySavedCard(uuid, dto));
+    }
+
+    @PublicApi
+    @PreAuthorize("permitAll()")
+    @GetMapping("/payment-redirect")
+    public ResponseEntity<Void> handlePaymentRedirect(@RequestParam Map<String, String> params) {
+        TransactionCallbackDTO transaction = paymentService.handleRedirect(params);
+        String redirectUrl = bookingService.resolvePaymentRedirectUrl(transaction);
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(redirectUrl))
+                .build();
     }
 
     @PublicApi
