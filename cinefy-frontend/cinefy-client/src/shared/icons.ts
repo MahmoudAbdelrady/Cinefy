@@ -24,6 +24,7 @@ export {
   LucideCheck as CheckIcon,
   LucideInfo as InfoIcon,
   LucideSearch as SearchIcon,
+  LucideSearchX as SearchXIcon,
   LucideSlidersHorizontal as SlidersHorizontalIcon,
   LucideX as XIcon,
   LucideTriangleAlert as TriangleAlertIcon,

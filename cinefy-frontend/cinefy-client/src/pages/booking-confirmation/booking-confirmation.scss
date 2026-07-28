@@ -12,7 +12,14 @@
   padding: 48px 16px;
 }
 
-.cf-head {
+.cf-loading {
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+}
+
+.cf-head,
+.cf-state {
   @include lucide-icon-fix;
 
   display: flex;
@@ -42,7 +49,8 @@
     box-shadow: 0 0 0 4px rgba($color-destructive, 0.1);
   }
 
-  .cf-badge-pending {
+  .cf-badge-pending,
+  .cf-badge-neutral {
     color: $color-muted-foreground;
     background: $color-secondary;
     box-shadow: 0 0 0 4px rgba($color-border, 0.4);
@@ -76,6 +84,11 @@
     height: 160px;
     padding: 24px 24px 20px;
     background: linear-gradient(125deg, $color-seat-premium, $color-seat-recliner);
+
+    .cf-ticket-backdrop {
+      position: absolute;
+      inset: 0;
+    }
 
     .cf-ticket-scrim {
       position: absolute;

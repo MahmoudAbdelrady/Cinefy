@@ -28,6 +28,8 @@ export type {
   BookingSummary,
   BookedSeat,
   BookingDetail,
+  PaymentState,
+  BookingConfirmation,
   BookingRequest,
   PaymentRedirection,
 } from './booking';

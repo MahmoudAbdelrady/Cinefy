@@ -88,8 +88,6 @@ public class BookingService {
 
     private static final int BOOKING_CUTOFF_MINUTES = 60;
 
-    private static final String REFERENCE_PREFIX = "CINEFY-";
-
     private static final String REFERENCE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
     private static final int REFERENCE_LENGTH = 10;
@@ -529,7 +527,7 @@ public class BookingService {
     }
 
     private String generateReference() {
-        StringBuilder reference = new StringBuilder(REFERENCE_PREFIX);
+        StringBuilder reference = new StringBuilder(REFERENCE_LENGTH);
         for (int i = 0; i < REFERENCE_LENGTH; i++) {
             reference.append(REFERENCE_ALPHABET.charAt(RANDOM.nextInt(REFERENCE_ALPHABET.length())));
         }

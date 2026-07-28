@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
+  BookingConfirmation,
   BookingDetail,
   BookingRequest,
   BookingSummary,
@@ -35,6 +36,10 @@ export class BookingService {
 
   getActiveBookingDetails(uuid: string, context?: HttpContext): Observable<BookingDetail> {
     return this.http.get<BookingDetail>(`/booking/active/${uuid}`, { context });
+  }
+
+  getBookingConfirmation(uuid: string, context?: HttpContext): Observable<BookingConfirmation> {
+    return this.http.get<BookingConfirmation>(`/booking/${uuid}/confirmation`, { context });
   }
 
   createBooking(request: BookingRequest, idempotencyKey: string): Observable<BookingDetail> {
