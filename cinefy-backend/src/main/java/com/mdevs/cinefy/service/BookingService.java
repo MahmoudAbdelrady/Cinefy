@@ -88,6 +88,10 @@ public class BookingService {
 
     private static final int BOOKING_CUTOFF_MINUTES = 60;
 
+    private static final double CLIENT_SEATS_CAPACITY_RATIO = 0.20;
+
+    private static final int CLIENT_SEATS_MINIMUM = 6;
+
     private static final String REFERENCE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
     private static final int REFERENCE_LENGTH = 10;
@@ -358,6 +362,14 @@ public class BookingService {
 
     private void validateSeats(Hall hall, List<String> requestedPositions, User user) {
         HallLayout layout = hall.getLayout();
+
+        if (user instanceof Client) {
+            int maxSeats = Math.max(CLIENT_SEATS_MINIMUM, (int) (hall.getCapacity() * CLIENT_SEATS_CAPACITY_RATIO));
+            if (requestedPositions.size() > maxSeats) {
+                throw new BusinessException("You can book at most " + maxSeats + " seats for this showtime");
+            }
+        }
+
         Set<String> seen = new LinkedHashSet<>();
         for (String position : requestedPositions) {
             if (!seen.add(position)) {
