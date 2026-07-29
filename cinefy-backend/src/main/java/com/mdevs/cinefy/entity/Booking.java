@@ -75,4 +75,20 @@ public class Booking extends BaseEntity {
     @Column(nullable = false)
     @ColumnDefault("false")
     private boolean ticketUsed = false;
+
+    public boolean hasExpired() {
+        return hasExpired(LocalDateTime.now());
+    }
+
+    public boolean hasExpired(LocalDateTime asOf) {
+        return !expiresAt.isAfter(asOf);
+    }
+
+    public boolean isActiveHold() {
+        return isActiveHold(LocalDateTime.now());
+    }
+
+    public boolean isActiveHold(LocalDateTime asOf) {
+        return Boolean.TRUE.equals(onHold) && !hasExpired(asOf);
+    }
 }

@@ -60,7 +60,7 @@ interface BookingDetail {
   seats: BookedSeat[];
 }
 
-type PaymentState = 'CONFIRMED' | 'PENDING' | 'FAILED' | 'REFUNDED';
+type PaymentState = 'CONFIRMED' | 'PENDING' | 'FAILED' | 'EXPIRED' | 'REFUNDED';
 
 interface BookingConfirmation {
   id: string;

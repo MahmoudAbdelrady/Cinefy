@@ -36,6 +36,10 @@ const HEADINGS: Record<PaymentState, { title: string; note: string }> = {
     title: 'Payment failed',
     note: 'Your card was not charged. You can try again at any time.',
   },
+  EXPIRED: {
+    title: 'Booking expired',
+    note: 'This booking was held for too long and the seats have been released. If a payment was taken, it will be refunded to your card.',
+  },
   REFUNDED: {
     title: 'Booking refunded',
     note: 'This booking was refunded and the amount is on its way back to your card.',
@@ -48,6 +52,8 @@ type ViewState =
   | { status: 'notFound' }
   | { status: 'paymentNotAttempted' }
   | { status: 'error' };
+
+const VOIDED_STATES = new Set<PaymentState>(['FAILED', 'EXPIRED', 'REFUNDED']);
 
 const POLL_INTERVAL_MS = 2500;
 
@@ -101,6 +107,8 @@ export class BookingConfirmationPage {
     const state = this.paymentState();
     return state ? HEADINGS[state] : null;
   });
+
+  protected readonly isVoided = computed(() => VOIDED_STATES.has(this.paymentState()!));
 
   protected readonly seatPositions = computed(() =>
     (this.booking()?.seats ?? []).map((seat) => seat.position).sort(comparePositions),

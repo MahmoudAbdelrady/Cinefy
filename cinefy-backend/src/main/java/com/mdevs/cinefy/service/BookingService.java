@@ -188,9 +188,7 @@ public class BookingService {
 
     public BookingDetailDTO createBooking(BookingRequestDTO dto, String idempotencyKey) {
         Booking existing = bookingRepository.findByIdempotencyKeyWithDetail(idempotencyKey).orElse(null);
-        boolean hasExpiredPending = existing != null
-                && Boolean.TRUE.equals(existing.getOnHold())
-                && !existing.getExpiresAt().isAfter(LocalDateTime.now());
+        boolean hasExpiredPending = existing != null && Boolean.TRUE.equals(existing.getOnHold()) && existing.hasExpired();
         if (existing != null && !hasExpiredPending) {
             return toBookingDetailDTO(existing);
         }
@@ -273,10 +271,12 @@ public class BookingService {
         String bookingUuid = parsePaymentBookingUuid(transaction.orderReference());
         Booking booking = bookingRepository.findByUuidForUpdate(bookingUuid).orElse(null);
 
-        if (booking == null) {
+        boolean expired = booking != null && !BookingStatus.isSettled(booking.getStatus()) && booking.hasExpired();
+
+        if (booking == null || expired) {
             if (transaction.success()) {
-                log.warn("Successful payment for a booking that no longer exists: bookingUuid={}", bookingUuid);
-                // TODO: trigger refund flow — the customer paid for a booking that was already cleaned up.
+                log.warn("Successful payment for a booking that is no longer claimable: bookingUuid={} expired={}", bookingUuid, expired);
+                // TODO: trigger refund flow — the customer paid for a booking that expired or was already cleaned up.
             }
             return;
         }
@@ -398,8 +398,7 @@ public class BookingService {
     }
 
     private void validateBookingIsActive(Booking booking) {
-        boolean active = Boolean.TRUE.equals(booking.getOnHold()) && booking.getExpiresAt().isAfter(LocalDateTime.now());
-        if (!active) {
+        if (!booking.isActiveHold()) {
             throw new BusinessException("This booking is no longer active");
         }
     }
@@ -441,7 +440,7 @@ public class BookingService {
         if (existing == null) {
             return null;
         }
-        if (!existing.getExpiresAt().isAfter(LocalDateTime.now())) {
+        if (existing.hasExpired()) {
             bookingRepository.delete(existing);
             return null;
         }
@@ -481,8 +480,7 @@ public class BookingService {
         List<String> blockedPositions = new ArrayList<>();
         for (BookingSeat activeSeat : activeSeats) {
             Booking booking = activeSeat.getBooking();
-            boolean blocking = BookingStatus.CONFIRMED.equals(booking.getStatus())
-                    || (Boolean.TRUE.equals(booking.getOnHold()) && booking.getExpiresAt().isAfter(now));
+            boolean blocking = BookingStatus.CONFIRMED.equals(booking.getStatus()) || booking.isActiveHold(now);
             if (blocking) {
                 blockedPositions.add(activeSeat.getPosition());
             } else {
@@ -656,9 +654,10 @@ public class BookingService {
         if (status.equals(BookingStatus.REFUNDED)) {
             return PaymentState.REFUNDED;
         }
-        if (status.equals(BookingStatus.PENDING_PAYMENT)
-                && booking.getPaymentTransactionId() == null
-                && booking.getExpiresAt().isAfter(LocalDateTime.now())) {
+        if (booking.hasExpired()) {
+            return PaymentState.EXPIRED;
+        }
+        if (booking.getPaymentTransactionId() == null) {
             return PaymentState.PENDING;
         }
         return PaymentState.FAILED;

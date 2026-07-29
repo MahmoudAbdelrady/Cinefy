@@ -70,6 +70,11 @@
                 <svg [lucideIcon]="icons.XIcon" [size]="32" [strokeWidth]="3"></svg>
               </span>
             }
+            @case ('EXPIRED') {
+              <span class="cf-badge cf-badge-neutral">
+                <svg [lucideIcon]="icons.ClockIcon" [size]="32" [strokeWidth]="2.5"></svg>
+              </span>
+            }
             @case ('REFUNDED') {
               <span class="cf-badge cf-badge-neutral">
                 <svg [lucideIcon]="icons.RotateCcwIcon" [size]="32" [strokeWidth]="2.5"></svg>
@@ -168,12 +173,7 @@
             <span class="cf-paid-label">{{
               paymentState() === 'CONFIRMED' ? 'Paid' : 'Total'
             }}</span>
-            <span
-              class="cf-paid-value"
-              [class.cf-paid-value-void]="
-                paymentState() === 'FAILED' || paymentState() === 'REFUNDED'
-              "
-            >
+            <span class="cf-paid-value" [class.cf-paid-value-void]="isVoided()">
               {{ booking.totalPrice | currency: 'USD' }}
             </span>
           </div>

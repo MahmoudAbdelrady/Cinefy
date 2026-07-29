@@ -4,5 +4,6 @@ public enum PaymentState {
     CONFIRMED,
     PENDING,
     FAILED,
+    EXPIRED,
     REFUNDED
 }
