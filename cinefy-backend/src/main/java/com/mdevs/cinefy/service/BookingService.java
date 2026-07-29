@@ -311,6 +311,9 @@ public class BookingService {
     }
 
     public String resolvePaymentRedirectUrl(TransactionCallbackDTO transaction) {
+        if (transaction == null) {
+            return AppConfig.getFrontendClientUrl();
+        }
         return buildBookingConfirmationUrl(parsePaymentBookingUuid(transaction.orderReference()));
     }
 

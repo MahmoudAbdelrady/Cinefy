@@ -123,7 +123,7 @@ public class BookingController {
     @PreAuthorize("permitAll()")
     @GetMapping("/payment-redirect")
     public ResponseEntity<Void> handlePaymentRedirect(@RequestParam Map<String, String> params) {
-        TransactionCallbackDTO transaction = paymentService.handleRedirect(params);
+        TransactionCallbackDTO transaction = params.isEmpty() ? null : paymentService.handleRedirect(params);
         String redirectUrl = bookingService.resolvePaymentRedirectUrl(transaction);
 
         return ResponseEntity.status(HttpStatus.FOUND)
