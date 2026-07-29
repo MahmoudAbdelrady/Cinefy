@@ -236,7 +236,7 @@ public class BookingService {
 
     @Transactional
     public void cancelBooking(String uuid) {
-        Booking booking = findBookingByUuidWithDetail(uuid);
+        Booking booking = findBookingByUuidForUpdate(uuid);
         validateBookingOwnership(booking);
         validateBookingIsActive(booking);
         bookingRepository.delete(booking);
