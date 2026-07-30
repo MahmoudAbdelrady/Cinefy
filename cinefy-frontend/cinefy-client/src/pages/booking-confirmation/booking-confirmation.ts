@@ -55,7 +55,13 @@ type ViewState =
 
 const VOIDED_STATES = new Set<PaymentState>(['FAILED', 'EXPIRED', 'REFUNDED']);
 
-const POLL_INTERVAL_MS = 2500;
+const POLL_INITIAL_INTERVAL_MS = 2500;
+
+const POLL_MAX_INTERVAL_MS = 30_000;
+
+const POLL_BACKOFF_FACTOR = 1.5;
+
+const POLL_BACKOFF_AFTER_MS = 60_000;
 
 const QR_CELLS = 11;
 
@@ -118,6 +124,10 @@ export class BookingConfirmationPage {
 
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
 
+  private pollInterval = POLL_INITIAL_INTERVAL_MS;
+
+  private pollStartedAt: number | null = null;
+
   constructor() {
     afterNextRender(() => this.load());
 
@@ -138,8 +148,21 @@ export class BookingConfirmationPage {
         next: (booking) => {
           this.state.set({ status: 'loaded', booking });
 
-          if (booking.paymentState === 'PENDING') {
-            this.pollTimer = setTimeout(() => this.load(), POLL_INTERVAL_MS);
+          if (booking.paymentState !== 'PENDING') {
+            this.pollInterval = POLL_INITIAL_INTERVAL_MS;
+            this.pollStartedAt = null;
+            return;
+          }
+
+          this.pollStartedAt ??= Date.now();
+
+          this.pollTimer = setTimeout(() => this.load(), this.pollInterval);
+
+          if (Date.now() - this.pollStartedAt >= POLL_BACKOFF_AFTER_MS) {
+            this.pollInterval = Math.min(
+              this.pollInterval * POLL_BACKOFF_FACTOR,
+              POLL_MAX_INTERVAL_MS,
+            );
           }
         },
         error: (error: unknown) => {
