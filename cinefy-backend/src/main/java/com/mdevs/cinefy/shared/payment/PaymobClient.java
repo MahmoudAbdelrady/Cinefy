@@ -49,6 +49,10 @@ public class PaymobClient {
 
     private static final String PAY_PATH = "/api/acceptance/payments/pay";
 
+    private static final String VOID_PATH = "/api/acceptance/void_refund/void";
+
+    private static final String REFUND_PATH = "/api/acceptance/void_refund/refund";
+
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
 
     private static final Duration READ_TIMEOUT = Duration.ofSeconds(10);
@@ -187,6 +191,37 @@ public class PaymobClient {
         }
     }
 
+    public void refund(String secretKey, String transactionId, long amountCents) {
+        if (tryVoid(secretKey, transactionId)) {
+            log.info("Paymob void succeeded: transactionId={}", transactionId);
+            return;
+        }
+
+        log.warn("Paymob void failed, falling back to refund: transactionId={} amountCents={}", transactionId, amountCents);
+
+        try {
+            restClient.post()
+                    .uri(REFUND_PATH)
+                    .header("Authorization", "Token " + secretKey)
+                    .header("Content-Type", "application/json")
+                    .body(Map.of(
+                            "transaction_id", transactionId,
+                            "amount_cents", String.valueOf(amountCents)
+                    ))
+                    .retrieve()
+                    .toBodilessEntity();
+
+            log.info("Paymob refund succeeded: transactionId={} amountCents={}", transactionId, amountCents);
+        } catch (HttpClientErrorException e) {
+            log.error("Paymob refund failed: transactionId={} amountCents={} status={} body={}", transactionId, amountCents, e.getStatusCode(), e.getResponseBodyAsString());
+            String message = extractErrorDetail(e.getResponseBodyAsString(), "Paymob rejected the refund request");
+            throw new BusinessException(message);
+        } catch (RestClientException e) {
+            log.error("Paymob refund failed: transactionId={} amountCents={} error={}", transactionId, amountCents, e.getMessage());
+            throw new IllegalStateException("Could not reach Paymob: " + e.getMessage());
+        }
+    }
+
     public String getUnifiedCheckoutUrl(String publicKey, String clientSecret) {
         return apiBaseUrl + UNIFIED_CHECKOUT_PATH + "?publicKey=" + publicKey + "&clientSecret=" + clientSecret;
     }
@@ -231,6 +266,25 @@ public class PaymobClient {
         }
     }
 
+    private boolean tryVoid(String secretKey, String transactionId) {
+        try {
+            restClient.post()
+                    .uri(VOID_PATH)
+                    .header("Authorization", "Token " + secretKey)
+                    .header("Content-Type", "application/json")
+                    .body(Map.of("transaction_id", transactionId))
+                    .retrieve()
+                    .toBodilessEntity();
+            return true;
+        } catch (HttpClientErrorException e) {
+            log.warn("Paymob void rejected: transactionId={} status={} body={}", transactionId, e.getStatusCode(), e.getResponseBodyAsString());
+            return false;
+        } catch (RestClientException e) {
+            log.warn("Paymob void could not be reached: transactionId={} error={}", transactionId, e.getMessage());
+            return false;
+        }
+    }
+
     private PaymobIntentionDTO toIntention(JsonNode response) {
         if (response == null) {
             throw new BusinessException("Paymob returned an empty intention response");
@@ -269,6 +323,7 @@ public class PaymobClient {
 
         return new TransactionCallbackDTO(
                 obj.path("id").asString(null),
+                obj.path("amount_cents").asLong(0),
                 obj.path("success").asBoolean(false),
                 obj.path("is_refunded").asBoolean(false),
                 obj.path("is_voided").asBoolean(false),

@@ -4,6 +4,8 @@ public record TransactionCallbackDTO(
 
         String id,
 
+        long amountCents,
+
         boolean success,
 
         boolean isRefunded,

@@ -7,7 +7,6 @@ import com.mdevs.cinefy.dto.payment.PaymobIntentionRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.entity.Booking;
-import com.mdevs.cinefy.entity.BookingSeat;
 import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.ClientPaymentMethod;
 import com.mdevs.cinefy.entity.PaymentMethod;
@@ -60,6 +59,11 @@ public class PaymentService {
                 credentialCipher.decrypt(primaryMethod.getHmacKey()));
     }
 
+    public void refundTransaction(String transactionId, long amountCents) {
+        PaymentMethod primaryMethod = findActiveMethods().getFirst();
+        paymobClient.refund(credentialCipher.decrypt(primaryMethod.getSecretKey()), transactionId, amountCents);
+    }
+
     public PaymentCallbackData handleCallback(JsonNode payload, String hmac) {
         List<PaymentMethod> activeMethods = paymentMethodService.findActiveMethods();
         if (activeMethods.isEmpty()) {
@@ -95,9 +99,7 @@ public class PaymentService {
     }
 
     private PaymobIntentionRequestDTO toIntentionRequest(Booking booking, List<PaymentMethod> activeMethods, String currency) {
-        long amount = booking.getSeats().stream()
-                .map(BookingSeat::getTicketPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
+        long amount = booking.getTotalAmount()
                 .multiply(PIASTRES_PER_POUND)
                 .longValueExact();
 

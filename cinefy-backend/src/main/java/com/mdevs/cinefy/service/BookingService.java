@@ -228,6 +228,7 @@ public class BookingService {
         for (String position : dto.getSeats()) {
             booking.getSeats().add(buildSeat(booking, showtime, hall, position));
         }
+        applySeatsTotal(booking);
 
         bookingRepository.save(booking);
 
@@ -274,14 +275,19 @@ public class BookingService {
         boolean expired = booking != null && !BookingStatus.isSettled(booking.getStatus()) && booking.hasExpired();
 
         if (booking == null || expired) {
-            if (transaction.success()) {
+            if (transaction.success() && !(transaction.isVoided() || transaction.isRefunded())) {
                 log.warn("Successful payment for a booking that is no longer claimable: bookingUuid={} expired={}", bookingUuid, expired);
-                // TODO: trigger refund flow — the customer paid for a booking that expired or was already cleaned up.
+                paymentService.refundTransaction(transaction.id(), transaction.amountCents());
             }
             return;
         }
 
         if (transaction.isRefunded() || transaction.isVoided()) {
+            if (!transaction.id().equals(booking.getPaymentTransactionId())) {
+                log.warn("Refund callback for a transaction that did not settle this booking: bookingUuid={} settledBy={} refunded={}", bookingUuid, booking.getPaymentTransactionId(), transaction.id());
+                return;
+            }
+
             booking.setStatus(BookingStatus.REFUNDED);
             bookingRepository.save(booking);
             return;
@@ -303,7 +309,7 @@ public class BookingService {
             }
 
             log.warn("Successful payment for a booking already settled by another transaction: bookingUuid={} status={} settledBy={} chargedBy={}", bookingUuid, status, booking.getPaymentTransactionId(), transaction.id());
-            // TODO: trigger refund flow — the booking is already settled, so this charge cannot be honoured.
+            paymentService.refundTransaction(transaction.id(), transaction.amountCents());
             return;
         }
 
@@ -474,6 +480,7 @@ public class BookingService {
             }
         }
         existing.setIdempotencyKey(idempotencyKey);
+        applySeatsTotal(existing);
 
         bookingRepository.save(existing);
         return existing;
@@ -501,6 +508,12 @@ public class BookingService {
 
         // Flush the active=null releases before the caller re-inserts the same seats.
         bookingRepository.flush();
+    }
+
+    private void applySeatsTotal(Booking booking) {
+        booking.setTotalAmount(booking.getSeats().stream()
+                .map(BookingSeat::getTicketPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
     private Booking buildBooking(Showtime showtime, Hall hall, User user, String idempotencyKey) {
@@ -605,10 +618,6 @@ public class BookingService {
                 .map(seat -> new BookedSeatDTO(seat.getPosition(), seat.getCategory(), seat.getTicketPrice()))
                 .toList();
 
-        BigDecimal totalPrice = booking.getSeats().stream()
-                .map(BookingSeat::getTicketPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
         PaymentState paymentState = resolvePaymentState(booking);
         Showtime showtime = booking.getShowtime();
 
@@ -623,16 +632,12 @@ public class BookingService {
         dto.setHallType(booking.getHallType());
         dto.set3D(showtime.is3D());
         dto.setSeats(seats);
-        dto.setTotalPrice(totalPrice);
+        dto.setTotalPrice(booking.getTotalAmount());
         return dto;
     }
 
     private BookingSummaryDTO toBookingSummaryDTO(Booking booking) {
         int totalTickets = booking.getSeats().size();
-        BigDecimal totalPrice = booking.getSeats().stream()
-                .map(BookingSeat::getTicketPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
         Showtime showtime = booking.getShowtime();
 
         return new BookingSummaryDTO(
@@ -645,7 +650,7 @@ public class BookingService {
                 booking.getHallType(),
                 showtime.is3D(),
                 totalTickets,
-                totalPrice);
+                booking.getTotalAmount());
     }
 
     private String buildBookingConfirmationUrl(String bookingUuid) {
