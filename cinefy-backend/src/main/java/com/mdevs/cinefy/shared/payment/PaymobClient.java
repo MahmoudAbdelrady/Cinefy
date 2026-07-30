@@ -55,6 +55,8 @@ public class PaymobClient {
 
     private static final String HMAC_ALGORITHM = "HmacSHA512";
 
+    private static final String HMAC_PARAM = "hmac";
+
     private static final String TRANSACTION_TYPE = "TRANSACTION";
 
     private static final List<String> TRANSACTION_HMAC_FIELDS = List.of(
@@ -172,7 +174,7 @@ public class PaymobClient {
                 throw new BusinessException("Paymob returned an empty payment response");
             }
 
-            verifyHmac(response, TRANSACTION_HMAC_FIELDS, hmacSecret, response.path("hmac").asString(null));
+            verifyHmac(response, TRANSACTION_HMAC_FIELDS, hmacSecret, response.path(HMAC_PARAM).asString(null));
 
             return toPayResponse(response);
         } catch (HttpClientErrorException e) {
@@ -192,7 +194,7 @@ public class PaymobClient {
     public TransactionCallbackDTO parseRedirect(Map<String, String> params, String hmacSecret) {
         // Paymob sends the transaction fields as flat query params
         JsonNode payload = objectMapper.valueToTree(params);
-        verifyHmac(payload, TRANSACTION_HMAC_FIELDS, hmacSecret, params.get("hmac"));
+        verifyHmac(payload, TRANSACTION_HMAC_FIELDS, hmacSecret, params.get(HMAC_PARAM));
 
         return toTransactionCallback(payload);
     }

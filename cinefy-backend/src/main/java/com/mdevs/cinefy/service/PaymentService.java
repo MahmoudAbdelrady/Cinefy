@@ -71,6 +71,10 @@ public class PaymentService {
     }
 
     public TransactionCallbackDTO handleRedirect(Map<String, String> params) {
+        if (params.isEmpty()) {
+            return null;
+        }
+
         String hmacSecret = credentialCipher.decrypt(findActiveMethods().getFirst().getHmacKey());
         return paymobClient.parseRedirect(params, hmacSecret);
     }
