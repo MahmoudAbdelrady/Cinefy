@@ -261,9 +261,12 @@
 
   .co-cards {
     @include flex-column;
+    @include scrollbar-thin;
 
     gap: 8px;
     margin-bottom: 16px;
+    max-height: 350px;
+    overflow-y: auto;
   }
 
   .co-or {
