@@ -1,11 +1,9 @@
 import {
-  afterNextRender,
   Component,
   computed,
   DestroyRef,
   inject,
   linkedSignal,
-  signal,
   TemplateRef,
   viewChild,
 } from '@angular/core';
@@ -117,8 +115,13 @@ export class CheckoutPage {
   protected readonly cancelled = this.perBooking(false);
   protected readonly bookingExpired = this.perBooking(false);
 
-  protected readonly savedMethods = signal<ClientPaymentMethod[]>([]);
-  protected readonly loadingMethods = signal(true);
+  private readonly paymentMethodsResource = rxResource({
+    params: () => this.bookingId() ?? undefined,
+    stream: () => this.clientService.getPaymentMethods(),
+  });
+
+  protected readonly savedMethods = computed(() => this.paymentMethodsResource.value() ?? []);
+  protected readonly loadingMethods = computed(() => this.paymentMethodsResource.isLoading());
   protected readonly selectedId = this.perBooking('');
 
   protected readonly selectedMethod = computed(() =>
@@ -149,21 +152,6 @@ export class CheckoutPage {
     const key = cardBrand.toLowerCase().replace(/\s+/g, '');
     return SUBTYPE_CHIP[key] ?? cardBrand.slice(0, 4).toUpperCase();
   };
-
-  constructor() {
-    afterNextRender(() => {
-      this.clientService
-        .getPaymentMethods()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (methods) => {
-            this.savedMethods.set(methods);
-            this.loadingMethods.set(false);
-          },
-          error: () => this.loadingMethods.set(false),
-        });
-    });
-  }
 
   protected selectMethod(method: ClientPaymentMethod): void {
     this.selectedId.set(method.id);
