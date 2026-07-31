@@ -1,0 +1,97 @@
+@if (hasMultipleSeats()) {
+  <div class="bt-tabs">
+    <button
+      type="button"
+      class="bt-tab"
+      [class.bt-tab-active]="!isSplit()"
+      (click)="selectLayout('combined')"
+    >
+      One ticket
+    </button>
+    <button
+      type="button"
+      class="bt-tab"
+      [class.bt-tab-active]="isSplit()"
+      (click)="selectLayout('split')"
+    >
+      One per seat
+    </button>
+  </div>
+}
+
+<div class="bt-strip" [class.bt-strip-single]="!isSplit()">
+  @for (stub of stubs(); track stub.key) {
+    <article class="bt-ticket">
+      <header class="bt-head">
+        <p class="bt-brand">Cinefy</p>
+      </header>
+
+      <h4 class="bt-movie">{{ ticket().movieTitle }}</h4>
+
+      <dl class="bt-facts">
+        <div class="bt-fact">
+          <dt>Date</dt>
+          <dd>{{ ticket().startDateTime | date: 'EEE, MMM d, y' }}</dd>
+        </div>
+        <div class="bt-fact">
+          <dt>Time</dt>
+          <dd>{{ ticket().startDateTime | date: 'shortTime' }}</dd>
+        </div>
+        <div class="bt-fact">
+          <dt>Hall</dt>
+          <dd>{{ ticket().hallName }}</dd>
+        </div>
+        <div class="bt-fact">
+          <dt>Experience</dt>
+          <dd>{{ experience() }}</dd>
+        </div>
+      </dl>
+
+      <section class="bt-seats">
+        <h5 class="bt-seats-label">{{ stub.seats.length === 1 ? 'Seat' : 'Seats' }}</h5>
+        <p class="bt-seats-value">{{ stub.positions }}</p>
+      </section>
+
+      <section class="bt-breakdown">
+        <h5 class="bt-breakdown-label">Price breakdown</h5>
+        <table class="bt-lines">
+          <tbody>
+            @for (seat of stub.seats; track seat.position) {
+              <tr>
+                <th scope="row">{{ seat.position }}</th>
+                <td>{{ seatCategoryLabel[seat.category] }}</td>
+                <td class="bt-line-price">{{ seat.price | currency: 'USD' }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row" colspan="2">Total</th>
+              <td class="bt-line-price">{{ stub.total | currency: 'USD' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </section>
+
+      <footer class="bt-foot">
+        <dl class="bt-facts">
+          <div class="bt-fact">
+            <dt>Paid by</dt>
+            <dd>{{ paymentLabel() }}</dd>
+          </div>
+          @if (ticket().transactionId) {
+            <div class="bt-fact">
+              <dt>Reference</dt>
+              <dd>{{ ticket().transactionId }}</dd>
+            </div>
+          }
+        </dl>
+      </footer>
+    </article>
+  }
+</div>
+
+<button type="button" class="btn-secondary bt-print" (click)="print()">
+  <svg [lucideIcon]="icons.PrinterIcon" [size]="16"></svg>
+  <span>{{ isSplit() ? 'Print tickets' : 'Print ticket' }}</span>
+</button>

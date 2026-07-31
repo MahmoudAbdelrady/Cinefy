@@ -27,6 +27,7 @@ import {
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
 import { ToastService } from 'cinefy-ui/services';
 import { BookingService, ShowtimeEventsService } from '../../../services';
+import { BookingTicketComponent } from '../booking-ticket/booking-ticket';
 import { comparePositions } from '../../halls/seat-layout';
 import {
   CheckIcon,
@@ -41,6 +42,7 @@ import type {
   ActiveBooking,
   BookedSeat,
   BookingRequest,
+  IssuedTicket,
   PaymentType,
   ShowtimeHallLayout,
   ShowtimeSeatLayout,
@@ -97,6 +99,7 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
     InputField,
     ModalComponent,
     HoldTimerComponent,
+    BookingTicketComponent,
   ],
   templateUrl: './book-seats.html',
   styleUrl: './book-seats.scss',
@@ -128,6 +131,7 @@ export class BookSeatsComponent {
 
   protected readonly booking = signal(false);
   protected readonly cancelling = signal(false);
+  protected readonly issuedTicket = signal<IssuedTicket | null>(null);
 
   protected readonly paymentForm = new FormGroup({
     paymentType: new FormControl<PaymentType | null>(null, {
@@ -298,6 +302,21 @@ export class BookSeatsComponent {
       ...(paymentType === 'CARD' ? { transactionId: transactionId.trim() } : {}),
     };
 
+    const selection = this.seatSelection();
+    if (selection) {
+      this.issuedTicket.set({
+        movieTitle: selection.movieTitle,
+        startDateTime: selection.startDateTime,
+        hallName: selection.hallName,
+        hallType: selection.hallType,
+        is3D: selection.is3D,
+        seats: this.pricedSeats(),
+        total: this.total(),
+        paymentType,
+        transactionId: paymentType === 'CARD' ? transactionId.trim() : '',
+      });
+    }
+
     // TODO: Call backend
 
     this.stage.set('done');
@@ -330,6 +349,7 @@ export class BookSeatsComponent {
   protected resetBooking(): void {
     this.bookedSeats.set([]);
     this.activeBooking.set(null);
+    this.issuedTicket.set(null);
     this.paymentForm.reset({ paymentType: null, transactionId: '' });
     this.stage.set('seats');
     this.loadSeatSelection();

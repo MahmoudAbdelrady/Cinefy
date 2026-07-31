@@ -16,6 +16,10 @@
     <h3 class="bs-done-title">Payment complete</h3>
     <p class="bs-done-message">The seats are booked and the ticket has been issued.</p>
 
+    @if (issuedTicket(); as ticket) {
+      <booking-ticket [ticket]="ticket" />
+    }
+
     <button type="button" class="btn-primary bs-done-action" (click)="resetBooking()">
       <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
       <span>Book more seats</span>

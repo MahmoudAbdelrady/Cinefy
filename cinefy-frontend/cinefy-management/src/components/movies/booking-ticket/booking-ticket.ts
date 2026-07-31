@@ -1,0 +1,71 @@
+import { Component, computed, input, signal } from '@angular/core';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
+import { PrinterIcon } from '../../../shared/icons';
+import type { BookedSeat, IssuedTicket, PaymentType } from '../../../shared/types';
+
+const PAYMENT_TYPE_LABEL: Record<PaymentType, string> = {
+  CASH: 'Cash',
+  CARD: 'Card',
+};
+
+type TicketLayout = 'combined' | 'split';
+
+interface TicketStub {
+  key: string;
+  seats: BookedSeat[];
+  positions: string;
+  total: number;
+}
+
+function toStub(seats: BookedSeat[], total: number): TicketStub {
+  return {
+    key: seats.map((seat) => seat.position).join('-'),
+    seats,
+    positions: seats.map((seat) => seat.position).join(', '),
+    total,
+  };
+}
+
+@Component({
+  selector: 'booking-ticket',
+  imports: [CurrencyPipe, DatePipe, LucideDynamicIcon],
+  templateUrl: './booking-ticket.html',
+  styleUrl: './booking-ticket.scss',
+})
+export class BookingTicketComponent {
+  protected readonly icons = { PrinterIcon };
+
+  protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
+
+  readonly ticket = input.required<IssuedTicket>();
+
+  protected readonly layout = signal<TicketLayout>('combined');
+
+  protected readonly hasMultipleSeats = computed(() => this.ticket().seats.length > 1);
+
+  protected readonly isSplit = computed(() => this.hasMultipleSeats() && this.layout() === 'split');
+
+  protected readonly stubs = computed<TicketStub[]>(() => {
+    const { seats, total } = this.ticket();
+    return this.isSplit()
+      ? seats.map((seat) => toStub([seat], seat.price))
+      : [toStub(seats, total)];
+  });
+
+  protected readonly experience = computed(() => {
+    const { hallType, is3D } = this.ticket();
+    return is3D ? `${hallType} (3D)` : hallType;
+  });
+
+  protected readonly paymentLabel = computed(() => PAYMENT_TYPE_LABEL[this.ticket().paymentType]);
+
+  protected selectLayout(layout: TicketLayout): void {
+    this.layout.set(layout);
+  }
+
+  protected print(): void {
+    // TODO: print machinery
+  }
+}

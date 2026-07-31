@@ -74,6 +74,18 @@ interface StaffPaymentRequest {
   transactionId?: string;
 }
 
+interface IssuedTicket {
+  movieTitle: string;
+  startDateTime: string;
+  hallName: string;
+  hallType: string;
+  is3D: boolean;
+  seats: BookedSeat[];
+  total: number;
+  paymentType: PaymentType;
+  transactionId: string;
+}
+
 export type {
   ShowtimeSeatLayout,
   ShowtimeHallLayout,
@@ -85,4 +97,5 @@ export type {
   BookingRequest,
   BookingSummary,
   StaffPaymentRequest,
+  IssuedTicket,
 };

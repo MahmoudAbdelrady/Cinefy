@@ -42,6 +42,7 @@ export {
   LucidePhone as PhoneIcon,
   LucidePlus as PlusIcon,
   LucidePower as PowerIcon,
+  LucidePrinter as PrinterIcon,
   LucidePowerOff as PowerOffIcon,
   LucideRocket as RocketIcon,
   LucideSave as SaveIcon,

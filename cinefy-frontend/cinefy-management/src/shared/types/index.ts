@@ -80,4 +80,5 @@ export type {
   BookingRequest,
   BookingSummary,
   StaffPaymentRequest,
+  IssuedTicket,
 } from './booking';

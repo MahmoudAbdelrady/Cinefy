@@ -16,6 +16,7 @@ export { CurrentShowtimesComponent } from './movies/current-showtimes/current-sh
 export { UpcomingMoviesComponent } from './movies/upcoming-movies/upcoming-movies';
 export { MovieShowtimesModal } from './movies/movie-showtimes-modal/movie-showtimes-modal';
 export { BookSeatsComponent } from './movies/book-seats/book-seats';
+export { BookingTicketComponent } from './movies/booking-ticket/booking-ticket';
 export { ActiveBookingsListComponent } from './movies/active-bookings-list/active-bookings-list';
 export { ManagePaymentModalComponent } from './payment/manage-payment-modal/manage-payment-modal';
 export { Stepper } from './stepper/stepper';
