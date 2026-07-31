@@ -4,7 +4,6 @@ import {
   DestroyRef,
   inject,
   linkedSignal,
-  signal,
   TemplateRef,
   viewChild,
 } from '@angular/core';
@@ -145,9 +144,12 @@ export class SeatSelectionPage {
       .filter((seat) => booked.has(seat.id));
   });
 
-  protected readonly cancelling = signal(false);
-  protected readonly cancelled = signal(false);
-  protected readonly bookingExpired = signal(false);
+  private readonly perShowtime = <T>(initial: T) =>
+    linkedSignal({ source: this.showtimeId, computation: () => initial });
+
+  protected readonly cancelling = this.perShowtime(false);
+  protected readonly cancelled = this.perShowtime(false);
+  protected readonly bookingExpired = this.perShowtime(false);
 
   protected onExpired(): void {
     this.bookingExpired.set(true);

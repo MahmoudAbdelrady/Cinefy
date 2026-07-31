@@ -4,6 +4,7 @@ import {
   computed,
   DestroyRef,
   inject,
+  linkedSignal,
   signal,
   TemplateRef,
   viewChild,
@@ -107,15 +108,18 @@ export class CheckoutPage {
     return message ?? 'Something went wrong. Please try again later.';
   });
 
-  protected readonly processing = signal(false);
-  protected readonly redirecting = signal(false);
-  protected readonly cancelling = signal(false);
-  protected readonly cancelled = signal(false);
-  protected readonly bookingExpired = signal(false);
+  private readonly perBooking = <T>(initial: T) =>
+    linkedSignal({ source: this.bookingId, computation: () => initial });
+
+  protected readonly processing = this.perBooking(false);
+  protected readonly redirecting = this.perBooking(false);
+  protected readonly cancelling = this.perBooking(false);
+  protected readonly cancelled = this.perBooking(false);
+  protected readonly bookingExpired = this.perBooking(false);
 
   protected readonly savedMethods = signal<ClientPaymentMethod[]>([]);
   protected readonly loadingMethods = signal(true);
-  protected readonly selectedId = signal('');
+  protected readonly selectedId = this.perBooking('');
 
   protected readonly selectedMethod = computed(() =>
     this.savedMethods().find((method) => method.id === this.selectedId()),
