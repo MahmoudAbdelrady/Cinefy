@@ -71,8 +71,7 @@ interface BookingSummary {
 
 interface StaffPaymentRequest {
   paymentType: PaymentType;
-  paidAmount?: number;
-  paymentReference?: string;
+  transactionId?: string;
 }
 
 export type {

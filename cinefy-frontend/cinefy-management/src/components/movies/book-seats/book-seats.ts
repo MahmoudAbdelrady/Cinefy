@@ -10,7 +10,7 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
@@ -133,8 +133,7 @@ export class BookSeatsComponent {
     paymentType: new FormControl<PaymentType | null>(null, {
       validators: [Validators.required],
     }),
-    paidAmount: new FormControl<number | null>(null),
-    paymentReference: new FormControl('', { nonNullable: true }),
+    transactionId: new FormControl('', { nonNullable: true }),
   });
 
   protected readonly seatSelection = signal<ShowtimeSeatSelection | null>(null);
@@ -192,15 +191,6 @@ export class BookSeatsComponent {
   protected readonly total = computed(() =>
     this.pricedSeats().reduce((sum, { price }) => sum + price, 0),
   );
-
-  private readonly paidAmount = toSignal(this.paymentForm.controls.paidAmount.valueChanges);
-
-  protected readonly change = computed(() => {
-    const paid = this.paidAmount();
-    if (paid === null || paid === undefined) return null;
-    const due = this.total();
-    return paid >= due ? paid - due : null;
-  });
 
   protected readonly paymentTypeLabel = (entry: PaymentTypeEntry) => entry.label;
   protected readonly paymentTypeValue = (entry: PaymentTypeEntry) => entry.value;
@@ -288,31 +278,24 @@ export class BookSeatsComponent {
   }
 
   protected onPaymentTypeChange(entry: PaymentTypeEntry): void {
-    const { paymentType, paidAmount, paymentReference } = this.paymentForm.controls;
+    const { paymentType, transactionId } = this.paymentForm.controls;
     const isCash = entry.value === 'CASH';
 
     paymentType.setValue(entry.value);
 
-    paidAmount.reset(null);
-    paymentReference.reset('');
-
-    paidAmount.setValidators(isCash ? [Validators.required, Validators.min(this.total())] : []);
-    paymentReference.setValidators(isCash ? [] : [Validators.required]);
-
-    paidAmount.updateValueAndValidity();
-    paymentReference.updateValueAndValidity();
+    transactionId.reset('');
+    transactionId.setValidators(isCash ? [] : [Validators.required]);
+    transactionId.updateValueAndValidity();
   }
 
   protected completePayment(): void {
     const booking = this.activeBooking();
-    const { paymentType, paidAmount, paymentReference } = this.paymentForm.getRawValue();
+    const { paymentType, transactionId } = this.paymentForm.getRawValue();
     if (!booking || !paymentType) return;
 
     const request: StaffPaymentRequest = {
       paymentType,
-      ...(paymentType === 'CASH'
-        ? { paidAmount: paidAmount ?? 0 }
-        : { paymentReference: paymentReference.trim() }),
+      ...(paymentType === 'CARD' ? { transactionId: transactionId.trim() } : {}),
     };
 
     // TODO: Call backend
@@ -347,7 +330,7 @@ export class BookSeatsComponent {
   protected resetBooking(): void {
     this.bookedSeats.set([]);
     this.activeBooking.set(null);
-    this.paymentForm.reset({ paymentType: null, paidAmount: null, paymentReference: '' });
+    this.paymentForm.reset({ paymentType: null, transactionId: '' });
     this.stage.set('seats');
     this.loadSeatSelection();
   }
