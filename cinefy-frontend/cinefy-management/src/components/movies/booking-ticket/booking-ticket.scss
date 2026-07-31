@@ -201,17 +201,15 @@
 }
 
 @media print {
-  .bt-ticket {
-    border: none;
-    padding: 0;
-    break-inside: avoid;
-  }
-
   .bt-strip {
     display: block;
+    overflow-x: visible;
+    padding-bottom: 0;
 
     .bt-ticket {
-      max-width: none;
+      flex: none;
+      border: none;
+      padding: 0;
       break-after: page;
 
       &:last-child {

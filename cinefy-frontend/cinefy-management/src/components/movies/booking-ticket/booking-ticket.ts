@@ -1,5 +1,5 @@
-import { Component, computed, input, signal } from '@angular/core';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { Component, computed, inject, input, signal } from '@angular/core';
+import { CurrencyPipe, DatePipe, DOCUMENT } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
 import { PrinterIcon } from '../../../shared/icons';
@@ -11,6 +11,8 @@ const PAYMENT_TYPE_LABEL: Record<PaymentType, string> = {
 };
 
 type TicketLayout = 'combined' | 'split';
+
+const PRINTING_CLASS = 'printing';
 
 interface TicketStub {
   key: string;
@@ -36,6 +38,8 @@ function toStub(seats: BookedSeat[], total: number): TicketStub {
 })
 export class BookingTicketComponent {
   protected readonly icons = { PrinterIcon };
+
+  private readonly document = inject(DOCUMENT);
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
 
@@ -66,6 +70,15 @@ export class BookingTicketComponent {
   }
 
   protected print(): void {
-    // TODO: print machinery
+    const view = this.document.defaultView;
+    if (!view) return;
+
+    const body = this.document.body;
+    body.classList.add(PRINTING_CLASS);
+    view.addEventListener('afterprint', () => body.classList.remove(PRINTING_CLASS), {
+      once: true,
+    });
+
+    view.print();
   }
 }

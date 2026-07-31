@@ -187,3 +187,32 @@ button {
     transform: scale(0.96);
   }
 }
+
+// ─── Printing ─────────────────────────────────────────────────────────────────
+@media print {
+  body.printing {
+    background: #ffffff;
+
+    *:not(:has(.printing-node)):not(.printing-node):not(.printing-node *) {
+      display: none;
+    }
+
+    *:has(.printing-node) {
+      display: block;
+      position: static;
+      inset: auto;
+      width: auto;
+      max-width: none;
+      height: auto;
+      max-height: none;
+      overflow: visible;
+      margin: 0;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+      text-align: left;
+    }
+  }
+}
