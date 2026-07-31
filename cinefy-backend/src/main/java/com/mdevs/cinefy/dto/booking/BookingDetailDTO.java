@@ -5,6 +5,7 @@ import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,4 +31,6 @@ public class BookingDetailDTO {
     private boolean is3D;
 
     private List<BookedSeatDTO> seats;
+
+    private BigDecimal totalPrice;
 }

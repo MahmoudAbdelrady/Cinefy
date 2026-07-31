@@ -58,6 +58,7 @@ interface BookingDetail {
   hallType: string;
   is3D: boolean;
   seats: BookedSeat[];
+  totalPrice: number;
 }
 
 type PaymentState = 'CONFIRMED' | 'PENDING' | 'FAILED' | 'EXPIRED' | 'REFUNDED';

@@ -610,6 +610,7 @@ public class BookingService {
         dto.setHallType(booking.getHallType());
         dto.set3D(showtime.is3D());
         dto.setSeats(seats);
+        dto.setTotalPrice(booking.getTotalAmount());
         return dto;
     }
 

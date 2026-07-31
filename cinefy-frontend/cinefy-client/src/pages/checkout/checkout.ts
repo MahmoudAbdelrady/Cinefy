@@ -140,9 +140,7 @@ export class CheckoutPage {
     [...(this.booking()?.seats ?? [])].sort((a, b) => comparePositions(a.position, b.position)),
   );
 
-  protected readonly seatsSubtotal = computed(() =>
-    (this.booking()?.seats ?? []).reduce((sum, seat) => sum + seat.price, 0),
-  );
+  protected readonly totalPrice = computed(() => this.booking()?.totalPrice ?? 0);
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
 

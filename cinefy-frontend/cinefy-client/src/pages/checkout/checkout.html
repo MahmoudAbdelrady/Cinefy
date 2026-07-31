@@ -98,7 +98,7 @@
             <div class="co-divider co-divider-tight"></div>
             <div class="co-total">
               <dt>Total <span class="co-total-note">(without VAT)</span></dt>
-              <dd class="co-total-value">{{ seatsSubtotal() | currency: 'USD' }}</dd>
+              <dd class="co-total-value">{{ totalPrice() | currency: 'USD' }}</dd>
             </div>
           </dl>
 
@@ -153,7 +153,7 @@
                   <loading-spinner variant="xs" />
                   Processing
                 } @else {
-                  Pay {{ seatsSubtotal() | currency: 'USD' }}
+                  Pay {{ totalPrice() | currency: 'USD' }}
                 }
               </button>
 
@@ -189,7 +189,7 @@
                     <loading-spinner variant="xs" />
                     Opening payment page
                   } @else {
-                    Pay {{ seatsSubtotal() | currency: 'USD' }}
+                    Pay {{ totalPrice() | currency: 'USD' }}
                   }
                 </span>
                 <svg [lucideIcon]="icons.ArrowUpRightIcon" [size]="16"></svg>
