@@ -90,8 +90,7 @@ public class ShowtimeService {
 
         List<Long> showtimeIds = showtimes.stream().map(Showtime::getId).toList();
         User currentUser = currentUserService.loadCurrentUser();
-        Long staffId = currentUser instanceof StaffMember staff ? staff.getId() : null;
-        Map<Long, ShowtimeBookingCountsProjection> countsByShowtime = bookingRepository.countBookedAndHeldByShowtime(showtimeIds, LocalDateTime.now(), staffId)
+        Map<Long, ShowtimeBookingCountsProjection> countsByShowtime = bookingRepository.countBookedAndHeldByShowtime(showtimeIds, LocalDateTime.now(), currentUser.getId())
                 .stream()
                 .collect(Collectors.toMap(ShowtimeBookingCountsProjection::getShowtimeId, Function.identity()));
 
@@ -335,6 +334,7 @@ public class ShowtimeService {
         dto.setBookedSeats(counts != null ? counts.getBookedSeats() : 0);
         dto.setMyOnHoldSeats(counts != null ? counts.getMyOnHoldSeats() : 0);
         dto.setTotalSeats(hall.getCapacity());
+        dto.setBookable(BookingService.isBookable(showtime));
         return dto;
     }
 
@@ -359,6 +359,7 @@ public class ShowtimeService {
         dto.setBookedSeats(counts != null ? counts.getBookedSeats() : 0);
         dto.setMyOnHoldSeats(counts != null ? counts.getMyOnHoldSeats() : 0);
         dto.setTotalSeats(hall.getCapacity());
+        dto.setBookable(BookingService.isBookable(showtime));
         return dto;
     }
 

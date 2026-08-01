@@ -104,6 +104,11 @@ public class BookingService {
 
     // ========================= Public API =========================
 
+    public static boolean isBookable(Showtime showtime) {
+        return ShowtimeStatus.COMMITTED_STATUSES.contains(showtime.getStatus())
+                && !showtime.getEndDateTime().isBefore(LocalDateTime.now().plusMinutes(BOOKING_CUTOFF_MINUTES));
+    }
+
     public List<String> getBookableDates(Long movieId) {
         LocalDateTime cutOffDate = LocalDateTime.now().plusMinutes(BOOKING_CUTOFF_MINUTES);
         return showtimeRepository.findDistinctBookableShowtimeDates(movieId, ShowtimeStatus.COMMITTED_STATUSES, cutOffDate)
@@ -167,13 +172,17 @@ public class BookingService {
                 ? bookingRepository.findActiveOnHoldByClient(user.getId(), now)
                 : bookingRepository.findActiveOnHoldByBookedBy(user.getId(), now);
 
-        return bookings.stream().map(this::toBookingSummaryDTO).toList();
+        return bookings.stream()
+                .filter(booking -> isBookable(booking.getShowtime()))
+                .map(this::toBookingSummaryDTO)
+                .toList();
     }
 
     public BookingDetailDTO getActiveBookingDetails(String uuid) {
         Booking booking = findBookingByUuidWithDetail(uuid);
         validateBookingOwnership(booking);
         validateBookingIsActive(booking);
+        validateShowtimeStillBookable(booking);
         return toBookingDetailDTO(booking);
     }
 
@@ -345,9 +354,7 @@ public class BookingService {
     private Showtime findBookableShowtime(String uuid) {
         Showtime showtime = showtimeRepository.findByUuidWithHall(uuid)
                 .orElseThrow(() -> new NotFoundException("Showtime not found"));
-        LocalDateTime cutOffDate = LocalDateTime.now().plusMinutes(BOOKING_CUTOFF_MINUTES);
-        if (!ShowtimeStatus.COMMITTED_STATUSES.contains(showtime.getStatus())
-                || showtime.getEndDateTime().isBefore(cutOffDate)) {
+        if (!isBookable(showtime)) {
             throw new BusinessException("This showtime is not available for booking");
         }
         return showtime;
@@ -412,6 +419,12 @@ public class BookingService {
         }
     }
 
+    private void validateShowtimeStillBookable(Booking booking) {
+        if (!isBookable(booking.getShowtime())) {
+            throw new BusinessException("This showtime is no longer available for booking");
+        }
+    }
+
     private void confirmPaidBooking(Booking booking, String transactionId) {
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setOnHold(null);
@@ -429,6 +442,7 @@ public class BookingService {
 
         validateBookingOwnership(booking);
         validateBookingIsActive(booking);
+        validateShowtimeStillBookable(booking);
 
         BookingStatus status = booking.getStatus();
         if (BookingStatus.isSettled(status)) {

@@ -495,6 +495,7 @@ export class MovieShowtimesModal {
       bookedSeats: showtime.bookedSeats,
       myOnHoldSeats: showtime.myOnHoldSeats,
       totalSeats: showtime.totalSeats,
+      bookable: showtime.bookable,
     };
   }
 

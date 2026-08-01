@@ -269,23 +269,30 @@
           cursor: not-allowed;
 
           > svg,
-          > span:not(.sold-out-badge) {
+          > span:not(.action-badge) {
             opacity: 0.6;
           }
         }
 
-        .sold-out-badge {
+        .action-badge {
           position: absolute;
           top: -8px;
           right: -8px;
           padding: 2px 8px;
           border-radius: $radius-md;
-          background-color: $red-600;
           font-size: 10px;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.03em;
           color: #ffffff;
+
+          &.action-badge-danger {
+            background-color: $red-600;
+          }
+
+          &.action-badge-muted {
+            background-color: $gray-500;
+          }
         }
 
         &.dsi-action-book:hover:not(:disabled) {
