@@ -7,30 +7,40 @@
   width: 100%;
 }
 
-.bt-tabs {
-  display: inline-flex;
+.bt-toolbar {
+  @include flex-align;
+  gap: 12px;
   margin-bottom: 16px;
-  padding: 3px;
-  border-radius: $radius-md;
-  background-color: $gray-100;
 
-  .bt-tab {
-    padding: 6px 14px;
-    border-radius: $radius-sm;
-    font-size: 12px;
-    font-weight: 600;
-    color: $gray-600;
-    transition: color 150ms ease;
+  .bt-tabs {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: $radius-md;
+    background-color: $gray-100;
 
-    &:hover {
-      color: $gray-900;
+    .bt-tab {
+      padding: 6px 14px;
+      border-radius: $radius-sm;
+      font-size: 12px;
+      font-weight: 600;
+      color: $gray-600;
+      transition: color 150ms ease;
+
+      &:hover {
+        color: $gray-900;
+      }
+
+      &.bt-tab-active {
+        background-color: #ffffff;
+        color: $gray-900;
+        box-shadow: $shadow-xs;
+      }
     }
+  }
 
-    &.bt-tab-active {
-      background-color: #ffffff;
-      color: $gray-900;
-      box-shadow: $shadow-xs;
-    }
+  .bt-print {
+    @include flex-center;
+    gap: 8px;
   }
 }
 
@@ -192,14 +202,6 @@
   }
 }
 
-.bt-print {
-  @include flex-center;
-
-  gap: 8px;
-  width: 100%;
-  margin-top: 16px;
-}
-
 @media print {
   .bt-strip {
     display: block;
@@ -218,8 +220,7 @@
     }
   }
 
-  .bt-tabs,
-  .bt-print {
+  .bt-toolbar {
     display: none;
   }
 }

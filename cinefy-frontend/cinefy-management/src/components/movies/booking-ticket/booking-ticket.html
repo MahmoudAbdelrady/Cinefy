@@ -1,23 +1,30 @@
-@if (hasMultipleSeats()) {
-  <div class="bt-tabs">
-    <button
-      type="button"
-      class="bt-tab"
-      [class.bt-tab-active]="!isSplit()"
-      (click)="selectLayout('combined')"
-    >
-      One ticket
-    </button>
-    <button
-      type="button"
-      class="bt-tab"
-      [class.bt-tab-active]="isSplit()"
-      (click)="selectLayout('split')"
-    >
-      One per seat
-    </button>
-  </div>
-}
+<div class="bt-toolbar">
+  @if (hasMultipleSeats()) {
+    <div class="bt-tabs">
+      <button
+        type="button"
+        class="bt-tab"
+        [class.bt-tab-active]="!isSplit()"
+        (click)="selectLayout('combined')"
+      >
+        One ticket
+      </button>
+      <button
+        type="button"
+        class="bt-tab"
+        [class.bt-tab-active]="isSplit()"
+        (click)="selectLayout('split')"
+      >
+        One per seat
+      </button>
+    </div>
+  }
+
+  <button type="button" class="btn-secondary bt-print" (click)="print()">
+    <svg [lucideIcon]="icons.PrinterIcon" [size]="16"></svg>
+    <span>{{ isSplit() ? 'Print tickets' : 'Print ticket' }}</span>
+  </button>
+</div>
 
 <div class="bt-strip printing-node" [class.bt-strip-single]="!isSplit()">
   @for (stub of stubs(); track stub.key) {
@@ -90,8 +97,3 @@
     </article>
   }
 </div>
-
-<button type="button" class="btn-secondary bt-print" (click)="print()">
-  <svg [lucideIcon]="icons.PrinterIcon" [size]="16"></svg>
-  <span>{{ isSplit() ? 'Print tickets' : 'Print ticket' }}</span>
-</button>
