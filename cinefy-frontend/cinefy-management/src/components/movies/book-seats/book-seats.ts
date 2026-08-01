@@ -301,6 +301,11 @@ export class BookSeatsComponent {
           this.settling.set(false);
           this.issuedTicket.set(confirmation);
           this.stage.set('done');
+          this.showtimeEvents.notifyShowtimeOccupancyChanged(
+            this.showtimeId(),
+            this.seatSelection()?.hallLayout.layout.booked.length ?? 0,
+            0,
+          );
         },
         error: () => this.settling.set(false),
       });
