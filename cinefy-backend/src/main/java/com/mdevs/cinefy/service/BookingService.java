@@ -7,6 +7,7 @@ import com.mdevs.cinefy.dto.booking.BookingConfirmationDTO;
 import com.mdevs.cinefy.dto.booking.BookingDetailDTO;
 import com.mdevs.cinefy.dto.booking.BookingRequestDTO;
 import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
+import com.mdevs.cinefy.dto.booking.OnSitePaymentDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
@@ -88,9 +89,9 @@ public class BookingService {
 
     private static final int BOOKING_CUTOFF_MINUTES = 60;
 
-    private static final double CLIENT_SEATS_CAPACITY_RATIO = 0.20;
+    private static final double MAX_SEATS_CAPACITY_RATIO = 0.20;
 
-    private static final int CLIENT_SEATS_MINIMUM = 6;
+    private static final int MAX_SEATS_MINIMUM = 6;
 
     private static final String REFERENCE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -253,6 +254,27 @@ public class BookingService {
     }
 
     @Transactional
+    public BookingConfirmationDTO settleOnSitePayment(String uuid, OnSitePaymentDTO dto) {
+        Booking booking = lockAndFetchBookingWithDetail(uuid);
+
+        validateBookingOwnership(booking);
+
+        if (BookingStatus.isSettled(booking.getStatus())) {
+            return toBookingConfirmationDTO(booking);
+        }
+        if (booking.hasExpired()) {
+            throw new BusinessException("This booking has expired");
+        }
+        if (!Boolean.TRUE.equals(dto.getIsCash()) && StringUtils.isEmpty(dto.getTransactionId())) {
+            throw new BusinessException("A transaction id is required for card payments");
+        }
+
+        confirmPaidBooking(booking, dto.getTransactionId());
+
+        return toBookingConfirmationDTO(booking);
+    }
+
+    @Transactional
     public PaymentRedirectionDTO createPaymentCheckout(String uuid) {
         Booking booking = prepareBookingForPayment(uuid);
         return paymentService.createCheckout(booking);
@@ -370,6 +392,12 @@ public class BookingService {
                 .orElseThrow(() -> new NotFoundException("Booking not found or it may have been expired"));
     }
 
+    private Booking lockAndFetchBookingWithDetail(String uuid) {
+        // Lock first, then re-read to fetch the associations in one join instead of lazy-loading them one by one
+        findBookingByUuidForUpdate(uuid);
+        return findBookingByUuidWithDetail(uuid);
+    }
+
     private Optional<Booking> findOnHoldBooking(Long showtimeId, User user, LocalDateTime now) {
         return user instanceof Client
                 ? bookingRepository.findOnHoldByShowtimeAndClient(showtimeId, user.getId(), now)
@@ -379,11 +407,9 @@ public class BookingService {
     private void validateSeats(Hall hall, List<String> requestedPositions, User user) {
         HallLayout layout = hall.getLayout();
 
-        if (user instanceof Client) {
-            int maxSeats = Math.max(CLIENT_SEATS_MINIMUM, (int) (hall.getCapacity() * CLIENT_SEATS_CAPACITY_RATIO));
-            if (requestedPositions.size() > maxSeats) {
-                throw new BusinessException("You can book at most " + maxSeats + " seats for this showtime");
-            }
+        int maxSeats = Math.max(MAX_SEATS_MINIMUM, (int) (hall.getCapacity() * MAX_SEATS_CAPACITY_RATIO));
+        if (requestedPositions.size() > maxSeats) {
+            throw new BusinessException("You can book at most " + maxSeats + " seats for this showtime");
         }
 
         Set<String> seen = new LinkedHashSet<>();
@@ -436,9 +462,7 @@ public class BookingService {
     }
 
     private Booking prepareBookingForPayment(String uuid) {
-        // Lock first, then re-read to fetch the associations in one join instead of lazy-loading them one by one
-        findBookingByUuidForUpdate(uuid);
-        Booking booking = findBookingByUuidWithDetail(uuid);
+        Booking booking = lockAndFetchBookingWithDetail(uuid);
 
         validateBookingOwnership(booking);
         validateBookingIsActive(booking);

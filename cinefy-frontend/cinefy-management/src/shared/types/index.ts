@@ -74,11 +74,11 @@ export type {
   ShowtimeHallLayout,
   ActiveBooking,
   ShowtimeSeatSelection,
-  PaymentType,
   BookedSeat,
   BookingDetail,
   BookingRequest,
   BookingSummary,
   StaffPaymentRequest,
-  IssuedTicket,
+  PaymentState,
+  BookingConfirmation,
 } from './booking';

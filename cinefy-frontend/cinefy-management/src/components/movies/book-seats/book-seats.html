@@ -120,17 +120,16 @@
                 <custom-select
                   label="Payment type"
                   [required]="true"
-                  [items]="paymentTypeEntries"
-                  [control]="paymentForm.controls.paymentType"
+                  [items]="paymentOptions"
+                  [control]="paymentForm.controls.isCash"
                   [displayFn]="paymentTypeLabel"
-                  [valueFn]="paymentTypeValue"
                   [container]="container()"
                   placeholder="Select payment type"
                   [errorMessages]="{ required: 'Payment type is required' }"
                   (selectionChange)="onPaymentTypeChange($event)"
                 />
 
-                @if (paymentForm.controls.paymentType.value === 'CARD') {
+                @if (paymentForm.controls.isCash.value === false) {
                   <input-field
                     placeholder="Enter reference number"
                     hint="Printed on the payment receipt."
@@ -142,10 +141,14 @@
                 <button
                   type="submit"
                   class="btn-success bs-complete"
-                  [disabled]="paymentForm.invalid"
+                  [disabled]="paymentForm.invalid || settling()"
                 >
-                  <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
-                  <span>Complete payment</span>
+                  @if (settling()) {
+                    <loading-spinner variant="xs" />
+                  } @else {
+                    <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
+                    <span>Complete payment</span>
+                  }
                 </button>
               }
             </form>

@@ -41,24 +41,15 @@ import {
 import type {
   ActiveBooking,
   BookedSeat,
+  BookingConfirmation,
   BookingRequest,
-  IssuedTicket,
-  PaymentType,
   ShowtimeHallLayout,
   ShowtimeSeatLayout,
   ShowtimeSeatSelection,
   StaffPaymentRequest,
 } from '../../../shared/types';
 
-interface PaymentTypeEntry {
-  value: PaymentType;
-  label: string;
-}
-
-const PAYMENT_TYPE_ENTRIES: PaymentTypeEntry[] = [
-  { value: 'CASH', label: 'Cash' },
-  { value: 'CARD', label: 'Card' },
-];
+const PAYMENT_OPTIONS = [true, false];
 
 function seatCategory(id: string, layout: ShowtimeSeatLayout): SeatCategory {
   if (layout.categories.AISLE?.includes(id)) return 'AISLE';
@@ -124,17 +115,18 @@ export class BookSeatsComponent {
   protected readonly expiredDialog = viewChild.required<TemplateRef<unknown>>('expiredDialog');
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
-  protected readonly paymentTypeEntries = PAYMENT_TYPE_ENTRIES;
+  protected readonly paymentOptions = PAYMENT_OPTIONS;
 
   readonly showtimeId = input.required<string>();
   readonly container = input<string | HTMLElement | null>(null);
 
   protected readonly booking = signal(false);
   protected readonly cancelling = signal(false);
-  protected readonly issuedTicket = signal<IssuedTicket | null>(null);
+  protected readonly settling = signal(false);
+  protected readonly issuedTicket = signal<BookingConfirmation | null>(null);
 
   protected readonly paymentForm = new FormGroup({
-    paymentType: new FormControl<PaymentType | null>(null, {
+    isCash: new FormControl<boolean | null>(null, {
       validators: [Validators.required],
     }),
     transactionId: new FormControl('', { nonNullable: true }),
@@ -196,8 +188,7 @@ export class BookSeatsComponent {
     this.pricedSeats().reduce((sum, { price }) => sum + price, 0),
   );
 
-  protected readonly paymentTypeLabel = (entry: PaymentTypeEntry) => entry.label;
-  protected readonly paymentTypeValue = (entry: PaymentTypeEntry) => entry.value;
+  protected readonly paymentTypeLabel = (isCash: boolean) => (isCash ? 'Cash' : 'Card');
 
   constructor() {
     afterNextRender(() => this.loadSeatSelection());
@@ -281,45 +272,38 @@ export class BookSeatsComponent {
       });
   }
 
-  protected onPaymentTypeChange(entry: PaymentTypeEntry): void {
-    const { paymentType, transactionId } = this.paymentForm.controls;
-    const isCash = entry.value === 'CASH';
+  protected onPaymentTypeChange(selected: boolean): void {
+    const { isCash, transactionId } = this.paymentForm.controls;
 
-    paymentType.setValue(entry.value);
+    isCash.setValue(selected);
 
     transactionId.reset('');
-    transactionId.setValidators(isCash ? [] : [Validators.required]);
+    transactionId.setValidators(selected ? [] : [Validators.required]);
     transactionId.updateValueAndValidity();
   }
 
   protected completePayment(): void {
     const booking = this.activeBooking();
-    const { paymentType, transactionId } = this.paymentForm.getRawValue();
-    if (!booking || !paymentType) return;
+    const { isCash, transactionId } = this.paymentForm.getRawValue();
+    if (!booking || isCash === null || this.settling()) return;
 
     const request: StaffPaymentRequest = {
-      paymentType,
-      ...(paymentType === 'CARD' ? { transactionId: transactionId.trim() } : {}),
+      isCash,
+      ...(isCash ? {} : { transactionId: transactionId.trim() }),
     };
 
-    const selection = this.seatSelection();
-    if (selection) {
-      this.issuedTicket.set({
-        movieTitle: selection.movieTitle,
-        startDateTime: selection.startDateTime,
-        hallName: selection.hallName,
-        hallType: selection.hallType,
-        is3D: selection.is3D,
-        seats: this.pricedSeats(),
-        total: this.total(),
-        paymentType,
-        transactionId: paymentType === 'CARD' ? transactionId.trim() : '',
+    this.settling.set(true);
+    this.bookingService
+      .settlePayment(booking.id, request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (confirmation) => {
+          this.settling.set(false);
+          this.issuedTicket.set(confirmation);
+          this.stage.set('done');
+        },
+        error: () => this.settling.set(false),
       });
-    }
-
-    // TODO: Call backend
-
-    this.stage.set('done');
   }
 
   protected cancelPayment(close: () => void): void {
@@ -350,7 +334,7 @@ export class BookSeatsComponent {
     this.bookedSeats.set([]);
     this.activeBooking.set(null);
     this.issuedTicket.set(null);
-    this.paymentForm.reset({ paymentType: null, transactionId: '' });
+    this.paymentForm.reset({ isCash: null, transactionId: '' });
     this.stage.set('seats');
     this.loadSeatSelection();
   }

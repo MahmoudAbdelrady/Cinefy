@@ -4,6 +4,7 @@ import com.mdevs.cinefy.dto.booking.BookingConfirmationDTO;
 import com.mdevs.cinefy.dto.booking.BookingDetailDTO;
 import com.mdevs.cinefy.dto.booking.BookingRequestDTO;
 import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
+import com.mdevs.cinefy.dto.booking.OnSitePaymentDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.payment.CardTokenCallbackDTO;
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
@@ -104,6 +105,13 @@ public class BookingController {
     public ResponseEntity<Void> cancelBooking(@PathVariable String uuid) {
         bookingService.cancelBooking(uuid);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
+    @PostMapping("/{uuid}/settle")
+    public ResponseEntity<BookingConfirmationDTO> settleOnSitePayment(@PathVariable String uuid,
+                                                                      @Valid @RequestBody OnSitePaymentDTO dto) {
+        return ResponseEntity.ok(bookingService.settleOnSitePayment(uuid, dto));
     }
 
     @PreAuthorize("hasRole('CLIENT')")

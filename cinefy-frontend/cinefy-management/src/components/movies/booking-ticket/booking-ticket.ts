@@ -3,12 +3,7 @@ import { CurrencyPipe, DatePipe, DOCUMENT } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
 import { PrinterIcon } from '../../../shared/icons';
-import type { BookedSeat, IssuedTicket, PaymentType } from '../../../shared/types';
-
-const PAYMENT_TYPE_LABEL: Record<PaymentType, string> = {
-  CASH: 'Cash',
-  CARD: 'Card',
-};
+import type { BookedSeat, BookingConfirmation } from '../../../shared/types';
 
 type TicketLayout = 'combined' | 'split';
 
@@ -43,7 +38,7 @@ export class BookingTicketComponent {
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
 
-  readonly ticket = input.required<IssuedTicket>();
+  readonly ticket = input.required<BookingConfirmation>();
 
   protected readonly layout = signal<TicketLayout>('combined');
 
@@ -52,18 +47,16 @@ export class BookingTicketComponent {
   protected readonly isSplit = computed(() => this.hasMultipleSeats() && this.layout() === 'split');
 
   protected readonly stubs = computed<TicketStub[]>(() => {
-    const { seats, total } = this.ticket();
+    const { seats, totalPrice } = this.ticket();
     return this.isSplit()
       ? seats.map((seat) => toStub([seat], seat.price))
-      : [toStub(seats, total)];
+      : [toStub(seats, totalPrice)];
   });
 
   protected readonly experience = computed(() => {
     const { hallType, is3D } = this.ticket();
     return is3D ? `${hallType} (3D)` : hallType;
   });
-
-  protected readonly paymentLabel = computed(() => PAYMENT_TYPE_LABEL[this.ticket().paymentType]);
 
   protected selectLayout(layout: TicketLayout): void {
     this.layout.set(layout);

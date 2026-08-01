@@ -33,7 +33,7 @@
         <p class="bt-brand">Cinefy</p>
       </header>
 
-      <h4 class="bt-movie">{{ ticket().movieTitle }}</h4>
+      <h4 class="bt-movie">{{ ticket().movie.title }}</h4>
 
       <dl class="bt-facts">
         <div class="bt-fact">
@@ -80,20 +80,16 @@
         </table>
       </section>
 
-      <footer class="bt-foot">
-        <dl class="bt-facts">
-          <div class="bt-fact">
-            <dt>Paid by</dt>
-            <dd>{{ paymentLabel() }}</dd>
-          </div>
-          @if (ticket().transactionId) {
+      @if (ticket().bookingReference) {
+        <footer class="bt-foot">
+          <dl class="bt-facts">
             <div class="bt-fact">
               <dt>Reference</dt>
-              <dd>{{ ticket().transactionId }}</dd>
+              <dd>{{ ticket().bookingReference }}</dd>
             </div>
-          }
-        </dl>
-      </footer>
+          </dl>
+        </footer>
+      }
     </article>
   }
 </div>

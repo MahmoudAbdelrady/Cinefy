@@ -2,10 +2,12 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
+  BookingConfirmation,
   BookingDetail,
   BookingRequest,
   BookingSummary,
   ShowtimeSeatSelection,
+  StaffPaymentRequest,
 } from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
@@ -27,5 +29,9 @@ export class BookingService {
 
   cancelBooking(uuid: string): Observable<void> {
     return this.http.delete<void>(`/booking/${uuid}`);
+  }
+
+  settlePayment(uuid: string, request: StaffPaymentRequest): Observable<BookingConfirmation> {
+    return this.http.post<BookingConfirmation>(`/booking/${uuid}/settle`, request);
   }
 }
