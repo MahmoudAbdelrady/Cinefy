@@ -102,28 +102,6 @@
             </button>
           } @else {
             <form class="bs-payment" [formGroup]="paymentForm" (ngSubmit)="completePayment()">
-              <custom-select
-                label="Payment type"
-                [required]="true"
-                [items]="paymentTypeEntries"
-                [control]="paymentForm.controls.paymentType"
-                [displayFn]="paymentTypeLabel"
-                [valueFn]="paymentTypeValue"
-                [container]="container()"
-                placeholder="Select payment type"
-                [errorMessages]="{ required: 'Payment type is required' }"
-                (selectionChange)="onPaymentTypeChange($event)"
-              />
-
-              @if (paymentForm.controls.paymentType.value === 'CARD') {
-                <input-field
-                  placeholder="Enter reference number"
-                  hint="Printed on the payment receipt."
-                  [control]="paymentForm.controls.transactionId"
-                  [errorMessages]="{ required: 'Reference number is required' }"
-                />
-              }
-
               @if (selectionChanged()) {
                 <button
                   type="button"
@@ -138,16 +116,38 @@
                     <span>Update booking</span>
                   }
                 </button>
-              }
+              } @else {
+                <custom-select
+                  label="Payment type"
+                  [required]="true"
+                  [items]="paymentTypeEntries"
+                  [control]="paymentForm.controls.paymentType"
+                  [displayFn]="paymentTypeLabel"
+                  [valueFn]="paymentTypeValue"
+                  [container]="container()"
+                  placeholder="Select payment type"
+                  [errorMessages]="{ required: 'Payment type is required' }"
+                  (selectionChange)="onPaymentTypeChange($event)"
+                />
 
-              <button
-                type="submit"
-                class="btn-success bs-complete"
-                [disabled]="paymentForm.invalid"
-              >
-                <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
-                <span>Complete payment</span>
-              </button>
+                @if (paymentForm.controls.paymentType.value === 'CARD') {
+                  <input-field
+                    placeholder="Enter reference number"
+                    hint="Printed on the payment receipt."
+                    [control]="paymentForm.controls.transactionId"
+                    [errorMessages]="{ required: 'Reference number is required' }"
+                  />
+                }
+
+                <button
+                  type="submit"
+                  class="btn-success bs-complete"
+                  [disabled]="paymentForm.invalid"
+                >
+                  <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
+                  <span>Complete payment</span>
+                </button>
+              }
             </form>
           }
         }
