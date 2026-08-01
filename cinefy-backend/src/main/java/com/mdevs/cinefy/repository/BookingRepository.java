@@ -54,6 +54,8 @@ public interface BookingRepository extends BaseRepository<Booking> {
     boolean existsBookedSeatByShowtimeIn(@Param("showtimeIds") List<Long> showtimeIds,
                                          @Param("now") LocalDateTime now);
 
+    boolean existsByPaymentTransactionId(String paymentTransactionId);
+
     @Query("""
             SELECT bs.showtime.id AS showtimeId, COUNT(bs.id) AS bookedSeats
             FROM BookingSeat bs

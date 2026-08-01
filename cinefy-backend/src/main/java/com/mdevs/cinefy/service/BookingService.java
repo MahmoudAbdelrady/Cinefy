@@ -268,6 +268,9 @@ public class BookingService {
         if (!Boolean.TRUE.equals(dto.getIsCash()) && StringUtils.isEmpty(dto.getTransactionId())) {
             throw new BusinessException("A transaction id is required for card payments");
         }
+        if (StringUtils.isNotEmpty(dto.getTransactionId()) && bookingRepository.existsByPaymentTransactionId(dto.getTransactionId())) {
+            throw new BusinessException("This transaction id is already recorded on another booking");
+        }
 
         confirmPaidBooking(booking, dto.getTransactionId());
 
@@ -457,7 +460,7 @@ public class BookingService {
         booking.setPaymentTransactionId(transactionId);
         // TODO: set refundable until date
         bookingRepository.save(booking);
-        
+
         // TODO: send email with the ticket
     }
 
