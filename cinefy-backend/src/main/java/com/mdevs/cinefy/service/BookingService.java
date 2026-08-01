@@ -409,7 +409,7 @@ public class BookingService {
 
         int maxSeats = Math.max(MAX_SEATS_MINIMUM, (int) (hall.getCapacity() * MAX_SEATS_CAPACITY_RATIO));
         if (requestedPositions.size() > maxSeats) {
-            throw new BusinessException("You can book at most " + maxSeats + " seats for this showtime");
+            throw new BusinessException("You can book at most " + maxSeats + " seats per booking");
         }
 
         Set<String> seen = new LinkedHashSet<>();

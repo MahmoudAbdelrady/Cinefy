@@ -3,6 +3,7 @@ import { CurrencyPipe, DatePipe, DOCUMENT } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
 import { PrinterIcon } from '../../../shared/icons';
+import { comparePositions } from '../../halls/seat-layout';
 import type { BookedSeat, BookingConfirmation } from '../../../shared/types';
 
 type TicketLayout = 'combined' | 'split';
@@ -17,10 +18,13 @@ interface TicketStub {
 }
 
 function toStub(seats: BookedSeat[], total: number): TicketStub {
+  const ordered = [...seats].sort((a, b) => comparePositions(a.position, b.position));
+  const positions = ordered.map((seat) => seat.position);
+
   return {
-    key: seats.map((seat) => seat.position).join('-'),
-    seats,
-    positions: seats.map((seat) => seat.position).join(', '),
+    key: positions.join('-'),
+    seats: ordered,
+    positions: positions.join(', '),
     total,
   };
 }
@@ -49,7 +53,9 @@ export class BookingTicketComponent {
   protected readonly stubs = computed<TicketStub[]>(() => {
     const { seats, totalPrice } = this.ticket();
     return this.isSplit()
-      ? seats.map((seat) => toStub([seat], seat.price))
+      ? [...seats]
+          .sort((a, b) => comparePositions(a.position, b.position))
+          .map((seat) => toStub([seat], seat.price))
       : [toStub(seats, totalPrice)];
   });
 
