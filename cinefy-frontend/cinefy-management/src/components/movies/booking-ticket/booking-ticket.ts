@@ -61,7 +61,7 @@ export class BookingTicketComponent {
 
   protected readonly experience = computed(() => {
     const { hallType, is3D } = this.ticket();
-    return is3D ? `${hallType} (3D)` : hallType;
+    return `${hallType}${is3D ? ' (3D)' : ''}`;
   });
 
   protected selectLayout(layout: TicketLayout): void {

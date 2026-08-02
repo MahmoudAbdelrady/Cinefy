@@ -99,6 +99,7 @@ export class ActiveBookingsListComponent {
 
   protected bookingSummary(booking: BookingSummary): string {
     const when = format(new Date(booking.startDateTime), "MMM d, yyyy 'at' h:mm a");
-    return `${booking.movie.title} · ${booking.hallName} · ${when}`;
+    const hallType = `${booking.hallType}${booking.is3D ? ' (3D)' : ''}`;
+    return `${booking.movie.title} · ${booking.hallName} · ${hallType} · ${when}`;
   }
 }

@@ -309,7 +309,8 @@ export class MovieShowtimesModal {
   protected getShowtimeSummary(detail: MovieShowtimeListItem): string {
     const startDateTime = new Date(`${this.selectedTab()}T${detail.time}`);
     const when = format(startDateTime, "MMM d, yyyy 'at' h:mm a");
-    return `${this.selectedMovie().title} · ${detail.hall.name} · ${when}`;
+    const hallType = `${detail.hall.typeName}${detail.is3D ? ' (3D)' : ''}`;
+    return `${this.selectedMovie().title} · ${detail.hall.name} · ${hallType} · ${when}`;
   }
 
   private runBulkPublish(
