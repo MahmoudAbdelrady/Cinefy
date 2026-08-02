@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -26,6 +27,7 @@ import {
 } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
 import { ToastService } from 'cinefy-ui/services';
+import { skipErrorToast } from '../../../app/core/interceptors';
 import { BookingService, ShowtimeEventsService } from '../../../services';
 import { BookingTicketComponent } from '../booking-ticket/booking-ticket';
 import { comparePositions } from '../../halls/seat-layout';
@@ -40,6 +42,7 @@ import {
 } from '../../../shared/icons';
 import type {
   ActiveBooking,
+  ApiError,
   BookedSeat,
   BookingConfirmation,
   BookingRequest,
@@ -134,7 +137,7 @@ export class BookSeatsComponent {
 
   protected readonly seatSelection = signal<ShowtimeSeatSelection | null>(null);
   protected readonly loading = signal(false);
-  protected readonly failed = signal(false);
+  protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly initialLoading = computed(() => this.loading() && !this.seatSelection());
   protected readonly reloading = computed(() => this.loading() && !!this.seatSelection());
@@ -197,12 +200,12 @@ export class BookSeatsComponent {
   private loadSeatSelection(): void {
     this.loading.set(true);
     this.bookingService
-      .getSeatSelection(this.showtimeId())
+      .getSeatSelection(this.showtimeId(), skipErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (seatSelection) => {
           this.seatSelection.set(seatSelection);
-          this.failed.set(false);
+          this.errorMessage.set(null);
           this.loading.set(false);
           this.seedBookedSeats(seatSelection);
           this.showtimeEvents.notifyShowtimeOccupancyChanged(
@@ -211,8 +214,13 @@ export class BookSeatsComponent {
             seatSelection.activeBooking?.seats.length ?? 0,
           );
         },
-        error: () => {
-          this.failed.set(true);
+        error: (error: unknown) => {
+          const message =
+            error instanceof HttpErrorResponse ? (error.error as ApiError)?.message : null;
+          this.errorMessage.set(
+            message ??
+              "Something went wrong while loading this showtime's seats. Please try again.",
+          );
           this.loading.set(false);
         },
       });

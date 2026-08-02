@@ -2,11 +2,11 @@
   <div class="bs-loading">
     <loading-spinner variant="lg" />
   </div>
-} @else if (failed()) {
+} @else if (errorMessage(); as message) {
   <empty-state
     [icon]="icons.WarningIcon"
     title="Couldn't load the seat layout"
-    description="Something went wrong while loading this showtime's seats. Please try again."
+    [description]="message"
   />
 } @else if (stage() === 'done') {
   <div class="bs-done">

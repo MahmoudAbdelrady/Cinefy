@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
   BookingConfirmation,
@@ -18,8 +18,8 @@ export class BookingService {
     return this.http.get<BookingSummary[]>('/booking/active');
   }
 
-  getSeatSelection(showtimeId: string): Observable<ShowtimeSeatSelection> {
-    return this.http.get<ShowtimeSeatSelection>(`/booking/showtimes/${showtimeId}`);
+  getSeatSelection(showtimeId: string, context?: HttpContext): Observable<ShowtimeSeatSelection> {
+    return this.http.get<ShowtimeSeatSelection>(`/booking/showtimes/${showtimeId}`, { context });
   }
 
   createBooking(request: BookingRequest, idempotencyKey: string): Observable<BookingDetail> {
