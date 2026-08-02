@@ -1,0 +1,282 @@
+@use '../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+.cf-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 512px;
+  margin: 0 auto;
+  padding: 48px 16px;
+}
+
+.cf-loading {
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+}
+
+.cf-head,
+.cf-state {
+  @include lucide-icon-fix;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+  text-align: center;
+
+  .cf-badge {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    border-radius: $radius-full;
+  }
+
+  .cf-badge-success {
+    color: $color-primary;
+    background: rgba($color-primary, 0.15);
+    box-shadow: 0 0 0 4px rgba($color-primary, 0.1);
+  }
+
+  .cf-badge-failed {
+    color: $color-destructive;
+    background: rgba($color-destructive, 0.15);
+    box-shadow: 0 0 0 4px rgba($color-destructive, 0.1);
+  }
+
+  .cf-badge-pending,
+  .cf-badge-neutral {
+    color: $color-muted-foreground;
+    background: $color-secondary;
+    box-shadow: 0 0 0 4px rgba($color-border, 0.4);
+  }
+
+  .cf-title {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  .cf-note {
+    margin-top: 4px;
+    color: $color-muted-foreground;
+  }
+}
+
+.cf-ticket {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba($color-border, 0.5);
+  border-radius: $radius-xl;
+  background: $color-card;
+  box-shadow: $shadow-overlay;
+  animation-delay: 120ms;
+
+  .cf-ticket-hero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    height: 160px;
+    padding: 24px 24px 20px;
+    background: linear-gradient(125deg, $color-seat-premium, $color-seat-recliner);
+
+    .cf-ticket-backdrop {
+      position: absolute;
+      inset: 0;
+    }
+
+    .cf-ticket-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba($color-black, 0.8),
+        rgba($color-black, 0.3) 50%,
+        rgba($color-black, 0.1)
+      );
+    }
+
+    .cf-ticket-hero-meta {
+      position: relative;
+    }
+
+    .cf-movie-title {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: $color-foreground;
+      text-shadow: 0 1px 2px rgba($color-black, 0.5);
+    }
+  }
+
+  .cf-tear {
+    border-top: 1px dashed rgba($color-border, 0.6);
+  }
+
+  .cf-ticket-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 24px;
+
+    @include below-phone {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  .cf-ticket-foot {
+    @include flex-between;
+
+    padding: 16px 24px;
+    border-top: 1px solid rgba($color-border, 0.5);
+    background: rgba($color-secondary, 0.3);
+
+    .cf-paid-label {
+      font-size: 14px;
+      color: $color-muted-foreground;
+    }
+
+    .cf-paid-value {
+      font-family: $font-mono;
+      font-size: 18px;
+      font-weight: 600;
+      color: $color-primary;
+    }
+
+    .cf-paid-value-void {
+      color: $color-muted-foreground;
+      text-decoration: line-through;
+    }
+  }
+}
+
+.cf-details {
+  @include lucide-icon-fix;
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 14px;
+
+  .cf-detail {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .cf-detail-label {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 12px;
+    color: $color-muted-foreground;
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    span {
+      flex: 1;
+    }
+  }
+
+  .cf-detail-value {
+    font-family: $font-mono;
+    font-weight: 500;
+  }
+
+  .cf-detail-seats {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+
+    .cf-detail-label {
+      flex: none;
+    }
+
+    .cf-seats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      list-style: none;
+    }
+
+    .cf-seat {
+      padding: 3px 10px;
+      border: 1px solid rgba($color-border, 0.6);
+      border-radius: $radius-sm;
+      background: rgba($color-secondary, 0.4);
+    }
+  }
+}
+
+.cf-qr-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  .cf-qr {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    gap: 2px;
+    width: 112px;
+    aspect-ratio: 1;
+    padding: 8px;
+    border-radius: $radius-md;
+    background: $color-foreground;
+  }
+
+  .cf-qr-cell {
+    background: transparent;
+  }
+
+  .cf-qr-cell-on {
+    border-radius: 1px;
+    background: $color-background;
+  }
+
+  .cf-reference {
+    font-family: $font-mono;
+    font-size: 11px;
+    color: $color-muted-foreground;
+  }
+}
+
+.cf-pending-note {
+  margin-top: 24px;
+  font-size: 14px;
+  color: $color-muted-foreground;
+  text-align: center;
+  animation-delay: 160ms;
+}
+
+.cf-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+  animation-delay: 200ms;
+
+  @include below-phone {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .cf-action {
+    @include lucide-icon-fix;
+
+    text-decoration: none;
+
+    @include below-phone {
+      width: 100%;
+    }
+  }
+}

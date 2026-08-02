@@ -118,6 +118,23 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Thin scrollbar for capped lists (checkout seat list). */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--secondary) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--secondary);
+    border-radius: 999px;
+  }
 }
 
 /* ── Lightweight page-load reveal (no framer-motion dependency) ──── */
@@ -142,6 +159,48 @@
     animation: none;
     opacity: 1;
   }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   CHECKOUT — the ticket tear. The order summary and the payment
+   fork are two halves of one stub, separated by a real perforation:
+   a dashed rule with a notch bitten out of each edge. Above the
+   tear is what you're buying; below it is how you'll pay.
+   ──────────────────────────────────────────────────────────────── */
+
+/* The dashed rule stops short of each edge so it never runs through a
+   notch. The card clips its own overflow (rounded corners), so the
+   notches sit fully inside it and read as bites via their fill color. */
+.ticket-tear {
+  position: relative;
+  height: 22px;
+}
+
+.ticket-tear::before,
+.ticket-tear::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--background);
+}
+
+.ticket-tear::before {
+  left: -11px;
+}
+
+.ticket-tear::after {
+  right: -11px;
+}
+
+.ticket-tear > .ticket-tear-rule {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  right: 16px;
+  border-top: 1px dashed color-mix(in oklab, var(--border) 90%, transparent);
 }
 
 /* ────────────────────────────────────────────────────────────────

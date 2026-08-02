@@ -10,8 +10,9 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -26,7 +27,9 @@ import {
 } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
 import { ToastService } from 'cinefy-ui/services';
+import { skipErrorToast } from '../../../app/core/interceptors';
 import { BookingService, ShowtimeEventsService } from '../../../services';
+import { BookingTicketComponent } from '../booking-ticket/booking-ticket';
 import { comparePositions } from '../../halls/seat-layout';
 import {
   CheckIcon,
@@ -39,24 +42,17 @@ import {
 } from '../../../shared/icons';
 import type {
   ActiveBooking,
+  ApiError,
   BookedSeat,
+  BookingConfirmation,
   BookingRequest,
-  PaymentType,
   ShowtimeHallLayout,
   ShowtimeSeatLayout,
   ShowtimeSeatSelection,
   StaffPaymentRequest,
 } from '../../../shared/types';
 
-interface PaymentTypeEntry {
-  value: PaymentType;
-  label: string;
-}
-
-const PAYMENT_TYPE_ENTRIES: PaymentTypeEntry[] = [
-  { value: 'CASH', label: 'Cash' },
-  { value: 'CARD', label: 'Card' },
-];
+const PAYMENT_OPTIONS = [true, false];
 
 function seatCategory(id: string, layout: ShowtimeSeatLayout): SeatCategory {
   if (layout.categories.AISLE?.includes(id)) return 'AISLE';
@@ -97,6 +93,7 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
     InputField,
     ModalComponent,
     HoldTimerComponent,
+    BookingTicketComponent,
   ],
   templateUrl: './book-seats.html',
   styleUrl: './book-seats.scss',
@@ -121,25 +118,26 @@ export class BookSeatsComponent {
   protected readonly expiredDialog = viewChild.required<TemplateRef<unknown>>('expiredDialog');
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
-  protected readonly paymentTypeEntries = PAYMENT_TYPE_ENTRIES;
+  protected readonly paymentOptions = PAYMENT_OPTIONS;
 
   readonly showtimeId = input.required<string>();
   readonly container = input<string | HTMLElement | null>(null);
 
   protected readonly booking = signal(false);
   protected readonly cancelling = signal(false);
+  protected readonly settling = signal(false);
+  protected readonly issuedTicket = signal<BookingConfirmation | null>(null);
 
   protected readonly paymentForm = new FormGroup({
-    paymentType: new FormControl<PaymentType | null>(null, {
+    isCash: new FormControl<boolean | null>(null, {
       validators: [Validators.required],
     }),
-    paidAmount: new FormControl<number | null>(null),
-    paymentReference: new FormControl('', { nonNullable: true }),
+    transactionId: new FormControl('', { nonNullable: true }),
   });
 
   protected readonly seatSelection = signal<ShowtimeSeatSelection | null>(null);
   protected readonly loading = signal(false);
-  protected readonly failed = signal(false);
+  protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly initialLoading = computed(() => this.loading() && !this.seatSelection());
   protected readonly reloading = computed(() => this.loading() && !!this.seatSelection());
@@ -193,17 +191,7 @@ export class BookSeatsComponent {
     this.pricedSeats().reduce((sum, { price }) => sum + price, 0),
   );
 
-  private readonly paidAmount = toSignal(this.paymentForm.controls.paidAmount.valueChanges);
-
-  protected readonly change = computed(() => {
-    const paid = this.paidAmount();
-    if (paid === null || paid === undefined) return null;
-    const due = this.total();
-    return paid >= due ? paid - due : null;
-  });
-
-  protected readonly paymentTypeLabel = (entry: PaymentTypeEntry) => entry.label;
-  protected readonly paymentTypeValue = (entry: PaymentTypeEntry) => entry.value;
+  protected readonly paymentTypeLabel = (isCash: boolean) => (isCash ? 'Cash' : 'Card');
 
   constructor() {
     afterNextRender(() => this.loadSeatSelection());
@@ -212,12 +200,12 @@ export class BookSeatsComponent {
   private loadSeatSelection(): void {
     this.loading.set(true);
     this.bookingService
-      .getSeatSelection(this.showtimeId())
+      .getSeatSelection(this.showtimeId(), skipErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (seatSelection) => {
           this.seatSelection.set(seatSelection);
-          this.failed.set(false);
+          this.errorMessage.set(null);
           this.loading.set(false);
           this.seedBookedSeats(seatSelection);
           this.showtimeEvents.notifyShowtimeOccupancyChanged(
@@ -226,8 +214,13 @@ export class BookSeatsComponent {
             seatSelection.activeBooking?.seats.length ?? 0,
           );
         },
-        error: () => {
-          this.failed.set(true);
+        error: (error: unknown) => {
+          const message =
+            error instanceof HttpErrorResponse ? (error.error as ApiError)?.message : null;
+          this.errorMessage.set(
+            message ??
+              "Something went wrong while loading this showtime's seats. Please try again.",
+          );
           this.loading.set(false);
         },
       });
@@ -287,37 +280,43 @@ export class BookSeatsComponent {
       });
   }
 
-  protected onPaymentTypeChange(entry: PaymentTypeEntry): void {
-    const { paymentType, paidAmount, paymentReference } = this.paymentForm.controls;
-    const isCash = entry.value === 'CASH';
+  protected onPaymentTypeChange(selected: boolean): void {
+    const { isCash, transactionId } = this.paymentForm.controls;
 
-    paymentType.setValue(entry.value);
+    isCash.setValue(selected);
 
-    paidAmount.reset(null);
-    paymentReference.reset('');
-
-    paidAmount.setValidators(isCash ? [Validators.required, Validators.min(this.total())] : []);
-    paymentReference.setValidators(isCash ? [] : [Validators.required]);
-
-    paidAmount.updateValueAndValidity();
-    paymentReference.updateValueAndValidity();
+    transactionId.reset('');
+    transactionId.setValidators(selected ? [] : [Validators.required]);
+    transactionId.updateValueAndValidity();
   }
 
   protected completePayment(): void {
     const booking = this.activeBooking();
-    const { paymentType, paidAmount, paymentReference } = this.paymentForm.getRawValue();
-    if (!booking || !paymentType) return;
+    const { isCash, transactionId } = this.paymentForm.getRawValue();
+    if (!booking || isCash === null || this.settling()) return;
 
     const request: StaffPaymentRequest = {
-      paymentType,
-      ...(paymentType === 'CASH'
-        ? { paidAmount: paidAmount ?? 0 }
-        : { paymentReference: paymentReference.trim() }),
+      isCash,
+      ...(isCash ? {} : { transactionId: transactionId.trim() }),
     };
 
-    // TODO: Call backend
-
-    this.stage.set('done');
+    this.settling.set(true);
+    this.bookingService
+      .settlePayment(booking.id, request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (confirmation) => {
+          this.settling.set(false);
+          this.issuedTicket.set(confirmation);
+          this.stage.set('done');
+          this.showtimeEvents.notifyShowtimeOccupancyChanged(
+            this.showtimeId(),
+            this.seatSelection()?.hallLayout.layout.booked.length ?? 0,
+            0,
+          );
+        },
+        error: () => this.settling.set(false),
+      });
   }
 
   protected cancelPayment(close: () => void): void {
@@ -347,7 +346,8 @@ export class BookSeatsComponent {
   protected resetBooking(): void {
     this.bookedSeats.set([]);
     this.activeBooking.set(null);
-    this.paymentForm.reset({ paymentType: null, paidAmount: null, paymentReference: '' });
+    this.issuedTicket.set(null);
+    this.paymentForm.reset({ isCash: null, transactionId: '' });
     this.stage.set('seats');
     this.loadSeatSelection();
   }

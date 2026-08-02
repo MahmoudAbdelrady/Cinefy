@@ -29,6 +29,7 @@ interface Showtime {
   bookedSeats: number;
   myOnHoldSeats: number;
   totalSeats: number;
+  bookable: boolean;
 }
 
 interface PublishShowtimesInput {
@@ -59,6 +60,7 @@ interface MovieShowtimeListItem {
   bookedSeats: number;
   myOnHoldSeats: number;
   totalSeats: number;
+  bookable: boolean;
 }
 
 interface MovieShowtimeDatesResponse {

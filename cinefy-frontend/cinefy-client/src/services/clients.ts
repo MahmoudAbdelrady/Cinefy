@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, filter, Observable } from 'rxjs';
-import type { CurrentUser } from '../shared/types';
+import type { ClientPaymentMethod, CurrentUser } from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
@@ -24,5 +24,9 @@ export class ClientService {
   clearCurrentUser(): void {
     this.currentUser.next(null);
     this.currentUserRequested = false;
+  }
+
+  getPaymentMethods(): Observable<ClientPaymentMethod[]> {
+    return this.http.get<ClientPaymentMethod[]>('/clients/payment-methods');
   }
 }

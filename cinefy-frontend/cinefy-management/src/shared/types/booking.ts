@@ -31,8 +31,6 @@ interface ShowtimeSeatSelection {
   activeBooking?: ActiveBooking;
 }
 
-type PaymentType = 'CASH' | 'CARD';
-
 interface BookedSeat {
   position: string;
   category: SeatCategory;
@@ -70,9 +68,24 @@ interface BookingSummary {
 }
 
 interface StaffPaymentRequest {
-  paymentType: PaymentType;
-  paidAmount?: number;
-  paymentReference?: string;
+  isCash: boolean;
+  transactionId?: string;
+}
+
+type PaymentState = 'CONFIRMED' | 'PENDING' | 'FAILED' | 'EXPIRED' | 'REFUNDED';
+
+interface BookingConfirmation {
+  id: string;
+  paymentState: PaymentState;
+  bookingReference: string;
+  ticketToken: string | null;
+  movie: MovieSearchResult;
+  startDateTime: string;
+  hallName: string;
+  hallType: string;
+  is3D: boolean;
+  seats: BookedSeat[];
+  totalPrice: number;
 }
 
 export type {
@@ -80,10 +93,11 @@ export type {
   ShowtimeHallLayout,
   ActiveBooking,
   ShowtimeSeatSelection,
-  PaymentType,
   BookedSeat,
   BookingDetail,
   BookingRequest,
   BookingSummary,
   StaffPaymentRequest,
+  PaymentState,
+  BookingConfirmation,
 };

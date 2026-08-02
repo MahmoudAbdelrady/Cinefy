@@ -45,6 +45,10 @@ public class PaymentMethodService {
         return toDetailDTO(findPaymentMethod(uuid));
     }
 
+    public List<PaymentMethod> findActiveMethods() {
+        return paymentMethodRepository.findAllByStatusAndCurrencyAndProvider(PaymentMethodStatus.ACTIVE, "EGP", PaymentProvider.PAYMOB);
+    }
+
     @Transactional
     public PaymentMethodSummaryDTO createPaymentMethod(PaymentMethodDTO dto) {
         validateCreatePaymentMethod(dto);
@@ -195,7 +199,6 @@ public class PaymentMethodService {
         entity.setName(dto.getName());
         entity.setProvider(PaymentProvider.PAYMOB);
         entity.setType(PaymentMethodType.fromString(dto.getType()));
-        entity.setTest(dto.isTestMode());
         entity.setCurrency(dto.getCurrency().toUpperCase());
         entity.setPublicKey(dto.getPublicKey());
         entity.setIntegrationId(dto.getIntegrationId());
@@ -213,7 +216,6 @@ public class PaymentMethodService {
         dto.setName(entity.getName());
         dto.setStatus(entity.getStatus().name());
         dto.setType(entity.getType().name());
-        dto.setTestMode(entity.isTest());
         dto.setCurrency(entity.getCurrency());
         dto.setPublicKey(entity.getPublicKey());
         dto.setIntegrationId(entity.getIntegrationId());
@@ -231,7 +233,6 @@ public class PaymentMethodService {
         dto.setId(entity.getUuid());
         dto.setName(entity.getName());
         dto.setType(entity.getType().name());
-        dto.setTestMode(entity.isTest());
         dto.setCurrency(entity.getCurrency());
         dto.setPublicKey(entity.getPublicKey());
         dto.setIntegrationId(entity.getIntegrationId());

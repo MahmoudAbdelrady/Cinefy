@@ -13,7 +13,7 @@
 .co-page {
   display: block;
   width: 100%;
-  max-width: 1024px;
+  max-width: 576px;
   margin: 0 auto;
   padding: 32px 16px;
 }
@@ -51,71 +51,48 @@
   letter-spacing: -0.025em;
 }
 
-// ─── Layout grid ─────────────────────────────────────────────────────────────
-.co-grid {
-  display: grid;
-  gap: 32px;
+// ─── Ticket stub ─────────────────────────────────────────────────────────────
 
-  @include from-desktop {
-    grid-template-columns: 1fr 360px;
-  }
-
-  > * {
-    min-width: 0;
-  }
-}
-
-.co-card {
+.co-stub {
+  overflow: hidden;
   border: 1px solid rgba($color-border, 0.5);
   border-radius: $radius-xl;
   background: $color-card;
-  padding: 24px;
-}
 
-// ─── Payment form ────────────────────────────────────────────────────────────
-.co-card-title {
-  @include flex-align;
+  .co-tear {
+    position: relative;
+    height: 22px;
 
-  gap: 8px;
-  margin-bottom: 20px;
-  font-size: 16px;
-  font-weight: 600;
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: $radius-full;
+      background: $color-background;
+    }
 
-  svg {
-    color: $color-primary;
-  }
-}
+    &::before {
+      left: -11px;
+    }
 
-.co-form {
-  @include flex-column;
+    &::after {
+      right: -11px;
+    }
 
-  gap: 16px;
-}
-
-.co-form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-
-  > * {
-    min-width: 0;
+    .co-tear-rule {
+      position: absolute;
+      top: 50%;
+      right: 16px;
+      left: 16px;
+      border-top: 1px dashed rgba($color-border, 0.9);
+    }
   }
 }
 
 // ─── Order summary ───────────────────────────────────────────────────────────
-.co-summary {
-  @include from-desktop {
-    position: sticky;
-    top: 80px;
-    align-self: flex-start;
-  }
-}
-
-.co-summary-card {
-  overflow: hidden;
-  padding: 0;
-}
-
 .co-summary-movie {
   display: flex;
   gap: 16px;
@@ -261,28 +238,249 @@
   color: $color-primary;
 }
 
-// ─── Summary actions ─────────────────────────────────────────────────────────
-.co-actions {
-  @include flex-column;
+// ─── Payment fork ────────────────────────────────────────────────────────────
+.co-payment {
+  display: block;
+  padding: 20px;
 
-  gap: 8px;
-  padding: 0 20px 20px;
+  .co-methods-loading {
+    @include flex-center;
+
+    padding: 32px 16px;
+  }
+
+  .co-payment-title {
+    margin-bottom: 12px;
+    font-family: $font-mono;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: $color-muted-foreground;
+  }
+
+  .co-cards {
+    @include flex-column;
+    @include scrollbar-thin;
+
+    gap: 8px;
+    margin-bottom: 16px;
+    max-height: 350px;
+    overflow-y: auto;
+  }
+
+  .co-or {
+    @include flex-align;
+
+    gap: 12px;
+    margin: 16px 0;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      border-top: 1px solid rgba($color-border, 0.6);
+    }
+
+    span {
+      font-family: $font-mono;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: $color-muted-foreground;
+    }
+  }
+
+  .co-pay {
+    width: 100%;
+    height: 44px;
+    font-weight: 600;
+  }
+
+  .co-pay-new {
+    @include lucide-icon-fix;
+
+    justify-content: space-between;
+    width: 100%;
+    height: 44px;
+    border: 1px solid rgba($color-primary, 0.3);
+    color: $color-foreground;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+
+    &:hover:not(:disabled) {
+      border-color: rgba($color-primary, 0.5);
+      background: rgba($color-primary, 0.05);
+    }
+
+    svg {
+      color: $color-primary;
+    }
+
+    &:disabled {
+      border-color: rgba($color-border, 0.5);
+      color: $color-muted-foreground;
+      cursor: not-allowed;
+
+      svg {
+        color: $color-muted-foreground;
+      }
+    }
+  }
+
+  .co-pay-only {
+    @include lucide-icon-fix;
+
+    justify-content: space-between;
+
+    &:disabled svg {
+      opacity: 0.5;
+    }
+  }
+
+  .co-pay-label {
+    @include flex-align;
+    gap: 8px;
+  }
+
+  .co-payment-note {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: $color-muted-foreground;
+  }
 }
 
-.co-pay {
-  width: 100%;
-  height: 44px;
-  font-weight: 600;
+.co-card-option {
+  @include flex-align;
+
+  position: relative;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid rgba($color-border, 0.5);
+  border-radius: $radius-lg;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+
+  &:hover {
+    border-color: $color-border;
+    background: rgba($color-secondary, 0.3);
+  }
+
+  &:has(.co-card-radio:focus-visible) {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+
+  .co-card-radio {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .co-card-chip {
+    @include flex-center;
+
+    flex-shrink: 0;
+    width: 48px;
+    height: 36px;
+    border-radius: $radius-md;
+    background: $color-secondary;
+    font-family: $font-mono;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .co-card-detail {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .co-card-pan {
+    display: block;
+    font-family: $font-mono;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    color: $color-foreground;
+  }
+
+  .co-card-subtype {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: $color-muted-foreground;
+  }
+
+  .co-card-tick {
+    @include flex-center;
+    @include lucide-icon-fix;
+
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border: 1px solid $color-border;
+    border-radius: $radius-full;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+}
+
+.co-card-option-selected {
+  border-color: rgba($color-primary, 0.6);
+  background: rgba($color-primary, 0.05);
+
+  &:hover {
+    border-color: rgba($color-primary, 0.6);
+    background: rgba($color-primary, 0.05);
+  }
+
+  .co-card-tick {
+    border-color: $color-primary;
+    background: $color-primary;
+    color: $color-primary-foreground;
+  }
+}
+
+.co-card-option-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+
+  &:hover {
+    border-color: rgba($color-border, 0.5);
+    background: none;
+  }
+
+  &.co-card-option-selected:hover {
+    border-color: rgba($color-primary, 0.6);
+    background: rgba($color-primary, 0.05);
+  }
 }
 
 .co-cancel {
+  @include lucide-icon-fix;
+
   width: 100%;
   height: 44px;
+  margin-top: 16px;
   padding-block: 0;
   color: $color-muted-foreground;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 
   &:hover:not(:disabled) {
-    color: $color-destructive;
+    background: rgba($color-destructive, 0.15);
+    color: $color-destructive-foreground;
   }
 
   &:disabled {

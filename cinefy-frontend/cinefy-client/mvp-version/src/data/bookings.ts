@@ -1,25 +1,25 @@
-export type BookingStatus = 'active' | 'completed'
+export type BookingStatus = 'active' | 'completed';
 
 export interface Booking {
-  id: string
-  movieId: string
-  showtimeId: string
+  id: string;
+  movieId: string;
+  showtimeId: string;
   /** denormalized for easy rendering in the mock */
-  movieTitle: string
-  poster: [string, string]
+  movieTitle: string;
+  poster: [string, string];
   /** real poster image (TMDB); falls back to the gradient when absent */
-  posterUrl?: string
-  time: string
-  hall: string
-  format: string
-  date: string
-  seats: string[]
-  priceCentsEach: number
-  status: BookingStatus
+  posterUrl?: string;
+  time: string;
+  hall: string;
+  format: string;
+  date: string;
+  seats: string[];
+  priceCentsEach: number;
+  status: BookingStatus;
 }
 
 /** Seed bookings so My Tickets + Booking History have content on first load. */
-const TMDB_W500 = 'https://image.tmdb.org/t/p/w500'
+const TMDB_W500 = 'https://image.tmdb.org/t/p/w500';
 
 export const SEED_BOOKINGS: Booking[] = [
   {
@@ -82,19 +82,27 @@ export const SEED_BOOKINGS: Booking[] = [
     priceCentsEach: 2500,
     status: 'completed',
   },
-]
+];
 
-export const bookingTotalCents = (b: Booking) => b.seats.length * b.priceCentsEach
+export const bookingTotalCents = (b: Booking) => b.seats.length * b.priceCentsEach;
 
+/** Mirrors the saved-method payload the payment provider returns. */
 export interface PaymentMethod {
-  id: string
-  brand: 'Visa' | 'Mastercard' | 'Amex'
-  last4: string
-  expiry: string
-  primary: boolean
+  id: string;
+  masked_pan: string;
+  card_subtype: string;
 }
 
 export const PAYMENT_METHODS: PaymentMethod[] = [
-  { id: 'pm-1', brand: 'Visa', last4: '4242', expiry: '08/27', primary: true },
-  { id: 'pm-2', brand: 'Mastercard', last4: '8819', expiry: '11/26', primary: false },
-]
+  { id: 'pm-1', masked_pan: 'xxxx-xxxx-xxxx-0008', card_subtype: 'MasterCard' },
+  { id: 'pm-2', masked_pan: 'xxxx-xxxx-xxxx-4242', card_subtype: 'Visa' },
+];
+
+/** Short mono chip label for a subtype, e.g. "MasterCard" → "MC". */
+export function subtypeChip(cardSubtype: string): string {
+  const key = cardSubtype.toLowerCase().replace(/\s+/g, '');
+  if (key === 'mastercard') return 'MC';
+  if (key === 'americanexpress' || key === 'amex') return 'AMEX';
+  if (key === 'visa') return 'VISA';
+  return cardSubtype.slice(0, 4).toUpperCase();
+}

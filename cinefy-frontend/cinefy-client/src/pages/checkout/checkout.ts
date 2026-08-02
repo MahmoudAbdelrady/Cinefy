@@ -3,14 +3,13 @@ import {
   computed,
   DestroyRef,
   inject,
-  signal,
+  linkedSignal,
   TemplateRef,
   viewChild,
 } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { NgpDialogTrigger, NgpDialogManager } from 'ng-primitives/dialog';
@@ -18,37 +17,41 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   EmptyStateComponent,
   HoldTimerComponent,
-  InputField,
   LoadingSpinnerComponent,
   MediaImageComponent,
   ModalComponent,
 } from 'cinefy-ui/components';
 import { BookingCancelledComponent } from '../../components';
-import { BookingService } from '../../services';
+import { BookingService, ClientService } from '../../services';
 import { comparePositions } from '../../shared/seat-position';
 import { skipErrorToast } from '../../app/core/interceptors';
 import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
-import type { ApiError } from '../../shared/types';
+import type { ApiError, ClientPaymentMethod } from '../../shared/types';
 import {
   ArrowLeftIcon,
+  ArrowUpRightIcon,
   CalendarIcon,
+  CheckIcon,
   ClapperboardIcon,
   ClockIcon,
-  CreditCardIcon,
-  LockIcon,
   MapPinIcon,
   TriangleAlertIcon,
   XIcon,
 } from '../../shared/icons';
 
+const SUBTYPE_CHIP: Record<string, string> = {
+  mastercard: 'MC',
+  visa: 'VISA',
+  amex: 'AMEX',
+  americanexpress: 'AMEX',
+};
+
 @Component({
   selector: 'checkout-page',
   imports: [
     RouterLink,
-    ReactiveFormsModule,
     NgpDialogTrigger,
     LucideDynamicIcon,
-    InputField,
     MediaImageComponent,
     ModalComponent,
     HoldTimerComponent,
@@ -64,11 +67,11 @@ import {
 export class CheckoutPage {
   protected readonly icons = {
     ArrowLeftIcon,
+    ArrowUpRightIcon,
     CalendarIcon,
+    CheckIcon,
     ClapperboardIcon,
     ClockIcon,
-    CreditCardIcon,
-    LockIcon,
     MapPinIcon,
     TriangleAlertIcon,
     XIcon,
@@ -77,6 +80,7 @@ export class CheckoutPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly bookingService = inject(BookingService);
+  private readonly clientService = inject(ClientService);
   private readonly dialogManager = inject(NgpDialogManager);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -102,17 +106,31 @@ export class CheckoutPage {
     return message ?? 'Something went wrong. Please try again later.';
   });
 
-  protected readonly paymentForm = new FormGroup({
-    cardholder: new FormControl('', { nonNullable: true }),
-    cardNumber: new FormControl('', { nonNullable: true }),
-    expiry: new FormControl('', { nonNullable: true }),
-    cvc: new FormControl('', { nonNullable: true }),
+  private readonly perBooking = <T>(initial: T) =>
+    linkedSignal({ source: this.bookingId, computation: () => initial });
+
+  protected readonly processing = this.perBooking(false);
+  protected readonly redirecting = this.perBooking(false);
+  protected readonly cancelling = this.perBooking(false);
+  protected readonly cancelled = this.perBooking(false);
+  protected readonly bookingExpired = this.perBooking(false);
+
+  private readonly paymentMethodsResource = rxResource({
+    params: () => this.bookingId() ?? undefined,
+    stream: () => this.clientService.getPaymentMethods(),
   });
 
-  protected readonly processing = signal(false);
-  protected readonly cancelling = signal(false);
-  protected readonly cancelled = signal(false);
-  protected readonly bookingExpired = signal(false);
+  protected readonly savedMethods = computed(() => this.paymentMethodsResource.value() ?? []);
+  protected readonly loadingMethods = computed(() => this.paymentMethodsResource.isLoading());
+  protected readonly selectedId = this.perBooking('');
+
+  protected readonly selectedMethod = computed(() =>
+    this.savedMethods().find((method) => method.id === this.selectedId()),
+  );
+
+  protected readonly busy = computed(
+    () => this.processing() || this.redirecting() || this.bookingExpired(),
+  );
 
   protected readonly timerExpiresAt = computed(() =>
     this.cancelled() ? undefined : this.booking()?.expiresAt,
@@ -122,11 +140,57 @@ export class CheckoutPage {
     [...(this.booking()?.seats ?? [])].sort((a, b) => comparePositions(a.position, b.position)),
   );
 
-  protected readonly seatsSubtotal = computed(() =>
-    (this.booking()?.seats ?? []).reduce((sum, seat) => sum + seat.price, 0),
-  );
+  protected readonly totalPrice = computed(() => this.booking()?.totalPrice ?? 0);
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
+
+  protected readonly isSelected = (method: ClientPaymentMethod) => method.id === this.selectedId();
+
+  protected readonly brandChip = (cardBrand: string) => {
+    const key = cardBrand.toLowerCase().replace(/\s+/g, '');
+    return SUBTYPE_CHIP[key] ?? cardBrand.slice(0, 4).toUpperCase();
+  };
+
+  protected selectMethod(method: ClientPaymentMethod): void {
+    this.selectedId.set(method.id);
+  }
+
+  protected paySaved(): void {
+    const booking = this.booking();
+    const method = this.selectedMethod();
+    if (!booking || !method || this.busy()) return;
+
+    this.processing.set(true);
+    this.bookingService
+      .paySavedCard(booking.id, method.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ redirectionUrl }) => {
+          window.location.href = redirectionUrl;
+        },
+        error: () => {
+          this.processing.set(false);
+        },
+      });
+  }
+
+  protected payWithNewCard(): void {
+    const booking = this.booking();
+    if (!booking || this.busy()) return;
+
+    this.redirecting.set(true);
+    this.bookingService
+      .payBooking(booking.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ redirectionUrl }) => {
+          window.location.href = redirectionUrl;
+        },
+        error: () => {
+          this.redirecting.set(false);
+        },
+      });
+  }
 
   protected onExpired(): void {
     this.bookingExpired.set(true);

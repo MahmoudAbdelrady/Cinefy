@@ -34,4 +34,6 @@ public class ShowtimeSummaryDTO {
     private int myOnHoldSeats;
 
     private int totalSeats;
+
+    private boolean bookable;
 }

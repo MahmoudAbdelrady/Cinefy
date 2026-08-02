@@ -49,8 +49,12 @@
                       <span class="dsid-time">{{ showtimeDetail.time | time12h }}</span>
                       <div class="dsid-location">
                         <svg [lucideIcon]="icons.MapPinIcon" [size]="14"></svg>
+                        <span>{{ showtimeDetail.hall.name }}</span>
+                      </div>
+                      <div class="dsid-experience">
+                        <svg [lucideIcon]="icons.ClapperboardIcon" [size]="14"></svg>
                         <span
-                          >{{ showtimeDetail.hall.name }}
+                          >{{ showtimeDetail.hall.typeName }}
                           @if (showtimeDetail.is3D) {
                             (3D)
                           }
@@ -166,15 +170,18 @@
                         @let hasSoldOut =
                           showtimeDetail.bookedSeats === showtimeDetail.totalSeats &&
                           showtimeDetail.myOnHoldSeats === 0;
+                        @let unavailable = !showtimeDetail.bookable;
                         <button
                           class="dsi-action dsi-action-book"
                           [ngpDialogTrigger]="bookDialog"
-                          [disabled]="hasSoldOut"
+                          [disabled]="hasSoldOut || unavailable"
                         >
                           <svg [lucideIcon]="icons.TicketIcon" [size]="15"></svg>
                           <span>Book</span>
-                          @if (hasSoldOut) {
-                            <span class="sold-out-badge">Sold Out</span>
+                          @if (unavailable) {
+                            <span class="action-badge action-badge-muted">Closed</span>
+                          } @else if (hasSoldOut) {
+                            <span class="action-badge action-badge-danger">Sold Out</span>
                           }
                         </button>
                       }

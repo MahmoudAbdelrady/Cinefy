@@ -29,6 +29,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CalendarIcon,
+  ClapperboardIcon,
   DeleteIcon,
   EditIcon,
   MapPinIcon,
@@ -77,6 +78,7 @@ export class MovieShowtimesModal {
     SendIcon,
     StickyNoteIcon,
     TicketIcon,
+    ClapperboardIcon,
   };
 
   private readonly showtimesService = inject(ShowtimesService);
@@ -307,7 +309,8 @@ export class MovieShowtimesModal {
   protected getShowtimeSummary(detail: MovieShowtimeListItem): string {
     const startDateTime = new Date(`${this.selectedTab()}T${detail.time}`);
     const when = format(startDateTime, "MMM d, yyyy 'at' h:mm a");
-    return `${this.selectedMovie().title} · ${detail.hall.name} · ${when}`;
+    const hallType = `${detail.hall.typeName}${detail.is3D ? ' (3D)' : ''}`;
+    return `${this.selectedMovie().title} · ${detail.hall.name} · ${hallType} · ${when}`;
   }
 
   private runBulkPublish(
@@ -440,7 +443,7 @@ export class MovieShowtimesModal {
 
   private applyLocalPublish(id: string): void {
     this.movieShowtimeDetails.update((list) =>
-      list.map((s) => (s.id === id ? { ...s, status: 'PUBLISHED' } : s)),
+      list.map((s) => (s.id === id ? { ...s, status: 'PUBLISHED', bookable: true } : s)),
     );
     this.dayDrafts.update((n) => n - 1);
     this.movieShowtimes.update((m) =>
@@ -452,7 +455,7 @@ export class MovieShowtimesModal {
 
   private applyLocalBulkPublish(remainingDrafts: number): void {
     this.movieShowtimeDetails.update((list) =>
-      list.map((s) => (s.status === 'DRAFT' ? { ...s, status: 'PUBLISHED' } : s)),
+      list.map((s) => (s.status === 'DRAFT' ? { ...s, status: 'PUBLISHED', bookable: true } : s)),
     );
     this.dayDrafts.set(0);
     this.movieShowtimes.update((m) =>
@@ -495,6 +498,7 @@ export class MovieShowtimesModal {
       bookedSeats: showtime.bookedSeats,
       myOnHoldSeats: showtime.myOnHoldSeats,
       totalSeats: showtime.totalSeats,
+      bookable: showtime.bookable,
     };
   }
 

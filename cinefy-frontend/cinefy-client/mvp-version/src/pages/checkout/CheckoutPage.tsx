@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
-import { ArrowLeft, Clock, CreditCard, Lock, ShieldCheck, X } from 'lucide-react'
+import { ArrowLeft, ArrowUpRight, Check, Clock, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -10,12 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Poster } from '@/components/poster/Poster'
 import { useBookings } from '@/app/BookingsProvider'
 import { cn } from '@/lib/utils'
-import { surchargeForSeats } from '@/data/hall'
+import { seatsByIds, tierLabel } from '@/data/hall'
+import { PAYMENT_METHODS, subtypeChip, type PaymentMethod } from '@/data/bookings'
 import {
   formatLongDate,
   formatPrice,
@@ -38,7 +37,10 @@ export function CheckoutPage() {
   const { state } = useLocation() as { state: CheckoutState | null }
   const navigate = useNavigate()
   const { bookings, addBooking } = useBookings()
+  const [savedMethods] = useState<PaymentMethod[]>(PAYMENT_METHODS)
+  const [selectedId, setSelectedId] = useState(savedMethods[0]?.id ?? '')
   const [processing, setProcessing] = useState(false)
+  const [redirecting, setRedirecting] = useState(false)
   const [confirmingCancel, setConfirmingCancel] = useState(false)
   const [cancelled, setCancelled] = useState(false)
   const [secondsLeft, setSecondsLeft] = useState(HOLD_SECONDS)
@@ -62,13 +64,22 @@ export function CheckoutPage() {
   if (!movie || !showtime || seats.length === 0) return <NoOrder />
   if (cancelled) return <Cancelled movieId={movie.id} />
 
-  const seatsSubtotal =
-    seats.length * showtime.priceCents + surchargeForSeats(seats)
+  /* One priced line per seat, so the summary reads back exactly what each
+     seat costs — the base showtime price plus its tier surcharge. */
+  const seatLines = seatsByIds(seats).map((seat) => ({
+    id: seat.id,
+    tier: tierLabel[seat.tier],
+    priceCents: showtime.priceCents + seat.surchargeCents,
+  }))
+  const seatsSubtotal = seatLines.reduce((sum, line) => sum + line.priceCents, 0)
   const fees = seats.length * FEE_CENTS
   const total = seatsSubtotal + fees
 
-  const pay = () => {
-    setProcessing(true)
+  const selected = savedMethods.find((m) => m.id === selectedId)
+  const expired = secondsLeft <= 0
+  const busy = processing || redirecting || expired
+
+  const completeBooking = () => {
     const id = resume?.id ?? `bk-${4000 + bookings.length}`
     const booking = {
       id,
@@ -88,8 +99,21 @@ export function CheckoutPage() {
     navigate('/confirmation', { state: { bookingId: id, booking } })
   }
 
+  const payWithSaved = () => {
+    if (!selected) return
+    setProcessing(true)
+    completeBooking()
+  }
+
+  /* The real flow asks the backend for a redirect URL and sends the
+     browser to the provider's page. The mock stands in for the hop. */
+  const payWithNewCard = () => {
+    setRedirecting(true)
+    setTimeout(completeBooking, 900)
+  }
+
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-8">
+    <div className="mx-auto w-full max-w-xl px-4 py-8">
       <Button asChild variant="ghost" size="sm" className="mb-6 gap-2">
         <Link to={`/movies/${movie.id}`}>
           <ArrowLeft className="size-4" />
@@ -97,7 +121,7 @@ export function CheckoutPage() {
         </Link>
       </Button>
 
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Checkout</h1>
 
         <div
@@ -109,105 +133,95 @@ export function CheckoutPage() {
           )}
         >
           <Clock className="size-4" />
-          <span className="tabular-nums font-medium">{formatCountdown(secondsLeft)}</span>
+          <span className="tabular-nums font-medium">
+            {expired ? 'Hold expired' : formatCountdown(secondsLeft)}
+          </span>
         </div>
-      </div>
+      </header>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-        {/* payment form */}
-        <section className="reveal">
-          <div className="rounded-xl border border-border/50 bg-card p-6">
-            <h2 className="mb-5 flex items-center gap-2 font-semibold">
-              <CreditCard className="size-4 text-amber" />
-              Payment details
-            </h2>
-
-            <div className="space-y-4">
-              <Field label="Cardholder name" htmlFor="name">
-                <Input id="name" placeholder="Alex Vance" autoComplete="off" />
-              </Field>
-              <Field label="Card number" htmlFor="card">
-                <Input
-                  id="card"
-                  inputMode="numeric"
-                  placeholder="4242 4242 4242 4242"
-                  className="font-mono"
-                  autoComplete="off"
-                />
-              </Field>
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Expiry" htmlFor="exp">
-                  <Input id="exp" placeholder="MM / YY" className="font-mono" />
-                </Field>
-                <Field label="CVC" htmlFor="cvc">
-                  <Input id="cvc" placeholder="123" className="font-mono" />
-                </Field>
-              </div>
-            </div>
-
-            <p className="mt-5 flex items-center gap-2 text-xs text-muted-foreground">
-              <ShieldCheck className="size-3.5 text-amber" />
-              This is a design mock — no real payment is processed.
+      <div className="reveal overflow-hidden rounded-2xl border border-border/50 bg-card">
+        {/* what you're buying */}
+        <div className="flex gap-4 p-5">
+          <Poster movie={movie} className="aspect-2/3 w-16 shrink-0 rounded-lg" />
+          <div className="min-w-0 flex-1 space-y-1">
+            <p className="truncate font-semibold leading-tight">{movie.title}</p>
+            <p className="font-mono text-xs text-muted-foreground">
+              {showtime.hall} · {showtime.format} · {formatRuntime(movie.durationMins)}
+            </p>
+            <p className="font-mono text-xs text-muted-foreground">
+              {formatLongDate(showtime.date)} · {showtime.time}
             </p>
           </div>
-        </section>
+        </div>
 
-        {/* order summary */}
-        <aside className="reveal lg:sticky lg:top-20 lg:self-start" style={{ animationDelay: '90ms' }}>
-          <div className="overflow-hidden rounded-xl border border-border/50 bg-card">
-            <div className="flex gap-4 p-5">
-              <Poster movie={movie} className="aspect-2/3 w-20 shrink-0 rounded-lg" />
-              <div className="min-w-0 space-y-1">
-                <p className="truncate font-semibold leading-tight">{movie.title}</p>
-                <p className="font-mono text-xs text-muted-foreground">
-                  {showtime.hall} · {showtime.format}
-                </p>
-                <p className="font-mono text-xs text-muted-foreground">
-                  {formatLongDate(showtime.date)} · {showtime.time}
-                </p>
-                <p className="font-mono text-xs text-muted-foreground">
-                  {formatRuntime(movie.durationMins)}
-                </p>
-              </div>
+        <div className="px-5 pb-5 text-sm">
+          <p className="mb-2 font-semibold">
+            Seats <span className="font-normal text-muted-foreground">({seats.length})</span>
+          </p>
+
+          <dl>
+            <div className="scrollbar-thin max-h-40 space-y-2 overflow-y-auto">
+              {seatLines.map((line) => (
+                <div key={line.id} className="flex items-baseline justify-between gap-3 pr-1">
+                  <dt className="min-w-0">
+                    <span className="font-mono">{line.id}</span>{' '}
+                    <span className="text-muted-foreground">({line.tier})</span>
+                  </dt>
+                  <dd className="shrink-0 font-mono">{formatPrice(line.priceCents)}</dd>
+                </div>
+              ))}
             </div>
 
-            <div className="border-t border-border/50" />
-
-            <dl className="space-y-2 p-5 text-sm">
-              <Row label={`Seats (${seats.length})`} value={seats.join(' · ')} />
-              <Row label="Tickets" value={formatPrice(seatsSubtotal)} />
+            <div className="mt-2 space-y-2 border-t border-border/50 pt-2">
               <Row label="Booking fee" value={formatPrice(fees)} />
-              <div className="my-1 border-t border-border/50" />
-              <div className="flex items-center justify-between pt-1 text-base font-bold">
+              <div className="flex items-baseline justify-between pt-1 text-base font-bold">
                 <dt>Total</dt>
                 <dd className="font-mono text-amber">{formatPrice(total)}</dd>
               </div>
-            </dl>
-
-            <div className="space-y-2 p-5 pt-0">
-              <Button
-                size="lg"
-                className="w-full gap-2 bg-amber font-semibold text-primary-foreground hover:bg-amber/90"
-                disabled={processing}
-                onClick={pay}
-              >
-                <Lock className="size-4" />
-                Pay {formatPrice(total)}
-              </Button>
-              <Button
-                size="lg"
-                variant="ghost"
-                className="w-full gap-2 text-muted-foreground hover:text-destructive"
-                disabled={processing}
-                onClick={() => setConfirmingCancel(true)}
-              >
-                <X className="size-4" />
-                Cancel Booking
-              </Button>
             </div>
-          </div>
-        </aside>
+          </dl>
+        </div>
+
+        <div className="ticket-tear">
+          <span className="ticket-tear-rule" />
+        </div>
+
+        {/* how you'll pay */}
+        <div className="p-5">
+          {savedMethods.length > 0 ? (
+            <SavedCardFork
+              methods={savedMethods}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              selected={selected}
+              total={total}
+              busy={busy}
+              processing={processing}
+              redirecting={redirecting}
+              onPaySaved={payWithSaved}
+              onPayNew={payWithNewCard}
+            />
+          ) : (
+            <FirstCard
+              total={total}
+              busy={busy}
+              redirecting={redirecting}
+              onPayNew={payWithNewCard}
+            />
+          )}
+        </div>
       </div>
+
+      <Button
+        variant="ghost"
+        size="sm"
+        className="mt-4 w-full gap-2 text-muted-foreground hover:text-destructive"
+        disabled={processing || redirecting}
+        onClick={() => setConfirmingCancel(true)}
+      >
+        <X className="size-4" />
+        Cancel booking
+      </Button>
 
       <Dialog open={confirmingCancel} onOpenChange={setConfirmingCancel}>
         <DialogContent className="border-border/50 bg-popover sm:max-w-md">
@@ -230,7 +244,7 @@ export function CheckoutPage() {
               }}
             >
               <X className="size-4" />
-              Cancel Booking
+              Cancel booking
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -239,29 +253,187 @@ export function CheckoutPage() {
   )
 }
 
+/**
+ * The returning customer: pick a saved card and pay here, or leave for the
+ * provider's page. Filled amber means "completes here"; the outline button
+ * with the corner arrow means "you're leaving the site".
+ */
+function SavedCardFork({
+  methods,
+  selectedId,
+  onSelect,
+  selected,
+  total,
+  busy,
+  processing,
+  redirecting,
+  onPaySaved,
+  onPayNew,
+}: {
+  methods: PaymentMethod[]
+  selectedId: string
+  onSelect: (id: string) => void
+  selected: PaymentMethod | undefined
+  total: number
+  busy: boolean
+  processing: boolean
+  redirecting: boolean
+  onPaySaved: () => void
+  onPayNew: () => void
+}) {
+  return (
+    <>
+      <h2 className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+        Pay with a saved card
+      </h2>
+
+      <div className="space-y-2" role="radiogroup">
+        {methods.map((method) => (
+          <SavedCardOption
+            key={method.id}
+            method={method}
+            checked={method.id === selectedId}
+            onSelect={() => onSelect(method.id)}
+          />
+        ))}
+      </div>
+
+      <Button
+        size="lg"
+        className="mt-4 w-full bg-amber font-semibold text-primary-foreground hover:bg-amber/90"
+        disabled={busy || !selected}
+        onClick={onPaySaved}
+      >
+        {processing ? 'Paying…' : `Pay ${formatPrice(total)}`}
+      </Button>
+
+      <div className="my-4 flex items-center gap-3">
+        <span className="h-px flex-1 bg-border/60" />
+        <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+          or
+        </span>
+        <span className="h-px flex-1 bg-border/60" />
+      </div>
+
+      <Button
+        size="lg"
+        variant="outline"
+        className="w-full justify-between border-amber/30 text-foreground hover:border-amber/50 hover:bg-amber/5"
+        disabled={busy}
+        onClick={onPayNew}
+      >
+        {redirecting ? 'Opening secure page…' : 'Pay with another card'}
+        <ArrowUpRight className="size-4 text-amber" />
+      </Button>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Opens your bank's secure page. Your seats stay held while you pay.
+      </p>
+    </>
+  )
+}
+
+/**
+ * No saved cards: there is no fork, so the redirect stops being the
+ * secondary option and becomes the only — and primary — action.
+ */
+function FirstCard({
+  total,
+  busy,
+  redirecting,
+  onPayNew,
+}: {
+  total: number
+  busy: boolean
+  redirecting: boolean
+  onPayNew: () => void
+}) {
+  return (
+    <>
+      <h2 className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+        Payment
+      </h2>
+
+      <Button
+        size="lg"
+        className="w-full justify-between bg-amber font-semibold text-primary-foreground hover:bg-amber/90"
+        disabled={busy}
+        onClick={onPayNew}
+      >
+        {redirecting ? 'Opening secure page…' : `Pay ${formatPrice(total)}`}
+        <ArrowUpRight className="size-4" />
+      </Button>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Opens your bank's secure page. Your seats stay held while you pay.
+      </p>
+    </>
+  )
+}
+
+/**
+ * The mask is dimmed and the last four sit at full weight — those are the
+ * digits a person actually recognizes their own card by.
+ */
+function SavedCardOption({
+  method,
+  checked,
+  onSelect,
+}: {
+  method: PaymentMethod
+  checked: boolean
+  onSelect: () => void
+}) {
+  const groups = method.masked_pan.split('-')
+  const last = groups.length - 1
+
+  return (
+    <label
+      className={cn(
+        'flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-colors',
+        checked
+          ? 'border-amber/60 bg-amber/5'
+          : 'border-border/50 hover:border-border hover:bg-secondary/30',
+        'has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-card',
+      )}
+    >
+      <input
+        type="radio"
+        name="saved-card"
+        className="sr-only"
+        checked={checked}
+        onChange={onSelect}
+      />
+
+      <span className="grid h-9 w-12 shrink-0 place-items-center rounded-md bg-secondary font-mono text-[10px] font-semibold tracking-wider">
+        {subtypeChip(method.card_subtype)}
+      </span>
+
+      <span className="min-w-0 flex-1">
+        <span className="block font-mono text-sm tracking-[0.12em]">
+          {groups.map((group, i) => (
+            <span key={i} className={i === last ? 'text-foreground' : 'text-muted-foreground/50'}>
+              {i === last ? group : '••••'}{' '}
+            </span>
+          ))}
+        </span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{method.card_subtype}</span>
+      </span>
+
+      <span
+        className={cn(
+          'grid size-5 shrink-0 place-items-center rounded-full border transition-colors',
+          checked ? 'border-amber bg-amber text-primary-foreground' : 'border-border',
+        )}
+      >
+        {checked && <Check className="size-3" strokeWidth={3} />}
+      </span>
+    </label>
+  )
+}
+
 function formatCountdown(seconds: number) {
   const mins = Math.floor(seconds / 60)
   const secs = seconds % 60
   return `${mins}:${secs.toString().padStart(2, '0')}`
-}
-
-function Field({
-  label,
-  htmlFor,
-  children,
-}: {
-  label: string
-  htmlFor: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={htmlFor} className="text-xs text-muted-foreground">
-        {label}
-      </Label>
-      {children}
-    </div>
-  )
 }
 
 function Row({ label, value }: { label: string; value: string }) {

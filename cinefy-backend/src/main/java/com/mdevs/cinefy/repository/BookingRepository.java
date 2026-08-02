@@ -4,7 +4,9 @@ import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookingCountsProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -51,6 +53,8 @@ public interface BookingRepository extends BaseRepository<Booking> {
             """)
     boolean existsBookedSeatByShowtimeIn(@Param("showtimeIds") List<Long> showtimeIds,
                                          @Param("now") LocalDateTime now);
+
+    boolean existsByPaymentTransactionId(String paymentTransactionId);
 
     @Query("""
             SELECT bs.showtime.id AS showtimeId, COUNT(bs.id) AS bookedSeats
@@ -147,6 +151,10 @@ public interface BookingRepository extends BaseRepository<Booking> {
             WHERE b.uuid = :uuid
             """)
     Optional<Booking> findByUuidWithDetail(@Param("uuid") String uuid);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT b FROM Booking b WHERE b.uuid = :uuid")
+    Optional<Booking> findByUuidForUpdate(@Param("uuid") String uuid);
 
     @Modifying
     @Query("DELETE FROM BookingSeat bs WHERE bs.booking.id IN :bookingIds")

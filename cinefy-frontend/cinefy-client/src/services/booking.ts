@@ -2,10 +2,13 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
+  BookingConfirmation,
   BookingDetail,
   BookingRequest,
   BookingSummary,
   HallTypeShowtimes,
+  PaymentRedirection,
+  SavedCardPaymentRequest,
   SeatSelection,
 } from '../shared/types';
 
@@ -35,6 +38,10 @@ export class BookingService {
     return this.http.get<BookingDetail>(`/booking/active/${uuid}`, { context });
   }
 
+  getBookingConfirmation(uuid: string, context?: HttpContext): Observable<BookingConfirmation> {
+    return this.http.get<BookingConfirmation>(`/booking/${uuid}/confirmation`, { context });
+  }
+
   createBooking(request: BookingRequest, idempotencyKey: string): Observable<BookingDetail> {
     const headers = new HttpHeaders({ 'Idempotency-Key': idempotencyKey });
     return this.http.post<BookingDetail>('/booking', request, { headers });
@@ -42,5 +49,14 @@ export class BookingService {
 
   cancelBooking(uuid: string, context?: HttpContext): Observable<void> {
     return this.http.delete<void>(`/booking/${uuid}`, { context });
+  }
+
+  payBooking(uuid: string): Observable<PaymentRedirection> {
+    return this.http.post<PaymentRedirection>(`/booking/${uuid}/pay`, null);
+  }
+
+  paySavedCard(uuid: string, paymentMethodId: string): Observable<PaymentRedirection> {
+    const payload: SavedCardPaymentRequest = { paymentMethodId };
+    return this.http.post<PaymentRedirection>(`/booking/${uuid}/pay-saved-card`, payload);
   }
 }

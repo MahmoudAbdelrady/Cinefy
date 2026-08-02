@@ -27,4 +27,6 @@ public class MovieShowtimeListItemDTO {
     private int myOnHoldSeats;
 
     private int totalSeats;
+
+    private boolean bookable;
 }

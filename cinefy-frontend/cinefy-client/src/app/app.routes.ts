@@ -3,6 +3,7 @@ import { AppLayout } from '../layout/app-layout/app-layout';
 import { AuthLayout } from '../layout/auth-layout/auth-layout';
 import { authGuard, guestGuard } from '../shared/guards';
 import {
+  BookingConfirmationPage,
   CheckoutPage,
   ForgotPasswordPage,
   HomePage,
@@ -57,6 +58,11 @@ export const routes: Routes = [
       {
         path: 'checkout/:bookingId',
         component: CheckoutPage,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'booking-confirmation/:bookingId',
+        component: BookingConfirmationPage,
         canActivate: [authGuard],
       },
     ],

@@ -18,7 +18,7 @@ export type {
   VerifyOtpPayload,
   ResetPasswordPayload,
 } from './auth';
-export type { CurrentUser } from './clients';
+export type { CurrentUser, ClientPaymentMethod, SavedCardPaymentRequest } from './clients';
 export type { ApiError, ApiErrorCode } from './api';
 export type {
   BookingShowtime,
@@ -28,6 +28,9 @@ export type {
   BookingSummary,
   BookedSeat,
   BookingDetail,
+  PaymentState,
+  BookingConfirmation,
   BookingRequest,
+  PaymentRedirection,
 } from './booking';
 export type { SelectableSeatCategory, SeatLayout, SeatLayoutResponse, TicketPrice } from './seats';

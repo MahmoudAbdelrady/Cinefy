@@ -21,8 +21,6 @@ public class PaymentMethodSummaryDTO {
 
     private String type;
 
-    private boolean isTestMode;
-
     private String currency;
 
     private String publicKey;

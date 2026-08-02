@@ -1,0 +1,208 @@
+<main class="cf-page">
+  @switch (state().status) {
+    @case ('loading') {
+      <div class="cf-loading">
+        <loading-spinner variant="lg" />
+      </div>
+    }
+    @case ('notFound') {
+      <div class="cf-state reveal">
+        <span class="cf-badge cf-badge-neutral">
+          <svg [lucideIcon]="icons.SearchXIcon" [size]="32" [strokeWidth]="2.5"></svg>
+        </span>
+        <h1 class="cf-title">Booking not found</h1>
+        <p class="cf-note">
+          This booking is not available. If a payment was taken for it, the amount will be refunded
+          to your card.
+        </p>
+        <div class="cf-actions">
+          <a class="btn-primary cf-action" routerLink="/movies">
+            <svg [lucideIcon]="icons.ClapperboardIcon" [size]="16"></svg>
+            Browse movies
+          </a>
+        </div>
+      </div>
+    }
+    @case ('paymentNotAttempted') {
+      <div class="cf-state reveal">
+        <span class="cf-badge cf-badge-neutral">
+          <svg [lucideIcon]="icons.TicketIcon" [size]="32" [strokeWidth]="2.5"></svg>
+        </span>
+        <h1 class="cf-title">Payment not started</h1>
+        <p class="cf-note">
+          This booking is still held for you, but no payment has been made yet. Complete the
+          checkout to confirm your tickets.
+        </p>
+        <div class="cf-actions">
+          <a class="btn-primary cf-action" routerLink="/checkout/{{ bookingId() }}">
+            <svg [lucideIcon]="icons.RotateCcwIcon" [size]="16"></svg>
+            Go to checkout
+          </a>
+        </div>
+      </div>
+    }
+    @case ('error') {
+      <div class="cf-state reveal">
+        <span class="cf-badge cf-badge-failed">
+          <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="32" [strokeWidth]="2.5"></svg>
+        </span>
+        <h1 class="cf-title">Something went wrong</h1>
+        <p class="cf-note">We could not load this booking. Please try again in a moment.</p>
+        <div class="cf-actions">
+          <a class="btn-primary cf-action" routerLink="/profile">
+            <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+            View my bookings
+          </a>
+        </div>
+      </div>
+    }
+    @default {
+      @if (booking(); as booking) {
+        <div class="cf-head reveal">
+          @switch (paymentState()) {
+            @case ('PENDING') {
+              <span class="cf-badge cf-badge-pending">
+                <loading-spinner variant="xl" />
+              </span>
+            }
+            @case ('FAILED') {
+              <span class="cf-badge cf-badge-failed">
+                <svg [lucideIcon]="icons.XIcon" [size]="32" [strokeWidth]="3"></svg>
+              </span>
+            }
+            @case ('EXPIRED') {
+              <span class="cf-badge cf-badge-neutral">
+                <svg [lucideIcon]="icons.ClockIcon" [size]="32" [strokeWidth]="2.5"></svg>
+              </span>
+            }
+            @case ('REFUNDED') {
+              <span class="cf-badge cf-badge-neutral">
+                <svg [lucideIcon]="icons.RotateCcwIcon" [size]="32" [strokeWidth]="2.5"></svg>
+              </span>
+            }
+            @default {
+              <span class="cf-badge cf-badge-success">
+                <svg [lucideIcon]="icons.CheckIcon" [size]="32" [strokeWidth]="3"></svg>
+              </span>
+            }
+          }
+
+          <h1 class="cf-title">{{ heading()?.title }}</h1>
+          <p class="cf-note">{{ heading()?.note }}</p>
+        </div>
+
+        <div class="cf-ticket reveal">
+          <div class="cf-ticket-hero">
+            <div class="cf-ticket-backdrop">
+              <media-image
+                [src]="booking.movie.backdropUrl"
+                [alt]="booking.movie.title + ' backdrop'"
+              />
+            </div>
+            <div class="cf-ticket-scrim"></div>
+            <div class="cf-ticket-hero-meta">
+              <h2 class="cf-movie-title">{{ booking.movie.title }}</h2>
+            </div>
+          </div>
+
+          <div class="cf-tear"></div>
+
+          <div class="cf-ticket-body">
+            <dl class="cf-details">
+              <div class="cf-detail">
+                <dt class="cf-detail-label">
+                  <svg [lucideIcon]="icons.MapPinIcon" [size]="16"></svg>
+                  <span>Hall</span>
+                </dt>
+                <dd class="cf-detail-value">{{ booking.hallName }}</dd>
+              </div>
+              <div class="cf-detail">
+                <dt class="cf-detail-label">
+                  <svg [lucideIcon]="icons.ClapperboardIcon" [size]="16"></svg>
+                  <span>Experience</span>
+                </dt>
+                <dd class="cf-detail-value">
+                  {{ booking.hallType }}
+                  @if (booking.is3D) {
+                    <span>(3D)</span>
+                  }
+                </dd>
+              </div>
+              <div class="cf-detail">
+                <dt class="cf-detail-label">
+                  <svg [lucideIcon]="icons.CalendarIcon" [size]="16"></svg>
+                  <span>Date</span>
+                </dt>
+                <dd class="cf-detail-value">{{ booking.startDateTime | date: 'MMM d, y' }}</dd>
+              </div>
+              <div class="cf-detail">
+                <dt class="cf-detail-label">
+                  <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
+                  <span>Time</span>
+                </dt>
+                <dd class="cf-detail-value">{{ booking.startDateTime | date: 'shortTime' }}</dd>
+              </div>
+              <div class="cf-detail cf-detail-seats">
+                <dt class="cf-detail-label">
+                  <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+                  <span>Seats ({{ booking.seats.length }})</span>
+                </dt>
+                <dd class="cf-detail-value">
+                  <ul class="cf-seats">
+                    @for (position of seatPositions(); track $index) {
+                      <li class="cf-seat">{{ position }}</li>
+                    }
+                  </ul>
+                </dd>
+              </div>
+            </dl>
+
+            @if (paymentState() === 'CONFIRMED') {
+              <div class="cf-qr-block">
+                <div class="cf-qr">
+                  @for (cell of qrCells(); track $index) {
+                    <span class="cf-qr-cell" [class.cf-qr-cell-on]="cell"></span>
+                  }
+                </div>
+                <span class="cf-reference">#{{ booking.bookingReference }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="cf-ticket-foot">
+            <span class="cf-paid-label">{{
+              paymentState() === 'CONFIRMED' ? 'Paid' : 'Total'
+            }}</span>
+            <span class="cf-paid-value" [class.cf-paid-value-void]="isVoided()">
+              {{ booking.totalPrice | currency: 'USD' }}
+            </span>
+          </div>
+        </div>
+
+        @if (paymentState() === 'PENDING') {
+          <p class="cf-pending-note reveal">
+            This page will update automatically. Please do not submit another payment.
+          </p>
+        } @else {
+          <div class="cf-actions reveal">
+            @if (paymentState() === 'FAILED') {
+              <a class="btn-primary cf-action" routerLink="/checkout/{{ bookingId() }}">
+                <svg [lucideIcon]="icons.RotateCcwIcon" [size]="16"></svg>
+                Try again
+              </a>
+            } @else {
+              <a class="btn-secondary cf-action" routerLink="/movies">
+                <svg [lucideIcon]="icons.ClapperboardIcon" [size]="16"></svg>
+                Browse movies
+              </a>
+              <a class="btn-primary cf-action" routerLink="/profile">
+                <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+                View my bookings
+              </a>
+            }
+          </div>
+        }
+      }
+    }
+  }
+</main>

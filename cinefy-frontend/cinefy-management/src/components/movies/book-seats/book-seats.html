@@ -2,11 +2,11 @@
   <div class="bs-loading">
     <loading-spinner variant="lg" />
   </div>
-} @else if (failed()) {
+} @else if (errorMessage(); as message) {
   <empty-state
     [icon]="icons.WarningIcon"
     title="Couldn't load the seat layout"
-    description="Something went wrong while loading this showtime's seats. Please try again."
+    [description]="message"
   />
 } @else if (stage() === 'done') {
   <div class="bs-done">
@@ -15,6 +15,10 @@
     </div>
     <h3 class="bs-done-title">Payment complete</h3>
     <p class="bs-done-message">The seats are booked and the ticket has been issued.</p>
+
+    @if (issuedTicket(); as ticket) {
+      <booking-ticket [ticket]="ticket" />
+    }
 
     <button type="button" class="btn-primary bs-done-action" (click)="resetBooking()">
       <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
@@ -98,47 +102,6 @@
             </button>
           } @else {
             <form class="bs-payment" [formGroup]="paymentForm" (ngSubmit)="completePayment()">
-              <custom-select
-                label="Payment type"
-                [required]="true"
-                [items]="paymentTypeEntries"
-                [control]="paymentForm.controls.paymentType"
-                [displayFn]="paymentTypeLabel"
-                [valueFn]="paymentTypeValue"
-                [container]="container()"
-                placeholder="Select payment type"
-                [errorMessages]="{ required: 'Payment type is required' }"
-                (selectionChange)="onPaymentTypeChange($event)"
-              />
-
-              @if (paymentForm.controls.paymentType.value === 'CASH') {
-                <div class="bs-payment-field">
-                  <input-field
-                    type="number"
-                    placeholder="Enter paid amount"
-                    [control]="paymentForm.controls.paidAmount"
-                    [errorMessages]="{
-                      required: 'Paid amount is required',
-                      min: 'Amount must be at least ' + (total() | currency: 'USD'),
-                    }"
-                  />
-
-                  @if (change(); as changeDue) {
-                    <p class="bs-change">
-                      Change:
-                      <span class="bs-change-value">{{ changeDue | currency: 'USD' }}</span>
-                    </p>
-                  }
-                </div>
-              } @else if (paymentForm.controls.paymentType.value === 'CARD') {
-                <input-field
-                  placeholder="Enter payment reference"
-                  hint="The reference returned by the payment gateway."
-                  [control]="paymentForm.controls.paymentReference"
-                  [errorMessages]="{ required: 'Payment reference is required' }"
-                />
-              }
-
               @if (selectionChanged()) {
                 <button
                   type="button"
@@ -153,16 +116,41 @@
                     <span>Update booking</span>
                   }
                 </button>
-              }
+              } @else {
+                <custom-select
+                  label="Payment type"
+                  [required]="true"
+                  [items]="paymentOptions"
+                  [control]="paymentForm.controls.isCash"
+                  [displayFn]="paymentTypeLabel"
+                  [container]="container()"
+                  placeholder="Select payment type"
+                  [errorMessages]="{ required: 'Payment type is required' }"
+                  (selectionChange)="onPaymentTypeChange($event)"
+                />
 
-              <button
-                type="submit"
-                class="btn-success bs-complete"
-                [disabled]="paymentForm.invalid"
-              >
-                <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
-                <span>Complete payment</span>
-              </button>
+                @if (paymentForm.controls.isCash.value === false) {
+                  <input-field
+                    placeholder="Enter reference number"
+                    hint="Printed on the payment receipt."
+                    [control]="paymentForm.controls.transactionId"
+                    [errorMessages]="{ required: 'Reference number is required' }"
+                  />
+                }
+
+                <button
+                  type="submit"
+                  class="btn-success bs-complete"
+                  [disabled]="paymentForm.invalid || settling()"
+                >
+                  @if (settling()) {
+                    <loading-spinner variant="xs" />
+                  } @else {
+                    <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
+                    <span>Complete payment</span>
+                  }
+                </button>
+              }
             </form>
           }
         }

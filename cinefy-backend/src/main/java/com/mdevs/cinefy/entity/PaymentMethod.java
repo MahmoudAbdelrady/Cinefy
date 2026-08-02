@@ -38,9 +38,6 @@ public class PaymentMethod extends BaseEntity {
     @Column(nullable = false)
     private PaymentMethodType type;
 
-    @Column(nullable = false)
-    private boolean isTest = false;
-
     @Column(nullable = false, columnDefinition = "TEXT")
     private String secretKey;
 

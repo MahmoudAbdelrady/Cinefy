@@ -1,11 +1,13 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
+  BookingConfirmation,
   BookingDetail,
   BookingRequest,
   BookingSummary,
   ShowtimeSeatSelection,
+  StaffPaymentRequest,
 } from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
@@ -16,8 +18,8 @@ export class BookingService {
     return this.http.get<BookingSummary[]>('/booking/active');
   }
 
-  getSeatSelection(showtimeId: string): Observable<ShowtimeSeatSelection> {
-    return this.http.get<ShowtimeSeatSelection>(`/booking/showtimes/${showtimeId}`);
+  getSeatSelection(showtimeId: string, context?: HttpContext): Observable<ShowtimeSeatSelection> {
+    return this.http.get<ShowtimeSeatSelection>(`/booking/showtimes/${showtimeId}`, { context });
   }
 
   createBooking(request: BookingRequest, idempotencyKey: string): Observable<BookingDetail> {
@@ -27,5 +29,9 @@ export class BookingService {
 
   cancelBooking(uuid: string): Observable<void> {
     return this.http.delete<void>(`/booking/${uuid}`);
+  }
+
+  settlePayment(uuid: string, request: StaffPaymentRequest): Observable<BookingConfirmation> {
+    return this.http.post<BookingConfirmation>(`/booking/${uuid}/settle`, request);
   }
 }

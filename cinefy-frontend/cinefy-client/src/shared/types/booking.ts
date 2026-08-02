@@ -58,11 +58,32 @@ interface BookingDetail {
   hallType: string;
   is3D: boolean;
   seats: BookedSeat[];
+  totalPrice: number;
+}
+
+type PaymentState = 'CONFIRMED' | 'PENDING' | 'FAILED' | 'EXPIRED' | 'REFUNDED';
+
+interface BookingConfirmation {
+  id: string;
+  paymentState: PaymentState;
+  bookingReference: string;
+  ticketToken: string | null;
+  movie: MovieSearchResult;
+  startDateTime: string;
+  hallName: string;
+  hallType: string;
+  is3D: boolean;
+  seats: BookedSeat[];
+  totalPrice: number;
 }
 
 interface BookingRequest {
   showtimeId: string;
   seats: string[];
+}
+
+interface PaymentRedirection {
+  redirectionUrl: string;
 }
 
 export type {
@@ -73,5 +94,8 @@ export type {
   BookingSummary,
   BookedSeat,
   BookingDetail,
+  PaymentState,
+  BookingConfirmation,
   BookingRequest,
+  PaymentRedirection,
 };
