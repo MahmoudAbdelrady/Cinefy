@@ -15,6 +15,7 @@ The app won't boot without these (typically set in `application-local.properties
 - `cinefy.jwt.secret`, `cinefy.jwt.access-token-expiration`, `cinefy.jwt.refresh-token-expiration`, `cinefy.jwt.refresh-token-rotation-threshold` — JWT signing key + token lifetimes (read by `JwtUtil` / `AuthCookieResponseFactory` / `JwtSessionService`).
 - `cinefy.cookie.secure`, `cinefy.cookie.same-site` — auth-cookie flags (read by `CookieUtil`).
 - `cinefy.admin.email` (required), `cinefy.admin.password` (optional — the admin seed is skipped with a warning if empty) — bootstrap admin account (`CinefyApplication`).
+- `cinefy.otp.expiration` — OTP lifetime in ms, read by `OtpService`. No default in `application.properties`, so the app won't boot without it.
 - `app.frontend.mgmt.url`, `app.frontend.client.url` — the two allowed CORS origins (management + client), read by `SecurityConfig` into a CORS allow-list of both.
 - `app.tmdb.api-base-url`, `app.tmdb.image-base-url` — defaulted in `application.properties` to TMDB v3; the TMDB bearer token `app.tmdb.access-token` is read by `TmdbMovieService`.
 - `app.paymob.api-base-url` — defaulted in `application.properties` to `https://accept.paymob.com`.
@@ -32,7 +33,7 @@ The app won't boot without these (typically set in `application-local.properties
 - **Scheduling** — `@EnableScheduling` on `CinefyApplication`; jobs live under `job/`: `ShowtimeStatusJob` (cron `0 * * * * *`), `TmdbSyncJob` (cron `0 0 3 * * *`), `BookingCleanupJob` (cron `0 * * * * *`), `OtpCleanupJob` (cron `0 0 3 * * *`), `InvalidJwtCleanupJob` (cron `0 0 3 * * *`)
 - **AOP** — `RequestLoggingAspect` (around any `@RestController`) and `TransactionLoggingAspect` (around any `@Transactional`) under `aspect/`, both delegating to `LoggingUtil`
 - **TMDB integration** — `TmdbMovieService` calls TheMovieDB via `RestClient` (`app.tmdb.api-base-url`), caches results in the local `TmdbMovie` table
-- **Paymob integration** — `PaymobClient` under `shared/payment/` performs connection tests against `app.paymob.api-base-url` using `RestClient`
+- **Paymob integration** — `PaymobClient` under `shared/payment/` is a full Unified Checkout client over `RestClient` (`app.paymob.api-base-url`), not just a connection tester: `testConnection`, `createIntention`, `getUnifiedCheckoutUrl`, `pay` (saved-card charge via `source.subtype = TOKEN`), `refund` (tries **void** first, falls back to **refund**), `parseRedirect` (flat browser query params), `parseCallback` (webhook JSON → the sealed `PaymentCallbackData`: `TRANSACTION` → `TransactionCallbackDTO`, else `CardTokenCallbackDTO`). Every inbound payload is **HMAC-SHA512 verified** over an ordered field concatenation compared with `MessageDigest.isEqual`; a mismatch throws `BusinessException("Invalid payment signature")`. `PaymentService` sits above it and owns the booking-facing flow (`createCheckout`, `payWithSavedCard`, `refundTransaction`, `handleCallback`, `handleRedirect`); `ClientPaymentMethodService` persists tokenized cards.
 - **Credential encryption** — `CredentialCipher` under `shared/security/` (AES-256-GCM); requires `cinefy.encryption.key` (Base64 of 32 bytes). Used to encrypt payment-method secrets before persisting.
 - **libphonenumber** (Google) — phone validation/normalization for `StaffMember` and `Client`
 - `@EnableJpaAuditing`, `@EnableScheduling`, `@EnableAsync`, and `@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)` on `CinefyApplication`
@@ -64,27 +65,34 @@ com.mdevs.cinefy
 │   │                  BookingShowtimeDTO, HallTypeShowtimesDTO,
 │   │                  ShowtimeBookedSeatsProjection, ShowtimeBookingCountsProjection
 │   ├── booking/    — SeatSelectionDTO, ActiveBookingDTO, BookingRequestDTO,
-│   │                  BookingDetailDTO, BookingSummaryDTO, BookedSeatDTO
+│   │                  BookingDetailDTO, BookingSummaryDTO, BookedSeatDTO,
+│   │                  BookingConfirmationDTO, OnSitePaymentDTO
 │   ├── staff/      — StaffMemberDTO, StaffMemberDetailDTO, StaffMemberSummaryDTO,
 │   │                  PositionCoverageDTO, PositionCoverageItemDTO, PositionCoverageProjection,
 │   │                  CurrentStaffMemberDTO, UpdateProfileDTO, ChangePasswordDTO (self-service /staff/me)
 │   ├── client/     — CurrentClientDTO, SignUpDTO
 │   ├── payment/    — PaymentMethodDTO, PaymentMethodDetailDTO, PaymentMethodSummaryDTO,
 │   │                  PaymentMethodStatusRequestDTO, PaymentMethodTestResultDTO,
-│   │                  TestConnectionRequestDTO
+│   │                  TestConnectionRequestDTO,
+│   │                  PaymentCallbackData (sealed interface, permits the two below),
+│   │                  TransactionCallbackDTO, CardTokenCallbackDTO,
+│   │                  PaymentRedirectionDTO, SavedCardPaymentDTO, ClientPaymentMethodDTO,
+│   │                  PaymobIntentionDTO, PaymobIntentionRequestDTO, PaymobPayResponseDTO
 │   └── auth/       — LoginDTO, ForgotPasswordDTO, OtpCodeDTO, SendOtpDTO,
 │                      ResetPasswordDTO, TokenPairDTO
 ├── entity/         — JPA entities (@Entity / @MappedSuperclass)
 │                     Hall, HallType, Showtime, TmdbMovie, Booking, BookingSeat,
-│                     User (MappedSuperclass), StaffMember, Client, PaymentMethod, InvalidJwt, Otp
+│                     User (MappedSuperclass), StaffMember, Client, PaymentMethod,
+│                     ClientPaymentMethod, InvalidJwt, Otp
 │   └── enums/      — domain enums (all enums live here, not beside their entity)
-│                     HallStatus, SeatCategory, ShowtimeStatus, BookingStatus, StaffPosition,
-│                     EmploymentType, PaymentMethodStatus, PaymentMethodTestStatus,
+│                     HallStatus, SeatCategory, ShowtimeStatus, BookingStatus, PaymentState,
+│                     StaffPosition, EmploymentType, PaymentMethodStatus, PaymentMethodTestStatus,
 │                     PaymentMethodType, PaymentProvider, UserType, OtpType
 ├── repository/     — Spring Data JPA repositories (extend BaseRepository)
 ├── service/        — Business logic (HallService, ShowtimeService, StaffMemberService,
 │                     PaymentMethodService, TmdbMovieService, ManagementAuthService,
-│                     BookingService, ClientService, ClientAuthService, CurrentUserService,
+│                     BookingService, PaymentService, ClientPaymentMethodService,
+│                     ClientService, ClientAuthService, CurrentUserService,
 │                     JwtSessionService, OtpService, EmailService, InvalidJwtService)
 ├── aspect/         — RequestLoggingAspect, TransactionLoggingAspect
 ├── job/            — Scheduled jobs: ShowtimeStatusJob, TmdbSyncJob,
@@ -156,11 +164,15 @@ Entities with user-facing names (Hall, HallType) derive a `code` field via a sta
 - Private `validate*` helpers throw `BusinessException`
 - Entity-to-DTO mapping done in private helper methods within the service (no separate mapper layer)
 
+**Where a domain predicate lives.** Put it on the entity when the entity holds every value it needs — `Booking.hasExpired()` compares its own stored `expiresAt`, so it belongs there. Put it with the policy owner when an external threshold has to be supplied: bookability depends on `BOOKING_CUTOFF_MINUTES`, which is booking policy, so it's `BookingService.isBookable(Showtime)` (a `public static`) rather than a method on `Showtime` taking a cutoff parameter. Parameterizing the entity method looks like decoupling but isn't — every caller would still have to reach into `BookingService` for the number.
+
+`ShowtimeService` calls `BookingService.isBookable(showtime)` when mapping `bookable` onto `MovieShowtimeListItemDTO` / `ShowtimeSummaryDTO`. Note the same rule is _also_ expressed in SQL (`findDistinctBookableShowtimeDates`, `findBookableByMovieAndDateRangeWithHall` take a `cutOffDate` param) — if you change the rule, both the Java predicate and those queries have to move together.
+
 ### Exception Handling
 
 Global `@RestControllerAdvice` in `CinefyExceptionHandler`:
 
-- `BusinessException` → 400 (carries an optional `ErrorCode`: `OTP_INVALID`, `PASSWORD_REUSED`, `PASSWORD_INCORRECT`, `ACCOUNT_NOT_VERIFIED` — surfaced to the frontend as a JSON `errorCode`)
+- `BusinessException` → 400 (carries an optional `ErrorCode`: `OTP_INVALID`, `PASSWORD_REUSED`, `PASSWORD_INCORRECT`, `ACCOUNT_NOT_VERIFIED`, `PAYMENT_NOT_ATTEMPTED` — surfaced to the frontend as a JSON `errorCode`). Add an `ErrorCode` only when the frontend must branch on _which_ 400 it got; otherwise the message alone is enough.
 - `NotFoundException` → 404
 - `UnauthorizedException` / `AuthenticationException` / `JwtException` → 401
 - `ForbiddenException` / `AuthorizationDeniedException` → 403
@@ -173,8 +185,10 @@ Responses use the `CinefyExceptionResponse` record.
 
 Under `job/`:
 
-- **`ShowtimeStatusJob`** — `@Scheduled(fixedDelay = 60_000)`; calls `ShowtimeRepository.markRunningAsOf(now)` / `markFinishedAsOf(now)` to advance `Showtime.status` based on `startDateTime` / `endDateTime`.
+- **`ShowtimeStatusJob`** — cron `0 * * * * *` (every minute); calls `ShowtimeRepository.markRunningAsOf(now)` / `markFinishedAsOf(now)` to advance `Showtime.status` based on `startDateTime` / `endDateTime`.
 - **`TmdbSyncJob`** — cron `0 0 3 * * *` (daily 03:00); deletes orphan `TmdbMovie` rows that no `Showtime` references, then refreshes the rest in batches of 50 against the TMDB API.
+- **`BookingCleanupJob`** — cron `0 * * * * *`; delegates to `BookingService.deleteExpiredPendingBatch(cutOffDate, batchSize)` to release holds whose `expiresAt` has passed.
+- **`OtpCleanupJob`** / **`InvalidJwtCleanupJob`** — cron `0 0 3 * * *`; prune expired OTPs and blocklisted JWTs.
 
 When adding a new scheduled job: place it under `job/`, use `@Slf4j` + `@Scheduled`, and inject repositories/services through `@RequiredArgsConstructor`.
 
@@ -261,10 +275,26 @@ Booking
  ├── client → Client (ManyToOne, nullable), bookedBy → StaffMember (ManyToOne, nullable)
  ├── seats → Set<BookingSeat> (OneToMany, cascade ALL, orphanRemoval)
  ├── idempotencyKey (unique), bookingReference (unique)
- ├── status (BookingStatus enum, nullable — null while on-hold)
+ ├── totalAmount (BigDecimal 10/2, nullable=false — the booking's own total, written
+ │     the moment seats are established; NOT a gateway fact, so on-site bookings that
+ │     never touch a gateway still have it. Read by the confirmation/summary mappers
+ │     and by PaymentService when charging, so the gateway can't be charged a
+ │     different number than the UI showed.)
+ ├── status (BookingStatus enum, nullable — null while on-hold, PENDING_PAYMENT once
+ │     a checkout starts, CONFIRMED/REFUNDED once settled)
+ ├── paymentTransactionId (unique, nullable)
  ├── onHold (Boolean, default true), refundableUntil, expiresAt
  ├── ticketToken (unique), ticketUsed (boolean, default false)
+ ├── helpers: hasExpired([asOf]), isActiveHold([asOf])
  └── unique (CLIENT_ID, SHOWTIME_ID, ON_HOLD)
+      — settling sets onHold = null, and Postgres treats NULLs as distinct, so a
+        settled booking frees the slot for a new hold on the same showtime.
+
+ClientPaymentMethod   (a client's saved card, created from a Paymob token webhook)
+ ├── client → Client (ManyToOne LAZY, optional=false)
+ ├── token (unique, nullable=false)
+ ├── maskedPan (nullable=false)
+ └── cardBrand (nullable=false)
 
 BookingSeat
  ├── booking → Booking (ManyToOne), showtime → Showtime (ManyToOne)
@@ -292,9 +322,8 @@ PaymentMethod
  ├── provider (PaymentProvider enum — currently PAYMOB only)
  ├── type (PaymentMethodType enum)
  ├── status (PaymentMethodStatus, default DRAFT)
- ├── isTest
  ├── secretKey, hmacKey (TEXT, AES-encrypted via CredentialCipher)
- ├── publicKey, integrationId, currency
+ ├── publicKey, integrationId (long), currency (length 3, nullable)
  ├── testStatus (PaymentMethodTestStatus, default UNTESTED)
  ├── testFailureReason, testedAt
  └── credentialsRotatedAt
@@ -305,7 +334,13 @@ Enums:
   ShowtimeStatus:          DRAFT | PUBLISHED | RUNNING | FINISHED
                            (+ static sets: ACTIVE_STATUSES={DRAFT,PUBLISHED},
                             COMMITTED_STATUSES={PUBLISHED,RUNNING}, LIVE_STATUSES={DRAFT,PUBLISHED,RUNNING})
-  BookingStatus:           CONFIRMED | REFUNDED
+  BookingStatus:           PENDING_PAYMENT | CONFIRMED | REFUNDED
+                           (+ SETTLED_STATUSES={CONFIRMED,REFUNDED} and a static
+                            isSettled(status) — null-safe, use it instead of comparing)
+  PaymentState:            CONFIRMED | PENDING | FAILED | EXPIRED | REFUNDED
+                           (response-only, derived by BookingService.resolvePaymentState
+                            for BookingConfirmationDTO — never parsed from input, so no
+                            fromString)
   StaffPosition:           ADMIN | MANAGER | CASHIER | USHER
   EmploymentType:          FULL_TIME | PART_TIME
   UserType:                STAFF_MEMBER | CLIENT
@@ -359,16 +394,16 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`, **except** `GET /
 
 Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`; the three client-facing reads and `GET /movies/{id}` are `@PublicApi`.
 
-| Method | Path                        | Input                    | Output / Effect                 | Access        |
-| ------ | --------------------------- | ------------------------ | ------------------------------- | ------------- |
-| GET    | `/movies/search`            | ?query, page             | Page<MovieSearchResultDTO>      | ADMIN/MANAGER |
-| GET    | `/movies/upcoming`          | ?limit                   | List<UpcomingMovieDTO>          | ADMIN/MANAGER |
-| GET    | `/movies/announced-upcoming`|                          | List<MovieSearchResultDTO>      | @PublicApi    |
-| GET    | `/movies/highlighted`       |                          | List<HighlightedMovieDTO>       | @PublicApi    |
-| GET    | `/movies/now-showing`       | ?limit                   | List<NowShowingMovieDTO>        | @PublicApi    |
-| GET    | `/movies/{id}`              | (TMDB id, Long)          | MovieDetailDTO                  | @PublicApi    |
-| POST   | `/movies/{id}/announcement` | AnnouncementRequestDTO   | 204 (toggle isAnnounced)        | ADMIN/MANAGER |
-| POST   | `/movies/{id}/highlight`    | HighlightRequestDTO      | 204 (toggle isHighlighted)      | ADMIN/MANAGER |
+| Method | Path                         | Input                  | Output / Effect            | Access        |
+| ------ | ---------------------------- | ---------------------- | -------------------------- | ------------- |
+| GET    | `/movies/search`             | ?query, page           | Page<MovieSearchResultDTO> | ADMIN/MANAGER |
+| GET    | `/movies/upcoming`           | ?limit                 | List<UpcomingMovieDTO>     | ADMIN/MANAGER |
+| GET    | `/movies/announced-upcoming` |                        | List<MovieSearchResultDTO> | @PublicApi    |
+| GET    | `/movies/highlighted`        |                        | List<HighlightedMovieDTO>  | @PublicApi    |
+| GET    | `/movies/now-showing`        | ?limit                 | List<NowShowingMovieDTO>   | @PublicApi    |
+| GET    | `/movies/{id}`               | (TMDB id, Long)        | MovieDetailDTO             | @PublicApi    |
+| POST   | `/movies/{id}/announcement`  | AnnouncementRequestDTO | 204 (toggle isAnnounced)   | ADMIN/MANAGER |
+| POST   | `/movies/{id}/highlight`     | HighlightRequestDTO    | 204 (toggle isHighlighted) | ADMIN/MANAGER |
 
 Note: `{id}` is the raw TMDB id, **not** a uuid — `TmdbMovie` isn't a `BaseEntity`.
 
@@ -392,17 +427,17 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`; the three read en
 
 Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. The self-service `/staff/me` endpoints and `GET /staff/{uuid}` override it with `@PreAuthorize("isAuthenticated()")` so any logged-in staff member can reach them (the per-row view/edit rules are then enforced in the service — see _Admin Account Policy_).
 
-| Method | Path                       | Input             | Output / Effect                                    |
-| ------ | -------------------------- | ----------------- | -------------------------------------------------- |
-| GET    | `/staff`                   | ?name, ?position, page | Page<StaffMemberSummaryDTO> (ADMIN/MANAGER)   |
-| GET    | `/staff/me`                | —                 | CurrentStaffMemberDTO (any authenticated staff)    |
-| PUT    | `/staff/me`                | UpdateProfileDTO  | StaffMemberDetailDTO (own name/phone)              |
-| PUT    | `/staff/me/password`       | ChangePasswordDTO | 204 (own password; `updatePassword`)               |
-| GET    | `/staff/position-coverage` |                   | PositionCoverageDTO (ADMIN/MANAGER)                |
-| GET    | `/staff/{uuid}`            |                   | StaffMemberDetailDTO (isAuthenticated + view rule) |
-| POST   | `/staff`                   | StaffMemberDTO    | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
-| PUT    | `/staff/{uuid}`            | StaffMemberDTO    | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
-| DELETE | `/staff/{uuid}`            |                   | 204 (ADMIN/MANAGER)                                |
+| Method | Path                       | Input                  | Output / Effect                                    |
+| ------ | -------------------------- | ---------------------- | -------------------------------------------------- |
+| GET    | `/staff`                   | ?name, ?position, page | Page<StaffMemberSummaryDTO> (ADMIN/MANAGER)        |
+| GET    | `/staff/me`                | —                      | CurrentStaffMemberDTO (any authenticated staff)    |
+| PUT    | `/staff/me`                | UpdateProfileDTO       | StaffMemberDetailDTO (own name/phone)              |
+| PUT    | `/staff/me/password`       | ChangePasswordDTO      | 204 (own password; `updatePassword`)               |
+| GET    | `/staff/position-coverage` |                        | PositionCoverageDTO (ADMIN/MANAGER)                |
+| GET    | `/staff/{uuid}`            |                        | StaffMemberDetailDTO (isAuthenticated + view rule) |
+| POST   | `/staff`                   | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
+| PUT    | `/staff/{uuid}`            | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
+| DELETE | `/staff/{uuid}`            |                        | 204 (ADMIN/MANAGER)                                |
 
 Phone numbers in `StaffMemberDTO` / `UpdateProfileDTO` are validated/normalized with Google libphonenumber before persistence. The `/staff/me` mutations (`updateProfile`, `updatePassword`) still call `validateNotAdminAccount(...)` — the admin row is not self-editable even by the admin.
 
@@ -425,38 +460,49 @@ Secrets in `PaymentMethodDTO` are encrypted with `CredentialCipher` before being
 
 ### `/booking` — BookingController
 
-The three read endpoints backing browse are `@PublicApi` + `permitAll()`; the rest require `hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')` (clients book online, staff book on-site).
+Access is **not** uniform here — check the column. Five handlers are `@PublicApi` + `permitAll()` (the three browse reads **plus the two Paymob callbacks**, which arrive unauthenticated and are instead authenticated by HMAC); the booking lifecycle is `hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')`; the online-payment endpoints are **`hasRole('CLIENT')`** only; and on-site settle is **staff-only** (no CLIENT). The class is `@Validated` (needed for the `@Pattern` on the `Idempotency-Key` header).
 
-| Method | Path                                    | Input                                     | Output / Effect                 | Access     |
-| ------ | --------------------------------------- | ----------------------------------------- | ------------------------------- | ---------- |
-| GET    | `/booking/movies/{id}/dates`            | (TMDB id)                                 | List<String> (bookable dates)   | @PublicApi |
-| GET    | `/booking/movies/{id}/showtimes`        | ?date (LocalDate)                         | List<HallTypeShowtimesDTO>      | @PublicApi |
-| GET    | `/booking/showtimes/{uuid}`             |                                           | SeatSelectionDTO                | @PublicApi |
-| GET    | `/booking/active`                       |                                           | List<BookingSummaryDTO>         | CLIENT+staff |
-| GET    | `/booking/active/{uuid}`                |                                           | BookingDetailDTO                | CLIENT+staff |
-| POST   | `/booking`                              | BookingRequestDTO + `Idempotency-Key` hdr (UUID) | 201 BookingDetailDTO     | CLIENT+staff |
-| DELETE | `/booking/{uuid}`                       |                                           | 204 (cancel/release hold)       | CLIENT+staff |
+| Method | Path                             | Input                                            | Output / Effect               | Access                                 |
+| ------ | -------------------------------- | ------------------------------------------------ | ----------------------------- | -------------------------------------- |
+| GET    | `/booking/movies/{id}/dates`     | (TMDB id)                                        | List<String> (bookable dates) | @PublicApi                             |
+| GET    | `/booking/movies/{id}/showtimes` | ?date (LocalDate)                                | List<HallTypeShowtimesDTO>    | @PublicApi                             |
+| GET    | `/booking/showtimes/{uuid}`      |                                                  | SeatSelectionDTO              | @PublicApi                             |
+| GET    | `/booking/active`                |                                                  | List<BookingSummaryDTO>       | CLIENT+staff                           |
+| GET    | `/booking/active/{uuid}`         |                                                  | BookingDetailDTO              | CLIENT+staff                           |
+| GET    | `/booking/{uuid}/confirmation`   |                                                  | BookingConfirmationDTO        | CLIENT+staff                           |
+| POST   | `/booking`                       | BookingRequestDTO + `Idempotency-Key` hdr (UUID) | 201 BookingDetailDTO          | CLIENT+staff                           |
+| DELETE | `/booking/{uuid}`                |                                                  | 204 (cancel/release hold)     | CLIENT+staff                           |
+| POST   | `/booking/{uuid}/settle`         | OnSitePaymentDTO `{isCash, transactionId?}`      | BookingConfirmationDTO        | **staff only** (ADMIN/MANAGER/CASHIER) |
+| POST   | `/booking/{uuid}/pay`            |                                                  | PaymentRedirectionDTO         | **CLIENT only**                        |
+| POST   | `/booking/{uuid}/pay-saved-card` | SavedCardPaymentDTO                              | PaymentRedirectionDTO         | **CLIENT only**                        |
+| GET    | `/booking/payment-redirect`      | flat `Map<String,String>` query params           | 302 FOUND + `Location`        | @PublicApi (HMAC)                      |
+| POST   | `/booking/payment-callback`      | JsonNode body + ?hmac                            | 200 (Paymob webhook)          | @PublicApi (HMAC)                      |
+
+`handlePaymentCallback` pattern-matches the sealed `PaymentCallbackData` to route a `TransactionCallbackDTO` to `bookingService.applyPaymentResult(...)` and a `CardTokenCallbackDTO` to `clientPaymentMethodService.createMethod(...)`. Note the body is `tools.jackson.databind.JsonNode` — **Jackson 3**, not `com.fasterxml.jackson` (its annotations, however, still live under `com.fasterxml.jackson.annotation`).
+
+**`payment-redirect` is the browser's return leg, not the source of truth.** Paymob's "cancel" button calls it with an _empty_ param map, so `handleRedirect` returns null on empty input and the booking service falls back to the client's home URL rather than failing HMAC verification. Settlement itself comes from the webhook.
 
 ### `/clients` — ClientController
 
-Class-level `@PreAuthorize("isAuthenticated()")`.
+Class-level `@PreAuthorize("hasRole('CLIENT')")`.
 
-| Method | Path           | Input | Output           |
-| ------ | -------------- | ----- | ---------------- |
-| GET    | `/clients/me`  |       | CurrentClientDTO |
+| Method | Path                       | Input | Output                       |
+| ------ | -------------------------- | ----- | ---------------------------- |
+| GET    | `/clients/me`              |       | CurrentClientDTO             |
+| GET    | `/clients/payment-methods` |       | List<ClientPaymentMethodDTO> |
 
 ### `/clients/auth` — ClientAuthController
 
 All endpoints `@PublicApi` **except** `/logout`. Cookies (access/refresh/`XSRF-TOKEN`) are set via `AuthCookieResponseFactory`; session/refresh/logout delegate to `JwtSessionService`. Sign-up requires email verification (OTP) before login.
 
-| Method | Path                            | Input             | Output / Effect                                  |
-| ------ | ------------------------------- | ----------------- | ------------------------------------------------ |
-| POST   | `/clients/auth/sign-up`         | SignUpDTO         | 201 (creates unverified client, emails OTP)      |
-| POST   | `/clients/auth/send-otp`        | SendOtpDTO        | 204 (emails an OTP)                              |
-| POST   | `/clients/auth/verify-otp`      | OtpCodeDTO        | 204 (validates OTP)                             |
-| POST   | `/clients/auth/reset-password`  | ResetPasswordDTO  | 204 (consumes OTP, sets new password)            |
-| POST   | `/clients/auth/verify-account`  | OtpCodeDTO        | 200 + cookies if verified, else 204              |
-| POST   | `/clients/auth/login`           | LoginDTO          | 200 + sets access/refresh/CSRF cookies           |
-| GET    | `/clients/auth/session`         | refresh cookie    | 200 if valid, else 401                           |
-| POST   | `/clients/auth/refresh`         | refresh cookie    | 200 + new access cookie                          |
-| POST   | `/clients/auth/logout`          | access/refresh cookies | 200 + clears cookies (requires auth)        |
+| Method | Path                           | Input                  | Output / Effect                             |
+| ------ | ------------------------------ | ---------------------- | ------------------------------------------- |
+| POST   | `/clients/auth/sign-up`        | SignUpDTO              | 201 (creates unverified client, emails OTP) |
+| POST   | `/clients/auth/send-otp`       | SendOtpDTO             | 204 (emails an OTP)                         |
+| POST   | `/clients/auth/verify-otp`     | OtpCodeDTO             | 204 (validates OTP)                         |
+| POST   | `/clients/auth/reset-password` | ResetPasswordDTO       | 204 (consumes OTP, sets new password)       |
+| POST   | `/clients/auth/verify-account` | OtpCodeDTO             | 200 + cookies if verified, else 204         |
+| POST   | `/clients/auth/login`          | LoginDTO               | 200 + sets access/refresh/CSRF cookies      |
+| GET    | `/clients/auth/session`        | refresh cookie         | 200 if valid, else 401                      |
+| POST   | `/clients/auth/refresh`        | refresh cookie         | 200 + new access cookie                     |
+| POST   | `/clients/auth/logout`         | access/refresh cookies | 200 + clears cookies (requires auth)        |

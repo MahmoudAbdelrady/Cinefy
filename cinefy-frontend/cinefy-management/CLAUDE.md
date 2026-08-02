@@ -39,8 +39,8 @@ src/
 │   ├── app.routes.ts                   # Route definitions (AppLayout + AuthLayout, guarded)
 │   └── app.config.ts                   # Providers (router, HTTP + interceptors, toast, menu)
 ├── components/                         # Reusable UI components
-│   ├── auth/                           # forgot-password (progress-dots + steps: request/otp/reset/done),
-│   │                                   #   input-otp
+│   ├── auth/                           # forgot-password (progress-dots + steps: request/otp/reset/done)
+│   │                                   #   — the OTP input itself is cinefy-ui's <input-otp>, not local
 │   ├── dashboard/                      # now-showing, today-schedule, upcoming-movies-widget
 │   ├── halls/
 │   │   ├── hall-config-modal/          # Create/edit hall form + layout editor
@@ -50,7 +50,9 @@ src/
 │   │   └── manage-hall-types-modal/    # Hall type CRUD
 │   ├── movies/                         # movie-picker, current-showtimes, upcoming-movies,
 │   │                                   #   movie-showtimes-modal, manage-showtime-modal,
-│   │                                   #   movies-statistics, book-seats (seat selection + on-site payment)
+│   │                                   #   movies-statistics, book-seats (seat selection + on-site payment),
+│   │                                   #   booking-ticket (printable stub shown in book-seats' `done` stage),
+│   │                                   #   active-bookings-list (staff's own in-progress holds)
 │   ├── payment/
 │   │   ├── manage-payment-modal/       # Wizard for create/edit payment method
 │   │   ├── payment-method-list/        # List + status toggles
@@ -69,7 +71,8 @@ src/
 │                                       # Shared UI (input-field, field-error, loading-spinner,
 │                                       # custom-select, async-select, phone-input, toast,
 │                                       # modal, pagination, date-picker, time-picker, switch,
-│                                       # empty-state, seat-map, hold-timer, not-found) lives in cinefy-ui.
+│                                       # empty-state, seat-map, hold-timer, not-found,
+│                                       # input-otp, password-checklist, media-image) lives in cinefy-ui.
 │                                       #   empty-state: inputs [icon]/[title]/[description]; add class="fill" to stretch to full height.
 │                                       #   switch (<cui-switch>): size md|sm, color accent|highlight;
 │                                       #     [checked]/[disabled] inputs, (checkedChange) output.
@@ -103,13 +106,16 @@ src/
 │   ├── halls.ts                        # Hall & hall-type CRUD (HttpClient)
 │   ├── movies.ts                       # Movie search + detail
 │   ├── showtimes.ts                    # Showtime CRUD + publish + stats
-│   ├── booking.ts                      # Seat-selection fetch + create/cancel booking (on-site)
-│   ├── showtime-events.ts              # Cross-component event bus (RxJS Subjects): created$/updated$/published$/deleted$/singleDeleted$/committedChanged$/highlightChanged$/bookingChanged$
+│   ├── booking.ts                      # Seat-selection fetch + active bookings + create/cancel booking +
+│   │                                   #   settlePayment (on-site). getSeatSelection takes an optional
+│   │                                   #   HttpContext so callers can pass skipErrorToast() when they
+│   │                                   #   render the failure themselves (book-seats does).
+│   ├── showtime-events.ts              # Cross-component event bus (RxJS Subjects): created$/updated$/published$/deleted$/singleDeleted$/committedChanged$/highlightChanged$/showtimeOccupancyChanged$
 │   ├── staff.ts                        # Staff CRUD + position coverage + current-user (/staff/me) cache
 │   ├── payment-method.ts               # Payment method CRUD + connection testing
 │   ├── header-actions.ts               # Signal-based template injection for header
-│   ├── sidebar.ts                      # Sidebar open/close state (signal)
-│   └── toast.ts                        # Toast notification manager
+│   └── sidebar.ts                      # Sidebar open/close state (signal)
+│                                       # (Toasts are NOT a local service — ToastService comes from cinefy-ui/services.)
 ├── shared/
 │   ├── icons.ts                        # Re-exports of lucide icons used in the app — sole source of glyphs
 │   ├── access.ts                       # Position → allowed-route/action rules (canAccessRoute, canManage, ...)
@@ -129,7 +135,9 @@ src/
 └── styles.scss                         # Global reset + ng-primitives overrides (tooltip, dialog overlay)
 ```
 
-Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, and `shared/guards/index.ts` — always import through them.
+Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, `shared/guards/index.ts`, `app/core/interceptors/index.ts`, and a nested `components/auth/forgot-password/index.ts` — always import through them.
+
+Not every shared file is a folder: `components/halls/seat-layout.ts` (seat-grid + `comparePositions` helpers), `components/profile/_panel.scss`, and `components/staff/_position-colors.scss` sit beside their component folders.
 
 ## Routes
 
@@ -151,7 +159,7 @@ Two layout shells, each gated by a guard:
 **                 → NotFoundPage      (canActivate: authGuard)   catch-all 404
 ```
 
-**Position-based access:** each protected route is declared twice — once with `canMatch: [positionCanMatch]` (renders the real page if the current staff position may access it) and once falling through to `AccessDeniedPage`. The position → route mapping lives in [`shared/access.ts`](src/shared/access.ts) (`canAccessRoute`), and `positionCanMatch` ([`shared/guards/position-guard.ts`](src/shared/guards/position-guard.ts)) reads it. `authGuard` / `guestGuard` ([`shared/guards/`](src/shared/guards/)) gate the two shells on authentication state.
+**Position-based access:** a protected route is declared twice — once with `canMatch: [positionCanMatch]` (renders the real page if the current staff position may access it) and once falling through to `AccessDeniedPage`. `/halls`, `/movies`, `/payment`, and `/staff` follow this exactly. Two routes deviate today, so check before assuming: `/` (dashboard) has the `canMatch` but **no** `AccessDeniedPage` fallthrough — a denied position falls through to the `**` wildcard and gets `NotFoundPage` instead; `/profile` has the fallthrough entry but **no** `canMatch` on the first, so the `AccessDeniedPage` line is dead and profile is open to any authenticated staff member (which is the intent — it's the current user's own profile). The position → route mapping lives in [`shared/access.ts`](src/shared/access.ts) (`canAccessRoute`), and `positionCanMatch` ([`shared/guards/position-guard.ts`](src/shared/guards/position-guard.ts)) reads it. `authGuard` / `guestGuard` ([`shared/guards/`](src/shared/guards/)) gate the two shells on authentication state.
 
 Planned but not yet implemented: `/statistics`, `/settings`.
 
@@ -275,7 +283,8 @@ Reference: [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-
 
 ### HTTP & API
 
-- Four functional interceptors run in order (registered in [`app.config.ts`](src/app/app.config.ts)): `baseUrlInterceptor` (prepends `environment.apiUrl` to relative URLs) → `csrfInterceptor` (attaches the CSRF token to mutating requests) → `authRetryInterceptor` (on a 401, calls the refresh endpoint once and retries the original request) → `errorToastInterceptor` (on an error response, surfaces a toast unless the request carries the `SKIP_ERROR_TOAST` context).
+- Four functional interceptors run in order (registered in [`app.config.ts`](src/app/app.config.ts)): `baseUrlInterceptor` (prepends `environment.apiUrl` to relative URLs **and sets `withCredentials: true`**) → `csrfInterceptor` (attaches the CSRF token to mutating requests) → `authRetryInterceptor` (on a 401, calls the refresh endpoint once and retries; skips the login/refresh/session calls themselves, and redirects to `/login` if the retry also 401s) → `errorToastInterceptor` (on an error response, surfaces a toast unless the request carries the `SKIP_ERROR_TOAST` context; **401s are always silent** — `authRetryInterceptor` owns them).
+- **Suppressing the toast is the caller's call, not the endpoint's.** When a component renders the failure itself (an inline `<empty-state>`, a field error), it passes `skipErrorToast()` as the request's `HttpContext` — so the service method takes an optional `context?: HttpContext` parameter and forwards it, rather than hard-coding the skip. See `BookingService.getSeatSelection` / `book-seats.ts`. Otherwise you get the message twice, in a toast and in the panel.
 - **Auth is JWT-in-cookie** — tokens are HTTP-only cookies set/cleared by the backend; the frontend never reads or stores them. `AuthService` exposes login/logout/refresh/forgot-verify-reset; the refresh call is de-duplicated (`refresh$ ??= …`).
 - Services return `Observable<T>` — components subscribe or convert with `toSignal()`.
 - API uses **zero-indexed pages**; UI displays **1-indexed**.
@@ -302,6 +311,8 @@ DELETE /halls/types/:id
 GET    /movies/search                    # Paginated movie search
 GET    /movies/upcoming                  # Upcoming-release list
 GET    /movies/:id                       # Movie detail
+POST   /movies/:id/announcement          # Toggle isAnnounced
+POST   /movies/:id/highlight             # Toggle isHighlighted
 
 # Showtimes
 GET    /showtimes/movies                 # Movies with grouped showtimes
@@ -346,9 +357,11 @@ POST   /payment-methods/test-connection  # Pre-save connection test
 POST   /payment-methods/:id/test-connection
 POST   /payment-methods/:id/status       # Toggle active/inactive
 
-# Booking (on-site, via book-seats)
+# Booking (on-site, via book-seats / active-bookings-list)
+GET    /booking/active                   # This staff member's in-progress holds
 GET    /booking/showtimes/:showtimeId    # Seat selection (layout + active booking)
 POST   /booking                          # Create booking (sends Idempotency-Key header)
+POST   /booking/:id/settle               # Record on-site payment → BookingConfirmation
 DELETE /booking/:id                      # Cancel booking
 ```
 
@@ -436,9 +449,20 @@ Hall      → has HallType (by typeId), TicketPricing[] (per SeatCategory),
             seat layout (map of SeatCategory → seatId[])
 Movie     → TMDB-backed metadata; referenced by id from Showtimes
 Showtime  → ties a Movie + Hall + start time; published in batches;
-            carries bookedSeats / myOnHoldSeats / totalSeats counts for occupancy
-Booking   → holds seats for a Showtime (expiresAt), then confirmed with an on-site
-            StaffPayment (CASH → paidAmount, CARD → paymentReference)
+            carries bookedSeats / myOnHoldSeats / totalSeats counts for occupancy,
+            plus `bookable` — the server's verdict on whether seats may still be
+            sold (COMMITTED status AND more than the booking cutoff before it ends).
+            Never re-derive it client-side; drive the Book button off this flag.
+            Same fields on MovieShowtimeListItem (the per-day list row).
+Booking   → holds seats for a Showtime (expiresAt), then settled on-site via
+            StaffPaymentRequest { isCash: boolean; transactionId?: string }
+            (transactionId required only when isCash === false — the reference
+            printed on the card receipt; entered by hand, so the backend rejects
+            a transactionId already recorded on another booking).
+            POST /booking/:uuid/settle returns a BookingConfirmation
+            { paymentState, bookingReference, ticketToken, seats, totalPrice, ... }
+            which is what <booking-ticket> prints. PaymentState is
+            'CONFIRMED' | 'PENDING' | 'FAILED' | 'EXPIRED' | 'REFUNDED'.
 Staff     → has StaffPosition, EmploymentType, working days (start/end WeekDay),
             working hours, phone (digits only — frontend owns the `+`)
 PaymentMethod → has type, credentials, integration config; status toggled separately

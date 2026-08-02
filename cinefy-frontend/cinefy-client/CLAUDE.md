@@ -4,7 +4,7 @@
 
 Angular 21 **public-facing booking app** for the Cinefy cinema platform. Standalone components, signal-based state, **server-side rendered** (`@angular/ssr` with an Express host) — this is the customer-facing site where people browse movies and book seats, as opposed to the CSR-only `cinefy-management` admin dashboard. Custom SCSS design system; consumes the shared `cinefy-ui` library.
 
-> **Current state:** the browse, booking, and auth flows are all built and routed. The fully-designed product lives as a **React reference mock** in `mvp-version/` and is ported screen-by-screen into the Angular app via the `mvp-to-real` skill. Most "build a page" work means mapping from `mvp-version/`, not writing from scratch. Two layout shells: the public **`AppLayout`** (header — logo/nav, a "My Tickets" dialog, and an authenticated user-info menu **or** Login/Sign-up buttons for anonymous users — plus a footer) and the **`AuthLayout`** shell for the `/membership/*` auth pages. Pages built: **Home** (`/`) — a `featured-carousel` hero (auto-advancing highlighted-movie slides), a "Now Showing" rail, and a "Coming Soon"/upcoming rail; **Movies** (`/movies`) — a filterable grid (title search + experience/genre/rating selects); **Movie Detail** (`/movies/:movieId`) — backdrop, cast/crew, trailer dialog, and a `booking-section` (date strip + showtimes grouped by hall type); **Seat Selection** (`/movies/:movieId/seats/:showtimeId`, `authGuard`); **Checkout** (`/checkout/:bookingId`, `authGuard`); and the auth pages under `/membership` — **Login**, **Sign-up**, **Forgot-password**. Data comes from `MoviesService`, `HallsService`, `BookingService`, `AuthService`, and `ClientService` (`services/`); browse reads load with `rxResource`, while auth/current-user data loads via `afterNextRender` + `.subscribe()` (see the SSR note below). Not yet built: a `/profile` page (`app-layout.ts` navigates to `/profile`, but no such page/route exists yet).
+> **Current state:** the browse, booking, and auth flows are all built and routed. The fully-designed product lives as a **React reference mock** in `mvp-version/` and is ported screen-by-screen into the Angular app via the `mvp-to-real` skill. Most "build a page" work means mapping from `mvp-version/`, not writing from scratch. Two layout shells: the public **`AppLayout`** (header — logo/nav, a "My Tickets" dialog, and an authenticated user-info menu **or** Login/Sign-up buttons for anonymous users — plus a footer) and the **`AuthLayout`** shell for the `/membership/*` auth pages. Pages built: **Home** (`/`) — a `featured-carousel` hero (auto-advancing highlighted-movie slides), a "Now Showing" rail, and a "Coming Soon"/upcoming rail; **Movies** (`/movies`) — a filterable grid (title search + experience/genre/rating selects); **Movie Detail** (`/movies/:movieId`) — backdrop, cast/crew, trailer dialog, and a `booking-section` (date strip + showtimes grouped by hall type); **Seat Selection** (`/movies/:movieId/seats/:showtimeId`, `authGuard`); **Checkout** (`/checkout/:bookingId`, `authGuard`) — pay via redirect or a saved card; **Booking Confirmation** (`/booking-confirmation/:bookingId`, `authGuard`) — the post-payment result page, which **polls** while the payment state is `PENDING` (flat 2.5s for the first minute, then ×1.5 backoff capped at 30s); and the auth pages under `/membership` — **Login**, **Sign-up**, **Forgot-password**. Data comes from `MoviesService`, `HallsService`, `BookingService`, `AuthService`, and `ClientService` (`services/`); browse reads load with `rxResource`, while auth/current-user data loads via `afterNextRender` + `.subscribe()` (see the SSR note below). Not yet built: a `/profile` page — `app-layout.ts` and two `routerLink="/profile"` links in `booking-confirmation.html` navigate there, but no such page/route exists yet. There is also **no `**`/ 404 route** in`app.routes.ts`.
 
 ## Workspace Layout
 
@@ -34,7 +34,7 @@ pnpm serve:ssr:cinefy-client   # Run the built SSR server (node dist/cinefy-clie
 
 `cinefy-client` ships browser **and** server bundles. `src/server.ts` is the Express host; `src/app/app.routes.server.ts` declares render modes; `src/app/app.config.server.ts` merges server providers onto the shared `appConfig`. Hydration is enabled with event replay (`provideClientHydration(withEventReplay())`).
 
-Render modes reflect the auth boundary: the identity-bearing / auth-gated routes are `RenderMode.Client` — `membership/**` (login/signup/forgot-password), `movies/:movieId/seats/:showtimeId` (seat selection), and `checkout/:bookingId` — while everything else (`**`, the public browse pages) stays `RenderMode.Server`. This is the render-mode side of the fetch-placement rule below: auth is client state, so auth-gated pages render in-browser where the cookie lives (no flash, no cookie-forwarding into SSR).
+Render modes reflect the auth boundary: the identity-bearing / auth-gated routes are `RenderMode.Client` — `membership/**` (login/signup/forgot-password), `movies/:movieId/seats/:showtimeId` (seat selection), `checkout/:bookingId`, and `booking-confirmation/:bookingId` — while everything else (`**`, the public browse pages) stays `RenderMode.Server`. This is the render-mode side of the fetch-placement rule below: auth is client state, so auth-gated pages render in-browser where the cookie lives (no flash, no cookie-forwarding into SSR).
 
 When writing or porting components, **be SSR-safe**:
 
@@ -67,7 +67,9 @@ src/
 │   ├── movies/                # MoviesPage (/movies) — filterable grid (search + experience/genre/rating selects)
 │   ├── movie-detail/          # MovieDetailPage (/movies/:movieId) — backdrop, cast/crew, trailer + <booking-section>
 │   ├── seat-selection/        # SeatSelectionPage (/movies/:movieId/seats/:showtimeId, authGuard) — seat map + summary
-│   ├── checkout/              # CheckoutPage (/checkout/:bookingId, authGuard)
+│   ├── checkout/              # CheckoutPage (/checkout/:bookingId, authGuard) — pay by redirect or saved card
+│   ├── booking-confirmation/  # BookingConfirmationPage (/booking-confirmation/:bookingId, authGuard)
+│   │                          #   payment result keyed on PaymentState; polls while PENDING (backoff)
 │   └── auth/                  # LoginPage, SignUpPage, ForgotPasswordPage (under /membership/*)
 ├── components/                 # Reusable UI components (barrel: components/index.ts)
 │   ├── home/featured-carousel/ # Auto-advancing hero carousel of highlighted-movie slides (backdrop, scrims, meta, Play CTA)
@@ -80,9 +82,12 @@ src/
 ├── services/                   # HTTP services (barrel: services/index.ts)
 │   ├── movies.ts              # MoviesService — getHighlighted / getNowShowing / getAnnouncedUpcoming / getMovieDetails
 │   ├── halls.ts              # HallsService — getHallTypes
-│   ├── booking.ts            # BookingService — getBookableDates/getBookableShowtimes (public) + getSeatSelection/getActiveBookings/getActiveBookingDetails/createBooking/cancelBooking (authed)
+│   ├── booking.ts            # BookingService — getBookableDates/getBookableShowtimes (public) + getSeatSelection/
+│   │                          #   getActiveBookings/getActiveBookingDetails/getBookingConfirmation/createBooking/
+│   │                          #   cancelBooking/payBooking/paySavedCard (authed). Several reads take an optional
+│   │                          #   HttpContext so the caller can pass skipErrorToast() when it renders the error itself.
 │   ├── auth.ts               # AuthService — sign-up/verify-account/send-otp/login/logout/verify-otp/reset-password/session/refresh (refresh single-flighted)
-│   └── clients.ts            # ClientService — getCurrentUser (/clients/me) + clearCurrentUser
+│   └── clients.ts            # ClientService — getCurrentUser (/clients/me) + getPaymentMethods (/clients/payment-methods) + clearCurrentUser
 ├── shared/
 │   ├── icons.ts               # Re-exports of lucide icons from @lucide/angular — sole source of glyphs (alias `X as XIcon`)
 │   ├── guards/                # auth-guard (authGuard), guest-guard (guestGuard) (barrel: index.ts)
@@ -153,12 +158,15 @@ These hold across the Cinefy frontend — see `cinefy-management/CLAUDE.md` for 
 
 ## Backend contract
 
-The only contract with `cinefy-backend` is the HTTP API (documented in the backend `CLAUDE.md`). Frontend and backend version/deploy independently. Frontend branches on JSON `errorCode` (the `ApiErrorCode` union, `shared/types/api.ts` — currently `'ACCOUNT_NOT_VERIFIED' | 'OTP_INVALID' | 'PASSWORD_REUSED'`), not message text, when multiple 400s need distinct UI handling.
+The only contract with `cinefy-backend` is the HTTP API (documented in the backend `CLAUDE.md`). Frontend and backend version/deploy independently. Frontend branches on JSON `errorCode` (the `ApiErrorCode` union, `shared/types/api.ts` — currently `'ACCOUNT_NOT_VERIFIED' | 'OTP_INVALID' | 'PASSWORD_INCORRECT' | 'PASSWORD_REUSED' | 'PAYMENT_NOT_ATTEMPTED'`), not message text, when multiple 400s need distinct UI handling. `PAYMENT_NOT_ATTEMPTED` is what `booking-confirmation.ts` branches on to tell "no payment was ever started" apart from a genuine failure.
 
 This app is now **auth-bearing** (JWT-in-cookie), so it consumes both public and authenticated endpoints:
 
 - **Public** (`@PublicApi`, unauthenticated) reads: `/movies/highlighted`, `/movies/now-showing`, `/movies/announced-upcoming`, `/movies/{id}` (raw TMDB id, not a uuid), `/halls/types`, and `/booking/movies/{id}/dates` + `/booking/movies/{id}/showtimes?date=`.
 - **Auth** (`AuthService`, `clients/auth/*`): `sign-up`, `verify-account`, `send-otp`, `login`, `logout`, `verify-otp`, `reset-password`, `GET session`, `refresh` (the refresh call is single-flighted). Current user: `GET /clients/me` (`ClientService`).
-- **Authenticated booking** (`BookingService`): `GET /booking/showtimes/{id}` (seat selection), `GET /booking/active`, `GET /booking/active/{uuid}`, `POST /booking` (sends an `Idempotency-Key` header), `DELETE /booking/{uuid}`.
+- **Authenticated booking** (`BookingService`): `GET /booking/showtimes/{id}` (seat selection), `GET /booking/active`, `GET /booking/active/{uuid}`, `GET /booking/{uuid}/confirmation`, `POST /booking` (sends an `Idempotency-Key` header), `DELETE /booking/{uuid}`.
+- **Payment** (`BookingService` + `ClientService`): `POST /booking/{uuid}/pay` and `POST /booking/{uuid}/pay-saved-card` both return a `PaymentRedirection` (`{ redirectionUrl }`) that the checkout page navigates to; `GET /clients/payment-methods` lists the client's saved cards (`ClientPaymentMethod`). A card is only tokenized as a side effect of paying, so the saved-card list is refetched on return to checkout.
+
+**The payment result is asynchronous.** Paymob redirects back to `/booking-confirmation/:bookingId`, but the authoritative settlement arrives on a server-side webhook, so the confirmation page may first read `paymentState: 'PENDING'` and must poll until it resolves. The `PaymentState` union is `'CONFIRMED' | 'PENDING' | 'FAILED' | 'EXPIRED' | 'REFUNDED'`.
 
 **The client-facing list endpoints return an empty array, never 404, when there's nothing** (a movie with no bookable dates, a date with no showtimes) — the empty state is driven off `length === 0`, so don't treat empty as an error. A genuine 404 means the resource itself is absent (e.g. an unknown movie id on `/movies/{id}`) and is handled distinctly (see `movie-detail.ts`, which branches on `HttpErrorResponse.status === 404`).
