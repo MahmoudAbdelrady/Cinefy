@@ -90,7 +90,7 @@ public class HallService {
     }
 
     public HallDetailDTO getHall(String uuid) {
-        Hall hall = findHallWithLayout(uuid);
+        Hall hall = findHallWithType(uuid);
 
         HallTypeDTO type = new HallTypeDTO();
         type.setId(hall.getType().getUuid());
@@ -110,7 +110,7 @@ public class HallService {
     }
 
     public HallLayoutDTO getHallLayout(String uuid) {
-        return getHallLayout(findHallWithLayout(uuid));
+        return getHallLayout(findHallWithType(uuid));
     }
 
     @Transactional
@@ -126,7 +126,7 @@ public class HallService {
 
     @Transactional
     public HallSummaryDTO updateHall(String uuid, HallDTO dto) {
-        Hall hall = findHallWithLayout(uuid);
+        Hall hall = findHallWithType(uuid);
         validateHall(dto, hall.getId());
         validateHallMutability(hall, dto);
 
@@ -147,7 +147,7 @@ public class HallService {
 
     @Transactional
     public void deleteHall(String uuid) {
-        Hall hall = findHallWithLayout(uuid);
+        Hall hall = findHallWithType(uuid);
         if (showtimeRepository.existsByHall(hall)) {
             throw new BusinessException("Cannot delete this hall while it has showtimes");
         }
@@ -156,11 +156,7 @@ public class HallService {
 
     // =========================== Helpers ===========================
 
-    public Hall findHall(String uuid) {
-        return hallRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall not found with id: " + uuid));
-    }
-
-    public Hall findHallWithLayout(String uuid) {
+    public Hall findHallWithType(String uuid) {
         return hallRepository.findByUuidWithType(uuid).orElseThrow(() -> new NotFoundException("Hall not found with id: " + uuid));
     }
 

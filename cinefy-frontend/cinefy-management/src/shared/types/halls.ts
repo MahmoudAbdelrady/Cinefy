@@ -30,6 +30,7 @@ interface SeatLayout {
 interface HallRef {
   id: string;
   name: string;
+  typeName: string;
 }
 
 interface HallType {

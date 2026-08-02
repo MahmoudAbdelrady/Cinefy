@@ -29,6 +29,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CalendarIcon,
+  ClapperboardIcon,
   DeleteIcon,
   EditIcon,
   MapPinIcon,
@@ -77,6 +78,7 @@ export class MovieShowtimesModal {
     SendIcon,
     StickyNoteIcon,
     TicketIcon,
+    ClapperboardIcon,
   };
 
   private readonly showtimesService = inject(ShowtimesService);

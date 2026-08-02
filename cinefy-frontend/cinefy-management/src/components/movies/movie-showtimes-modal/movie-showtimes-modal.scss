@@ -125,7 +125,8 @@
           color: $gray-900;
         }
 
-        .dsid-location {
+        .dsid-location,
+        .dsid-experience {
           @include flex-align;
           @include lucide-icon-fix;
           gap: 6px;

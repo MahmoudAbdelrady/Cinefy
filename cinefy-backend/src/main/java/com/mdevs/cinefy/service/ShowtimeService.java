@@ -135,7 +135,7 @@ public class ShowtimeService {
 
     @Transactional
     public ShowtimeSummaryDTO createShowtime(ShowtimeDTO dto) {
-        Hall hall = hallService.findHall(dto.getHallId());
+        Hall hall = hallService.findHallWithType(dto.getHallId());
         TmdbMovie movie = dto.getMovieId() != null ? tmdbMovieService.fetchAndCache(dto.getMovieId()) : null;
         validateShowtime(hall, movie, dto, null);
 
@@ -153,7 +153,7 @@ public class ShowtimeService {
         validateShowtimesMutable(List.of(showtime), "update");
 
         Hall previousHall = showtime.getHall();
-        Hall hall = hallService.findHall(dto.getHallId());
+        Hall hall = hallService.findHallWithType(dto.getHallId());
         TmdbMovie movie = dto.getMovieId() != null ? tmdbMovieService.fetchAndCache(dto.getMovieId()) : showtime.getTmdbMovie();
         validateShowtime(hall, movie, dto, showtime.getId());
 
@@ -367,6 +367,7 @@ public class ShowtimeService {
         HallReferenceDTO dto = new HallReferenceDTO();
         dto.setId(hall.getUuid());
         dto.setName(hall.getName());
+        dto.setTypeName(hall.getType().getName());
         return dto;
     }
 }

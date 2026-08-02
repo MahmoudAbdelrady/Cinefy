@@ -10,4 +10,6 @@ public class HallReferenceDTO {
     private String id;
 
     private String name;
+
+    private String typeName;
 }
