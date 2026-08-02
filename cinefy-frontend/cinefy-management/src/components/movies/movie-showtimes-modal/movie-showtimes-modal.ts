@@ -440,7 +440,7 @@ export class MovieShowtimesModal {
 
   private applyLocalPublish(id: string): void {
     this.movieShowtimeDetails.update((list) =>
-      list.map((s) => (s.id === id ? { ...s, status: 'PUBLISHED' } : s)),
+      list.map((s) => (s.id === id ? { ...s, status: 'PUBLISHED', bookable: true } : s)),
     );
     this.dayDrafts.update((n) => n - 1);
     this.movieShowtimes.update((m) =>
@@ -452,7 +452,7 @@ export class MovieShowtimesModal {
 
   private applyLocalBulkPublish(remainingDrafts: number): void {
     this.movieShowtimeDetails.update((list) =>
-      list.map((s) => (s.status === 'DRAFT' ? { ...s, status: 'PUBLISHED' } : s)),
+      list.map((s) => (s.status === 'DRAFT' ? { ...s, status: 'PUBLISHED', bookable: true } : s)),
     );
     this.dayDrafts.set(0);
     this.movieShowtimes.update((m) =>
