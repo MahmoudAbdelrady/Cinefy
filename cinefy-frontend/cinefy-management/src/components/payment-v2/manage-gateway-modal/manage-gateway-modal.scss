@@ -1,0 +1,115 @@
+@use '../../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+.gateway-form {
+  @include flex-column;
+  gap: 24px;
+
+  .identity-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+
+    @include below-tablet {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .active-card {
+    @include flex-between;
+
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid $gray-200;
+    border-radius: $radius-xl;
+
+    .active-copy {
+      min-width: 0;
+
+      .active-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: $gray-900;
+      }
+
+      .active-hint {
+        margin-top: 2px;
+        font-size: 12.5px;
+        color: $gray-500;
+      }
+    }
+  }
+
+  .form-section {
+    .section-head {
+      @include flex-between;
+
+      gap: 12px;
+      margin-bottom: 12px;
+
+      .section-title {
+        @include flex-align;
+        @include lucide-icon-fix;
+
+        gap: 8px;
+
+        svg {
+          color: $gray-400;
+        }
+
+        h3 {
+          font-size: 13px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: $gray-500;
+        }
+      }
+
+      .docs-link {
+        @include flex-align;
+        @include lucide-icon-fix;
+
+        gap: 4px;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: $blue-600;
+        text-decoration: none;
+        transition: color 150ms ease;
+
+        &:hover {
+          color: $blue-700;
+        }
+      }
+    }
+
+    .credential-fields {
+      @include flex-column;
+      gap: 16px;
+    }
+  }
+}
+
+.gateway-footer {
+  @include flex-between;
+
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+
+  .encrypted-note {
+    @include flex-align;
+    @include lucide-icon-fix;
+
+    gap: 6px;
+    font-size: 12px;
+    color: $gray-500;
+  }
+
+  .footer-actions {
+    @include flex-align;
+    gap: 8px;
+  }
+}

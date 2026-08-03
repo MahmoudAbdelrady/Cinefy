@@ -1,0 +1,85 @@
+<app-modal
+  modalTitle="Add payment gateway"
+  description="Connect a provider account so customers can pay online."
+  [close]="close()"
+  width="720px"
+>
+  <form class="gateway-form" [formGroup]="form" (ngSubmit)="save()">
+    <div class="identity-row">
+      <input-field
+        label="Name"
+        placeholder="e.g. Paymob"
+        hint="For display only"
+        [control]="form.controls.name"
+        [errorMessages]="{
+          required: 'Gateway name is required',
+          maxlength: 'Gateway name must not exceed 60 characters',
+        }"
+      />
+
+      <custom-select
+        label="Provider"
+        [items]="providers"
+        [displayFn]="providerDisplayFn"
+        [valueFn]="providerValueFn"
+        [control]="form.controls.provider"
+        [required]="true"
+        [disabled]="true"
+      />
+    </div>
+
+    <div class="active-card">
+      <div class="active-copy">
+        <p class="active-title">Active</p>
+        <p class="active-hint">{{ activeHint() }}</p>
+      </div>
+      <cui-switch
+        [checked]="form.controls.isActive.value"
+        (checkedChange)="form.controls.isActive.setValue($event)"
+      />
+    </div>
+
+    <section class="form-section">
+      <div class="section-head">
+        <div class="section-title">
+          <svg [lucideIcon]="icons.KeyIcon" [size]="15" [strokeWidth]="2"></svg>
+          <h3>Credentials</h3>
+        </div>
+        <a class="docs-link" [href]="providerSpec().docsUrl" target="_blank" rel="noreferrer">
+          {{ providerSpec().label }} docs
+          <svg [lucideIcon]="icons.ExternalLinkIcon" [size]="12" [strokeWidth]="2"></svg>
+        </a>
+      </div>
+
+      <div class="credential-fields">
+        @for (field of providerSpec().credentialFields; track field.key) {
+          <input-field
+            [label]="field.label"
+            [type]="field.secret ? 'password' : 'text'"
+            [placeholder]="field.placeholder"
+            [hint]="field.hint"
+            [control]="credentialControl(field.key)"
+            [errorMessages]="{
+              required: field.label + ' is required',
+              pattern: field.label + ' cannot contain spaces',
+            }"
+            [monospace]="true"
+          />
+        }
+      </div>
+    </section>
+  </form>
+
+  <div class="gateway-footer" modal-footer>
+    <p class="encrypted-note">
+      <svg [lucideIcon]="icons.LockIcon" [size]="13" [strokeWidth]="2"></svg>
+      Credentials are encrypted and never sent back to the browser.
+    </p>
+    <div class="footer-actions">
+      <button type="button" class="btn-secondary" (click)="close()()">Cancel</button>
+      <button type="button" class="btn-primary" [disabled]="!canSave()" (click)="save()">
+        Add gateway
+      </button>
+    </div>
+  </div>
+</app-modal>

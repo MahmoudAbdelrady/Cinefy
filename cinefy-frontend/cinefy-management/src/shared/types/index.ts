@@ -38,6 +38,15 @@ export type {
   TestConnectionRequest,
 } from './payment';
 
+export { GATEWAY_PROVIDER_LABELS } from './payment-gateway';
+export type {
+  GatewayProvider,
+  ChannelCurrency,
+  PaymentChannel,
+  PaymentGateway,
+  PaymentGatewayRequest,
+} from './payment-gateway';
+
 export { SHOWTIME_STATUS_LABELS } from './showtimes';
 export type {
   ShowtimeStatus,

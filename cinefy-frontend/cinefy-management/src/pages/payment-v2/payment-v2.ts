@@ -1,9 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject, TemplateRef, viewChild } from '@angular/core';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { PlusIcon } from '../../shared/icons';
+import { HeaderActionsService } from '../../services';
+import { ManageGatewayModalComponent } from '../../components';
 
 @Component({
   selector: 'payment-v2-page',
-  imports: [],
+  imports: [NgpDialogTrigger, LucideDynamicIcon, ManageGatewayModalComponent],
   templateUrl: './payment-v2.html',
   styleUrl: './payment-v2.scss',
 })
-export class PaymentV2Page {}
+export class PaymentV2Page {
+  protected readonly icons = {
+    PlusIcon,
+  };
+
+  private readonly headerActions = inject(HeaderActionsService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly headerActionsTemplate =
+    viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
+
+  ngOnInit(): void {
+    this.headerActions.template.set(this.headerActionsTemplate());
+    this.destroyRef.onDestroy(() => this.headerActions.template.set(null));
+  }
+}
