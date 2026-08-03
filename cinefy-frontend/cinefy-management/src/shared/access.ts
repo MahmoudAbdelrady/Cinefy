@@ -6,6 +6,7 @@ const ROUTE_ACCESS: Record<string, readonly UserPosition[]> = {
   '/movies': ['ADMIN', 'MANAGER', 'CASHIER'],
   '/statistics': ['ADMIN', 'MANAGER'],
   '/payment': ['ADMIN', 'MANAGER'],
+  '/payment-v2': ['ADMIN', 'MANAGER'],
   '/staff': ['ADMIN', 'MANAGER'],
 };
 

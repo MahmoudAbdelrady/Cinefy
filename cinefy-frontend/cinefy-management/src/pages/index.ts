@@ -2,6 +2,7 @@ export { DashboardPage } from './dashboard/dashboard';
 export { HallsPage } from './halls/halls';
 export { MoviesPage } from './movies/movies';
 export { PaymentPage } from './payment/payment';
+export { PaymentV2Page } from './payment-v2/payment-v2';
 export { StaffPage } from './staff/staff';
 export { AccessDeniedPage } from './access-denied/access-denied';
 export { NotFoundPage } from './not-found/not-found';
