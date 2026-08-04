@@ -140,6 +140,10 @@ export class GatewayListComponent {
     );
   }
 
+  protected deleteGateway(id: string): void {
+    this.gateways.update((gateways) => gateways.filter((gateway) => gateway.id !== id));
+  }
+
   protected updateGateway(id: string, request: PaymentGatewayRequest): void {
     this.gateways.update((gateways) =>
       gateways.map((gateway) => {

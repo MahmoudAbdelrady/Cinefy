@@ -245,9 +245,53 @@
     />
   </ng-template>
   @if (!gateway.isActive) {
-    <button type="button" class="gl-action delete" title="Delete gateway">
+    <button
+      type="button"
+      class="gl-action delete"
+      title="Delete gateway"
+      [ngpDialogTrigger]="deleteDialog"
+    >
       <svg [lucideIcon]="icons.DeleteIcon" [size]="16" [strokeWidth]="2"></svg>
       <span>Delete</span>
     </button>
+
+    <ng-template #deleteDialog let-close="close">
+      <app-modal [close]="close" width="460px" [customHeader]="true">
+        <div class="gl-confirm">
+          <div class="gl-confirm-icon">
+            <svg [lucideIcon]="icons.AlertIcon" [size]="24" [strokeWidth]="2"></svg>
+          </div>
+
+          <h3 class="gl-confirm-title">Delete {{ gateway.name }}?</h3>
+          <p class="gl-confirm-text">
+            This removes the gateway, its credentials, and its
+            {{ gateway.channels?.length ?? 0 }}
+            {{ (gateway.channels?.length ?? 0) === 1 ? 'channel' : 'channels' }}. This can't be
+            undone.
+          </p>
+
+          <div class="gl-delete-warning">
+            <svg [lucideIcon]="icons.AlertIcon" [size]="16" [strokeWidth]="2"></svg>
+            <div>
+              <p><strong>Warning:</strong></p>
+              <ul>
+                <li>A gateway with payments still in progress can't be deleted</li>
+                <li>
+                  A gateway stays locked for 7 days after its most recent transaction, so refunds
+                  and disputes can still be settled
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div modal-footer class="gl-confirm-footer">
+          <button class="btn-secondary" (click)="close()">Cancel</button>
+          <button class="btn-danger" (click)="deleteGateway(gateway.id); close()">
+            Delete gateway
+          </button>
+        </div>
+      </app-modal>
+    </ng-template>
   }
 </ng-template>
