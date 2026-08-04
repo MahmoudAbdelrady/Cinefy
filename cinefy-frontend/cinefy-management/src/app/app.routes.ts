@@ -47,21 +47,21 @@ export const routes: Routes = [
         component: AccessDeniedPage,
       },
       {
-        path: 'payment',
+        path: 'payment-old',
         component: PaymentPage,
         canMatch: [positionCanMatch],
       },
       {
-        path: 'payment',
+        path: 'payment-old',
         component: AccessDeniedPage,
       },
       {
-        path: 'payment-v2',
+        path: 'payment',
         component: PaymentV2Page,
         canMatch: [positionCanMatch],
       },
       {
-        path: 'payment-v2',
+        path: 'payment',
         component: AccessDeniedPage,
       },
       {
