@@ -12,6 +12,7 @@ import {
   InfoIcon,
   PowerIcon,
   PowerOffIcon,
+  WebhookIcon,
 } from '../../../shared/icons';
 import { GATEWAY_PROVIDER_LABELS, type PaymentGateway } from '../../../shared/types';
 
@@ -105,6 +106,7 @@ export class GatewayListComponent {
     InfoIcon,
     PowerIcon,
     PowerOffIcon,
+    WebhookIcon,
   };
 
   protected readonly providerLabels = GATEWAY_PROVIDER_LABELS;

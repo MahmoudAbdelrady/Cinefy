@@ -137,18 +137,14 @@
         </div>
 
         <h3 class="gl-confirm-title">
-          @if (gateway.isActive) {
-            Deactivate {{ gateway.name }}?
-          } @else {
-            Activate {{ gateway.name }}?
-          }
+          {{ gateway.isActive ? 'Deactivate' : 'Activate' }} {{ gateway.name }}?
         </h3>
         <p class="gl-confirm-text">
-          @if (gateway.isActive) {
-            This gateway will stop receiving new payments.
-          } @else {
-            New payments will start routing to this gateway.
-          }
+          {{
+            gateway.isActive
+              ? 'This gateway will stop receiving new payments.'
+              : 'New payments will start routing to this gateway.'
+          }}
         </p>
 
         <div class="gl-confirm-notes">
@@ -194,10 +190,48 @@
     </app-modal>
   </ng-template>
 
-  <button type="button" class="gl-action">
+  <button type="button" class="gl-action" [ngpDialogTrigger]="channelsDialog">
     <svg [lucideIcon]="icons.EyeIcon" [size]="16" [strokeWidth]="2"></svg>
     <span>Channels</span>
   </button>
+
+  <ng-template #channelsDialog let-close="close">
+    <app-modal [modalTitle]="'Channels for ' + gateway.name" [close]="close" width="640px">
+      @if (!gateway.channels?.length) {
+        <empty-state
+          [icon]="icons.WebhookIcon"
+          title="No channels configured"
+          description="Edit the gateway to add one."
+        />
+      } @else {
+        <div class="gl-channels-scroll">
+          <table class="gl-channels-table">
+            <thead>
+              <tr>
+                <th>Channel</th>
+                <th>Currency</th>
+                <th class="gl-channels-status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (channel of gateway.channels; track channel.name) {
+                <tr>
+                  <td class="gl-channel-name">{{ channel.name }}</td>
+                  <td>{{ channel.currency }}</td>
+                  <td class="gl-channels-status">
+                    <span class="gl-channel-status" [class.active]="channel.isActive">
+                      <span class="gl-channel-status-dot"></span>
+                      {{ channel.isActive ? 'On' : 'Off' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </app-modal>
+  </ng-template>
   <button type="button" class="gl-action edit">
     <svg [lucideIcon]="icons.EditIcon" [size]="16" [strokeWidth]="2"></svg>
     <span>Edit</span>
