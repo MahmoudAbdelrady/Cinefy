@@ -49,17 +49,114 @@
   }
 }
 
+.gl-group-label {
+  @include flex-align;
+
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: $gray-600;
+
+  .gl-group-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: $radius-full;
+    background-color: $gray-400;
+  }
+
+  .gl-group-count {
+    @include flex-center;
+
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: $radius-full;
+    background-color: $gray-200;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    color: $gray-700;
+  }
+
+  &.active {
+    color: $green-700;
+
+    .gl-group-dot {
+      background-color: $green-500;
+    }
+  }
+}
+
+.gl-active {
+  margin-bottom: 32px;
+
+  .gl-active-card {
+    @include flex-between;
+
+    gap: 24px;
+    flex-wrap: wrap;
+    padding: 20px 40px 20px 24px;
+    border: 1px solid $green-200;
+    border-radius: $radius-xl;
+    background-color: rgba($green-50, 0.55);
+    box-shadow: $shadow-sm;
+  }
+
+  .gl-active-identity {
+    @include flex-align;
+
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .gl-active-icon {
+    @include flex-center;
+    @include lucide-icon-fix;
+
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: $radius-lg;
+    background-color: $green-600;
+    color: #ffffff;
+    box-shadow: $shadow-sm;
+  }
+
+  .gl-active-text {
+    min-width: 0;
+
+    h4 {
+      @include text-truncate;
+
+      font-size: 20px;
+      font-weight: 600;
+      color: $gray-900;
+    }
+  }
+
+  .gl-active-meta {
+    @include flex-align;
+
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: $gray-600;
+
+    .gl-meta-divider {
+      color: $gray-300;
+    }
+  }
+}
+
 .gateway-list {
   width: 100%;
   min-width: 0;
-  background-color: #ffffff;
-  border: 1px solid $gray-200;
-  border-radius: $radius-xl;
-  box-shadow: $shadow-sm;
 
   .gl-header {
-    padding: 24px;
-    border-bottom: 1px solid $gray-200;
+    margin-bottom: 12px;
 
     h3 {
       font-size: 18px;
@@ -77,16 +174,24 @@
   .gl-empty {
     display: block;
     padding: 40px 24px;
+    border: 1px solid $gray-200;
+    border-radius: $radius-xl;
+    background-color: #ffffff;
+    box-shadow: $shadow-sm;
   }
 
   .gl-scroll {
     overflow-x: auto;
+    border: 1px solid $gray-200;
+    border-radius: $radius-xl;
+    background-color: #ffffff;
+    box-shadow: $shadow-sm;
   }
 }
 
 .gl-table {
   width: 100%;
-  min-width: 960px;
+  min-width: 860px;
   border-collapse: collapse;
   text-align: left;
 
@@ -121,23 +226,6 @@
     &:hover {
       background-color: $gray-50;
     }
-
-    &.active {
-      background-color: rgba($green-50, 0.55);
-
-      .gl-col-name {
-        position: relative;
-
-        &::before {
-          content: '';
-          position: absolute;
-          inset-block: 0;
-          left: 0;
-          width: 4px;
-          background-color: $green-500;
-        }
-      }
-    }
   }
 
   .gl-col-name {
@@ -165,38 +253,6 @@
   .gl-channel-count {
     font-weight: 600;
     color: $gray-900;
-  }
-}
-
-.gl-status {
-  @include flex-align;
-
-  gap: 6px;
-  width: fit-content;
-  padding: 4px 10px;
-  border: 1px solid $gray-200;
-  border-radius: $radius-full;
-  background-color: $gray-100;
-  font-size: 12px;
-  font-weight: 600;
-  color: $gray-500;
-  white-space: nowrap;
-
-  .gl-status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: $radius-full;
-    background-color: $gray-400;
-  }
-
-  &.active {
-    border-color: $green-200;
-    background-color: $green-50;
-    color: $green-700;
-
-    .gl-status-dot {
-      background-color: $green-500;
-    }
   }
 }
 

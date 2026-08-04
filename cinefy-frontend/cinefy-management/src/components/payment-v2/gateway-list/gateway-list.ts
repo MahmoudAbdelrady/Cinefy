@@ -1,5 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { EmptyStateComponent, ModalComponent, Switch } from 'cinefy-ui/components';
@@ -86,6 +86,7 @@ const MOCK_GATEWAYS: PaymentGateway[] = [
   imports: [
     LucideDynamicIcon,
     DatePipe,
+    NgTemplateOutlet,
     NgpDialogTrigger,
     Switch,
     EmptyStateComponent,
@@ -114,11 +115,9 @@ export class GatewayListComponent {
     () => this.gateways().find((gateway) => gateway.isActive) ?? null,
   );
 
-  protected readonly orderedGateways = computed(() => {
-    const active = this.activeGateway();
-    const standby = this.gateways().filter((gateway) => !gateway.isActive);
-    return active ? [active, ...standby] : standby;
-  });
+  protected readonly standbyGateways = computed(() =>
+    this.gateways().filter((gateway) => !gateway.isActive),
+  );
 
   protected readonly liveChannelCount = computed(
     () => this.activeGateway()?.channels?.filter((channel) => channel.isActive).length ?? 0,

@@ -18,171 +18,194 @@
   </div>
 }
 
-<section class="gateway-list">
-  <header class="gl-header">
-    <h3>All Payment Gateways</h3>
-    <p>Only one gateway is allowed to receives new payments.</p>
-  </header>
+@if (!gateways().length) {
+  <section class="gateway-list">
+    <header class="gl-header">
+      <h3>All Payment Gateways</h3>
+      <p>Only one gateway is allowed to receives new payments.</p>
+    </header>
 
-  @if (!orderedGateways().length) {
     <empty-state
       class="gl-empty"
       [icon]="icons.CreditCardIcon"
       title="No payment gateways yet"
       description="Add a gateway to start taking online payments."
     />
-  } @else {
-    <div class="gl-scroll">
-      <table class="gl-table">
-        <thead>
-          <tr>
-            <th class="gl-col-name">Gateway Name</th>
-            <th>Provider</th>
-            <th>Added</th>
-            <th>Channels</th>
-            <th>Status</th>
-            <th class="gl-col-actions">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (gateway of orderedGateways(); track gateway.id) {
-            <tr [class.active]="gateway.isActive">
-              <td class="gl-col-name">
-                <h4>{{ gateway.name }}</h4>
-              </td>
-              <td>{{ providerLabels[gateway.provider] }}</td>
-              <td class="gl-numeric">{{ gateway.createdAt | date: 'MMM d, y' }}</td>
-              <td class="gl-numeric">
-                <span class="gl-channel-count">{{ gateway.channels?.length ?? 0 }}</span>
-              </td>
-              <td>
-                @if (gateway.isActive) {
-                  <span class="gl-status active">
-                    <span class="gl-status-dot"></span>
-                    Receiving payments
-                  </span>
-                } @else {
-                  <span class="gl-status">
-                    <span class="gl-status-dot"></span>
-                    Standby
-                  </span>
-                }
-              </td>
-              <td class="gl-col-actions">
-                <div class="gl-actions">
-                  <span class="gl-switch">
-                    <cui-switch size="sm" [checked]="gateway.isActive" />
-                    <button
-                      type="button"
-                      class="gl-switch-trigger"
-                      [title]="gateway.isActive ? 'Disable' : 'Activate'"
-                      [ngpDialogTrigger]="toggleDialog"
-                    ></button>
-                  </span>
+  </section>
+} @else {
+  @if (activeGateway(); as gateway) {
+    <section class="gl-active">
+      <p class="gl-group-label active">
+        <span class="gl-group-dot"></span>
+        Active Gateway
+      </p>
 
-                  <ng-template #toggleDialog let-close="close">
-                    <app-modal [close]="close" width="448px" [customHeader]="true">
-                      <div class="gl-confirm">
-                        <div class="gl-confirm-icon" [class.activate]="!gateway.isActive">
-                          <svg
-                            [lucideIcon]="gateway.isActive ? icons.PowerOffIcon : icons.PowerIcon"
-                            [size]="24"
-                            [strokeWidth]="2"
-                          ></svg>
-                        </div>
+      <article class="gl-active-card">
+        <div class="gl-active-identity">
+          <div class="gl-active-icon">
+            <svg [lucideIcon]="icons.CreditCardIcon" [size]="24" [strokeWidth]="2"></svg>
+          </div>
+          <div class="gl-active-text">
+            <h4>{{ gateway.name }}</h4>
+            <p class="gl-active-meta">
+              <span>{{ providerLabels[gateway.provider] }}</span>
+              <span class="gl-meta-divider">•</span>
+              <span>Added {{ gateway.createdAt | date: 'MMM d, y' }}</span>
+              <span class="gl-meta-divider">•</span>
+              <span>{{ gateway.channels?.length ?? 0 }} channels</span>
+            </p>
+          </div>
+        </div>
 
-                        <h3 class="gl-confirm-title">
-                          @if (gateway.isActive) {
-                            Deactivate {{ gateway.name }}?
-                          } @else {
-                            Activate {{ gateway.name }}?
-                          }
-                        </h3>
-                        <p class="gl-confirm-text">
-                          @if (gateway.isActive) {
-                            This gateway will stop receiving new payments.
-                          } @else {
-                            New payments will start routing to this gateway.
-                          }
-                        </p>
-
-                        <div class="gl-confirm-notes">
-                          @if (gateway.isActive) {
-                            <div class="gl-confirm-note danger">
-                              <svg
-                                [lucideIcon]="icons.AlertIcon"
-                                [size]="16"
-                                [strokeWidth]="2"
-                              ></svg>
-                              <p>
-                                No other gateway takes over automatically. Activate one, or
-                                customers won't be able to pay online.
-                              </p>
-                            </div>
-                          }
-
-                          @if (!gateway.isActive && activeGateway(); as displaced) {
-                            <div class="gl-confirm-note danger">
-                              <svg
-                                [lucideIcon]="icons.InfoIcon"
-                                [size]="16"
-                                [strokeWidth]="2"
-                              ></svg>
-                              <p>
-                                <strong>{{ displaced.name }}</strong> is active now. Activating this
-                                one deactivates it.
-                              </p>
-                            </div>
-                          }
-
-                          <div class="gl-confirm-note routing">
-                            <svg [lucideIcon]="icons.InfoIcon" [size]="16" [strokeWidth]="2"></svg>
-                            <p>
-                              Payments already in progress finish on their current gateway. Only new
-                              payments follow this change.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div modal-footer class="gl-confirm-footer">
-                        <button class="btn-secondary" (click)="close()">Cancel</button>
-                        <button
-                          [class]="gateway.isActive ? 'btn-danger' : 'btn-success'"
-                          (click)="toggleGateway(gateway.id, !gateway.isActive); close()"
-                        >
-                          {{ gateway.isActive ? 'Deactivate' : 'Activate' }}
-                        </button>
-                      </div>
-                    </app-modal>
-                  </ng-template>
-                  <button type="button" class="gl-action">
-                    <svg [lucideIcon]="icons.EyeIcon" [size]="16" [strokeWidth]="2"></svg>
-                    <span>Channels</span>
-                  </button>
-                  <button type="button" class="gl-action edit">
-                    <svg [lucideIcon]="icons.EditIcon" [size]="16" [strokeWidth]="2"></svg>
-                    <span>Edit</span>
-                  </button>
-                  <button
-                    type="button"
-                    class="gl-action delete"
-                    [disabled]="gateway.isActive"
-                    [title]="
-                      gateway.isActive
-                        ? 'Deactivate this gateway before deleting it'
-                        : 'Delete gateway'
-                    "
-                  >
-                    <svg [lucideIcon]="icons.DeleteIcon" [size]="16" [strokeWidth]="2"></svg>
-                    <span>Delete</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+        <div class="gl-actions">
+          <ng-container
+            [ngTemplateOutlet]="gatewayActions"
+            [ngTemplateOutletContext]="{ $implicit: gateway }"
+          />
+        </div>
+      </article>
+    </section>
   }
-</section>
+
+  @if (standbyGateways().length) {
+    <section class="gateway-list">
+      <p class="gl-group-label">
+        <span class="gl-group-dot"></span>
+        Standby
+        <span class="gl-group-count">{{ standbyGateways().length }}</span>
+      </p>
+
+      <div class="gl-scroll">
+        <table class="gl-table">
+          <thead>
+            <tr>
+              <th class="gl-col-name">Gateway Name</th>
+              <th>Provider</th>
+              <th>Added</th>
+              <th>Channels</th>
+              <th class="gl-col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (gateway of standbyGateways(); track gateway.id) {
+              <tr>
+                <td class="gl-col-name">
+                  <h4>{{ gateway.name }}</h4>
+                </td>
+                <td>{{ providerLabels[gateway.provider] }}</td>
+                <td class="gl-numeric">{{ gateway.createdAt | date: 'MMM d, y' }}</td>
+                <td class="gl-numeric">
+                  <span class="gl-channel-count">{{ gateway.channels?.length ?? 0 }}</span>
+                </td>
+                <td class="gl-col-actions">
+                  <div class="gl-actions">
+                    <ng-container
+                      [ngTemplateOutlet]="gatewayActions"
+                      [ngTemplateOutletContext]="{ $implicit: gateway }"
+                    />
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+}
+
+<ng-template #gatewayActions let-gateway>
+  <span class="gl-switch">
+    <cui-switch size="sm" [checked]="gateway.isActive" />
+    <button
+      type="button"
+      class="gl-switch-trigger"
+      [title]="gateway.isActive ? 'Disable' : 'Activate'"
+      [ngpDialogTrigger]="toggleDialog"
+    ></button>
+  </span>
+
+  <ng-template #toggleDialog let-close="close">
+    <app-modal [close]="close" width="448px" [customHeader]="true">
+      <div class="gl-confirm">
+        <div class="gl-confirm-icon" [class.activate]="!gateway.isActive">
+          <svg
+            [lucideIcon]="gateway.isActive ? icons.PowerOffIcon : icons.PowerIcon"
+            [size]="24"
+            [strokeWidth]="2"
+          ></svg>
+        </div>
+
+        <h3 class="gl-confirm-title">
+          @if (gateway.isActive) {
+            Deactivate {{ gateway.name }}?
+          } @else {
+            Activate {{ gateway.name }}?
+          }
+        </h3>
+        <p class="gl-confirm-text">
+          @if (gateway.isActive) {
+            This gateway will stop receiving new payments.
+          } @else {
+            New payments will start routing to this gateway.
+          }
+        </p>
+
+        <div class="gl-confirm-notes">
+          @if (gateway.isActive) {
+            <div class="gl-confirm-note danger">
+              <svg [lucideIcon]="icons.AlertIcon" [size]="16" [strokeWidth]="2"></svg>
+              <p>
+                No other gateway takes over automatically. Activate one, or customers won't be able
+                to pay online.
+              </p>
+            </div>
+          }
+
+          @if (!gateway.isActive && activeGateway(); as displaced) {
+            <div class="gl-confirm-note danger">
+              <svg [lucideIcon]="icons.InfoIcon" [size]="16" [strokeWidth]="2"></svg>
+              <p>
+                <strong>{{ displaced.name }}</strong> is active now. Activating this one deactivates
+                it.
+              </p>
+            </div>
+          }
+
+          <div class="gl-confirm-note routing">
+            <svg [lucideIcon]="icons.InfoIcon" [size]="16" [strokeWidth]="2"></svg>
+            <p>
+              Payments already in progress finish on their current gateway. Only new payments follow
+              this change.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div modal-footer class="gl-confirm-footer">
+        <button class="btn-secondary" (click)="close()">Cancel</button>
+        <button
+          [class]="gateway.isActive ? 'btn-danger' : 'btn-success'"
+          (click)="toggleGateway(gateway.id, !gateway.isActive); close()"
+        >
+          {{ gateway.isActive ? 'Deactivate' : 'Activate' }}
+        </button>
+      </div>
+    </app-modal>
+  </ng-template>
+
+  <button type="button" class="gl-action">
+    <svg [lucideIcon]="icons.EyeIcon" [size]="16" [strokeWidth]="2"></svg>
+    <span>Channels</span>
+  </button>
+  <button type="button" class="gl-action edit">
+    <svg [lucideIcon]="icons.EditIcon" [size]="16" [strokeWidth]="2"></svg>
+    <span>Edit</span>
+  </button>
+  @if (!gateway.isActive) {
+    <button type="button" class="gl-action delete" title="Delete gateway">
+      <svg [lucideIcon]="icons.DeleteIcon" [size]="16" [strokeWidth]="2"></svg>
+      <span>Delete</span>
+    </button>
+  }
+</ng-template>
