@@ -3,11 +3,11 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { PlusIcon } from '../../shared/icons';
 import { HeaderActionsService } from '../../services';
-import { ManageGatewayModalComponent } from '../../components';
+import { GatewayListComponent, ManageGatewayModalComponent } from '../../components';
 
 @Component({
   selector: 'payment-v2-page',
-  imports: [NgpDialogTrigger, LucideDynamicIcon, ManageGatewayModalComponent],
+  imports: [NgpDialogTrigger, LucideDynamicIcon, ManageGatewayModalComponent, GatewayListComponent],
   templateUrl: './payment-v2.html',
   styleUrl: './payment-v2.scss',
 })
