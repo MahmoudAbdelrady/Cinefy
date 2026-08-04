@@ -1,6 +1,6 @@
 <app-modal
-  modalTitle="Add payment gateway"
-  description="Connect a provider account so customers can pay online."
+  [modalTitle]="modalTitle()"
+  [description]="modalDescription()"
   [close]="close()"
   width="720px"
 >
@@ -57,8 +57,12 @@
           <input-field
             [label]="field.label"
             [type]="field.secret ? 'password' : 'text'"
-            [placeholder]="field.placeholder"
-            [hint]="field.hint"
+            [placeholder]="field.secret && isEditMode() ? '' : field.placeholder"
+            [hint]="
+              field.secret && isEditMode()
+                ? field.label + ' is stored. Leave blank to keep it, or enter a new value.'
+                : field.hint
+            "
             [control]="credentialControl(field.key)"
             [errorMessages]="{
               required: field.label + ' is required',
@@ -106,7 +110,7 @@
     <div class="footer-actions">
       <button type="button" class="btn-secondary" (click)="close()()">Cancel</button>
       <button type="button" class="btn-primary" [disabled]="!canSave()" (click)="save()">
-        Add gateway
+        {{ saveLabel() }}
       </button>
     </div>
   </div>

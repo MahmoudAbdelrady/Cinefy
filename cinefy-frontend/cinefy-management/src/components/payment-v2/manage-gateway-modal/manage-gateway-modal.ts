@@ -6,18 +6,28 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { CustomSelectComponent, InputField, ModalComponent, Switch } from 'cinefy-ui/components';
 import { ExternalLinkIcon, KeyIcon, LockIcon, WebhookIcon } from '../../../shared/icons';
 import { NO_WHITESPACE_PATTERN } from '../../../shared/validation';
-import type { GatewayProvider, PaymentChannel, PaymentGatewayRequest } from '../../../shared/types';
+import type {
+  GatewayProvider,
+  PaymentChannel,
+  PaymentGateway,
+  PaymentGatewayRequest,
+} from '../../../shared/types';
 import { PaymentChannelsComponent } from '../payment-channels/payment-channels';
 import { PAYMENT_PROVIDERS, type CredentialField, type ProviderSpec } from '../provider-spec';
 
 function buildCredentialsGroup(
   fields: CredentialField[],
+  storedCredentials: Record<string, string> | undefined,
+  editMode: boolean,
 ): FormGroup<Record<string, FormControl<string>>> {
   const controls: Record<string, FormControl<string>> = {};
   for (const field of fields) {
-    controls[field.key] = new FormControl('', {
+    const keepStored = field.secret && editMode;
+    controls[field.key] = new FormControl(storedCredentials?.[field.key] ?? '', {
       nonNullable: true,
-      validators: [Validators.required, Validators.pattern(NO_WHITESPACE_PATTERN)],
+      validators: keepStored
+        ? [Validators.pattern(NO_WHITESPACE_PATTERN)]
+        : [Validators.required, Validators.pattern(NO_WHITESPACE_PATTERN)],
     });
   }
   return new FormGroup(controls);
@@ -48,8 +58,10 @@ export class ManageGatewayModalComponent {
   protected readonly providers = PAYMENT_PROVIDERS;
 
   readonly close = input.required<() => void>();
+  readonly gateway = input<PaymentGateway | null>(null);
 
   readonly gatewayCreated = output<PaymentGatewayRequest>();
+  readonly gatewayUpdated = output<PaymentGatewayRequest>();
 
   protected readonly channels = signal<PaymentChannel[]>([]);
   protected readonly channelsEnabled = signal(false);
@@ -77,6 +89,22 @@ export class ManageGatewayModalComponent {
   private readonly isActive = toSignal(this.form.controls.isActive.valueChanges, {
     initialValue: this.form.controls.isActive.value,
   });
+
+  protected readonly isEditMode = computed(() => this.gateway() !== null);
+
+  protected readonly modalTitle = computed(() =>
+    this.isEditMode() ? 'Edit payment gateway' : 'Add payment gateway',
+  );
+
+  protected readonly modalDescription = computed(() =>
+    this.isEditMode()
+      ? "Update this gateway's configuration."
+      : 'Connect a provider account so customers can pay online.',
+  );
+
+  protected readonly saveLabel = computed(() =>
+    this.isEditMode() ? 'Save changes' : 'Add gateway',
+  );
 
   protected readonly providerSpec = computed(
     () => this.providers.find((spec) => spec.provider === this.provider()) ?? this.providers[0],
@@ -113,10 +141,27 @@ export class ManageGatewayModalComponent {
   protected readonly providerValueFn = (spec: ProviderSpec) => spec.provider;
 
   constructor() {
+    effect(() => {
+      const gateway = this.gateway();
+      if (!gateway) return;
+      this.form.patchValue({
+        name: gateway.name,
+        provider: gateway.provider,
+        isActive: gateway.isActive,
+      });
+      const channels = gateway.channels ?? [];
+      this.channels.set(channels);
+      this.channelsEnabled.set(channels.length > 0);
+    });
+
     effect(() =>
       this.form.setControl(
         'credentials',
-        buildCredentialsGroup(this.providerSpec().credentialFields),
+        buildCredentialsGroup(
+          this.providerSpec().credentialFields,
+          this.gateway()?.credentials,
+          this.isEditMode(),
+        ),
       ),
     );
   }
@@ -137,13 +182,18 @@ export class ManageGatewayModalComponent {
     if (!this.canSave()) return;
     const { name, provider, isActive, credentials } = this.form.getRawValue();
     const channels = this.channels();
-    this.gatewayCreated.emit({
+    const request: PaymentGatewayRequest = {
       name: name.trim(),
       provider,
       isActive,
       credentials,
       ...(channels.length ? { channels } : {}),
-    });
+    };
+    if (this.isEditMode()) {
+      this.gatewayUpdated.emit(request);
+    } else {
+      this.gatewayCreated.emit(request);
+    }
     this.close()();
   }
 }

@@ -232,10 +232,18 @@
       }
     </app-modal>
   </ng-template>
-  <button type="button" class="gl-action edit">
+  <button type="button" class="gl-action edit" [ngpDialogTrigger]="editDialog">
     <svg [lucideIcon]="icons.EditIcon" [size]="16" [strokeWidth]="2"></svg>
     <span>Edit</span>
   </button>
+
+  <ng-template #editDialog let-close="close">
+    <manage-gateway-modal
+      [close]="close"
+      [gateway]="gateway"
+      (gatewayUpdated)="updateGateway(gateway.id, $event)"
+    />
+  </ng-template>
   @if (!gateway.isActive) {
     <button type="button" class="gl-action delete" title="Delete gateway">
       <svg [lucideIcon]="icons.DeleteIcon" [size]="16" [strokeWidth]="2"></svg>

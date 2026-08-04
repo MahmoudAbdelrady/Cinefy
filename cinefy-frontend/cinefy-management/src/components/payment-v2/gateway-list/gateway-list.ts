@@ -14,7 +14,12 @@ import {
   PowerOffIcon,
   WebhookIcon,
 } from '../../../shared/icons';
-import { GATEWAY_PROVIDER_LABELS, type PaymentGateway } from '../../../shared/types';
+import {
+  GATEWAY_PROVIDER_LABELS,
+  type PaymentGateway,
+  type PaymentGatewayRequest,
+} from '../../../shared/types';
+import { ManageGatewayModalComponent } from '../manage-gateway-modal/manage-gateway-modal';
 
 const MOCK_GATEWAYS: PaymentGateway[] = [
   {
@@ -92,6 +97,7 @@ const MOCK_GATEWAYS: PaymentGateway[] = [
     Switch,
     EmptyStateComponent,
     ModalComponent,
+    ManageGatewayModalComponent,
   ],
   templateUrl: './gateway-list.html',
   styleUrl: './gateway-list.scss',
@@ -130,6 +136,15 @@ export class GatewayListComponent {
       gateways.map((gateway) => {
         if (gateway.id === id) return { ...gateway, isActive };
         return isActive && gateway.isActive ? { ...gateway, isActive: false } : gateway;
+      }),
+    );
+  }
+
+  protected updateGateway(id: string, request: PaymentGatewayRequest): void {
+    this.gateways.update((gateways) =>
+      gateways.map((gateway) => {
+        if (gateway.id === id) return { ...gateway, ...request };
+        return request.isActive && gateway.isActive ? { ...gateway, isActive: false } : gateway;
       }),
     );
   }
