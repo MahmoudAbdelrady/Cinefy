@@ -20,6 +20,7 @@ export { BookingTicketComponent } from './movies/booking-ticket/booking-ticket';
 export { ActiveBookingsListComponent } from './movies/active-bookings-list/active-bookings-list';
 export { ManagePaymentModalComponent } from './payment/manage-payment-modal/manage-payment-modal';
 export { ManageGatewayModalComponent } from './payment-v2/manage-gateway-modal/manage-gateway-modal';
+export { PaymentChannelsComponent } from './payment-v2/payment-channels/payment-channels';
 export { Stepper } from './stepper/stepper';
 export { PaymentMethodListComponent } from './payment/payment-method-list/payment-method-list';
 export { StaffListComponent } from './staff/staff-list/staff-list';

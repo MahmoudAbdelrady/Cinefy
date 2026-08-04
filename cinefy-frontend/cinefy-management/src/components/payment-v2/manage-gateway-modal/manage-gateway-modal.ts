@@ -1,82 +1,14 @@
-import { Component, computed, effect, input, output } from '@angular/core';
+import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CustomSelectComponent, InputField, ModalComponent, Switch } from 'cinefy-ui/components';
-import { ExternalLinkIcon, KeyIcon, LockIcon } from '../../../shared/icons';
+import { ExternalLinkIcon, KeyIcon, LockIcon, WebhookIcon } from '../../../shared/icons';
 import { NO_WHITESPACE_PATTERN } from '../../../shared/validation';
-import {
-  GATEWAY_PROVIDER_LABELS,
-  type GatewayProvider,
-  type PaymentGatewayRequest,
-} from '../../../shared/types';
-
-interface CredentialField {
-  key: string;
-  label: string;
-  secret: boolean;
-  placeholder: string;
-  hint: string;
-}
-
-interface ProviderConfigField {
-  key: string;
-  label: string;
-  type: 'text' | 'number';
-}
-
-interface ProviderSpec {
-  provider: GatewayProvider;
-  label: string;
-  supportsChannels: boolean;
-  channelsRequired: boolean;
-  channelHelp: string;
-  docsUrl: string;
-  credentialFields: CredentialField[];
-  providerConfig?: ProviderConfigField[];
-}
-
-const PAYMENT_PROVIDERS: ProviderSpec[] = [
-  {
-    provider: 'PAYMOB',
-    label: GATEWAY_PROVIDER_LABELS.PAYMOB,
-    supportsChannels: true,
-    channelsRequired: true,
-    channelHelp: 'Where to find: Settings → Developers → Payment Integrations',
-    docsUrl: 'https://developers.paymob.com/paymob-docs/getting-started/overview',
-    credentialFields: [
-      {
-        key: 'secretKey',
-        label: 'Secret key',
-        secret: true,
-        placeholder: 'egy_sk_live_…',
-        hint: 'Where to find: Settings → Developers → API Keys',
-      },
-      {
-        key: 'publicKey',
-        label: 'Public key',
-        secret: false,
-        placeholder: 'egy_pk_live_…',
-        hint: 'Where to find: Settings → Developers → API Keys',
-      },
-      {
-        key: 'hmacKey',
-        label: 'HMAC key',
-        secret: true,
-        placeholder: 'b4a91c84e6f7d3a1…',
-        hint: 'Where to find: Settings → Developers → API Keys',
-      },
-    ],
-    providerConfig: [
-      {
-        key: 'integrationId',
-        label: 'Integration ID',
-        type: 'number',
-      },
-    ],
-  },
-];
+import type { GatewayProvider, PaymentChannel, PaymentGatewayRequest } from '../../../shared/types';
+import { PaymentChannelsComponent } from '../payment-channels/payment-channels';
+import { PAYMENT_PROVIDERS, type CredentialField, type ProviderSpec } from '../provider-spec';
 
 function buildCredentialsGroup(
   fields: CredentialField[],
@@ -100,6 +32,7 @@ function buildCredentialsGroup(
     CustomSelectComponent,
     Switch,
     LucideDynamicIcon,
+    PaymentChannelsComponent,
   ],
   templateUrl: './manage-gateway-modal.html',
   styleUrl: './manage-gateway-modal.scss',
@@ -109,6 +42,7 @@ export class ManageGatewayModalComponent {
     KeyIcon,
     LockIcon,
     ExternalLinkIcon,
+    WebhookIcon,
   };
 
   protected readonly providers = PAYMENT_PROVIDERS;
@@ -116,6 +50,10 @@ export class ManageGatewayModalComponent {
   readonly close = input.required<() => void>();
 
   readonly gatewayCreated = output<PaymentGatewayRequest>();
+
+  protected readonly channels = signal<PaymentChannel[]>([]);
+  protected readonly channelsEnabled = signal(false);
+  protected readonly channelFormOpen = signal(false);
 
   protected readonly form = new FormGroup({
     name: new FormControl('', {
@@ -144,8 +82,23 @@ export class ManageGatewayModalComponent {
     () => this.providers.find((spec) => spec.provider === this.provider()) ?? this.providers[0],
   );
 
+  protected readonly channelsRequired = computed(() => this.providerSpec().channelsRequired);
+
+  protected readonly showChannelsSection = computed(
+    () =>
+      this.providerSpec().supportsChannels && (this.channelsRequired() || this.channelsEnabled()),
+  );
+
   protected readonly canSave = computed(() => {
     this.formStatus();
+    if (this.channelFormOpen()) return false;
+    if (
+      this.channelsRequired() &&
+      this.providerSpec().supportsChannels &&
+      !this.channels().length
+    ) {
+      return false;
+    }
     return this.form.valid;
   });
 
@@ -172,14 +125,24 @@ export class ManageGatewayModalComponent {
     return this.form.controls.credentials.controls[key];
   }
 
+  protected onChannelsToggle(enabled: boolean) {
+    this.channelsEnabled.set(enabled);
+    if (!enabled) {
+      this.channels.set([]);
+      this.channelFormOpen.set(false);
+    }
+  }
+
   protected save() {
     if (!this.canSave()) return;
     const { name, provider, isActive, credentials } = this.form.getRawValue();
+    const channels = this.channels();
     this.gatewayCreated.emit({
       name: name.trim(),
       provider,
       isActive,
       credentials,
+      ...(channels.length ? { channels } : {}),
     });
     this.close()();
   }

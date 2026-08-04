@@ -25,6 +25,7 @@
         [control]="form.controls.provider"
         [required]="true"
         [disabled]="true"
+        (selectionChange)="form.controls.provider.setValue($event.provider)"
       />
     </div>
 
@@ -68,6 +69,33 @@
         }
       </div>
     </section>
+
+    @if (providerSpec().supportsChannels) {
+      <section class="form-section">
+        <div class="section-head">
+          <div class="section-title">
+            <svg [lucideIcon]="icons.WebhookIcon" [size]="15" [strokeWidth]="2"></svg>
+            <h3>Payment channels</h3>
+          </div>
+          @if (!channelsRequired()) {
+            <cui-switch
+              size="sm"
+              [checked]="channelsEnabled()"
+              (checkedChange)="onChannelsToggle($event)"
+            />
+          }
+        </div>
+
+        @if (showChannelsSection()) {
+          <p class="section-help">{{ providerSpec().channelHelp }}</p>
+          <payment-channels
+            [providerConfig]="providerSpec().providerConfig ?? []"
+            [(channels)]="channels"
+            (openChange)="channelFormOpen.set($event)"
+          />
+        }
+      </section>
+    }
   </form>
 
   <div class="gateway-footer" modal-footer>

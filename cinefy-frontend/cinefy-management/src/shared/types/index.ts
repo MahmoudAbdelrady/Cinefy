@@ -42,6 +42,7 @@ export { GATEWAY_PROVIDER_LABELS } from './payment-gateway';
 export type {
   GatewayProvider,
   ChannelCurrency,
+  ProviderConfigValue,
   PaymentChannel,
   PaymentGateway,
   PaymentGatewayRequest,

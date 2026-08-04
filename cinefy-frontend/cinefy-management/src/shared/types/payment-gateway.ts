@@ -6,11 +6,13 @@ type GatewayProvider = keyof typeof GATEWAY_PROVIDER_LABELS;
 
 type ChannelCurrency = 'EGP' | 'USD';
 
+type ProviderConfigValue = string | number;
+
 interface PaymentChannel {
   name: string;
   currency: ChannelCurrency;
   isActive: boolean;
-  providerConfig: Record<string, string | number>;
+  providerConfig: Record<string, ProviderConfigValue>;
 }
 
 interface PaymentGateway {
@@ -35,6 +37,7 @@ export { GATEWAY_PROVIDER_LABELS };
 export type {
   GatewayProvider,
   ChannelCurrency,
+  ProviderConfigValue,
   PaymentChannel,
   PaymentGateway,
   PaymentGatewayRequest,
