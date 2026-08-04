@@ -227,25 +227,21 @@ const newId = (prefix: string) => `${prefix}_${Math.random().toString(36).slice(
 function formatShortDate(iso: string): string {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 const emptyCredentials = (): PaymobCredentials => ({ secretKey: '', publicKey: '', hmacKey: '' });
 
-function ProviderChip({ provider }: { provider: GatewayProvider }) {
-  return (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-gray-100 border border-gray-200 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-600">
-      {PROVIDER_BY_ID[provider].label}
+function StatusPill({ active }: { active: boolean }) {
+  return active ? (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11.5px] font-semibold whitespace-nowrap">
+      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
+      Receiving payments
     </span>
-  );
-}
-
-function ChannelSummary({ channels }: { channels: PaymentChannel[] }) {
-  if (channels.length === 0) return <span>No channels</span>;
-  return (
-    <span>
-      <span className="font-semibold text-gray-700 tabular-nums">{channels.length}</span>{' '}
-      {channels.length === 1 ? 'channel' : 'channels'}
+  ) : (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 border border-gray-200 text-gray-500 text-[11.5px] font-semibold whitespace-nowrap">
+      <span className="h-1.5 w-1.5 rounded-full bg-gray-400" aria-hidden />
+      Standby
     </span>
   );
 }
@@ -327,107 +323,86 @@ function RoutingNotice({ compact }: { compact?: boolean }) {
   );
 }
 
-function GatewayCard({
+function GatewayRow({
   gateway,
-  featured = false,
   onViewChannels,
   onEdit,
   onDelete,
   onToggle,
 }: {
   gateway: PaymentGateway;
-  featured?: boolean;
   onViewChannels: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onToggle: () => void;
 }) {
   const spec = PROVIDER_BY_ID[gateway.provider];
-  const liveChannels = gateway.channels.filter((c) => c.isActive).length;
+  const active = gateway.isActive;
 
   return (
-    <article
-      className={
-        featured
-          ? 'rounded-2xl border border-emerald-200 ring-1 ring-emerald-100 bg-gradient-to-b from-emerald-50/50 via-white to-white shadow-[0_16px_36px_-20px_rgba(5,150,105,0.35)]'
-          : 'rounded-2xl border border-gray-200 bg-white hover:border-gray-300 transition-colors'
-      }
-    >
-      <div className={featured ? 'p-6' : 'p-5'}>
-        {/* Identity */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3 min-w-0">
-            <div
-              className={`rounded-xl flex items-center justify-center flex-shrink-0 ${
-                featured
-                  ? 'w-11 h-11 bg-emerald-600 text-white shadow-sm'
-                  : 'w-10 h-10 bg-gray-100 text-gray-500'
-              }`}
-            >
-              <CreditCard size={featured ? 20 : 17} />
-            </div>
-            <div className="min-w-0">
-              <h3
-                className={`font-semibold tracking-tight truncate ${
-                  featured ? 'text-lg text-gray-900' : 'text-[15px] text-gray-800'
-                }`}
-              >
-                {gateway.name}
-              </h3>
-              <p className="text-[12.5px] text-gray-500 mt-1 flex items-center gap-1.5 flex-wrap">
-                <ProviderChip provider={gateway.provider} />
-                <span className="text-gray-300">·</span>
-                <span className="tabular-nums">Added {formatShortDate(gateway.createdAt)}</span>
-                <span className="text-gray-300">·</span>
-                <ChannelSummary channels={gateway.channels} />
-              </p>
-            </div>
+    <tr className={active ? 'bg-emerald-50/40' : 'hover:bg-gray-50 transition-colors'}>
+      <td className="relative py-5 pl-6 pr-4">
+        {active && <span className="absolute inset-y-0 left-0 w-1 bg-emerald-500" aria-hidden />}
+        <div className="flex items-center gap-4 min-w-0">
+          <div
+            className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              active
+                ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-500'
+            }`}
+          >
+            <CreditCard size={24} />
           </div>
-          <GatewaySwitch
-            checked={gateway.isActive}
-            onChange={onToggle}
-            label={`${gateway.isActive ? 'Deactivate' : 'Activate'} ${gateway.name}`}
-          />
+          <h4 className="text-lg font-semibold text-gray-900 truncate">{gateway.name}</h4>
         </div>
-
-        {featured && liveChannels === 0 && (
-          <p className="mt-3.5 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-amber-800">
-            <AlertCircle size={13} className="text-amber-600" />
-            {gateway.channels.length === 0
-              ? "No channels configured — this gateway can't charge anything."
-              : "Every channel is off — this gateway can't charge anything."}
-          </p>
-        )}
-
-        {/* Actions */}
-        <div
-          className={`flex items-center gap-2 border-t border-gray-100 ${
-            featured ? 'mt-5 pt-4' : 'mt-4 pt-3.5'
-          }`}
-        >
+      </td>
+      <td className="py-5 px-4 text-sm text-gray-600">{spec.label}</td>
+      <td className="py-5 px-4 text-sm text-gray-600 tabular-nums whitespace-nowrap">
+        {formatShortDate(gateway.createdAt)}
+      </td>
+      <td className="py-5 px-4 text-sm text-gray-600 tabular-nums">
+        <span className="font-semibold text-gray-900">{gateway.channels.length}</span>
+      </td>
+      <td className="py-5 px-4">
+        <StatusPill active={active} />
+      </td>
+      <td className="py-5 pl-4 pr-6">
+        <div className="flex items-center justify-end gap-2">
+          <GatewaySwitch
+            checked={active}
+            onChange={onToggle}
+            label={`${active ? 'Deactivate' : 'Activate'} ${gateway.name}`}
+          />
+          <span className="w-2" />
           {spec.supportsChannels && (
             <button
-              type="button"
               onClick={onViewChannels}
-              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-[13px] font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
+              title="View channels"
+              className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2 border border-gray-300 whitespace-nowrap"
             >
-              <Eye size={14} />
-              View channels
+              <Eye size={16} />
+              <span>Channels</span>
             </button>
           )}
           <button
-            type="button"
             onClick={onEdit}
-            className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-[13px] font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
+            title="Edit gateway"
+            className="px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2 border border-blue-200"
           >
-            <Edit size={14} />
-            Edit
+            <Edit size={16} />
+            <span>Edit</span>
           </button>
-          <span className="flex-1" />
-          <RowAction icon={Trash2} label="Delete gateway" tone="danger" onClick={onDelete} />
+          <button
+            onClick={onDelete}
+            title="Delete gateway"
+            className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 border border-red-200"
+          >
+            <Trash2 size={16} />
+            <span>Delete</span>
+          </button>
         </div>
-      </div>
-    </article>
+      </td>
+    </tr>
   );
 }
 
@@ -441,6 +416,8 @@ function PaymentSection() {
 
   const activeGateway = gateways.find((g) => g.isActive) ?? null;
   const standby = gateways.filter((g) => !g.isActive);
+  const ordered = activeGateway ? [activeGateway, ...standby] : standby;
+  const liveChannels = activeGateway ? activeGateway.channels.filter((c) => c.isActive).length : 0;
 
   const openCreate = () => {
     setEditingGateway(null);
@@ -518,90 +495,89 @@ function PaymentSection() {
 
       <div className="p-8">
         {gateways.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
-            <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <CreditCard size={22} className="text-gray-400" />
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-16 flex flex-col items-center justify-center text-center">
+            <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+              <CreditCard size={24} className="text-gray-400" />
             </div>
-            <p className="font-semibold text-gray-900">No payment gateways yet</p>
-            <p className="text-sm text-gray-600 mt-1 mb-5">
+            <p className="text-gray-900 font-medium">No payment gateways yet</p>
+            <p className="text-sm text-gray-500 mt-1 mb-5">
               Add a gateway to start taking online payments.
             </p>
             <button
               onClick={openCreate}
-              className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors inline-flex items-center gap-2 text-sm font-semibold"
+              className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors inline-flex items-center gap-2 shadow-sm"
             >
-              <Plus size={16} />
-              Add payment gateway
+              <Plus size={18} />
+              <span>Add payment gateway</span>
             </button>
           </div>
         ) : (
-          <div className="space-y-8 max-w-5xl">
-            {/* Live slot */}
-            <section>
-              <p
-                className={`mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] ${
-                  activeGateway ? 'text-emerald-700' : 'text-amber-700'
-                }`}
-              >
-                {activeGateway ? (
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                  </span>
-                ) : (
-                  <span className="h-2 w-2 rounded-full bg-amber-500" aria-hidden />
-                )}
-                Receiving new payments
-              </p>
-
-              {activeGateway ? (
-                <GatewayCard
-                  gateway={activeGateway}
-                  featured
-                  onViewChannels={() => setChannelsFor(activeGateway)}
-                  onEdit={() => openEdit(activeGateway)}
-                  onDelete={() => setPendingDelete(activeGateway)}
-                  onToggle={() => setPendingToggle(activeGateway)}
-                />
-              ) : (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50/60 px-6 py-5 flex items-start gap-3">
-                  <AlertCircle size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-amber-900 text-[15px]">
-                      No gateway is receiving payments
-                    </p>
-                    <p className="text-[13px] text-amber-800/90 mt-0.5">
-                      Customers can't pay online right now. Turn a standby gateway on to restore
-                      checkout.
-                    </p>
-                  </div>
+          <>
+            {!activeGateway && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 px-6 py-5 flex items-start gap-3 mb-6">
+                <AlertCircle size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-amber-900 text-[15px]">
+                    No gateway is receiving payments
+                  </p>
+                  <p className="text-sm text-amber-800/90 mt-0.5">
+                    Customers can't pay online right now. Turn a standby gateway on to restore
+                    checkout.
+                  </p>
                 </div>
-              )}
-            </section>
-
-            {/* Standby tier */}
-            {standby.length > 0 && (
-              <section>
-                <p className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-400">
-                  <span className="h-2 w-2 rounded-full bg-gray-300" aria-hidden />
-                  Standby
-                  <span className="tabular-nums text-gray-300">{standby.length}</span>
-                </p>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {standby.map((g) => (
-                    <GatewayCard
-                      key={g.id}
-                      gateway={g}
-                      onViewChannels={() => setChannelsFor(g)}
-                      onEdit={() => openEdit(g)}
-                      onDelete={() => setPendingDelete(g)}
-                      onToggle={() => setPendingToggle(g)}
-                    />
-                  ))}
-                </div>
-              </section>
+              </div>
             )}
-          </div>
+
+            {activeGateway && liveChannels === 0 && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 px-6 py-4 flex items-start gap-3 mb-6">
+                <AlertCircle size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-900">
+                  <span className="font-semibold">{activeGateway.name}</span> is receiving payments
+                  but{' '}
+                  {activeGateway.channels.length === 0
+                    ? "has no channels configured — it can't charge anything."
+                    : "every channel is off — it can't charge anything."}
+                </p>
+              </div>
+            )}
+
+            {/* Gateways List */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">All Payment Gateways</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  One gateway receives new payments — the rest stay on standby
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[960px] text-left">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                      <th className="py-3 pl-6 pr-4">Gateway Name</th>
+                      <th className="py-3 px-4">Provider</th>
+                      <th className="py-3 px-4">Added</th>
+                      <th className="py-3 px-4">Channels</th>
+                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 pl-4 pr-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {ordered.map((g) => (
+                      <GatewayRow
+                        key={g.id}
+                        gateway={g}
+                        onViewChannels={() => setChannelsFor(g)}
+                        onEdit={() => openEdit(g)}
+                        onDelete={() => setPendingDelete(g)}
+                        onToggle={() => setPendingToggle(g)}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         )}
       </div>
 
