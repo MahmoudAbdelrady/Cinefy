@@ -1,5 +1,12 @@
 import { Component, computed, effect, input, model, output, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  type AbstractControl,
+  type ValidationErrors,
+} from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { NgTemplateOutlet } from '@angular/common';
@@ -60,7 +67,11 @@ export class PaymentChannelsComponent {
   protected readonly channelForm = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(60)],
+      validators: [
+        Validators.required,
+        Validators.maxLength(60),
+        (control) => this.duplicateNameValidator(control),
+      ],
     }),
     currency: new FormControl<ChannelCurrency>('EGP', {
       nonNullable: true,
@@ -96,6 +107,11 @@ export class PaymentChannelsComponent {
     );
 
     effect(() => this.openChange.emit(this.isChannelFormOpen()));
+
+    effect(() => {
+      this.channels();
+      this.channelForm.controls.name.updateValueAndValidity();
+    });
   }
 
   protected configControl(key: string): FormControl<ProviderConfigValue> | undefined {
@@ -109,6 +125,7 @@ export class PaymentChannelsComponent {
 
   protected startEdit(index: number) {
     const channel = this.channels()[index];
+    this.channelFormTarget.set(index);
     this.channelForm.reset();
     this.channelForm.patchValue({
       name: channel.name,
@@ -118,7 +135,6 @@ export class PaymentChannelsComponent {
     for (const field of this.providerConfig()) {
       this.configControl(field.key)?.setValue(channel.providerConfig[field.key] ?? '');
     }
-    this.channelFormTarget.set(index);
   }
 
   protected closeChannelForm() {
@@ -153,5 +169,15 @@ export class PaymentChannelsComponent {
     this.channels.update((channels) =>
       channels.map((channel, i) => (i === index ? { ...channel, isActive } : channel)),
     );
+  }
+
+  private duplicateNameValidator(control: AbstractControl): ValidationErrors | null {
+    const name = (control.value as string)?.trim().toLowerCase();
+    if (!name) return null;
+    const target = this.channelFormTarget();
+    const taken = this.channels().some(
+      (channel, index) => index !== target && channel.name.trim().toLowerCase() === name,
+    );
+    return taken ? { duplicateName: true } : null;
   }
 }
