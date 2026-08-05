@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
-public class PaymentGatewayProviderSummaryDTO {
+public class PaymentGatewaySummaryDTO {
 
     private String id;
 
@@ -24,7 +24,7 @@ public class PaymentGatewayProviderSummaryDTO {
 
     private GatewayProviderCredentials credentials;
 
-    private List<PaymentGatewayProviderChannel<?>> paymentChannels;
+    private List<PaymentGatewayChannel<?>> paymentChannels;
 
     private LocalDateTime createdAt;
 }

@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class PaymentGatewayProviderDTO {
+public class PaymentGatewayDTO {
 
     @NotBlank(message = "Name is required")
     @Size(max = 60, message = "Name must not exceed 60 characters")

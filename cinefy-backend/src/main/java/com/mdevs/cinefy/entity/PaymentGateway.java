@@ -15,7 +15,7 @@ import org.hibernate.type.SqlTypes;
 @Setter
 @NoArgsConstructor
 @Entity
-public class PaymentGatewayProvider extends BaseEntity {
+public class PaymentGateway extends BaseEntity {
 
     @Column(nullable = false)
     private String name;

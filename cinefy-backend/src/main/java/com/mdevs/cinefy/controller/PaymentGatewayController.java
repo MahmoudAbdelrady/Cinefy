@@ -1,8 +1,8 @@
 package com.mdevs.cinefy.controller;
 
-import com.mdevs.cinefy.dto.payment.PaymentGatewayProviderDTO;
-import com.mdevs.cinefy.dto.payment.PaymentGatewayProviderSummaryDTO;
-import com.mdevs.cinefy.service.PaymentGatewayProviderService;
+import com.mdevs.cinefy.dto.payment.PaymentGatewayDTO;
+import com.mdevs.cinefy.dto.payment.PaymentGatewaySummaryDTO;
+import com.mdevs.cinefy.service.PaymentGatewayService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/payment-gateways")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-public class PaymentGatewayProviderController {
+public class PaymentGatewayController {
 
-    private final PaymentGatewayProviderService paymentGatewayProviderService;
+    private final PaymentGatewayService paymentGatewayService;
 
     @PostMapping
-    public ResponseEntity<PaymentGatewayProviderSummaryDTO> createPaymentGatewayProvider(@Valid @RequestBody PaymentGatewayProviderDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(paymentGatewayProviderService.createPaymentGatewayProvider(dto));
+    public ResponseEntity<PaymentGatewaySummaryDTO> createPaymentGateway(@Valid @RequestBody PaymentGatewayDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentGatewayService.createPaymentGateway(dto));
     }
 }

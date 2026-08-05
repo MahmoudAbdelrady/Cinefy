@@ -3,12 +3,12 @@ package com.mdevs.cinefy.service;
 import com.mdevs.cinefy.dto.payment.GatewayProviderChannelConfig;
 import com.mdevs.cinefy.dto.payment.GatewayProviderCredentials;
 import com.mdevs.cinefy.dto.payment.GatewayProviderSpec;
-import com.mdevs.cinefy.dto.payment.PaymentGatewayProviderChannel;
-import com.mdevs.cinefy.dto.payment.PaymentGatewayProviderDTO;
-import com.mdevs.cinefy.dto.payment.PaymentGatewayProviderSummaryDTO;
-import com.mdevs.cinefy.entity.PaymentGatewayProvider;
+import com.mdevs.cinefy.dto.payment.PaymentGatewayChannel;
+import com.mdevs.cinefy.dto.payment.PaymentGatewayDTO;
+import com.mdevs.cinefy.dto.payment.PaymentGatewaySummaryDTO;
+import com.mdevs.cinefy.entity.PaymentGateway;
 import com.mdevs.cinefy.entity.enums.PaymentProvider;
-import com.mdevs.cinefy.repository.PaymentGatewayProviderRepository;
+import com.mdevs.cinefy.repository.PaymentGatewayRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.payment.PaymobClient;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
@@ -28,9 +28,9 @@ import java.util.Set;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PaymentGatewayProviderService {
+public class PaymentGatewayService {
 
-    private final PaymentGatewayProviderRepository paymentGatewayProviderRepository;
+    private final PaymentGatewayRepository paymentGatewayRepository;
 
     private final PaymobClient paymobClient;
 
@@ -43,8 +43,8 @@ public class PaymentGatewayProviderService {
     // ========================= Public API =========================
 
     @Transactional
-    public PaymentGatewayProviderSummaryDTO createPaymentGatewayProvider(PaymentGatewayProviderDTO dto) {
-        validateGatewayProvider(dto, null);
+    public PaymentGatewaySummaryDTO createPaymentGateway(PaymentGatewayDTO dto) {
+        validateGateway(dto, null);
 
         PaymentProvider provider = PaymentProvider.fromString(dto.getProvider());
         GatewayProviderSpec spec = provider.getSpec();
@@ -52,37 +52,37 @@ public class PaymentGatewayProviderService {
         GatewayProviderCredentials credentials = paymobClient.resolveCredentials(
                 parseCredentials(dto.getCredentials(), spec), null);
 
-        List<PaymentGatewayProviderChannel<?>> channels = parseChannels(dto.getPaymentChannels(), spec);
+        List<PaymentGatewayChannel<?>> channels = parseChannels(dto.getPaymentChannels(), spec);
 
         validateChannels(provider, channels);
 
-        PaymentGatewayProvider gatewayProvider = new PaymentGatewayProvider();
-        gatewayProvider.setName(dto.getName());
-        gatewayProvider.setCode(PaymentGatewayProvider.toCode(dto.getName()));
-        gatewayProvider.setProvider(provider);
-        gatewayProvider.setActive(false);
-        gatewayProvider.setCredentials(credentialCipher.encrypt(writeJson(credentials)));
-        gatewayProvider.setPaymentChannels(writeJson(channels));
+        PaymentGateway gateway = new PaymentGateway();
+        gateway.setName(dto.getName());
+        gateway.setCode(PaymentGateway.toCode(dto.getName()));
+        gateway.setProvider(provider);
+        gateway.setActive(false);
+        gateway.setCredentials(credentialCipher.encrypt(writeJson(credentials)));
+        gateway.setPaymentChannels(writeJson(channels));
 
-        paymentGatewayProviderRepository.save(gatewayProvider);
+        paymentGatewayRepository.save(gateway);
 
-        return toSummaryDTO(gatewayProvider, paymobClient.readCredentials(credentials, false), channels);
+        return toSummaryDTO(gateway, paymobClient.readCredentials(credentials, false), channels);
     }
 
     // =========================== Helpers ===========================
 
-    private void validateGatewayProvider(PaymentGatewayProviderDTO dto, Long excludeId) {
-        String code = PaymentGatewayProvider.toCode(dto.getName());
+    private void validateGateway(PaymentGatewayDTO dto, Long excludeId) {
+        String code = PaymentGateway.toCode(dto.getName());
         boolean exists = excludeId == null
-                ? paymentGatewayProviderRepository.existsByCode(code)
-                : paymentGatewayProviderRepository.existsByCodeAndIdNot(code, excludeId);
+                ? paymentGatewayRepository.existsByCode(code)
+                : paymentGatewayRepository.existsByCodeAndIdNot(code, excludeId);
 
         if (exists) {
             throw new BusinessException("A payment gateway with a similar name to '" + dto.getName() + "' already exists");
         }
     }
 
-    private void validateChannels(PaymentProvider provider, List<PaymentGatewayProviderChannel<?>> channels) {
+    private void validateChannels(PaymentProvider provider, List<PaymentGatewayChannel<?>> channels) {
         GatewayProviderSpec spec = provider.getSpec();
         boolean hasChannels = channels != null && !channels.isEmpty();
 
@@ -104,7 +104,7 @@ public class PaymentGatewayProviderService {
         Set<String> names = new HashSet<>();
         Set<GatewayProviderChannelConfig> configs = new HashSet<>();
 
-        for (PaymentGatewayProviderChannel<?> channel : channels) {
+        for (PaymentGatewayChannel<?> channel : channels) {
             if (StringUtils.isEmpty(channel.name())) {
                 throw new BusinessException("Channel name is required");
             }
@@ -137,33 +137,33 @@ public class PaymentGatewayProviderService {
         return convertJson(credentials, objectMapper.getTypeFactory().constructType(spec.credentialsType()));
     }
 
-    private GatewayProviderCredentials readStoredCredentials(PaymentGatewayProvider gatewayProvider) {
-        GatewayProviderSpec spec = gatewayProvider.getProvider().getSpec();
-        String decrypted = credentialCipher.decrypt(gatewayProvider.getCredentials());
+    private GatewayProviderCredentials readStoredCredentials(PaymentGateway gateway) {
+        GatewayProviderSpec spec = gateway.getProvider().getSpec();
+        String decrypted = credentialCipher.decrypt(gateway.getCredentials());
 
         return readJson(decrypted, objectMapper.getTypeFactory().constructType(spec.credentialsType()));
     }
 
-    private List<PaymentGatewayProviderChannel<?>> parseChannels(Object channels, GatewayProviderSpec spec) {
+    private List<PaymentGatewayChannel<?>> parseChannels(Object channels, GatewayProviderSpec spec) {
         if (channels == null) {
             return List.of();
         }
 
         JavaType channelType = objectMapper.getTypeFactory()
-                .constructParametricType(PaymentGatewayProviderChannel.class, spec.channelConfigType());
+                .constructParametricType(PaymentGatewayChannel.class, spec.channelConfigType());
 
         return convertJson(channels, objectMapper.getTypeFactory().constructCollectionType(List.class, channelType));
     }
 
-    private PaymentGatewayProviderSummaryDTO toSummaryDTO(PaymentGatewayProvider gatewayProvider, GatewayProviderCredentials credentials, List<PaymentGatewayProviderChannel<?>> channels) {
-        PaymentGatewayProviderSummaryDTO dto = new PaymentGatewayProviderSummaryDTO();
-        dto.setId(gatewayProvider.getUuid());
-        dto.setName(gatewayProvider.getName());
-        dto.setProvider(gatewayProvider.getProvider().name());
-        dto.setActive(gatewayProvider.isActive());
+    private PaymentGatewaySummaryDTO toSummaryDTO(PaymentGateway gateway, GatewayProviderCredentials credentials, List<PaymentGatewayChannel<?>> channels) {
+        PaymentGatewaySummaryDTO dto = new PaymentGatewaySummaryDTO();
+        dto.setId(gateway.getUuid());
+        dto.setName(gateway.getName());
+        dto.setProvider(gateway.getProvider().name());
+        dto.setActive(gateway.isActive());
         dto.setCredentials(credentials);
         dto.setPaymentChannels(channels);
-        dto.setCreatedAt(gatewayProvider.getCreatedAt());
+        dto.setCreatedAt(gateway.getCreatedAt());
         return dto;
     }
 

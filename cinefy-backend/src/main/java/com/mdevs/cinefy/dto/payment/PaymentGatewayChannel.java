@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.dto.payment;
 
-public record PaymentGatewayProviderChannel<T extends GatewayProviderChannelConfig>(
+public record PaymentGatewayChannel<T extends GatewayProviderChannelConfig>(
         String name,
 
         String currency,
