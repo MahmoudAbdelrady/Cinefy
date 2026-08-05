@@ -1,7 +1,10 @@
 package com.mdevs.cinefy.shared.payment;
 
 import com.mdevs.cinefy.dto.payment.CardTokenCallbackDTO;
+import com.mdevs.cinefy.dto.payment.GatewayProviderChannelConfig;
+import com.mdevs.cinefy.dto.payment.GatewayProviderCredentials;
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
+import com.mdevs.cinefy.dto.payment.PaymobGateway;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
@@ -232,6 +235,52 @@ public class PaymobClient {
         verifyHmac(payload, TRANSACTION_HMAC_FIELDS, hmacSecret, params.get(HMAC_PARAM));
 
         return toTransactionCallback(payload);
+    }
+
+    public GatewayProviderCredentials resolveCredentials(GatewayProviderCredentials newCredentials, GatewayProviderCredentials existingCredentials) {
+        validateCredentials(newCredentials, existingCredentials != null);
+
+        if (existingCredentials == null) {
+            return newCredentials;
+        }
+
+        if (!(newCredentials instanceof PaymobGateway.Credentials incoming)
+                || !(existingCredentials instanceof PaymobGateway.Credentials stored)) {
+            throw new BusinessException("Invalid Paymob credentials");
+        }
+
+        return new PaymobGateway.Credentials(
+                StringUtils.isEmpty(incoming.secretKey()) ? stored.secretKey() : incoming.secretKey(),
+                incoming.publicKey(),
+                StringUtils.isEmpty(incoming.hmacKey()) ? stored.hmacKey() : incoming.hmacKey());
+    }
+
+    private void validateCredentials(GatewayProviderCredentials credentials, boolean isUpdate) {
+        if (!(credentials instanceof PaymobGateway.Credentials paymobCredentials)) {
+            throw new BusinessException("Invalid Paymob credentials");
+        }
+
+        if (!isUpdate && StringUtils.isEmpty(paymobCredentials.secretKey())) {
+            throw new BusinessException("Secret key is required");
+        }
+
+        if (StringUtils.isEmpty(paymobCredentials.publicKey())) {
+            throw new BusinessException("Public key is required");
+        }
+
+        if (!isUpdate && StringUtils.isBlank(paymobCredentials.hmacKey())) {
+            throw new BusinessException("HMAC key is required");
+        }
+    }
+
+    public void validateChannelConfig(GatewayProviderChannelConfig channelConfig) {
+        if (!(channelConfig instanceof PaymobGateway.ChannelConfig paymobChannelConfig)) {
+            throw new BusinessException("Invalid Paymob channel configuration");
+        }
+
+        if (paymobChannelConfig.integrationId() <= 0) {
+            throw new BusinessException("Integration ID is required");
+        }
     }
 
     public PaymentCallbackData parseCallback(JsonNode payload, String hmacSecret, String receivedHmac) {
