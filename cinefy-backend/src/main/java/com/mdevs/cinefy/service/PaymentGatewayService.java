@@ -6,6 +6,7 @@ import com.mdevs.cinefy.dto.payment.GatewayProviderSpec;
 import com.mdevs.cinefy.dto.payment.PaymentGatewayChannel;
 import com.mdevs.cinefy.dto.payment.PaymentGatewayDTO;
 import com.mdevs.cinefy.dto.payment.PaymentGatewayListDTO;
+import com.mdevs.cinefy.dto.payment.PaymentGatewayStatusRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymentGatewaySummaryDTO;
 import com.mdevs.cinefy.entity.PaymentGateway;
 import com.mdevs.cinefy.entity.enums.PaymentProvider;
@@ -87,6 +88,27 @@ public class PaymentGatewayService {
         paymentGatewayRepository.save(gateway);
 
         return toSummaryDTO(gateway, paymobClient.readCredentials(credentials, false), channels);
+    }
+
+    @Transactional
+    public void updatePaymentGatewayStatus(String uuid, PaymentGatewayStatusRequestDTO dto) {
+        PaymentGateway gateway = findPaymentGateway(uuid);
+
+        if (gateway.isActive() == dto.getActive()) {
+            throw new BusinessException(gateway.isActive()
+                    ? "This payment gateway is already active"
+                    : "This payment gateway is already deactivated");
+        }
+
+        if (dto.getActive()) {
+            paymentGatewayRepository.findByActiveTrue().ifPresent(activeGateway -> {
+                activeGateway.setActive(false);
+                paymentGatewayRepository.save(activeGateway);
+            });
+        }
+
+        gateway.setActive(dto.getActive());
+        paymentGatewayRepository.save(gateway);
     }
 
     @Transactional

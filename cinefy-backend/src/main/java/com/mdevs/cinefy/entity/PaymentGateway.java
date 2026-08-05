@@ -17,7 +17,10 @@ import org.hibernate.type.SqlTypes;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(indexes = @Index(columnList = "CREATED_AT"))
+@Table(indexes = {
+        @Index(columnList = "ACTIVE"),
+        @Index(columnList = "CREATED_AT")
+})
 public class PaymentGateway extends BaseEntity {
 
     @Column(nullable = false)

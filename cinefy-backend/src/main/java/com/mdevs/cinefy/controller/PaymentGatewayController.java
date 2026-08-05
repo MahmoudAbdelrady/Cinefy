@@ -2,6 +2,7 @@ package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.payment.PaymentGatewayDTO;
 import com.mdevs.cinefy.dto.payment.PaymentGatewayListDTO;
+import com.mdevs.cinefy.dto.payment.PaymentGatewayStatusRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymentGatewaySummaryDTO;
 import com.mdevs.cinefy.service.PaymentGatewayService;
 import jakarta.validation.Valid;
@@ -33,6 +34,12 @@ public class PaymentGatewayController {
     @PostMapping
     public ResponseEntity<PaymentGatewaySummaryDTO> createPaymentGateway(@Valid @RequestBody PaymentGatewayDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentGatewayService.createPaymentGateway(dto));
+    }
+
+    @PostMapping("/{uuid}/status")
+    public ResponseEntity<Void> updatePaymentGatewayStatus(@PathVariable String uuid, @Valid @RequestBody PaymentGatewayStatusRequestDTO dto) {
+        paymentGatewayService.updatePaymentGatewayStatus(uuid, dto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{uuid}")

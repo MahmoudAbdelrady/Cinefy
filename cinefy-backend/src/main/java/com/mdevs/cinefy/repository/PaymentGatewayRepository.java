@@ -9,6 +9,8 @@ public interface PaymentGatewayRepository extends BaseRepository<PaymentGateway>
 
     Optional<PaymentGateway> findByUuid(String uuid);
 
+    Optional<PaymentGateway> findByActiveTrue();
+
     List<PaymentGateway> findAllByOrderByCreatedAtDesc();
 
     boolean existsByCode(String code);
