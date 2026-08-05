@@ -5,7 +5,7 @@ public record PaymentGatewayProviderChannel<T extends GatewayProviderChannelConf
 
         String currency,
 
-        boolean isActive,
+        boolean active,
 
         T providerConfig
 ) {

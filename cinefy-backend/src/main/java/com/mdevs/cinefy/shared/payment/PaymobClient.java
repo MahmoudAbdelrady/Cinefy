@@ -238,15 +238,13 @@ public class PaymobClient {
     }
 
     public GatewayProviderCredentials resolveCredentials(GatewayProviderCredentials newCredentials, GatewayProviderCredentials existingCredentials) {
-        validateCredentials(newCredentials, existingCredentials != null);
+        PaymobGateway.Credentials incoming = (PaymobGateway.Credentials) newCredentials;
+        PaymobGateway.Credentials stored = (PaymobGateway.Credentials) existingCredentials;
 
-        if (existingCredentials == null) {
-            return newCredentials;
-        }
+        validateCredentials(incoming, stored != null);
 
-        if (!(newCredentials instanceof PaymobGateway.Credentials incoming)
-                || !(existingCredentials instanceof PaymobGateway.Credentials stored)) {
-            throw new BusinessException("Invalid Paymob credentials");
+        if (stored == null) {
+            return incoming;
         }
 
         return new PaymobGateway.Credentials(
@@ -255,31 +253,35 @@ public class PaymobClient {
                 StringUtils.isEmpty(incoming.hmacKey()) ? stored.hmacKey() : incoming.hmacKey());
     }
 
-    private void validateCredentials(GatewayProviderCredentials credentials, boolean isUpdate) {
-        if (!(credentials instanceof PaymobGateway.Credentials paymobCredentials)) {
-            throw new BusinessException("Invalid Paymob credentials");
+    public GatewayProviderCredentials readCredentials(GatewayProviderCredentials storedCredentials, boolean includeSecrets) {
+        PaymobGateway.Credentials paymobCredentials = (PaymobGateway.Credentials) storedCredentials;
+
+        if (includeSecrets) {
+            return paymobCredentials;
         }
 
-        if (!isUpdate && StringUtils.isEmpty(paymobCredentials.secretKey())) {
+        return new PaymobGateway.Credentials(null, paymobCredentials.publicKey(), null);
+    }
+
+    private void validateCredentials(PaymobGateway.Credentials credentials, boolean isUpdate) {
+        if (!isUpdate && StringUtils.isEmpty(credentials.secretKey())) {
             throw new BusinessException("Secret key is required");
         }
 
-        if (StringUtils.isEmpty(paymobCredentials.publicKey())) {
+        if (StringUtils.isEmpty(credentials.publicKey())) {
             throw new BusinessException("Public key is required");
         }
 
-        if (!isUpdate && StringUtils.isBlank(paymobCredentials.hmacKey())) {
+        if (!isUpdate && StringUtils.isBlank(credentials.hmacKey())) {
             throw new BusinessException("HMAC key is required");
         }
     }
 
     public void validateChannelConfig(GatewayProviderChannelConfig channelConfig) {
-        if (!(channelConfig instanceof PaymobGateway.ChannelConfig paymobChannelConfig)) {
-            throw new BusinessException("Invalid Paymob channel configuration");
-        }
+        PaymobGateway.ChannelConfig paymobChannelConfig = (PaymobGateway.ChannelConfig) channelConfig;
 
         if (paymobChannelConfig.integrationId() <= 0) {
-            throw new BusinessException("Integration ID is required");
+            throw new BusinessException("A valid Integration ID is required");
         }
     }
 

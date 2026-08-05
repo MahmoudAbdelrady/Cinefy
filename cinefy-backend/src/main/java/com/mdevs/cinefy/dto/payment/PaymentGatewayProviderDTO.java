@@ -9,12 +9,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
-public class PaymentGatewayProviderDTO<C extends GatewayProviderCredentials, K extends GatewayProviderChannelConfig> {
-
-    private String id;
+public class PaymentGatewayProviderDTO {
 
     @NotBlank(message = "Name is required")
     @Size(max = 60, message = "Name must not exceed 60 characters")
@@ -24,10 +23,8 @@ public class PaymentGatewayProviderDTO<C extends GatewayProviderCredentials, K e
     @NotBlank(message = "Provider is required")
     private String provider;
 
-    private boolean isActive = false;
-
     @NotNull(message = "Credentials are required")
-    private C credentials;
+    private Map<String, Object> credentials;
 
-    private List<PaymentGatewayProviderChannel<K>> paymentChannels;
+    private List<Map<String, Object>> paymentChannels;
 }

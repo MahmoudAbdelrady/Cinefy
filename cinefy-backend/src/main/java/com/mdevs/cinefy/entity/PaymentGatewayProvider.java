@@ -28,10 +28,9 @@ public class PaymentGatewayProvider extends BaseEntity {
     private PaymentProvider provider;
 
     @Column(nullable = false)
-    private boolean isActive = false;
+    private boolean active = false;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "JSONB", nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String credentials;
 
     @JdbcTypeCode(SqlTypes.JSON)
