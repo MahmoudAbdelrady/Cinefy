@@ -11,6 +11,7 @@ import com.mdevs.cinefy.entity.PaymentGateway;
 import com.mdevs.cinefy.entity.enums.PaymentProvider;
 import com.mdevs.cinefy.repository.PaymentGatewayRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.payment.PaymobClient;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
@@ -88,7 +89,26 @@ public class PaymentGatewayService {
         return toSummaryDTO(gateway, paymobClient.readCredentials(credentials, false), channels);
     }
 
+    @Transactional
+    public void deletePaymentGateway(String uuid) {
+        PaymentGateway gateway = findPaymentGateway(uuid);
+
+        if (gateway.isActive()) {
+            throw new BusinessException("An active payment gateway cannot be deleted");
+        }
+
+        // TODO: validate that no payment is currently in progress on this gateway
+        // TODO: validate that the latest successful transaction on this gateway is at least 7 days old
+
+        paymentGatewayRepository.delete(gateway);
+    }
+
     // =========================== Helpers ===========================
+
+    private PaymentGateway findPaymentGateway(String uuid) {
+        return paymentGatewayRepository.findByUuid(uuid)
+                .orElseThrow(() -> new NotFoundException("Payment gateway not found with id: " + uuid));
+    }
 
     private void validateGateway(PaymentGatewayDTO dto, Long excludeId) {
         String code = PaymentGateway.toCode(dto.getName());
