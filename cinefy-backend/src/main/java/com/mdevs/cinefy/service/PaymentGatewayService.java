@@ -5,6 +5,7 @@ import com.mdevs.cinefy.dto.payment.GatewayProviderCredentials;
 import com.mdevs.cinefy.dto.payment.GatewayProviderSpec;
 import com.mdevs.cinefy.dto.payment.PaymentGatewayChannel;
 import com.mdevs.cinefy.dto.payment.PaymentGatewayDTO;
+import com.mdevs.cinefy.dto.payment.PaymentGatewayListDTO;
 import com.mdevs.cinefy.dto.payment.PaymentGatewaySummaryDTO;
 import com.mdevs.cinefy.entity.PaymentGateway;
 import com.mdevs.cinefy.entity.enums.PaymentProvider;
@@ -21,6 +22,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +43,23 @@ public class PaymentGatewayService {
     private static final List<String> SUPPORTED_CHANNEL_CURRENCIES = List.of("EGP", "USD");
 
     // ========================= Public API =========================
+
+    public PaymentGatewayListDTO getPaymentGateways() {
+        PaymentGatewaySummaryDTO active = null;
+        List<PaymentGatewaySummaryDTO> standBy = new ArrayList<>();
+
+        for (PaymentGateway gateway : paymentGatewayRepository.findAllByOrderByCreatedAtDesc()) {
+            PaymentGatewaySummaryDTO dto = toSummaryDTO(gateway);
+
+            if (gateway.isActive()) {
+                active = dto;
+            } else {
+                standBy.add(dto);
+            }
+        }
+
+        return new PaymentGatewayListDTO(active, standBy);
+    }
 
     @Transactional
     public PaymentGatewaySummaryDTO createPaymentGateway(PaymentGatewayDTO dto) {
@@ -144,6 +163,17 @@ public class PaymentGatewayService {
         return readJson(decrypted, objectMapper.getTypeFactory().constructType(spec.credentialsType()));
     }
 
+    private List<PaymentGatewayChannel<?>> readStoredChannels(PaymentGateway gateway, GatewayProviderSpec spec) {
+        if (StringUtils.isEmpty(gateway.getPaymentChannels())) {
+            return List.of();
+        }
+
+        JavaType channelType = objectMapper.getTypeFactory()
+                .constructParametricType(PaymentGatewayChannel.class, spec.channelConfigType());
+
+        return readJson(gateway.getPaymentChannels(), objectMapper.getTypeFactory().constructCollectionType(List.class, channelType));
+    }
+
     private List<PaymentGatewayChannel<?>> parseChannels(Object channels, GatewayProviderSpec spec) {
         if (channels == null) {
             return List.of();
@@ -153,6 +183,13 @@ public class PaymentGatewayService {
                 .constructParametricType(PaymentGatewayChannel.class, spec.channelConfigType());
 
         return convertJson(channels, objectMapper.getTypeFactory().constructCollectionType(List.class, channelType));
+    }
+
+    private PaymentGatewaySummaryDTO toSummaryDTO(PaymentGateway gateway) {
+        GatewayProviderSpec spec = gateway.getProvider().getSpec();
+        GatewayProviderCredentials credentials = paymobClient.readCredentials(readStoredCredentials(gateway), false);
+
+        return toSummaryDTO(gateway, credentials, readStoredChannels(gateway, spec));
     }
 
     private PaymentGatewaySummaryDTO toSummaryDTO(PaymentGateway gateway, GatewayProviderCredentials credentials, List<PaymentGatewayChannel<?>> channels) {

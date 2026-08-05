@@ -5,6 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +17,7 @@ import org.hibernate.type.SqlTypes;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(indexes = @Index(columnList = "CREATED_AT"))
 public class PaymentGateway extends BaseEntity {
 
     @Column(nullable = false)
