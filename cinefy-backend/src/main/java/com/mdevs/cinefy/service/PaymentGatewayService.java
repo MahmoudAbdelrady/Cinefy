@@ -189,7 +189,8 @@ public class PaymentGatewayService {
         }
     }
 
-    private PaymentGatewaySummaryDTO savePaymentGateway(PaymentGateway gateway, PaymentGatewayDTO dto, Long excludeId, GatewayProviderCredentials existingCredentials) {
+    private PaymentGatewaySummaryDTO savePaymentGateway(PaymentGateway gateway, PaymentGatewayDTO dto,
+                                                        Long excludeId, GatewayProviderCredentials existingCredentials) {
         validateGateway(dto, excludeId);
 
         PaymentProvider provider = PaymentProvider.fromString(dto.getProvider());
