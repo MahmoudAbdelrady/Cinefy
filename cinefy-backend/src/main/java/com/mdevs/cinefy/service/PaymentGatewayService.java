@@ -65,29 +65,17 @@ public class PaymentGatewayService {
 
     @Transactional
     public PaymentGatewaySummaryDTO createPaymentGateway(PaymentGatewayDTO dto) {
-        validateGateway(dto, null);
-
-        PaymentProvider provider = PaymentProvider.fromString(dto.getProvider());
-        GatewayProviderSpec spec = provider.getSpec();
-
-        GatewayProviderCredentials credentials = paymobClient.resolveCredentials(
-                parseCredentials(dto.getCredentials(), spec), null);
-
-        List<PaymentGatewayChannel<?>> channels = parseChannels(dto.getPaymentChannels(), spec);
-
-        validateChannels(provider, channels);
-
         PaymentGateway gateway = new PaymentGateway();
-        gateway.setName(dto.getName());
-        gateway.setCode(PaymentGateway.toCode(dto.getName()));
-        gateway.setProvider(provider);
         gateway.setActive(false);
-        gateway.setCredentials(credentialCipher.encrypt(writeJson(credentials)));
-        gateway.setPaymentChannels(writeJson(channels));
 
-        paymentGatewayRepository.save(gateway);
+        return savePaymentGateway(gateway, dto, null, null);
+    }
 
-        return toSummaryDTO(gateway, paymobClient.readCredentials(credentials, false), channels);
+    @Transactional
+    public PaymentGatewaySummaryDTO updatePaymentGateway(String uuid, PaymentGatewayDTO dto) {
+        PaymentGateway gateway = findPaymentGateway(uuid);
+
+        return savePaymentGateway(gateway, dto, gateway.getId(), readStoredCredentials(gateway));
     }
 
     @Transactional
@@ -192,6 +180,30 @@ public class PaymentGatewayService {
                 throw new BusinessException("Channel '" + channel.name() + "' has the same configuration as another channel");
             }
         }
+    }
+
+    private PaymentGatewaySummaryDTO savePaymentGateway(PaymentGateway gateway, PaymentGatewayDTO dto, Long excludeId, GatewayProviderCredentials existingCredentials) {
+        validateGateway(dto, excludeId);
+
+        PaymentProvider provider = PaymentProvider.fromString(dto.getProvider());
+        GatewayProviderSpec spec = provider.getSpec();
+
+        GatewayProviderCredentials credentials = paymobClient.resolveCredentials(
+                parseCredentials(dto.getCredentials(), spec), existingCredentials);
+
+        List<PaymentGatewayChannel<?>> channels = parseChannels(dto.getPaymentChannels(), spec);
+
+        validateChannels(provider, channels);
+
+        gateway.setName(dto.getName());
+        gateway.setCode(PaymentGateway.toCode(dto.getName()));
+        gateway.setProvider(provider);
+        gateway.setCredentials(credentialCipher.encrypt(writeJson(credentials)));
+        gateway.setPaymentChannels(writeJson(channels));
+
+        paymentGatewayRepository.save(gateway);
+
+        return toSummaryDTO(gateway, paymobClient.readCredentials(credentials, false), channels);
     }
 
     private GatewayProviderCredentials parseCredentials(Object credentials, GatewayProviderSpec spec) {

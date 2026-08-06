@@ -241,6 +241,10 @@ public class PaymobClient {
         PaymobGateway.Credentials incoming = (PaymobGateway.Credentials) newCredentials;
         PaymobGateway.Credentials stored = (PaymobGateway.Credentials) existingCredentials;
 
+        if (incoming == null) {
+            throw new BusinessException("Credentials are required");
+        }
+
         validateCredentials(incoming, stored != null);
 
         if (stored == null) {
@@ -280,7 +284,7 @@ public class PaymobClient {
     public void validateChannelConfig(GatewayProviderChannelConfig channelConfig) {
         PaymobGateway.ChannelConfig paymobChannelConfig = (PaymobGateway.ChannelConfig) channelConfig;
 
-        if (paymobChannelConfig.integrationId() <= 0) {
+        if (paymobChannelConfig.integrationId() == null || paymobChannelConfig.integrationId() <= 0) {
             throw new BusinessException("A valid Integration ID is required");
         }
     }

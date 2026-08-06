@@ -36,7 +36,7 @@ public final class PaymobGateway implements GatewayProviderSpec {
     }
 
     public record ChannelConfig(
-            long integrationId
+            Long integrationId
     ) implements GatewayProviderChannelConfig {
 
     }

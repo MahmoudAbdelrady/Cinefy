@@ -2,7 +2,6 @@ package com.mdevs.cinefy.dto.payment;
 
 import com.mdevs.cinefy.shared.validation.ValidationPatterns;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -23,7 +22,6 @@ public class PaymentGatewayDTO {
     @NotBlank(message = "Provider is required")
     private String provider;
 
-    @NotNull(message = "Credentials are required")
     private Map<String, Object> credentials;
 
     private List<Map<String, Object>> paymentChannels;
