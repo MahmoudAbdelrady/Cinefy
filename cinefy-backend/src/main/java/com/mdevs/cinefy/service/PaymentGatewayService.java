@@ -12,12 +12,14 @@ import com.mdevs.cinefy.entity.PaymentGateway;
 import com.mdevs.cinefy.entity.enums.PaymentProvider;
 import com.mdevs.cinefy.repository.PaymentGatewayRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.shared.exception.types.ConflictException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.payment.PaymobClient;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.JacksonException;
@@ -91,12 +93,18 @@ public class PaymentGatewayService {
         if (dto.getActive()) {
             paymentGatewayRepository.findByActiveTrue().ifPresent(activeGateway -> {
                 activeGateway.setActive(false);
-                paymentGatewayRepository.save(activeGateway);
+                // Flushed first so the deactivation lands before the new activation
+                paymentGatewayRepository.saveAndFlush(activeGateway);
             });
         }
 
         gateway.setActive(dto.getActive());
-        paymentGatewayRepository.save(gateway);
+
+        try {
+            paymentGatewayRepository.saveAndFlush(gateway);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException("Another payment gateway was activated at the same time. Please try again");
+        }
     }
 
     @Transactional

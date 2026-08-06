@@ -35,6 +35,7 @@ import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.shared.exception.types.ConflictException;
 import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.security.SecurityUtil;
@@ -209,7 +210,7 @@ public class BookingService {
             log.warn("Booking save conflict for idempotency key {}: {}", idempotencyKey, e.getMessage(), e);
             BookingDetailDTO recovered = findExistingBooking(idempotencyKey);
             if (recovered == null) {
-                throw new BusinessException("One or more selected seats have been taken");
+                throw new ConflictException("One or more selected seats have been taken");
             }
             return recovered;
         }

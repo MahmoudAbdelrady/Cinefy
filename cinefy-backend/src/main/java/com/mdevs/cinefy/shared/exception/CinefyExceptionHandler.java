@@ -2,6 +2,7 @@ package com.mdevs.cinefy.shared.exception;
 
 import com.mdevs.cinefy.config.general.AppConfig;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.shared.exception.types.ConflictException;
 import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
@@ -9,6 +10,7 @@ import com.mdevs.cinefy.utils.ExceptionResponseMaker;
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -87,6 +89,16 @@ public class CinefyExceptionHandler {
             return errorMap;
         }).toList();
         return ExceptionResponseMaker.makeResponse("Validation Error", errorsList, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<?> handleConflictException(ConflictException ex) {
+        return ExceptionResponseMaker.makeResponse(ex.getMessage(), ex.getErrorCode(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException exception) {
+        return ExceptionResponseMaker.makeResponse("A record with the same unique value already exists", HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)
