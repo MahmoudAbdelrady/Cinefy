@@ -9,6 +9,12 @@
   min-width: 0;
 }
 
+.gl-loading {
+  @include flex-center;
+
+  min-height: 200px;
+}
+
 .gl-notice {
   @include lucide-icon-fix;
 

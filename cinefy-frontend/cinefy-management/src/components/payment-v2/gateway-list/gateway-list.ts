@@ -1,8 +1,13 @@
-import { Component, computed, signal } from '@angular/core';
+import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { EmptyStateComponent, ModalComponent, Switch } from 'cinefy-ui/components';
+import {
+  EmptyStateComponent,
+  LoadingSpinnerComponent,
+  ModalComponent,
+  Switch,
+} from 'cinefy-ui/components';
 import {
   AlertIcon,
   CreditCardIcon,
@@ -19,73 +24,8 @@ import {
   type PaymentGateway,
   type PaymentGatewayRequest,
 } from '../../../shared/types';
+import { PaymentGatewaysService } from '../../../services';
 import { ManageGatewayModalComponent } from '../manage-gateway-modal/manage-gateway-modal';
-
-const MOCK_GATEWAYS: PaymentGateway[] = [
-  {
-    id: 'gw_01',
-    name: 'Paymob - Production',
-    provider: 'PAYMOB',
-    active: true,
-    createdAt: '2026-02-12',
-    paymentChannels: [
-      {
-        name: 'Cards',
-        currency: 'EGP',
-        active: true,
-        providerConfig: { integrationId: 4827193 },
-      },
-      {
-        name: 'Mobile wallets',
-        currency: 'EGP',
-        active: true,
-        providerConfig: { integrationId: 4827511 },
-      },
-      {
-        name: 'Cards - USD',
-        currency: 'USD',
-        active: false,
-        providerConfig: { integrationId: 4830042 },
-      },
-    ],
-  },
-  {
-    id: 'gw_02',
-    name: 'Paymob - Sandbox',
-    provider: 'PAYMOB',
-    active: false,
-    createdAt: '2026-04-28',
-    paymentChannels: [
-      {
-        name: 'Cards',
-        currency: 'EGP',
-        active: true,
-        providerConfig: { integrationId: 4710228 },
-      },
-      {
-        name: 'Installments',
-        currency: 'EGP',
-        active: false,
-        providerConfig: { integrationId: 4710901 },
-      },
-    ],
-  },
-  {
-    id: 'gw_03',
-    name: 'Paymob - Legacy account',
-    provider: 'PAYMOB',
-    active: false,
-    createdAt: '2025-08-14',
-    paymentChannels: [
-      {
-        name: 'Cards',
-        currency: 'EGP',
-        active: false,
-        providerConfig: { integrationId: 4392107 },
-      },
-    ],
-  },
-];
 
 @Component({
   selector: 'gateway-list',
@@ -96,6 +36,7 @@ const MOCK_GATEWAYS: PaymentGateway[] = [
     NgpDialogTrigger,
     Switch,
     EmptyStateComponent,
+    LoadingSpinnerComponent,
     ModalComponent,
     ManageGatewayModalComponent,
   ],
@@ -115,37 +56,63 @@ export class GatewayListComponent {
     WebhookIcon,
   };
 
+  private readonly paymentGatewaysService = inject(PaymentGatewaysService);
+
   protected readonly providerLabels = GATEWAY_PROVIDER_LABELS;
 
-  protected readonly gateways = signal<PaymentGateway[]>(MOCK_GATEWAYS);
+  protected readonly loading = signal(true);
 
-  protected readonly activeGateway = computed(
-    () => this.gateways().find((gateway) => gateway.active) ?? null,
-  );
+  protected readonly activeGateway = signal<PaymentGateway | null>(null);
 
-  protected readonly standbyGateways = computed(() =>
-    this.gateways().filter((gateway) => !gateway.active),
-  );
+  protected readonly standbyGateways = signal<PaymentGateway[]>([]);
 
   protected readonly liveChannelCount = computed(
     () => this.activeGateway()?.paymentChannels?.filter((channel) => channel.active).length ?? 0,
   );
 
+  constructor() {
+    afterNextRender(() => {
+      this.paymentGatewaysService.getPaymentGateways().subscribe({
+        next: ({ active, standBy }) => {
+          this.activeGateway.set(active ?? null);
+          this.standbyGateways.set(standBy);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
+    });
+  }
+
   protected toggleGateway(id: string, active: boolean): void {
-    this.gateways.update((gateways) =>
-      gateways.map((gateway) => {
-        if (gateway.id === id) return { ...gateway, active };
-        return active && gateway.active ? { ...gateway, active: false } : gateway;
-      }),
-    );
+    const demoted = this.activeGateway();
+
+    if (!active) {
+      this.activeGateway.set(null);
+      if (demoted) this.standbyGateways.update((gateways) => [{ ...demoted, active }, ...gateways]);
+      return;
+    }
+
+    const promoted = this.standbyGateways().find((gateway) => gateway.id === id);
+    if (!promoted) return;
+
+    this.activeGateway.set({ ...promoted, active });
+    this.standbyGateways.update((gateways) => {
+      const remaining = gateways.filter((gateway) => gateway.id !== id);
+      return demoted ? [{ ...demoted, active: false }, ...remaining] : remaining;
+    });
   }
 
   protected deleteGateway(id: string): void {
-    this.gateways.update((gateways) => gateways.filter((gateway) => gateway.id !== id));
+    this.standbyGateways.update((gateways) => gateways.filter((gateway) => gateway.id !== id));
   }
 
   protected updateGateway(id: string, request: PaymentGatewayRequest): void {
-    this.gateways.update((gateways) =>
+    if (this.activeGateway()?.id === id) {
+      this.activeGateway.update((gateway) => (gateway ? { ...gateway, ...request } : gateway));
+      return;
+    }
+
+    this.standbyGateways.update((gateways) =>
       gateways.map((gateway) => (gateway.id === id ? { ...gateway, ...request } : gateway)),
     );
   }
