@@ -237,6 +237,18 @@ public class PaymobClient {
         return toTransactionCallback(payload);
     }
 
+    public PaymentCallbackData parseCallback(JsonNode payload, String hmacSecret, String receivedHmac) {
+        String type = payload.path("type").asString(null);
+        JsonNode obj = payload.path("obj");
+
+        boolean isTransaction = TRANSACTION_TYPE.equals(type);
+
+        List<String> fields = isTransaction ? TRANSACTION_HMAC_FIELDS : TOKEN_HMAC_FIELDS;
+        verifyHmac(obj, fields, hmacSecret, receivedHmac);
+
+        return isTransaction ? toTransactionCallback(obj) : toCardTokenCallback(obj);
+    }
+
     public GatewayProviderCredentials resolveCredentials(GatewayProviderCredentials newCredentials, GatewayProviderCredentials existingCredentials) {
         PaymobGateway.Credentials incoming = (PaymobGateway.Credentials) newCredentials;
         PaymobGateway.Credentials stored = (PaymobGateway.Credentials) existingCredentials;
@@ -267,6 +279,16 @@ public class PaymobClient {
         return new PaymobGateway.Credentials(null, paymobCredentials.publicKey(), null);
     }
 
+    public void validateChannelConfig(GatewayProviderChannelConfig channelConfig) {
+        PaymobGateway.ChannelConfig paymobChannelConfig = (PaymobGateway.ChannelConfig) channelConfig;
+
+        if (paymobChannelConfig.integrationId() == null || paymobChannelConfig.integrationId() <= 0) {
+            throw new BusinessException("A valid Integration ID is required");
+        }
+    }
+
+    // =========================== Helpers ===========================
+
     private void validateCredentials(PaymobGateway.Credentials credentials, boolean isUpdate) {
         if (!isUpdate && StringUtils.isEmpty(credentials.secretKey())) {
             throw new BusinessException("Secret key is required");
@@ -280,28 +302,6 @@ public class PaymobClient {
             throw new BusinessException("HMAC key is required");
         }
     }
-
-    public void validateChannelConfig(GatewayProviderChannelConfig channelConfig) {
-        PaymobGateway.ChannelConfig paymobChannelConfig = (PaymobGateway.ChannelConfig) channelConfig;
-
-        if (paymobChannelConfig.integrationId() == null || paymobChannelConfig.integrationId() <= 0) {
-            throw new BusinessException("A valid Integration ID is required");
-        }
-    }
-
-    public PaymentCallbackData parseCallback(JsonNode payload, String hmacSecret, String receivedHmac) {
-        String type = payload.path("type").asString(null);
-        JsonNode obj = payload.path("obj");
-
-        boolean isTransaction = TRANSACTION_TYPE.equals(type);
-
-        List<String> fields = isTransaction ? TRANSACTION_HMAC_FIELDS : TOKEN_HMAC_FIELDS;
-        verifyHmac(obj, fields, hmacSecret, receivedHmac);
-
-        return isTransaction ? toTransactionCallback(obj) : toCardTokenCallback(obj);
-    }
-
-    // =========================== Helpers ===========================
 
     private void verifyHmac(JsonNode obj, List<String> fields, String hmacSecret, String receivedHmac) {
         if (StringUtils.isEmpty(receivedHmac)) {

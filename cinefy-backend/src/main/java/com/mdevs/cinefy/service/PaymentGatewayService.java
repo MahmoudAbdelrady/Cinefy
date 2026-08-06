@@ -210,6 +210,17 @@ public class PaymentGatewayService {
         return convertJson(credentials, objectMapper.getTypeFactory().constructType(spec.credentialsType()));
     }
 
+    private List<PaymentGatewayChannel<?>> parseChannels(Object channels, GatewayProviderSpec spec) {
+        if (channels == null) {
+            return List.of();
+        }
+
+        JavaType channelType = objectMapper.getTypeFactory()
+                .constructParametricType(PaymentGatewayChannel.class, spec.channelConfigType());
+
+        return convertJson(channels, objectMapper.getTypeFactory().constructCollectionType(List.class, channelType));
+    }
+
     private GatewayProviderCredentials readStoredCredentials(PaymentGateway gateway) {
         GatewayProviderSpec spec = gateway.getProvider().getSpec();
         String decrypted = credentialCipher.decrypt(gateway.getCredentials());
@@ -226,17 +237,6 @@ public class PaymentGatewayService {
                 .constructParametricType(PaymentGatewayChannel.class, spec.channelConfigType());
 
         return readJson(gateway.getPaymentChannels(), objectMapper.getTypeFactory().constructCollectionType(List.class, channelType));
-    }
-
-    private List<PaymentGatewayChannel<?>> parseChannels(Object channels, GatewayProviderSpec spec) {
-        if (channels == null) {
-            return List.of();
-        }
-
-        JavaType channelType = objectMapper.getTypeFactory()
-                .constructParametricType(PaymentGatewayChannel.class, spec.channelConfigType());
-
-        return convertJson(channels, objectMapper.getTypeFactory().constructCollectionType(List.class, channelType));
     }
 
     private PaymentGatewaySummaryDTO toSummaryDTO(PaymentGateway gateway) {
