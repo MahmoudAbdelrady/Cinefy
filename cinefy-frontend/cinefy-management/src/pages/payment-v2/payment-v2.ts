@@ -22,6 +22,8 @@ export class PaymentV2Page {
   private readonly headerActionsTemplate =
     viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
 
+  protected readonly gatewayList = viewChild.required(GatewayListComponent);
+
   ngOnInit(): void {
     this.headerActions.template.set(this.headerActionsTemplate());
     this.destroyRef.onDestroy(() => this.headerActions.template.set(null));

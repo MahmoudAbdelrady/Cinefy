@@ -57,7 +57,8 @@
                 <span class="gl-meta-divider">•</span>
                 <span>Added {{ gateway.createdAt | date: 'MMM d, y' }}</span>
                 <span class="gl-meta-divider">•</span>
-                <span>{{ gateway.paymentChannels?.length ?? 0 }} channels</span>
+                @let channelCount = gateway.paymentChannels?.length ?? 0;
+                <span>{{ channelCount }} {{ channelCount === 1 ? 'channel' : 'channels' }}</span>
               </p>
             </div>
           </div>
@@ -277,11 +278,10 @@
           </div>
 
           <h3 class="gl-confirm-title">Delete {{ gateway.name }}?</h3>
+          @let deletedChannelCount = gateway.paymentChannels?.length ?? 0;
           <p class="gl-confirm-text">
-            This removes the gateway, its credentials, and its
-            {{ gateway.paymentChannels?.length ?? 0 }}
-            {{ (gateway.paymentChannels?.length ?? 0) === 1 ? 'channel' : 'channels' }}. This can't
-            be undone.
+            This removes the gateway, its credentials, and its {{ deletedChannelCount }}
+            {{ deletedChannelCount === 1 ? 'channel' : 'channels' }}. This can't be undone.
           </p>
 
           <div class="gl-delete-warning">

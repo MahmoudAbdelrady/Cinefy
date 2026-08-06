@@ -6,7 +6,7 @@
     </button>
 
     <ng-template #addGatewayDialog let-close="close">
-      <manage-gateway-modal [close]="close" />
+      <manage-gateway-modal [close]="close" (gatewayCreated)="gatewayList().addGateway($event)" />
     </ng-template>
   </div>
 </ng-template>

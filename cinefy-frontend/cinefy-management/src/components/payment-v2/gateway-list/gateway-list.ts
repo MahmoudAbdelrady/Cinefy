@@ -96,6 +96,10 @@ export class GatewayListComponent {
     });
   }
 
+  addGateway(gateway: PaymentGateway): void {
+    this.standbyGateways.update((gateways) => this.addStandbyGateway(gateways, gateway));
+  }
+
   protected toggleGateway(id: string, active: boolean, close: () => void): void {
     if (this.applyingAction()) return;
     this.applyingAction.set(true);

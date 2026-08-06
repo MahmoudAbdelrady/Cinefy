@@ -1,9 +1,25 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CustomSelectComponent, InputField, ModalComponent, Switch } from 'cinefy-ui/components';
+import {
+  CustomSelectComponent,
+  InputField,
+  LoadingSpinnerComponent,
+  ModalComponent,
+  Switch,
+} from 'cinefy-ui/components';
+import { ToastService } from 'cinefy-ui/services';
 import { ExternalLinkIcon, KeyIcon, LockIcon, WebhookIcon } from '../../../shared/icons';
 import { NO_WHITESPACE_PATTERN } from '../../../shared/validation';
 import type {
@@ -12,6 +28,7 @@ import type {
   PaymentGateway,
   PaymentGatewayRequest,
 } from '../../../shared/types';
+import { PaymentGatewaysService } from '../../../services';
 import { PaymentChannelsComponent } from '../payment-channels/payment-channels';
 import { PAYMENT_PROVIDERS, type CredentialField, type ProviderSpec } from '../provider-spec';
 
@@ -42,6 +59,7 @@ function buildCredentialsGroup(
     CustomSelectComponent,
     Switch,
     LucideDynamicIcon,
+    LoadingSpinnerComponent,
     PaymentChannelsComponent,
   ],
   templateUrl: './manage-gateway-modal.html',
@@ -55,14 +73,19 @@ export class ManageGatewayModalComponent {
     WebhookIcon,
   };
 
+  private readonly paymentGatewaysService = inject(PaymentGatewaysService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly providers = PAYMENT_PROVIDERS;
 
   readonly close = input.required<() => void>();
   readonly gateway = input<PaymentGateway | null>(null);
 
-  readonly gatewayCreated = output<PaymentGatewayRequest>();
+  readonly gatewayCreated = output<PaymentGateway>();
   readonly gatewayUpdated = output<PaymentGatewayRequest>();
 
+  protected readonly saving = signal(false);
   protected readonly channels = signal<PaymentChannel[]>([]);
   protected readonly channelsEnabled = signal(false);
   protected readonly channelFormOpen = signal(false);
@@ -76,7 +99,6 @@ export class ManageGatewayModalComponent {
       nonNullable: true,
       validators: [Validators.required],
     }),
-    isActive: new FormControl(false, { nonNullable: true }),
     credentials: new FormGroup<Record<string, FormControl<string>>>({}),
   });
 
@@ -84,10 +106,6 @@ export class ManageGatewayModalComponent {
 
   private readonly provider = toSignal(this.form.controls.provider.valueChanges, {
     initialValue: this.form.controls.provider.value,
-  });
-
-  private readonly isActive = toSignal(this.form.controls.isActive.valueChanges, {
-    initialValue: this.form.controls.isActive.value,
   });
 
   protected readonly isEditMode = computed(() => this.gateway() !== null);
@@ -130,12 +148,6 @@ export class ManageGatewayModalComponent {
     return this.form.valid;
   });
 
-  protected readonly activeHint = computed(() =>
-    this.isActive()
-      ? 'New payments will route to this gateway.'
-      : 'This gateway stays configured but takes no payments.',
-  );
-
   protected readonly providerDisplayFn = (spec: ProviderSpec) => spec.label;
 
   protected readonly providerValueFn = (spec: ProviderSpec) => spec.provider;
@@ -147,7 +159,6 @@ export class ManageGatewayModalComponent {
       this.form.patchValue({
         name: gateway.name,
         provider: gateway.provider,
-        isActive: gateway.active,
       });
       const channels = gateway.paymentChannels ?? [];
       this.channels.set(channels);
@@ -179,7 +190,7 @@ export class ManageGatewayModalComponent {
   }
 
   protected save() {
-    if (!this.canSave()) return;
+    if (!this.canSave() || this.saving()) return;
     const { name, provider, credentials } = this.form.getRawValue();
     const channels = this.channels();
     const request: PaymentGatewayRequest = {
@@ -188,11 +199,25 @@ export class ManageGatewayModalComponent {
       credentials,
       ...(channels.length ? { paymentChannels: channels } : {}),
     };
+
     if (this.isEditMode()) {
       this.gatewayUpdated.emit(request);
-    } else {
-      this.gatewayCreated.emit(request);
+      this.close()();
+      return;
     }
-    this.close()();
+
+    this.saving.set(true);
+    this.paymentGatewaysService
+      .createPaymentGateway(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (gateway) => {
+          this.saving.set(false);
+          this.gatewayCreated.emit(gateway);
+          this.toastService.success('Payment gateway added');
+          this.close()();
+        },
+        error: () => this.saving.set(false),
+      });
   }
 }

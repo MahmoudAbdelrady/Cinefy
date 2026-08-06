@@ -29,17 +29,6 @@
       />
     </div>
 
-    <div class="active-card">
-      <div class="active-copy">
-        <p class="active-title">Active</p>
-        <p class="active-hint">{{ activeHint() }}</p>
-      </div>
-      <cui-switch
-        [checked]="form.controls.isActive.value"
-        (checkedChange)="form.controls.isActive.setValue($event)"
-      />
-    </div>
-
     <section class="form-section">
       <div class="section-head">
         <div class="section-title">
@@ -108,9 +97,21 @@
       Credentials are encrypted and never sent back to the browser.
     </p>
     <div class="footer-actions">
-      <button type="button" class="btn-secondary" (click)="close()()">Cancel</button>
-      <button type="button" class="btn-primary" [disabled]="!canSave()" (click)="save()">
-        {{ saveLabel() }}
+      <button type="button" class="btn-secondary" [disabled]="saving()" (click)="close()()">
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn-primary"
+        [disabled]="!canSave() || saving()"
+        (click)="save()"
+      >
+        @if (saving()) {
+          <loading-spinner variant="sm" />
+          <span>Saving…</span>
+        } @else {
+          <span>{{ saveLabel() }}</span>
+        }
       </button>
     </div>
   </div>

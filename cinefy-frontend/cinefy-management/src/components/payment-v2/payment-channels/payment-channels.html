@@ -60,7 +60,7 @@
     <div class="channel-form-fields">
       <input-field
         label="Name"
-        placeholder="Cards"
+        placeholder="e.g. Cards"
         [control]="channelForm.controls.name"
         [errorMessages]="{
           required: 'Channel name is required',
@@ -89,7 +89,13 @@
 
     <span class="channel-form-divider"></span>
 
-    <h4 class="channel-form-section-label">Channel settings</h4>
+    <div class="channel-form-section-head">
+      <h4 class="channel-form-section-label">Channel settings</h4>
+      <field-error
+        [control]="channelForm.controls.providerConfig"
+        [messages]="{ duplicateConfig: 'Another channel already uses these settings' }"
+      />
+    </div>
 
     <div class="channel-form-fields">
       @for (field of providerConfig(); track field.key) {

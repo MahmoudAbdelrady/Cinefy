@@ -6,12 +6,18 @@ import {
   Validators,
   type AbstractControl,
   type ValidationErrors,
+  type ValidatorFn,
 } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { NgTemplateOutlet } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CustomSelectComponent, InputField, Switch } from 'cinefy-ui/components';
+import {
+  CustomSelectComponent,
+  FieldErrorComponent,
+  InputField,
+  Switch,
+} from 'cinefy-ui/components';
 import { DeleteIcon, EditIcon, PlusIcon } from '../../../shared/icons';
 import type { ChannelCurrency, PaymentChannel, ProviderConfigValue } from '../../../shared/types';
 import type { ProviderConfigField } from '../provider-spec';
@@ -22,6 +28,7 @@ const NEW_CHANNEL = 'new';
 
 function buildProviderConfigGroup(
   fields: ProviderConfigField[],
+  validator: ValidatorFn,
 ): FormGroup<Record<string, FormControl<ProviderConfigValue>>> {
   const controls: Record<string, FormControl<ProviderConfigValue>> = {};
   for (const field of fields) {
@@ -30,7 +37,7 @@ function buildProviderConfigGroup(
       validators: [Validators.required],
     });
   }
-  return new FormGroup(controls);
+  return new FormGroup(controls, { validators: validator });
 }
 
 @Component({
@@ -39,6 +46,7 @@ function buildProviderConfigGroup(
     ReactiveFormsModule,
     NgTemplateOutlet,
     InputField,
+    FieldErrorComponent,
     CustomSelectComponent,
     Switch,
     LucideDynamicIcon,
@@ -102,7 +110,9 @@ export class PaymentChannelsComponent {
     effect(() =>
       this.channelForm.setControl(
         'providerConfig',
-        buildProviderConfigGroup(this.providerConfig()),
+        buildProviderConfigGroup(this.providerConfig(), (control) =>
+          this.duplicateConfigValidator(control),
+        ),
       ),
     );
 
@@ -111,6 +121,7 @@ export class PaymentChannelsComponent {
     effect(() => {
       this.channels();
       this.channelForm.controls.name.updateValueAndValidity();
+      this.channelForm.controls.providerConfig.updateValueAndValidity();
     });
   }
 
@@ -179,5 +190,19 @@ export class PaymentChannelsComponent {
       (channel, index) => index !== target && channel.name.trim().toLowerCase() === name,
     );
     return taken ? { duplicateName: true } : null;
+  }
+
+  private duplicateConfigValidator(control: AbstractControl): ValidationErrors | null {
+    const config = control.value as Record<string, ProviderConfigValue>;
+    const keys = Object.keys(config ?? {});
+    if (!keys.length || keys.some((key) => config[key] === '')) return null;
+
+    const target = this.channelFormTarget();
+    const taken = this.channels().some(
+      (channel, index) =>
+        index !== target &&
+        keys.every((key) => String(channel.providerConfig[key]) === String(config[key])),
+    );
+    return taken ? { duplicateConfig: true } : null;
   }
 }

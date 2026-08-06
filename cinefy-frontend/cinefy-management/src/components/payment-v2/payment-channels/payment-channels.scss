@@ -177,13 +177,23 @@
     background-color: $gray-200;
   }
 
-  .channel-form-section-label {
+  .channel-form-section-head {
+    @include flex-align;
+
+    gap: 8px;
     margin-bottom: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: $gray-500;
+
+    .channel-form-section-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: $gray-500;
+    }
+
+    field-error {
+      margin-top: 0;
+    }
   }
 
   .channel-form-actions {
