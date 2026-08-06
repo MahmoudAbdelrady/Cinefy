@@ -125,7 +125,7 @@ public class PaymentGatewayService {
 
     private PaymentGateway findPaymentGateway(String uuid) {
         return paymentGatewayRepository.findByUuid(uuid)
-                .orElseThrow(() -> new NotFoundException("Payment gateway not found with id: " + uuid));
+                .orElseThrow(() -> new NotFoundException("Payment gateway not found"));
     }
 
     private void validateGateway(PaymentGatewayDTO dto, Long excludeId) {

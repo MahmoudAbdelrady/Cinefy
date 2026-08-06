@@ -67,7 +67,7 @@ export class GatewayListComponent {
 
   protected readonly loading = signal(true);
 
-  protected readonly togglingGateway = signal(false);
+  protected readonly applyingAction = signal(false);
 
   protected readonly activeGateway = signal<PaymentGateway | null>(null);
 
@@ -97,8 +97,8 @@ export class GatewayListComponent {
   }
 
   protected toggleGateway(id: string, active: boolean, close: () => void): void {
-    if (this.togglingGateway()) return;
-    this.togglingGateway.set(true);
+    if (this.applyingAction()) return;
+    this.applyingAction.set(true);
 
     this.paymentGatewaysService
       .updatePaymentGatewayStatus(id, active)
@@ -106,18 +106,34 @@ export class GatewayListComponent {
       .subscribe({
         next: () => {
           this.applyStatusChange(id, active);
-          this.togglingGateway.set(false);
+          this.applyingAction.set(false);
           this.toastService.success(
             active ? 'Payment gateway activated' : 'Payment gateway deactivated',
           );
           close();
         },
-        error: () => this.togglingGateway.set(false),
+        error: () => this.applyingAction.set(false),
       });
   }
 
-  protected deleteGateway(id: string): void {
-    this.standbyGateways.update((gateways) => gateways.filter((gateway) => gateway.id !== id));
+  protected deleteGateway(id: string, close: () => void): void {
+    if (this.applyingAction()) return;
+    this.applyingAction.set(true);
+
+    this.paymentGatewaysService
+      .deletePaymentGateway(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.standbyGateways.update((gateways) =>
+            gateways.filter((gateway) => gateway.id !== id),
+          );
+          this.applyingAction.set(false);
+          this.toastService.success('Payment gateway deleted');
+          close();
+        },
+        error: () => this.applyingAction.set(false),
+      });
   }
 
   protected updateGateway(id: string, request: PaymentGatewayRequest): void {

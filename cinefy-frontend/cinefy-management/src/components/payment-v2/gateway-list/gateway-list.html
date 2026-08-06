@@ -185,15 +185,15 @@
       </div>
 
       <div modal-footer class="gl-confirm-footer">
-        <button class="btn-secondary" [disabled]="togglingGateway()" (click)="close()">
+        <button class="btn-secondary" [disabled]="applyingAction()" (click)="close()">
           Cancel
         </button>
         <button
           [class]="gateway.active ? 'btn-danger' : 'btn-success'"
-          [disabled]="togglingGateway()"
+          [disabled]="applyingAction()"
           (click)="toggleGateway(gateway.id, !gateway.active, close)"
         >
-          @if (togglingGateway()) {
+          @if (applyingAction()) {
             <loading-spinner variant="sm" />
             <span>{{ gateway.active ? 'Deactivating…' : 'Activating…' }}</span>
           } @else {
@@ -300,9 +300,20 @@
         </div>
 
         <div modal-footer class="gl-confirm-footer">
-          <button class="btn-secondary" (click)="close()">Cancel</button>
-          <button class="btn-danger" (click)="deleteGateway(gateway.id); close()">
-            Delete gateway
+          <button class="btn-secondary" [disabled]="applyingAction()" (click)="close()">
+            Cancel
+          </button>
+          <button
+            class="btn-danger"
+            [disabled]="applyingAction()"
+            (click)="deleteGateway(gateway.id, close)"
+          >
+            @if (applyingAction()) {
+              <loading-spinner variant="sm" />
+              <span>Deleting…</span>
+            } @else {
+              <span>Delete gateway</span>
+            }
           </button>
         </div>
       </app-modal>
