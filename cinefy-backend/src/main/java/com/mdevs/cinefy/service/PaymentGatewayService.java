@@ -228,10 +228,12 @@ public class PaymentGatewayService {
         return readJson(decrypted, objectMapper.getTypeFactory().constructType(spec.credentialsType()));
     }
 
-    private List<PaymentGatewayChannel<?>> readStoredChannels(PaymentGateway gateway, GatewayProviderSpec spec) {
+    private List<PaymentGatewayChannel<?>> readStoredChannels(PaymentGateway gateway) {
         if (StringUtils.isEmpty(gateway.getPaymentChannels())) {
             return List.of();
         }
+
+        GatewayProviderSpec spec = gateway.getProvider().getSpec();
 
         JavaType channelType = objectMapper.getTypeFactory()
                 .constructParametricType(PaymentGatewayChannel.class, spec.channelConfigType());
@@ -240,10 +242,9 @@ public class PaymentGatewayService {
     }
 
     private PaymentGatewaySummaryDTO toSummaryDTO(PaymentGateway gateway) {
-        GatewayProviderSpec spec = gateway.getProvider().getSpec();
         GatewayProviderCredentials credentials = paymobClient.readCredentials(readStoredCredentials(gateway), false);
 
-        return toSummaryDTO(gateway, credentials, readStoredChannels(gateway, spec));
+        return toSummaryDTO(gateway, credentials, readStoredChannels(gateway));
     }
 
     private PaymentGatewaySummaryDTO toSummaryDTO(PaymentGateway gateway, GatewayProviderCredentials credentials, List<PaymentGatewayChannel<?>> channels) {
