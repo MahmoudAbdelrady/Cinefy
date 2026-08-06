@@ -139,13 +139,12 @@ public class PaymentGatewayService {
         }
     }
 
-    private void validateChannels(PaymentProvider provider, List<PaymentGatewayChannel<?>> channels) {
-        GatewayProviderSpec spec = provider.getSpec();
+    private void validateChannels(GatewayProviderSpec spec, List<PaymentGatewayChannel<?>> channels) {
         boolean hasChannels = channels != null && !channels.isEmpty();
 
         if (!spec.supportsChannels()) {
             if (hasChannels) {
-                throw new BusinessException(provider.name() + " does not support payment channels");
+                throw new BusinessException("The selected payment provider does not support payment channels");
             }
             return;
         }
@@ -201,7 +200,7 @@ public class PaymentGatewayService {
 
         List<PaymentGatewayChannel<?>> channels = parseChannels(dto.getPaymentChannels(), spec);
 
-        validateChannels(provider, channels);
+        validateChannels(spec, channels);
 
         gateway.setName(dto.getName());
         gateway.setCode(PaymentGateway.toCode(dto.getName()));
