@@ -46,6 +46,8 @@ public class PaymentGatewayService {
 
     private static final List<String> SUPPORTED_CHANNEL_CURRENCIES = List.of("EGP", "USD");
 
+    private static final int MAX_CHANNEL_NAME_LENGTH = 30;
+
     // ========================= Public API =========================
 
     public PaymentGatewayListDTO getPaymentGateways() {
@@ -163,6 +165,10 @@ public class PaymentGatewayService {
         for (PaymentGatewayChannel<?> channel : channels) {
             if (StringUtils.isEmpty(channel.name())) {
                 throw new BusinessException("Channel name is required");
+            }
+
+            if (channel.name().trim().length() > MAX_CHANNEL_NAME_LENGTH) {
+                throw new BusinessException("Channel name must not exceed " + MAX_CHANNEL_NAME_LENGTH + " characters");
             }
 
             if (StringUtils.isEmpty(channel.currency())) {

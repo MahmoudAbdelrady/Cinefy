@@ -17,6 +17,12 @@
               </p>
             </div>
             <div class="channel-actions">
+              <cui-switch
+                size="sm"
+                [checked]="channel.active"
+                (checkedChange)="toggleChannel($index, $event)"
+              />
+              <span class="channel-divider"></span>
               <button type="button" title="Edit channel" (click)="startEdit($index)">
                 <svg [lucideIcon]="icons.EditIcon" [size]="15" [strokeWidth]="2"></svg>
               </button>
@@ -28,12 +34,6 @@
               >
                 <svg [lucideIcon]="icons.DeleteIcon" [size]="15" [strokeWidth]="2"></svg>
               </button>
-              <span class="channel-divider"></span>
-              <cui-switch
-                size="sm"
-                [checked]="channel.active"
-                (checkedChange)="toggleChannel($index, $event)"
-              />
             </div>
           }
         </li>
@@ -64,7 +64,7 @@
         [control]="channelForm.controls.name"
         [errorMessages]="{
           required: 'Channel name is required',
-          maxlength: 'Channel name must not exceed 60 characters',
+          maxlength: 'Channel name must not exceed 30 characters',
           duplicateName: 'A channel with this name already exists',
         }"
       />

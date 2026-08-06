@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   Component,
   computed,
   DestroyRef,
@@ -83,12 +84,13 @@ export class ManageGatewayModalComponent {
   readonly gateway = input<PaymentGateway | null>(null);
 
   readonly gatewayCreated = output<PaymentGateway>();
-  readonly gatewayUpdated = output<PaymentGatewayRequest>();
+  readonly gatewayUpdated = output<PaymentGateway>();
 
   protected readonly saving = signal(false);
   protected readonly channels = signal<PaymentChannel[]>([]);
   protected readonly channelsEnabled = signal(false);
   protected readonly channelFormOpen = signal(false);
+  private readonly initialFormSnapshot = signal<string | null>(null);
 
   protected readonly form = new FormGroup({
     name: new FormControl('', {
@@ -106,6 +108,18 @@ export class ManageGatewayModalComponent {
 
   private readonly provider = toSignal(this.form.controls.provider.valueChanges, {
     initialValue: this.form.controls.provider.value,
+  });
+
+  private readonly currentFormValue = toSignal(this.form.valueChanges, {
+    initialValue: this.form.getRawValue(),
+  });
+
+  protected readonly hasChanges = computed(() => {
+    const snapshot = this.initialFormSnapshot();
+    if (snapshot === null) return true;
+    this.currentFormValue();
+    this.channels();
+    return this.snapshotValue() !== snapshot;
   });
 
   protected readonly isEditMode = computed(() => this.gateway() !== null);
@@ -138,6 +152,7 @@ export class ManageGatewayModalComponent {
   protected readonly canSave = computed(() => {
     this.formStatus();
     if (this.channelFormOpen()) return false;
+    if (this.isEditMode() && !this.hasChanges()) return false;
     if (
       this.channelsRequired() &&
       this.providerSpec().supportsChannels &&
@@ -175,6 +190,10 @@ export class ManageGatewayModalComponent {
         ),
       ),
     );
+
+    afterNextRender(() => {
+      if (this.isEditMode()) this.initialFormSnapshot.set(this.snapshotValue());
+    });
   }
 
   protected credentialControl(key: string): FormControl<string> {
@@ -191,6 +210,7 @@ export class ManageGatewayModalComponent {
 
   protected save() {
     if (!this.canSave() || this.saving()) return;
+
     const { name, provider, credentials } = this.form.getRawValue();
     const channels = this.channels();
     const request: PaymentGatewayRequest = {
@@ -200,24 +220,29 @@ export class ManageGatewayModalComponent {
       ...(channels.length ? { paymentChannels: channels } : {}),
     };
 
-    if (this.isEditMode()) {
-      this.gatewayUpdated.emit(request);
-      this.close()();
-      return;
-    }
+    const editing = this.gateway();
 
     this.saving.set(true);
-    this.paymentGatewaysService
-      .createPaymentGateway(request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (gateway) => {
-          this.saving.set(false);
+    const save$ = editing
+      ? this.paymentGatewaysService.updatePaymentGateway(editing.id, request)
+      : this.paymentGatewaysService.createPaymentGateway(request);
+
+    save$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (gateway) => {
+        this.saving.set(false);
+        if (editing) {
+          this.gatewayUpdated.emit(gateway);
+        } else {
           this.gatewayCreated.emit(gateway);
-          this.toastService.success('Payment gateway added');
-          this.close()();
-        },
-        error: () => this.saving.set(false),
-      });
+        }
+        this.toastService.success(editing ? 'Payment gateway updated' : 'Payment gateway added');
+        this.close()();
+      },
+      error: () => this.saving.set(false),
+    });
+  }
+
+  private snapshotValue(): string {
+    return JSON.stringify({ ...this.form.getRawValue(), channels: this.channels() });
   }
 }

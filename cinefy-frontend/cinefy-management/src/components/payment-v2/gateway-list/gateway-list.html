@@ -256,7 +256,7 @@
     <manage-gateway-modal
       [close]="close"
       [gateway]="gateway"
-      (gatewayUpdated)="updateGateway(gateway.id, $event)"
+      (gatewayUpdated)="updateGateway($event)"
     />
   </ng-template>
   @if (!gateway.active) {

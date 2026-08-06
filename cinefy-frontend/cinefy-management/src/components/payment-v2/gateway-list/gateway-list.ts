@@ -21,11 +21,7 @@ import {
   PowerOffIcon,
   WebhookIcon,
 } from '../../../shared/icons';
-import {
-  GATEWAY_PROVIDER_LABELS,
-  type PaymentGateway,
-  type PaymentGatewayRequest,
-} from '../../../shared/types';
+import { GATEWAY_PROVIDER_LABELS, type PaymentGateway } from '../../../shared/types';
 import { PaymentGatewaysService } from '../../../services';
 import { ManageGatewayModalComponent } from '../manage-gateway-modal/manage-gateway-modal';
 import { PAYMENT_PROVIDERS } from '../provider-spec';
@@ -140,14 +136,14 @@ export class GatewayListComponent {
       });
   }
 
-  protected updateGateway(id: string, request: PaymentGatewayRequest): void {
-    if (this.activeGateway()?.id === id) {
-      this.activeGateway.update((gateway) => (gateway ? { ...gateway, ...request } : gateway));
+  protected updateGateway(updated: PaymentGateway): void {
+    if (this.activeGateway()?.id === updated.id) {
+      this.activeGateway.set(updated);
       return;
     }
 
     this.standbyGateways.update((gateways) =>
-      gateways.map((gateway) => (gateway.id === id ? { ...gateway, ...request } : gateway)),
+      gateways.map((gateway) => (gateway.id === updated.id ? updated : gateway)),
     );
   }
 

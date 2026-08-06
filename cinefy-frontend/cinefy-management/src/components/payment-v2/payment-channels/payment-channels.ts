@@ -77,7 +77,7 @@ export class PaymentChannelsComponent {
       nonNullable: true,
       validators: [
         Validators.required,
-        Validators.maxLength(60),
+        Validators.maxLength(30),
         (control) => this.duplicateNameValidator(control),
       ],
     }),
