@@ -13,7 +13,7 @@
         </p>
       </div>
     </div>
-  } @else if (activeGateway() && liveChannelCount() === 0) {
+  } @else if (activeGatewayHasNoLiveChannel()) {
     <div class="gl-notice">
       <svg [lucideIcon]="icons.AlertIcon" [size]="16" [strokeWidth]="2"></svg>
       <p class="gl-notice-text">
@@ -185,12 +185,20 @@
       </div>
 
       <div modal-footer class="gl-confirm-footer">
-        <button class="btn-secondary" (click)="close()">Cancel</button>
+        <button class="btn-secondary" [disabled]="togglingGateway()" (click)="close()">
+          Cancel
+        </button>
         <button
           [class]="gateway.active ? 'btn-danger' : 'btn-success'"
-          (click)="toggleGateway(gateway.id, !gateway.active); close()"
+          [disabled]="togglingGateway()"
+          (click)="toggleGateway(gateway.id, !gateway.active, close)"
         >
-          {{ gateway.active ? 'Deactivate' : 'Activate' }}
+          @if (togglingGateway()) {
+            <loading-spinner variant="sm" />
+            <span>{{ gateway.active ? 'Deactivating…' : 'Activating…' }}</span>
+          } @else {
+            <span>{{ gateway.active ? 'Deactivate' : 'Activate' }}</span>
+          }
         </button>
       </div>
     </app-modal>
