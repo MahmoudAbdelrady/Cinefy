@@ -245,8 +245,10 @@
   }
 
   .gl-col-actions {
+    width: 1%;
     padding-right: 24px;
     text-align: center;
+    white-space: nowrap;
   }
 
   .gl-numeric {
