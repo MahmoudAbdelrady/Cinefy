@@ -45,6 +45,7 @@ export type {
   ProviderConfigValue,
   PaymentChannel,
   PaymentGateway,
+  PaymentGatewayList,
   PaymentGatewayRequest,
 } from './payment-gateway';
 

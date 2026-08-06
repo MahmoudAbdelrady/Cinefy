@@ -147,9 +147,9 @@ export class ManageGatewayModalComponent {
       this.form.patchValue({
         name: gateway.name,
         provider: gateway.provider,
-        isActive: gateway.isActive,
+        isActive: gateway.active,
       });
-      const channels = gateway.channels ?? [];
+      const channels = gateway.paymentChannels ?? [];
       this.channels.set(channels);
       this.channelsEnabled.set(channels.length > 0);
     });
@@ -180,14 +180,13 @@ export class ManageGatewayModalComponent {
 
   protected save() {
     if (!this.canSave()) return;
-    const { name, provider, isActive, credentials } = this.form.getRawValue();
+    const { name, provider, credentials } = this.form.getRawValue();
     const channels = this.channels();
     const request: PaymentGatewayRequest = {
       name: name.trim(),
       provider,
-      isActive,
       credentials,
-      ...(channels.length ? { channels } : {}),
+      ...(channels.length ? { paymentChannels: channels } : {}),
     };
     if (this.isEditMode()) {
       this.gatewayUpdated.emit(request);

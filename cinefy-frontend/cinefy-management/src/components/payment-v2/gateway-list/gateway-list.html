@@ -52,7 +52,7 @@
               <span class="gl-meta-divider">•</span>
               <span>Added {{ gateway.createdAt | date: 'MMM d, y' }}</span>
               <span class="gl-meta-divider">•</span>
-              <span>{{ gateway.channels?.length ?? 0 }} channels</span>
+              <span>{{ gateway.paymentChannels?.length ?? 0 }} channels</span>
             </p>
           </div>
         </div>
@@ -95,7 +95,7 @@
                 <td>{{ providerLabels[gateway.provider] }}</td>
                 <td class="gl-numeric">{{ gateway.createdAt | date: 'MMM d, y' }}</td>
                 <td class="gl-numeric">
-                  <span class="gl-channel-count">{{ gateway.channels?.length ?? 0 }}</span>
+                  <span class="gl-channel-count">{{ gateway.paymentChannels?.length ?? 0 }}</span>
                 </td>
                 <td class="gl-col-actions">
                   <div class="gl-actions">
@@ -116,11 +116,11 @@
 
 <ng-template #gatewayActions let-gateway>
   <span class="gl-switch">
-    <cui-switch size="sm" [checked]="gateway.isActive" />
+    <cui-switch size="sm" [checked]="gateway.active" />
     <button
       type="button"
       class="gl-switch-trigger"
-      [title]="gateway.isActive ? 'Disable' : 'Activate'"
+      [title]="gateway.active ? 'Disable' : 'Activate'"
       [ngpDialogTrigger]="toggleDialog"
     ></button>
   </span>
@@ -128,27 +128,27 @@
   <ng-template #toggleDialog let-close="close">
     <app-modal [close]="close" width="448px" [customHeader]="true">
       <div class="gl-confirm">
-        <div class="gl-confirm-icon" [class.activate]="!gateway.isActive">
+        <div class="gl-confirm-icon" [class.activate]="!gateway.active">
           <svg
-            [lucideIcon]="gateway.isActive ? icons.PowerOffIcon : icons.PowerIcon"
+            [lucideIcon]="gateway.active ? icons.PowerOffIcon : icons.PowerIcon"
             [size]="24"
             [strokeWidth]="2"
           ></svg>
         </div>
 
         <h3 class="gl-confirm-title">
-          {{ gateway.isActive ? 'Deactivate' : 'Activate' }} {{ gateway.name }}?
+          {{ gateway.active ? 'Deactivate' : 'Activate' }} {{ gateway.name }}?
         </h3>
         <p class="gl-confirm-text">
           {{
-            gateway.isActive
+            gateway.active
               ? 'This gateway will stop receiving new payments.'
               : 'New payments will start routing to this gateway.'
           }}
         </p>
 
         <div class="gl-confirm-notes">
-          @if (gateway.isActive) {
+          @if (gateway.active) {
             <div class="gl-confirm-note danger">
               <svg [lucideIcon]="icons.AlertIcon" [size]="16" [strokeWidth]="2"></svg>
               <p>
@@ -158,7 +158,7 @@
             </div>
           }
 
-          @if (!gateway.isActive && activeGateway(); as displaced) {
+          @if (!gateway.active && activeGateway(); as displaced) {
             <div class="gl-confirm-note danger">
               <svg [lucideIcon]="icons.InfoIcon" [size]="16" [strokeWidth]="2"></svg>
               <p>
@@ -181,10 +181,10 @@
       <div modal-footer class="gl-confirm-footer">
         <button class="btn-secondary" (click)="close()">Cancel</button>
         <button
-          [class]="gateway.isActive ? 'btn-danger' : 'btn-success'"
-          (click)="toggleGateway(gateway.id, !gateway.isActive); close()"
+          [class]="gateway.active ? 'btn-danger' : 'btn-success'"
+          (click)="toggleGateway(gateway.id, !gateway.active); close()"
         >
-          {{ gateway.isActive ? 'Deactivate' : 'Activate' }}
+          {{ gateway.active ? 'Deactivate' : 'Activate' }}
         </button>
       </div>
     </app-modal>
@@ -197,7 +197,7 @@
 
   <ng-template #channelsDialog let-close="close">
     <app-modal [modalTitle]="'Channels for ' + gateway.name" [close]="close" width="640px">
-      @if (!gateway.channels?.length) {
+      @if (!gateway.paymentChannels?.length) {
         <empty-state
           [icon]="icons.WebhookIcon"
           title="No channels configured"
@@ -214,14 +214,14 @@
               </tr>
             </thead>
             <tbody>
-              @for (channel of gateway.channels; track channel.name) {
+              @for (channel of gateway.paymentChannels; track channel.name) {
                 <tr>
                   <td class="gl-channel-name">{{ channel.name }}</td>
                   <td>{{ channel.currency }}</td>
                   <td class="gl-channels-status">
-                    <span class="gl-channel-status" [class.active]="channel.isActive">
+                    <span class="gl-channel-status" [class.active]="channel.active">
                       <span class="gl-channel-status-dot"></span>
-                      {{ channel.isActive ? 'On' : 'Off' }}
+                      {{ channel.active ? 'On' : 'Off' }}
                     </span>
                   </td>
                 </tr>
@@ -244,7 +244,7 @@
       (gatewayUpdated)="updateGateway(gateway.id, $event)"
     />
   </ng-template>
-  @if (!gateway.isActive) {
+  @if (!gateway.active) {
     <button
       type="button"
       class="gl-action delete"
@@ -265,9 +265,9 @@
           <h3 class="gl-confirm-title">Delete {{ gateway.name }}?</h3>
           <p class="gl-confirm-text">
             This removes the gateway, its credentials, and its
-            {{ gateway.channels?.length ?? 0 }}
-            {{ (gateway.channels?.length ?? 0) === 1 ? 'channel' : 'channels' }}. This can't be
-            undone.
+            {{ gateway.paymentChannels?.length ?? 0 }}
+            {{ (gateway.paymentChannels?.length ?? 0) === 1 ? 'channel' : 'channels' }}. This can't
+            be undone.
           </p>
 
           <div class="gl-delete-warning">

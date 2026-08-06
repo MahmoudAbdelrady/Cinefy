@@ -130,7 +130,7 @@ export class PaymentChannelsComponent {
     this.channelForm.patchValue({
       name: channel.name,
       currency: channel.currency,
-      isActive: channel.isActive,
+      isActive: channel.active,
     });
     for (const field of this.providerConfig()) {
       this.configControl(field.key)?.setValue(channel.providerConfig[field.key] ?? '');
@@ -147,7 +147,7 @@ export class PaymentChannelsComponent {
     const channel: PaymentChannel = {
       name: name.trim(),
       currency,
-      isActive,
+      active: isActive,
       providerConfig,
     };
     const target = this.channelFormTarget();
@@ -165,9 +165,9 @@ export class PaymentChannelsComponent {
     if (typeof target === 'number' && target > index) this.channelFormTarget.set(target - 1);
   }
 
-  protected toggleChannel(index: number, isActive: boolean) {
+  protected toggleChannel(index: number, active: boolean) {
     this.channels.update((channels) =>
-      channels.map((channel, i) => (i === index ? { ...channel, isActive } : channel)),
+      channels.map((channel, i) => (i === index ? { ...channel, active } : channel)),
     );
   }
 

@@ -11,7 +11,7 @@ type ProviderConfigValue = string | number;
 interface PaymentChannel {
   name: string;
   currency: ChannelCurrency;
-  isActive: boolean;
+  active: boolean;
   providerConfig: Record<string, ProviderConfigValue>;
 }
 
@@ -19,18 +19,22 @@ interface PaymentGateway {
   id: string;
   name: string;
   provider: GatewayProvider;
-  isActive: boolean;
+  active: boolean;
   credentials?: Record<string, string>;
-  channels?: PaymentChannel[];
+  paymentChannels?: PaymentChannel[];
   createdAt: string;
+}
+
+interface PaymentGatewayList {
+  active?: PaymentGateway;
+  standBy: PaymentGateway[];
 }
 
 interface PaymentGatewayRequest {
   name: string;
   provider: GatewayProvider;
-  isActive: boolean;
   credentials: Record<string, string>;
-  channels?: PaymentChannel[];
+  paymentChannels?: PaymentChannel[];
 }
 
 export { GATEWAY_PROVIDER_LABELS };
@@ -40,5 +44,6 @@ export type {
   ProviderConfigValue,
   PaymentChannel,
   PaymentGateway,
+  PaymentGatewayList,
   PaymentGatewayRequest,
 };
