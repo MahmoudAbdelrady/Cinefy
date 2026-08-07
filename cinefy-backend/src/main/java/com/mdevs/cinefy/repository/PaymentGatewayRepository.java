@@ -14,14 +14,14 @@ public interface PaymentGatewayRepository extends BaseRepository<PaymentGateway>
     Optional<PaymentGateway> findByUuid(String uuid);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT g FROM PaymentGateway g WHERE g.uuid = :uuid")
+    @Query("SELECT g FROM PaymentGateway g WHERE g.uuid = :uuid AND g.deletedAt IS NULL")
     Optional<PaymentGateway> findByUuidForUpdate(@Param("uuid") String uuid);
 
-    Optional<PaymentGateway> findByActiveTrue();
+    Optional<PaymentGateway> findByActiveTrueAndDeletedAtIsNull();
 
-    List<PaymentGateway> findAllByOrderByCreatedAtDesc();
+    List<PaymentGateway> findAllByDeletedAtIsNullOrderByCreatedAtDesc();
 
-    boolean existsByCode(String code);
+    boolean existsByCodeAndDeletedAtIsNull(String code);
 
-    boolean existsByCodeAndIdNot(String code, Long id);
+    boolean existsByCodeAndDeletedAtIsNullAndIdNot(String code, Long id);
 }
