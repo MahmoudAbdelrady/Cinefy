@@ -312,7 +312,8 @@ public class PaymobClient {
                 .collect(Collectors.toSet());
 
         if (currencies.size() > 1) {
-            throw new BusinessException("The active payment gateway has channels with different currencies");
+            log.error("The active payment gateway has channels with different currencies: {}", currencies);
+            throw new BusinessException(PAYMENT_REJECTED_MESSAGE);
         }
 
         return currencies.iterator().next();
