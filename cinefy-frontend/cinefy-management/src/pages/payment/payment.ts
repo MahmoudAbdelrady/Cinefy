@@ -1,18 +1,13 @@
 import { Component, DestroyRef, inject, TemplateRef, viewChild } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { PlusIcon } from '../../shared/icons';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { PlusIcon } from '../../shared/icons';
 import { HeaderActionsService } from '../../services';
-import { ManagePaymentModalComponent, PaymentMethodListComponent } from '../../components';
+import { GatewayListComponent, ManageGatewayModalComponent } from '../../components';
 
 @Component({
   selector: 'payment-page',
-  imports: [
-    NgpDialogTrigger,
-    LucideDynamicIcon,
-    ManagePaymentModalComponent,
-    PaymentMethodListComponent,
-  ],
+  imports: [NgpDialogTrigger, LucideDynamicIcon, ManageGatewayModalComponent, GatewayListComponent],
   templateUrl: './payment.html',
   styleUrl: './payment.scss',
 })
@@ -21,10 +16,13 @@ export class PaymentPage {
     PlusIcon,
   };
 
-  private headerActions = inject(HeaderActionsService);
-  private destroyRef = inject(DestroyRef);
-  private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
-  protected paymentMethodList = viewChild.required(PaymentMethodListComponent);
+  private readonly headerActions = inject(HeaderActionsService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly headerActionsTemplate =
+    viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
+
+  protected readonly gatewayList = viewChild.required(GatewayListComponent);
 
   ngOnInit(): void {
     this.headerActions.template.set(this.headerActionsTemplate());

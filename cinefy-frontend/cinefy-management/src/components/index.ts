@@ -18,12 +18,9 @@ export { MovieShowtimesModal } from './movies/movie-showtimes-modal/movie-showti
 export { BookSeatsComponent } from './movies/book-seats/book-seats';
 export { BookingTicketComponent } from './movies/booking-ticket/booking-ticket';
 export { ActiveBookingsListComponent } from './movies/active-bookings-list/active-bookings-list';
-export { ManagePaymentModalComponent } from './payment/manage-payment-modal/manage-payment-modal';
-export { GatewayListComponent } from './payment-v2/gateway-list/gateway-list';
-export { ManageGatewayModalComponent } from './payment-v2/manage-gateway-modal/manage-gateway-modal';
-export { PaymentChannelsComponent } from './payment-v2/payment-channels/payment-channels';
-export { Stepper } from './stepper/stepper';
-export { PaymentMethodListComponent } from './payment/payment-method-list/payment-method-list';
+export { GatewayListComponent } from './payment/gateway-list/gateway-list';
+export { ManageGatewayModalComponent } from './payment/manage-gateway-modal/manage-gateway-modal';
+export { PaymentChannelsComponent } from './payment/payment-channels/payment-channels';
 export { StaffListComponent } from './staff/staff-list/staff-list';
 export { ManageStaffModalComponent } from './staff/manage-staff-modal/manage-staff-modal';
 export { StaffDetailsComponent } from './staff/staff-details/staff-details';

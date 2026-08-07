@@ -7,7 +7,6 @@ import {
   HallsPage,
   MoviesPage,
   PaymentPage,
-  PaymentV2Page,
   StaffPage,
   LoginPage,
   ForgotPasswordPage,
@@ -47,17 +46,8 @@ export const routes: Routes = [
         component: AccessDeniedPage,
       },
       {
-        path: 'payment-old',
-        component: PaymentPage,
-        canMatch: [positionCanMatch],
-      },
-      {
-        path: 'payment-old',
-        component: AccessDeniedPage,
-      },
-      {
         path: 'payment',
-        component: PaymentV2Page,
+        component: PaymentPage,
         canMatch: [positionCanMatch],
       },
       {
