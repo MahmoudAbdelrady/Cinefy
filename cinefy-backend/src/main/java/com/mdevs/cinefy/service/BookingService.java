@@ -11,6 +11,7 @@ import com.mdevs.cinefy.dto.booking.OnSitePaymentDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
+import com.mdevs.cinefy.dto.payment.PaymentAttemptDTO;
 import com.mdevs.cinefy.dto.payment.PaymentRedirectionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
 import com.mdevs.cinefy.dto.payment.SavedCardPaymentDTO;
@@ -281,7 +282,12 @@ public class BookingService {
     @Transactional
     public PaymentRedirectionDTO createPaymentCheckout(String uuid) {
         Booking booking = prepareBookingForPayment(uuid);
-        return paymentService.createCheckout(booking);
+        PaymentAttemptDTO attempt = paymentService.createCheckout(booking);
+
+        booking.setPaymentGateway(attempt.gateway());
+        bookingRepository.save(booking);
+
+        return attempt.redirection();
     }
 
     @Transactional
@@ -289,13 +295,17 @@ public class BookingService {
         Booking booking = prepareBookingForPayment(uuid);
         ClientPaymentMethod paymentMethod = clientPaymentMethodService.findOwnedByCurrentClient(dto.getPaymentMethodId());
 
-        PaymobPayResponseDTO result = paymentService.payWithSavedCard(booking, paymentMethod);
+        PaymentAttemptDTO attempt = paymentService.payWithSavedCard(booking, paymentMethod);
+        PaymobPayResponseDTO result = attempt.payment();
+
+        booking.setPaymentGateway(attempt.gateway());
 
         if (result.success()) {
             confirmPaidBooking(booking, result.id());
             return new PaymentRedirectionDTO(buildBookingConfirmationUrl(booking.getUuid()));
         }
         if (result.pending()) {
+            bookingRepository.save(booking);
             return new PaymentRedirectionDTO(result.redirectionUrl());
         }
 
@@ -312,7 +322,7 @@ public class BookingService {
         if (booking == null || expired) {
             if (transaction.success() && !(transaction.isVoided() || transaction.isRefunded())) {
                 log.warn("Successful payment for a booking that is no longer claimable: bookingUuid={} expired={}", bookingUuid, expired);
-                paymentService.refundTransaction(transaction.id(), transaction.amountCents());
+                paymentService.refundTransaction(transaction.orderReference(), transaction.id(), transaction.amountCents());
             }
             return;
         }
@@ -344,7 +354,7 @@ public class BookingService {
             }
 
             log.warn("Successful payment for a booking already settled by another transaction: bookingUuid={} status={} settledBy={} chargedBy={}", bookingUuid, status, booking.getPaymentTransactionId(), transaction.id());
-            paymentService.refundTransaction(transaction.id(), transaction.amountCents());
+            paymentService.refundTransaction(transaction.orderReference(), transaction.id(), transaction.amountCents());
             return;
         }
 

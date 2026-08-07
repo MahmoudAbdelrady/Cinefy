@@ -8,6 +8,7 @@ import com.mdevs.cinefy.dto.payment.PaymentGatewayDTO;
 import com.mdevs.cinefy.dto.payment.PaymentGatewayListDTO;
 import com.mdevs.cinefy.dto.payment.PaymentGatewayStatusRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymentGatewaySummaryDTO;
+import com.mdevs.cinefy.dto.payment.ResolvedPaymentGateway;
 import com.mdevs.cinefy.entity.PaymentGateway;
 import com.mdevs.cinefy.entity.enums.PaymentProvider;
 import com.mdevs.cinefy.repository.PaymentGatewayRepository;
@@ -67,7 +68,7 @@ public class PaymentGatewayService {
         return new PaymentGatewayListDTO(active, standBy);
     }
 
-    public PaymentGatewaySummaryDTO getActivePaymentGatewayForPayment() {
+    public ResolvedPaymentGateway getActivePaymentGatewayForPayment() {
         PaymentGateway gateway = paymentGatewayRepository.findByActiveTrue()
                 .orElseThrow(() -> new BusinessException("Online payment is currently unavailable"));
 
@@ -77,7 +78,13 @@ public class PaymentGatewayService {
             throw new BusinessException("Online payment is currently unavailable");
         }
 
-        return toSummaryDTO(gateway, readStoredCredentials(gateway), channels);
+        return new ResolvedPaymentGateway(gateway, readStoredCredentials(gateway), channels);
+    }
+
+    public ResolvedPaymentGateway getPaymentGatewayForPayment(String uuid) {
+        PaymentGateway gateway = findPaymentGateway(uuid);
+
+        return new ResolvedPaymentGateway(gateway, readStoredCredentials(gateway), readStoredChannels(gateway));
     }
 
     @Transactional

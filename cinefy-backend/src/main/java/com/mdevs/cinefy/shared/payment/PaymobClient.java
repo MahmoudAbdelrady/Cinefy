@@ -239,6 +239,24 @@ public class PaymobClient {
         return isTransaction ? toTransactionCallback(obj) : toCardTokenCallback(obj);
     }
 
+    public String readOrderReference(Map<String, String> params) {
+        JsonNode payload = objectMapper.valueToTree(params);
+
+        return readOrderReference(payload);
+    }
+
+    public String readOrderReference(JsonNode payload) {
+        JsonNode obj = payload.has("obj") ? payload.path("obj") : payload;
+
+        // The webhook nests the reference under "order"; the browser redirect sends it flat
+        JsonNode orderReference = obj.path("order").path("merchant_order_id");
+        if (orderReference.isMissingNode() || orderReference.isNull()) {
+            orderReference = obj.path("merchant_order_id");
+        }
+
+        return orderReference.asString(null);
+    }
+
     public GatewayProviderCredentials resolveCredentials(GatewayProviderCredentials newCredentials, GatewayProviderCredentials existingCredentials) {
         PaymobGateway.Credentials incoming = (PaymobGateway.Credentials) newCredentials;
         PaymobGateway.Credentials stored = (PaymobGateway.Credentials) existingCredentials;
@@ -388,19 +406,13 @@ public class PaymobClient {
     }
 
     private TransactionCallbackDTO toTransactionCallback(JsonNode obj) {
-        // The webhook nests the reference under "order"; the browser redirect sends it flat
-        JsonNode orderReference = obj.path("order").path("merchant_order_id");
-        if (orderReference.isMissingNode() || orderReference.isNull()) {
-            orderReference = obj.path("merchant_order_id");
-        }
-
         return new TransactionCallbackDTO(
                 obj.path("id").asString(null),
                 obj.path("amount_cents").asLong(0),
                 obj.path("success").asBoolean(false),
                 obj.path("is_refunded").asBoolean(false),
                 obj.path("is_voided").asBoolean(false),
-                orderReference.asString(null));
+                readOrderReference(obj));
     }
 
     private CardTokenCallbackDTO toCardTokenCallback(JsonNode obj) {
