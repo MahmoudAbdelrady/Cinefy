@@ -62,6 +62,9 @@ public class Booking extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private PaymentGateway paymentGateway;
+
     @Column(unique = true)
     private String paymentTransactionId;
 

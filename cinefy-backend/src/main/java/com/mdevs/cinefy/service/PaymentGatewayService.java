@@ -67,6 +67,19 @@ public class PaymentGatewayService {
         return new PaymentGatewayListDTO(active, standBy);
     }
 
+    public PaymentGatewaySummaryDTO getActivePaymentGatewayForPayment() {
+        PaymentGateway gateway = paymentGatewayRepository.findByActiveTrue()
+                .orElseThrow(() -> new BusinessException("Online payment is currently unavailable"));
+
+        List<PaymentGatewayChannel<?>> channels = readStoredChannels(gateway);
+
+        if (!channels.isEmpty() && channels.stream().noneMatch(PaymentGatewayChannel::active)) {
+            throw new BusinessException("Online payment is currently unavailable");
+        }
+
+        return toSummaryDTO(gateway, readStoredCredentials(gateway), channels);
+    }
+
     @Transactional
     public PaymentGatewaySummaryDTO createPaymentGateway(PaymentGatewayDTO dto) {
         PaymentGateway gateway = new PaymentGateway();
@@ -217,7 +230,7 @@ public class PaymentGatewayService {
 
         paymentGatewayRepository.save(gateway);
 
-        return toSummaryDTO(gateway, paymobClient.readCredentials(credentials, false), channels);
+        return toSummaryDTO(gateway, paymobClient.readPublicCredentials(credentials), channels);
     }
 
     private GatewayProviderCredentials parseCredentials(Object credentials, GatewayProviderSpec spec) {
@@ -256,7 +269,7 @@ public class PaymentGatewayService {
     }
 
     private PaymentGatewaySummaryDTO toSummaryDTO(PaymentGateway gateway) {
-        GatewayProviderCredentials credentials = paymobClient.readCredentials(readStoredCredentials(gateway), false);
+        GatewayProviderCredentials credentials = paymobClient.readPublicCredentials(readStoredCredentials(gateway));
 
         return toSummaryDTO(gateway, credentials, readStoredChannels(gateway));
     }

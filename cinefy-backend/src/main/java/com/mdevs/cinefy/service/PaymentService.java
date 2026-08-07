@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
+import com.mdevs.cinefy.dto.payment.PaymentGatewaySummaryDTO;
 import com.mdevs.cinefy.dto.payment.PaymentRedirectionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionRequestDTO;
@@ -9,11 +10,9 @@ import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.ClientPaymentMethod;
-import com.mdevs.cinefy.entity.PaymentMethod;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.payment.PaymobClient;
-import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
@@ -26,11 +25,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PaymentService {
 
-    private final PaymentMethodService paymentMethodService;
+    private final PaymentGatewayService paymentGatewayService;
 
     private final PaymobClient paymobClient;
-
-    private final CredentialCipher credentialCipher;
 
     public static final String REFERENCE_SEPARATOR = "_";
 
@@ -41,37 +38,31 @@ public class PaymentService {
     // ========================= Public API =========================
 
     public PaymentRedirectionDTO createCheckout(Booking booking) {
-        List<PaymentMethod> activeMethods = findActiveMethods();
-        PaymentMethod primaryMethod = activeMethods.getFirst();
-        PaymobIntentionDTO intention = createIntention(booking, activeMethods, primaryMethod);
+        PaymentGatewaySummaryDTO gateway = paymentGatewayService.getActivePaymentGatewayForPayment();
+        PaymobIntentionDTO intention = createIntention(booking, gateway);
 
-        return new PaymentRedirectionDTO(paymobClient.getUnifiedCheckoutUrl(primaryMethod.getPublicKey(), intention.clientSecret()));
+        return new PaymentRedirectionDTO(paymobClient.getUnifiedCheckoutUrl(gateway.getCredentials(), intention.clientSecret()));
     }
 
     public PaymobPayResponseDTO payWithSavedCard(Booking booking, ClientPaymentMethod paymentMethod) {
-        List<PaymentMethod> activeMethods = findActiveMethods();
-        PaymentMethod primaryMethod = activeMethods.getFirst();
-        PaymobIntentionDTO intention = createIntention(booking, activeMethods, primaryMethod);
+        PaymentGatewaySummaryDTO gateway = paymentGatewayService.getActivePaymentGatewayForPayment();
+        PaymobIntentionDTO intention = createIntention(booking, gateway);
 
         return paymobClient.pay(
                 paymentMethod.getToken(),
                 intention.paymentKey(),
-                credentialCipher.decrypt(primaryMethod.getHmacKey()));
+                gateway.getCredentials());
     }
 
     public void refundTransaction(String transactionId, long amountCents) {
-        PaymentMethod primaryMethod = findActiveMethods().getFirst();
-        paymobClient.refund(credentialCipher.decrypt(primaryMethod.getSecretKey()), transactionId, amountCents);
+        PaymentGatewaySummaryDTO gateway = paymentGatewayService.getActivePaymentGatewayForPayment();
+        paymobClient.refund(gateway.getCredentials(), transactionId, amountCents);
     }
 
     public PaymentCallbackData handleCallback(JsonNode payload, String hmac) {
-        List<PaymentMethod> activeMethods = paymentMethodService.findActiveMethods();
-        if (activeMethods.isEmpty()) {
-            throw new BusinessException("Online payment is currently unavailable");
-        }
+        PaymentGatewaySummaryDTO gateway = paymentGatewayService.getActivePaymentGatewayForPayment();
 
-        String hmacSecret = credentialCipher.decrypt(activeMethods.getFirst().getHmacKey());
-        return paymobClient.parseCallback(payload, hmacSecret, hmac);
+        return paymobClient.parseCallback(payload, gateway.getCredentials(), hmac);
     }
 
     public TransactionCallbackDTO handleRedirect(Map<String, String> params) {
@@ -79,33 +70,22 @@ public class PaymentService {
             return null;
         }
 
-        String hmacSecret = credentialCipher.decrypt(findActiveMethods().getFirst().getHmacKey());
-        return paymobClient.parseRedirect(params, hmacSecret);
+        PaymentGatewaySummaryDTO gateway = paymentGatewayService.getActivePaymentGatewayForPayment();
+
+        return paymobClient.parseRedirect(params, gateway.getCredentials());
     }
 
     // =========================== Helpers ===========================
 
-    private List<PaymentMethod> findActiveMethods() {
-        List<PaymentMethod> activeMethods = paymentMethodService.findActiveMethods();
-        if (activeMethods.isEmpty()) {
-            throw new BusinessException("Online payment is currently unavailable");
-        }
-        return activeMethods;
+    private PaymobIntentionDTO createIntention(Booking booking, PaymentGatewaySummaryDTO gateway) {
+        PaymobIntentionRequestDTO request = toIntentionRequest(booking);
+        return paymobClient.createIntention(gateway.getCredentials(), gateway.getPaymentChannels(), request);
     }
 
-    private PaymobIntentionDTO createIntention(Booking booking, List<PaymentMethod> activeMethods, PaymentMethod primaryMethod) {
-        PaymobIntentionRequestDTO request = toIntentionRequest(booking, activeMethods, primaryMethod.getCurrency());
-        return paymobClient.createIntention(credentialCipher.decrypt(primaryMethod.getSecretKey()), request);
-    }
-
-    private PaymobIntentionRequestDTO toIntentionRequest(Booking booking, List<PaymentMethod> activeMethods, String currency) {
+    private PaymobIntentionRequestDTO toIntentionRequest(Booking booking) {
         long amount = booking.getTotalAmount()
                 .multiply(PIASTRES_PER_POUND)
                 .longValueExact();
-
-        List<Long> integrationIds = activeMethods.stream()
-                .map(PaymentMethod::getIntegrationId)
-                .toList();
 
         TmdbMovie movie = booking.getShowtime().getTmdbMovie();
         PaymobIntentionRequestDTO.Item item = new PaymobIntentionRequestDTO.Item(
@@ -117,8 +97,6 @@ public class PaymentService {
 
         return new PaymobIntentionRequestDTO(
                 amount,
-                currency,
-                integrationIds,
                 List.of(item),
                 toBillingData(booking.getClient()),
                 booking.getUuid() + REFERENCE_SEPARATOR + System.currentTimeMillis(),

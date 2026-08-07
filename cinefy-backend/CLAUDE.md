@@ -10,7 +10,7 @@
 
 The app won't boot without these (typically set in `application-local.properties` for dev):
 
-- `cinefy.encryption.key` — Base64-encoded 32-byte AES key for `CredentialCipher` (payment-method secret encryption). `CredentialCipher` throws at construction time if missing or wrong length.
+- `cinefy.encryption.key` — Base64-encoded 32-byte AES key for `CredentialCipher` (payment-gateway credential encryption). `CredentialCipher` throws at construction time if missing or wrong length.
 - `cinefy.mail.username` / `cinefy.mail.password` — Gmail SMTP creds for the `JavaMailSender` bean in `AppConfig`.
 - `cinefy.jwt.secret`, `cinefy.jwt.access-token-expiration`, `cinefy.jwt.refresh-token-expiration`, `cinefy.jwt.refresh-token-rotation-threshold` — JWT signing key + token lifetimes (read by `JwtUtil` / `AuthCookieResponseFactory` / `JwtSessionService`).
 - `cinefy.cookie.secure`, `cinefy.cookie.same-site` — auth-cookie flags (read by `CookieUtil`).
@@ -33,8 +33,11 @@ The app won't boot without these (typically set in `application-local.properties
 - **Scheduling** — `@EnableScheduling` on `CinefyApplication`; jobs live under `job/`: `ShowtimeStatusJob` (cron `0 * * * * *`), `TmdbSyncJob` (cron `0 0 3 * * *`), `BookingCleanupJob` (cron `0 * * * * *`), `OtpCleanupJob` (cron `0 0 3 * * *`), `InvalidJwtCleanupJob` (cron `0 0 3 * * *`)
 - **AOP** — `RequestLoggingAspect` (around any `@RestController`) and `TransactionLoggingAspect` (around any `@Transactional`) under `aspect/`, both delegating to `LoggingUtil`
 - **TMDB integration** — `TmdbMovieService` calls TheMovieDB via `RestClient` (`app.tmdb.api-base-url`), caches results in the local `TmdbMovie` table
-- **Paymob integration** — `PaymobClient` under `shared/payment/` is a full Unified Checkout client over `RestClient` (`app.paymob.api-base-url`), not just a connection tester: `testConnection`, `createIntention`, `getUnifiedCheckoutUrl`, `pay` (saved-card charge via `source.subtype = TOKEN`), `refund` (tries **void** first, falls back to **refund**), `parseRedirect` (flat browser query params), `parseCallback` (webhook JSON → the sealed `PaymentCallbackData`: `TRANSACTION` → `TransactionCallbackDTO`, else `CardTokenCallbackDTO`). Every inbound payload is **HMAC-SHA512 verified** over an ordered field concatenation compared with `MessageDigest.isEqual`; a mismatch throws `BusinessException("Invalid payment signature")`. `PaymentService` sits above it and owns the booking-facing flow (`createCheckout`, `payWithSavedCard`, `refundTransaction`, `handleCallback`, `handleRedirect`); `ClientPaymentMethodService` persists tokenized cards.
-- **Credential encryption** — `CredentialCipher` under `shared/security/` (AES-256-GCM); requires `cinefy.encryption.key` (Base64 of 32 bytes). Used to encrypt payment-method secrets before persisting.
+- **Paymob integration** — `PaymobClient` under `shared/payment/` is a full Unified Checkout client over `RestClient` (`app.paymob.api-base-url`): `createIntention`, `getUnifiedCheckoutUrl`, `pay` (saved-card charge via `source.subtype = TOKEN`), `refund` (tries **void** first, falls back to **refund**), `parseRedirect` (flat browser query params), `parseCallback` (webhook JSON → the sealed `PaymentCallbackData`: `TRANSACTION` → `TransactionCallbackDTO`, else `CardTokenCallbackDTO`), plus the config-time `resolveCredentials` / `readPublicCredentials` / `validateChannelConfig`. Every inbound payload is **HMAC-SHA512 verified** over an ordered field concatenation compared with `MessageDigest.isEqual`; a mismatch throws `BusinessException("Invalid payment signature")`. `PaymentService` sits above it and owns the booking-facing flow (`createCheckout`, `payWithSavedCard`, `refundTransaction`, `handleCallback`, `handleRedirect`); `ClientPaymentMethodService` persists tokenized cards.
+
+  **Every secret-taking `PaymobClient` method takes `GatewayProviderCredentials`, never a raw key string** — it casts to `PaymobGateway.Credentials` on the first line of the body. That keeps `PaymobGateway.*` types out of `PaymentService`, so a second provider only needs a new spec + client, not changes at the call sites. `createIntention` also takes the gateway's `List<PaymentGatewayChannel<?>>` and derives `currency` + `payment_methods` from the **active** channels itself (private `readChannelCurrency` / `readIntegrationIds`); those two fields are absent from `PaymobIntentionRequestDTO` and are injected into the JSON body at send time via `objectMapper.valueToTree`. A gateway whose active channels disagree on currency throws — one intention carries exactly one currency.
+
+- **Credential encryption** — `CredentialCipher` under `shared/security/` (AES-256-GCM); requires `cinefy.encryption.key` (Base64 of 32 bytes). Encrypts the `PaymentGateway.credentials` JSON blob before persisting.
 - **libphonenumber** (Google) — phone validation/normalization for `StaffMember` and `Client`
 - `@EnableJpaAuditing`, `@EnableScheduling`, `@EnableAsync`, and `@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)` on `CinefyApplication`
 
@@ -46,7 +49,7 @@ com.mdevs.cinefy
 │   ├── database/   — CinefyTableNamingStrategy
 │   └── general/    — AppConfig (mail, env, password encoder), SecurityConfig (CORS + filter chain)
 ├── controller/     — REST controllers (@RestController)
-│                     Hall, Showtime, StaffMember, PaymentMethod, TmdbMovie,
+│                     Hall, Showtime, StaffMember, PaymentGateway, TmdbMovie,
 │                     ManagementAuth, Booking, Client, ClientAuth
 ├── filter/         — JwtAuthenticationFilter (cookie JWT → SecurityContext),
 │                     CsrfValidationFilter (double-submit CSRF token check)
@@ -71,9 +74,10 @@ com.mdevs.cinefy
 │   │                  PositionCoverageDTO, PositionCoverageItemDTO, PositionCoverageProjection,
 │   │                  CurrentStaffMemberDTO, UpdateProfileDTO, ChangePasswordDTO (self-service /staff/me)
 │   ├── client/     — CurrentClientDTO, SignUpDTO
-│   ├── payment/    — PaymentMethodDTO, PaymentMethodDetailDTO, PaymentMethodSummaryDTO,
-│   │                  PaymentMethodStatusRequestDTO, PaymentMethodTestResultDTO,
-│   │                  TestConnectionRequestDTO,
+│   ├── payment/    — PaymentGatewayDTO, PaymentGatewaySummaryDTO, PaymentGatewayListDTO,
+│   │                  PaymentGatewayStatusRequestDTO, PaymentGatewayChannel,
+│   │                  GatewayProviderSpec, GatewayProviderCredentials,
+│   │                  GatewayProviderChannelConfig, PaymobGateway (the Paymob spec),
 │   │                  PaymentCallbackData (sealed interface, permits the two below),
 │   │                  TransactionCallbackDTO, CardTokenCallbackDTO,
 │   │                  PaymentRedirectionDTO, SavedCardPaymentDTO, ClientPaymentMethodDTO,
@@ -82,15 +86,14 @@ com.mdevs.cinefy
 │                      ResetPasswordDTO, TokenPairDTO
 ├── entity/         — JPA entities (@Entity / @MappedSuperclass)
 │                     Hall, HallType, Showtime, TmdbMovie, Booking, BookingSeat,
-│                     User (MappedSuperclass), StaffMember, Client, PaymentMethod,
+│                     User (MappedSuperclass), StaffMember, Client, PaymentGateway,
 │                     ClientPaymentMethod, InvalidJwt, Otp
 │   └── enums/      — domain enums (all enums live here, not beside their entity)
 │                     HallStatus, SeatCategory, ShowtimeStatus, BookingStatus, PaymentState,
-│                     StaffPosition, EmploymentType, PaymentMethodStatus, PaymentMethodTestStatus,
-│                     PaymentMethodType, PaymentProvider, UserType, OtpType
+│                     StaffPosition, EmploymentType, PaymentProvider, UserType, OtpType
 ├── repository/     — Spring Data JPA repositories (extend BaseRepository)
 ├── service/        — Business logic (HallService, ShowtimeService, StaffMemberService,
-│                     PaymentMethodService, TmdbMovieService, ManagementAuthService,
+│                     PaymentGatewayService, TmdbMovieService, ManagementAuthService,
 │                     BookingService, PaymentService, ClientPaymentMethodService,
 │                     ClientService, ClientAuthService, CurrentUserService,
 │                     JwtSessionService, OtpService, EmailService, InvalidJwtService)
@@ -100,8 +103,8 @@ com.mdevs.cinefy
 ├── shared/
 │   ├── annotation/ — @PublicApi (marks endpoints that skip authentication)
 │   ├── exception/  — Global @RestControllerAdvice (CinefyExceptionHandler) + CinefyExceptionResponse
-│   │                 + exception types under types/ (Business, NotFound, Forbidden, Unauthorized) + ErrorCode
-│   ├── payment/    — PaymobClient (RestClient wrapper for Paymob test-connection)
+│   │                 + exception types under types/ (Business, Conflict, NotFound, Forbidden, Unauthorized) + ErrorCode
+│   ├── payment/    — PaymobClient (RestClient client for the Paymob Unified Checkout API)
 │   ├── security/   — JwtUtil, JwtClaims, TokenType, UserPrincipal, SecurityUtil,
 │   │                 CinefyApiAuthorizationManager, CinefyAuthenticationEntryPoint,
 │   │                 CinefyAuthManagers, AuthCookieResponseFactory, CsrfProtectionMatcher,
@@ -174,6 +177,8 @@ Global `@RestControllerAdvice` in `CinefyExceptionHandler`:
 
 - `BusinessException` → 400 (carries an optional `ErrorCode`: `OTP_INVALID`, `PASSWORD_REUSED`, `PASSWORD_INCORRECT`, `ACCOUNT_NOT_VERIFIED`, `PAYMENT_NOT_ATTEMPTED` — surfaced to the frontend as a JSON `errorCode`). Add an `ErrorCode` only when the frontend must branch on _which_ 400 it got; otherwise the message alone is enough.
 - `NotFoundException` → 404
+- `ConflictException` → 409 (same shape as `BusinessException`, optional `ErrorCode`). Thrown **only** from inside a `catch (DataIntegrityViolationException)` — i.e. a constraint the DB actually rejected, not a pre-check. An `existsBy*` pre-check that fails is ordinary validation and stays a `BusinessException` → 400.
+- `DataIntegrityViolationException` → 409 `"A record with the same unique value already exists"`
 - `UnauthorizedException` / `AuthenticationException` / `JwtException` → 401
 - `ForbiddenException` / `AuthorizationDeniedException` → 403
 - `MethodArgumentNotValidException` / `ConstraintViolationException` → 400 with field-level errors
@@ -206,7 +211,7 @@ Both delegate to `LoggingUtil.proceedWithLogging(...)`. Don't add ad-hoc `log.in
 - `JwtAuthenticationFilter` extracts the access token from the access-token cookie (`accessToken`), parses it via `JwtUtil`, skips blocklisted tokens (`InvalidJwtService`), and sets a `UserPrincipal` authentication. Auth cookies also include `refreshToken` and a `XSRF-TOKEN` CSRF cookie (all built by `AuthCookieResponseFactory`). Auth is stateless — no server session.
 - Endpoint authorization uses `@PreAuthorize("hasAnyRole(...)")` on controllers, keyed to `StaffPosition` (`ADMIN`, `MANAGER`, `CASHIER`, `USHER`) plus the `CLIENT` role for client-facing endpoints. When adding an endpoint, put the role rule on the controller method/class (not the service) to match the existing pattern. `CinefyAuthenticationEntryPoint` returns the 401 body for unauthenticated requests.
 - `BCryptPasswordEncoder` bean (in `AppConfig`) — used by `StaffMemberService` when storing/updating `password`.
-- `CredentialCipher` (AES-256-GCM, `cinefy.encryption.key` required, Base64-encoded 32-byte key) — encrypts payment-method secrets (`secretKey`, `hmacKey`) at rest. The cipher output prepends a fresh IV per call and tags the value with the GCM authentication tag.
+- `CredentialCipher` (AES-256-GCM, `cinefy.encryption.key` required, Base64-encoded 32-byte key) — encrypts the whole `PaymentGateway.credentials` JSON blob at rest (for Paymob: `secretKey`, `publicKey`, `hmacKey`). The cipher output prepends a fresh IV per call and tags the value with the GCM authentication tag. Its `base64:base64` output is why `credentials` is a **TEXT** column, not JSONB.
 
 ### Admin Account Policy
 
@@ -282,6 +287,8 @@ Booking
  │     different number than the UI showed.)
  ├── status (BookingStatus enum, nullable — null while on-hold, PENDING_PAYMENT once
  │     a checkout starts, CONFIRMED/REFUNDED once settled)
+ ├── paymentGateway → PaymentGateway (ManyToOne LAZY, nullable — on-site bookings
+ │     never touch a gateway, so it stays null for them)
  ├── paymentTransactionId (unique, nullable)
  ├── onHold (Boolean, default true), refundableUntil, expiresAt
  ├── ticketToken (unique), ticketUsed (boolean, default false)
@@ -317,16 +324,16 @@ StaffMember extends User
 Client extends User
  └── isVerified (boolean, default false)
 
-PaymentMethod
- ├── name
+PaymentGateway   (one configured provider account; at most one is `active` at a time)
+ ├── name, code (unique, derived via static toCode(name) — the Hall pattern)
  ├── provider (PaymentProvider enum — currently PAYMOB only)
- ├── type (PaymentMethodType enum)
- ├── status (PaymentMethodStatus, default DRAFT)
- ├── secretKey, hmacKey (TEXT, AES-encrypted via CredentialCipher)
- ├── publicKey, integrationId (long), currency (length 3, nullable)
- ├── testStatus (PaymentMethodTestStatus, default UNTESTED)
- ├── testFailureReason, testedAt
- └── credentialsRotatedAt
+ ├── active (boolean, default false — the field is `active`, NOT `isActive`,
+ │     so Lombok/Jackson emit exactly one JSON property)
+ ├── credentials (TEXT, nullable=false — the provider's credential record serialized
+ │     to JSON then AES-encrypted whole by CredentialCipher. TEXT and not JSONB
+ │     because the cipher emits `base64:base64`, which Postgres rejects as JSONB.)
+ └── paymentChannels (JSONB, nullable — plaintext List<PaymentGatewayChannel<?>>;
+       each channel is { name, currency, active, providerConfig })
 
 Enums:
   HallStatus:              SCHEDULED | ACTIVE | INACTIVE | UNDER_MAINTENANCE
@@ -346,9 +353,11 @@ Enums:
   UserType:                STAFF_MEMBER | CLIENT
   OtpType:                 RESET_PASSWORD | EMAIL_VERIFICATION
   PaymentProvider:         PAYMOB
-  PaymentMethodType:       CARD | WALLET | INSTALLMENT
-  PaymentMethodStatus:     DRAFT | ACTIVE | INACTIVE
-  PaymentMethodTestStatus: UNTESTED | SUCCESS | FAILURE
+                           (carries its own GatewayProviderSpec — PAYMOB(new PaymobGateway())
+                            + Lombok @Getter, so provider.getSpec() answers credentialsType() /
+                            channelConfigType() / supportsChannels() / channelsRequired().
+                            Consequence: entity/enums imports from dto/payment, and specs
+                            cannot be Spring beans.)
 ```
 
 Most enums parsed from API input expose a static `fromString(String)` — use it instead of `valueOf` so bad values raise `BusinessException` consistently. (Internal-only enums that never come from request bodies, e.g. `UserType`, are bare enums without `fromString`.)
@@ -441,22 +450,47 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. The self-service 
 
 Phone numbers in `StaffMemberDTO` / `UpdateProfileDTO` are validated/normalized with Google libphonenumber before persistence. The `/staff/me` mutations (`updateProfile`, `updatePassword`) still call `validateNotAdminAccount(...)` — the admin row is not self-editable even by the admin.
 
-### `/payment-methods` — PaymentMethodController
+### `/payment-gateways` — PaymentGatewayController
 
 Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`.
 
-| Method | Path                                      | Input                         | Output                        |
-| ------ | ----------------------------------------- | ----------------------------- | ----------------------------- |
-| GET    | `/payment-methods`                        |                               | List<PaymentMethodSummaryDTO> |
-| GET    | `/payment-methods/{uuid}`                 |                               | PaymentMethodDetailDTO        |
-| POST   | `/payment-methods`                        | PaymentMethodDTO              | PaymentMethodSummaryDTO       |
-| PUT    | `/payment-methods/{uuid}`                 | PaymentMethodDTO              | PaymentMethodSummaryDTO       |
-| DELETE | `/payment-methods/{uuid}`                 |                               | 204                           |
-| POST   | `/payment-methods/test-connection`        | TestConnectionRequestDTO      | 204 / error (pre-save test)   |
-| POST   | `/payment-methods/{uuid}/test-connection` |                               | PaymentMethodTestResultDTO    |
-| POST   | `/payment-methods/{uuid}/status`          | PaymentMethodStatusRequestDTO | 204                           |
+| Method | Path                              | Input              | Output                       |
+| ------ | --------------------------------- | ------------------ | ---------------------------- |
+| GET    | `/payment-gateways`               |                    | PaymentGatewayListDTO        |
+| POST   | `/payment-gateways`               | PaymentGatewayDTO  | 201 PaymentGatewaySummaryDTO |
+| PUT    | `/payment-gateways/{uuid}`        | PaymentGatewayDTO  | PaymentGatewaySummaryDTO     |
+| POST   | `/payment-gateways/{uuid}/status` | `{"active": bool}` | 204                          |
+| DELETE | `/payment-gateways/{uuid}`        |                    | 204                          |
 
-Secrets in `PaymentMethodDTO` are encrypted with `CredentialCipher` before being written to `secretKey`/`hmacKey`. The pre-save `test-connection` endpoint lets the UI verify credentials before creating the row; the per-id variant re-tests using the stored (decrypted) credentials and writes `testStatus` / `testFailureReason` / `testedAt` back to the entity.
+Wire format for create/update (`active` is **not** an input — a new gateway is always created inactive, and activation is the separate `/status` endpoint):
+
+```json
+{
+  "name": "Main Paymob",
+  "provider": "PAYMOB",
+  "credentials": { "secretKey": "...", "publicKey": "...", "hmacKey": "..." },
+  "paymentChannels": [
+    { "name": "Cards", "currency": "EGP", "active": true, "providerConfig": { "integrationId": 12345 } }
+  ]
+}
+```
+
+- `GET` returns `PaymentGatewayListDTO { active, standBy }` — partitioned server-side in a single pass. `@JsonInclude(NON_NULL)`, so `active` is **omitted** when no gateway is active.
+- **Responses never contain `secretKey`/`hmacKey`**, not even as nulls: mappers run credentials through `PaymobClient.readPublicCredentials(...)`, which rebuilds the record with only `publicKey`, and `PaymobGateway.Credentials` is `@JsonInclude(NON_NULL)`.
+- On **update**, a blank `secretKey`/`hmacKey` means "keep the stored one" (`resolveCredentials`); `publicKey` must always be supplied since it isn't a secret.
+- `credentials` on the write DTO is a `Map<String, Object>`, deliberately **not** generic — a generic `PaymentGatewayDTO<C, K>` cannot deserialize at all, because `C` erases to a marker interface Jackson can't instantiate.
+- Channel validation (`validateChannels`): name required and ≤ 30 chars, currency in `{EGP, USD}`, `providerConfig` required and provider-validated, and both names and configs must be unique within the gateway.
+- **`PaymentGatewayService.getActivePaymentGatewayForPayment()`** is the runtime read used by `PaymentService`. Unlike the list/CRUD mappers it returns **unmasked** credentials, so it must never be serialized to a response. It throws `BusinessException("Online payment is currently unavailable")` when no gateway is active, or when the active gateway has channels but none are active.
+
+**Not yet created — a partial unique index enforcing the single-active rule.** JPA cannot generate it (Hibernate has no annotation emitting a standalone `CREATE UNIQUE INDEX`, and `@Index(unique=true)` renders as an invalid inline table constraint), and the project has no Flyway/Liquibase:
+
+```sql
+CREATE UNIQUE INDEX UK_PAYMENT_GATEWAYS_ACTIVE
+  ON PAYMENT_GATEWAYS (ACTIVE)
+  WHERE ACTIVE;
+```
+
+`updatePaymentGatewayStatus` already anticipates it — it deactivates the incumbent with `saveAndFlush` first, then wraps the activation in a `catch (DataIntegrityViolationException)` that rethrows as `ConflictException` (409). Until the index exists, concurrent activations can produce two active gateways.
 
 ### `/booking` — BookingController
 

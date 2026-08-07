@@ -4,11 +4,11 @@ import com.mdevs.cinefy.dto.payment.CardTokenCallbackDTO;
 import com.mdevs.cinefy.dto.payment.GatewayProviderChannelConfig;
 import com.mdevs.cinefy.dto.payment.GatewayProviderCredentials;
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
+import com.mdevs.cinefy.dto.payment.PaymentGatewayChannel;
 import com.mdevs.cinefy.dto.payment.PaymobGateway;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
-import com.mdevs.cinefy.dto.payment.TestConnectionRequestDTO;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import jakarta.annotation.PostConstruct;
@@ -23,6 +23,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -33,6 +34,9 @@ import java.time.Duration;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -55,6 +59,10 @@ public class PaymobClient {
     private static final String VOID_PATH = "/api/acceptance/void_refund/void";
 
     private static final String REFUND_PATH = "/api/acceptance/void_refund/refund";
+
+    private static final String PAYMENT_REJECTED_MESSAGE = "The payment could not be processed. Please try again or use a different payment method";
+
+    private static final String PAYMENT_UNREACHABLE_MESSAGE = "Online payment is temporarily unavailable. Please try again later";
 
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
 
@@ -112,58 +120,33 @@ public class PaymobClient {
 
     // ========================= Public API =========================
 
-    public void testConnection(TestConnectionRequestDTO dto) {
-        try {
-            restClient.post()
-                    .uri(INTENTION_PATH)
-                    .header("Authorization", "Token " + dto.getSecretKey())
-                    .header("Content-Type", "application/json")
-                    .body(Map.of(
-                            "amount", 100,
-                            "currency", dto.getCurrency().toUpperCase(),
-                            "payment_methods", List.of(dto.getIntegrationId()),
-                            "expiration", 60,
-                            "billing_data", Map.of(
-                                    "first_name", "Cinefy",
-                                    "last_name", "ConnectionTest",
-                                    "email", "connection-test@cinefy.local",
-                                    "phone_number", "+2010xxxxxxxx"
-                            )
-                    ))
-                    .retrieve()
-                    .toBodilessEntity();
-        } catch (HttpClientErrorException e) {
-            log.warn("Paymob connection test failed: status={} body={}", e.getStatusCode(), e.getResponseBodyAsString());
-            String message = extractErrorDetail(e.getResponseBodyAsString(), "Paymob rejected the credentials");
-            throw new BusinessException(message);
-        } catch (RestClientException e) {
-            log.warn("Paymob connection test failed: {}", e.getMessage());
-            throw new IllegalStateException("Could not reach Paymob: " + e.getMessage());
-        }
-    }
+    public PaymobIntentionDTO createIntention(GatewayProviderCredentials credentials,
+                                              List<PaymentGatewayChannel<?>> channels,
+                                              PaymobIntentionRequestDTO request) {
+        PaymobGateway.Credentials paymobCredentials = (PaymobGateway.Credentials) credentials;
 
-    public PaymobIntentionDTO createIntention(String secretKey, PaymobIntentionRequestDTO request) {
         try {
             JsonNode response = restClient.post()
                     .uri(INTENTION_PATH)
-                    .header("Authorization", "Token " + secretKey)
+                    .header("Authorization", "Token " + paymobCredentials.secretKey())
                     .header("Content-Type", "application/json")
-                    .body(request)
+                    .body(toIntentionBody(request, channels))
                     .retrieve()
                     .body(JsonNode.class);
 
             return toIntention(response);
         } catch (HttpClientErrorException e) {
             log.warn("Paymob intention creation failed: status={} body={}", e.getStatusCode(), e.getResponseBodyAsString());
-            String message = extractErrorDetail(e.getResponseBodyAsString(), "Paymob rejected the payment request");
-            throw new BusinessException(message);
+            throw new BusinessException(PAYMENT_REJECTED_MESSAGE);
         } catch (RestClientException e) {
             log.warn("Paymob intention creation failed: {}", e.getMessage());
-            throw new IllegalStateException("Could not reach Paymob: " + e.getMessage());
+            throw new IllegalStateException(PAYMENT_UNREACHABLE_MESSAGE);
         }
     }
 
-    public PaymobPayResponseDTO pay(String cardToken, String paymentToken, String hmacSecret) {
+    public PaymobPayResponseDTO pay(String cardToken, String paymentToken, GatewayProviderCredentials credentials) {
+        PaymobGateway.Credentials paymobCredentials = (PaymobGateway.Credentials) credentials;
+
         try {
             JsonNode response = restClient.post()
                     .uri(PAY_PATH)
@@ -178,24 +161,26 @@ public class PaymobClient {
                     .retrieve()
                     .body(JsonNode.class);
             if (response == null) {
-                throw new BusinessException("Paymob returned an empty payment response");
+                log.error("Paymob returned an empty payment response");
+                throw new BusinessException(PAYMENT_REJECTED_MESSAGE);
             }
 
-            verifyHmac(response, TRANSACTION_HMAC_FIELDS, hmacSecret, response.path(HMAC_PARAM).asString(null));
+            verifyHmac(response, TRANSACTION_HMAC_FIELDS, paymobCredentials.hmacKey(), response.path(HMAC_PARAM).asString(null));
 
             return toPayResponse(response);
         } catch (HttpClientErrorException e) {
             log.warn("Paymob saved-card payment failed: status={} body={}", e.getStatusCode(), e.getResponseBodyAsString());
-            String message = extractErrorDetail(e.getResponseBodyAsString(), "Paymob rejected the payment request");
-            throw new BusinessException(message);
+            throw new BusinessException(PAYMENT_REJECTED_MESSAGE);
         } catch (RestClientException e) {
             log.warn("Paymob saved-card payment failed: {}", e.getMessage());
-            throw new IllegalStateException("Could not reach Paymob: " + e.getMessage());
+            throw new IllegalStateException(PAYMENT_UNREACHABLE_MESSAGE);
         }
     }
 
-    public void refund(String secretKey, String transactionId, long amountCents) {
-        if (tryVoid(secretKey, transactionId)) {
+    public void refund(GatewayProviderCredentials credentials, String transactionId, long amountCents) {
+        PaymobGateway.Credentials paymobCredentials = (PaymobGateway.Credentials) credentials;
+
+        if (tryVoid(paymobCredentials.secretKey(), transactionId)) {
             log.info("Paymob void succeeded: transactionId={}", transactionId);
             return;
         }
@@ -205,7 +190,7 @@ public class PaymobClient {
         try {
             restClient.post()
                     .uri(REFUND_PATH)
-                    .header("Authorization", "Token " + secretKey)
+                    .header("Authorization", "Token " + paymobCredentials.secretKey())
                     .header("Content-Type", "application/json")
                     .body(Map.of(
                             "transaction_id", transactionId,
@@ -217,34 +202,39 @@ public class PaymobClient {
             log.info("Paymob refund succeeded: transactionId={} amountCents={}", transactionId, amountCents);
         } catch (HttpClientErrorException e) {
             log.error("Paymob refund failed: transactionId={} amountCents={} status={} body={}", transactionId, amountCents, e.getStatusCode(), e.getResponseBodyAsString());
-            String message = extractErrorDetail(e.getResponseBodyAsString(), "Paymob rejected the refund request");
-            throw new BusinessException(message);
+            throw new BusinessException("The refund could not be processed. Please try again later");
         } catch (RestClientException e) {
             log.error("Paymob refund failed: transactionId={} amountCents={} error={}", transactionId, amountCents, e.getMessage());
-            throw new IllegalStateException("Could not reach Paymob: " + e.getMessage());
+            throw new IllegalStateException(PAYMENT_UNREACHABLE_MESSAGE);
         }
     }
 
-    public String getUnifiedCheckoutUrl(String publicKey, String clientSecret) {
-        return apiBaseUrl + UNIFIED_CHECKOUT_PATH + "?publicKey=" + publicKey + "&clientSecret=" + clientSecret;
+    public String getUnifiedCheckoutUrl(GatewayProviderCredentials credentials, String clientSecret) {
+        PaymobGateway.Credentials paymobCredentials = (PaymobGateway.Credentials) credentials;
+
+        return apiBaseUrl + UNIFIED_CHECKOUT_PATH + "?publicKey=" + paymobCredentials.publicKey() + "&clientSecret=" + clientSecret;
     }
 
-    public TransactionCallbackDTO parseRedirect(Map<String, String> params, String hmacSecret) {
+    public TransactionCallbackDTO parseRedirect(Map<String, String> params, GatewayProviderCredentials credentials) {
+        PaymobGateway.Credentials paymobCredentials = (PaymobGateway.Credentials) credentials;
+
         // Paymob sends the transaction fields as flat query params
         JsonNode payload = objectMapper.valueToTree(params);
-        verifyHmac(payload, TRANSACTION_HMAC_FIELDS, hmacSecret, params.get(HMAC_PARAM));
+        verifyHmac(payload, TRANSACTION_HMAC_FIELDS, paymobCredentials.hmacKey(), params.get(HMAC_PARAM));
 
         return toTransactionCallback(payload);
     }
 
-    public PaymentCallbackData parseCallback(JsonNode payload, String hmacSecret, String receivedHmac) {
+    public PaymentCallbackData parseCallback(JsonNode payload, GatewayProviderCredentials credentials, String receivedHmac) {
+        PaymobGateway.Credentials paymobCredentials = (PaymobGateway.Credentials) credentials;
+
         String type = payload.path("type").asString(null);
         JsonNode obj = payload.path("obj");
 
         boolean isTransaction = TRANSACTION_TYPE.equals(type);
 
         List<String> fields = isTransaction ? TRANSACTION_HMAC_FIELDS : TOKEN_HMAC_FIELDS;
-        verifyHmac(obj, fields, hmacSecret, receivedHmac);
+        verifyHmac(obj, fields, paymobCredentials.hmacKey(), receivedHmac);
 
         return isTransaction ? toTransactionCallback(obj) : toCardTokenCallback(obj);
     }
@@ -269,12 +259,8 @@ public class PaymobClient {
                 StringUtils.isEmpty(incoming.hmacKey()) ? stored.hmacKey() : incoming.hmacKey());
     }
 
-    public GatewayProviderCredentials readCredentials(GatewayProviderCredentials storedCredentials, boolean includeSecrets) {
+    public GatewayProviderCredentials readPublicCredentials(GatewayProviderCredentials storedCredentials) {
         PaymobGateway.Credentials paymobCredentials = (PaymobGateway.Credentials) storedCredentials;
-
-        if (includeSecrets) {
-            return paymobCredentials;
-        }
 
         return new PaymobGateway.Credentials(null, paymobCredentials.publicKey(), null);
     }
@@ -288,6 +274,35 @@ public class PaymobClient {
     }
 
     // =========================== Helpers ===========================
+
+    private ObjectNode toIntentionBody(PaymobIntentionRequestDTO request, List<PaymentGatewayChannel<?>> channels) {
+        ObjectNode body = objectMapper.valueToTree(request);
+        body.put("currency", readChannelCurrency(channels));
+        body.set("payment_methods", objectMapper.valueToTree(readIntegrationIds(channels)));
+        return body;
+    }
+
+    private List<Long> readIntegrationIds(List<PaymentGatewayChannel<?>> channels) {
+        return activeChannels(channels)
+                .map(channel -> ((PaymobGateway.ChannelConfig) channel.providerConfig()).integrationId())
+                .toList();
+    }
+
+    private String readChannelCurrency(List<PaymentGatewayChannel<?>> channels) {
+        Set<String> currencies = activeChannels(channels)
+                .map(PaymentGatewayChannel::currency)
+                .collect(Collectors.toSet());
+
+        if (currencies.size() > 1) {
+            throw new BusinessException("The active payment gateway has channels with different currencies");
+        }
+
+        return currencies.iterator().next();
+    }
+
+    private Stream<PaymentGatewayChannel<?>> activeChannels(List<PaymentGatewayChannel<?>> channels) {
+        return channels.stream().filter(PaymentGatewayChannel::active);
+    }
 
     private void validateCredentials(PaymobGateway.Credentials credentials, boolean isUpdate) {
         if (!isUpdate && StringUtils.isEmpty(credentials.secretKey())) {
@@ -342,13 +357,15 @@ public class PaymobClient {
 
     private PaymobIntentionDTO toIntention(JsonNode response) {
         if (response == null) {
-            throw new BusinessException("Paymob returned an empty intention response");
+            log.error("Paymob returned an empty intention response");
+            throw new BusinessException(PAYMENT_REJECTED_MESSAGE);
         }
 
         String clientSecret = response.path("client_secret").asString(null);
         String paymentKey = response.path("payment_keys").path(0).path("key").asString(null);
         if (StringUtils.isEmpty(clientSecret) || StringUtils.isEmpty(paymentKey)) {
-            throw new BusinessException("Paymob returned an incomplete intention response");
+            log.error("Paymob returned an incomplete intention response: {}", response);
+            throw new BusinessException(PAYMENT_REJECTED_MESSAGE);
         }
 
         return new PaymobIntentionDTO(paymentKey, clientSecret);
@@ -357,7 +374,8 @@ public class PaymobClient {
     private PaymobPayResponseDTO toPayResponse(JsonNode response) {
         String id = response.path("id").asString(null);
         if (StringUtils.isEmpty(id)) {
-            throw new BusinessException("Paymob returned an incomplete payment response");
+            log.error("Paymob returned an incomplete payment response: {}", response);
+            throw new BusinessException(PAYMENT_REJECTED_MESSAGE);
         }
 
         return new PaymobPayResponseDTO(
@@ -391,18 +409,6 @@ public class PaymobClient {
                 obj.path("masked_pan").asString(null),
                 obj.path("card_subtype").asString(null),
                 obj.path("email").asString(null));
-    }
-
-    private String extractErrorDetail(String body, String fallback) {
-        if (body == null || body.isBlank()) return fallback;
-        try {
-            JsonNode root = objectMapper.readTree(body);
-            JsonNode detail = root.get("detail");
-            if (detail != null && detail.isString()) return detail.asString();
-        } catch (Exception ex) {
-            log.warn("Paymob Error: {}", ex.getMessage(), ex);
-        }
-        return fallback;
     }
 
     private String concatenateHmacFields(JsonNode obj, List<String> fields) {
