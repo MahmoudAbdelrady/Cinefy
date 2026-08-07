@@ -22,7 +22,8 @@ import java.util.Set;
                 @Index(columnList = "SHOWTIME_ID"),
                 @Index(columnList = "ON_HOLD, EXPIRES_AT"),
                 @Index(columnList = "CLIENT_ID"),
-                @Index(columnList = "BOOKED_BY_ID")
+                @Index(columnList = "BOOKED_BY_ID"),
+                @Index(columnList = "PAYMENT_GATEWAY_ID")
         }
 )
 public class Booking extends BaseEntity {
@@ -69,9 +70,6 @@ public class Booking extends BaseEntity {
     private String paymentTransactionId;
 
     private Boolean onHold = true;
-
-    @Column(columnDefinition = "TIMESTAMP(0)")
-    private LocalDateTime refundableUntil;
 
     @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime expiresAt;

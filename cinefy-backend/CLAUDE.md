@@ -290,7 +290,7 @@ Booking
  ├── paymentGateway → PaymentGateway (ManyToOne LAZY, nullable — on-site bookings
  │     never touch a gateway, so it stays null for them)
  ├── paymentTransactionId (unique, nullable)
- ├── onHold (Boolean, default true), refundableUntil, expiresAt
+ ├── onHold (Boolean, default true), expiresAt
  ├── ticketToken (unique), ticketUsed (boolean, default false)
  ├── helpers: hasExpired([asOf]), isActiveHold([asOf])
  └── unique (CLIENT_ID, SHOWTIME_ID, ON_HOLD)

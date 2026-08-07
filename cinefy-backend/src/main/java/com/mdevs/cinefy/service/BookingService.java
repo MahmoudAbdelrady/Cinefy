@@ -469,7 +469,6 @@ public class BookingService {
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setOnHold(null);
         booking.setPaymentTransactionId(transactionId);
-        // TODO: set refundable until date
         bookingRepository.save(booking);
 
         // TODO: send email with the ticket

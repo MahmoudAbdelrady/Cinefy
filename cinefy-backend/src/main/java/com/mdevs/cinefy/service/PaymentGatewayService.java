@@ -11,6 +11,7 @@ import com.mdevs.cinefy.dto.payment.PaymentGatewaySummaryDTO;
 import com.mdevs.cinefy.dto.payment.ResolvedPaymentGateway;
 import com.mdevs.cinefy.entity.PaymentGateway;
 import com.mdevs.cinefy.entity.enums.PaymentProvider;
+import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.PaymentGatewayRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.ConflictException;
@@ -27,6 +28,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +41,8 @@ public class PaymentGatewayService {
 
     private final PaymentGatewayRepository paymentGatewayRepository;
 
+    private final BookingRepository bookingRepository;
+
     private final PaymobClient paymobClient;
 
     private final CredentialCipher credentialCipher;
@@ -48,6 +52,8 @@ public class PaymentGatewayService {
     private static final List<String> SUPPORTED_CHANNEL_CURRENCIES = List.of("EGP", "USD");
 
     private static final int MAX_CHANNEL_NAME_LENGTH = 30;
+
+    private static final int SETTLED_BOOKING_RETENTION_DAYS = 14;
 
     // ========================= Public API =========================
 
@@ -97,14 +103,14 @@ public class PaymentGatewayService {
 
     @Transactional
     public PaymentGatewaySummaryDTO updatePaymentGateway(String uuid, PaymentGatewayDTO dto) {
-        PaymentGateway gateway = findPaymentGateway(uuid);
+        PaymentGateway gateway = findPaymentGatewayForUpdate(uuid);
 
         return savePaymentGateway(gateway, dto, gateway.getId(), readStoredCredentials(gateway));
     }
 
     @Transactional
     public void updatePaymentGatewayStatus(String uuid, PaymentGatewayStatusRequestDTO dto) {
-        PaymentGateway gateway = findPaymentGateway(uuid);
+        PaymentGateway gateway = findPaymentGatewayForUpdate(uuid);
 
         if (gateway.isActive() == dto.getActive()) {
             throw new BusinessException(gateway.isActive()
@@ -131,14 +137,17 @@ public class PaymentGatewayService {
 
     @Transactional
     public void deletePaymentGateway(String uuid) {
-        PaymentGateway gateway = findPaymentGateway(uuid);
+        PaymentGateway gateway = findPaymentGatewayForUpdate(uuid);
 
         if (gateway.isActive()) {
             throw new BusinessException("An active payment gateway cannot be deleted");
         }
 
-        // TODO: validate that no payment is currently in progress on this gateway
-        // TODO: validate that the latest successful transaction on this gateway is at least 7 days old
+        LocalDateTime startDate = LocalDateTime.now().minusDays(SETTLED_BOOKING_RETENTION_DAYS);
+        if (bookingRepository.existsActivityByGateway(gateway.getId(), startDate)) {
+            throw new BusinessException("This payment gateway has a payment in progress or one settled within the last "
+                    + SETTLED_BOOKING_RETENTION_DAYS + " days and cannot be deleted yet");
+        }
 
         paymentGatewayRepository.delete(gateway);
     }
@@ -147,6 +156,11 @@ public class PaymentGatewayService {
 
     private PaymentGateway findPaymentGateway(String uuid) {
         return paymentGatewayRepository.findByUuid(uuid)
+                .orElseThrow(() -> new NotFoundException("Payment gateway not found"));
+    }
+
+    private PaymentGateway findPaymentGatewayForUpdate(String uuid) {
+        return paymentGatewayRepository.findByUuidForUpdate(uuid)
                 .orElseThrow(() -> new NotFoundException("Payment gateway not found"));
     }
 
