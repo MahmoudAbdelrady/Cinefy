@@ -1,20 +1,22 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.payment.PaymentAttemptDTO;
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
 import com.mdevs.cinefy.dto.payment.PaymentRedirectionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
+import com.mdevs.cinefy.dto.payment.ResolvedPaymentGateway;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.ClientPaymentMethod;
-import com.mdevs.cinefy.entity.PaymentMethod;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.payment.PaymobClient;
-import com.mdevs.cinefy.shared.security.CredentialCipher;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 
@@ -22,17 +24,18 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
 
-    private final PaymentMethodService paymentMethodService;
+    private final PaymentGatewayService paymentGatewayService;
 
     private final PaymobClient paymobClient;
 
-    private final CredentialCipher credentialCipher;
-
     public static final String REFERENCE_SEPARATOR = "_";
+
+    private static final int GATEWAY_REFERENCE_INDEX = 1;
 
     private static final int INTENTION_EXPIRATION_SECONDS = 600;
 
@@ -40,38 +43,36 @@ public class PaymentService {
 
     // ========================= Public API =========================
 
-    public PaymentRedirectionDTO createCheckout(Booking booking) {
-        List<PaymentMethod> activeMethods = findActiveMethods();
-        PaymentMethod primaryMethod = activeMethods.getFirst();
-        PaymobIntentionDTO intention = createIntention(booking, activeMethods, primaryMethod);
+    public PaymentAttemptDTO createCheckout(Booking booking) {
+        ResolvedPaymentGateway gateway = paymentGatewayService.getActivePaymentGatewayForPayment();
+        PaymobIntentionDTO intention = createIntention(booking, gateway);
 
-        return new PaymentRedirectionDTO(paymobClient.getUnifiedCheckoutUrl(primaryMethod.getPublicKey(), intention.clientSecret()));
+        String checkoutUrl = paymobClient.getUnifiedCheckoutUrl(gateway.credentials(), intention.clientSecret());
+
+        return PaymentAttemptDTO.redirection(gateway.entity(), new PaymentRedirectionDTO(checkoutUrl));
     }
 
-    public PaymobPayResponseDTO payWithSavedCard(Booking booking, ClientPaymentMethod paymentMethod) {
-        List<PaymentMethod> activeMethods = findActiveMethods();
-        PaymentMethod primaryMethod = activeMethods.getFirst();
-        PaymobIntentionDTO intention = createIntention(booking, activeMethods, primaryMethod);
+    public PaymentAttemptDTO payWithSavedCard(Booking booking, ClientPaymentMethod paymentMethod) {
+        ResolvedPaymentGateway gateway = paymentGatewayService.getActivePaymentGatewayForPayment();
+        PaymobIntentionDTO intention = createIntention(booking, gateway);
 
-        return paymobClient.pay(
+        PaymobPayResponseDTO payment = paymobClient.pay(
                 paymentMethod.getToken(),
                 intention.paymentKey(),
-                credentialCipher.decrypt(primaryMethod.getHmacKey()));
+                gateway.credentials());
+
+        return PaymentAttemptDTO.payment(gateway.entity(), payment);
     }
 
-    public void refundTransaction(String transactionId, long amountCents) {
-        PaymentMethod primaryMethod = findActiveMethods().getFirst();
-        paymobClient.refund(credentialCipher.decrypt(primaryMethod.getSecretKey()), transactionId, amountCents);
+    public void refundTransaction(String orderReference, String transactionId, long amountCents) {
+        ResolvedPaymentGateway gateway = resolveGateway(orderReference);
+        paymobClient.refund(gateway.credentials(), transactionId, amountCents);
     }
 
     public PaymentCallbackData handleCallback(JsonNode payload, String hmac) {
-        List<PaymentMethod> activeMethods = paymentMethodService.findActiveMethods();
-        if (activeMethods.isEmpty()) {
-            throw new BusinessException("Online payment is currently unavailable");
-        }
+        ResolvedPaymentGateway gateway = resolveGateway(paymobClient.readOrderReference(payload));
 
-        String hmacSecret = credentialCipher.decrypt(activeMethods.getFirst().getHmacKey());
-        return paymobClient.parseCallback(payload, hmacSecret, hmac);
+        return paymobClient.parseCallback(payload, gateway.credentials(), hmac);
     }
 
     public TransactionCallbackDTO handleRedirect(Map<String, String> params) {
@@ -79,33 +80,33 @@ public class PaymentService {
             return null;
         }
 
-        String hmacSecret = credentialCipher.decrypt(findActiveMethods().getFirst().getHmacKey());
-        return paymobClient.parseRedirect(params, hmacSecret);
+        ResolvedPaymentGateway gateway = resolveGateway(paymobClient.readOrderReference(params));
+
+        return paymobClient.parseRedirect(params, gateway.credentials());
     }
 
     // =========================== Helpers ===========================
 
-    private List<PaymentMethod> findActiveMethods() {
-        List<PaymentMethod> activeMethods = paymentMethodService.findActiveMethods();
-        if (activeMethods.isEmpty()) {
-            throw new BusinessException("Online payment is currently unavailable");
+    private ResolvedPaymentGateway resolveGateway(String orderReference) {
+        String[] segments = StringUtils.split(StringUtils.defaultString(orderReference), REFERENCE_SEPARATOR);
+
+        if (segments.length <= GATEWAY_REFERENCE_INDEX) {
+            log.warn("Order reference carries no gateway, falling back to the active one: {}", orderReference);
+            return paymentGatewayService.getActivePaymentGatewayForPayment();
         }
-        return activeMethods;
+
+        return paymentGatewayService.getPaymentGatewayForPayment(segments[GATEWAY_REFERENCE_INDEX]);
     }
 
-    private PaymobIntentionDTO createIntention(Booking booking, List<PaymentMethod> activeMethods, PaymentMethod primaryMethod) {
-        PaymobIntentionRequestDTO request = toIntentionRequest(booking, activeMethods, primaryMethod.getCurrency());
-        return paymobClient.createIntention(credentialCipher.decrypt(primaryMethod.getSecretKey()), request);
+    private PaymobIntentionDTO createIntention(Booking booking, ResolvedPaymentGateway gateway) {
+        PaymobIntentionRequestDTO request = toIntentionRequest(booking, gateway);
+        return paymobClient.createIntention(gateway.credentials(), gateway.channels(), request);
     }
 
-    private PaymobIntentionRequestDTO toIntentionRequest(Booking booking, List<PaymentMethod> activeMethods, String currency) {
+    private PaymobIntentionRequestDTO toIntentionRequest(Booking booking, ResolvedPaymentGateway gateway) {
         long amount = booking.getTotalAmount()
                 .multiply(PIASTRES_PER_POUND)
                 .longValueExact();
-
-        List<Long> integrationIds = activeMethods.stream()
-                .map(PaymentMethod::getIntegrationId)
-                .toList();
 
         TmdbMovie movie = booking.getShowtime().getTmdbMovie();
         PaymobIntentionRequestDTO.Item item = new PaymobIntentionRequestDTO.Item(
@@ -117,11 +118,9 @@ public class PaymentService {
 
         return new PaymobIntentionRequestDTO(
                 amount,
-                currency,
-                integrationIds,
                 List.of(item),
                 toBillingData(booking.getClient()),
-                booking.getUuid() + REFERENCE_SEPARATOR + System.currentTimeMillis(),
+                booking.getUuid() + REFERENCE_SEPARATOR + gateway.entity().getUuid() + REFERENCE_SEPARATOR + System.currentTimeMillis(),
                 INTENTION_EXPIRATION_SECONDS);
     }
 

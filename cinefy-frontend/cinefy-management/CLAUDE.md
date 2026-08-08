@@ -54,9 +54,10 @@ src/
 │   │                                   #   booking-ticket (printable stub shown in book-seats' `done` stage),
 │   │                                   #   active-bookings-list (staff's own in-progress holds)
 │   ├── payment/
-│   │   ├── manage-payment-modal/       # Wizard for create/edit payment method
-│   │   ├── payment-method-list/        # List + status toggles
-│   │   └── steps/                      # identity, credentials, integration, review
+│   │   ├── gateway-list/               # Gateway list + active/inactive toggles
+│   │   ├── manage-gateway-modal/       # Create/edit payment gateway form
+│   │   ├── payment-channels/           # Per-gateway channel editor (currency + integration ids)
+│   │   └── provider-spec.ts            # Provider field/channel specs driving the form
 │   ├── profile/                        # profile-identity, profile-personal-details, profile-password
 │   ├── staff/
 │   │   ├── manage-staff-modal/         # Create/edit staff member form
@@ -66,8 +67,7 @@ src/
 │   ├── header/                         # Top navigation bar
 │   ├── help-hint/                      # Inline help tooltip
 │   ├── sidebar/                        # Navigation sidebar
-│   ├── stats/                          # Generic stat-card component
-│   └── stepper/                        # Wizard step indicator
+│   └── stats/                          # Generic stat-card component
 │                                       # Shared UI (input-field, field-error, loading-spinner,
 │                                       # custom-select, async-select, phone-input, toast,
 │                                       # modal, pagination, date-picker, time-picker, switch,
@@ -93,7 +93,7 @@ src/
 │   ├── dashboard/                      # Dashboard page (/)
 │   ├── halls/                          # Hall management page (/halls)
 │   ├── movies/                         # Movies / showtimes page (/movies)
-│   ├── payment/                        # Payment methods page (/payment)
+│   ├── payment/                        # Payment gateways page (/payment)
 │   ├── staff/                          # Staff management page (/staff)
 │   ├── profile/                        # Current-user profile page (/profile)
 │   ├── access-denied/                  # Shown when a route's position check fails
@@ -112,7 +112,7 @@ src/
 │   │                                   #   render the failure themselves (book-seats does).
 │   ├── showtime-events.ts              # Cross-component event bus (RxJS Subjects): created$/updated$/published$/deleted$/singleDeleted$/committedChanged$/highlightChanged$/showtimeOccupancyChanged$
 │   ├── staff.ts                        # Staff CRUD + position coverage + current-user (/staff/me) cache
-│   ├── payment-method.ts               # Payment method CRUD + connection testing
+│   ├── payment-gateways.ts             # Payment gateway CRUD + active-status toggle
 │   ├── header-actions.ts               # Signal-based template injection for header
 │   └── sidebar.ts                      # Sidebar open/close state (signal)
 │                                       # (Toasts are NOT a local service — ToastService comes from cinefy-ui/services.)
@@ -122,7 +122,7 @@ src/
 │   ├── validation.ts                   # Shared form regexes (password/email/name/username patterns)
 │   ├── constants/                      # UI constants (SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE)
 │   ├── guards/                         # auth-guard, guest-guard, position-guard (route CanActivate/CanMatch)
-│   ├── types/                          # halls, movies, showtimes, booking, staff, payment, stats, auth, api
+│   ├── types/                          # halls, movies, showtimes, booking, staff, payment-gateway, stats, auth, api
 │   └── styles/
 │       ├── _colors.scss                # Full color palette ($gray-*, $blue-*, etc.) — project-owned
 │       ├── _shadows.scss                # $shadow-xs/sm/md/lg + focus-ring tokens — project-owned
@@ -148,7 +148,7 @@ Two layout shells, each gated by a guard:
 ├── /           → DashboardPage     (canMatch: positionCanMatch)
 ├── /halls      → HallsPage         (canMatch: positionCanMatch)
 ├── /movies     → MoviesPage        (canMatch: positionCanMatch)   movie search + showtimes scheduling
-├── /payment    → PaymentPage       (canMatch: positionCanMatch)   payment methods
+├── /payment    → PaymentPage       (canMatch: positionCanMatch)   payment gateways
 ├── /staff      → StaffPage         (canMatch: positionCanMatch)   staff management
 └── /profile    → ProfilePage       (current-user profile; no position gate)
 
@@ -249,7 +249,7 @@ protected readonly testResult = linkedSignal<TestResultState>(() => {
 });
 ```
 
-Use the `{ source, computation }` form when the computation needs the **previous** value (e.g. preserving existing entries when a grid resizes) — `computation: (source, previous) => ...`, with `previous` `undefined` on first run. See [`hall-layout-editor.ts`](src/components/halls/hall-layout-editor/hall-layout-editor.ts) (`_seatLayout`, previous-value form) and [`review-step.ts`](src/components/payment/steps/review-step/review-step.ts) (`testResult`, simple form).
+Use the `{ source, computation }` form when the computation needs the **previous** value (e.g. preserving existing entries when a grid resizes) — `computation: (source, previous) => ...`, with `previous` `undefined` on first run. See [`hall-layout-editor.ts`](src/components/halls/hall-layout-editor/hall-layout-editor.ts) (`_seatLayout`, previous-value form) and [`book-seats.ts`](src/components/movies/book-seats/book-seats.ts) (`activeBooking`, simple form).
 
 **Do NOT** reach for `linkedSignal` when the re-seed is **asynchronous** — i.e. the value lands from an HTTP response inside a `.subscribe()`. `linkedSignal`'s computation is synchronous and can't await, so those stay as `signal` + `effect` (the effect fires the request and `.set()`s the result). Also skip it when collapsing the `.set()` would leave the `effect` in place anyway (because the effect does other work, e.g. patching a form) and the net reduction is one or two lines — the phantom dependency-read needed to keep the reset reactive is easy to misread as dead code, so a plain `signal` is clearer there.
 
@@ -347,15 +347,13 @@ POST   /management/auth/forgot-password  # Emails reset OTP
 POST   /management/auth/verify-reset-code
 POST   /management/auth/reset-password
 
-# Payment methods
-GET    /payment-methods
-GET    /payment-methods/:id
-POST   /payment-methods
-PUT    /payment-methods/:id
-DELETE /payment-methods/:id
-POST   /payment-methods/test-connection  # Pre-save connection test
-POST   /payment-methods/:id/test-connection
-POST   /payment-methods/:id/status       # Toggle active/inactive
+# Payment gateways
+GET    /payment-gateways
+GET    /payment-gateways/:id
+POST   /payment-gateways
+PUT    /payment-gateways/:id
+DELETE /payment-gateways/:id             # Rejected while the gateway is active
+POST   /payment-gateways/:id/status      # Toggle active/inactive (409 if another is active)
 
 # Booking (on-site, via book-seats / active-bookings-list)
 GET    /booking/active                   # This staff member's in-progress holds
@@ -465,7 +463,9 @@ Booking   → holds seats for a Showtime (expiresAt), then settled on-site via
             'CONFIRMED' | 'PENDING' | 'FAILED' | 'EXPIRED' | 'REFUNDED'.
 Staff     → has StaffPosition, EmploymentType, working days (start/end WeekDay),
             working hours, phone (digits only — frontend owns the `+`)
-PaymentMethod → has type, credentials, integration config; status toggled separately
+PaymentGateway → has a provider (PAYMOB), credentials, and PaymentChannel[]
+            (each with a currency + provider integration ids). At most one gateway
+            is active at a time; `active` is toggled separately from the CRUD form.
 ```
 
 Seat IDs follow `{RowLabel}{ColumnNumber}` format — rows cycle A-Z then AA-ZZ.

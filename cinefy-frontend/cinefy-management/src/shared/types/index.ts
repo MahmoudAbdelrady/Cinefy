@@ -25,19 +25,6 @@ export type {
 
 export type { MovieSearchResult, UpcomingMovie, MovieSummary, MovieDetail } from './movies';
 
-export { PAYMENT_METHOD_TYPE_LABELS, PAYMENT_METHOD_STATUS_LABELS } from './payment';
-export type {
-  PaymentMethodType,
-  PaymentMethodStatus,
-  PaymentMethodTestStatus,
-  PaymentMethod,
-  PaymentMethodSummary,
-  PaymentMethodDetail,
-  PaymentMethodTestResult,
-  PaymentMethodStatusRequest,
-  TestConnectionRequest,
-} from './payment';
-
 export { GATEWAY_PROVIDER_LABELS } from './payment-gateway';
 export type {
   GatewayProvider,

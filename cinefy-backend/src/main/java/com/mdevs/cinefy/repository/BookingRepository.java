@@ -57,6 +57,16 @@ public interface BookingRepository extends BaseRepository<Booking> {
     boolean existsByPaymentTransactionId(String paymentTransactionId);
 
     @Query("""
+            SELECT CASE WHEN COUNT(b.id) > 0 THEN true ELSE false END
+            FROM Booking b
+            WHERE b.paymentGateway.id = :gatewayId
+            AND (b.status = 'PENDING_PAYMENT'
+                 OR (b.status IN ('CONFIRMED', 'REFUNDED') AND b.updatedAt > :startDate))
+            """)
+    boolean existsActivityByGateway(@Param("gatewayId") Long gatewayId,
+                                    @Param("startDate") LocalDateTime startDate);
+
+    @Query("""
             SELECT bs.showtime.id AS showtimeId, COUNT(bs.id) AS bookedSeats
             FROM BookingSeat bs
             JOIN bs.booking b

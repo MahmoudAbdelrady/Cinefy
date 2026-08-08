@@ -13,20 +13,23 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(indexes = {
         @Index(columnList = "ACTIVE"),
-        @Index(columnList = "CREATED_AT")
+        @Index(columnList = "CREATED_AT"),
+        @Index(columnList = "DELETED_AT")
 })
 public class PaymentGateway extends BaseEntity {
 
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String code;
 
     @Enumerated(EnumType.STRING)
@@ -42,6 +45,9 @@ public class PaymentGateway extends BaseEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "JSONB")
     private String paymentChannels;
+
+    @Column(columnDefinition = "TIMESTAMP(0)")
+    private LocalDateTime deletedAt;
 
     public static String toCode(String name) {
         return name.trim().toLowerCase().replace(" ", "_");
