@@ -28,8 +28,8 @@ public class QrGenerator {
 
     private static final String DATA_URI_PREFIX = "data:image/" + IMAGE_FORMAT.toLowerCase() + ";base64,";
 
-    public String generateDataUri(String content) {
-        return DATA_URI_PREFIX + Base64.getEncoder().encodeToString(generate(content));
+    public static String toDataUri(byte[] qrCode) {
+        return DATA_URI_PREFIX + Base64.getEncoder().encodeToString(qrCode);
     }
 
     public byte[] generate(String content) {

@@ -38,6 +38,10 @@ public class HallService {
 
     private static final Pattern POSITION_PATTERN = Pattern.compile("^([A-Z]+)([0-9]+)$");
 
+    public static final Comparator<String> POSITION_COMPARATOR =
+            Comparator.comparingInt(HallService::positionRowIndex)
+                    .thenComparingInt(HallService::positionColumnNumber);
+
     // ========================= Hall Types =========================
 
     public List<HallTypeDTO> getHallTypes() {
@@ -390,11 +394,21 @@ public class HallService {
         return summary;
     }
 
-    private int toRowIndex(String rowLabel) {
+    private static int toRowIndex(String rowLabel) {
         int index = 0;
         for (int i = 0; i < rowLabel.length(); i++) {
             index = index * 26 + (rowLabel.charAt(i) - 'A' + 1);
         }
         return index;
+    }
+
+    private static int positionRowIndex(String position) {
+        Matcher matcher = POSITION_PATTERN.matcher(position);
+        return matcher.matches() ? toRowIndex(matcher.group(1)) : 0;
+    }
+
+    private static int positionColumnNumber(String position) {
+        Matcher matcher = POSITION_PATTERN.matcher(position);
+        return matcher.matches() ? Integer.parseInt(matcher.group(2)) : 0;
     }
 }

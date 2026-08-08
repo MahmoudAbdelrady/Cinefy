@@ -1,0 +1,328 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>Your Cinefy ticket</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      background-color: #f3f3f5;
+      font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Helvetica, Arial, sans-serif;
+    "
+  >
+    <div
+      style="display: none; max-height: 0; overflow: hidden; opacity: 0"
+      th:text="|${booking.showtime.tmdbMovie.title} · ${#temporals.format(booking.showtime.startDateTime, 'MMM d, yyyy')} at ${#temporals.format(booking.showtime.startDateTime, 'h:mm a')} · ${booking.hallName} — show this QR at the gate.|"
+    ></div>
+
+    <table
+      role="presentation"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      style="background-color: #f3f3f5; padding: 40px 16px"
+    >
+      <tr>
+        <td align="center">
+          <!-- Heading -->
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 512px">
+            <tr>
+              <td align="center" style="padding-bottom: 24px">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td
+                      align="center"
+                      valign="middle"
+                      width="64"
+                      height="64"
+                      style="
+                        width: 64px;
+                        height: 64px;
+                        background-color: #fdf1dd;
+                        border-radius: 32px;
+                        font-size: 30px;
+                        line-height: 64px;
+                        color: #b06d05;
+                        font-weight: 700;
+                      "
+                    >
+                      &#10003;
+                    </td>
+                  </tr>
+                </table>
+                <h1
+                  style="
+                    margin: 16px 0 0;
+                    color: #030213;
+                    font-size: 30px;
+                    font-weight: 700;
+                    letter-spacing: -0.025em;
+                    line-height: 1.2;
+                  "
+                >
+                  Booking confirmed
+                </h1>
+                <p style="margin: 6px 0 0; color: #717182; font-size: 15px; line-height: 1.6">
+                  Your payment was successful and your tickets are ready.
+                </p>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Ticket -->
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              max-width: 512px;
+              background-color: #ffffff;
+              border: 1px solid rgba(0, 0, 0, 0.1);
+              border-radius: 16px;
+              overflow: hidden;
+            "
+          >
+            <!-- Hero -->
+            <tr>
+              <td
+                th:attr="background=${booking.showtime.tmdbMovie.backdropUrl}"
+                th:style="|background-color: #2b1c14; background-image: url('${booking.showtime.tmdbMovie.backdropUrl}'); background-size: cover; background-position: center; padding: 0;|"
+              >
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td height="96" style="height: 96px; font-size: 0; line-height: 0">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td valign="bottom" style="padding: 16px 24px 20px; background-color: rgba(0, 0, 0, 0.25)">
+                      <h2
+                        th:text="${booking.showtime.tmdbMovie.title}"
+                        style="
+                          margin: 0;
+                          color: #ffffff;
+                          font-size: 30px;
+                          font-weight: 700;
+                          line-height: 1.1;
+                          text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+                        "
+                      ></h2>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Tear line -->
+            <tr>
+              <td style="border-top: 1px dashed rgba(0, 0, 0, 0.18); font-size: 0; line-height: 0">&nbsp;</td>
+            </tr>
+
+            <!-- Body: details + QR -->
+            <tr>
+              <td style="padding: 24px">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td valign="top" style="padding-right: 24px">
+                      <table
+                        role="presentation"
+                        width="100%"
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
+                        style="font-size: 14px"
+                      >
+                        <tr>
+                          <td style="padding-bottom: 12px; color: #717182; white-space: nowrap">Hall</td>
+                          <td
+                            align="right"
+                            th:text="${booking.hallName}"
+                            style="
+                              padding-bottom: 12px;
+                              color: #030213;
+                              font-weight: 500;
+                              font-family: &quot;Courier New&quot;, Courier, monospace;
+                            "
+                          ></td>
+                        </tr>
+                        <tr>
+                          <td style="padding-bottom: 12px; color: #717182; white-space: nowrap">Experience</td>
+                          <td
+                            align="right"
+                            th:text="${booking.showtime.is3D} ? |${booking.hallType} (3D)| : ${booking.hallType}"
+                            style="
+                              padding-bottom: 12px;
+                              color: #030213;
+                              font-weight: 500;
+                              font-family: &quot;Courier New&quot;, Courier, monospace;
+                            "
+                          ></td>
+                        </tr>
+                        <tr>
+                          <td style="padding-bottom: 12px; color: #717182; white-space: nowrap">Date</td>
+                          <td
+                            align="right"
+                            th:text="${#temporals.format(booking.showtime.startDateTime, 'MMM d, yyyy')}"
+                            style="
+                              padding-bottom: 12px;
+                              color: #030213;
+                              font-weight: 500;
+                              font-family: &quot;Courier New&quot;, Courier, monospace;
+                            "
+                          ></td>
+                        </tr>
+                        <tr>
+                          <td style="padding-bottom: 16px; color: #717182; white-space: nowrap">Time</td>
+                          <td
+                            align="right"
+                            th:text="${#temporals.format(booking.showtime.startDateTime, 'h:mm a')}"
+                            style="
+                              padding-bottom: 16px;
+                              color: #030213;
+                              font-weight: 500;
+                              font-family: &quot;Courier New&quot;, Courier, monospace;
+                            "
+                          ></td>
+                        </tr>
+                        <tr>
+                          <td
+                            colspan="2"
+                            th:text="|Seats (${booking.seats.size()})|"
+                            style="padding-bottom: 8px; color: #717182"
+                          ></td>
+                        </tr>
+                        <tr>
+                          <td colspan="2">
+                            <!-- Seat pills -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                              <tr>
+                                <th:block th:each="seat, iter : ${seats}">
+                                  <td th:if="${!iter.first}" style="width: 6px; font-size: 0; line-height: 0">
+                                    &nbsp;
+                                  </td>
+                                  <td
+                                    th:text="${seat}"
+                                    style="
+                                      padding: 3px 10px;
+                                      border: 1px solid rgba(0, 0, 0, 0.12);
+                                      border-radius: 6px;
+                                      background-color: #f3f3f5;
+                                      color: #030213;
+                                      font-size: 14px;
+                                      font-weight: 500;
+                                      font-family: &quot;Courier New&quot;, Courier, monospace;
+                                    "
+                                  ></td>
+                                </th:block>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+
+                    <!-- QR -->
+                    <td valign="top" width="132" align="center" style="width: 132px">
+                      <table
+                        role="presentation"
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
+                        align="center"
+                        style="background-color: #f3f3f5; border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 8px"
+                      >
+                        <tr>
+                          <td align="center" style="padding: 8px; font-size: 0; line-height: 0">
+                            <img
+                              src="cid:ticket-qr"
+                              width="112"
+                              height="112"
+                              alt="Ticket QR Code"
+                              style="
+                                display: block;
+                                width: 112px;
+                                height: 112px;
+                                border: 0;
+                                outline: none;
+                                background-color: #ffffff;
+                              "
+                            />
+                          </td>
+                        </tr>
+                      </table>
+                      <p
+                        th:text="'#' + ${booking.bookingReference}"
+                        style="
+                          margin: 8px 0 0;
+                          color: #717182;
+                          font-size: 11px;
+                          text-align: center;
+                          font-family: &quot;Courier New&quot;, Courier, monospace;
+                        "
+                      ></p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Paid -->
+            <tr>
+              <td style="background-color: #f9fafb; border-top: 1px solid rgba(0, 0, 0, 0.08); padding: 16px 24px">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="color: #717182; font-size: 14px">Paid</td>
+                    <td
+                      align="right"
+                      th:text="${#numbers.formatCurrency(booking.totalAmount)}"
+                      style="
+                        color: #b06d05;
+                        font-size: 18px;
+                        font-weight: 600;
+                        font-family: &quot;Courier New&quot;, Courier, monospace;
+                      "
+                    ></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Gate note + footer -->
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 512px">
+            <tr>
+              <td style="padding: 24px 8px 0; text-align: center">
+                <p style="margin: 0; color: #030213; font-size: 14px; line-height: 1.6">
+                  Show this QR code at the gate.
+                </p>
+                <p style="margin: 6px 0 0; color: #717182; font-size: 13px; line-height: 1.6">
+                  It stays valid until the showtime ends.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 28px 8px 0">
+                <hr style="border: none; border-top: 1px solid rgba(0, 0, 0, 0.08); margin: 0" />
+                <p style="margin: 18px 0 0; color: #9ca3af; font-size: 12px; line-height: 1.6; text-align: center">
+                  This ticket was issued to you and is valid for one entry.
+                </p>
+                <p style="margin: 10px 0 0; color: #9ca3af; font-size: 12px; text-align: center">
+                  &copy;
+                  <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}"></span>
+                  Cinefy
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

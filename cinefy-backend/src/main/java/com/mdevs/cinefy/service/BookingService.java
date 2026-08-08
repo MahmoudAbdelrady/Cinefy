@@ -34,6 +34,7 @@ import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
+import com.mdevs.cinefy.dto.email.InlineResource;
 import com.mdevs.cinefy.shared.QrGenerator;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
@@ -87,6 +88,8 @@ public class BookingService {
 
     private final QrGenerator qrGenerator;
 
+    private final EmailService emailService;
+
     @Lazy
     private final BookingService self;
 
@@ -107,6 +110,10 @@ public class BookingService {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     private static final String BOOKING_CONFIRMATION_PATH = "/booking-confirmation/";
+
+    private static final String TICKET_QR_CONTENT_ID = "ticket-qr";
+
+    private static final String TICKET_QR_CONTENT_TYPE = "image/png";
 
     // ========================= Public API =========================
 
@@ -361,7 +368,7 @@ public class BookingService {
             return;
         }
 
-        confirmPaidBooking(booking, transaction.id());
+        confirmPaidBooking(findBookingByUuidWithDetail(bookingUuid), transaction.id());
     }
 
     public String resolvePaymentRedirectUrl(TransactionCallbackDTO transaction) {
@@ -470,15 +477,37 @@ public class BookingService {
 
     private void confirmPaidBooking(Booking booking, String transactionId) {
         String bookingReference = generateReference();
+        byte[] qrCode = qrGenerator.generate(bookingReference);
 
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setOnHold(null);
         booking.setPaymentTransactionId(transactionId);
         booking.setBookingReference(bookingReference);
-        booking.setTicketQrCode(qrGenerator.generateDataUri(bookingReference));
+        booking.setTicketQrCode(QrGenerator.toDataUri(qrCode));
         bookingRepository.save(booking);
 
-        // TODO: send email with the ticket
+        sendTicketEmail(booking, qrCode);
+    }
+
+    private void sendTicketEmail(Booking booking, byte[] qrCode) {
+        Client client = booking.getClient();
+        if (client == null) {
+            return;
+        }
+
+        List<String> seats = booking.getSeats().stream()
+                .map(BookingSeat::getPosition)
+                .sorted(HallService.POSITION_COMPARATOR)
+                .toList();
+
+        Map<String, Object> variables = Map.of(
+                "booking", booking,
+                "seats", seats);
+
+        emailService.sendBookingTicket(
+                client.getEmail(),
+                variables,
+                List.of(new InlineResource(TICKET_QR_CONTENT_ID, TICKET_QR_CONTENT_TYPE, qrCode)));
     }
 
     private Booking prepareBookingForPayment(String uuid) {
