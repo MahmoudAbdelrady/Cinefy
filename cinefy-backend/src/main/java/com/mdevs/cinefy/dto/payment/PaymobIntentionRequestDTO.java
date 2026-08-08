@@ -8,11 +8,6 @@ public record PaymobIntentionRequestDTO(
 
         long amount,
 
-        String currency,
-
-        @JsonProperty("payment_methods")
-        List<Long> paymentMethods,
-
         List<Item> items,
 
         @JsonProperty("billing_data")

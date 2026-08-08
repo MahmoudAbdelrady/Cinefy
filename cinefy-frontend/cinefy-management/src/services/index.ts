@@ -3,7 +3,7 @@ export { BookingService } from './booking';
 export { HeaderActionsService } from './header-actions';
 export { HallsService } from './halls';
 export { MoviesService } from './movies';
-export { PaymentMethodService } from './payment-method';
+export { PaymentGatewaysService } from './payment-gateways';
 export { ShowtimeEventsService } from './showtime-events';
 export { ShowtimesService } from './showtimes';
 export { SidebarService } from './sidebar';

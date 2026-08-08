@@ -25,6 +25,7 @@ export {
   LucideEllipsisVertical as EllipsisIcon,
   LucideEye as EyeIcon,
   LucideEyeOff as EyeOffIcon,
+  LucideExternalLink as ExternalLinkIcon,
   LucideClapperboard as ClapperboardIcon,
   LucideHouse as HouseIcon,
   LucideInfo as InfoIcon,

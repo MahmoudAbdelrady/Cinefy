@@ -1,0 +1,122 @@
+<div class="channels-editor">
+  @if (!channels().length && channelFormTarget() !== 'new') {
+    <p class="channels-empty">No channels yet. Add one so this gateway has a way to charge.</p>
+  }
+
+  @if (channels().length) {
+    <ul class="channels-list">
+      @for (channel of channels(); track $index) {
+        <li class="channel-item" [class.editing]="channelFormTarget() === $index">
+          @if (channelFormTarget() === $index) {
+            <ng-container [ngTemplateOutlet]="channelFormTemplate" />
+          } @else {
+            <div class="channel-summary" [class.inactive]="!channel.active">
+              <p class="channel-name">{{ channel.name }}</p>
+              <p class="channel-meta">
+                <span class="channel-currency">{{ channel.currency }}</span>
+              </p>
+            </div>
+            <div class="channel-actions">
+              <cui-switch
+                size="sm"
+                [checked]="channel.active"
+                (checkedChange)="toggleChannel($index, $event)"
+              />
+              <span class="channel-divider"></span>
+              <button type="button" title="Edit channel" (click)="startEdit($index)">
+                <svg [lucideIcon]="icons.EditIcon" [size]="15" [strokeWidth]="2"></svg>
+              </button>
+              <button
+                type="button"
+                class="danger"
+                title="Remove channel"
+                (click)="removeChannel($index)"
+              >
+                <svg [lucideIcon]="icons.DeleteIcon" [size]="15" [strokeWidth]="2"></svg>
+              </button>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  @if (channelFormTarget() === 'new') {
+    <div class="channel-form-panel">
+      <ng-container [ngTemplateOutlet]="channelFormTemplate" />
+    </div>
+  } @else {
+    <div class="channels-add">
+      <button type="button" (click)="startAdd()">
+        <svg [lucideIcon]="icons.PlusIcon" [size]="15" [strokeWidth]="2.5"></svg>
+        Add channel
+      </button>
+    </div>
+  }
+</div>
+
+<ng-template #channelFormTemplate>
+  <form class="channel-form" [formGroup]="channelForm" (ngSubmit)="saveChannel()">
+    <div class="channel-form-fields">
+      <input-field
+        label="Name"
+        placeholder="e.g. Cards"
+        [control]="channelForm.controls.name"
+        [errorMessages]="{
+          required: 'Channel name is required',
+          maxlength: 'Channel name must not exceed 30 characters',
+          duplicateName: 'A channel with this name already exists',
+        }"
+      />
+
+      <custom-select
+        label="Currency"
+        [items]="currencies"
+        [displayFn]="currencyDisplayFn"
+        [control]="channelForm.controls.currency"
+        [required]="true"
+        (selectionChange)="channelForm.controls.currency.setValue($event)"
+      />
+
+      <div class="channel-form-active">
+        <span>Active</span>
+        <cui-switch
+          [checked]="channelForm.controls.isActive.value"
+          (checkedChange)="channelForm.controls.isActive.setValue($event)"
+        />
+      </div>
+    </div>
+
+    <span class="channel-form-divider"></span>
+
+    <div class="channel-form-section-head">
+      <h4 class="channel-form-section-label">Channel settings</h4>
+      <field-error
+        [control]="channelForm.controls.providerConfig"
+        [messages]="{ duplicateConfig: 'Another channel already uses these settings' }"
+      />
+    </div>
+
+    <div class="channel-form-fields">
+      @for (field of providerConfig(); track field.key) {
+        @if (configControl(field.key); as control) {
+          <input-field
+            [label]="field.label"
+            [type]="field.type"
+            [placeholder]="field.placeholder"
+            [control]="control"
+            [errorMessages]="{ required: field.label + ' is required' }"
+            [monospace]="true"
+          />
+        }
+      }
+    </div>
+
+    <div class="channel-form-actions">
+      <button type="button" class="btn-secondary" (click)="closeChannelForm()">Cancel</button>
+      <button type="submit" class="btn-primary" [disabled]="!canCommit()">
+        {{ saveLabel() }}
+      </button>
+    </div>
+  </form>
+</ng-template>

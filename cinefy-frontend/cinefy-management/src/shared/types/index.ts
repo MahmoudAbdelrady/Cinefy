@@ -25,18 +25,16 @@ export type {
 
 export type { MovieSearchResult, UpcomingMovie, MovieSummary, MovieDetail } from './movies';
 
-export { PAYMENT_METHOD_TYPE_LABELS, PAYMENT_METHOD_STATUS_LABELS } from './payment';
+export { GATEWAY_PROVIDER_LABELS } from './payment-gateway';
 export type {
-  PaymentMethodType,
-  PaymentMethodStatus,
-  PaymentMethodTestStatus,
-  PaymentMethod,
-  PaymentMethodSummary,
-  PaymentMethodDetail,
-  PaymentMethodTestResult,
-  PaymentMethodStatusRequest,
-  TestConnectionRequest,
-} from './payment';
+  GatewayProvider,
+  ChannelCurrency,
+  ProviderConfigValue,
+  PaymentChannel,
+  PaymentGateway,
+  PaymentGatewayList,
+  PaymentGatewayRequest,
+} from './payment-gateway';
 
 export { SHOWTIME_STATUS_LABELS } from './showtimes';
 export type {

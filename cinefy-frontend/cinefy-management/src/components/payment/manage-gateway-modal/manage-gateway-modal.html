@@ -1,0 +1,118 @@
+<app-modal
+  [modalTitle]="modalTitle()"
+  [description]="modalDescription()"
+  [close]="close()"
+  width="720px"
+>
+  <form class="gateway-form" [formGroup]="form" (ngSubmit)="save()">
+    <div class="identity-row">
+      <input-field
+        label="Name"
+        placeholder="e.g. Paymob"
+        hint="For display only"
+        [control]="form.controls.name"
+        [errorMessages]="{
+          required: 'Gateway name is required',
+          maxlength: 'Gateway name must not exceed 60 characters',
+        }"
+      />
+
+      <custom-select
+        label="Provider"
+        [items]="providers"
+        [displayFn]="providerDisplayFn"
+        [valueFn]="providerValueFn"
+        [control]="form.controls.provider"
+        [required]="true"
+        [disabled]="true"
+        (selectionChange)="form.controls.provider.setValue($event.provider)"
+      />
+    </div>
+
+    <section class="form-section">
+      <div class="section-head">
+        <div class="section-title">
+          <svg [lucideIcon]="icons.KeyIcon" [size]="15" [strokeWidth]="2"></svg>
+          <h3>Credentials</h3>
+        </div>
+        <a class="docs-link" [href]="providerSpec().docsUrl" target="_blank" rel="noreferrer">
+          {{ providerSpec().label }} docs
+          <svg [lucideIcon]="icons.ExternalLinkIcon" [size]="12" [strokeWidth]="2"></svg>
+        </a>
+      </div>
+
+      <div class="credential-fields">
+        @for (field of providerSpec().credentialFields; track field.key) {
+          <input-field
+            [label]="field.label"
+            [type]="field.secret ? 'password' : 'text'"
+            [placeholder]="field.secret && isEditMode() ? '' : field.placeholder"
+            [hint]="
+              field.secret && isEditMode()
+                ? field.label + ' is stored. Leave blank to keep it, or enter a new value.'
+                : field.hint
+            "
+            [control]="credentialControl(field.key)"
+            [errorMessages]="{
+              required: field.label + ' is required',
+              pattern: field.label + ' cannot contain spaces',
+            }"
+            [monospace]="true"
+          />
+        }
+      </div>
+    </section>
+
+    @if (providerSpec().supportsChannels) {
+      <section class="form-section">
+        <div class="section-head">
+          <div class="section-title">
+            <svg [lucideIcon]="icons.WebhookIcon" [size]="15" [strokeWidth]="2"></svg>
+            <h3>Payment channels</h3>
+          </div>
+          @if (!channelsRequired()) {
+            <cui-switch
+              size="sm"
+              [checked]="channelsEnabled()"
+              (checkedChange)="onChannelsToggle($event)"
+            />
+          }
+        </div>
+
+        @if (showChannelsSection()) {
+          <p class="section-help">{{ providerSpec().channelHelp }}</p>
+          <payment-channels
+            [providerConfig]="providerSpec().providerConfig ?? []"
+            [(channels)]="channels"
+            (openChange)="channelFormOpen.set($event)"
+          />
+        }
+      </section>
+    }
+  </form>
+
+  <div class="gateway-footer" modal-footer>
+    <p class="encrypted-note">
+      <svg [lucideIcon]="icons.LockIcon" [size]="13" [strokeWidth]="2"></svg>
+      Credentials are encrypted and never sent back to the browser.
+    </p>
+    <div class="footer-actions">
+      <button type="button" class="btn-secondary" [disabled]="saving()" (click)="close()()">
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn-primary"
+        [disabled]="!canSave() || saving()"
+        (click)="save()"
+      >
+        @if (saving()) {
+          <loading-spinner variant="sm" />
+          <span>Saving…</span>
+        } @else {
+          <span>{{ saveLabel() }}</span>
+        }
+      </button>
+    </div>
+  </div>
+</app-modal>

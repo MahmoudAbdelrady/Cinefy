@@ -23,26 +23,18 @@ import {
   Search,
   X,
   MapPin,
-  ShieldCheck,
   KeyRound,
   Webhook,
-  Zap,
   Check,
   ChevronLeft,
   Eye as EyeIcon,
   EyeOff,
-  Copy,
   ExternalLink,
   Info,
   Lock,
-  Loader2,
   PowerOff,
   Power,
-  Rocket,
   CircleCheck,
-  Sparkles,
-  CircleAlert,
-  HelpCircle,
   UserPlus,
   Mail,
   Phone,
@@ -57,715 +49,569 @@ import {
 import { ImageWithFallback } from './components/figma/ImageWithFallback';
 
 // ============================================================================
-// Payment Section — Paymob integration management
+// Payment Section — payment gateway routing
 // ============================================================================
 
-type PaymentStatus = 'ACTIVE' | 'DRAFT' | 'INACTIVE';
-type PaymentMethodKind = 'CARD' | 'WALLET' | 'INSTALLMENT';
-type PaymentTestStatus = 'UNTESTED' | 'SUCCESS' | 'FAILURE';
+type GatewayProvider = 'paymob';
 
-type PaymentMethod = {
+type ChannelCurrency = 'EGP' | 'USD';
+
+type PaymentChannel = {
   id: string;
   name: string;
-  gateway: 'paymob';
-  type: PaymentMethodKind;
-  isTest: boolean;
-  mode: 'live' | 'sandbox';
-  status: PaymentStatus;
-  currency: string;
-  testStatus: PaymentTestStatus;
-  testFailureReason: string | null;
-  testedAt: string | null;
-  successRate: string;
-  credentialsRotatedAt: string;
+  currency: ChannelCurrency;
+  isActive: boolean;
+  integrationId: string;
+};
+
+type PaymobCredentials = {
+  secretKey: string;
+  publicKey: string;
+  hmacKey: string;
+};
+
+type PaymentGateway = {
+  id: string;
+  name: string;
+  provider: GatewayProvider;
+  isActive: boolean;
+  credentials: PaymobCredentials;
+  channels: PaymentChannel[];
   createdAt: string;
-  cardBrands?: string[];
-  publishedAt?: string | null;
-  monthlyVolume?: string;
-  lastChargeAt?: string | null;
-  config: {
-    apiKeyMasked: string;
-    integrationId: string;
-    iframeId: string;
-    hmacMasked: string;
-  };
 };
 
-const SAMPLE_METHODS: PaymentMethod[] = [
+/**
+ * The provider registry. Everything that varies per provider lives here, so
+ * adding a second gateway provider is a matter of adding an entry — the modal
+ * reads its credential fields and its channel support from this map rather
+ * than hard-coding Paymob's shape.
+ */
+/**
+ * `secret: true` fields are write-only — the API never returns them, so the
+ * edit form starts them blank and treats an empty value as "keep the stored
+ * one" rather than "clear it".
+ */
+type CredentialField = {
+  key: keyof PaymobCredentials;
+  label: string;
+  secret: boolean;
+  placeholder: string;
+  hint: string;
+};
+
+const storedSecretHint = (label: string) =>
+  `${label} is already stored. Leave blank to keep it or enter a new value only to rotate it.`;
+
+type ProviderSpec = {
+  id: GatewayProvider;
+  label: string;
+  available: boolean;
+  credentialFields: CredentialField[];
+  supportsChannels: boolean;
+  channelHelp: string;
+  docsUrl: string;
+};
+
+const PROVIDERS: ProviderSpec[] = [
   {
-    id: 'pm_01',
-    name: 'Paymob — Cards',
-    gateway: 'paymob',
-    type: 'CARD',
-    isTest: false,
-    mode: 'live',
-    status: 'ACTIVE',
-    currency: 'EGP',
-    testStatus: 'SUCCESS',
-    testFailureReason: null,
-    testedAt: '2026-05-06T08:14:00',
-    successRate: '98.4%',
-    credentialsRotatedAt: '2026-04-19',
+    id: 'paymob',
+    label: 'Paymob',
+    available: true,
+    supportsChannels: true,
+    channelHelp: 'Where to find: Settings → Developers → Payment Integrations',
+    docsUrl: 'https://developers.paymob.com/egypt/getting-started-egypt',
+    credentialFields: [
+      {
+        key: 'secretKey',
+        label: 'Secret key',
+        secret: true,
+        placeholder: 'egy_sk_live_…',
+        hint: 'Where to find: Settings → Developers → API Keys',
+      },
+      {
+        key: 'publicKey',
+        label: 'Public key',
+        secret: false,
+        placeholder: 'egy_pk_live_…',
+        hint: 'Where to find: Settings → Developers → API Keys',
+      },
+      {
+        key: 'hmacKey',
+        label: 'HMAC key',
+        secret: true,
+        placeholder: 'b4a91c84e6f7d3a1…',
+        hint: 'Where to find: Settings → Developers → API Keys',
+      },
+    ],
+  },
+];
+
+const PROVIDER_BY_ID: Record<GatewayProvider, ProviderSpec> = PROVIDERS.reduce(
+  (acc, p) => ({ ...acc, [p.id]: p }),
+  {} as Record<GatewayProvider, ProviderSpec>,
+);
+
+const CURRENCIES: ChannelCurrency[] = ['EGP', 'USD'];
+
+const SAMPLE_GATEWAYS: PaymentGateway[] = [
+  {
+    id: 'gw_01',
+    name: 'Paymob — Production',
+    provider: 'paymob',
+    isActive: true,
     createdAt: '2026-02-12',
-    config: {
-      apiKeyMasked: '••••••••••••••••••••••••',
-      integrationId: '4827193',
-      iframeId: '912034',
-      hmacMasked: '••••••••••••••••',
+    credentials: {
+      secretKey: 'egy_sk_live_9f2c4b71ad83e6',
+      publicKey: 'egy_pk_live_4471bc02de99',
+      hmacKey: 'b4a91c84e6f7d3a1c02e',
     },
+    channels: [
+      { id: 'ch_01', name: 'Cards', currency: 'EGP', isActive: true, integrationId: '4827193' },
+      {
+        id: 'ch_02',
+        name: 'Mobile wallets',
+        currency: 'EGP',
+        isActive: true,
+        integrationId: '4827511',
+      },
+      {
+        id: 'ch_03',
+        name: 'Cards — USD',
+        currency: 'USD',
+        isActive: false,
+        integrationId: '4830042',
+      },
+    ],
   },
   {
-    id: 'pm_02',
-    name: 'Paymob — Wallets',
-    gateway: 'paymob',
-    type: 'WALLET',
-    isTest: false,
-    mode: 'live',
-    status: 'DRAFT',
-    currency: 'EGP',
-    testStatus: 'SUCCESS',
-    testFailureReason: null,
-    testedAt: '2026-05-09T05:42:00',
-    successRate: '0.0%',
-    credentialsRotatedAt: '2026-04-28',
+    id: 'gw_02',
+    name: 'Paymob — Sandbox',
+    provider: 'paymob',
+    isActive: false,
     createdAt: '2026-04-28',
-    config: {
-      apiKeyMasked: '••••••••••••••••••••••••',
-      integrationId: '4827511',
-      iframeId: '912088',
-      hmacMasked: '••••••••••••••••',
+    credentials: {
+      secretKey: 'egy_sk_test_1a55c9038be7',
+      publicKey: 'egy_pk_test_77d1e4ba2205',
+      hmacKey: 'a1f7be2290c4d8e35b16',
     },
+    channels: [
+      { id: 'ch_04', name: 'Cards', currency: 'EGP', isActive: true, integrationId: '4710228' },
+      {
+        id: 'ch_05',
+        name: 'Installments',
+        currency: 'EGP',
+        isActive: false,
+        integrationId: '4710901',
+      },
+    ],
   },
   {
-    id: 'pm_03',
-    name: 'Paymob — Installments',
-    gateway: 'paymob',
-    type: 'INSTALLMENT',
-    isTest: true,
-    mode: 'sandbox',
-    status: 'INACTIVE',
-    currency: 'EGP',
-    testStatus: 'FAILURE',
-    testFailureReason:
-      'HMAC verification failed for integration 4710228 — the signing secret on Paymob has been rotated since this method was last saved.',
-    testedAt: '2026-04-30T18:42:00',
-    successRate: '64.2%',
-    credentialsRotatedAt: '2026-03-01',
-    createdAt: '2026-03-01',
-    config: {
-      apiKeyMasked: '••••••••••••••••••••••••',
-      integrationId: '4710228',
-      iframeId: '904412',
-      hmacMasked: '••••••••••••••••',
-    },
-  },
-  {
-    id: 'pm_04',
-    name: 'Paymob — Cards (Legacy)',
-    gateway: 'paymob',
-    type: 'CARD',
-    isTest: false,
-    mode: 'live',
-    status: 'ACTIVE',
-    currency: 'EGP',
-    testStatus: 'UNTESTED',
-    testFailureReason: null,
-    testedAt: null,
-    successRate: '91.7%',
-    credentialsRotatedAt: '2026-01-15',
+    id: 'gw_03',
+    name: 'Paymob — Legacy account',
+    provider: 'paymob',
+    isActive: false,
     createdAt: '2025-08-14',
-    config: {
-      apiKeyMasked: '••••••••••••••••••••••••',
-      integrationId: '4392107',
-      iframeId: '887214',
-      hmacMasked: '••••••••••••••••',
+    credentials: {
+      secretKey: 'egy_sk_live_00b3e71fa4cd',
+      publicKey: 'egy_pk_live_2be5701cc4fa',
+      hmacKey: 'c93a04e7b1d825f6a047',
     },
+    channels: [
+      { id: 'ch_06', name: 'Cards', currency: 'EGP', isActive: false, integrationId: '4392107' },
+    ],
   },
 ];
 
-const WIZARD_STEPS = [
-  { id: 1, label: 'Identity', sub: 'Name & environment' },
-  { id: 2, label: 'Credentials', sub: 'API key & HMAC' },
-  { id: 3, label: 'Integration', sub: 'IDs & iframe' },
-  { id: 4, label: 'Verify', sub: 'Test the connection' },
-  { id: 5, label: 'Review', sub: 'Save as draft' },
-];
-
-function StatusPill({ status }: { status: PaymentStatus }) {
-  if (status === 'ACTIVE') {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
-          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-        </span>
-        Active
-      </span>
-    );
-  }
-  if (status === 'DRAFT') {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold">
-        <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-        Draft
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-200 text-xs font-semibold">
-      <span className="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
-      Inactive
-    </span>
-  );
-}
-
-const TYPE_META: Record<
-  PaymentMethodKind,
-  { label: string; icon: typeof CreditCard; gradient: string; ring: string; tile: string }
-> = {
-  CARD: {
-    label: 'Card',
-    icon: CreditCard,
-    gradient: 'from-[#1e3a8a] via-[#2563eb] to-[#1e40af]',
-    ring: 'ring-blue-200/70',
-    tile: 'text-white',
-  },
-  WALLET: {
-    label: 'Wallet',
-    icon: Webhook,
-    gradient: 'from-[#5b21b6] via-[#7c3aed] to-[#6d28d9]',
-    ring: 'ring-violet-200/70',
-    tile: 'text-white',
-  },
-  INSTALLMENT: {
-    label: 'Installment',
-    icon: Sparkles,
-    gradient: 'from-[#b45309] via-[#d97706] to-[#b45309]',
-    ring: 'ring-amber-200/70',
-    tile: 'text-white',
-  },
-};
-
-function TypeMonogram({ type, dim }: { type: PaymentMethodKind; dim?: boolean }) {
-  const meta = TYPE_META[type];
-  const Icon = meta.icon;
-  return (
-    <div
-      className={`relative w-12 h-14 rounded-[10px] flex items-center justify-center flex-shrink-0 overflow-hidden ${
-        dim
-          ? 'bg-gray-100 ring-1 ring-gray-200'
-          : `bg-gradient-to-br ${meta.gradient} shadow-[0_6px_18px_-8px_rgba(30,58,138,0.45)] ring-1 ${meta.ring}`
-      }`}
-    >
-      {/* fine internal frame */}
-      <span
-        className={`absolute inset-[3px] rounded-[7px] border ${
-          dim ? 'border-gray-200' : 'border-white/15'
-        }`}
-        aria-hidden
-      />
-      {/* magnetic stripe / decorative line */}
-      <span
-        className={`absolute left-0 right-0 top-[34%] h-[2px] ${
-          dim ? 'bg-gray-200' : 'bg-white/25'
-        }`}
-        aria-hidden
-      />
-      <Icon size={20} className={dim ? 'text-gray-400' : meta.tile} strokeWidth={2} />
-    </div>
-  );
-}
-
-function EnvChip({ isTest }: { isTest: boolean }) {
-  return isTest ? (
-    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-700 text-[10px] font-bold uppercase tracking-[0.12em] border border-violet-200/80">
-      Sandbox
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-[0.12em] border border-blue-200/80">
-      Production
-    </span>
-  );
-}
-
-function HelperHint({
-  title,
-  children,
-  tone = 'info',
-}: {
-  title: string;
-  children: React.ReactNode;
-  tone?: 'info' | 'warn';
-}) {
-  const tones = {
-    info: 'bg-blue-50/60 border-blue-100 text-blue-900',
-    warn: 'bg-amber-50/60 border-amber-100 text-amber-900',
-  };
-  const Icon = tone === 'info' ? Info : AlertCircle;
-  return (
-    <div className={`rounded-lg border ${tones[tone]} p-3 flex gap-2.5`}>
-      <Icon size={16} className="flex-shrink-0 mt-0.5 opacity-80" />
-      <div className="text-xs leading-relaxed">
-        <p className="font-semibold mb-0.5">{title}</p>
-        <div className="opacity-90">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-function relativeDays(iso: string): { days: number; label: string } {
-  const time = new Date(iso).getTime();
-  if (isNaN(time)) return { days: 0, label: '—' };
-  const days = Math.max(0, Math.floor((Date.now() - time) / 86_400_000));
-  if (days === 0) return { days, label: 'Today' };
-  if (days === 1) return { days, label: 'Yesterday' };
-  if (days < 7) return { days, label: `${days} days ago` };
-  if (days < 14) return { days, label: 'Last week' };
-  if (days < 30) return { days, label: `${Math.floor(days / 7)} weeks ago` };
-  if (days < 60) return { days, label: '1 month ago' };
-  if (days < 365) return { days, label: `${Math.floor(days / 30)} months ago` };
-  const years = Math.floor(days / 365);
-  return { days, label: years === 1 ? '1 year ago' : `${years} years ago` };
-}
+const newId = (prefix: string) => `${prefix}_${Math.random().toString(36).slice(2, 9)}`;
 
 function formatShortDate(iso: string): string {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function parseRate(rate: string): number | null {
-  const match = /^(-?\d+(\.\d+)?)\s*%?$/.exec(rate.trim());
-  if (!match) return null;
-  const n = parseFloat(match[1]);
-  return isNaN(n) ? null : n;
-}
+const emptyCredentials = (): PaymobCredentials => ({ secretKey: '', publicKey: '', hmacKey: '' });
 
-function SuccessRateMetric({ rate }: { rate: string }) {
-  const value = parseRate(rate);
-  const isZero = value !== null && value === 0;
-  const tone =
-    value === null || isZero
-      ? { num: 'text-gray-400', dot: 'bg-gray-300', label: 'No data yet' }
-      : value >= 95
-        ? { num: 'text-emerald-600', dot: 'bg-emerald-500', label: 'Healthy' }
-        : value >= 80
-          ? { num: 'text-amber-600', dot: 'bg-amber-500', label: 'Watch' }
-          : { num: 'text-red-600', dot: 'bg-red-500', label: 'Degraded' };
-
-  return (
-    <div className="flex flex-col gap-1 min-w-0">
-      <span className="text-[9.5px] uppercase tracking-[0.14em] text-gray-500 font-semibold">
-        Success rate · 30d
-      </span>
-      <div className="flex items-baseline gap-1.5">
-        <span
-          className={`text-[26px] leading-none font-bold tabular-nums tracking-tight ${tone.num}`}
-        >
-          {rate}
-        </span>
-      </div>
-      <div className="flex items-center gap-1.5 mt-0.5">
-        <span className={`h-1.5 w-1.5 rounded-full ${tone.dot}`} aria-hidden />
-        <span className="text-[10.5px] uppercase tracking-[0.1em] text-gray-500 font-semibold">
-          {tone.label}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function MetaLine({
-  label,
-  children,
-  tone,
-}: {
-  label: string;
-  children: React.ReactNode;
-  tone?: 'warn' | 'bad';
-}) {
-  const valueColor =
-    tone === 'bad' ? 'text-red-700' : tone === 'warn' ? 'text-amber-800' : 'text-gray-900';
-  return (
-    <div className="flex items-center justify-between gap-3 min-w-0">
-      <span className="text-[10.5px] uppercase tracking-[0.12em] text-gray-500 font-semibold flex-shrink-0">
-        {label}
-      </span>
-      <div className={`text-[12.5px] font-semibold ${valueColor} text-right`}>{children}</div>
-    </div>
-  );
-}
-
-function TestStatusBadge({ status }: { status: PaymentTestStatus }) {
-  if (status === 'SUCCESS') {
-    return (
-      <span className="inline-flex items-center gap-1 text-emerald-700">
-        <CircleCheck size={13} className="text-emerald-500" strokeWidth={2.5} />
-        <span className="text-[13px] font-semibold leading-none">Passed</span>
-      </span>
-    );
-  }
-  if (status === 'FAILURE') {
-    return (
-      <span className="inline-flex items-center gap-1 text-red-700">
-        <CircleAlert size={13} className="text-red-500" strokeWidth={2.5} />
-        <span className="text-[13px] font-semibold leading-none">Failed</span>
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 text-gray-500">
-      <span className="h-1.5 w-1.5 rounded-full bg-gray-300" aria-hidden />
-      <span className="text-[13px] font-semibold leading-none">Untested</span>
+function StatusPill({ active }: { active: boolean }) {
+  return active ? (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11.5px] font-semibold whitespace-nowrap">
+      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
+      Receiving payments
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 border border-gray-200 text-gray-500 text-[11.5px] font-semibold whitespace-nowrap">
+      <span className="h-1.5 w-1.5 rounded-full bg-gray-400" aria-hidden />
+      Standby
     </span>
   );
 }
 
+function GatewaySwitch({
+  checked,
+  onChange,
+  disabled,
+  label,
+}: {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  disabled?: boolean;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${
+        checked ? 'bg-emerald-600' : 'bg-gray-200'
+      } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+    >
+      <span
+        className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+          checked ? 'translate-x-[18px]' : 'translate-x-0.5'
+        }`}
+      />
+    </button>
+  );
+}
+
+function RowAction({
+  icon: Icon,
+  label,
+  onClick,
+  tone = 'neutral',
+}: {
+  icon: typeof Eye;
+  label: string;
+  onClick: () => void;
+  tone?: 'neutral' | 'danger';
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={label}
+      aria-label={label}
+      className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-colors ${
+        tone === 'danger'
+          ? 'border-gray-200 text-gray-400 hover:border-red-200 hover:bg-red-50 hover:text-red-600'
+          : 'border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900'
+      }`}
+    >
+      <Icon size={15} />
+    </button>
+  );
+}
+
+/** The shared body of every routing warning, so the wording never drifts. */
+function RoutingNotice({ compact }: { compact?: boolean }) {
+  return (
+    <div
+      className={`rounded-lg bg-amber-50 border border-amber-200 flex items-start gap-2.5 ${
+        compact ? 'p-3' : 'p-3.5'
+      }`}
+    >
+      <Info size={15} className="text-amber-600 flex-shrink-0 mt-0.5" />
+      <p className="text-[12.5px] leading-relaxed text-amber-900">
+        Payments already in progress finish on their current gateway. Only new payments follow this
+        change.
+      </p>
+    </div>
+  );
+}
+
+function GatewayRow({
+  gateway,
+  onViewChannels,
+  onEdit,
+  onDelete,
+  onToggle,
+}: {
+  gateway: PaymentGateway;
+  onViewChannels: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onToggle: () => void;
+}) {
+  const spec = PROVIDER_BY_ID[gateway.provider];
+  const active = gateway.isActive;
+
+  return (
+    <tr className={active ? 'bg-emerald-50/40' : 'hover:bg-gray-50 transition-colors'}>
+      <td className="relative py-5 pl-6 pr-4">
+        {active && <span className="absolute inset-y-0 left-0 w-1 bg-emerald-500" aria-hidden />}
+        <div className="flex items-center gap-4 min-w-0">
+          <div
+            className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              active
+                ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-500'
+            }`}
+          >
+            <CreditCard size={24} />
+          </div>
+          <h4 className="text-lg font-semibold text-gray-900 truncate">{gateway.name}</h4>
+        </div>
+      </td>
+      <td className="py-5 px-4 text-sm text-gray-600">{spec.label}</td>
+      <td className="py-5 px-4 text-sm text-gray-600 tabular-nums whitespace-nowrap">
+        {formatShortDate(gateway.createdAt)}
+      </td>
+      <td className="py-5 px-4 text-sm text-gray-600 tabular-nums">
+        <span className="font-semibold text-gray-900">{gateway.channels.length}</span>
+      </td>
+      <td className="py-5 px-4">
+        <StatusPill active={active} />
+      </td>
+      <td className="py-5 pl-4 pr-6">
+        <div className="flex items-center justify-end gap-2">
+          <GatewaySwitch
+            checked={active}
+            onChange={onToggle}
+            label={`${active ? 'Deactivate' : 'Activate'} ${gateway.name}`}
+          />
+          <span className="w-2" />
+          {spec.supportsChannels && (
+            <button
+              onClick={onViewChannels}
+              title="View channels"
+              className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2 border border-gray-300 whitespace-nowrap"
+            >
+              <Eye size={16} />
+              <span>Channels</span>
+            </button>
+          )}
+          <button
+            onClick={onEdit}
+            title="Edit gateway"
+            className="px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2 border border-blue-200"
+          >
+            <Edit size={16} />
+            <span>Edit</span>
+          </button>
+          <button
+            onClick={onDelete}
+            title="Delete gateway"
+            className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 border border-red-200"
+          >
+            <Trash2 size={16} />
+            <span>Delete</span>
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 function PaymentSection() {
-  const [methods, setMethods] = useState<PaymentMethod[]>(SAMPLE_METHODS);
-  const [showWizard, setShowWizard] = useState(false);
-  const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null);
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [openError, setOpenError] = useState<string | null>(null);
-  const errorRef = useRef<HTMLDivElement>(null);
+  const [gateways, setGateways] = useState<PaymentGateway[]>(SAMPLE_GATEWAYS);
+  const [editingGateway, setEditingGateway] = useState<PaymentGateway | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [channelsFor, setChannelsFor] = useState<PaymentGateway | null>(null);
+  const [pendingToggle, setPendingToggle] = useState<PaymentGateway | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<PaymentGateway | null>(null);
 
-  const openCreateWizard = () => {
-    setEditingMethod(null);
-    setShowWizard(true);
+  const activeGateway = gateways.find((g) => g.isActive) ?? null;
+  const standby = gateways.filter((g) => !g.isActive);
+  const ordered = activeGateway ? [activeGateway, ...standby] : standby;
+  const liveChannels = activeGateway ? activeGateway.channels.filter((c) => c.isActive).length : 0;
+
+  const openCreate = () => {
+    setEditingGateway(null);
+    setShowForm(true);
   };
 
-  const openEditWizard = (m: PaymentMethod) => {
-    setEditingMethod(m);
-    setShowWizard(true);
-    setOpenMenu(null);
+  const openEdit = (g: PaymentGateway) => {
+    setEditingGateway(g);
+    setShowForm(true);
   };
 
-  const closeWizard = () => {
-    setShowWizard(false);
-    setEditingMethod(null);
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingGateway(null);
   };
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpenMenu(null);
-      }
-    };
-    if (openMenu) document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [openMenu]);
+  const editFromChannels = () => {
+    if (!channelsFor) return;
+    const g = channelsFor;
+    setChannelsFor(null);
+    openEdit(g);
+  };
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (errorRef.current && !errorRef.current.contains(e.target as Node)) {
-        setOpenError(null);
-      }
-    };
-    if (openError) document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [openError]);
+  const saveGateway = (g: PaymentGateway) => {
+    setGateways((prev) => {
+      const exists = prev.some((p) => p.id === g.id);
+      const next = exists ? prev.map((p) => (p.id === g.id ? g : p)) : [...prev, g];
+      // One gateway receives new payments at a time.
+      return g.isActive ? next.map((p) => (p.id === g.id ? p : { ...p, isActive: false })) : next;
+    });
+    closeForm();
+  };
 
-  const activeCount = methods.filter((m) => m.status === 'ACTIVE').length;
-  const draftCount = methods.filter((m) => m.status === 'DRAFT').length;
-  const inactiveCount = methods.filter((m) => m.status === 'INACTIVE').length;
-
-  const handlePublish = (id: string) => {
-    setMethods((prev) =>
-      prev.map((m) =>
-        m.id === id
-          ? { ...m, status: 'ACTIVE' as PaymentStatus, publishedAt: new Date().toISOString() }
-          : m,
+  const confirmToggle = () => {
+    if (!pendingToggle) return;
+    const target = pendingToggle;
+    setGateways((prev) =>
+      prev.map((g) =>
+        g.id === target.id
+          ? { ...g, isActive: !target.isActive }
+          : target.isActive
+            ? g
+            : { ...g, isActive: false },
       ),
     );
-    setOpenMenu(null);
+    setPendingToggle(null);
   };
 
-  const handleDisable = (id: string) => {
-    setMethods((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status: 'INACTIVE' as PaymentStatus } : m)),
-    );
-    setOpenMenu(null);
-  };
-
-  const handleEnable = (id: string) => {
-    setMethods((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status: 'ACTIVE' as PaymentStatus } : m)),
-    );
-    setOpenMenu(null);
-  };
-
-  const handleDelete = (id: string) => {
-    setMethods((prev) => prev.filter((m) => m.id !== id));
-    setOpenMenu(null);
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    setGateways((prev) => prev.filter((g) => g.id !== pendingDelete.id));
+    setPendingDelete(null);
   };
 
   return (
     <>
       {/* Top Bar */}
       <div className="bg-white border-b border-gray-200 px-8 py-4 sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900">Payment Methods</h2>
+            <h2 className="text-2xl font-semibold text-gray-900">Payment gateways</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Manage gateways your customers use to pay. Only{' '}
-              <span className="font-semibold text-emerald-600">Active</span> methods are visible at
-              checkout.
+              One gateway takes every new payment. The rest wait on standby.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <a
-              href="https://paymob.com/docs"
-              target="_blank"
-              rel="noreferrer"
-              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg border border-gray-300 transition-colors flex items-center gap-2 text-sm"
-            >
-              <ExternalLink size={16} />
-              <span>Paymob docs</span>
-            </a>
-            <button
-              onClick={openCreateWizard}
-              className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 shadow-sm"
-            >
-              <Plus size={18} />
-              <span>Add payment method</span>
-            </button>
-          </div>
+          <button
+            onClick={openCreate}
+            className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+          >
+            <Plus size={18} />
+            <span>Add payment gateway</span>
+          </button>
         </div>
       </div>
 
       <div className="p-8">
-        {/* Configured methods */}
-        <div className="mb-5 flex items-center gap-4 flex-wrap">
-          <div className="flex items-baseline gap-2.5">
-            <h3 className="text-xl font-semibold tracking-tight text-gray-900">
-              Configured methods
-            </h3>
-            <span className="text-xl font-semibold text-gray-500 tabular-nums">
-              {methods.length}
-            </span>
+        {gateways.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-16 flex flex-col items-center justify-center text-center">
+            <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+              <CreditCard size={24} className="text-gray-400" />
+            </div>
+            <p className="text-gray-900 font-medium">No payment gateways yet</p>
+            <p className="text-sm text-gray-500 mt-1 mb-5">
+              Add a gateway to start taking online payments.
+            </p>
+            <button
+              onClick={openCreate}
+              className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors inline-flex items-center gap-2 shadow-sm"
+            >
+              <Plus size={18} />
+              <span>Add payment gateway</span>
+            </button>
           </div>
-          <div className="flex items-center gap-1.5 text-xs font-semibold">
-            <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/70 tabular-nums">
-              {activeCount} active
-            </span>
-            <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200/70 tabular-nums">
-              {draftCount} draft
-            </span>
-            <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-200 tabular-nums">
-              {inactiveCount} inactive
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {methods.map((m) => {
-            const dim = m.status === 'INACTIVE';
-            const typeMeta = TYPE_META[m.type];
-            const rotated = relativeDays(m.credentialsRotatedAt);
-            const rotationCritical = rotated.days >= 90;
-            const rotationStale = rotated.days >= 30 && !rotationCritical;
-            const tested = m.testedAt ? relativeDays(m.testedAt) : null;
-            const showFailure = m.testStatus === 'FAILURE' && !!m.testFailureReason;
-            const cardBorder =
-              m.status === 'DRAFT'
-                ? 'border-amber-200/80 ring-1 ring-amber-100/60'
-                : m.status === 'INACTIVE'
-                  ? 'border-gray-200'
-                  : 'border-gray-200 hover:border-blue-200';
-
-            return (
-              <article
-                key={m.id}
-                className={`group relative bg-white rounded-2xl border ${cardBorder} transition-all hover:shadow-[0_10px_30px_-12px_rgba(15,23,42,0.18)] ${
-                  dim ? 'opacity-95' : ''
-                }`}
-              >
-                <div className="p-5">
-                  {/* Header */}
-                  <div className="flex items-start justify-between gap-3 mb-4">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <TypeMonogram type={m.type} dim={dim} />
-                      <div className="min-w-0 pt-0.5">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="font-semibold text-[15.5px] text-gray-900 tracking-tight leading-tight truncate">
-                            {m.name}
-                          </h4>
-                          <EnvChip isTest={m.isTest} />
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-1.5 text-[11.5px] text-gray-500">
-                          <span className="font-semibold text-gray-700">{typeMeta.label}</span>
-                          <span className="text-gray-300">·</span>
-                          <span className="font-semibold text-gray-700 tabular-nums">
-                            {m.currency}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <StatusPill status={m.status} />
-                      <div className="relative" ref={openMenu === m.id ? menuRef : undefined}>
-                        <button
-                          onClick={() => setOpenMenu(openMenu === m.id ? null : m.id)}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
-                        >
-                          <MoreVertical size={18} />
-                        </button>
-                        {openMenu === m.id && (
-                          <div className="absolute right-0 mt-1 w-52 bg-white border border-gray-200 rounded-xl shadow-lg z-20 py-1.5 overflow-hidden">
-                            {m.status === 'ACTIVE' && (
-                              <button
-                                onClick={() => handleDisable(m.id)}
-                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                              >
-                                <PowerOff size={15} />
-                                Set inactive
-                              </button>
-                            )}
-                            <button
-                              className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                              onClick={() => openEditWizard(m)}
-                            >
-                              <Edit size={15} />
-                              Edit configuration
-                            </button>
-                            <button
-                              className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                              onClick={() => setOpenMenu(null)}
-                            >
-                              <Zap size={15} />
-                              Run test connection
-                            </button>
-                            <div className="my-1 border-t border-gray-100" />
-                            <button
-                              onClick={() => handleDelete(m.id)}
-                              className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                            >
-                              <Trash2 size={15} />
-                              Delete method
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Meta strip — success rate hero + detail stack */}
-                  <div className="rounded-xl bg-slate-50/70 ring-1 ring-slate-200/70 px-4 py-3.5 flex items-stretch gap-4">
-                    <div className="flex-shrink-0 self-center pr-1">
-                      <SuccessRateMetric rate={m.successRate} />
-                    </div>
-                    <span
-                      className="w-px self-stretch bg-gradient-to-b from-transparent via-slate-200 to-transparent"
-                      aria-hidden
-                    />
-                    <div className="flex-1 min-w-0 flex flex-col justify-center gap-2">
-                      <MetaLine label="Test Status">
-                        <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                          <TestStatusBadge status={m.testStatus} />
-                          {tested && (
-                            <span className="text-gray-400 font-normal text-[11.5px]">
-                              · {tested.label}
-                            </span>
-                          )}
-                          {showFailure && (
-                            <div
-                              className="relative inline-block ml-0.5"
-                              ref={openError === m.id ? errorRef : undefined}
-                            >
-                              <button
-                                type="button"
-                                onClick={() => setOpenError(openError === m.id ? null : m.id)}
-                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-700 text-[11px] font-semibold border border-red-200/80 transition-colors"
-                              >
-                                <Info size={11} strokeWidth={2.5} />
-                                View error
-                              </button>
-                              {openError === m.id && (
-                                <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-[0_18px_40px_-12px_rgba(15,23,42,0.28)] border border-red-200/80 z-30 overflow-hidden">
-                                  <div className="px-3.5 py-2.5 bg-red-50/80 border-b border-red-100 flex items-center gap-2">
-                                    <CircleAlert
-                                      size={14}
-                                      className="text-red-500"
-                                      strokeWidth={2.5}
-                                    />
-                                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-red-700">
-                                      Last test failed
-                                    </p>
-                                  </div>
-                                  <p className="px-3.5 py-3 text-[12.5px] text-gray-800 leading-relaxed text-left whitespace-normal">
-                                    {m.testFailureReason}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </MetaLine>
-                      <MetaLine
-                        label="Rotated"
-                        tone={rotationCritical ? 'bad' : rotationStale ? 'warn' : undefined}
-                      >
-                        <span className="inline-flex items-center gap-1.5">
-                          {(rotationCritical || rotationStale) && (
-                            <span
-                              className={`h-1.5 w-1.5 rounded-full ${
-                                rotationCritical ? 'bg-red-500' : 'bg-amber-500'
-                              }`}
-                              aria-hidden
-                            />
-                          )}
-                          {rotated.label}
-                        </span>
-                      </MetaLine>
-                      <MetaLine label="Created">
-                        <span className="tabular-nums">{formatShortDate(m.createdAt)}</span>
-                      </MetaLine>
-                    </div>
-                  </div>
-
-                  {/* Footer actions */}
-                  {(m.status === 'DRAFT' || m.status === 'INACTIVE') && (
-                    <div className="mt-4 flex items-center justify-end">
-                      {m.status === 'DRAFT' && (
-                        <button
-                          onClick={() => handlePublish(m.id)}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shadow-sm"
-                        >
-                          <Rocket size={13} />
-                          Activate
-                        </button>
-                      )}
-                      {m.status === 'INACTIVE' && (
-                        <button
-                          onClick={() => handleEnable(m.id)}
-                          className="px-3 py-1.5 rounded-lg bg-white text-gray-700 text-xs font-semibold border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
-                        >
-                          <Power size={13} />
-                          Re-enable
-                        </button>
-                      )}
-                    </div>
-                  )}
+        ) : (
+          <>
+            {!activeGateway && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 px-6 py-5 flex items-start gap-3 mb-6">
+                <AlertCircle size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-amber-900 text-[15px]">
+                    No gateway is receiving payments
+                  </p>
+                  <p className="text-sm text-amber-800/90 mt-0.5">
+                    Customers can't pay online right now. Turn a standby gateway on to restore
+                    checkout.
+                  </p>
                 </div>
-              </article>
-            );
-          })}
-        </div>
+              </div>
+            )}
+
+            {activeGateway && liveChannels === 0 && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 px-6 py-4 flex items-start gap-3 mb-6">
+                <AlertCircle size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-900">
+                  <span className="font-semibold">{activeGateway.name}</span> is receiving payments
+                  but{' '}
+                  {activeGateway.channels.length === 0
+                    ? "has no channels configured — it can't charge anything."
+                    : "every channel is off — it can't charge anything."}
+                </p>
+              </div>
+            )}
+
+            {/* Gateways List */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">All Payment Gateways</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  One gateway receives new payments — the rest stay on standby
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[960px] text-left">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                      <th className="py-3 pl-6 pr-4">Gateway Name</th>
+                      <th className="py-3 px-4">Provider</th>
+                      <th className="py-3 px-4">Added</th>
+                      <th className="py-3 px-4">Channels</th>
+                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 pl-4 pr-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {ordered.map((g) => (
+                      <GatewayRow
+                        key={g.id}
+                        gateway={g}
+                        onViewChannels={() => setChannelsFor(g)}
+                        onEdit={() => openEdit(g)}
+                        onDelete={() => setPendingDelete(g)}
+                        onToggle={() => setPendingToggle(g)}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
-      {showWizard && (
-        <PaymentWizard
-          editing={editingMethod}
-          onClose={closeWizard}
-          onSave={(m) => {
-            setMethods((prev) => {
-              const exists = prev.some((p) => p.id === m.id);
-              return exists ? prev.map((p) => (p.id === m.id ? m : p)) : [m, ...prev];
-            });
-            closeWizard();
-          }}
+      {showForm && (
+        <GatewayFormModal
+          editing={editingGateway}
+          activeGateway={activeGateway}
+          onClose={closeForm}
+          onSave={saveGateway}
+        />
+      )}
+
+      {channelsFor && (
+        <ChannelsModal
+          gateway={channelsFor}
+          onClose={() => setChannelsFor(null)}
+          onEdit={editFromChannels}
+        />
+      )}
+
+      {pendingToggle && (
+        <ToggleGatewayDialog
+          gateway={pendingToggle}
+          currentActive={activeGateway}
+          onCancel={() => setPendingToggle(null)}
+          onConfirm={confirmToggle}
+        />
+      )}
+
+      {pendingDelete && (
+        <DeleteGatewayDialog
+          gateway={pendingDelete}
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={confirmDelete}
         />
       )}
     </>
@@ -773,313 +619,280 @@ function PaymentSection() {
 }
 
 // ============================================================================
-// Payment Wizard — multi-step Paymob setup
+// Gateway form — create / edit
 // ============================================================================
 
-function PaymentWizard({
+function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+  return (
+    <label className="block text-[13px] font-semibold text-gray-900 mb-1.5">
+      {children}
+      {required && <span className="text-red-500 ml-0.5">*</span>}
+    </label>
+  );
+}
+
+function SecretInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        type={visible ? 'text' : 'password'}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full pl-3 pr-11 py-2.5 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      />
+      <button
+        type="button"
+        onClick={() => setVisible(!visible)}
+        aria-label={visible ? 'Hide value' : 'Show value'}
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition-colors"
+      >
+        {visible ? <EyeOff size={15} /> : <EyeIcon size={15} />}
+      </button>
+    </div>
+  );
+}
+
+function GatewayFormModal({
   editing,
+  activeGateway,
   onClose,
   onSave,
 }: {
-  editing: PaymentMethod | null;
+  editing: PaymentGateway | null;
+  activeGateway: PaymentGateway | null;
   onClose: () => void;
-  onSave: (m: PaymentMethod) => void;
+  onSave: (g: PaymentGateway) => void;
 }) {
   const isEdit = !!editing;
-  const [step, setStep] = useState(1);
-  const [name, setName] = useState(editing?.name ?? 'Paymob — Cards');
-  const [mode, setMode] = useState<'live' | 'sandbox'>(editing?.mode ?? 'sandbox');
-  const [apiKey, setApiKey] = useState('');
-  const [hmac, setHmac] = useState('');
-  const [integrationId, setIntegrationId] = useState(editing?.config.integrationId ?? '');
-  const [iframeId, setIframeId] = useState(editing?.config.iframeId ?? '');
-  const [showSecrets, setShowSecrets] = useState(false);
-  const [testState, setTestState] = useState<'idle' | 'running' | 'success' | 'failed'>(
-    editing?.testStatus === 'SUCCESS'
-      ? 'success'
-      : editing?.testStatus === 'FAILURE'
-        ? 'failed'
-        : 'idle',
+  const [name, setName] = useState(editing?.name ?? '');
+  const [provider, setProvider] = useState<GatewayProvider>(editing?.provider ?? 'paymob');
+  const [isActive, setIsActive] = useState(editing?.isActive ?? false);
+  // Write-only fields are never returned by the API, so they start blank even
+  // when editing — a blank one on save means "keep whatever is stored".
+  const [credentials, setCredentials] = useState<PaymobCredentials>(
+    editing ? { ...editing.credentials, secretKey: '', hmacKey: '' } : emptyCredentials(),
   );
-  const [testReport, setTestReport] = useState<
-    { label: string; ok: boolean; detail: string }[] | null
-  >(null);
+  const [channels, setChannels] = useState<PaymentChannel[]>(editing ? [...editing.channels] : []);
 
-  const runTest = () => {
-    setTestState('running');
-    setTestReport(null);
-    setTimeout(() => {
-      const checks = [
-        {
-          label: 'API key authentication',
-          ok: apiKey.length > 6,
-          detail: apiKey.length > 6 ? 'Token issued · 1 hour validity' : 'Server returned 401',
-        },
-        {
-          label: 'Integration lookup',
-          ok: integrationId.length >= 4,
-          detail:
-            integrationId.length >= 4
-              ? `Found integration #${integrationId}`
-              : 'Integration not found in your Paymob account',
-        },
-        {
-          label: 'Iframe accessibility',
-          ok: iframeId.length >= 4,
-          detail: iframeId.length >= 4 ? 'Iframe is reachable' : 'Iframe not found',
-        },
-        {
-          label: 'HMAC signature',
-          ok: hmac.length >= 6,
-          detail: hmac.length >= 6 ? 'Signature verified' : 'Signature mismatch',
-        },
-      ];
-      const allOk = checks.every((c) => c.ok);
-      setTestReport(checks);
-      setTestState(allOk ? 'success' : 'failed');
-    }, 1600);
-  };
+  const spec = PROVIDER_BY_ID[provider];
+  const wasActive = editing?.isActive ?? false;
+  // Same wording as the standalone toggle dialog: the switch here reroutes too.
+  const reroutes = isActive !== wasActive;
+  const displacedGateway =
+    isActive && !wasActive && activeGateway && activeGateway.id !== editing?.id
+      ? activeGateway
+      : null;
 
-  const finish = () => {
-    const now = new Date().toISOString();
-    const keysChanged = apiKey.length > 0 || hmac.length > 0;
-    const nextTestStatus: PaymentTestStatus =
-      testState === 'success'
-        ? 'SUCCESS'
-        : testState === 'failed'
-          ? 'FAILURE'
-          : isEdit
-            ? (editing?.testStatus ?? 'UNTESTED')
-            : 'UNTESTED';
+  const missingCredential = spec.credentialFields.some(
+    (f) => !(isEdit && f.secret) && !credentials[f.key].trim(),
+  );
+  const canSave = name.trim().length > 0 && !missingCredential;
 
-    const ranTest = testState === 'success' || testState === 'failed';
-
-    if (isEdit && editing) {
-      onSave({
-        ...editing,
-        name: name || editing.name,
-        mode,
-        isTest: mode === 'sandbox',
-        testStatus: nextTestStatus,
-        testFailureReason:
-          nextTestStatus === 'FAILURE'
-            ? (editing.testFailureReason ?? 'Connection test failed.')
-            : null,
-        testedAt: ranTest ? now : editing.testedAt,
-        credentialsRotatedAt: keysChanged ? now : editing.credentialsRotatedAt,
-        config: {
-          apiKeyMasked: apiKey ? '••••••••••••••••••••••••' : editing.config.apiKeyMasked,
-          integrationId: integrationId || editing.config.integrationId,
-          iframeId: iframeId || editing.config.iframeId,
-          hmacMasked: hmac ? '••••••••••••••••' : editing.config.hmacMasked,
-        },
-      });
-      return;
+  const submit = () => {
+    if (!canSave) return;
+    const merged = { ...credentials };
+    if (editing) {
+      for (const f of spec.credentialFields) {
+        if (f.secret && !merged[f.key].trim()) merged[f.key] = editing.credentials[f.key];
+      }
     }
-
     onSave({
-      id: `pm_${Date.now()}`,
-      name: name || 'Paymob method',
-      gateway: 'paymob',
-      type: 'CARD',
-      isTest: mode === 'sandbox',
-      mode,
-      status: 'DRAFT',
-      currency: 'EGP',
-      testStatus: nextTestStatus,
-      testFailureReason: nextTestStatus === 'FAILURE' ? 'Connection test failed.' : null,
-      testedAt: ranTest ? now : null,
-      successRate: '0.0%',
-      credentialsRotatedAt: now,
-      createdAt: now,
-      config: {
-        apiKeyMasked: '••••••••••••••••••••••••',
-        integrationId: integrationId || '—',
-        iframeId: iframeId || '—',
-        hmacMasked: '••••••••••••••••',
-      },
+      id: editing?.id ?? newId('gw'),
+      name: name.trim(),
+      provider,
+      isActive,
+      credentials: merged,
+      channels: spec.supportsChannels ? channels : [],
+      createdAt: editing?.createdAt ?? new Date().toISOString(),
     });
-  };
-
-  const canNext = () => {
-    if (step === 1) return name.trim().length > 0;
-    if (step === 2) return isEdit || (apiKey.length > 0 && hmac.length > 0);
-    if (step === 3) return isEdit ? true : integrationId.length > 0 && iframeId.length > 0;
-    return true;
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[92vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-7 py-5 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-slate-50 via-white to-blue-50/50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-sm">
-              <CreditCard size={20} className="text-white" />
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-gray-900">
-                {isEdit ? `Edit ${editing?.name}` : 'Add Paymob payment method'}
-              </h3>
-              <p className="text-sm text-gray-600">
-                Step {step} of {WIZARD_STEPS.length} — {WIZARD_STEPS[step - 1].label}
-              </p>
-            </div>
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {isEdit ? 'Edit payment gateway' : 'Add payment gateway'}
+            </h3>
+            <p className="text-[13px] text-gray-600 mt-0.5">
+              {isEdit
+                ? 'Changes apply to the next payment that runs through this gateway.'
+                : 'Connect a provider account so customers can pay online.'}
+            </p>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500"
+            aria-label="Close"
+            className="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 flex-shrink-0"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-hidden flex">
-          {/* Left rail — stepper */}
-          <aside className="w-72 border-r border-gray-200 bg-gradient-to-b from-gray-50 to-white p-6 hidden lg:block overflow-y-auto">
-            <p className="text-[10px] uppercase tracking-[0.18em] font-semibold text-gray-400 mb-4">
-              Setup checklist
-            </p>
-            <ol className="space-y-1 relative">
-              <span className="absolute left-[15px] top-3 bottom-3 w-px bg-gray-200" aria-hidden />
-              {WIZARD_STEPS.map((s) => {
-                const done = step > s.id;
-                const active = step === s.id;
-                return (
-                  <li key={s.id} className="relative flex gap-3 items-start py-2.5">
-                    <div
-                      className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 transition-all ${
-                        done
-                          ? 'bg-emerald-500 text-white shadow-sm'
-                          : active
-                            ? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-sm'
-                            : 'bg-white border-2 border-gray-200 text-gray-400'
-                      }`}
-                    >
-                      {done ? <Check size={15} /> : s.id}
-                    </div>
-                    <div className="pt-1">
-                      <p
-                        className={`text-sm font-semibold ${active ? 'text-gray-900' : done ? 'text-gray-700' : 'text-gray-500'}`}
-                      >
-                        {s.label}
-                      </p>
-                      <p className="text-xs text-gray-500">{s.sub}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-
-            <div className="mt-8 rounded-xl bg-blue-50/60 border border-blue-100 p-4">
-              <div className="flex items-start gap-2 mb-2">
-                <HelpCircle size={16} className="text-blue-700 flex-shrink-0 mt-0.5" />
-                <p className="text-xs font-semibold text-blue-900">Need help?</p>
-              </div>
-              <p className="text-xs text-blue-900/80 leading-relaxed">
-                Most fields can be found in your{' '}
-                <a
-                  href="https://accept.paymob.com/portal2/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline font-medium"
-                >
-                  Paymob dashboard
-                </a>
-                . If a field is missing, ask your account manager — every Paymob account has these.
-              </p>
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+          {/* Identity */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <FieldLabel required>Name</FieldLabel>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Paymob — Production"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 mt-1.5">For display only</p>
             </div>
-          </aside>
+            <div>
+              <FieldLabel required>Provider</FieldLabel>
+              <div className="relative">
+                <select
+                  value={provider}
+                  disabled
+                  onChange={(e) => setProvider(e.target.value as GatewayProvider)}
+                  className="w-full appearance-none px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-700 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {PROVIDERS.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
+                <Lock
+                  size={14}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                />
+              </div>
+            </div>
+          </div>
 
-          {/* Right — content */}
-          <div className="flex-1 overflow-y-auto p-8">
-            {step === 1 && (
-              <StepIdentity name={name} setName={setName} mode={mode} setMode={setMode} />
-            )}
-            {step === 2 && (
-              <StepCredentials
-                apiKey={apiKey}
-                setApiKey={setApiKey}
-                hmac={hmac}
-                setHmac={setHmac}
-                showSecrets={showSecrets}
-                setShowSecrets={setShowSecrets}
-                isEdit={isEdit}
-              />
-            )}
-            {step === 3 && (
-              <StepIntegration
-                integrationId={integrationId}
-                setIntegrationId={setIntegrationId}
-                iframeId={iframeId}
-                setIframeId={setIframeId}
-              />
-            )}
-            {step === 4 && (
-              <StepVerify
-                testState={testState}
-                testReport={testReport}
-                runTest={runTest}
-                summary={{ name, mode, integrationId, iframeId }}
-              />
-            )}
-            {step === 5 && (
-              <StepReview
-                name={name}
-                mode={mode}
-                apiKey={apiKey}
-                hmac={hmac}
-                integrationId={integrationId}
-                iframeId={iframeId}
-                testState={testState}
-                isEdit={isEdit}
-              />
+          {/* Active */}
+          <div className="rounded-xl border border-gray-200 p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-[13px] font-semibold text-gray-900">Active</p>
+                <p className="text-[12.5px] text-gray-600 mt-0.5">
+                  {isActive
+                    ? 'New payments will route to this gateway.'
+                    : 'This gateway stays configured but takes no payments.'}
+                </p>
+              </div>
+              <GatewaySwitch checked={isActive} onChange={setIsActive} label="Active" />
+            </div>
+
+            {reroutes && (
+              <div className="mt-3.5 space-y-2.5">
+                <RoutingNotice compact />
+                {displacedGateway && (
+                  <p className="text-[12.5px] text-gray-600 pl-0.5">
+                    <span className="font-semibold text-gray-900">{displacedGateway.name}</span>{' '}
+                    will stop receiving new payments when you save.
+                  </p>
+                )}
+              </div>
             )}
           </div>
+
+          {/* Credentials — driven by the provider spec */}
+          <section>
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2">
+                <KeyRound size={15} className="text-gray-400" />
+                <h4 className="text-[13px] font-semibold uppercase tracking-[0.1em] text-gray-500">
+                  Credentials
+                </h4>
+              </div>
+              <a
+                href={spec.docsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[12.5px] text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1"
+              >
+                {spec.label} docs
+                <ExternalLink size={12} />
+              </a>
+            </div>
+
+            <div className="space-y-4">
+              {spec.credentialFields.map((field) => {
+                const storedSecret = isEdit && field.secret;
+                return (
+                  <div key={field.key}>
+                    <FieldLabel required={!storedSecret}>{field.label}</FieldLabel>
+                    {field.secret ? (
+                      <SecretInput
+                        value={credentials[field.key]}
+                        onChange={(v) => setCredentials((c) => ({ ...c, [field.key]: v }))}
+                        placeholder={storedSecret ? 'Leave blank to keep' : field.placeholder}
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={credentials[field.key]}
+                        onChange={(e) =>
+                          setCredentials((c) => ({ ...c, [field.key]: e.target.value }))
+                        }
+                        placeholder={field.placeholder}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    )}
+                    <p className="text-xs text-gray-500 mt-1.5">
+                      {storedSecret ? storedSecretHint(field.label) : field.hint}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Payment channels — only when the provider has them */}
+          {spec.supportsChannels && (
+            <section>
+              <div className="flex items-center gap-2 mb-1.5">
+                <Webhook size={15} className="text-gray-400" />
+                <h4 className="text-[13px] font-semibold uppercase tracking-[0.1em] text-gray-500">
+                  Payment channels
+                </h4>
+              </div>
+              <p className="text-[12.5px] text-gray-600 mb-3">{spec.channelHelp}</p>
+              <ChannelEditor channels={channels} onChange={setChannels} />
+            </section>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="px-7 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-          <div className="text-xs text-gray-500 flex items-center gap-2">
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-4 flex-wrap">
+          <p className="text-xs text-gray-500 flex items-center gap-1.5">
             <Lock size={13} />
-            Credentials are encrypted at rest and never exposed to the browser after saving.
-          </div>
+            Keys are encrypted at rest.
+          </p>
           <div className="flex items-center gap-2">
-            {step > 1 && (
-              <button
-                onClick={() => setStep(step - 1)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg border border-gray-300 transition-colors flex items-center gap-2 text-sm"
-              >
-                <ChevronLeft size={16} />
-                Back
-              </button>
-            )}
             <button
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors text-sm"
+              className="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg border border-gray-300 transition-colors text-sm"
             >
               Cancel
             </button>
-            {step < WIZARD_STEPS.length && (
-              <button
-                onClick={() => canNext() && setStep(step + 1)}
-                disabled={!canNext()}
-                className="px-5 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center gap-2 text-sm font-semibold shadow-sm"
-              >
-                Continue
-                <ChevronRight size={16} />
-              </button>
-            )}
-            {step === WIZARD_STEPS.length && (
-              <button
-                onClick={finish}
-                className="px-5 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg transition-colors flex items-center gap-2 text-sm font-semibold shadow-sm"
-              >
-                <Check size={16} />
-                {isEdit ? 'Save changes' : 'Save as draft'}
-              </button>
-            )}
+            <button
+              onClick={submit}
+              disabled={!canSave}
+              className="px-5 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors text-sm font-semibold shadow-sm"
+            >
+              {isEdit ? 'Save changes' : 'Add gateway'}
+            </button>
           </div>
         </div>
       </div>
@@ -1087,575 +900,492 @@ function PaymentWizard({
   );
 }
 
-// --- Wizard step components ---
+// ============================================================================
+// Channel editor — add / edit / toggle / remove rows (inside the gateway form)
+// ============================================================================
 
-function FieldLabel({
-  index,
-  title,
-  required = true,
+type ChannelDraft = {
+  name: string;
+  currency: ChannelCurrency;
+  isActive: boolean;
+  integrationId: string;
+};
+
+const emptyDraft = (): ChannelDraft => ({
+  name: '',
+  currency: 'EGP',
+  isActive: true,
+  integrationId: '',
+});
+
+function ChannelEditor({
+  channels,
+  onChange,
 }: {
-  index: string;
-  title: string;
-  required?: boolean;
+  channels: PaymentChannel[];
+  onChange: (next: PaymentChannel[]) => void;
 }) {
+  // `null` = closed, `'new'` = adding, otherwise the id being edited.
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<ChannelDraft>(emptyDraft());
+
+  const startAdd = () => {
+    setDraft(emptyDraft());
+    setEditingId('new');
+  };
+
+  const startEdit = (c: PaymentChannel) => {
+    setDraft({
+      name: c.name,
+      currency: c.currency,
+      isActive: c.isActive,
+      integrationId: c.integrationId,
+    });
+    setEditingId(c.id);
+  };
+
+  const cancel = () => setEditingId(null);
+
+  const canSaveDraft = draft.name.trim().length > 0 && draft.integrationId.trim().length > 0;
+
+  const commit = () => {
+    if (!canSaveDraft) return;
+    const value = {
+      name: draft.name.trim(),
+      currency: draft.currency,
+      isActive: draft.isActive,
+      integrationId: draft.integrationId.trim(),
+    };
+    if (editingId === 'new') {
+      onChange([...channels, { id: newId('ch'), ...value }]);
+    } else {
+      onChange(channels.map((c) => (c.id === editingId ? { ...c, ...value } : c)));
+    }
+    setEditingId(null);
+  };
+
+  const toggle = (id: string) =>
+    onChange(channels.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c)));
+
+  const remove = (id: string) => {
+    onChange(channels.filter((c) => c.id !== id));
+    if (editingId === id) setEditingId(null);
+  };
+
   return (
-    <div className="flex items-center gap-2 mb-2">
-      <span className="w-6 h-6 rounded-md bg-gray-900 text-white text-[11px] font-bold flex items-center justify-center">
-        {index}
-      </span>
-      <label className="text-sm font-semibold text-gray-900">
-        {title}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
-      </label>
+    <div className="rounded-xl border border-gray-200 overflow-hidden">
+      {channels.length === 0 && editingId !== 'new' && (
+        <p className="px-4 py-6 text-center text-[13px] text-gray-500">
+          No channels yet. Add one so this gateway has a way to charge.
+        </p>
+      )}
+
+      {channels.length > 0 && (
+        <ul className="divide-y divide-gray-100">
+          {channels.map((c) =>
+            editingId === c.id ? (
+              <li key={c.id} className="bg-blue-50/40">
+                <ChannelForm
+                  draft={draft}
+                  setDraft={setDraft}
+                  canSave={canSaveDraft}
+                  saveLabel="Save channel"
+                  onCancel={cancel}
+                  onSave={commit}
+                />
+              </li>
+            ) : (
+              <li key={c.id} className="px-4 py-3 flex items-center gap-4">
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={`text-[13.5px] font-medium truncate ${
+                      c.isActive ? 'text-gray-900' : 'text-gray-500'
+                    }`}
+                  >
+                    {c.name}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1.5">
+                    <span className="font-semibold text-gray-700 tabular-nums">{c.currency}</span>
+                    <span className="text-gray-300">·</span>
+                    <span className="font-mono tabular-nums">{c.integrationId}</span>
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <RowAction icon={Edit} label="Edit channel" onClick={() => startEdit(c)} />
+                  <RowAction
+                    icon={Trash2}
+                    label="Remove channel"
+                    tone="danger"
+                    onClick={() => remove(c.id)}
+                  />
+                  <span className="w-px h-5 bg-gray-200 mx-1" aria-hidden />
+                  <GatewaySwitch
+                    checked={c.isActive}
+                    onChange={() => toggle(c.id)}
+                    label={`${c.isActive ? 'Deactivate' : 'Activate'} ${c.name}`}
+                  />
+                </div>
+              </li>
+            ),
+          )}
+        </ul>
+      )}
+
+      {editingId === 'new' && (
+        <div className="bg-blue-50/40 border-t border-gray-100">
+          <ChannelForm
+            draft={draft}
+            setDraft={setDraft}
+            canSave={canSaveDraft}
+            saveLabel="Add channel"
+            onCancel={cancel}
+            onSave={commit}
+          />
+        </div>
+      )}
+
+      {editingId !== 'new' && (
+        <div className="border-t border-gray-100 bg-gray-50/70 px-4 py-2.5">
+          <button
+            type="button"
+            onClick={startAdd}
+            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue-600 hover:text-blue-700"
+          >
+            <Plus size={15} />
+            Add channel
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function StepIdentity({
-  name,
-  setName,
-  mode,
-  setMode,
+function ChannelForm({
+  draft,
+  setDraft,
+  canSave,
+  saveLabel,
+  onCancel,
+  onSave,
 }: {
-  name: string;
-  setName: (v: string) => void;
-  mode: 'live' | 'sandbox';
-  setMode: (v: 'live' | 'sandbox') => void;
+  draft: ChannelDraft;
+  setDraft: (next: ChannelDraft) => void;
+  canSave: boolean;
+  saveLabel: string;
+  onCancel: () => void;
+  onSave: () => void;
 }) {
   return (
-    <div className="max-w-3xl">
-      <h3 className="text-2xl font-semibold text-gray-900 mb-1">Let's name this method</h3>
-      <p className="text-sm text-gray-600 mb-8">
-        This is just for you and your team — customers won't see this label.
-      </p>
-
-      <div className="space-y-7">
+    <div className="px-4 py-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         <div>
-          <FieldLabel index="A" title="Display name" />
+          <FieldLabel required>Name</FieldLabel>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="e.g. Paymob — Cards (Live)"
+            value={draft.name}
+            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+            placeholder="Cards"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-          <p className="text-xs text-gray-500 mt-2">
-            A short name like "Paymob Cards" or "Wallets — Sandbox" so you can tell methods apart on
-            the list.
-          </p>
         </div>
-
         <div>
-          <FieldLabel index="B" title="Environment" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <button
-              onClick={() => setMode('sandbox')}
-              className={`text-left rounded-xl p-4 border-2 transition-all ${
-                mode === 'sandbox'
-                  ? 'border-violet-500 bg-violet-50/50 ring-2 ring-violet-100'
-                  : 'border-gray-200 hover:border-gray-300 bg-white'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="px-2 py-0.5 rounded-md bg-violet-100 text-violet-700 text-[10px] uppercase tracking-wider font-bold">
-                  Sandbox
-                </span>
-                {mode === 'sandbox' && <Check size={18} className="text-violet-600" />}
-              </div>
-              <p className="font-semibold text-gray-900 mb-1">Test environment</p>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                No real money is moved. Use test cards to walk through the full booking flow safely.
-                Recommended for first-time setup.
-              </p>
-            </button>
-            <button
-              onClick={() => setMode('live')}
-              className={`text-left rounded-xl p-4 border-2 transition-all ${
-                mode === 'live'
-                  ? 'border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-100'
-                  : 'border-gray-200 hover:border-gray-300 bg-white'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-[10px] uppercase tracking-wider font-bold">
-                  Production
-                </span>
-                {mode === 'live' && <Check size={18} className="text-emerald-600" />}
-              </div>
-              <p className="font-semibold text-gray-900 mb-1">Live environment</p>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Real charges go through. Only switch here once you've tested in sandbox and your
-                Paymob account is verified.
-              </p>
-            </button>
+          <FieldLabel required>Currency</FieldLabel>
+          <select
+            value={draft.currency}
+            onChange={(e) => setDraft({ ...draft, currency: e.target.value as ChannelCurrency })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            {CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <FieldLabel required>Integration ID</FieldLabel>
+          <input
+            type="number"
+            inputMode="numeric"
+            value={draft.integrationId}
+            onChange={(e) => setDraft({ ...draft, integrationId: e.target.value })}
+            placeholder="4827193"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+        <div className="flex items-end">
+          <div className="w-full flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2">
+            <span className="text-[13px] font-semibold text-gray-900">Active</span>
+            <GatewaySwitch
+              checked={draft.isActive}
+              onChange={(next) => setDraft({ ...draft, isActive: next })}
+              label="Channel active"
+            />
           </div>
         </div>
       </div>
-    </div>
-  );
-}
 
-function CredentialField({
-  index,
-  title,
-  hint,
-  value,
-  onChange,
-  show,
-  placeholder,
-  copyHelp,
-}: {
-  index: string;
-  title: string;
-  hint: React.ReactNode;
-  value: string;
-  onChange: (v: string) => void;
-  show: boolean;
-  placeholder: string;
-  copyHelp: string;
-}) {
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-      <div className="lg:col-span-3">
-        <FieldLabel index={index} title={title} />
-        <div className="relative">
-          <input
-            type={show ? 'text' : 'password'}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <KeyRound size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        </div>
-        <p className="text-xs text-gray-500 mt-2">{copyHelp}</p>
-      </div>
-      <div className="lg:col-span-2">
-        <HelperHint title="Where to find it">{hint}</HelperHint>
-      </div>
-    </div>
-  );
-}
-
-function StepCredentials({
-  apiKey,
-  setApiKey,
-  hmac,
-  setHmac,
-  showSecrets,
-  setShowSecrets,
-  isEdit,
-}: {
-  apiKey: string;
-  setApiKey: (v: string) => void;
-  hmac: string;
-  setHmac: (v: string) => void;
-  showSecrets: boolean;
-  setShowSecrets: (v: boolean) => void;
-  isEdit: boolean;
-}) {
-  return (
-    <div className="max-w-4xl">
-      <div className="flex items-start justify-between mb-1 flex-wrap gap-3">
-        <div>
-          <h3 className="text-2xl font-semibold text-gray-900 mb-1">
-            {isEdit ? 'Update credentials' : 'Connect your Paymob account'}
-          </h3>
-          <p className="text-sm text-gray-600">
-            {isEdit
-              ? 'Leave fields blank to keep the existing keys. Fill them in only if you have rotated a value in Paymob.'
-              : 'Two secret values let Cinefy talk securely to Paymob on your behalf.'}
-          </p>
-        </div>
+      <div className="flex items-center justify-end gap-2 mt-4">
         <button
-          onClick={() => setShowSecrets(!showSecrets)}
-          className="px-3 py-2 rounded-lg border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+          type="button"
+          onClick={onCancel}
+          className="px-3.5 py-1.5 rounded-lg border border-gray-300 bg-white text-[13px] text-gray-700 hover:bg-gray-50 transition-colors"
         >
-          {showSecrets ? <EyeOff size={15} /> : <EyeIcon size={15} />}
-          {showSecrets ? 'Hide values' : 'Show values'}
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={!canSave}
+          className="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white text-[13px] font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+        >
+          {saveLabel}
         </button>
       </div>
-
-      <div className="mt-6 mb-7 rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50/40 border border-amber-200 p-4 flex items-start gap-3">
-        <Lock size={18} className="text-amber-700 flex-shrink-0 mt-0.5" />
-        <div className="text-sm text-amber-900">
-          <p className="font-semibold mb-0.5">These are sensitive credentials</p>
-          <p className="text-xs leading-relaxed">
-            Treat the API key like a password. Anyone who has it can charge your customers — never
-            paste it into chat, email, or screenshots. Cinefy stores it encrypted and never shows it
-            back to you in plain text.
-          </p>
-        </div>
-      </div>
-
-      <div className="space-y-9">
-        <CredentialField
-          index="A"
-          title="Paymob API Key"
-          value={apiKey}
-          onChange={setApiKey}
-          show={showSecrets}
-          placeholder={
-            isEdit ? '•••••••••••••••• (unchanged)' : 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNkki…'
-          }
-          copyHelp={
-            isEdit
-              ? 'Leave blank to keep the current key. Paste a new value only if you have rotated it in Paymob.'
-              : "It's a long string (about 250 characters). Paste the whole thing — don't worry about line breaks."
-          }
-          hint={
-            <>
-              In your Paymob portal, open <strong>Developers → API Key</strong>. Click{' '}
-              <strong>"Copy"</strong> next to the key. The portal also shows when it was last
-              rotated.
-            </>
-          }
-        />
-
-        <div className="border-t border-dashed border-gray-200" />
-
-        <CredentialField
-          index="B"
-          title="HMAC Secret"
-          value={hmac}
-          onChange={setHmac}
-          show={showSecrets}
-          placeholder={isEdit ? '•••••••••••••••• (unchanged)' : 'b4a91c84e6f7d3a1…'}
-          copyHelp={
-            isEdit
-              ? 'Leave blank to keep the current secret.'
-              : 'A shorter string (~32 characters) used to verify that webhook calls really came from Paymob.'
-          }
-          hint={
-            <>
-              Same area as the API key, under <strong>Developers → Webhooks</strong>. Look for{' '}
-              <strong>"HMAC"</strong> — it's the hex string Paymob signs every callback with.
-            </>
-          }
-        />
-      </div>
     </div>
   );
 }
 
-function StepIntegration({
-  integrationId,
-  setIntegrationId,
-  iframeId,
-  setIframeId,
+// ============================================================================
+// Channels modal — read-only; changes go through the edit interface
+// ============================================================================
+
+function ChannelsModal({
+  gateway,
+  onClose,
+  onEdit,
 }: {
-  integrationId: string;
-  setIntegrationId: (v: string) => void;
-  iframeId: string;
-  setIframeId: (v: string) => void;
+  gateway: PaymentGateway;
+  onClose: () => void;
+  onEdit: () => void;
 }) {
   return (
-    <div className="max-w-4xl">
-      <h3 className="text-2xl font-semibold text-gray-900 mb-1">Pick your integration</h3>
-      <p className="text-sm text-gray-600 mb-7">
-        Paymob calls each payment channel an "integration". Each one has a numeric ID and (for
-        cards) a checkout iframe.
-      </p>
-
-      <div className="space-y-9">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-          <div className="lg:col-span-3">
-            <FieldLabel index="A" title="Integration ID" />
-            <div className="relative">
-              <input
-                type="text"
-                value={integrationId}
-                onChange={(e) => setIntegrationId(e.target.value.replace(/[^0-9]/g, ''))}
-                placeholder="4827193"
-                inputMode="numeric"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <Webhook
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Numeric only — usually 6 to 8 digits. Paymob auto-generates this when an integration
-              is created.
-            </p>
-          </div>
-          <div className="lg:col-span-2">
-            <HelperHint title="Where to find it">
-              <strong>Developers → Payment Integrations</strong>. Each row shows a numeric ID. Pick
-              the one matching the channel you're configuring (cards, wallets, installments…).
-            </HelperHint>
-          </div>
-        </div>
-
-        <div className="border-t border-dashed border-gray-200" />
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-          <div className="lg:col-span-3">
-            <FieldLabel index="B" title="Iframe ID" />
-            <div className="relative">
-              <input
-                type="text"
-                value={iframeId}
-                onChange={(e) => setIframeId(e.target.value.replace(/[^0-9]/g, ''))}
-                placeholder="912034"
-                inputMode="numeric"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <Layout
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              The iframe is the secure card-entry box your customers see. Wallet-only methods don't
-              use one — leave it blank.
-            </p>
-          </div>
-          <div className="lg:col-span-2">
-            <HelperHint title="Where to find it">
-              <strong>Developers → iFrames</strong>. Pick the iframe that matches the look you
-              configured (currency, language, brand color).
-            </HelperHint>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StepVerify({
-  testState,
-  testReport,
-  runTest,
-  summary,
-}: {
-  testState: 'idle' | 'running' | 'success' | 'failed';
-  testReport: { label: string; ok: boolean; detail: string }[] | null;
-  runTest: () => void;
-  summary: { name: string; mode: 'live' | 'sandbox'; integrationId: string; iframeId: string };
-}) {
-  return (
-    <div className="max-w-3xl">
-      <h3 className="text-2xl font-semibold text-gray-900 mb-1">Test the connection</h3>
-      <p className="text-sm text-gray-600 mb-6">
-        We'll run four read-only checks against Paymob. No charges will be made.
-      </p>
-
-      <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-slate-50 to-white p-6">
-        <div className="flex items-start gap-4">
-          <div
-            className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all ${
-              testState === 'success'
-                ? 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-200'
-                : testState === 'failed'
-                  ? 'bg-gradient-to-br from-red-500 to-rose-600 shadow-md shadow-red-200'
-                  : testState === 'running'
-                    ? 'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md shadow-blue-200'
-                    : 'bg-gray-100'
-            }`}
-          >
-            {testState === 'idle' && <Zap size={26} className="text-gray-400" />}
-            {testState === 'running' && <Loader2 size={26} className="text-white animate-spin" />}
-            {testState === 'success' && <Check size={26} className="text-white" strokeWidth={3} />}
-            {testState === 'failed' && <X size={26} className="text-white" strokeWidth={3} />}
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-gray-900">
-              {testState === 'idle' && 'Ready to verify'}
-              {testState === 'running' && 'Running checks…'}
-              {testState === 'success' && 'All checks passed'}
-              {testState === 'failed' && 'Some checks did not pass'}
-            </p>
-            <p className="text-sm text-gray-600 mt-0.5">
-              {testState === 'idle' &&
-                `${summary.name} · ${summary.mode} · integration ${summary.integrationId || '—'}`}
-              {testState === 'running' && 'Talking to Paymob, this usually takes 1–2 seconds.'}
-              {testState === 'success' &&
-                'Your credentials work. You can save and publish whenever you are ready.'}
-              {testState === 'failed' &&
-                'See details below. You can fix and re-run, or save as draft and address later.'}
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h3 className="text-lg font-semibold text-gray-900 truncate">
+              Channels — {gateway.name}
+            </h3>
+            <p className="text-[13px] text-gray-600 mt-0.5">
+              Read-only — edit the gateway to change its channels.
             </p>
           </div>
           <button
-            onClick={runTest}
-            disabled={testState === 'running'}
-            className={`px-4 py-2.5 rounded-lg font-semibold flex items-center gap-2 text-sm transition-all ${
-              testState === 'running'
-                ? 'bg-blue-100 text-blue-600 cursor-not-allowed'
-                : testState === 'success'
-                  ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'
-            }`}
+            onClick={onClose}
+            aria-label="Close"
+            className="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 flex-shrink-0"
           >
-            {testState === 'running' ? (
-              <>
-                <Loader2 size={15} className="animate-spin" />
-                Testing…
-              </>
-            ) : testState === 'success' ? (
-              <>
-                <Zap size={15} />
-                Re-run test
-              </>
-            ) : (
-              <>
-                <Zap size={15} />
-                Test connection
-              </>
-            )}
+            <X size={20} />
           </button>
         </div>
 
-        {testReport && (
-          <div className="mt-6 space-y-2">
-            {testReport.map((c) => (
-              <div
-                key={c.label}
-                className={`rounded-lg border p-3 flex items-start gap-3 ${
-                  c.ok ? 'bg-emerald-50/40 border-emerald-200' : 'bg-red-50/40 border-red-200'
-                }`}
-              >
-                <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    c.ok ? 'bg-emerald-500' : 'bg-red-500'
-                  }`}
-                >
-                  {c.ok ? (
-                    <Check size={14} className="text-white" strokeWidth={3} />
-                  ) : (
-                    <X size={14} className="text-white" strokeWidth={3} />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p
-                    className={`text-sm font-semibold ${c.ok ? 'text-emerald-900' : 'text-red-900'}`}
-                  >
-                    {c.label}
-                  </p>
-                  <p
-                    className={`text-xs mt-0.5 font-mono ${c.ok ? 'text-emerald-700/80' : 'text-red-700/80'}`}
-                  >
-                    {c.detail}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          {gateway.channels.length === 0 ? (
+            <p className="py-8 text-center text-[13px] text-gray-500">
+              No channels configured. Edit the gateway to add one.
+            </p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[10.5px] uppercase tracking-[0.12em] text-gray-400 border-b border-gray-200">
+                  <th className="py-2.5 pr-4 font-bold">Channel</th>
+                  <th className="py-2.5 pr-4 font-bold">Currency</th>
+                  <th className="py-2.5 pr-4 font-bold">Integration ID</th>
+                  <th className="py-2.5 font-bold text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {gateway.channels.map((c) => (
+                  <tr key={c.id}>
+                    <td className="py-3 pr-4 font-medium text-gray-900">{c.name}</td>
+                    <td className="py-3 pr-4 text-gray-600 tabular-nums">{c.currency}</td>
+                    <td className="py-3 pr-4 font-mono text-[13px] text-gray-600 tabular-nums">
+                      {c.integrationId}
+                    </td>
+                    <td className="py-3 text-right">
+                      {c.isActive ? (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-semibold">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
+                          On
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200 text-[11px] font-semibold">
+                          <span className="h-1.5 w-1.5 rounded-full bg-gray-400" aria-hidden />
+                          Off
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
 
-      <p className="text-xs text-gray-500 mt-5 text-center">
-        Tip: a failed test won't block you. You can always save as a draft and come back later.
-      </p>
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-4">
+          <button
+            onClick={onEdit}
+            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue-600 hover:text-blue-700"
+          >
+            <Edit size={14} />
+            Edit gateway
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg border border-gray-300 transition-colors text-sm"
+          >
+            Done
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
-function StepReview({
-  name,
-  mode,
-  apiKey,
-  hmac,
-  integrationId,
-  iframeId,
-  testState,
-  isEdit,
+// ============================================================================
+// Confirmation dialogs
+// ============================================================================
+
+function ToggleGatewayDialog({
+  gateway,
+  currentActive,
+  onCancel,
+  onConfirm,
 }: {
-  name: string;
-  mode: 'live' | 'sandbox';
-  apiKey: string;
-  hmac: string;
-  integrationId: string;
-  iframeId: string;
-  testState: 'idle' | 'running' | 'success' | 'failed';
-  isEdit: boolean;
+  gateway: PaymentGateway;
+  currentActive: PaymentGateway | null;
+  onCancel: () => void;
+  onConfirm: () => void;
 }) {
-  const dots = (v: string, count: number) => (v ? '•'.repeat(count) : '—');
+  const activating = !gateway.isActive;
+  const displaced =
+    activating && currentActive && currentActive.id !== gateway.id ? currentActive : null;
 
   return (
-    <div className="max-w-3xl">
-      <h3 className="text-2xl font-semibold text-gray-900 mb-1">Review and save</h3>
-      <p className="text-sm text-gray-600 mb-7">
-        {isEdit ? (
-          <>
-            Review your changes. The method's current status (live, draft, or disabled) won't change
-            — use the methods list to publish or disable it.
-          </>
-        ) : (
-          <>
-            This method will be saved as a <strong>draft</strong>. It won't be visible to customers
-            until you publish it from the methods list.
-          </>
-        )}
-      </p>
-
-      <div className="rounded-2xl border border-gray-200 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center border border-white/20">
-            <CreditCard size={22} />
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        <div className="p-6">
+          <div
+            className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${
+              activating ? 'bg-emerald-100' : 'bg-amber-100'
+            }`}
+          >
+            {activating ? (
+              <Power size={22} className="text-emerald-600" />
+            ) : (
+              <PowerOff size={22} className="text-amber-600" />
+            )}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs uppercase tracking-wider text-white/70 font-semibold mb-0.5">
-              {isEdit ? 'Updated payment method' : 'New payment method'}
-            </p>
-            <p className="font-semibold truncate">{name || 'Untitled method'}</p>
-          </div>
-          <span className="px-2 py-0.5 rounded-md bg-white/15 backdrop-blur text-white text-[11px] font-bold uppercase tracking-[0.12em] border border-white/25">
-            {mode === 'live' ? 'Live' : 'Sandbox'}
-          </span>
-        </div>
 
-        <dl className="divide-y divide-gray-100">
-          {[
-            { label: 'Display name', value: name || '—' },
-            { label: 'Environment', value: mode === 'live' ? 'Production' : 'Sandbox' },
-            { label: 'Integration ID', value: integrationId || '—', mono: true },
-            { label: 'Iframe ID', value: iframeId || '—', mono: true },
-            { label: 'API key', value: dots(apiKey, 24), mono: true },
-            { label: 'HMAC secret', value: dots(hmac, 16), mono: true },
-          ].map((row) => (
-            <div key={row.label} className="px-5 py-3 grid grid-cols-3 items-center gap-4">
-              <dt className="text-sm text-gray-600">{row.label}</dt>
-              <dd
-                className={`col-span-2 text-sm text-gray-900 ${row.mono ? 'font-mono' : 'font-medium'}`}
-              >
-                {row.value}
-              </dd>
-            </div>
-          ))}
-          <div className="px-5 py-3 grid grid-cols-3 items-center gap-4">
-            <dt className="text-sm text-gray-600">Connection test</dt>
-            <dd className="col-span-2 text-sm">
-              {testState === 'success' && (
-                <span className="inline-flex items-center gap-1.5 text-emerald-700 font-semibold">
-                  <CircleCheck size={16} /> Passed
-                </span>
-              )}
-              {testState === 'failed' && (
-                <span className="inline-flex items-center gap-1.5 text-red-700 font-semibold">
-                  <CircleAlert size={16} /> Failed — saving anyway
-                </span>
-              )}
-              {testState === 'idle' && (
-                <span className="inline-flex items-center gap-1.5 text-gray-500">
-                  Not run — you can test from the methods list
-                </span>
-              )}
-            </dd>
-          </div>
-        </dl>
-      </div>
-
-      <div className="mt-6 rounded-xl bg-emerald-50/60 border border-emerald-200 p-4 flex items-start gap-3">
-        <Sparkles size={18} className="text-emerald-700 flex-shrink-0 mt-0.5" />
-        <div className="text-sm text-emerald-900">
-          <p className="font-semibold mb-0.5">What happens next</p>
-          <p className="text-xs leading-relaxed">
-            {isEdit
-              ? 'Your changes will be applied immediately. If this method is live, the new credentials take effect on the next checkout.'
-              : "We'll save this configuration as a draft. From the Payment Methods page you can publish it (so customers can pay with it), edit any field, or delete it."}
+          <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+            {activating ? `Activate ${gateway.name}?` : `Deactivate ${gateway.name}?`}
+          </h3>
+          <p className="text-[13.5px] text-gray-600 text-center mb-5 leading-relaxed">
+            {activating
+              ? 'New payments will start routing to this gateway.'
+              : 'This gateway will stop receiving new payments.'}
           </p>
+
+          <div className="space-y-2.5 mb-6">
+            <RoutingNotice />
+            {displaced && (
+              <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 flex items-start gap-2.5">
+                <Info size={15} className="text-gray-400 flex-shrink-0 mt-0.5" />
+                <p className="text-[12.5px] leading-relaxed text-gray-600">
+                  <span className="font-semibold text-gray-900">{displaced.name}</span> is active
+                  now. Activating this one deactivates it.
+                </p>
+              </div>
+            )}
+            {!activating && (
+              <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 flex items-start gap-2.5">
+                <AlertCircle size={15} className="text-gray-400 flex-shrink-0 mt-0.5" />
+                <p className="text-[12.5px] leading-relaxed text-gray-600">
+                  No other gateway takes over automatically. Activate one, or customers won't be
+                  able to pay online.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onCancel}
+              className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300 text-sm font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              className={`flex-1 px-4 py-2 text-white rounded-lg transition-colors shadow-sm text-sm font-semibold ${
+                activating
+                  ? 'bg-emerald-600 hover:bg-emerald-700'
+                  : 'bg-amber-600 hover:bg-amber-700'
+              }`}
+            >
+              {activating ? 'Activate' : 'Deactivate'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeleteGatewayDialog({
+  gateway,
+  onCancel,
+  onConfirm,
+}: {
+  gateway: PaymentGateway;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        <div className="p-6">
+          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle size={22} className="text-red-600" />
+          </div>
+
+          <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+            Delete {gateway.name}?
+          </h3>
+          <p className="text-[13.5px] text-gray-600 text-center mb-5 leading-relaxed">
+            This removes the gateway, its credentials, and its{' '}
+            <span className="tabular-nums">{gateway.channels.length}</span>{' '}
+            {gateway.channels.length === 1 ? 'channel' : 'channels'}. This can't be undone.
+          </p>
+
+          {gateway.isActive && (
+            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3.5 flex items-start gap-2.5 mb-6">
+              <AlertCircle size={15} className="text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="text-[12.5px] leading-relaxed text-amber-900">
+                <p className="font-semibold mb-0.5">This gateway is taking payments</p>
+                <p>
+                  Activate another gateway first so new payments have somewhere to go. Deleting it
+                  now leaves customers unable to pay online.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onCancel}
+              className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300 text-sm font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              className="flex-1 px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-colors shadow-sm text-sm font-semibold"
+            >
+              Delete gateway
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -2747,9 +2477,7 @@ function StaffReservationModal({ showtime, onClose }: { showtime: any; onClose: 
   const [ticket, setTicket] = useState<IssuedTicket | null>(null);
 
   const [bookingId, setBookingId] = useState(() => newBookingId(showtime.id));
-  const [hall, setHall] = useState(() =>
-    buildReservationHall(showtime.id, showtime.bookedSeats),
-  );
+  const [hall, setHall] = useState(() => buildReservationHall(showtime.id, showtime.bookedSeats));
 
   // Hold timer — runs while the seats are held, stops once the ticket is issued
   // or the booking is cancelled.
@@ -5013,9 +4741,7 @@ export default function App() {
                                   )}
                                 </span>
                               </div>
-                              <p className="text-sm text-gray-500 truncate">
-                                {movie.genre}
-                              </p>
+                              <p className="text-sm text-gray-500 truncate">{movie.genre}</p>
                               <p className="mt-0.5 text-sm text-gray-500 truncate">
                                 {movie.duration} · {movie.director}
                               </p>
