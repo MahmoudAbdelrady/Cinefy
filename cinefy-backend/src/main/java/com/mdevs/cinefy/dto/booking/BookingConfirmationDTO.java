@@ -20,8 +20,6 @@ public class BookingConfirmationDTO {
 
     private String bookingReference;
 
-    private String ticketToken;
-
     private MovieSearchResultDTO movie;
 
     private LocalDateTime startDateTime;

@@ -677,7 +677,6 @@ public class BookingService {
         dto.setId(booking.getUuid());
         dto.setPaymentState(paymentState);
         dto.setBookingReference(booking.getBookingReference());
-        dto.setTicketToken(paymentState.equals(PaymentState.CONFIRMED) ? booking.getTicketToken() : null);
         dto.setMovie(tmdbMovieService.toSearchResult(showtime.getTmdbMovie()));
         dto.setStartDateTime(showtime.getStartDateTime());
         dto.setHallName(booking.getHallName());

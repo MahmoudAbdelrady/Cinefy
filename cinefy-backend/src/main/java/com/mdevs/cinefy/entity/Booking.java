@@ -74,9 +74,6 @@ public class Booking extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime expiresAt;
 
-    @Column(unique = true)
-    private String ticketToken;
-
     @Column(nullable = false)
     @ColumnDefault("false")
     private boolean ticketUsed = false;
