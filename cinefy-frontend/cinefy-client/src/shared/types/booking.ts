@@ -66,8 +66,8 @@ type PaymentState = 'CONFIRMED' | 'PENDING' | 'FAILED' | 'EXPIRED' | 'REFUNDED';
 interface BookingConfirmation {
   id: string;
   paymentState: PaymentState;
-  bookingReference: string;
-  ticketToken: string | null;
+  bookingReference?: string;
+  qrCode?: string;
   movie: MovieSearchResult;
   startDateTime: string;
   hallName: string;

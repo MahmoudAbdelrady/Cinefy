@@ -54,8 +54,11 @@ public class Booking extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String idempotencyKey;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String bookingReference;
+
+    @Column(columnDefinition = "TEXT")
+    private String ticketQrCode;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;

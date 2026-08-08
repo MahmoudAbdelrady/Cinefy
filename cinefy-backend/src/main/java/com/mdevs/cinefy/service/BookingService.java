@@ -34,6 +34,7 @@ import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
+import com.mdevs.cinefy.shared.QrGenerator;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.ConflictException;
@@ -83,6 +84,8 @@ public class BookingService {
     private final PaymentService paymentService;
 
     private final ClientPaymentMethodService clientPaymentMethodService;
+
+    private final QrGenerator qrGenerator;
 
     @Lazy
     private final BookingService self;
@@ -466,9 +469,13 @@ public class BookingService {
     }
 
     private void confirmPaidBooking(Booking booking, String transactionId) {
+        String bookingReference = generateReference();
+
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setOnHold(null);
         booking.setPaymentTransactionId(transactionId);
+        booking.setBookingReference(bookingReference);
+        booking.setTicketQrCode(qrGenerator.generateDataUri(bookingReference));
         bookingRepository.save(booking);
 
         // TODO: send email with the ticket
@@ -574,7 +581,6 @@ public class BookingService {
         booking.setHallName(hall.getName());
         booking.setHallType(hall.getType().getName());
         booking.setIdempotencyKey(idempotencyKey);
-        booking.setBookingReference(generateReference());
         booking.setExpiresAt(LocalDateTime.now().plusMinutes(HOLD_WINDOW_MINUTES));
 
         if (user instanceof Client client) {
@@ -677,6 +683,7 @@ public class BookingService {
         dto.setId(booking.getUuid());
         dto.setPaymentState(paymentState);
         dto.setBookingReference(booking.getBookingReference());
+        dto.setQrCode(booking.getTicketQrCode());
         dto.setMovie(tmdbMovieService.toSearchResult(showtime.getTmdbMovie()));
         dto.setStartDateTime(showtime.getStartDateTime());
         dto.setHallName(booking.getHallName());

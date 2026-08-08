@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Map;
 
 @Component
@@ -24,6 +25,12 @@ public class QrGenerator {
     private static final int SIZE = 512;
 
     private static final int MARGIN = 1;
+
+    private static final String DATA_URI_PREFIX = "data:image/" + IMAGE_FORMAT.toLowerCase() + ";base64,";
+
+    public String generateDataUri(String content) {
+        return DATA_URI_PREFIX + Base64.getEncoder().encodeToString(generate(content));
+    }
 
     public byte[] generate(String content) {
         Map<EncodeHintType, Object> hints = Map.of(
