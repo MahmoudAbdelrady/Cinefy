@@ -31,7 +31,6 @@ const USER = {
   name: 'Alex Vance',
   email: 'alex.vance@example.com',
   phone: '+1 415 555 0148',
-  initials: 'AV',
 }
 
 export function ProfilePage() {
@@ -39,23 +38,10 @@ export function ProfilePage() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">
-      <header className="reveal mb-8 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-        <div className="grid size-20 place-items-center rounded-2xl bg-gradient-to-br from-amber to-amber/50 text-3xl font-bold text-primary-foreground">
-          {USER.initials}
-        </div>
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">{USER.name}</h1>
-          <p className="font-mono text-sm text-muted-foreground">
-            Member · {active.length + completed.length} bookings
-          </p>
-        </div>
-      </header>
-
       <Tabs
         defaultValue="account"
         orientation="vertical"
         className="reveal flex-col gap-6 sm:flex-row sm:gap-8"
-        style={{ animationDelay: '90ms' }}
       >
         <TabsList className="h-fit w-full shrink-0 flex-col gap-1 rounded-xl border border-border/50 bg-card p-2 sm:w-52">
           <TabsTrigger value="account" className="justify-start px-3 py-2">
