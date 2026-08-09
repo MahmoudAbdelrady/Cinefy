@@ -67,10 +67,10 @@ export class ScanTicketModalComponent {
 
   private autoSubmitTimer: ReturnType<typeof setTimeout> | null = null;
 
-  protected readonly modalTitle = computed(() => (this.result() ? 'Valid Ticket' : 'Scan Ticket'));
+  protected readonly modalTitle = computed(() => (this.result() ? 'Ticket Info' : 'Scan Ticket'));
 
   protected readonly modalDescription = computed(() => {
-    if (this.result()) return 'This booking is confirmed';
+    if (this.result()) return 'Ticket verified and marked as used';
     return this.manualEntry()
       ? 'Type the booking reference below'
       : 'Scan the QR code on the ticket';
