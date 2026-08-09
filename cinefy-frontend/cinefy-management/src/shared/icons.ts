@@ -45,6 +45,8 @@ export {
   LucidePower as PowerIcon,
   LucidePrinter as PrinterIcon,
   LucidePowerOff as PowerOffIcon,
+  LucideQrCode as QrCodeIcon,
+  LucideScanLine as ScanLineIcon,
   LucideRocket as RocketIcon,
   LucideSave as SaveIcon,
   LucideSearch as SearchIcon,

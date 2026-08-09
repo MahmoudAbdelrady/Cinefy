@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.dto.booking;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 import com.mdevs.cinefy.entity.enums.PaymentState;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BookingConfirmationDTO {
 
     private String id;
@@ -20,7 +22,7 @@ public class BookingConfirmationDTO {
 
     private String bookingReference;
 
-    private String ticketToken;
+    private String qrCode;
 
     private MovieSearchResultDTO movie;
 

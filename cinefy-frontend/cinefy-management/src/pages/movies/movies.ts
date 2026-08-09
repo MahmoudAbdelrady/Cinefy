@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { PlusIcon, TicketIcon } from '../../shared/icons';
+import { PlusIcon, QrCodeIcon, TicketIcon } from '../../shared/icons';
 import { canManage as canManagePosition, canBook as canBookPosition } from '../../shared/access';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
@@ -17,6 +17,7 @@ import {
   CurrentShowtimesComponent,
   ManageShowtimeModalComponent,
   MoviesStatisticsComponent,
+  ScanTicketModalComponent,
   UpcomingMoviesComponent,
 } from '../../components';
 import { HeaderActionsService, StaffService } from '../../services';
@@ -31,6 +32,7 @@ import { HeaderActionsService, StaffService } from '../../services';
     CurrentShowtimesComponent,
     UpcomingMoviesComponent,
     ActiveBookingsListComponent,
+    ScanTicketModalComponent,
   ],
   templateUrl: './movies.html',
   styleUrl: './movies.scss',
@@ -38,6 +40,7 @@ import { HeaderActionsService, StaffService } from '../../services';
 export class MoviesPage implements OnInit {
   protected readonly icons = {
     PlusIcon,
+    QrCodeIcon,
     TicketIcon,
   };
 

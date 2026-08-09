@@ -34,6 +34,8 @@ import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
+import com.mdevs.cinefy.dto.email.InlineResource;
+import com.mdevs.cinefy.shared.QrGenerator;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.ConflictException;
@@ -84,6 +86,10 @@ public class BookingService {
 
     private final ClientPaymentMethodService clientPaymentMethodService;
 
+    private final QrGenerator qrGenerator;
+
+    private final EmailService emailService;
+
     @Lazy
     private final BookingService self;
 
@@ -104,6 +110,10 @@ public class BookingService {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     private static final String BOOKING_CONFIRMATION_PATH = "/booking-confirmation/";
+
+    private static final String TICKET_QR_CONTENT_ID = "ticket-qr";
+
+    private static final String TICKET_QR_CONTENT_TYPE = "image/png";
 
     // ========================= Public API =========================
 
@@ -280,6 +290,20 @@ public class BookingService {
     }
 
     @Transactional
+    public BookingConfirmationDTO scanTicket(String bookingReference) {
+        Booking locked = bookingRepository.findByBookingReferenceForUpdate(bookingReference)
+                .orElseThrow(() -> new NotFoundException("No booking matches this reference"));
+
+        validateTicketIsRedeemable(locked);
+
+        locked.setTicketUsed(true);
+        bookingRepository.save(locked);
+
+        // Re-read to fetch the associations in one join instead of lazy-loading them one by one
+        return toBookingConfirmationDTO(findBookingByUuidWithDetail(locked.getUuid()));
+    }
+
+    @Transactional
     public PaymentRedirectionDTO createPaymentCheckout(String uuid) {
         Booking booking = prepareBookingForPayment(uuid);
         PaymentAttemptDTO attempt = paymentService.createCheckout(booking);
@@ -358,7 +382,7 @@ public class BookingService {
             return;
         }
 
-        confirmPaidBooking(booking, transaction.id());
+        confirmPaidBooking(findBookingByUuidWithDetail(bookingUuid), transaction.id());
     }
 
     public String resolvePaymentRedirectUrl(TransactionCallbackDTO transaction) {
@@ -465,13 +489,48 @@ public class BookingService {
         }
     }
 
+    private void validateTicketIsRedeemable(Booking booking) {
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            throw new BusinessException("This booking is not confirmed");
+        }
+        if (booking.isTicketUsed()) {
+            throw new BusinessException("This ticket has already been used");
+        }
+    }
+
     private void confirmPaidBooking(Booking booking, String transactionId) {
+        String bookingReference = generateReference();
+        byte[] qrCode = qrGenerator.generate(bookingReference);
+
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setOnHold(null);
         booking.setPaymentTransactionId(transactionId);
+        booking.setBookingReference(bookingReference);
+        booking.setTicketQrCode(QrGenerator.toDataUri(qrCode));
         bookingRepository.save(booking);
 
-        // TODO: send email with the ticket
+        sendTicketEmail(booking, qrCode);
+    }
+
+    private void sendTicketEmail(Booking booking, byte[] qrCode) {
+        Client client = booking.getClient();
+        if (client == null) {
+            return;
+        }
+
+        List<String> seats = booking.getSeats().stream()
+                .map(BookingSeat::getPosition)
+                .sorted(HallService.POSITION_COMPARATOR)
+                .toList();
+
+        Map<String, Object> variables = Map.of(
+                "booking", booking,
+                "seats", seats);
+
+        emailService.sendBookingTicket(
+                client.getEmail(),
+                variables,
+                List.of(new InlineResource(TICKET_QR_CONTENT_ID, TICKET_QR_CONTENT_TYPE, qrCode)));
     }
 
     private Booking prepareBookingForPayment(String uuid) {
@@ -574,7 +633,6 @@ public class BookingService {
         booking.setHallName(hall.getName());
         booking.setHallType(hall.getType().getName());
         booking.setIdempotencyKey(idempotencyKey);
-        booking.setBookingReference(generateReference());
         booking.setExpiresAt(LocalDateTime.now().plusMinutes(HOLD_WINDOW_MINUTES));
 
         if (user instanceof Client client) {
@@ -677,7 +735,7 @@ public class BookingService {
         dto.setId(booking.getUuid());
         dto.setPaymentState(paymentState);
         dto.setBookingReference(booking.getBookingReference());
-        dto.setTicketToken(paymentState.equals(PaymentState.CONFIRMED) ? booking.getTicketToken() : null);
+        dto.setQrCode(booking.getTicketQrCode());
         dto.setMovie(tmdbMovieService.toSearchResult(showtime.getTmdbMovie()));
         dto.setStartDateTime(showtime.getStartDateTime());
         dto.setHallName(booking.getHallName());

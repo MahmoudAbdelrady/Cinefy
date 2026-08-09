@@ -34,4 +34,8 @@ export class BookingService {
   settlePayment(uuid: string, request: StaffPaymentRequest): Observable<BookingConfirmation> {
     return this.http.post<BookingConfirmation>(`/booking/${uuid}/settle`, request);
   }
+
+  scanTicket(bookingReference: string): Observable<BookingConfirmation> {
+    return this.http.post<BookingConfirmation>(`/booking/tickets/${bookingReference}/scan`, null);
+  }
 }

@@ -224,23 +224,10 @@
   gap: 8px;
 
   .cf-qr {
-    display: grid;
-    grid-template-columns: repeat(11, 1fr);
-    gap: 2px;
     width: 112px;
     aspect-ratio: 1;
-    padding: 8px;
     border-radius: $radius-md;
     background: $color-foreground;
-  }
-
-  .cf-qr-cell {
-    background: transparent;
-  }
-
-  .cf-qr-cell-on {
-    border-radius: 1px;
-    background: $color-background;
   }
 
   .cf-reference {

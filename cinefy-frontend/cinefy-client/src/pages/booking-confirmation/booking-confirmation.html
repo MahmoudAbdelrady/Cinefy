@@ -157,13 +157,9 @@
               </div>
             </dl>
 
-            @if (paymentState() === 'CONFIRMED') {
+            @if (booking.qrCode) {
               <div class="cf-qr-block">
-                <div class="cf-qr">
-                  @for (cell of qrCells(); track $index) {
-                    <span class="cf-qr-cell" [class.cf-qr-cell-on]="cell"></span>
-                  }
-                </div>
+                <img class="cf-qr" [src]="booking.qrCode" alt="Ticket QR Code" />
                 <span class="cf-reference">#{{ booking.bookingReference }}</span>
               </div>
             }

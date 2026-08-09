@@ -114,6 +114,14 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.settleOnSitePayment(uuid, dto));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")
+    @PostMapping("/tickets/{bookingReference}/scan")
+    public ResponseEntity<BookingConfirmationDTO> scanTicket(@PathVariable
+                                                             @Pattern(regexp = ValidationPatterns.NO_WHITESPACE, message = "Booking reference must not contain spaces")
+                                                             String bookingReference) {
+        return ResponseEntity.ok(bookingService.scanTicket(bookingReference));
+    }
+
     @PreAuthorize("hasRole('CLIENT')")
     @PostMapping("/{uuid}/pay")
     public ResponseEntity<PaymentRedirectionDTO> payBooking(@PathVariable String uuid) {

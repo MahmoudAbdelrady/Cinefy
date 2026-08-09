@@ -1,6 +1,16 @@
 <ng-template #headerActionsTemplate>
   <div class="action-buttons-container">
     @if (canBook()) {
+      <button [ngpDialogTrigger]="scanTicketDialog">
+        <svg
+          [lucideIcon]="icons.QrCodeIcon"
+          [size]="16"
+          [strokeWidth]="2.5"
+          class="secondary-btn"
+        ></svg>
+        <span>Scan Ticket</span>
+      </button>
+
       <button [ngpDialogTrigger]="activeBookingsDialog">
         <svg
           [lucideIcon]="icons.TicketIcon"
@@ -18,6 +28,10 @@
         <span>Schedule Movie</span>
       </button>
     }
+
+    <ng-template #scanTicketDialog let-close="close">
+      <scan-ticket-modal [close]="close" />
+    </ng-template>
 
     <ng-template #activeBookingsDialog let-close="close">
       <active-bookings-list [close]="close" />

@@ -1,8 +1,10 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.email.InlineResource;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -51,6 +54,11 @@ public class EmailService {
                 expiryMinutes);
     }
 
+    @Async
+    public void sendBookingTicket(String to, Map<String, Object> variables, List<InlineResource> inlineResources) {
+        send(to, "Your Cinefy ticket", "booking-ticket-template", variables, inlineResources);
+    }
+
     // =========================== Helpers ===========================
 
     private void sendOtpVerification(String to, String title, String heading, String intro, String disclaimer,
@@ -67,6 +75,11 @@ public class EmailService {
     }
 
     private void send(String to, String subject, String templateName, Map<String, Object> variables) {
+        send(to, subject, templateName, variables, List.of());
+    }
+
+    private void send(String to, String subject, String templateName, Map<String, Object> variables,
+                      List<InlineResource> inlineResources) {
         try {
             Context context = new Context();
             context.setVariables(variables);
@@ -77,6 +90,13 @@ public class EmailService {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(html, true);
+
+            for (InlineResource resource : inlineResources) {
+                helper.addInline(
+                        resource.contentId(),
+                        new ByteArrayResource(resource.content()),
+                        resource.contentType());
+            }
 
             mailSender.send(message);
         } catch (Exception ex) {

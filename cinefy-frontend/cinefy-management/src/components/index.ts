@@ -18,6 +18,7 @@ export { MovieShowtimesModal } from './movies/movie-showtimes-modal/movie-showti
 export { BookSeatsComponent } from './movies/book-seats/book-seats';
 export { BookingTicketComponent } from './movies/booking-ticket/booking-ticket';
 export { ActiveBookingsListComponent } from './movies/active-bookings-list/active-bookings-list';
+export { ScanTicketModalComponent } from './movies/scan-ticket-modal/scan-ticket-modal';
 export { GatewayListComponent } from './payment/gateway-list/gateway-list';
 export { ManageGatewayModalComponent } from './payment/manage-gateway-modal/manage-gateway-modal';
 export { PaymentChannelsComponent } from './payment/payment-channels/payment-channels';

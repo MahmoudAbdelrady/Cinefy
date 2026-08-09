@@ -1,0 +1,179 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+
+.stm-form {
+  @include flex-column;
+
+  gap: 12px;
+  padding: 2px;
+
+  .stm-listening {
+    @include flex-align;
+
+    gap: 8px;
+    font-size: 13px;
+    color: $green-700;
+  }
+
+  .stm-pulse {
+    position: relative;
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: $radius-full;
+    background-color: $green-500;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: $radius-full;
+      background-color: $green-500;
+      animation: stm-ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+  }
+
+  .stm-manual {
+    @include flex-align;
+
+    display: inline-flex;
+    align-self: flex-start;
+    gap: 10px;
+    margin-top: 4px;
+    font-size: 14px;
+    color: $gray-700;
+    cursor: pointer;
+    user-select: none;
+
+    input {
+      width: 16px;
+      height: 16px;
+      accent-color: $blue-600;
+      cursor: pointer;
+    }
+  }
+}
+
+@keyframes stm-ping {
+  75%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.stm-ticket {
+  border: 1px solid $gray-200;
+  border-radius: $radius-xl;
+  overflow: hidden;
+
+  .stm-ticket-head {
+    @include flex-align;
+
+    gap: 16px;
+    padding: 16px;
+    background-color: $gray-50;
+  }
+
+  .stm-poster {
+    flex-shrink: 0;
+    width: 72px;
+    height: 100px;
+    border-radius: $radius-md;
+    overflow: hidden;
+    box-shadow: $shadow-sm;
+  }
+
+  .stm-ticket-title {
+    min-width: 0;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: $gray-900;
+    }
+
+    p {
+      margin-top: 4px;
+      font-size: 13px;
+      color: $gray-600;
+    }
+  }
+
+  .stm-tear {
+    border-top: 1px dashed $gray-300;
+  }
+
+  .stm-facts {
+    @include flex-column;
+
+    gap: 12px;
+    padding: 20px;
+    font-size: 14px;
+  }
+
+  .stm-fact {
+    @include flex-align;
+    @include lucide-icon-fix;
+
+    gap: 12px;
+
+    dt {
+      @include flex-align;
+
+      flex: 1;
+      gap: 10px;
+      color: $gray-500;
+
+      svg {
+        flex-shrink: 0;
+        color: $gray-400;
+      }
+    }
+
+    dd {
+      font-weight: 500;
+      color: $gray-900;
+    }
+  }
+
+  .stm-fact-seats {
+    @include flex-column;
+
+    align-items: stretch;
+    gap: 10px;
+
+    dd {
+      flex: 1;
+    }
+  }
+
+  .stm-seats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+  }
+
+  .stm-seat {
+    min-width: 44px;
+    padding: 6px 12px;
+    border: 1px solid $gray-200;
+    border-radius: $radius-lg;
+    background-color: $gray-50;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+  }
+}
+
+.stm-actions {
+  @include flex-align;
+  @include lucide-icon-fix;
+
+  gap: 12px;
+  width: 100%;
+  justify-content: flex-end;
+}

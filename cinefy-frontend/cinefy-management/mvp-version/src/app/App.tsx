@@ -45,6 +45,9 @@ import {
   User,
   Save,
   Megaphone,
+  QrCode,
+  ScanLine,
+  Keyboard,
 } from 'lucide-react';
 import { ImageWithFallback } from './components/figma/ImageWithFallback';
 
@@ -2168,6 +2171,23 @@ interface IssuedTicket {
   issuedAt: string;
 }
 
+/** Mock wire response — the booking looked up by a scanned reference. */
+interface ScannedTicket {
+  bookingReference: string;
+  movieTitle: string;
+  posterUrl: string;
+  hallName: string;
+  hallType: string;
+  is3D: boolean;
+  date: string;
+  time: string;
+  seats: string[];
+}
+
+type ScanResult =
+  | { status: 'VALID'; ticket: ScannedTicket }
+  | { status: 'INVALID'; bookingReference: string };
+
 const SEAT_ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 const SEAT_COLS = 12;
 const HOLD_SECONDS = 10 * 60;
@@ -2900,6 +2920,11 @@ export default function App() {
   const [reservingShowtime, setReservingShowtime] = useState<any>(null);
   const [showScheduleMovieModal, setShowScheduleMovieModal] = useState(false);
   const [scheduleSelectedMovie, setScheduleSelectedMovie] = useState<any>(null);
+  const [showScanTicketModal, setShowScanTicketModal] = useState(false);
+  const [scanManualEntry, setScanManualEntry] = useState(false);
+  const [scanReference, setScanReference] = useState('');
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const scanInputRef = useRef<HTMLInputElement>(null);
   const [selectedMovie, setSelectedMovie] = useState<any>(null);
   const [selectedShowtime, setSelectedShowtime] = useState<any>(null);
   const [selectedShowtimeDate, setSelectedShowtimeDate] = useState<string>('');
@@ -3892,6 +3917,41 @@ export default function App() {
     }
   };
 
+  // Handle a scanned or manually entered booking reference
+  const handleScanSubmit = () => {
+    const reference = scanReference.trim();
+    if (!reference) return;
+
+    // TODO: verify the booking reference against the backend
+    if (reference.toLowerCase() === 'test2') {
+      setScanResult({ status: 'INVALID', bookingReference: reference });
+    } else {
+      setScanResult({
+        status: 'VALID',
+        ticket: {
+          bookingReference: reference,
+          movieTitle: 'Spider-Man: No Way Home',
+          posterUrl:
+            'https://images.unsplash.com/photo-1758232589439-f5ec09dc92c2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400',
+          hallName: 'Hall 1',
+          hallType: 'IMAX',
+          is3D: true,
+          date: 'Aug 8, 2026',
+          time: '6:00 PM',
+          seats: ['E4', 'E5'],
+        },
+      });
+    }
+    setScanReference('');
+  };
+
+  // Reset the scan modal back to its input state
+  const handleCloseScanModal = () => {
+    setShowScanTicketModal(false);
+    setScanResult(null);
+    setScanReference('');
+  };
+
   return (
     <div className="size-full flex bg-gray-50">
       {/* Sidebar */}
@@ -4610,17 +4670,30 @@ export default function App() {
                     Manage movies, showtimes, and schedules
                   </p>
                 </div>
-                <button
-                  onClick={() => {
-                    setShowScheduleMovieModal(true);
-                    setScheduleSelectedMovie(null);
-                    setSearchQuery('');
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 shadow-sm"
-                >
-                  <Plus size={18} />
-                  <span>Schedule a Movie</span>
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      setShowScanTicketModal(true);
+                      setScanManualEntry(false);
+                      setScanReference('');
+                    }}
+                    className="px-4 py-2 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+                  >
+                    <QrCode size={18} />
+                    <span>Scan Ticket</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowScheduleMovieModal(true);
+                      setScheduleSelectedMovie(null);
+                      setSearchQuery('');
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+                  >
+                    <Plus size={18} />
+                    <span>Schedule a Movie</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -6481,6 +6554,260 @@ export default function App() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Scan Ticket Modal */}
+      {showScanTicketModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div
+            className={`bg-white rounded-2xl shadow-2xl w-full overflow-hidden flex flex-col ${
+              scanResult?.status === 'VALID' ? 'max-w-lg' : 'max-w-md'
+            }`}
+          >
+            {/* Modal Header */}
+            <div
+              className={`p-6 border-b border-gray-200 bg-gradient-to-r ${
+                scanResult?.status === 'INVALID'
+                  ? 'from-red-50 to-rose-50'
+                  : 'from-emerald-50 to-teal-50'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md ${
+                      scanResult?.status === 'INVALID'
+                        ? 'from-red-600 to-rose-600'
+                        : 'from-emerald-600 to-teal-600'
+                    }`}
+                  >
+                    {scanResult?.status === 'INVALID' ? (
+                      <X size={20} className="text-white" strokeWidth={3} />
+                    ) : (
+                      <QrCode size={20} className="text-white" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      {scanResult?.status === 'VALID'
+                        ? 'Valid Ticket'
+                        : scanResult?.status === 'INVALID'
+                          ? 'Invalid Ticket'
+                          : 'Scan Ticket'}
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-0.5">
+                      {scanResult?.status === 'VALID'
+                        ? 'This booking is confirmed — admit the customer'
+                        : scanResult?.status === 'INVALID'
+                          ? 'No confirmed booking matches this reference'
+                          : scanManualEntry
+                            ? 'Type the booking reference below'
+                            : 'Scan the QR code on the ticket'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleCloseScanModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+
+            {/* Verified Ticket */}
+            {scanResult?.status === 'VALID' ? (
+              <div className="p-6">
+                <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                  {/* Poster + title */}
+                  <div className="flex gap-4 p-4 bg-gray-50 border-b border-gray-200">
+                    <img
+                      src={scanResult.ticket.posterUrl}
+                      alt={scanResult.ticket.movieTitle}
+                      className="w-20 h-28 object-cover rounded-lg shadow-md flex-shrink-0"
+                    />
+                    <div className="flex flex-col justify-center min-w-0">
+                      <h5 className="text-xl font-bold text-gray-900 leading-tight">
+                        {scanResult.ticket.movieTitle}
+                      </h5>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {scanResult.ticket.hallType}
+                        {scanResult.ticket.is3D && ' · 3D'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-dashed border-gray-300" />
+
+                  {/* Details */}
+                  <div className="p-5">
+                    <dl className="space-y-3 text-sm">
+                      <TicketDetail
+                        icon={QrCode}
+                        label="Booking Reference"
+                        value={`#${scanResult.ticket.bookingReference}`}
+                      />
+                      <TicketDetail icon={MapPin} label="Hall" value={scanResult.ticket.hallName} />
+                      <TicketDetail icon={Calendar} label="Date" value={scanResult.ticket.date} />
+                      <TicketDetail icon={Clock} label="Time" value={scanResult.ticket.time} />
+                    </dl>
+
+                    <div className="flex items-center gap-3 mt-3 text-sm">
+                      <Ticket size={15} className="text-gray-400 flex-shrink-0" />
+                      <span className="text-gray-500">
+                        Seats ({scanResult.ticket.seats.length})
+                      </span>
+                      <div className="flex flex-wrap gap-1.5 justify-end flex-1">
+                        {scanResult.ticket.seats.map((seat) => (
+                          <span
+                            key={seat}
+                            className="px-2.5 py-0.5 border border-gray-300 rounded-md bg-gray-50 font-medium text-gray-900"
+                          >
+                            {seat}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div className="mt-6 flex gap-3">
+                  <button
+                    onClick={handleCloseScanModal}
+                    className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => {
+                      setScanResult(null);
+                      setScanReference('');
+                    }}
+                    className="flex-1 px-6 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg transition-colors shadow-md flex items-center justify-center gap-2"
+                  >
+                    <ScanLine size={18} />
+                    Scan again
+                  </button>
+                </div>
+              </div>
+            ) : scanResult?.status === 'INVALID' ? (
+              <div className="p-6">
+                <div className="flex flex-col items-center text-center py-4">
+                  <span className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                    <X size={32} className="text-red-600" strokeWidth={3} />
+                  </span>
+                  <h4 className="text-lg font-bold text-gray-900">Ticket not recognised</h4>
+                  <p className="text-sm text-gray-600 mt-1 max-w-xs">
+                    No confirmed booking was found for this reference. Check the code and try
+                    again, or verify the booking manually.
+                  </p>
+                  <span className="mt-4 font-mono text-xs text-gray-500 bg-gray-100 border border-gray-200 rounded-md px-3 py-1.5">
+                    #{scanResult.bookingReference}
+                  </span>
+                </div>
+
+                <div className="mt-6 flex gap-3">
+                  <button
+                    onClick={handleCloseScanModal}
+                    className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => {
+                      setScanResult(null);
+                      setScanReference('');
+                    }}
+                    className="flex-1 px-6 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg transition-colors shadow-md flex items-center justify-center gap-2"
+                  >
+                    <ScanLine size={18} />
+                    Scan again
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Modal Content */
+              <div className="p-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Booking Reference
+              </label>
+              <div className="relative">
+                <ScanLine
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <input
+                  ref={scanInputRef}
+                  type="text"
+                  autoFocus
+                  value={scanReference}
+                  placeholder={scanManualEntry ? 'e.g. F2AC9WJKRV' : 'Waiting for scan...'}
+                  onChange={(e) => setScanReference(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleScanSubmit();
+                    }
+                  }}
+                  onBlur={() => {
+                    if (!scanManualEntry) {
+                      scanInputRef.current?.focus();
+                    }
+                  }}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg font-mono tracking-widest uppercase focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
+                />
+              </div>
+
+              {!scanManualEntry && (
+                <div className="mt-3 flex items-center gap-2 text-sm text-emerald-700">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span>Listening for scanner input — the field stays focused</span>
+                </div>
+              )}
+
+              <label className="mt-5 flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={scanManualEntry}
+                  onChange={(e) => {
+                    setScanManualEntry(e.target.checked);
+                    if (!e.target.checked) {
+                      scanInputRef.current?.focus();
+                    }
+                  }}
+                  className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <span className="flex items-center gap-2 text-sm text-gray-700">
+                  <Keyboard size={16} className="text-gray-400" />
+                  Enter the reference manually
+                </span>
+              </label>
+
+              {scanManualEntry && (
+                <div className="mt-6 flex gap-3">
+                  <button
+                    onClick={handleCloseScanModal}
+                    className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleScanSubmit}
+                    disabled={!scanReference.trim()}
+                    className="flex-1 px-6 py-2 bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors shadow-md"
+                  >
+                    Verify Ticket
+                  </button>
+                </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
