@@ -290,6 +290,20 @@ public class BookingService {
     }
 
     @Transactional
+    public BookingConfirmationDTO scanTicket(String bookingReference) {
+        Booking locked = bookingRepository.findByBookingReferenceForUpdate(bookingReference)
+                .orElseThrow(() -> new NotFoundException("No booking matches this reference"));
+
+        validateTicketIsRedeemable(locked);
+
+        locked.setTicketUsed(true);
+        bookingRepository.save(locked);
+
+        // Re-read to fetch the associations in one join instead of lazy-loading them one by one
+        return toBookingConfirmationDTO(findBookingByUuidWithDetail(locked.getUuid()));
+    }
+
+    @Transactional
     public PaymentRedirectionDTO createPaymentCheckout(String uuid) {
         Booking booking = prepareBookingForPayment(uuid);
         PaymentAttemptDTO attempt = paymentService.createCheckout(booking);
@@ -472,6 +486,15 @@ public class BookingService {
     private void validateShowtimeStillBookable(Booking booking) {
         if (!isBookable(booking.getShowtime())) {
             throw new BusinessException("This showtime is no longer available for booking");
+        }
+    }
+
+    private void validateTicketIsRedeemable(Booking booking) {
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            throw new BusinessException("This booking is not confirmed");
+        }
+        if (booking.isTicketUsed()) {
+            throw new BusinessException("This ticket has already been used");
         }
     }
 

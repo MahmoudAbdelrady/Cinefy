@@ -166,6 +166,10 @@ public interface BookingRepository extends BaseRepository<Booking> {
     @Query("SELECT b FROM Booking b WHERE b.uuid = :uuid")
     Optional<Booking> findByUuidForUpdate(@Param("uuid") String uuid);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT b FROM Booking b WHERE b.bookingReference = :bookingReference")
+    Optional<Booking> findByBookingReferenceForUpdate(@Param("bookingReference") String bookingReference);
+
     @Modifying
     @Query("DELETE FROM BookingSeat bs WHERE bs.booking.id IN :bookingIds")
     void deleteSeatsByBookingIds(@Param("bookingIds") List<Long> bookingIds);
