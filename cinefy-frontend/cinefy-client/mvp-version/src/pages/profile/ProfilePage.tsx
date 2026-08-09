@@ -1,14 +1,18 @@
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import {
+  Check,
   Clock,
   CreditCard,
+  KeyRound,
+  Lock,
   Mail,
-  MapPin,
   Phone,
   Plus,
   Ticket,
   UserRound,
 } from 'lucide-react'
+import { PasswordField, Requirement } from '@/pages/auth/auth-parts'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -27,7 +31,6 @@ const USER = {
   name: 'Alex Vance',
   email: 'alex.vance@example.com',
   phone: '+1 415 555 0148',
-  city: 'San Francisco',
   initials: 'AV',
 }
 
@@ -87,16 +90,127 @@ export function ProfilePage() {
 
 function AccountPanel() {
   return (
-    <div className="space-y-4">
-      {/* single container holding all account info rows */}
-      <div className="divide-y divide-border/50 overflow-hidden rounded-xl border border-border/50 bg-card">
-        <InfoRow icon={UserRound} label="Full name" value={USER.name} />
-        <InfoRow icon={Mail} label="Email" value={USER.email} />
-        <InfoRow icon={Phone} label="Phone" value={USER.phone} />
-        <InfoRow icon={MapPin} label="City" value={USER.city} />
-      </div>
-      <Button variant="outline">Edit profile</Button>
+    <div className="space-y-8">
+      <section className="space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold tracking-tight">Personal details</h2>
+            <p className="text-sm text-muted-foreground">
+              The contact details tied to your bookings.
+            </p>
+          </div>
+          <Button variant="outline" className="shrink-0">
+            Edit profile
+          </Button>
+        </div>
+
+        {/* single container holding all account info rows */}
+        <div className="divide-y divide-border/50 overflow-hidden rounded-xl border border-border/50 bg-card">
+          <InfoRow icon={UserRound} label="Full name" value={USER.name} />
+          <InfoRow icon={Mail} label="Email" value={USER.email} />
+          <InfoRow icon={Phone} label="Phone" value={USER.phone} />
+        </div>
+      </section>
+
+      <PasswordPanel />
     </div>
+  )
+}
+
+function PasswordPanel() {
+  const [current, setCurrent] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+
+  const checks = useMemo(
+    () => ({
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      number: /\d/.test(password),
+      symbol: /[^A-Za-z0-9]/.test(password),
+    }),
+    [password],
+  )
+
+  const allMet = Object.values(checks).every(Boolean)
+  const matches = confirm.length > 0 && confirm === password
+  const canSubmit = current.length > 0 && allMet && matches
+
+  const submit = (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    if (!canSubmit) return
+    setCurrent('')
+    setPassword('')
+    setConfirm('')
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="space-y-1">
+        <h2 className="text-lg font-semibold tracking-tight">Password</h2>
+        <p className="text-sm text-muted-foreground">
+          Choose a strong password you haven't used before.
+        </p>
+      </div>
+
+      <form
+        onSubmit={submit}
+        className="space-y-5 rounded-xl border border-border/50 bg-card p-4 sm:p-6"
+      >
+        <PasswordField
+          label="Current password"
+          icon={Lock}
+          placeholder="Enter your current password"
+          autoComplete="current-password"
+          value={current}
+          onChange={(e) => setCurrent(e.target.value)}
+        />
+
+        <PasswordField
+          label="New password"
+          icon={KeyRound}
+          placeholder="Create a password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <ul className="grid gap-x-4 gap-y-2 rounded-xl border border-border/50 bg-card/50 p-4 sm:grid-cols-2">
+          <Requirement met={checks.length}>At least 8 characters</Requirement>
+          <Requirement met={checks.lowercase}>One lowercase letter</Requirement>
+          <Requirement met={checks.uppercase}>One uppercase letter</Requirement>
+          <Requirement met={checks.number}>One number</Requirement>
+          <Requirement met={checks.symbol}>One special character</Requirement>
+        </ul>
+
+        <PasswordField
+          label="Confirm new password"
+          icon={Lock}
+          placeholder="Re-enter your new password"
+          autoComplete="new-password"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          hint={
+            confirm.length > 0 && !matches ? (
+              <span className="text-destructive">Passwords don't match yet.</span>
+            ) : matches ? (
+              <span className="inline-flex items-center gap-1 text-amber">
+                <Check className="size-3.5" /> Passwords match
+              </span>
+            ) : undefined
+          }
+        />
+
+        <Button
+          type="submit"
+          disabled={!canSubmit}
+          className="bg-amber font-semibold text-primary-foreground hover:bg-amber/90"
+        >
+          Update password
+        </Button>
+      </form>
+    </section>
   )
 }
 
