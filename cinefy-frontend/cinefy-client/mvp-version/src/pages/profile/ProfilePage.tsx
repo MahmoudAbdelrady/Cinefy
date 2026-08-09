@@ -1,7 +1,11 @@
-import { useMemo, useState } from 'react'
+import { type ReactNode, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import {
   Check,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Clock,
   CreditCard,
   KeyRound,
@@ -38,6 +42,8 @@ import {
 } from '@/data/bookings'
 import { formatPrice, getMovie } from '@/data/movies'
 
+const PAST_BOOKINGS_PAGE_SIZE = 5
+
 const USER = {
   name: 'Alex Vance',
   email: 'alex.vance@example.com',
@@ -45,7 +51,7 @@ const USER = {
 }
 
 export function ProfilePage() {
-  const { active, completed } = useBookings()
+  const { completed } = useBookings()
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">
@@ -77,7 +83,7 @@ export function ProfilePage() {
             <BillingPanel />
           </TabsContent>
           <TabsContent value="history" className="mt-0">
-            <HistoryPanel active={active} completed={completed} />
+            <HistoryPanel completed={completed} />
           </TabsContent>
         </div>
       </Tabs>
@@ -367,39 +373,80 @@ function PaymentMethodRow({ method }: { method: PaymentMethod }) {
   )
 }
 
-function HistoryPanel({
-  active,
-  completed,
-}: {
-  active: Booking[]
-  completed: Booking[]
-}) {
-  if (active.length + completed.length === 0) {
+function HistoryPanel({ completed }: { completed: Booking[] }) {
+  const [page, setPage] = useState(1)
+
+  const pageCount = Math.max(1, Math.ceil(completed.length / PAST_BOOKINGS_PAGE_SIZE))
+  const current = Math.min(page, pageCount)
+  const start = (current - 1) * PAST_BOOKINGS_PAGE_SIZE
+  const rows = completed.slice(start, start + PAST_BOOKINGS_PAGE_SIZE)
+
+  if (completed.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 rounded-xl border border-border/50 bg-card py-16 text-center">
         <Ticket className="size-8 text-muted-foreground opacity-40" />
-        <p className="text-sm text-muted-foreground">No bookings yet.</p>
+        <p className="text-sm text-muted-foreground">No past bookings yet.</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
-      {active.length > 0 && (
-        <Group title="In progress">
-          {active.map((b) => (
-            <BookingRow key={b.id} booking={b} />
-          ))}
-        </Group>
-      )}
-      {completed.length > 0 && (
-        <Group title="Past bookings">
-          {completed.map((b) => (
-            <BookingRow key={b.id} booking={b} />
-          ))}
-        </Group>
+    <div className="space-y-6">
+      <Group title="Past bookings">
+        {rows.map((b) => (
+          <BookingRow key={b.id} booking={b} />
+        ))}
+      </Group>
+
+      {pageCount > 1 && (
+        <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-xs text-muted-foreground">
+            Showing {start + 1}–{start + rows.length} of {completed.length} bookings
+          </span>
+
+          <div className="flex items-center gap-1 sm:justify-end">
+            <PageButton onClick={() => setPage(1)} disabled={current === 1}>
+              <ChevronsLeft className="size-4" />
+            </PageButton>
+            <PageButton onClick={() => setPage(current - 1)} disabled={current === 1}>
+              <ChevronLeft className="size-4" />
+            </PageButton>
+            <span className="px-2 font-mono text-xs text-muted-foreground">
+              {current} / {pageCount}
+            </span>
+            <PageButton onClick={() => setPage(current + 1)} disabled={current === pageCount}>
+              <ChevronRight className="size-4" />
+            </PageButton>
+            <PageButton onClick={() => setPage(pageCount)} disabled={current === pageCount}>
+              <ChevronsRight className="size-4" />
+            </PageButton>
+          </div>
+        </nav>
       )}
     </div>
+  )
+}
+
+function PageButton({
+  onClick,
+  disabled,
+  children,
+}: {
+  onClick: () => void
+  disabled: boolean
+  children: ReactNode
+}) {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      className="size-8"
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {children}
+    </Button>
   )
 }
 
