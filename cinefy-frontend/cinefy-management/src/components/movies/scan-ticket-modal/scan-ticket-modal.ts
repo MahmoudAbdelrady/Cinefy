@@ -11,24 +11,11 @@ import {
   QrCodeIcon,
   ScanLineIcon,
   TicketIcon,
-  XIcon,
 } from '../../../shared/icons';
 import { NO_WHITESPACE_PATTERN } from '../../../shared/validation';
-
-interface ScannedTicket {
-  bookingReference: string;
-  movieTitle: string;
-  posterUrl?: string;
-  hallName: string;
-  hallType: string;
-  is3D: boolean;
-  startDateTime: string;
-  seats: string[];
-}
-
-type ScanResult =
-  | { status: 'VALID'; ticket: ScannedTicket }
-  | { status: 'INVALID'; bookingReference: string };
+import { BookingService } from '../../../services';
+import { comparePositions } from '../../halls/seat-layout';
+import type { BookingConfirmation } from '../../../shared/types';
 
 const AUTO_SUBMIT_DELAY_MS = 500;
 
@@ -53,8 +40,9 @@ export class ScanTicketModalComponent {
     QrCodeIcon,
     ScanLineIcon,
     TicketIcon,
-    XIcon,
   };
+
+  private readonly bookingService = inject(BookingService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -64,7 +52,9 @@ export class ScanTicketModalComponent {
 
   protected readonly manualEntry = signal(false);
 
-  protected readonly result = signal<ScanResult | null>(null);
+  protected readonly result = signal<BookingConfirmation | null>(null);
+
+  protected readonly scanning = signal(false);
 
   protected readonly scanForm = new FormGroup({
     reference: new FormControl('', {
@@ -77,16 +67,10 @@ export class ScanTicketModalComponent {
 
   private autoSubmitTimer: ReturnType<typeof setTimeout> | null = null;
 
-  protected readonly modalTitle = computed(() => {
-    const result = this.result();
-    if (!result) return 'Scan Ticket';
-    return result.status === 'VALID' ? 'Valid Ticket' : 'Invalid Ticket';
-  });
+  protected readonly modalTitle = computed(() => (this.result() ? 'Valid Ticket' : 'Scan Ticket'));
 
   protected readonly modalDescription = computed(() => {
-    const result = this.result();
-    if (result?.status === 'VALID') return 'This booking is confirmed';
-    if (result?.status === 'INVALID') return 'No confirmed booking matches this reference';
+    if (this.result()) return 'This booking is confirmed';
     return this.manualEntry()
       ? 'Type the booking reference below'
       : 'Scan the QR code on the ticket';
@@ -94,9 +78,13 @@ export class ScanTicketModalComponent {
 
   protected readonly experience = computed(() => {
     const result = this.result();
-    if (result?.status !== 'VALID') return '';
-    return `${result.ticket.hallType}${result.ticket.is3D ? ' (3D)' : ''}`;
+    if (!result) return '';
+    return `${result.hallType}${result.is3D ? ' (3D)' : ''}`;
   });
+
+  protected readonly seats = computed(() =>
+    [...(this.result()?.seats ?? [])].sort((a, b) => comparePositions(a.position, b.position)),
+  );
 
   constructor() {
     this.referenceControl.valueChanges
@@ -122,29 +110,26 @@ export class ScanTicketModalComponent {
   }
 
   protected submit(): void {
-    if (this.referenceControl.invalid) return;
+    if (this.referenceControl.invalid || this.scanning()) return;
 
     const reference = this.referenceControl.value.toUpperCase();
+    this.scanning.set(true);
 
-    // TODO: verify the booking reference against the backend
-    if (reference.toLowerCase() === 'test2') {
-      this.result.set({ status: 'INVALID', bookingReference: reference });
-    } else {
-      this.result.set({
-        status: 'VALID',
-        ticket: {
-          bookingReference: reference,
-          movieTitle: 'Spider-Man: No Way Home',
-          hallName: 'Hall 1',
-          hallType: 'IMAX',
-          is3D: true,
-          startDateTime: '2026-08-08T18:00:00',
-          seats: ['E4', 'E5'],
+    this.bookingService
+      .scanTicket(reference)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (confirmation) => {
+          this.scanning.set(false);
+          this.result.set(confirmation);
+          this.referenceControl.setValue('', { emitEvent: false });
+        },
+        error: () => {
+          this.scanning.set(false);
+          this.referenceControl.setValue('', { emitEvent: false });
+          this.focusInput();
         },
       });
-    }
-
-    this.referenceControl.setValue('', { emitEvent: false });
   }
 
   protected scanAgain(): void {
