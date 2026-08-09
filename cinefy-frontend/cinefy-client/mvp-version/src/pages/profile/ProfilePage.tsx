@@ -12,7 +12,7 @@ import {
   Ticket,
   UserRound,
 } from 'lucide-react'
-import { PasswordField, Requirement } from '@/pages/auth/auth-parts'
+import { Field, PasswordField, Requirement } from '@/pages/auth/auth-parts'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -77,29 +77,93 @@ export function ProfilePage() {
 function AccountPanel() {
   return (
     <div className="space-y-8">
-      <section className="space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold tracking-tight">Personal details</h2>
-            <p className="text-sm text-muted-foreground">
-              The contact details tied to your bookings.
-            </p>
-          </div>
-          <Button variant="outline" className="shrink-0">
-            Edit profile
-          </Button>
-        </div>
-
-        {/* single container holding all account info rows */}
-        <div className="divide-y divide-border/50 overflow-hidden rounded-xl border border-border/50 bg-card">
-          <InfoRow icon={UserRound} label="Full name" value={USER.name} />
-          <InfoRow icon={Mail} label="Email" value={USER.email} />
-          <InfoRow icon={Phone} label="Phone" value={USER.phone} />
-        </div>
-      </section>
-
+      <PersonalDetailsPanel />
       <PasswordPanel />
     </div>
+  )
+}
+
+function PersonalDetailsPanel() {
+  const [editing, setEditing] = useState(false)
+  const [details, setDetails] = useState({ name: USER.name, phone: USER.phone })
+  const [name, setName] = useState(details.name)
+  const [phone, setPhone] = useState(details.phone)
+
+  const dirty = name.trim() !== details.name || phone.trim() !== details.phone
+  const canSave = name.trim().length > 0 && phone.trim().length > 0 && dirty
+
+  const save = (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    if (!canSave) return
+    setDetails({ name: name.trim(), phone: phone.trim() })
+    setEditing(false)
+  }
+
+  const cancel = () => {
+    setName(details.name)
+    setPhone(details.phone)
+    setEditing(false)
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold tracking-tight">Personal details</h2>
+          <p className="text-sm text-muted-foreground">
+            The contact details tied to your bookings.
+          </p>
+        </div>
+        {!editing && (
+          <Button variant="outline" className="shrink-0" onClick={() => setEditing(true)}>
+            Edit profile
+          </Button>
+        )}
+      </div>
+
+      {editing ? (
+        <form onSubmit={save} className="space-y-5 rounded-xl border border-border/50 bg-card p-4 sm:p-6">
+          <Field
+            label="Full name"
+            icon={UserRound}
+            placeholder="Your full name"
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+
+          <Field
+            label="Phone"
+            icon={Phone}
+            type="tel"
+            placeholder="Your phone number"
+            autoComplete="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button type="button" variant="ghost" onClick={cancel}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={!canSave}
+              className="bg-amber font-semibold text-primary-foreground hover:bg-amber/90"
+            >
+              Save changes
+            </Button>
+          </div>
+        </form>
+      ) : (
+        /* single container holding all account info rows */
+        <div className="divide-y divide-border/50 overflow-hidden rounded-xl border border-border/50 bg-card">
+          <InfoRow icon={UserRound} label="Full name" value={details.name} />
+          <InfoRow icon={Mail} label="Email" value={USER.email} />
+          <InfoRow icon={Phone} label="Phone" value={details.phone} />
+        </div>
+      )}
+    </section>
   )
 }
 
@@ -188,13 +252,15 @@ function PasswordPanel() {
           }
         />
 
-        <Button
-          type="submit"
-          disabled={!canSubmit}
-          className="bg-amber font-semibold text-primary-foreground hover:bg-amber/90"
-        >
-          Update password
-        </Button>
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            disabled={!canSubmit}
+            className="bg-amber font-semibold text-primary-foreground hover:bg-amber/90"
+          >
+            Update password
+          </Button>
+        </div>
       </form>
     </section>
   )
