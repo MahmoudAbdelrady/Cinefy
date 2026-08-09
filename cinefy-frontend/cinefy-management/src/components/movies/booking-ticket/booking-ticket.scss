@@ -192,12 +192,27 @@
   }
 
   .bt-foot {
+    @include flex-between;
+
+    align-items: flex-start;
+    gap: 12px;
     margin-top: 14px;
     padding-top: 12px;
     border-top: 1px solid $gray-200;
 
     .bt-facts {
+      flex: 1;
       margin-top: 0;
+    }
+
+    .bt-qr {
+      flex-shrink: 0;
+
+      img {
+        display: block;
+        width: 76px;
+        height: 76px;
+      }
     }
   }
 }
@@ -217,6 +232,10 @@
       &:last-child {
         break-after: auto;
       }
+    }
+
+    .bt-qr img {
+      print-color-adjust: exact;
     }
   }
 
