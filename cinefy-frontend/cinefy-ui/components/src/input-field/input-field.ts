@@ -5,6 +5,7 @@ import {
   ElementRef,
   input,
   type InputSignal,
+  output,
   signal,
   viewChild,
 } from "@angular/core";
@@ -20,12 +21,7 @@ type InputFieldSize = "sm" | "md";
 
 @Component({
   selector: "input-field",
-  imports: [
-    ReactiveFormsModule,
-    NgpInput,
-    LucideDynamicIcon,
-    FieldErrorComponent,
-  ],
+  imports: [ReactiveFormsModule, NgpInput, LucideDynamicIcon, FieldErrorComponent],
   templateUrl: "./input-field.html",
   styleUrl: "./input-field.scss",
 })
@@ -43,21 +39,21 @@ export class InputField {
   readonly type = input<"text" | "number" | "password">("text");
   readonly placeholder = input<string>("");
   readonly hint: InputSignal<string | null> = input<string | null>(null);
-  readonly leadingIcon: InputSignal<LucideIcon | null> =
-    input<LucideIcon | null>(null);
+  readonly leadingIcon: InputSignal<LucideIcon | null> = input<LucideIcon | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
   readonly monospace = input<boolean>(false);
   readonly blockClipboard = input<boolean>(false);
   readonly size: InputSignal<InputFieldSize> = input<InputFieldSize>("md");
   readonly autoFocus = input<boolean>(false);
   readonly clearable = input<boolean>(false);
+  readonly uppercase = input<boolean>(false);
+
+  readonly blurred = output<void>();
 
   protected readonly showPassword = signal(false);
 
   private readonly controlValue = toSignal(
-    toObservable(this.control).pipe(
-      switchMap((c) => c.valueChanges.pipe(startWith(c.value))),
-    ),
+    toObservable(this.control).pipe(switchMap((c) => c.valueChanges.pipe(startWith(c.value)))),
     { initialValue: "" },
   );
 
@@ -72,14 +68,19 @@ export class InputField {
     return this.showPassword() ? "text" : "password";
   });
 
+  protected readonly hasErrorMessages = computed(() => Object.keys(this.errorMessages()).length > 0);
+
   protected readonly showClear = computed(
-    () =>
-      this.clearable() && this.type() !== "password" && !!this.controlValue(),
+    () => this.clearable() && this.type() !== "password" && !!this.controlValue(),
   );
 
   protected get required(): boolean {
     const c = this.control();
     return c.hasValidator(Validators.required) && c.enabled;
+  }
+
+  focus() {
+    this.inputEl()?.nativeElement.focus();
   }
 
   protected toggleShowPassword() {

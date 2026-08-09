@@ -1,8 +1,6 @@
 <div class="input-field-wrapper">
   @if (label(); as labelText) {
-  <label class="if-label" [attr.data-required]="required ? '' : null"
-    >{{ labelText }}</label
-  >
+  <label class="if-label" [attr.data-required]="required ? '' : null">{{ labelText }}</label>
   }
 
   <div
@@ -21,16 +19,15 @@
       [type]="resolvedType()"
       [placeholder]="placeholder()"
       [class.monospace]="monospace()"
+      [class.uppercase]="uppercase()"
+      (blur)="blurred.emit()"
       (copy)="onClipboardEvent($event)"
       (cut)="onClipboardEvent($event)"
       (paste)="onClipboardEvent($event)"
     />
     @if (type() === 'password') {
     <button type="button" class="if-toggle" (click)="toggleShowPassword()">
-      <svg
-        [lucideIcon]="showPassword() ? icons.EyeOffIcon : icons.EyeIcon"
-        [size]="18"
-      ></svg>
+      <svg [lucideIcon]="showPassword() ? icons.EyeOffIcon : icons.EyeIcon" [size]="18"></svg>
     </button>
     } @else if (showClear()) {
     <button type="button" class="if-toggle" (click)="clear()">
@@ -41,7 +38,7 @@
 
   @if (hint(); as hintText) {
   <p class="if-hint">{{ hintText }}</p>
-  } @if (control().touched && control().errors) {
+  } @if (hasErrorMessages() && control().touched && control().errors) {
   <field-error [control]="control()" [messages]="errorMessages()" />
   }
 </div>

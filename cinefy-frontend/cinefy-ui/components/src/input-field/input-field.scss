@@ -48,6 +48,16 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
+    &.uppercase {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+
+      &::placeholder {
+        text-transform: none;
+        letter-spacing: normal;
+      }
+    }
+
     &[type="number"] {
       appearance: textfield;
 
