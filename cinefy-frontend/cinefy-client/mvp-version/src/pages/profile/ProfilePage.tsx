@@ -8,11 +8,22 @@ import {
   Lock,
   Mail,
   Phone,
-  Plus,
   Ticket,
+  Trash2,
+  TriangleAlert,
   UserRound,
 } from 'lucide-react'
 import { Field, PasswordField, Requirement } from '@/pages/auth/auth-parts'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -290,16 +301,10 @@ function InfoRow({
 
 function BillingPanel() {
   return (
-    <div className="space-y-4">
-      <div className="space-y-3">
-        {PAYMENT_METHODS.map((pm) => (
-          <PaymentMethodRow key={pm.id} method={pm} />
-        ))}
-      </div>
-      <Button variant="outline" className="gap-2">
-        <Plus className="size-4" />
-        Add payment method
-      </Button>
+    <div className="space-y-3">
+      {PAYMENT_METHODS.map((pm) => (
+        <PaymentMethodRow key={pm.id} method={pm} />
+      ))}
     </div>
   )
 }
@@ -323,9 +328,41 @@ function PaymentMethodRow({ method }: { method: PaymentMethod }) {
         </p>
         <p className="mt-0.5 text-xs text-muted-foreground">{method.card_subtype}</p>
       </div>
-      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
-        Remove
-      </Button>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 className="size-4" />
+            Remove
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <span className="mb-2 grid size-12 place-items-center rounded-2xl bg-destructive/10 text-destructive">
+              <TriangleAlert className="size-6" />
+            </span>
+            <DialogTitle>Remove this card?</DialogTitle>
+            <DialogDescription>
+              {method.card_subtype} ending in {groups[last]} will be removed from your account. You
+              can save it again the next time you pay.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="ghost">Cancel</Button>
+            </DialogClose>
+            <DialogClose asChild>
+              <Button variant="destructive" className="gap-2">
+                <Trash2 className="size-4" />
+                Remove card
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
