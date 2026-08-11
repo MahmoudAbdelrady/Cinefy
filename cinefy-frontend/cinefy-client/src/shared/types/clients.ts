@@ -4,6 +4,7 @@ export interface CurrentUser {
   lastName: string;
   fullName: string;
   email: string;
+  phoneNumber: string;
 }
 
 export interface ClientPaymentMethod {

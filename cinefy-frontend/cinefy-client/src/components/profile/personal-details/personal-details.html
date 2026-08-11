@@ -1,0 +1,47 @@
+<section class="personal-details">
+  <div class="pd-header">
+    <div class="pd-heading">
+      <h2>Personal details</h2>
+      <p>The contact details tied to your bookings.</p>
+    </div>
+    <button type="button" class="btn-secondary pd-edit">Edit profile</button>
+  </div>
+
+  @if (loading()) {
+    <div class="pd-loading">
+      <loading-spinner variant="lg" />
+    </div>
+  } @else {
+    <div class="pd-rows">
+      <div class="pd-row">
+        <span class="pd-row-icon">
+          <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
+        </span>
+        <div class="pd-row-text">
+          <p class="pd-row-label">Full name</p>
+          <p class="pd-row-value">{{ currentUser()?.fullName }}</p>
+        </div>
+      </div>
+
+      <div class="pd-row">
+        <span class="pd-row-icon">
+          <svg [lucideIcon]="icons.EmailIcon" [size]="20"></svg>
+        </span>
+        <div class="pd-row-text">
+          <p class="pd-row-label">Email</p>
+          <p class="pd-row-value">{{ currentUser()?.email }}</p>
+        </div>
+      </div>
+
+      <div class="pd-row">
+        <span class="pd-row-icon">
+          <svg [lucideIcon]="icons.PhoneIcon" [size]="20"></svg>
+        </span>
+        <div class="pd-row-text">
+          <p class="pd-row-label">Phone</p>
+          <p class="pd-row-value">{{ currentUser()?.phoneNumber | phoneFormat }}</p>
+        </div>
+      </div>
+    </div>
+  }
+</section>

@@ -74,5 +74,10 @@
     &:focus-visible {
       outline: none;
     }
+
+    .pt-account {
+      @include flex-column;
+      gap: 32px;
+    }
   }
 }

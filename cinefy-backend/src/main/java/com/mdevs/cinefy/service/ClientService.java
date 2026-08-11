@@ -48,7 +48,8 @@ public class ClientService implements UserDetailsService {
                 client.getFirstName(),
                 client.getLastName(),
                 client.getFullName(),
-                client.getEmail());
+                client.getEmail(),
+                client.getPhoneNumber());
     }
 
     @Transactional

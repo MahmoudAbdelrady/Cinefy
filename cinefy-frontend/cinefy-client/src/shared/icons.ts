@@ -7,6 +7,7 @@ export {
   LucideLogIn as LoginIcon,
   LucideUserPlus as SignupIcon,
   LucideMail as EmailIcon,
+  LucidePhone as PhoneIcon,
   LucideLock as LockIcon,
   LucideCreditCard as CreditCardIcon,
   LucideClock as ClockIcon,

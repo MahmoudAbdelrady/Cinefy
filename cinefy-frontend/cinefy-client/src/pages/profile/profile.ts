@@ -1,11 +1,19 @@
 import { Component } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
+import { PersonalDetailsComponent } from '../../components';
 import { CreditCardIcon, TicketIcon, UserIcon } from '../../shared/icons';
 
 @Component({
   selector: 'profile-page',
-  imports: [LucideDynamicIcon, NgpTabset, NgpTabList, NgpTabButton, NgpTabPanel],
+  imports: [
+    LucideDynamicIcon,
+    NgpTabset,
+    NgpTabList,
+    NgpTabButton,
+    NgpTabPanel,
+    PersonalDetailsComponent,
+  ],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })

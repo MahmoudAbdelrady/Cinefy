@@ -1,0 +1,96 @@
+@use '../../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+.personal-details {
+  @include flex-column;
+  gap: 16px;
+
+  .pd-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+
+    .pd-heading {
+      @include flex-column;
+      gap: 4px;
+
+      h2 {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        color: $color-foreground;
+      }
+
+      p {
+        font-size: 14px;
+        color: $color-muted-foreground;
+      }
+    }
+
+    .pd-edit {
+      flex-shrink: 0;
+    }
+  }
+
+  .pd-loading {
+    @include flex-center;
+    padding: 48px 0;
+  }
+
+  .pd-rows {
+    overflow: hidden;
+    border: 1px solid rgba($color-border, 0.5);
+    border-radius: $radius-lg;
+    background-color: $color-card;
+
+    .pd-row {
+      @include flex-align;
+      @include lucide-icon-fix;
+      gap: 16px;
+      padding: 16px;
+
+      & + .pd-row {
+        border-top: 1px solid rgba($color-border, 0.5);
+      }
+
+      .pd-row-icon {
+        @include flex-center;
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: $radius-md;
+        background-color: $color-secondary;
+        color: $color-primary;
+      }
+
+      .pd-row-text {
+        min-width: 0;
+        flex: 1;
+
+        .pd-row-label {
+          font-size: 12px;
+          color: $color-muted-foreground;
+        }
+
+        .pd-row-value {
+          @include text-truncate;
+          font-weight: 500;
+          color: $color-foreground;
+        }
+      }
+    }
+  }
+
+  @include below-mobile {
+    .pd-header {
+      flex-direction: column;
+      align-items: stretch;
+
+      .pd-edit {
+        align-self: flex-start;
+      }
+    }
+  }
+}
