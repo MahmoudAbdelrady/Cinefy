@@ -1,4 +1,4 @@
-export type BookingStatus = 'active' | 'completed';
+export type BookingStatus = 'active' | 'completed' | 'refunded';
 
 export interface Booking {
   id: string;
@@ -51,6 +51,36 @@ export const SEED_BOOKINGS: Booking[] = [
     seats: ['C4'],
     priceCentsEach: 1200,
     status: 'active',
+  },
+  {
+    id: 'bk-2310',
+    movieId: 'gladiator-ii',
+    showtimeId: 'st-0-1900-1',
+    movieTitle: 'Gladiator II',
+    poster: ['oklch(0.55 0.1 70)', 'oklch(0.26 0.05 55)'],
+    posterUrl: `${TMDB_W500}/2cxhvwyEwRlysAmRH4iodkvo0z5.jpg`,
+    time: '19:00',
+    hall: 'Hall 1',
+    format: 'IMAX',
+    date: 'Mar 28, 2026',
+    seats: [
+      'L1',
+      'L2',
+      'L3',
+      'L4',
+      'L5',
+      'L6',
+      'L7',
+      'M1',
+      'M2',
+      'M3',
+      'M4',
+      'M5',
+      'M6',
+      'M7',
+    ],
+    priceCentsEach: 1900,
+    status: 'completed',
   },
   {
     id: 'bk-2204',
@@ -125,7 +155,7 @@ export const SEED_BOOKINGS: Booking[] = [
     date: 'Dec 29, 2025',
     seats: ['B2', 'B3', 'B4'],
     priceCentsEach: 1200,
-    status: 'completed',
+    status: 'refunded',
   },
   {
     id: 'bk-1830',
@@ -185,7 +215,7 @@ export const SEED_BOOKINGS: Booking[] = [
     date: 'Oct 27, 2025',
     seats: ['F3'],
     priceCentsEach: 2500,
-    status: 'completed',
+    status: 'refunded',
   },
   {
     id: 'bk-1668',

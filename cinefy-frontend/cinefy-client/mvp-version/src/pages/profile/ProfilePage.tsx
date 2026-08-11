@@ -8,6 +8,7 @@ import {
   ChevronsRight,
   Clock,
   CreditCard,
+  Film,
   KeyRound,
   Lock,
   Mail,
@@ -32,6 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Poster } from '@/components/poster/Poster'
+import { QrStub } from '@/components/qr-stub/QrStub'
 import { useBookings } from '@/app/BookingsProvider'
 import {
   bookingTotalCents,
@@ -465,24 +467,32 @@ function BookingRow({ booking }: { booking: Booking }) {
   const navigate = useNavigate()
   const movie = getMovie(booking.movieId)
   const isActive = booking.status === 'active'
+  const isRefunded = booking.status === 'refunded'
 
   return (
     <div className="flex items-stretch overflow-hidden rounded-xl border border-border/50 bg-card">
       {movie && <Poster movie={movie} className="w-16 shrink-0" />}
       <div className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-2 p-4">
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold leading-tight">{booking.movieTitle}</p>
+          <p className="flex items-center gap-2 font-semibold leading-tight">
+            <span className="truncate">{booking.movieTitle}</span>
+            {isRefunded && <RefundedBadge />}
+          </p>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Clock className="size-3" />
-              {booking.date} · {booking.time}
+              {booking.date}
             </span>
-            <span>{booking.hall} · {booking.format}</span>
-            <span className="text-amber">{booking.seats.join(' · ')}</span>
+            <span className="flex items-center gap-1">
+              <Film className="size-3" />
+              {booking.format}
+            </span>
           </div>
         </div>
 
-        <span className="font-mono text-sm font-semibold">
+        <span
+          className={`font-mono text-sm font-semibold ${isRefunded ? 'text-muted-foreground line-through' : ''}`}
+        >
           {formatPrice(bookingTotalCents(booking))}
         </span>
 
@@ -495,11 +505,100 @@ function BookingRow({ booking }: { booking: Booking }) {
             Complete
           </Button>
         ) : (
-          <Badge variant="secondary" className="bg-secondary text-muted-foreground">
-            Booked
-          </Badge>
+          <BookingDetailsDialog booking={booking} />
         )}
       </div>
+    </div>
+  )
+}
+
+function RefundedBadge() {
+  return (
+    <Badge
+      variant="secondary"
+      className="shrink-0 border-sky-500/30 bg-sky-500/10 font-mono text-[10px] font-medium uppercase tracking-wider text-sky-400"
+    >
+      Refunded
+    </Badge>
+  )
+}
+
+function BookingDetailsDialog({ booking }: { booking: Booking }) {
+  const isRefunded = booking.status === 'refunded'
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          View
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 pr-6">
+            <span className="min-w-0 truncate">{booking.movieTitle}</span>
+            {isRefunded && <RefundedBadge />}
+          </DialogTitle>
+          <DialogDescription>Booking details</DialogDescription>
+        </DialogHeader>
+
+        {!isRefunded && (
+          <div className="flex justify-center">
+            <QrStub seed={booking.id} className="w-32" />
+          </div>
+        )}
+
+        <dl className="divide-y divide-border/50 overflow-hidden rounded-xl border border-border/50">
+          <DetailRow label="Reference" value={`#${booking.id.toUpperCase()}`} />
+          <DetailRow label="Date" value={booking.date} />
+          <DetailRow label="Time" value={booking.time} />
+          <DetailRow label="Hall" value={booking.hall} />
+          <DetailRow label="Experience" value={booking.format} />
+          <DetailRow
+            label={booking.seats.length === 1 ? 'Seat' : 'Seats'}
+            value={
+              <span className="flex flex-wrap justify-end gap-1.5">
+                {booking.seats.map((seat) => (
+                  <span
+                    key={seat}
+                    className="rounded-md border border-border/50 bg-secondary px-2 py-0.5 text-xs"
+                  >
+                    {seat}
+                  </span>
+                ))}
+              </span>
+            }
+          />
+          <DetailRow
+            label="Total"
+            value={formatPrice(bookingTotalCents(booking))}
+            strikethrough={isRefunded}
+          />
+        </dl>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function DetailRow({
+  label,
+  value,
+  strikethrough,
+}: {
+  label: string
+  value: ReactNode
+  strikethrough?: boolean
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 px-4 py-3">
+      <dt className="shrink-0 py-0.5 text-sm text-muted-foreground">{label}</dt>
+      <dd
+        className={`min-w-0 py-0.5 text-right font-mono text-sm font-medium ${
+          strikethrough ? 'text-muted-foreground line-through' : ''
+        }`}
+      >
+        {value}
+      </dd>
     </div>
   )
 }
