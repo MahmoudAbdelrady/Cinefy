@@ -44,6 +44,12 @@
       box-shadow: 0 0 0 2px var(--cui-ring);
     }
 
+    &:disabled {
+      color: var(--cui-text-muted);
+      background-color: var(--cui-surface-disabled);
+      cursor: not-allowed;
+    }
+
     &.monospace {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
