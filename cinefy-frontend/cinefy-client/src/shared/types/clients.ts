@@ -13,6 +13,11 @@ export interface UpdateProfilePayload {
   phoneNumber: string;
 }
 
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface ClientPaymentMethod {
   id: string;
   cardBrand: string;

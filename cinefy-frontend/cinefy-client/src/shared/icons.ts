@@ -9,6 +9,7 @@ export {
   LucideMail as EmailIcon,
   LucidePhone as PhoneIcon,
   LucideLock as LockIcon,
+  LucideKeyRound as KeyRoundIcon,
   LucideCreditCard as CreditCardIcon,
   LucideClock as ClockIcon,
   LucideCalendar as CalendarIcon,

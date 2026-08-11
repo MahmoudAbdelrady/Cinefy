@@ -21,6 +21,7 @@ export type {
 export type {
   CurrentUser,
   UpdateProfilePayload,
+  ChangePasswordPayload,
   ClientPaymentMethod,
   SavedCardPaymentRequest,
 } from './clients';

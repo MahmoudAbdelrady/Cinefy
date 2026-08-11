@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
-import { PersonalDetailsComponent } from '../../components';
+import { PersonalDetailsComponent, ProfilePasswordComponent } from '../../components';
 import { CreditCardIcon, TicketIcon, UserIcon } from '../../shared/icons';
 
 @Component({
@@ -13,6 +13,7 @@ import { CreditCardIcon, TicketIcon, UserIcon } from '../../shared/icons';
     NgpTabButton,
     NgpTabPanel,
     PersonalDetailsComponent,
+    ProfilePasswordComponent,
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
