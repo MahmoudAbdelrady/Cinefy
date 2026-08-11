@@ -1,0 +1,13 @@
+@use '../../shared/styles/colors' as *;
+
+.profile-container {
+  width: min(100%, 1152px);
+  margin: 0 auto;
+  padding: 40px 16px;
+
+  h1 {
+    font-size: 30px;
+    font-weight: 600;
+    color: $color-foreground;
+  }
+}
