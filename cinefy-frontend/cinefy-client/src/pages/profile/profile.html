@@ -3,7 +3,8 @@
     class="profile-tabs reveal"
     ngpTabset
     ngpTabsetOrientation="vertical"
-    ngpTabsetValue="account"
+    [ngpTabsetValue]="defaultTab"
+    (ngpTabsetValueChange)="onTabChange($event)"
   >
     <div class="pt-list" ngpTabList>
       <button class="pt-tab" ngpTabButton ngpTabButtonValue="account">
@@ -22,11 +23,15 @@
 
     <div class="pt-panels">
       <div class="pt-account" ngpTabPanel ngpTabPanelValue="account">
-        <personal-details />
-        <profile-password />
+        @if (hasVisited('account')) {
+          <personal-details />
+          <profile-password />
+        }
       </div>
       <div ngpTabPanel ngpTabPanelValue="billing">
-        <profile-billing />
+        @if (hasVisited('billing')) {
+          <profile-billing />
+        }
       </div>
       <div ngpTabPanel ngpTabPanelValue="history"></div>
     </div>
