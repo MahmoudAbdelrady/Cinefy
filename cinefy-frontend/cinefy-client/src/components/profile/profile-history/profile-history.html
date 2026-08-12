@@ -34,7 +34,70 @@
               {{ booking.totalPrice | currency: 'USD' }}
             </span>
 
-            <button type="button" class="btn-secondary ph-view">View</button>
+            <button type="button" class="btn-secondary ph-view" [ngpDialogTrigger]="detailsDialog">
+              View
+            </button>
+
+            <ng-template #detailsDialog let-close="close">
+              <app-modal
+                [modalTitle]="booking.movie.title"
+                description="Booking details"
+                width="448px"
+                [close]="close"
+              >
+                <div class="ph-details">
+                  @if (booking.qrCode) {
+                    <div class="ph-qr-block">
+                      <img class="ph-qr" [src]="booking.qrCode" alt="Ticket QR code" />
+                    </div>
+                  }
+
+                  <dl class="ph-detail-list">
+                    <div class="ph-detail-row">
+                      <dt>Reference</dt>
+                      <dd>#{{ booking.bookingReference }}</dd>
+                    </div>
+                    <div class="ph-detail-row">
+                      <dt>Date</dt>
+                      <dd>{{ booking.startDateTime | date: 'MMM d, y' }}</dd>
+                    </div>
+                    <div class="ph-detail-row">
+                      <dt>Time</dt>
+                      <dd>{{ booking.startDateTime | date: 'shortTime' }}</dd>
+                    </div>
+                    <div class="ph-detail-row">
+                      <dt>Hall</dt>
+                      <dd>{{ booking.hallName }}</dd>
+                    </div>
+                    <div class="ph-detail-row">
+                      <dt>Experience</dt>
+                      <dd>{{ booking.hallType }}</dd>
+                    </div>
+                    <div class="ph-detail-row">
+                      <dt>{{ booking.seats.length === 1 ? 'Seat' : 'Seats' }}</dt>
+                      <dd>
+                        <ul class="ph-seats">
+                          @for (seat of booking.seats; track seat.position) {
+                            <li class="ph-seat">{{ seat.position }}</li>
+                          }
+                        </ul>
+                      </dd>
+                    </div>
+                    <div class="ph-detail-row">
+                      <dt>Total</dt>
+                      <dd class="ph-detail-total">
+                        @if (isRefunded(booking)) {
+                          <span class="ph-badge">REFUNDED</span>
+                        }
+                        <span [class.ph-detail-void]="isRefunded(booking)">
+                          {{ booking.totalPrice | currency: 'USD' }}
+                        </span>
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </app-modal>
+            </ng-template>
           </div>
         </li>
       } @empty {
