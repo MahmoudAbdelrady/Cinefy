@@ -116,6 +116,11 @@
   }
 }
 
+.ph-loading {
+  @include flex-center;
+  padding: 48px 0;
+}
+
 .ph-badge {
   flex-shrink: 0;
   padding: 2px 8px;
@@ -126,81 +131,4 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   color: $color-info;
-}
-
-.ph-details {
-  @include flex-column;
-  gap: 20px;
-
-  .ph-qr-block {
-    @include flex-center;
-
-    .ph-qr {
-      width: 128px;
-      aspect-ratio: 1;
-      border-radius: $radius-md;
-      background-color: $color-foreground;
-    }
-  }
-
-  .ph-detail-list {
-    overflow: hidden;
-    border: 1px solid rgba($color-border, 0.5);
-    border-radius: $radius-lg;
-
-    .ph-detail-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 12px 16px;
-
-      & + .ph-detail-row {
-        border-top: 1px solid rgba($color-border, 0.5);
-      }
-
-      dt {
-        flex-shrink: 0;
-        padding: 2px 0;
-        font-size: 14px;
-        color: $color-muted-foreground;
-      }
-
-      dd {
-        min-width: 0;
-        padding: 2px 0;
-        font-family: $font-mono;
-        font-size: 14px;
-        font-weight: 500;
-        text-align: right;
-        color: $color-foreground;
-      }
-
-      .ph-detail-total {
-        @include flex-align;
-        justify-content: flex-end;
-        gap: 8px;
-      }
-
-      .ph-detail-void {
-        color: $color-muted-foreground;
-        text-decoration: line-through;
-      }
-
-      .ph-seats {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: 6px;
-
-        .ph-seat {
-          padding: 2px 8px;
-          border: 1px solid rgba($color-border, 0.5);
-          border-radius: $radius-md;
-          background-color: $color-secondary;
-          font-size: 12px;
-        }
-      }
-    }
-  }
 }

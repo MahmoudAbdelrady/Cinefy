@@ -36,6 +36,7 @@ export type {
   BookingDetail,
   PaymentState,
   BookingConfirmation,
+  PastBooking,
   BookingRequest,
   PaymentRedirection,
 } from './booking';

@@ -1,0 +1,75 @@
+<app-modal
+  [modalTitle]="booking().movie.title"
+  description="Booking details"
+  width="448px"
+  [close]="close()"
+>
+  @if (details.isLoading()) {
+    <div class="pbdm-loading">
+      <loading-spinner variant="lg" />
+    </div>
+  } @else if (details.error()) {
+    <empty-state
+      [icon]="icons.TriangleAlertIcon"
+      title="Couldn't load these details"
+      description="Something went wrong. Please try again later."
+    />
+  } @else if (details.value(); as detail) {
+    <div class="pbdm-details">
+      @if (detail.qrCode) {
+        <div class="pbdm-qr-block">
+          <img class="pbdm-qr" [src]="detail.qrCode" alt="Ticket QR code" />
+        </div>
+      }
+
+      <dl class="pbdm-list">
+        <div class="pbdm-row">
+          <dt>Reference</dt>
+          <dd>#{{ detail.bookingReference }}</dd>
+        </div>
+        <div class="pbdm-row">
+          <dt>Date</dt>
+          <dd>{{ detail.startDateTime | date: 'MMM d, y' }}</dd>
+        </div>
+        <div class="pbdm-row">
+          <dt>Time</dt>
+          <dd>{{ detail.startDateTime | date: 'shortTime' }}</dd>
+        </div>
+        <div class="pbdm-row">
+          <dt>Hall</dt>
+          <dd>{{ detail.hallName }}</dd>
+        </div>
+        <div class="pbdm-row">
+          <dt>Experience</dt>
+          <dd>
+            {{ detail.hallType }}
+            @if (detail.is3D) {
+              <span>(3D)</span>
+            }
+          </dd>
+        </div>
+        <div class="pbdm-row">
+          <dt>{{ detail.seats.length === 1 ? 'Seat' : 'Seats' }}</dt>
+          <dd>
+            <ul class="pbdm-seats">
+              @for (seat of detail.seats; track seat.position) {
+                <li class="pbdm-seat">{{ seat.position }}</li>
+              }
+            </ul>
+          </dd>
+        </div>
+        <div class="pbdm-row">
+          <dt>Total</dt>
+          <dd class="pbdm-total">
+            @if (detail.paymentState === 'REFUNDED') {
+              <span class="pbdm-badge">REFUNDED</span>
+            }
+            <span [class.pbdm-void]="detail.paymentState === 'REFUNDED'">
+              {{ detail.totalPrice | currency: 'USD' }}
+            </span>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  }
+</app-modal>

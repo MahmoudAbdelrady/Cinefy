@@ -10,3 +10,4 @@ export { PersonalDetailsComponent } from './profile/personal-details/personal-de
 export { ProfilePasswordComponent } from './profile/profile-password/profile-password';
 export { ProfileBillingComponent } from './profile/profile-billing/profile-billing';
 export { ProfileHistoryComponent } from './profile/profile-history/profile-history';
+export { PastBookingDetailsModalComponent } from './profile/past-booking-details-modal/past-booking-details-modal';

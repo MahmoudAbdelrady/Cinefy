@@ -77,6 +77,16 @@ interface BookingConfirmation {
   totalPrice: number;
 }
 
+interface PastBooking {
+  id: string;
+  movie: MovieSearchResult;
+  startDateTime: string;
+  hallType: string;
+  is3D: boolean;
+  refunded: boolean;
+  totalPrice: number;
+}
+
 interface BookingRequest {
   showtimeId: string;
   seats: string[];
@@ -96,6 +106,7 @@ export type {
   BookingDetail,
   PaymentState,
   BookingConfirmation,
+  PastBooking,
   BookingRequest,
   PaymentRedirection,
 };

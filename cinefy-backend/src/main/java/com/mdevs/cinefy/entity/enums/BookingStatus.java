@@ -10,7 +10,7 @@ public enum BookingStatus {
     CONFIRMED,
     REFUNDED;
 
-    private static final Set<BookingStatus> SETTLED_STATUSES = Set.of(CONFIRMED, REFUNDED);
+    public static final Set<BookingStatus> SETTLED_STATUSES = Set.of(CONFIRMED, REFUNDED);
 
     public static boolean isSettled(BookingStatus status) {
         return status != null && SETTLED_STATUSES.contains(status);
