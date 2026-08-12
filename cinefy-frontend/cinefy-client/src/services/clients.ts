@@ -1,7 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, filter, Observable, tap } from 'rxjs';
-import type { ClientPaymentMethod, CurrentUser, UpdateProfilePayload } from '../shared/types';
+import type {
+  ChangePasswordPayload,
+  ClientPaymentMethod,
+  CurrentUser,
+  UpdateProfilePayload,
+} from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
@@ -25,6 +30,10 @@ export class ClientService {
     return this.http
       .put<CurrentUser>('/clients/me', payload)
       .pipe(tap((user) => this.currentUser.next(user)));
+  }
+
+  changeCurrentUserPassword(payload: ChangePasswordPayload): Observable<void> {
+    return this.http.put<void>('/clients/me/password', payload);
   }
 
   clearCurrentUser(): void {

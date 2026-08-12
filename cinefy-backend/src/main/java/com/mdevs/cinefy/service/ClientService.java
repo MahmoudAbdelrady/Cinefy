@@ -3,6 +3,7 @@ package com.mdevs.cinefy.service;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+import com.mdevs.cinefy.dto.client.ChangeClientPasswordDTO;
 import com.mdevs.cinefy.dto.client.CurrentClientDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.dto.client.UpdateClientProfileDTO;
@@ -94,11 +95,16 @@ public class ClientService implements UserDetailsService {
     @Transactional
     public void updatePassword(Long id, String rawPassword) {
         Client client = findClientById(id);
-        if (passwordEncoder.matches(rawPassword, client.getPassword())) {
-            throw new BusinessException("New password must be different from the current password", ErrorCode.PASSWORD_REUSED);
+        applyNewPassword(client, rawPassword);
+    }
+
+    @Transactional
+    public void changePassword(ChangeClientPasswordDTO dto) {
+        Client client = findClientByUuid(SecurityUtil.getCurrentUserUuid());
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), client.getPassword())) {
+            throw new BusinessException("Current password is incorrect", ErrorCode.PASSWORD_INCORRECT);
         }
-        client.setPassword(passwordEncoder.encode(rawPassword));
-        clientRepository.save(client);
+        applyNewPassword(client, dto.getNewPassword());
     }
 
     // =========================== Helpers ===========================
@@ -123,6 +129,14 @@ public class ClientService implements UserDetailsService {
         if (clientRepository.existsByPhoneNumber(normalizedPhoneNumber)) {
             throw new BusinessException("Phone number already in use");
         }
+    }
+
+    private void applyNewPassword(Client client, String rawPassword) {
+        if (passwordEncoder.matches(rawPassword, client.getPassword())) {
+            throw new BusinessException("New password must be different from the current password", ErrorCode.PASSWORD_REUSED);
+        }
+        client.setPassword(passwordEncoder.encode(rawPassword));
+        clientRepository.save(client);
     }
 
     private CurrentClientDTO toCurrentClientDTO(Client client) {

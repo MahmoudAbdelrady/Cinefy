@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.dto.client.ChangeClientPasswordDTO;
 import com.mdevs.cinefy.dto.client.CurrentClientDTO;
 import com.mdevs.cinefy.dto.client.UpdateClientProfileDTO;
 import com.mdevs.cinefy.dto.payment.ClientPaymentMethodDTO;
@@ -35,6 +36,12 @@ public class ClientController {
     @PutMapping("/me")
     public ResponseEntity<CurrentClientDTO> updateCurrentClient(@Valid @RequestBody UpdateClientProfileDTO dto) {
         return ResponseEntity.ok(clientService.updateCurrentClient(dto));
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> changeCurrentClientPassword(@Valid @RequestBody ChangeClientPasswordDTO dto) {
+        clientService.changePassword(dto);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/payment-methods")
