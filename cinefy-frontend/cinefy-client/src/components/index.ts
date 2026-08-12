@@ -6,3 +6,8 @@ export { BookingSectionComponent } from './movies/booking-section/booking-sectio
 export { BookingCancelledComponent } from './movies/booking-cancelled/booking-cancelled';
 export { TrailerModalComponent } from './movies/trailer-modal/trailer-modal';
 export { BookingSummaryComponent } from './seat-selection/booking-summary/booking-summary';
+export { PersonalDetailsComponent } from './profile/personal-details/personal-details';
+export { ProfilePasswordComponent } from './profile/profile-password/profile-password';
+export { ProfileBillingComponent } from './profile/profile-billing/profile-billing';
+export { ProfileHistoryComponent } from './profile/profile-history/profile-history';
+export { PastBookingDetailsModalComponent } from './profile/past-booking-details-modal/past-booking-details-modal';

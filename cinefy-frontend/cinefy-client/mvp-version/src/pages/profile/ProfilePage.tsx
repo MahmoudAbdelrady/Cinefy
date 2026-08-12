@@ -1,18 +1,39 @@
+import { type ReactNode, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Clock,
   CreditCard,
+  Film,
+  KeyRound,
+  Lock,
   Mail,
-  MapPin,
   Phone,
-  Plus,
   Ticket,
+  Trash2,
+  TriangleAlert,
   UserRound,
 } from 'lucide-react'
+import { Field, PasswordField, Requirement } from '@/pages/auth/auth-parts'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Poster } from '@/components/poster/Poster'
+import { QrStub } from '@/components/qr-stub/QrStub'
 import { useBookings } from '@/app/BookingsProvider'
 import {
   bookingTotalCents,
@@ -23,36 +44,23 @@ import {
 } from '@/data/bookings'
 import { formatPrice, getMovie } from '@/data/movies'
 
+const PAST_BOOKINGS_PAGE_SIZE = 5
+
 const USER = {
   name: 'Alex Vance',
   email: 'alex.vance@example.com',
   phone: '+1 415 555 0148',
-  city: 'San Francisco',
-  initials: 'AV',
 }
 
 export function ProfilePage() {
-  const { active, completed } = useBookings()
+  const { completed } = useBookings()
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">
-      <header className="reveal mb-8 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-        <div className="grid size-20 place-items-center rounded-2xl bg-gradient-to-br from-amber to-amber/50 text-3xl font-bold text-primary-foreground">
-          {USER.initials}
-        </div>
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">{USER.name}</h1>
-          <p className="font-mono text-sm text-muted-foreground">
-            Member · {active.length + completed.length} bookings
-          </p>
-        </div>
-      </header>
-
       <Tabs
         defaultValue="account"
         orientation="vertical"
         className="reveal flex-col gap-6 sm:flex-row sm:gap-8"
-        style={{ animationDelay: '90ms' }}
       >
         <TabsList className="h-fit w-full shrink-0 flex-col gap-1 rounded-xl border border-border/50 bg-card p-2 sm:w-52">
           <TabsTrigger value="account" className="justify-start px-3 py-2">
@@ -77,7 +85,7 @@ export function ProfilePage() {
             <BillingPanel />
           </TabsContent>
           <TabsContent value="history" className="mt-0">
-            <HistoryPanel active={active} completed={completed} />
+            <HistoryPanel completed={completed} />
           </TabsContent>
         </div>
       </Tabs>
@@ -87,16 +95,193 @@ export function ProfilePage() {
 
 function AccountPanel() {
   return (
-    <div className="space-y-4">
-      {/* single container holding all account info rows */}
-      <div className="divide-y divide-border/50 overflow-hidden rounded-xl border border-border/50 bg-card">
-        <InfoRow icon={UserRound} label="Full name" value={USER.name} />
-        <InfoRow icon={Mail} label="Email" value={USER.email} />
-        <InfoRow icon={Phone} label="Phone" value={USER.phone} />
-        <InfoRow icon={MapPin} label="City" value={USER.city} />
-      </div>
-      <Button variant="outline">Edit profile</Button>
+    <div className="space-y-8">
+      <PersonalDetailsPanel />
+      <PasswordPanel />
     </div>
+  )
+}
+
+function PersonalDetailsPanel() {
+  const [editing, setEditing] = useState(false)
+  const [details, setDetails] = useState({ name: USER.name, phone: USER.phone })
+  const [name, setName] = useState(details.name)
+  const [phone, setPhone] = useState(details.phone)
+
+  const dirty = name.trim() !== details.name || phone.trim() !== details.phone
+  const canSave = name.trim().length > 0 && phone.trim().length > 0 && dirty
+
+  const save = (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    if (!canSave) return
+    setDetails({ name: name.trim(), phone: phone.trim() })
+    setEditing(false)
+  }
+
+  const cancel = () => {
+    setName(details.name)
+    setPhone(details.phone)
+    setEditing(false)
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold tracking-tight">Personal details</h2>
+          <p className="text-sm text-muted-foreground">
+            The contact details tied to your bookings.
+          </p>
+        </div>
+        {!editing && (
+          <Button variant="outline" className="shrink-0" onClick={() => setEditing(true)}>
+            Edit profile
+          </Button>
+        )}
+      </div>
+
+      {editing ? (
+        <form onSubmit={save} className="space-y-5 rounded-xl border border-border/50 bg-card p-4 sm:p-6">
+          <Field
+            label="Full name"
+            icon={UserRound}
+            placeholder="Your full name"
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+
+          <Field
+            label="Phone"
+            icon={Phone}
+            type="tel"
+            placeholder="Your phone number"
+            autoComplete="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button type="button" variant="ghost" onClick={cancel}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={!canSave}
+              className="bg-amber font-semibold text-primary-foreground hover:bg-amber/90"
+            >
+              Save changes
+            </Button>
+          </div>
+        </form>
+      ) : (
+        /* single container holding all account info rows */
+        <div className="divide-y divide-border/50 overflow-hidden rounded-xl border border-border/50 bg-card">
+          <InfoRow icon={UserRound} label="Full name" value={details.name} />
+          <InfoRow icon={Mail} label="Email" value={USER.email} />
+          <InfoRow icon={Phone} label="Phone" value={details.phone} />
+        </div>
+      )}
+    </section>
+  )
+}
+
+function PasswordPanel() {
+  const [current, setCurrent] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+
+  const checks = useMemo(
+    () => ({
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      number: /\d/.test(password),
+      symbol: /[^A-Za-z0-9]/.test(password),
+    }),
+    [password],
+  )
+
+  const allMet = Object.values(checks).every(Boolean)
+  const matches = confirm.length > 0 && confirm === password
+  const canSubmit = current.length > 0 && allMet && matches
+
+  const submit = (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    if (!canSubmit) return
+    setCurrent('')
+    setPassword('')
+    setConfirm('')
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="space-y-1">
+        <h2 className="text-lg font-semibold tracking-tight">Password</h2>
+        <p className="text-sm text-muted-foreground">
+          Choose a strong password you haven't used before.
+        </p>
+      </div>
+
+      <form
+        onSubmit={submit}
+        className="space-y-5 rounded-xl border border-border/50 bg-card p-4 sm:p-6"
+      >
+        <PasswordField
+          label="Current password"
+          icon={Lock}
+          placeholder="Enter your current password"
+          autoComplete="current-password"
+          value={current}
+          onChange={(e) => setCurrent(e.target.value)}
+        />
+
+        <PasswordField
+          label="New password"
+          icon={KeyRound}
+          placeholder="Create a password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <ul className="grid gap-x-4 gap-y-2 rounded-xl border border-border/50 bg-card/50 p-4 sm:grid-cols-2">
+          <Requirement met={checks.length}>At least 8 characters</Requirement>
+          <Requirement met={checks.lowercase}>One lowercase letter</Requirement>
+          <Requirement met={checks.uppercase}>One uppercase letter</Requirement>
+          <Requirement met={checks.number}>One number</Requirement>
+          <Requirement met={checks.symbol}>One special character</Requirement>
+        </ul>
+
+        <PasswordField
+          label="Confirm new password"
+          icon={Lock}
+          placeholder="Re-enter your new password"
+          autoComplete="new-password"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          hint={
+            confirm.length > 0 && !matches ? (
+              <span className="text-destructive">Passwords don't match yet.</span>
+            ) : matches ? (
+              <span className="inline-flex items-center gap-1 text-amber">
+                <Check className="size-3.5" /> Passwords match
+              </span>
+            ) : undefined
+          }
+        />
+
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            disabled={!canSubmit}
+            className="bg-amber font-semibold text-primary-foreground hover:bg-amber/90"
+          >
+            Update password
+          </Button>
+        </div>
+      </form>
+    </section>
   )
 }
 
@@ -124,16 +309,10 @@ function InfoRow({
 
 function BillingPanel() {
   return (
-    <div className="space-y-4">
-      <div className="space-y-3">
-        {PAYMENT_METHODS.map((pm) => (
-          <PaymentMethodRow key={pm.id} method={pm} />
-        ))}
-      </div>
-      <Button variant="outline" className="gap-2">
-        <Plus className="size-4" />
-        Add payment method
-      </Button>
+    <div className="space-y-3">
+      {PAYMENT_METHODS.map((pm) => (
+        <PaymentMethodRow key={pm.id} method={pm} />
+      ))}
     </div>
   )
 }
@@ -157,46 +336,119 @@ function PaymentMethodRow({ method }: { method: PaymentMethod }) {
         </p>
         <p className="mt-0.5 text-xs text-muted-foreground">{method.card_subtype}</p>
       </div>
-      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
-        Remove
-      </Button>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 className="size-4" />
+            Remove
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <span className="mb-2 grid size-12 place-items-center rounded-2xl bg-destructive/10 text-destructive">
+              <TriangleAlert className="size-6" />
+            </span>
+            <DialogTitle>Remove this card?</DialogTitle>
+            <DialogDescription>
+              {method.card_subtype} ending in {groups[last]} will be removed from your account. You
+              can save it again the next time you pay.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="ghost">Cancel</Button>
+            </DialogClose>
+            <DialogClose asChild>
+              <Button variant="destructive" className="gap-2">
+                <Trash2 className="size-4" />
+                Remove card
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
-function HistoryPanel({
-  active,
-  completed,
-}: {
-  active: Booking[]
-  completed: Booking[]
-}) {
-  if (active.length + completed.length === 0) {
+function HistoryPanel({ completed }: { completed: Booking[] }) {
+  const [page, setPage] = useState(1)
+
+  const pageCount = Math.max(1, Math.ceil(completed.length / PAST_BOOKINGS_PAGE_SIZE))
+  const current = Math.min(page, pageCount)
+  const start = (current - 1) * PAST_BOOKINGS_PAGE_SIZE
+  const rows = completed.slice(start, start + PAST_BOOKINGS_PAGE_SIZE)
+
+  if (completed.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 rounded-xl border border-border/50 bg-card py-16 text-center">
         <Ticket className="size-8 text-muted-foreground opacity-40" />
-        <p className="text-sm text-muted-foreground">No bookings yet.</p>
+        <p className="text-sm text-muted-foreground">No past bookings yet.</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
-      {active.length > 0 && (
-        <Group title="In progress">
-          {active.map((b) => (
-            <BookingRow key={b.id} booking={b} />
-          ))}
-        </Group>
-      )}
-      {completed.length > 0 && (
-        <Group title="Past bookings">
-          {completed.map((b) => (
-            <BookingRow key={b.id} booking={b} />
-          ))}
-        </Group>
+    <div className="space-y-6">
+      <Group title="Past bookings">
+        {rows.map((b) => (
+          <BookingRow key={b.id} booking={b} />
+        ))}
+      </Group>
+
+      {pageCount > 1 && (
+        <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-xs text-muted-foreground">
+            Showing {start + 1}–{start + rows.length} of {completed.length} bookings
+          </span>
+
+          <div className="flex items-center gap-1 sm:justify-end">
+            <PageButton onClick={() => setPage(1)} disabled={current === 1}>
+              <ChevronsLeft className="size-4" />
+            </PageButton>
+            <PageButton onClick={() => setPage(current - 1)} disabled={current === 1}>
+              <ChevronLeft className="size-4" />
+            </PageButton>
+            <span className="px-2 font-mono text-xs text-muted-foreground">
+              {current} / {pageCount}
+            </span>
+            <PageButton onClick={() => setPage(current + 1)} disabled={current === pageCount}>
+              <ChevronRight className="size-4" />
+            </PageButton>
+            <PageButton onClick={() => setPage(pageCount)} disabled={current === pageCount}>
+              <ChevronsRight className="size-4" />
+            </PageButton>
+          </div>
+        </nav>
       )}
     </div>
+  )
+}
+
+function PageButton({
+  onClick,
+  disabled,
+  children,
+}: {
+  onClick: () => void
+  disabled: boolean
+  children: ReactNode
+}) {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      className="size-8"
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {children}
+    </Button>
   )
 }
 
@@ -215,24 +467,32 @@ function BookingRow({ booking }: { booking: Booking }) {
   const navigate = useNavigate()
   const movie = getMovie(booking.movieId)
   const isActive = booking.status === 'active'
+  const isRefunded = booking.status === 'refunded'
 
   return (
     <div className="flex items-stretch overflow-hidden rounded-xl border border-border/50 bg-card">
       {movie && <Poster movie={movie} className="w-16 shrink-0" />}
       <div className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-2 p-4">
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold leading-tight">{booking.movieTitle}</p>
+          <p className="flex items-center gap-2 font-semibold leading-tight">
+            <span className="truncate">{booking.movieTitle}</span>
+            {isRefunded && <RefundedBadge />}
+          </p>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Clock className="size-3" />
-              {booking.date} · {booking.time}
+              {booking.date}
             </span>
-            <span>{booking.hall} · {booking.format}</span>
-            <span className="text-amber">{booking.seats.join(' · ')}</span>
+            <span className="flex items-center gap-1">
+              <Film className="size-3" />
+              {booking.format}
+            </span>
           </div>
         </div>
 
-        <span className="font-mono text-sm font-semibold">
+        <span
+          className={`font-mono text-sm font-semibold ${isRefunded ? 'text-muted-foreground line-through' : ''}`}
+        >
           {formatPrice(bookingTotalCents(booking))}
         </span>
 
@@ -245,11 +505,100 @@ function BookingRow({ booking }: { booking: Booking }) {
             Complete
           </Button>
         ) : (
-          <Badge variant="secondary" className="bg-secondary text-muted-foreground">
-            Booked
-          </Badge>
+          <BookingDetailsDialog booking={booking} />
         )}
       </div>
+    </div>
+  )
+}
+
+function RefundedBadge() {
+  return (
+    <Badge
+      variant="secondary"
+      className="shrink-0 border-sky-500/30 bg-sky-500/10 font-mono text-[10px] font-medium uppercase tracking-wider text-sky-400"
+    >
+      Refunded
+    </Badge>
+  )
+}
+
+function BookingDetailsDialog({ booking }: { booking: Booking }) {
+  const isRefunded = booking.status === 'refunded'
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          View
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 pr-6">
+            <span className="min-w-0 truncate">{booking.movieTitle}</span>
+            {isRefunded && <RefundedBadge />}
+          </DialogTitle>
+          <DialogDescription>Booking details</DialogDescription>
+        </DialogHeader>
+
+        {!isRefunded && (
+          <div className="flex justify-center">
+            <QrStub seed={booking.id} className="w-32" />
+          </div>
+        )}
+
+        <dl className="divide-y divide-border/50 overflow-hidden rounded-xl border border-border/50">
+          <DetailRow label="Reference" value={`#${booking.id.toUpperCase()}`} />
+          <DetailRow label="Date" value={booking.date} />
+          <DetailRow label="Time" value={booking.time} />
+          <DetailRow label="Hall" value={booking.hall} />
+          <DetailRow label="Experience" value={booking.format} />
+          <DetailRow
+            label={booking.seats.length === 1 ? 'Seat' : 'Seats'}
+            value={
+              <span className="flex flex-wrap justify-end gap-1.5">
+                {booking.seats.map((seat) => (
+                  <span
+                    key={seat}
+                    className="rounded-md border border-border/50 bg-secondary px-2 py-0.5 text-xs"
+                  >
+                    {seat}
+                  </span>
+                ))}
+              </span>
+            }
+          />
+          <DetailRow
+            label="Total"
+            value={formatPrice(bookingTotalCents(booking))}
+            strikethrough={isRefunded}
+          />
+        </dl>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function DetailRow({
+  label,
+  value,
+  strikethrough,
+}: {
+  label: string
+  value: ReactNode
+  strikethrough?: boolean
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 px-4 py-3">
+      <dt className="shrink-0 py-0.5 text-sm text-muted-foreground">{label}</dt>
+      <dd
+        className={`min-w-0 py-0.5 text-right font-mono text-sm font-medium ${
+          strikethrough ? 'text-muted-foreground line-through' : ''
+        }`}
+      >
+        {value}
+      </dd>
     </div>
   )
 }

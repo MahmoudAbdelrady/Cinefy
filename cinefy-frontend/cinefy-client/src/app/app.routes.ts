@@ -10,6 +10,7 @@ import {
   LoginPage,
   MovieDetailPage,
   MoviesPage,
+  ProfilePage,
   SeatSelectionPage,
   SignUpPage,
 } from '../pages';
@@ -63,6 +64,11 @@ export const routes: Routes = [
       {
         path: 'booking-confirmation/:bookingId',
         component: BookingConfirmationPage,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'profile',
+        component: ProfilePage,
         canActivate: [authGuard],
       },
     ],

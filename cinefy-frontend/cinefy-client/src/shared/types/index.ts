@@ -18,7 +18,13 @@ export type {
   VerifyOtpPayload,
   ResetPasswordPayload,
 } from './auth';
-export type { CurrentUser, ClientPaymentMethod, SavedCardPaymentRequest } from './clients';
+export type {
+  CurrentUser,
+  UpdateProfilePayload,
+  ChangePasswordPayload,
+  ClientPaymentMethod,
+  SavedCardPaymentRequest,
+} from './clients';
 export type { ApiError, ApiErrorCode } from './api';
 export type {
   BookingShowtime,
@@ -30,6 +36,7 @@ export type {
   BookingDetail,
   PaymentState,
   BookingConfirmation,
+  PastBooking,
   BookingRequest,
   PaymentRedirection,
 } from './booking';

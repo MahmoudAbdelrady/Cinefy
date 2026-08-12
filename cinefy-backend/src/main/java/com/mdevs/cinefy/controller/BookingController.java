@@ -5,6 +5,7 @@ import com.mdevs.cinefy.dto.booking.BookingDetailDTO;
 import com.mdevs.cinefy.dto.booking.BookingRequestDTO;
 import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
 import com.mdevs.cinefy.dto.booking.OnSitePaymentDTO;
+import com.mdevs.cinefy.dto.booking.PastBookingDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.payment.CardTokenCallbackDTO;
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
@@ -20,6 +21,8 @@ import com.mdevs.cinefy.shared.validation.ValidationPatterns;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -83,6 +86,18 @@ public class BookingController {
     @GetMapping("/active/{uuid}")
     public ResponseEntity<BookingDetailDTO> getActiveBookingDetails(@PathVariable String uuid) {
         return ResponseEntity.ok(bookingService.getActiveBookingDetails(uuid));
+    }
+
+    @PreAuthorize("hasRole('CLIENT')")
+    @GetMapping("/past")
+    public ResponseEntity<Page<PastBookingDTO>> getPastBookings(Pageable pageable) {
+        return ResponseEntity.ok(bookingService.getPastBookings(pageable));
+    }
+
+    @PreAuthorize("hasRole('CLIENT')")
+    @GetMapping("/past/{uuid}")
+    public ResponseEntity<BookingConfirmationDTO> getPastBookingDetails(@PathVariable String uuid) {
+        return ResponseEntity.ok(bookingService.getPastBookingDetails(uuid));
     }
 
     @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")

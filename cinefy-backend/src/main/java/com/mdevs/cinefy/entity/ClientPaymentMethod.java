@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(indexes = @Index(columnList = "CLIENT_ID"))
+@Table(indexes = @Index(columnList = "CLIENT_ID, CREATED_AT"))
 public class ClientPaymentMethod extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -6,7 +6,6 @@ import {
   NgpPaginationNext,
   NgpPaginationPrevious,
 } from "ng-primitives/pagination";
-import { NgpTooltip, NgpTooltipTrigger } from "ng-primitives/tooltip";
 import { LucideDynamicIcon } from "@lucide/angular";
 import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon } from "../icons";
 
@@ -19,8 +18,6 @@ import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon 
     NgpPaginationPrevious,
     NgpPaginationNext,
     NgpPaginationLast,
-    NgpTooltip,
-    NgpTooltipTrigger,
   ],
   templateUrl: "./pagination.html",
   styleUrl: "./pagination.scss",

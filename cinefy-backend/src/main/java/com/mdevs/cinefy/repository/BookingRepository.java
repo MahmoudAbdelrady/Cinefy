@@ -4,7 +4,9 @@ import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookingCountsProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
+import com.mdevs.cinefy.entity.enums.BookingStatus;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,6 +16,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface BookingRepository extends BaseRepository<Booking> {
 
@@ -161,6 +164,23 @@ public interface BookingRepository extends BaseRepository<Booking> {
             WHERE b.uuid = :uuid
             """)
     Optional<Booking> findByUuidWithDetail(@Param("uuid") String uuid);
+
+    @Query(value = """
+            SELECT b FROM Booking b
+            JOIN FETCH b.showtime s
+            JOIN FETCH s.tmdbMovie
+            WHERE b.client.id = :clientId
+            AND b.status IN :statuses
+            ORDER BY b.createdAt DESC
+            """,
+            countQuery = """
+                    SELECT COUNT(b) FROM Booking b
+                    WHERE b.client.id = :clientId
+                    AND b.status IN :statuses
+                    """)
+    Page<Booking> findSettledByClient(@Param("clientId") Long clientId,
+                                      @Param("statuses") Set<BookingStatus> statuses,
+                                      Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT b FROM Booking b WHERE b.uuid = :uuid")

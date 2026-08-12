@@ -1,7 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, filter, Observable } from 'rxjs';
-import type { ClientPaymentMethod, CurrentUser } from '../shared/types';
+import { BehaviorSubject, filter, Observable, tap } from 'rxjs';
+import type {
+  ChangePasswordPayload,
+  ClientPaymentMethod,
+  CurrentUser,
+  UpdateProfilePayload,
+} from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
@@ -21,12 +26,26 @@ export class ClientService {
     return this.currentUser.pipe(filter((user) => user !== null));
   }
 
+  updateCurrentUser(payload: UpdateProfilePayload): Observable<CurrentUser> {
+    return this.http
+      .put<CurrentUser>('/clients/me', payload)
+      .pipe(tap((user) => this.currentUser.next(user)));
+  }
+
+  changeCurrentUserPassword(payload: ChangePasswordPayload): Observable<void> {
+    return this.http.put<void>('/clients/me/password', payload);
+  }
+
+  deletePaymentMethod(id: string): Observable<void> {
+    return this.http.delete<void>(`/clients/me/payment-methods/${id}`);
+  }
+
   clearCurrentUser(): void {
     this.currentUser.next(null);
     this.currentUserRequested = false;
   }
 
   getPaymentMethods(): Observable<ClientPaymentMethod[]> {
-    return this.http.get<ClientPaymentMethod[]>('/clients/payment-methods');
+    return this.http.get<ClientPaymentMethod[]>('/clients/me/payment-methods');
   }
 }

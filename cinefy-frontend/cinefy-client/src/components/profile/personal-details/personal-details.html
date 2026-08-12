@@ -1,0 +1,112 @@
+<section class="personal-details">
+  <div class="pd-header">
+    <div class="pd-heading">
+      <h2>Personal details</h2>
+      <p>The contact details tied to your bookings.</p>
+    </div>
+    @if (!isEditing() && !loading()) {
+      <button type="button" class="btn-secondary pd-edit" (click)="startEditing()">
+        Edit profile
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="pd-loading">
+      <loading-spinner variant="lg" />
+    </div>
+  } @else if (isEditing()) {
+    <form class="pd-form" [formGroup]="personalForm" (ngSubmit)="save()">
+      <div class="pd-name-row">
+        <input-field
+          label="First name"
+          placeholder="Your first name"
+          [control]="personalForm.controls.firstName"
+          [leadingIcon]="icons.UserIcon"
+          [errorMessages]="{
+            required: 'First name is required',
+            minlength: 'Must be at least 2 characters',
+            maxlength: 'Must be at most 50 characters',
+            pattern: 'First name may only contain letters, spaces, hyphens, and apostrophes',
+          }"
+        />
+        <input-field
+          label="Last name"
+          placeholder="Your last name"
+          [control]="personalForm.controls.lastName"
+          [leadingIcon]="icons.UserIcon"
+          [errorMessages]="{
+            required: 'Last name is required',
+            minlength: 'Must be at least 2 characters',
+            maxlength: 'Must be at most 50 characters',
+            pattern: 'Last name may only contain letters, spaces, hyphens, and apostrophes',
+          }"
+        />
+      </div>
+
+      <input-field
+        label="Email"
+        placeholder="Your email"
+        [control]="personalForm.controls.email"
+        [leadingIcon]="icons.EmailIcon"
+        hint="Your email is your account identity and it can't be changed."
+      />
+
+      <phone-input
+        label="Phone"
+        [countryControl]="personalForm.controls.phoneCountry"
+        [numberControl]="personalForm.controls.phoneNumber"
+      />
+
+      <div class="pd-actions">
+        <button type="button" class="pd-cancel" [disabled]="saving()" (click)="cancelEditing()">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="personalForm.invalid || !hasChanges() || saving()"
+        >
+          @if (saving()) {
+            <loading-spinner variant="xs" />
+            <span>Saving…</span>
+          } @else {
+            <span>Save changes</span>
+          }
+        </button>
+      </div>
+    </form>
+  } @else {
+    <div class="pd-rows">
+      <div class="pd-row">
+        <span class="pd-row-icon">
+          <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
+        </span>
+        <div class="pd-row-text">
+          <p class="pd-row-label">Full name</p>
+          <p class="pd-row-value">{{ currentUser()?.fullName }}</p>
+        </div>
+      </div>
+
+      <div class="pd-row">
+        <span class="pd-row-icon">
+          <svg [lucideIcon]="icons.EmailIcon" [size]="20"></svg>
+        </span>
+        <div class="pd-row-text">
+          <p class="pd-row-label">Email</p>
+          <p class="pd-row-value">{{ currentUser()?.email }}</p>
+        </div>
+      </div>
+
+      <div class="pd-row">
+        <span class="pd-row-icon">
+          <svg [lucideIcon]="icons.PhoneIcon" [size]="20"></svg>
+        </span>
+        <div class="pd-row-text">
+          <p class="pd-row-label">Phone</p>
+          <p class="pd-row-value">{{ currentUser()?.phoneNumber | phoneFormat }}</p>
+        </div>
+      </div>
+    </div>
+  }
+</section>

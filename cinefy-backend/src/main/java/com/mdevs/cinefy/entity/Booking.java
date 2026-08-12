@@ -21,7 +21,7 @@ import java.util.Set;
         indexes = {
                 @Index(columnList = "SHOWTIME_ID"),
                 @Index(columnList = "ON_HOLD, EXPIRES_AT"),
-                @Index(columnList = "CLIENT_ID"),
+                @Index(columnList = "CLIENT_ID, CREATED_AT"),
                 @Index(columnList = "BOOKED_BY_ID"),
                 @Index(columnList = "PAYMENT_GATEWAY_ID")
         }

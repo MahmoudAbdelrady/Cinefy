@@ -29,7 +29,7 @@ public class ClientPaymentMethodService {
 
     public List<ClientPaymentMethodDTO> getCurrentClientPaymentMethods() {
         Long clientId = currentUserService.loadCurrentUser().getId();
-        return clientPaymentMethodRepository.findAllByClientId(clientId)
+        return clientPaymentMethodRepository.findAllByClientIdOrderByCreatedAtAsc(clientId)
                 .stream()
                 .map(this::toDTO)
                 .toList();
@@ -61,6 +61,12 @@ public class ClientPaymentMethodService {
         paymentMethod.setCardBrand(callback.brand());
 
         clientPaymentMethodRepository.save(paymentMethod);
+    }
+
+    @Transactional
+    public void deleteMethod(String uuid) {
+        ClientPaymentMethod paymentMethod = findOwnedByCurrentClient(uuid);
+        clientPaymentMethodRepository.delete(paymentMethod);
     }
 
     // =========================== Helpers ===========================

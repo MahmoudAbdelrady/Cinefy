@@ -1,12 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import type { PaginatedResponse } from 'cinefy-ui/types';
 import type {
   BookingConfirmation,
   BookingDetail,
   BookingRequest,
   BookingSummary,
   HallTypeShowtimes,
+  PastBooking,
   PaymentRedirection,
   SavedCardPaymentRequest,
   SeatSelection,
@@ -40,6 +42,19 @@ export class BookingService {
 
   getBookingConfirmation(uuid: string, context?: HttpContext): Observable<BookingConfirmation> {
     return this.http.get<BookingConfirmation>(`/booking/${uuid}/confirmation`, { context });
+  }
+
+  getPastBookings(pageable?: {
+    page?: number;
+    size?: number;
+  }): Observable<PaginatedResponse<PastBooking>> {
+    return this.http.get<PaginatedResponse<PastBooking>>('/booking/past', {
+      params: { ...pageable },
+    });
+  }
+
+  getPastBookingDetails(uuid: string): Observable<BookingConfirmation> {
+    return this.http.get<BookingConfirmation>(`/booking/past/${uuid}`);
   }
 
   createBooking(request: BookingRequest, idempotencyKey: string): Observable<BookingDetail> {

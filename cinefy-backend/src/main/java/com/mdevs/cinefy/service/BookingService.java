@@ -7,6 +7,7 @@ import com.mdevs.cinefy.dto.booking.BookingConfirmationDTO;
 import com.mdevs.cinefy.dto.booking.BookingDetailDTO;
 import com.mdevs.cinefy.dto.booking.BookingRequestDTO;
 import com.mdevs.cinefy.dto.booking.BookingSummaryDTO;
+import com.mdevs.cinefy.dto.booking.PastBookingDTO;
 import com.mdevs.cinefy.dto.booking.OnSitePaymentDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
@@ -48,7 +49,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -189,6 +192,21 @@ public class BookingService {
                 .filter(booking -> isBookable(booking.getShowtime()))
                 .map(this::toBookingSummaryDTO)
                 .toList();
+    }
+
+    public Page<PastBookingDTO> getPastBookings(Pageable pageable) {
+        User user = currentUserService.loadCurrentUser();
+        return bookingRepository.findSettledByClient(user.getId(), BookingStatus.SETTLED_STATUSES, pageable)
+                .map(this::toPastBookingDTO);
+    }
+
+    public BookingConfirmationDTO getPastBookingDetails(String uuid) {
+        Booking booking = findBookingByUuidWithDetail(uuid);
+        validateBookingOwnership(booking);
+        if (!BookingStatus.isSettled(booking.getStatus())) {
+            throw new BusinessException("This booking has not been settled yet");
+        }
+        return toBookingConfirmationDTO(booking);
     }
 
     public BookingDetailDTO getActiveBookingDetails(String uuid) {
@@ -744,6 +762,19 @@ public class BookingService {
         dto.setSeats(seats);
         dto.setTotalPrice(booking.getTotalAmount());
         return dto;
+    }
+
+    private PastBookingDTO toPastBookingDTO(Booking booking) {
+        Showtime showtime = booking.getShowtime();
+
+        return new PastBookingDTO(
+                booking.getUuid(),
+                tmdbMovieService.toSearchResult(showtime.getTmdbMovie()),
+                showtime.getStartDateTime(),
+                booking.getHallType(),
+                showtime.is3D(),
+                booking.getStatus().equals(BookingStatus.REFUNDED),
+                booking.getTotalAmount());
     }
 
     private BookingSummaryDTO toBookingSummaryDTO(Booking booking) {

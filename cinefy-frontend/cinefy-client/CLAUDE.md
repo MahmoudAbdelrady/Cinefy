@@ -87,7 +87,7 @@ src/
 │   │                          #   cancelBooking/payBooking/paySavedCard (authed). Several reads take an optional
 │   │                          #   HttpContext so the caller can pass skipErrorToast() when it renders the error itself.
 │   ├── auth.ts               # AuthService — sign-up/verify-account/send-otp/login/logout/verify-otp/reset-password/session/refresh (refresh single-flighted)
-│   └── clients.ts            # ClientService — getCurrentUser (/clients/me) + getPaymentMethods (/clients/payment-methods) + clearCurrentUser
+│   └── clients.ts            # ClientService — getCurrentUser (/clients/me) + updateCurrentUser (PUT /clients/me) + changeCurrentUserPassword (PUT /clients/me/password) + getPaymentMethods (/clients/me/payment-methods) + clearCurrentUser
 ├── shared/
 │   ├── icons.ts               # Re-exports of lucide icons from @lucide/angular — sole source of glyphs (alias `X as XIcon`)
 │   ├── guards/                # auth-guard (authGuard), guest-guard (guestGuard) (barrel: index.ts)
@@ -165,7 +165,7 @@ This app is now **auth-bearing** (JWT-in-cookie), so it consumes both public and
 - **Public** (`@PublicApi`, unauthenticated) reads: `/movies/highlighted`, `/movies/now-showing`, `/movies/announced-upcoming`, `/movies/{id}` (raw TMDB id, not a uuid), `/halls/types`, and `/booking/movies/{id}/dates` + `/booking/movies/{id}/showtimes?date=`.
 - **Auth** (`AuthService`, `clients/auth/*`): `sign-up`, `verify-account`, `send-otp`, `login`, `logout`, `verify-otp`, `reset-password`, `GET session`, `refresh` (the refresh call is single-flighted). Current user: `GET /clients/me` (`ClientService`).
 - **Authenticated booking** (`BookingService`): `GET /booking/showtimes/{id}` (seat selection), `GET /booking/active`, `GET /booking/active/{uuid}`, `GET /booking/{uuid}/confirmation`, `POST /booking` (sends an `Idempotency-Key` header), `DELETE /booking/{uuid}`.
-- **Payment** (`BookingService` + `ClientService`): `POST /booking/{uuid}/pay` and `POST /booking/{uuid}/pay-saved-card` both return a `PaymentRedirection` (`{ redirectionUrl }`) that the checkout page navigates to; `GET /clients/payment-methods` lists the client's saved cards (`ClientPaymentMethod`). A card is only tokenized as a side effect of paying, so the saved-card list is refetched on return to checkout.
+- **Payment** (`BookingService` + `ClientService`): `POST /booking/{uuid}/pay` and `POST /booking/{uuid}/pay-saved-card` both return a `PaymentRedirection` (`{ redirectionUrl }`) that the checkout page navigates to; `GET /clients/me/payment-methods` lists the client's saved cards (`ClientPaymentMethod`). A card is only tokenized as a side effect of paying, so the saved-card list is refetched on return to checkout.
 
 **The payment result is asynchronous.** Paymob redirects back to `/booking-confirmation/:bookingId`, but the authoritative settlement arrives on a server-side webhook, so the confirmation page may first read `paymentState: 'PENDING'` and must poll until it resolves. The `PaymentState` union is `'CONFIRMED' | 'PENDING' | 'FAILED' | 'EXPIRED' | 'REFUNDED'`.
 

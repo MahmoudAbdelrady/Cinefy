@@ -4,6 +4,18 @@ export interface CurrentUser {
   lastName: string;
   fullName: string;
   email: string;
+  phoneNumber: string;
+}
+
+export interface UpdateProfilePayload {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface ClientPaymentMethod {

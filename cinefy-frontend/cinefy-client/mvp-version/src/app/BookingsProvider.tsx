@@ -20,7 +20,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     () => ({
       bookings,
       active: bookings.filter((b) => b.status === 'active'),
-      completed: bookings.filter((b) => b.status === 'completed'),
+      completed: bookings.filter((b) => b.status !== 'active'),
       addBooking: (booking) => setBookings((prev) => [booking, ...prev]),
       ticketsOpen,
       setTicketsOpen,

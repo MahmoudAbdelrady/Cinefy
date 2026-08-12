@@ -16,36 +16,20 @@
   </div>
 
   <div class="pagination-nav">
-    <button ngpPaginationFirst [ngpTooltipTrigger]="firstTooltip">
+    <button ngpPaginationFirst title="First page">
       <svg [lucideIcon]="icons.ChevronsLeftIcon" [size]="16" [strokeWidth]="2.5"></svg>
     </button>
 
-    <button ngpPaginationPrevious [ngpTooltipTrigger]="prevTooltip">
+    <button ngpPaginationPrevious title="Previous page">
       <svg [lucideIcon]="icons.ChevronLeftIcon" [size]="16" [strokeWidth]="2.5"></svg>
     </button>
 
-    <button ngpPaginationNext [ngpTooltipTrigger]="nextTooltip">
+    <button ngpPaginationNext title="Next page">
       <svg [lucideIcon]="icons.ChevronRightIcon" [size]="16" [strokeWidth]="2.5"></svg>
     </button>
 
-    <button ngpPaginationLast [ngpTooltipTrigger]="lastTooltip">
+    <button ngpPaginationLast title="Last page">
       <svg [lucideIcon]="icons.ChevronsRightIcon" [size]="16" [strokeWidth]="2.5"></svg>
     </button>
   </div>
 </nav>
-
-<ng-template #firstTooltip>
-  <div ngpTooltip class="pagination-tooltip">First page</div>
-</ng-template>
-
-<ng-template #prevTooltip>
-  <div ngpTooltip class="pagination-tooltip">Previous page</div>
-</ng-template>
-
-<ng-template #nextTooltip>
-  <div ngpTooltip class="pagination-tooltip">Next page</div>
-</ng-template>
-
-<ng-template #lastTooltip>
-  <div ngpTooltip class="pagination-tooltip">Last page</div>
-</ng-template>

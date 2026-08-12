@@ -3,8 +3,10 @@ package com.mdevs.cinefy.service;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+import com.mdevs.cinefy.dto.client.ChangeClientPasswordDTO;
 import com.mdevs.cinefy.dto.client.CurrentClientDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
+import com.mdevs.cinefy.dto.client.UpdateClientProfileDTO;
 import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.ClientRepository;
@@ -43,12 +45,7 @@ public class ClientService implements UserDetailsService {
 
     public CurrentClientDTO getCurrentClient() {
         Client client = findClientByUuid(SecurityUtil.getCurrentUserUuid());
-        return new CurrentClientDTO(
-                client.getUuid(),
-                client.getFirstName(),
-                client.getLastName(),
-                client.getFullName(),
-                client.getEmail());
+        return toCurrentClientDTO(client);
     }
 
     @Transactional
@@ -69,6 +66,23 @@ public class ClientService implements UserDetailsService {
     }
 
     @Transactional
+    public CurrentClientDTO updateCurrentClient(UpdateClientProfileDTO dto) {
+        Client client = findClientByUuid(SecurityUtil.getCurrentUserUuid());
+        String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
+        if (clientRepository.existsByPhoneNumberAndIdNot(normalizedPhoneNumber, client.getId())) {
+            throw new BusinessException("Phone number already in use");
+        }
+
+        client.setFirstName(dto.getFirstName());
+        client.setLastName(dto.getLastName());
+        client.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
+        client.setPhoneNumber(normalizedPhoneNumber);
+
+        clientRepository.save(client);
+        return toCurrentClientDTO(client);
+    }
+
+    @Transactional
     public Client markVerified(Long userId) {
         Client client = findClientById(userId);
         if (client.isVerified()) {
@@ -81,11 +95,16 @@ public class ClientService implements UserDetailsService {
     @Transactional
     public void updatePassword(Long id, String rawPassword) {
         Client client = findClientById(id);
-        if (passwordEncoder.matches(rawPassword, client.getPassword())) {
-            throw new BusinessException("New password must be different from the current password", ErrorCode.PASSWORD_REUSED);
+        applyNewPassword(client, rawPassword);
+    }
+
+    @Transactional
+    public void changePassword(ChangeClientPasswordDTO dto) {
+        Client client = findClientByUuid(SecurityUtil.getCurrentUserUuid());
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), client.getPassword())) {
+            throw new BusinessException("Current password is incorrect", ErrorCode.PASSWORD_INCORRECT);
         }
-        client.setPassword(passwordEncoder.encode(rawPassword));
-        clientRepository.save(client);
+        applyNewPassword(client, dto.getNewPassword());
     }
 
     // =========================== Helpers ===========================
@@ -110,6 +129,24 @@ public class ClientService implements UserDetailsService {
         if (clientRepository.existsByPhoneNumber(normalizedPhoneNumber)) {
             throw new BusinessException("Phone number already in use");
         }
+    }
+
+    private void applyNewPassword(Client client, String rawPassword) {
+        if (passwordEncoder.matches(rawPassword, client.getPassword())) {
+            throw new BusinessException("New password must be different from the current password", ErrorCode.PASSWORD_REUSED);
+        }
+        client.setPassword(passwordEncoder.encode(rawPassword));
+        clientRepository.save(client);
+    }
+
+    private CurrentClientDTO toCurrentClientDTO(Client client) {
+        return new CurrentClientDTO(
+                client.getUuid(),
+                client.getFirstName(),
+                client.getLastName(),
+                client.getFullName(),
+                client.getEmail(),
+                client.getPhoneNumber());
     }
 
     private String normalizePhoneNumber(String phoneNumber) {
