@@ -171,7 +171,7 @@ public interface BookingRepository extends BaseRepository<Booking> {
             JOIN FETCH s.tmdbMovie
             WHERE b.client.id = :clientId
             AND b.status IN :statuses
-            ORDER BY s.startDateTime DESC
+            ORDER BY b.createdAt DESC
             """,
             countQuery = """
                     SELECT COUNT(b) FROM Booking b
