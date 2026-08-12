@@ -9,3 +9,4 @@ export { BookingSummaryComponent } from './seat-selection/booking-summary/bookin
 export { PersonalDetailsComponent } from './profile/personal-details/personal-details';
 export { ProfilePasswordComponent } from './profile/profile-password/profile-password';
 export { ProfileBillingComponent } from './profile/profile-billing/profile-billing';
+export { ProfileHistoryComponent } from './profile/profile-history/profile-history';

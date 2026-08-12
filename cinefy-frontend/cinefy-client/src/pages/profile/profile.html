@@ -33,7 +33,11 @@
           <profile-billing />
         }
       </div>
-      <div ngpTabPanel ngpTabPanelValue="history"></div>
+      <div ngpTabPanel ngpTabPanelValue="history">
+        @if (hasVisited('history')) {
+          <profile-history />
+        }
+      </div>
     </div>
   </div>
 </div>

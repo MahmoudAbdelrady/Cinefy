@@ -4,6 +4,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
 import {
   PersonalDetailsComponent,
   ProfileBillingComponent,
+  ProfileHistoryComponent,
   ProfilePasswordComponent,
 } from '../../components';
 import { CreditCardIcon, TicketIcon, UserIcon } from '../../shared/icons';
@@ -19,6 +20,7 @@ import { CreditCardIcon, TicketIcon, UserIcon } from '../../shared/icons';
     PersonalDetailsComponent,
     ProfilePasswordComponent,
     ProfileBillingComponent,
+    ProfileHistoryComponent,
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
