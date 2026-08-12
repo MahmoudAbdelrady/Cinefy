@@ -71,11 +71,15 @@
     min-width: 0;
     flex: 1;
 
-    &:focus-visible {
+    [ngpTabPanel]:not([data-active]) {
+      display: none;
+    }
+
+    [ngpTabPanel]:focus-visible {
       outline: none;
     }
 
-    .pt-account {
+    .pt-account[data-active] {
       @include flex-column;
       gap: 32px;
     }
