@@ -1,0 +1,124 @@
+@use '../../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+.pb-loading {
+  @include flex-center;
+  padding: 48px 0;
+}
+
+.pb-cards {
+  @include flex-column;
+  gap: 12px;
+
+  .pb-card {
+    @include flex-align;
+    @include lucide-icon-fix;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid rgba($color-border, 0.5);
+    border-radius: $radius-lg;
+    background-color: $color-card;
+
+    .pb-card-chip {
+      @include flex-center;
+      flex-shrink: 0;
+      width: 56px;
+      height: 40px;
+      border-radius: $radius-md;
+      background-color: $color-secondary;
+      font-family: $font-mono;
+      font-size: 12px;
+      font-weight: 600;
+      color: $color-foreground;
+    }
+
+    .pb-card-detail {
+      min-width: 0;
+      flex: 1;
+
+      .pb-card-pan {
+        @include text-truncate;
+        font-family: $font-mono;
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        color: $color-foreground;
+      }
+
+      .pb-card-brand {
+        margin-top: 2px;
+        font-size: 12px;
+        color: $color-muted-foreground;
+      }
+    }
+
+    .pb-remove {
+      @include flex-center;
+      flex-shrink: 0;
+      gap: 8px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: $radius-md;
+      background-color: transparent;
+      color: $color-muted-foreground;
+      font-family: $font-sans;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 150ms ease;
+
+      &:hover:not(:disabled) {
+        color: $color-destructive;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    @include below-mobile {
+      flex-wrap: wrap;
+
+      .pb-remove {
+        margin-left: auto;
+      }
+    }
+  }
+}
+
+.pb-remove-modal {
+  text-align: center;
+
+  .pb-remove-icon {
+    @include flex-center;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border-radius: $radius-full;
+    background-color: rgba($color-destructive, 0.15);
+
+    svg {
+      display: flex;
+      color: $color-destructive;
+    }
+  }
+
+  .pb-remove-message {
+    margin-bottom: 24px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: $color-muted-foreground;
+  }
+}
+
+.pb-dialog-footer {
+  @include flex-align;
+  @include lucide-icon-fix;
+  gap: 12px;
+  width: 100%;
+
+  button {
+    flex: 1;
+  }
+}

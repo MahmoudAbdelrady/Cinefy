@@ -11,6 +11,7 @@ export {
   LucideLock as LockIcon,
   LucideKeyRound as KeyRoundIcon,
   LucideCreditCard as CreditCardIcon,
+  LucideTrash2 as TrashIcon,
   LucideClock as ClockIcon,
   LucideCalendar as CalendarIcon,
   LucideMapPin as MapPinIcon,

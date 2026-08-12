@@ -38,13 +38,7 @@ import {
   TriangleAlertIcon,
   XIcon,
 } from '../../shared/icons';
-
-const SUBTYPE_CHIP: Record<string, string> = {
-  mastercard: 'MC',
-  visa: 'VISA',
-  amex: 'AMEX',
-  americanexpress: 'AMEX',
-};
+import { brandChip } from '../../shared/payments';
 
 @Component({
   selector: 'checkout-page',
@@ -146,10 +140,7 @@ export class CheckoutPage {
 
   protected readonly isSelected = (method: ClientPaymentMethod) => method.id === this.selectedId();
 
-  protected readonly brandChip = (cardBrand: string) => {
-    const key = cardBrand.toLowerCase().replace(/\s+/g, '');
-    return SUBTYPE_CHIP[key] ?? cardBrand.slice(0, 4).toUpperCase();
-  };
+  protected readonly brandChip = brandChip;
 
   protected selectMethod(method: ClientPaymentMethod): void {
     this.selectedId.set(method.id);

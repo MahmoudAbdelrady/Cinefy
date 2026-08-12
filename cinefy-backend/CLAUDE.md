@@ -537,14 +537,17 @@ Access is **not** uniform here — check the column. Five handlers are `@PublicA
 
 Class-level `@PreAuthorize("hasRole('CLIENT')")`.
 
-| Method | Path                          | Input                   | Output / Effect                   |
-| ------ | ----------------------------- | ----------------------- | --------------------------------- |
-| GET    | `/clients/me`                 |                         | CurrentClientDTO                  |
-| PUT    | `/clients/me`                 | UpdateClientProfileDTO  | CurrentClientDTO (own name/phone) |
-| PUT    | `/clients/me/password`        | ChangeClientPasswordDTO | 204 (own password)                |
-| GET    | `/clients/me/payment-methods` |                         | List<ClientPaymentMethodDTO>      |
+| Method | Path                                 | Input                   | Output / Effect                   |
+| ------ | ------------------------------------ | ----------------------- | --------------------------------- |
+| GET    | `/clients/me`                        |                         | CurrentClientDTO                  |
+| PUT    | `/clients/me`                        | UpdateClientProfileDTO  | CurrentClientDTO (own name/phone) |
+| PUT    | `/clients/me/password`               | ChangeClientPasswordDTO | 204 (own password)                |
+| GET    | `/clients/me/payment-methods`        |                         | List<ClientPaymentMethodDTO>      |
+| DELETE | `/clients/me/payment-methods/{uuid}` |                         | 204 (removes a saved card)        |
 
 Phone numbers in `UpdateClientProfileDTO` are validated/normalized with libphonenumber before persistence (`normalizePhoneNumber`), then checked for uniqueness with `existsByPhoneNumberAndIdNot` so the client's own row doesn't collide with itself. `changePassword` verifies `currentPassword` (`PASSWORD_INCORRECT` on mismatch) and shares `applyNewPassword` with the OTP-reset path `updatePassword` — that helper owns the `PASSWORD_REUSED` check and the encode/save.
+
+`deleteMethod` reuses `findOwnedByCurrentClient(uuid)` (the same guard `BookingService` uses before a saved-card charge): the lookup is scoped by uuid **and** the current client's id, so a card belonging to someone else raises `NotFoundException` → **404, not 403** — the response must not reveal that another client's card exists. Deletion is a **hard** delete, unlike `PaymentGateway`'s soft-delete: no entity holds an FK to `ClientPaymentMethod` (the token is only read live during a charge), so removing a row can't orphan a booking.
 
 ### `/clients/auth` — ClientAuthController
 

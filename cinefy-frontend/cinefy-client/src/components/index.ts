@@ -8,3 +8,4 @@ export { TrailerModalComponent } from './movies/trailer-modal/trailer-modal';
 export { BookingSummaryComponent } from './seat-selection/booking-summary/booking-summary';
 export { PersonalDetailsComponent } from './profile/personal-details/personal-details';
 export { ProfilePasswordComponent } from './profile/profile-password/profile-password';
+export { ProfileBillingComponent } from './profile/profile-billing/profile-billing';

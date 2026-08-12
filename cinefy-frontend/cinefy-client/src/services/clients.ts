@@ -36,6 +36,10 @@ export class ClientService {
     return this.http.put<void>('/clients/me/password', payload);
   }
 
+  deletePaymentMethod(id: string): Observable<void> {
+    return this.http.delete<void>(`/clients/me/payment-methods/${id}`);
+  }
+
   clearCurrentUser(): void {
     this.currentUser.next(null);
     this.currentUserRequested = false;
