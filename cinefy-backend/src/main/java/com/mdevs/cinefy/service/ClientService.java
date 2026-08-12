@@ -5,6 +5,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import com.mdevs.cinefy.dto.client.CurrentClientDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
+import com.mdevs.cinefy.dto.client.UpdateClientProfileDTO;
 import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.ClientRepository;
@@ -43,13 +44,7 @@ public class ClientService implements UserDetailsService {
 
     public CurrentClientDTO getCurrentClient() {
         Client client = findClientByUuid(SecurityUtil.getCurrentUserUuid());
-        return new CurrentClientDTO(
-                client.getUuid(),
-                client.getFirstName(),
-                client.getLastName(),
-                client.getFullName(),
-                client.getEmail(),
-                client.getPhoneNumber());
+        return toCurrentClientDTO(client);
     }
 
     @Transactional
@@ -67,6 +62,23 @@ public class ClientService implements UserDetailsService {
         client.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         return clientRepository.save(client);
+    }
+
+    @Transactional
+    public CurrentClientDTO updateCurrentClient(UpdateClientProfileDTO dto) {
+        Client client = findClientByUuid(SecurityUtil.getCurrentUserUuid());
+        String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
+        if (clientRepository.existsByPhoneNumberAndIdNot(normalizedPhoneNumber, client.getId())) {
+            throw new BusinessException("Phone number already in use");
+        }
+
+        client.setFirstName(dto.getFirstName());
+        client.setLastName(dto.getLastName());
+        client.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
+        client.setPhoneNumber(normalizedPhoneNumber);
+
+        clientRepository.save(client);
+        return toCurrentClientDTO(client);
     }
 
     @Transactional
@@ -111,6 +123,16 @@ public class ClientService implements UserDetailsService {
         if (clientRepository.existsByPhoneNumber(normalizedPhoneNumber)) {
             throw new BusinessException("Phone number already in use");
         }
+    }
+
+    private CurrentClientDTO toCurrentClientDTO(Client client) {
+        return new CurrentClientDTO(
+                client.getUuid(),
+                client.getFirstName(),
+                client.getLastName(),
+                client.getFullName(),
+                client.getEmail(),
+                client.getPhoneNumber());
     }
 
     private String normalizePhoneNumber(String phoneNumber) {

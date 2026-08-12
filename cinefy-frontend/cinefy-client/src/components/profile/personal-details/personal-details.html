@@ -59,13 +59,20 @@
       />
 
       <div class="pd-actions">
-        <button type="button" class="pd-cancel" (click)="cancelEditing()">Cancel</button>
+        <button type="button" class="pd-cancel" [disabled]="saving()" (click)="cancelEditing()">
+          Cancel
+        </button>
         <button
           type="submit"
           class="btn-primary"
-          [disabled]="personalForm.invalid || !hasChanges()"
+          [disabled]="personalForm.invalid || !hasChanges() || saving()"
         >
-          Save changes
+          @if (saving()) {
+            <loading-spinner variant="xs" />
+            <span>Saving…</span>
+          } @else {
+            <span>Save changes</span>
+          }
         </button>
       </div>
     </form>

@@ -13,6 +13,7 @@ import {
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
 import { PhoneFormatPipe } from 'cinefy-ui/pipes';
+import { ToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
 import { EmailIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import { NAME_PATTERN } from '../../../shared/validation';
@@ -39,11 +40,13 @@ export class PersonalDetailsComponent {
   };
 
   private readonly clientService = inject(ClientService);
+  private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currentUser = signal<CurrentUser | null>(null);
   protected readonly loading = signal(true);
   protected readonly isEditing = signal(false);
+  protected readonly saving = signal(false);
   private readonly initialFormSnapshot = signal<string | null>(null);
 
   protected readonly personalForm = new FormGroup({
@@ -128,7 +131,7 @@ export class PersonalDetailsComponent {
   }
 
   protected save(): void {
-    if (this.personalForm.invalid || !this.hasChanges()) return;
+    if (this.personalForm.invalid || this.saving() || !this.hasChanges()) return;
 
     const { firstName, lastName, phoneNumber } = this.personalForm.getRawValue();
     const payload: UpdateProfilePayload = {
@@ -137,6 +140,18 @@ export class PersonalDetailsComponent {
       phoneNumber: toE164Digits(this.personalForm.controls.phoneCountry, phoneNumber),
     };
 
-    this.isEditing.set(false);
+    this.saving.set(true);
+    this.clientService
+      .updateCurrentUser(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (user) => {
+          this.currentUser.set(user);
+          this.saving.set(false);
+          this.isEditing.set(false);
+          this.toastService.success('Profile updated');
+        },
+        error: () => this.saving.set(false),
+      });
   }
 }
