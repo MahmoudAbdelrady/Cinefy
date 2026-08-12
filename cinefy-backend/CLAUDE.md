@@ -507,7 +507,7 @@ CREATE UNIQUE INDEX UK_PAYMENT_GATEWAYS_CODE
 
 `code` lost its column-level `unique = true` for this reason — `ddl-auto=update` never drops the constraint it already generated, so the `ALTER TABLE` above is required or soft-deleted names stay permanently taken.
 
-`updatePaymentGatewayStatus` relies on the ACTIVE index: it deactivates the incumbent with `saveAndFlush` first, then wraps the activation in a `catch (DataIntegrityViolationException)` that rethrows as `ConflictException` (409). That catch is **load-bearing** — the row lock only serializes activations of the *same* gateway, so two admins activating *different* gateways still collide on the index.
+`updatePaymentGatewayStatus` relies on the ACTIVE index: it deactivates the incumbent with `saveAndFlush` first, then wraps the activation in a `catch (DataIntegrityViolationException)` that rethrows as `ConflictException` (409). That catch is **load-bearing** — the row lock only serializes activations of the _same_ gateway, so two admins activating _different_ gateways still collide on the index.
 
 ### `/booking` — BookingController
 
@@ -537,10 +537,14 @@ Access is **not** uniform here — check the column. Five handlers are `@PublicA
 
 Class-level `@PreAuthorize("hasRole('CLIENT')")`.
 
-| Method | Path                       | Input | Output                       |
-| ------ | -------------------------- | ----- | ---------------------------- |
-| GET    | `/clients/me`              |       | CurrentClientDTO             |
-| GET    | `/clients/payment-methods` |       | List<ClientPaymentMethodDTO> |
+| Method | Path                          | Input                   | Output / Effect                   |
+| ------ | ----------------------------- | ----------------------- | --------------------------------- |
+| GET    | `/clients/me`                 |                         | CurrentClientDTO                  |
+| PUT    | `/clients/me`                 | UpdateClientProfileDTO  | CurrentClientDTO (own name/phone) |
+| PUT    | `/clients/me/password`        | ChangeClientPasswordDTO | 204 (own password)                |
+| GET    | `/clients/me/payment-methods` |                         | List<ClientPaymentMethodDTO>      |
+
+Phone numbers in `UpdateClientProfileDTO` are validated/normalized with libphonenumber before persistence (`normalizePhoneNumber`), then checked for uniqueness with `existsByPhoneNumberAndIdNot` so the client's own row doesn't collide with itself. `changePassword` verifies `currentPassword` (`PASSWORD_INCORRECT` on mismatch) and shares `applyNewPassword` with the OTP-reset path `updatePassword` — that helper owns the `PASSWORD_REUSED` check and the encode/save.
 
 ### `/clients/auth` — ClientAuthController
 

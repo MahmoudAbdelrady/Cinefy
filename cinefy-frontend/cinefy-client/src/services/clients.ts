@@ -42,6 +42,6 @@ export class ClientService {
   }
 
   getPaymentMethods(): Observable<ClientPaymentMethod[]> {
-    return this.http.get<ClientPaymentMethod[]>('/clients/payment-methods');
+    return this.http.get<ClientPaymentMethod[]>('/clients/me/payment-methods');
   }
 }

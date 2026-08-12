@@ -44,7 +44,7 @@ public class ClientController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/payment-methods")
+    @GetMapping("/me/payment-methods")
     public ResponseEntity<List<ClientPaymentMethodDTO>> getCurrentClientPaymentMethods() {
         return ResponseEntity.ok(clientPaymentMethodService.getCurrentClientPaymentMethods());
     }
