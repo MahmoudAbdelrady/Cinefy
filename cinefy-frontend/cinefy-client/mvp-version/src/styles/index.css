@@ -273,10 +273,31 @@
   animation: auth-caret 1.1s steps(1) infinite;
 }
 
+/* Indeterminate sweep for the OAuth callback's wait bar — the backend
+   owns the exchange, so there is no real progress to report. */
+@keyframes auth-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+.auth-sweep {
+  animation: auth-sweep 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .auth-grain,
   .auth-glow,
   .auth-caret {
     animation: none;
+  }
+
+  .auth-sweep {
+    animation: none;
+    width: 100%;
+    opacity: 0.5;
   }
 }

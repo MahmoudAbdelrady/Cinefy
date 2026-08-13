@@ -13,6 +13,7 @@ import { SignUpPage } from '@/pages/auth/SignUpPage'
 import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage'
 import { OtpPage } from '@/pages/auth/OtpPage'
 import { ChangePasswordPage } from '@/pages/auth/ChangePasswordPage'
+import { OAuthCallbackPage } from '@/pages/auth/OAuthCallbackPage'
 
 export const router = createBrowserRouter([
   // Auth screens live outside RootLayout — no navbar/footer chrome.
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/verify', element: <OtpPage /> },
   { path: '/change-password', element: <ChangePasswordPage /> },
+  { path: '/auth/callback', element: <OAuthCallbackPage /> },
   {
     path: '/',
     element: <RootLayout />,
