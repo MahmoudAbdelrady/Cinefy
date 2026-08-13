@@ -1,0 +1,40 @@
+<div class="oauth-callback-page">
+  @if (phase() === 'failed') {
+    <div class="ocp-heading ocp-heading-centered">
+      <span class="ocp-badge ocp-badge-failed">
+        <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24"></svg>
+      </span>
+      <h1>Sign-in failed</h1>
+      <p>We couldn't complete your sign-in. Please try again.</p>
+    </div>
+
+    <a class="btn-primary ocp-retry" routerLink="../login">
+      <span>Try again</span>
+      <svg class="ocp-retry-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+    </a>
+  } @else {
+    @let done = phase() === 'success';
+
+    <div class="ocp-heading ocp-heading-centered">
+      <span class="ocp-badge" [class.ocp-badge-done]="done">
+        @if (done) {
+          <svg [lucideIcon]="icons.CheckIcon" [size]="24" [strokeWidth]="2.5"></svg>
+        } @else {
+          <loading-spinner variant="md" />
+        }
+      </span>
+      <h1>{{ done ? "You're signed in" : 'Signing you in' }}</h1>
+      <p>
+        {{
+          done
+            ? 'Redirecting you to continue.'
+            : 'Verifying your sign-in with ' + provider() + '. This will only take a moment.'
+        }}
+      </p>
+    </div>
+
+    <div class="ocp-track">
+      <div class="ocp-track-fill" [class.ocp-track-fill-done]="done"></div>
+    </div>
+  }
+</div>
