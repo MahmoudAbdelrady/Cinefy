@@ -1,8 +1,10 @@
 package com.mdevs.cinefy.shared.oauth;
 
+import com.mdevs.cinefy.config.general.AppConfig;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
@@ -23,6 +25,9 @@ public abstract class OAuthProviderClient {
 
     protected RestClient restClient;
 
+    @Value("${cinefy.oauth.redirect-uri}")
+    private String redirectUri;
+
     @PostConstruct
     private void init() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
@@ -39,6 +44,10 @@ public abstract class OAuthProviderClient {
     public abstract OAuthUserProfile exchangeCode(String code, String state, String cookieStateToken);
 
     // =========================== Helpers ===========================
+
+    protected String getRedirectUri() {
+        return AppConfig.getFrontendClientUrl() + redirectUri;
+    }
 
     protected String issueState() {
         return UUID.randomUUID().toString();

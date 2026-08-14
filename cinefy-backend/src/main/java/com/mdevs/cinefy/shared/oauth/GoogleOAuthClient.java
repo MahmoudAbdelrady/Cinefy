@@ -1,6 +1,5 @@
 package com.mdevs.cinefy.shared.oauth;
 
-import com.mdevs.cinefy.config.general.AppConfig;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -26,9 +25,6 @@ public class GoogleOAuthClient extends OAuthProviderClient {
     @Value("${cinefy.oauth.google.client-secret}")
     private String clientSecret;
 
-    @Value("${cinefy.oauth.google.redirect-uri}")
-    private String redirectUri;
-
     private static final String AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 
     private static final String TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -42,7 +38,7 @@ public class GoogleOAuthClient extends OAuthProviderClient {
         String stateToken = issueState();
         String authorizationUrl = UriComponentsBuilder.fromUriString(AUTHORIZATION_URL)
                 .queryParam("client_id", clientId)
-                .queryParam("redirect_uri", AppConfig.getFrontendClientUrl() + redirectUri)
+                .queryParam("redirect_uri", getRedirectUri())
                 .queryParam("response_type", "code")
                 .queryParam("scope", "openid email profile")
                 .queryParam("state", stateToken)
@@ -66,7 +62,7 @@ public class GoogleOAuthClient extends OAuthProviderClient {
         form.add("code", code);
         form.add("client_id", clientId);
         form.add("client_secret", clientSecret);
-        form.add("redirect_uri", redirectUri);
+        form.add("redirect_uri", getRedirectUri());
         form.add("grant_type", "authorization_code");
 
         JsonNode response = exchange(() -> restClient.post()
