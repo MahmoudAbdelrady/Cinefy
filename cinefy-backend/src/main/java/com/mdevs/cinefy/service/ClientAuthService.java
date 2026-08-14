@@ -19,6 +19,7 @@ import com.mdevs.cinefy.repository.ClientRepository;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
+import com.mdevs.cinefy.shared.oauth.OAuthAuthorizationDTO;
 import com.mdevs.cinefy.shared.oauth.OAuthProviderClient;
 import com.mdevs.cinefy.shared.oauth.OAuthProviderClientFactory;
 import com.mdevs.cinefy.shared.oauth.OAuthRegistrationToken;
@@ -69,7 +70,7 @@ public class ClientAuthService {
 
     // ========================= Public API =========================
 
-    public String getOAuthAuthorizationUrl(String provider) {
+    public OAuthAuthorizationDTO getOAuthAuthorizationUrl(String provider) {
         return resolveOAuthClient(provider).getAuthorizationUrl();
     }
 
@@ -78,8 +79,8 @@ public class ClientAuthService {
         dispatchOtp(client, OtpType.EMAIL_VERIFICATION);
     }
 
-    public OAuthCallbackResultDTO handleOAuthCallback(String provider, OAuthCallbackDTO dto) {
-        OAuthUserProfile profile = resolveOAuthClient(provider).exchangeCode(dto.getCode(), dto.getState());
+    public OAuthCallbackResultDTO handleOAuthCallback(String provider, OAuthCallbackDTO dto, String cookieStateToken) {
+        OAuthUserProfile profile = resolveOAuthClient(provider).exchangeCode(dto.getCode(), dto.getState(), cookieStateToken);
         if (profile == null || StringUtils.isEmpty(profile.email())) {
             throw new BusinessException("Could not read the account details from the provider");
         }

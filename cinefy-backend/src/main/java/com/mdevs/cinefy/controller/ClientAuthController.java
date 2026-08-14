@@ -12,11 +12,16 @@ import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.service.ClientAuthService;
 import com.mdevs.cinefy.service.JwtSessionService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
+import com.mdevs.cinefy.shared.oauth.OAuthAuthorizationDTO;
+import com.mdevs.cinefy.shared.oauth.OAuthProviderClient;
 import com.mdevs.cinefy.shared.security.AuthCookieResponseFactory;
 import com.mdevs.cinefy.shared.security.JwtUtil;
+import com.mdevs.cinefy.utils.CookieUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/clients/auth")
@@ -37,25 +44,36 @@ public class ClientAuthController {
 
     private final AuthCookieResponseFactory authCookieResponseFactory;
 
+    private final CookieUtil cookieUtil;
+
     private static final String AUTH_PATH = "/clients/auth";
 
     @PublicApi
     @GetMapping("/oauth/{provider}/authorization-url")
     public ResponseEntity<String> getOAuthAuthorizationUrl(@PathVariable String provider) {
-        String authorizationUrl = clientAuthService.getOAuthAuthorizationUrl(provider);
-        return ResponseEntity.ok(authorizationUrl);
+        OAuthAuthorizationDTO authorization = clientAuthService.getOAuthAuthorizationUrl(provider);
+        ResponseCookie stateCookie = cookieUtil.buildOAuthStateCookie(authorization.cookieStateToken(), OAuthProviderClient.OAUTH_STATE_COOKIE_MAX_AGE_MS);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, stateCookie.toString())
+                .body(authorization.authorizationUrl());
     }
 
     @PublicApi
     @PostMapping("/oauth/{provider}/callback")
     public ResponseEntity<?> handleOAuthCallback(@PathVariable String provider,
-                                                 @Valid @RequestBody OAuthCallbackDTO dto) {
-        OAuthCallbackResultDTO result = clientAuthService.handleOAuthCallback(provider, dto);
+                                                 @Valid @RequestBody OAuthCallbackDTO dto,
+                                                 @CookieValue(value = OAuthProviderClient.OAUTH_STATE_COOKIE, required = false) String cookieStateToken) {
+        OAuthCallbackResultDTO result = clientAuthService.handleOAuthCallback(provider, dto, cookieStateToken);
+        ResponseCookie clearedStateCookie = cookieUtil.buildOAuthStateCookie("", 0);
+
         if (result.tokens() == null) {
-            return ResponseEntity.ok(result.registration());
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, clearedStateCookie.toString())
+                    .body(result.registration());
         }
 
-        return authCookieResponseFactory.tokenResponse(result.tokens(), AUTH_PATH);
+        return authCookieResponseFactory.tokenResponse(result.tokens(), AUTH_PATH, List.of(clearedStateCookie));
     }
 
     @PublicApi
