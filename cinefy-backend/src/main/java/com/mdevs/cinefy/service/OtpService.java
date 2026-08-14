@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -22,15 +21,15 @@ public class OtpService {
 
     private final OtpRepository otpRepository;
 
-    @Value("${cinefy.otp.expiration}")
-    private long expirationMillis;
+    @Value("${cinefy.otp.expiration-minutes}")
+    private int expirationMinutes;
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
     // ========================= Public API =========================
 
     public int getExpiryMinutes() {
-        return (int) Duration.ofMillis(expirationMillis).toMinutes();
+        return expirationMinutes;
     }
 
     public Otp validate(String code, OtpType type) {

@@ -1,12 +1,14 @@
 package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.auth.LoginDTO;
+import com.mdevs.cinefy.dto.auth.OAuthCallbackDTO;
+import com.mdevs.cinefy.dto.auth.OAuthCallbackResultDTO;
+import com.mdevs.cinefy.dto.auth.OAuthSignUpDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.SendOtpDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
-import com.mdevs.cinefy.entity.enums.OAuthProvider;
 import com.mdevs.cinefy.service.ClientAuthService;
 import com.mdevs.cinefy.service.JwtSessionService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
@@ -40,8 +42,27 @@ public class ClientAuthController {
     @PublicApi
     @GetMapping("/oauth/{provider}/authorization-url")
     public ResponseEntity<String> getOAuthAuthorizationUrl(@PathVariable String provider) {
-        String authorizationUrl = clientAuthService.getOAuthAuthorizationUrl(OAuthProvider.fromString(provider));
+        String authorizationUrl = clientAuthService.getOAuthAuthorizationUrl(provider);
         return ResponseEntity.ok(authorizationUrl);
+    }
+
+    @PublicApi
+    @PostMapping("/oauth/{provider}/callback")
+    public ResponseEntity<?> handleOAuthCallback(@PathVariable String provider,
+                                                 @Valid @RequestBody OAuthCallbackDTO dto) {
+        OAuthCallbackResultDTO result = clientAuthService.handleOAuthCallback(provider, dto);
+        if (result.tokens() == null) {
+            return ResponseEntity.ok(result.registration());
+        }
+
+        return authCookieResponseFactory.tokenResponse(result.tokens(), AUTH_PATH);
+    }
+
+    @PublicApi
+    @PostMapping("/oauth/sign-up")
+    public ResponseEntity<Void> oAuthSignUp(@Valid @RequestBody OAuthSignUpDTO dto) {
+        TokenPairDTO tokens = clientAuthService.oAuthSignUp(dto);
+        return authCookieResponseFactory.tokenResponse(tokens, AUTH_PATH);
     }
 
     @PublicApi

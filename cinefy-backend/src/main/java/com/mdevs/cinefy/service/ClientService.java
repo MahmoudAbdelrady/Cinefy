@@ -13,6 +13,7 @@ import com.mdevs.cinefy.repository.ClientRepository;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import com.mdevs.cinefy.shared.oauth.OAuthRegistrationToken;
 import com.mdevs.cinefy.shared.security.SecurityUtil;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +62,23 @@ public class ClientService implements UserDetailsService {
         client.setEmail(normalizedEmail);
         client.setPhoneNumber(normalizedPhoneNumber);
         client.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+        return clientRepository.save(client);
+    }
+
+    @Transactional
+    public Client createOAuthClient(OAuthRegistrationToken token, String phoneNumber) {
+        String normalizedEmail = token.email().trim().toLowerCase();
+        String normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+        validateSignUp(normalizedEmail, normalizedPhoneNumber);
+
+        Client client = new Client();
+        client.setFirstName(token.firstName());
+        client.setLastName(token.lastName());
+        client.setFullName(User.toFullName(token.firstName(), token.lastName()));
+        client.setEmail(normalizedEmail);
+        client.setPhoneNumber(normalizedPhoneNumber);
+        client.setVerified(true);
 
         return clientRepository.save(client);
     }

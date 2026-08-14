@@ -1,6 +1,10 @@
 package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.auth.LoginDTO;
+import com.mdevs.cinefy.dto.auth.OAuthCallbackDTO;
+import com.mdevs.cinefy.dto.auth.OAuthCallbackResultDTO;
+import com.mdevs.cinefy.dto.auth.OAuthRegistrationDTO;
+import com.mdevs.cinefy.dto.auth.OAuthSignUpDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.SendOtpDTO;
@@ -15,20 +19,27 @@ import com.mdevs.cinefy.repository.ClientRepository;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
+import com.mdevs.cinefy.shared.oauth.OAuthProviderClient;
 import com.mdevs.cinefy.shared.oauth.OAuthProviderClientFactory;
+import com.mdevs.cinefy.shared.oauth.OAuthRegistrationToken;
+import com.mdevs.cinefy.shared.oauth.OAuthUserProfile;
 import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
+import com.mdevs.cinefy.shared.security.CredentialCipher;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -49,15 +60,44 @@ public class ClientAuthService {
 
     private final OAuthProviderClientFactory oAuthProviderClientFactory;
 
+    private final CredentialCipher credentialCipher;
+
+    private final ObjectMapper objectMapper;
+
+    @Value("${cinefy.oauth.registration-token-expiration-minutes}")
+    private int oAuthRegistrationTokenExpirationMinutes;
+
     // ========================= Public API =========================
 
-    public String getOAuthAuthorizationUrl(OAuthProvider provider) {
-        return oAuthProviderClientFactory.getClient(provider).getAuthorizationUrl();
+    public String getOAuthAuthorizationUrl(String provider) {
+        return resolveOAuthClient(provider).getAuthorizationUrl();
     }
 
     public void signUp(SignUpDTO dto) {
         Client client = clientService.createClient(dto);
         dispatchOtp(client, OtpType.EMAIL_VERIFICATION);
+    }
+
+    public OAuthCallbackResultDTO handleOAuthCallback(String provider, OAuthCallbackDTO dto) {
+        OAuthUserProfile profile = resolveOAuthClient(provider).exchangeCode(dto.getCode(), dto.getState());
+        if (profile == null || StringUtils.isEmpty(profile.email())) {
+            throw new BusinessException("Could not read the account details from the provider");
+        }
+
+        return clientRepository.findByEmail(profile.email().trim().toLowerCase())
+                .map(client -> OAuthCallbackResultDTO.signedIn(generateTokens(client)))
+                .orElseGet(() -> OAuthCallbackResultDTO.registrationRequired(new OAuthRegistrationDTO(
+                        issueRegistrationToken(profile),
+                        profile.email(),
+                        profile.firstName(),
+                        profile.lastName()
+                )));
+    }
+
+    public TokenPairDTO oAuthSignUp(OAuthSignUpDTO dto) {
+        OAuthRegistrationToken token = parseRegistrationToken(dto.getRegistrationToken());
+        Client client = clientService.createOAuthClient(token, dto.getPhoneNumber());
+        return generateTokens(client);
     }
 
     public TokenPairDTO login(LoginDTO dto) {
@@ -103,6 +143,34 @@ public class ClientAuthService {
     }
 
     // =========================== Helpers ===========================
+
+    private OAuthProviderClient resolveOAuthClient(String provider) {
+        return oAuthProviderClientFactory.getClient(OAuthProvider.fromString(provider));
+    }
+
+    private String issueRegistrationToken(OAuthUserProfile profile) {
+        OAuthRegistrationToken token = new OAuthRegistrationToken(
+                profile.email(),
+                profile.firstName(),
+                profile.lastName(),
+                LocalDateTime.now().plusMinutes(oAuthRegistrationTokenExpirationMinutes));
+        return credentialCipher.encrypt(objectMapper.writeValueAsString(token));
+    }
+
+    private OAuthRegistrationToken parseRegistrationToken(String token) {
+        OAuthRegistrationToken parsed;
+        try {
+            parsed = objectMapper.readValue(credentialCipher.decrypt(token), OAuthRegistrationToken.class);
+        } catch (Exception ex) {
+            throw new BusinessException("Invalid or expired registration token");
+        }
+
+        if (parsed.expiresAt() == null || parsed.expiresAt().isBefore(LocalDateTime.now())) {
+            throw new BusinessException("Invalid or expired registration token");
+        }
+
+        return parsed;
+    }
 
     private TokenPairDTO generateTokens(Client client) {
         JwtClaims jwtClaims = JwtClaims.fromPrincipal(UserPrincipal.fromClient(client));
