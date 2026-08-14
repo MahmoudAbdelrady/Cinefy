@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.shared.oauth;
 
+import com.mdevs.cinefy.config.general.AppConfig;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +42,7 @@ public class GoogleOAuthClient extends OAuthProviderClient {
         String stateToken = issueState();
         String authorizationUrl = UriComponentsBuilder.fromUriString(AUTHORIZATION_URL)
                 .queryParam("client_id", clientId)
-                .queryParam("redirect_uri", redirectUri)
+                .queryParam("redirect_uri", AppConfig.getFrontendClientUrl() + redirectUri)
                 .queryParam("response_type", "code")
                 .queryParam("scope", "openid email profile")
                 .queryParam("state", stateToken)
