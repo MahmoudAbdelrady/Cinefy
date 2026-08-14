@@ -8,12 +8,14 @@ import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.entity.Client;
 import com.mdevs.cinefy.entity.Otp;
+import com.mdevs.cinefy.entity.enums.OAuthProvider;
 import com.mdevs.cinefy.entity.enums.OtpType;
 import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.ClientRepository;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
+import com.mdevs.cinefy.shared.oauth.OAuthProviderClientFactory;
 import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
@@ -45,7 +47,13 @@ public class ClientAuthService {
 
     private final EmailService emailService;
 
+    private final OAuthProviderClientFactory oAuthProviderClientFactory;
+
     // ========================= Public API =========================
+
+    public String getOAuthAuthorizationUrl(OAuthProvider provider) {
+        return oAuthProviderClientFactory.getClient(provider).getAuthorizationUrl();
+    }
 
     public void signUp(SignUpDTO dto) {
         Client client = clientService.createClient(dto);

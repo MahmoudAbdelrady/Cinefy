@@ -6,6 +6,7 @@ import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.SendOtpDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
+import com.mdevs.cinefy.entity.enums.OAuthProvider;
 import com.mdevs.cinefy.service.ClientAuthService;
 import com.mdevs.cinefy.service.JwtSessionService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +36,13 @@ public class ClientAuthController {
     private final AuthCookieResponseFactory authCookieResponseFactory;
 
     private static final String AUTH_PATH = "/clients/auth";
+
+    @PublicApi
+    @GetMapping("/oauth/{provider}/authorization-url")
+    public ResponseEntity<String> getOAuthAuthorizationUrl(@PathVariable String provider) {
+        String authorizationUrl = clientAuthService.getOAuthAuthorizationUrl(OAuthProvider.fromString(provider));
+        return ResponseEntity.ok(authorizationUrl);
+    }
 
     @PublicApi
     @PostMapping("/sign-up")
