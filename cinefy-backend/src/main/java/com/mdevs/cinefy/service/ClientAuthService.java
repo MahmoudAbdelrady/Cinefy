@@ -86,7 +86,13 @@ public class ClientAuthService {
         }
 
         return clientRepository.findByEmail(profile.email().trim().toLowerCase())
-                .map(client -> OAuthCallbackResultDTO.signedIn(generateTokens(client)))
+                .map(client -> {
+                    if (!client.isVerified()) {
+                        dispatchOtp(client, OtpType.EMAIL_VERIFICATION);
+                        throw new ForbiddenException("Account is not verified", ErrorCode.ACCOUNT_NOT_VERIFIED);
+                    }
+                    return OAuthCallbackResultDTO.signedIn(generateTokens(client));
+                })
                 .orElseGet(() -> OAuthCallbackResultDTO.registrationRequired(new OAuthRegistrationDTO(
                         issueRegistrationToken(profile),
                         profile.email(),

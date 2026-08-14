@@ -103,6 +103,11 @@ public class GoogleOAuthClient extends OAuthProviderClient {
             throw new BusinessException(SIGN_IN_FAILED_MESSAGE);
         }
 
+        if (!response.path("email_verified").asBoolean(false)) {
+            log.warn("Google user info returned an unverified email");
+            throw new BusinessException("Your Google email address is not verified");
+        }
+
         return new OAuthUserProfile(
                 email,
                 response.path("given_name").asString(null),
