@@ -1,29 +1,44 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { OAuthProvider } from '../../../shared/types';
+import { AuthService } from '../../../services';
 
 @Component({
   selector: 'oauth-buttons',
-  imports: [],
+  imports: [LoadingSpinnerComponent],
   templateUrl: './oauth-buttons.html',
   styleUrl: './oauth-buttons.scss',
 })
 export class OAuthButtonsComponent {
+  private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly pendingProvider = signal<string | null>(null);
+
   protected readonly providers: OAuthProvider[] = [
     {
       label: 'Google',
-      code: 'google',
+      code: 'GOOGLE',
       iconSrc: '/Assets/google-icon-logo.svg',
-      authenticate: () => this.authenticateWith('google'),
     },
     {
       label: 'Apple',
-      code: 'apple',
+      code: 'APPLE',
       iconSrc: '/Assets/apple-icon-logo.png',
-      authenticate: () => this.authenticateWith('apple'),
     },
   ];
 
-  private authenticateWith(_code: string) {
-    // OAuth flow wired later.
+  protected authenticateWith(code: string) {
+    if (this.pendingProvider()) return;
+
+    this.pendingProvider.set(code);
+    this.authService
+      .getOAuthAuthorizationUrl(code)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (authorizationUrl) => window.location.assign(authorizationUrl),
+        error: () => this.pendingProvider.set(null),
+      });
   }
 }

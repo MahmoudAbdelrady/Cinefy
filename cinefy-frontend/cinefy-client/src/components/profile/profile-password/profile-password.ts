@@ -1,6 +1,6 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputField, LoadingSpinnerComponent, PasswordChecklist } from 'cinefy-ui/components';
 import { linkConfirmPassword } from 'cinefy-ui/forms';
@@ -28,6 +28,9 @@ export class ProfilePasswordComponent {
 
   protected readonly saving = signal(false);
 
+  private readonly currentUser = toSignal(this.clientService.getCurrentUser());
+  protected readonly hasPassword = computed(() => this.currentUser()?.hasPassword ?? true);
+
   protected readonly passwordForm = new FormGroup({
     currentPassword: new FormControl('', {
       nonNullable: true,
@@ -49,16 +52,22 @@ export class ProfilePasswordComponent {
       this.passwordForm.controls.confirmPassword,
       this.destroyRef,
     );
+
+    effect(() => {
+      const currentPassword = this.passwordForm.controls.currentPassword;
+      currentPassword.setValidators(this.hasPassword() ? [Validators.required] : []);
+      currentPassword.updateValueAndValidity();
+    });
   }
 
   protected save(): void {
     if (this.passwordForm.invalid || this.saving()) return;
 
     const { currentPassword, newPassword } = this.passwordForm.getRawValue();
-    const payload: ChangePasswordPayload = {
-      currentPassword,
-      newPassword,
-    };
+    const hadPassword = this.hasPassword();
+    const payload: ChangePasswordPayload = hadPassword
+      ? { currentPassword, newPassword }
+      : { newPassword };
 
     this.saving.set(true);
     this.clientService
@@ -68,7 +77,7 @@ export class ProfilePasswordComponent {
         next: () => {
           this.saving.set(false);
           this.passwordForm.reset();
-          this.toastService.success('Password changed');
+          this.toastService.success(hadPassword ? 'Password changed' : 'Password set');
         },
         error: (err: HttpErrorResponse) => {
           this.saving.set(false);

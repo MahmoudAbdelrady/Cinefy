@@ -23,6 +23,7 @@ import com.mdevs.cinefy.shared.oauth.OAuthAuthorizationDTO;
 import com.mdevs.cinefy.shared.oauth.OAuthProviderClient;
 import com.mdevs.cinefy.shared.oauth.OAuthProviderClientFactory;
 import com.mdevs.cinefy.shared.oauth.OAuthRegistrationToken;
+import com.mdevs.cinefy.shared.oauth.OAuthState;
 import com.mdevs.cinefy.shared.oauth.OAuthUserProfile;
 import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
@@ -79,8 +80,9 @@ public class ClientAuthService {
         dispatchOtp(client, OtpType.EMAIL_VERIFICATION);
     }
 
-    public OAuthCallbackResultDTO handleOAuthCallback(String provider, OAuthCallbackDTO dto, String cookieStateToken) {
-        OAuthUserProfile profile = resolveOAuthClient(provider).exchangeCode(dto.getCode(), dto.getState(), cookieStateToken);
+    public OAuthCallbackResultDTO handleOAuthCallback(OAuthCallbackDTO dto, String cookieStateToken) {
+        OAuthState state = OAuthProviderClient.parseState(dto.getState());
+        OAuthUserProfile profile = resolveOAuthClient(state.provider()).exchangeCode(dto.getCode(), state.token(), cookieStateToken);
         if (profile == null || StringUtils.isEmpty(profile.email())) {
             throw new BusinessException("Could not read the account details from the provider");
         }

@@ -1,4 +1,5 @@
 export { OAuthButtonsComponent } from './auth/oauth-buttons/oauth-buttons';
+export { OAuthRegisterForm } from './auth/oauth-register-form/oauth-register-form';
 export { OtpStep } from './auth/otp-step/otp-step';
 export { MyTicketsListComponent } from './header/my-tickets-list/my-tickets-list';
 export { FeaturedCarouselComponent } from './home/featured-carousel/featured-carousel';

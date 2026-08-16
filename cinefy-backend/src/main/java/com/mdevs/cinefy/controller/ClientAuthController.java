@@ -60,11 +60,10 @@ public class ClientAuthController {
     }
 
     @PublicApi
-    @PostMapping("/oauth/{provider}/callback")
-    public ResponseEntity<?> handleOAuthCallback(@PathVariable String provider,
-                                                 @Valid @RequestBody OAuthCallbackDTO dto,
+    @PostMapping("/oauth/callback")
+    public ResponseEntity<?> handleOAuthCallback(@Valid @RequestBody OAuthCallbackDTO dto,
                                                  @CookieValue(value = OAuthProviderClient.OAUTH_STATE_COOKIE, required = false) String cookieStateToken) {
-        OAuthCallbackResultDTO result = clientAuthService.handleOAuthCallback(provider, dto, cookieStateToken);
+        OAuthCallbackResultDTO result = clientAuthService.handleOAuthCallback(dto, cookieStateToken);
         ResponseCookie clearedStateCookie = cookieUtil.buildOAuthStateCookie("", 0);
 
         if (result.tokens() == null) {

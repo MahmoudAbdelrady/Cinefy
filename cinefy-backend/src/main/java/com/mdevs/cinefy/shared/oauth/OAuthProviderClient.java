@@ -1,12 +1,14 @@
 package com.mdevs.cinefy.shared.oauth;
 
 import com.mdevs.cinefy.config.general.AppConfig;
+import com.mdevs.cinefy.entity.enums.OAuthProvider;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -22,6 +24,10 @@ public abstract class OAuthProviderClient {
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
 
     private static final Duration READ_TIMEOUT = Duration.ofSeconds(10);
+
+    private static final String STATE_SEPARATOR = ":";
+
+    private static final String INVALID_STATE_MESSAGE = "Invalid sign-in request";
 
     protected RestClient restClient;
 
@@ -39,9 +45,42 @@ public abstract class OAuthProviderClient {
                 .build();
     }
 
-    public abstract OAuthAuthorizationDTO getAuthorizationUrl();
+    public OAuthAuthorizationDTO getAuthorizationUrl() {
+        OAuthState state = new OAuthState(getProvider().name(), UUID.randomUUID().toString());
+        String authorizationUrl = buildAuthorizationRequest()
+                .queryParam("state", state.provider() + STATE_SEPARATOR + state.token())
+                .build()
+                .encode()
+                .toUriString();
 
-    public abstract OAuthUserProfile exchangeCode(String code, String state, String cookieStateToken);
+        return new OAuthAuthorizationDTO(authorizationUrl, state.token());
+    }
+
+    public OAuthUserProfile exchangeCode(String code, String state, String cookieStateToken) {
+        validateState(state, cookieStateToken);
+        return readUserProfile(code);
+    }
+
+    public static OAuthState parseState(String state) {
+        if (StringUtils.isEmpty(state)) {
+            throw new BusinessException(INVALID_STATE_MESSAGE);
+        }
+
+        String[] parts = state.split(STATE_SEPARATOR, 2);
+        if (parts.length != 2 || StringUtils.isEmpty(parts[0]) || StringUtils.isEmpty(parts[1])) {
+            throw new BusinessException(INVALID_STATE_MESSAGE);
+        }
+
+        return new OAuthState(parts[0], parts[1]);
+    }
+
+    // ====================== Provider Contract ======================
+
+    protected abstract OAuthProvider getProvider();
+
+    protected abstract UriComponentsBuilder buildAuthorizationRequest();
+
+    protected abstract OAuthUserProfile readUserProfile(String code);
 
     // =========================== Helpers ===========================
 
@@ -49,14 +88,10 @@ public abstract class OAuthProviderClient {
         return AppConfig.getFrontendClientUrl() + redirectUri;
     }
 
-    protected String issueState() {
-        return UUID.randomUUID().toString();
-    }
-
     protected void validateState(String state, String cookieStateToken) {
         if (StringUtils.isEmpty(state) || StringUtils.isEmpty(cookieStateToken) || !MessageDigest.isEqual(
                 state.getBytes(StandardCharsets.UTF_8), cookieStateToken.getBytes(StandardCharsets.UTF_8))) {
-            throw new BusinessException("Invalid sign-in request");
+            throw new BusinessException(INVALID_STATE_MESSAGE);
         }
     }
 }

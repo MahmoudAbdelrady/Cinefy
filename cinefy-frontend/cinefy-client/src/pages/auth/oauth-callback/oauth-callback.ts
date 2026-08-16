@@ -1,21 +1,21 @@
-import { Component, afterNextRender, inject, signal } from '@angular/core';
+import { Component, DestroyRef, afterNextRender, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { OAuthRegisterForm } from '../../../components';
+import { AuthService } from '../../../services';
+import { OAuthRegistration } from '../../../shared/types';
+import { skipErrorToast } from '../../../app/core/interceptors';
 import { ArrowRightIcon, CheckIcon, TriangleAlertIcon } from '../../../shared/icons';
 
-type OAuthCallbackPhase = 'verifying' | 'success' | 'failed';
-
-const PROVIDER_LABELS: Record<string, string> = {
-  google: 'Google',
-  apple: 'Apple',
-};
+type OAuthCallbackPhase = 'verifying' | 'register' | 'success' | 'failed';
 
 const HANDOFF_MS = 900;
 
 @Component({
   selector: 'oauth-callback-page',
-  imports: [RouterLink, LucideDynamicIcon, LoadingSpinnerComponent],
+  imports: [RouterLink, LucideDynamicIcon, LoadingSpinnerComponent, OAuthRegisterForm],
   templateUrl: './oauth-callback.html',
   styleUrl: './oauth-callback.scss',
 })
@@ -28,9 +28,11 @@ export class OAuthCallbackPage {
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly phase = signal<OAuthCallbackPhase>('verifying');
-  protected readonly provider = signal('your provider');
+  protected readonly registration = signal<OAuthRegistration | null>(null);
 
   constructor() {
     afterNextRender(() => this.start());
@@ -38,30 +40,36 @@ export class OAuthCallbackPage {
 
   private start() {
     const params = this.route.snapshot.queryParamMap;
-
-    this.provider.set(PROVIDER_LABELS[params.get('provider') ?? ''] ?? 'your provider');
-
-    if (params.get('error')) {
-      this.phase.set('failed');
-      return;
-    }
-
     const code = params.get('code');
-    if (!code) {
+    const state = params.get('state');
+
+    if (params.get('error') || !code || !state) {
       this.phase.set('failed');
       return;
     }
 
-    this.exchange(code, params.get('state'));
+    this.authService
+      .handleOAuthCallback({ code, state }, skipErrorToast())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (registration) => this.onExchanged(registration),
+        error: () => this.phase.set('failed'),
+      });
   }
 
-  private exchange(_code: string, _state: string | null) {
-    // OAuth exchange wired later.
-  }
+  private onExchanged(registration: OAuthRegistration | null) {
+    if (registration) {
+      this.registration.set(registration);
+      this.phase.set('register');
+      return;
+    }
 
-  private onExchanged() {
     this.phase.set('success');
-    setTimeout(() => this.router.navigateByUrl(this.redirectUrl()), HANDOFF_MS);
+    setTimeout(() => this.goToRedirect(), HANDOFF_MS);
+  }
+
+  protected goToRedirect() {
+    this.router.navigateByUrl(this.redirectUrl());
   }
 
   private redirectUrl(): string {

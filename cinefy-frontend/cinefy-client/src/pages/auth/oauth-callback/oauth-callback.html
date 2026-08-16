@@ -8,10 +8,12 @@
       <p>We couldn't complete your sign-in. Please try again.</p>
     </div>
 
-    <a class="btn-primary ocp-retry" routerLink="../login">
+    <a class="btn-primary ocp-retry" routerLink="/membership/login">
       <span>Try again</span>
       <svg class="ocp-retry-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
     </a>
+  } @else if (phase() === 'register' && registration()) {
+    <oauth-register-form [registration]="registration()!" (completed)="goToRedirect()" />
   } @else {
     @let done = phase() === 'success';
 
@@ -28,7 +30,7 @@
         {{
           done
             ? 'Redirecting you to continue.'
-            : 'Verifying your sign-in with ' + provider() + '. This will only take a moment.'
+            : 'Verifying your sign-in. This will only take a moment.'
         }}
       </p>
     </div>

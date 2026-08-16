@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.shared.oauth;
 
+import com.mdevs.cinefy.entity.enums.OAuthProvider;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -34,25 +35,22 @@ public class GoogleOAuthClient extends OAuthProviderClient {
     private static final String SIGN_IN_FAILED_MESSAGE = "Could not complete the sign-in with Google";
 
     @Override
-    public OAuthAuthorizationDTO getAuthorizationUrl() {
-        String stateToken = issueState();
-        String authorizationUrl = UriComponentsBuilder.fromUriString(AUTHORIZATION_URL)
-                .queryParam("client_id", clientId)
-                .queryParam("redirect_uri", getRedirectUri())
-                .queryParam("response_type", "code")
-                .queryParam("scope", "openid email profile")
-                .queryParam("state", stateToken)
-                .build()
-                .encode()
-                .toUriString();
-
-        return new OAuthAuthorizationDTO(authorizationUrl, stateToken);
+    protected OAuthProvider getProvider() {
+        return OAuthProvider.GOOGLE;
     }
 
     @Override
-    public OAuthUserProfile exchangeCode(String code, String state, String cookieStateToken) {
-        validateState(state, cookieStateToken);
-        return readUserProfile(requestAccessToken(code));
+    protected UriComponentsBuilder buildAuthorizationRequest() {
+        return UriComponentsBuilder.fromUriString(AUTHORIZATION_URL)
+                .queryParam("client_id", clientId)
+                .queryParam("redirect_uri", getRedirectUri())
+                .queryParam("response_type", "code")
+                .queryParam("scope", "openid email profile");
+    }
+
+    @Override
+    protected OAuthUserProfile readUserProfile(String code) {
+        return readProfile(requestAccessToken(code));
     }
 
     // =========================== Helpers ===========================
@@ -81,7 +79,7 @@ public class GoogleOAuthClient extends OAuthProviderClient {
         return accessToken;
     }
 
-    private OAuthUserProfile readUserProfile(String accessToken) {
+    private OAuthUserProfile readProfile(String accessToken) {
         JsonNode response = exchange(() -> restClient.get()
                 .uri(USER_INFO_URL)
                 .header("Authorization", "Bearer " + accessToken)

@@ -11,6 +11,8 @@ public record CurrentClientDTO(
 
         String email,
 
-        String phoneNumber) {
+        String phoneNumber,
+
+        boolean hasPassword) {
 
 }

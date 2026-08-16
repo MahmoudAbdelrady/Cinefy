@@ -10,6 +10,9 @@ export type { HallType } from './halls';
 export type {
   OAuthProvider,
   AuthFormStage,
+  OAuthCallbackPayload,
+  OAuthRegistration,
+  OAuthSignUpPayload,
   SignUpPayload,
   LoginPayload,
   OtpCodePayload,
