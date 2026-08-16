@@ -42,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -91,7 +92,8 @@ public class ClientAuthService {
                 .map(client -> {
                     if (!client.isVerified()) {
                         dispatchOtp(client, OtpType.EMAIL_VERIFICATION);
-                        throw new ForbiddenException("Account is not verified", ErrorCode.ACCOUNT_NOT_VERIFIED);
+                        throw new ForbiddenException("Account is not verified", ErrorCode.ACCOUNT_NOT_VERIFIED,
+                                Map.of("email", client.getEmail()));
                     }
                     return OAuthCallbackResultDTO.signedIn(generateTokens(client));
                 })

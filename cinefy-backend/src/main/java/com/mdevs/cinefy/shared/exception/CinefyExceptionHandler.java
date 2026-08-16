@@ -55,7 +55,7 @@ public class CinefyExceptionHandler {
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<?> handleForbiddenException(ForbiddenException ex) {
-        return ExceptionResponseMaker.makeResponse(ex.getMessage(), ex.getErrorCode(), HttpStatus.FORBIDDEN);
+        return ExceptionResponseMaker.makeResponse(ex.getMessage(), ex.getErrorCode(), ex.getData(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)

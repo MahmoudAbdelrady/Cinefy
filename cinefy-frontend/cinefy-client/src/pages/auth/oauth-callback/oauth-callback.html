@@ -5,7 +5,7 @@
         <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24"></svg>
       </span>
       <h1>Sign-in failed</h1>
-      <p>We couldn't complete your sign-in. Please try again.</p>
+      <p>{{ errorMessage() }}</p>
     </div>
 
     <a class="btn-primary ocp-retry" routerLink="/membership/login">
@@ -14,6 +14,16 @@
     </a>
   } @else if (phase() === 'register' && registration()) {
     <oauth-register-form [registration]="registration()!" (completed)="goToRedirect()" />
+  } @else if (phase() === 'verify-account') {
+    <auth-otp-step
+      heading="Verify your account"
+      subheading="Your account isn't verified yet. We emailed a 6-digit code, enter it below to finish setting up."
+      otpType="EMAIL_VERIFICATION"
+      [showBack]="false"
+      [email]="unverifiedEmail()"
+      [verifyFn]="verifyAccount"
+      (verified)="goToRedirect()"
+    />
   } @else {
     @let done = phase() === 'success';
 
