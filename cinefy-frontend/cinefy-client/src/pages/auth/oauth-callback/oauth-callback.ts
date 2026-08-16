@@ -14,8 +14,6 @@ type OAuthCallbackPhase = 'verifying' | 'register' | 'verify-account' | 'success
 
 const DEFAULT_ERROR_MESSAGE = "We couldn't complete your sign-in. Please try again.";
 
-const HANDOFF_MS = 900;
-
 @Component({
   selector: 'oauth-callback-page',
   imports: [RouterLink, LucideDynamicIcon, LoadingSpinnerComponent, OAuthRegisterForm, OtpStep],
@@ -82,7 +80,7 @@ export class OAuthCallbackPage {
     }
 
     this.phase.set('success');
-    setTimeout(() => this.goToRedirect(), HANDOFF_MS);
+    this.goToRedirect();
   }
 
   protected goToRedirect() {
