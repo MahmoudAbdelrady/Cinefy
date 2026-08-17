@@ -2,10 +2,26 @@ export interface OAuthProvider {
   label: string;
   code: string;
   iconSrc: string;
-  authenticate: () => void;
 }
 
 export type AuthFormStage = 'form' | 'verify';
+
+export interface OAuthCallbackPayload {
+  code: string;
+  state: string;
+}
+
+export interface OAuthRegistration {
+  registrationToken: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface OAuthSignUpPayload {
+  registrationToken: string;
+  phoneNumber: string;
+}
 
 export interface SignUpPayload {
   firstName: string;

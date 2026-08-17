@@ -33,7 +33,14 @@ export class ClientService {
   }
 
   changeCurrentUserPassword(payload: ChangePasswordPayload): Observable<void> {
-    return this.http.put<void>('/clients/me/password', payload);
+    return this.http.put<void>('/clients/me/password', payload).pipe(
+      tap(() => {
+        const user = this.currentUser.value;
+        if (user && !user.hasPassword) {
+          this.currentUser.next({ ...user, hasPassword: true });
+        }
+      }),
+    );
   }
 
   deletePaymentMethod(id: string): Observable<void> {

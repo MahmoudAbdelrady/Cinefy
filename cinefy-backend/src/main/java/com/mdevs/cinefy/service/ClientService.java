@@ -13,9 +13,11 @@ import com.mdevs.cinefy.repository.ClientRepository;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import com.mdevs.cinefy.shared.oauth.OAuthRegistrationToken;
 import com.mdevs.cinefy.shared.security.SecurityUtil;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -66,6 +68,23 @@ public class ClientService implements UserDetailsService {
     }
 
     @Transactional
+    public Client createOAuthClient(OAuthRegistrationToken token, String phoneNumber) {
+        String normalizedEmail = token.email().trim().toLowerCase();
+        String normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+        validateSignUp(normalizedEmail, normalizedPhoneNumber);
+
+        Client client = new Client();
+        client.setFirstName(token.firstName());
+        client.setLastName(token.lastName());
+        client.setFullName(User.toFullName(token.firstName(), token.lastName()));
+        client.setEmail(normalizedEmail);
+        client.setPhoneNumber(normalizedPhoneNumber);
+        client.setVerified(true);
+
+        return clientRepository.save(client);
+    }
+
+    @Transactional
     public CurrentClientDTO updateCurrentClient(UpdateClientProfileDTO dto) {
         Client client = findClientByUuid(SecurityUtil.getCurrentUserUuid());
         String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
@@ -101,8 +120,13 @@ public class ClientService implements UserDetailsService {
     @Transactional
     public void changePassword(ChangeClientPasswordDTO dto) {
         Client client = findClientByUuid(SecurityUtil.getCurrentUserUuid());
-        if (!passwordEncoder.matches(dto.getCurrentPassword(), client.getPassword())) {
-            throw new BusinessException("Current password is incorrect", ErrorCode.PASSWORD_INCORRECT);
+        if (client.hasPassword()) {
+            if (StringUtils.isEmpty(dto.getCurrentPassword())) {
+                throw new BusinessException("Current password is required");
+            }
+            if (!passwordEncoder.matches(dto.getCurrentPassword(), client.getPassword())) {
+                throw new BusinessException("Current password is incorrect", ErrorCode.PASSWORD_INCORRECT);
+            }
         }
         applyNewPassword(client, dto.getNewPassword());
     }
@@ -146,7 +170,8 @@ public class ClientService implements UserDetailsService {
                 client.getLastName(),
                 client.getFullName(),
                 client.getEmail(),
-                client.getPhoneNumber());
+                client.getPhoneNumber(),
+                client.hasPassword());
     }
 
     private String normalizePhoneNumber(String phoneNumber) {

@@ -1,0 +1,28 @@
+<div class="orf-heading">
+  <h1>Almost there</h1>
+  <p>
+    You're signing up as
+    <strong>{{ registration().email }}</strong
+    >. Add your phone number to finish creating your account.
+  </p>
+</div>
+
+<form class="orf-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <phone-input
+    [countryControl]="registerForm.controls.phoneCountry"
+    [numberControl]="registerForm.controls.phoneNumber"
+  />
+
+  <button
+    type="submit"
+    class="btn-primary orf-submit"
+    [disabled]="registerForm.invalid || submitting()"
+  >
+    @if (submitting()) {
+      <loading-spinner variant="xs" />
+    } @else {
+      <span>Create account</span>
+      <svg class="orf-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
+    }
+  </button>
+</form>

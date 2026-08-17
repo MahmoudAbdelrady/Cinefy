@@ -5,6 +5,10 @@ export type ApiErrorCode =
   | 'PASSWORD_REUSED'
   | 'PAYMENT_NOT_ATTEMPTED';
 
+export interface Redirection {
+  url: string;
+}
+
 export interface ApiError {
   message: string;
   errorCode?: ApiErrorCode;

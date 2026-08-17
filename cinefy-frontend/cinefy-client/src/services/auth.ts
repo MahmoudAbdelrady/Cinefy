@@ -8,6 +8,10 @@ import type {
   SendOtpPayload,
   VerifyOtpPayload,
   ResetPasswordPayload,
+  Redirection,
+  OAuthCallbackPayload,
+  OAuthRegistration,
+  OAuthSignUpPayload,
 } from '../shared/types';
 import { ClientService } from './clients';
 
@@ -37,6 +41,27 @@ export class AuthService {
   login(data: LoginPayload, context?: HttpContext): Observable<void> {
     return this.http
       .post<void>('/clients/auth/login', data, { context })
+      .pipe(tap(() => this.authStatus.set(true)));
+  }
+
+  getOAuthAuthorizationUrl(provider: string): Observable<string> {
+    return this.http
+      .get<Redirection>(`/clients/auth/oauth/${provider}/authorization-url`)
+      .pipe(map((response) => response.url));
+  }
+
+  handleOAuthCallback(
+    data: OAuthCallbackPayload,
+    context?: HttpContext,
+  ): Observable<OAuthRegistration | null> {
+    return this.http
+      .post<OAuthRegistration | null>('/clients/auth/oauth/callback', data, { context })
+      .pipe(tap((registration) => this.authStatus.set(registration === null)));
+  }
+
+  oAuthSignUp(data: OAuthSignUpPayload, context?: HttpContext): Observable<void> {
+    return this.http
+      .post<void>('/clients/auth/oauth/sign-up', data, { context })
       .pipe(tap(() => this.authStatus.set(true)));
   }
 

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -25,6 +26,10 @@ public class AuthCookieResponseFactory {
     private long refreshTokenExpiration;
 
     public ResponseEntity<Void> tokenResponse(TokenPairDTO tokens, String refreshTokenPath) {
+        return tokenResponse(tokens, refreshTokenPath, List.of());
+    }
+
+    public ResponseEntity<Void> tokenResponse(TokenPairDTO tokens, String refreshTokenPath, List<ResponseCookie> additionalCookies) {
         ResponseCookie accessTokenCookie = cookieUtil.buildAccessTokenCookie(tokens.accessToken(), accessTokenExpiration);
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
@@ -34,6 +39,10 @@ public class AuthCookieResponseFactory {
             ResponseCookie csrfTokenCookie = cookieUtil.buildCsrfTokenCookie(UUID.randomUUID().toString(), refreshTokenExpiration);
             responseBuilder.header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
             responseBuilder.header(HttpHeaders.SET_COOKIE, csrfTokenCookie.toString());
+        }
+
+        for (ResponseCookie additionalCookie : additionalCookies) {
+            responseBuilder.header(HttpHeaders.SET_COOKIE, additionalCookie.toString());
         }
 
         return responseBuilder.build();

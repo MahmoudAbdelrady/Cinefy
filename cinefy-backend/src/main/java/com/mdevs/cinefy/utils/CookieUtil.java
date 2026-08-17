@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.utils;
 
+import com.mdevs.cinefy.shared.oauth.OAuthProviderClient;
 import com.mdevs.cinefy.shared.security.CsrfProtectionMatcher;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import jakarta.servlet.http.Cookie;
@@ -41,6 +42,10 @@ public class CookieUtil {
 
     public ResponseCookie buildCsrfTokenCookie(String value, long expirationMs) {
         return build(CsrfProtectionMatcher.CSRF_TOKEN_COOKIE, value, expirationMs, false, ROOT_PATH);
+    }
+
+    public ResponseCookie buildOAuthStateCookie(String value, long expirationMs) {
+        return build(OAuthProviderClient.OAUTH_STATE_COOKIE, value, expirationMs, true, ROOT_PATH);
     }
 
     private ResponseCookie build(String name, String value, long expirationMs, boolean httpOnly, String path) {

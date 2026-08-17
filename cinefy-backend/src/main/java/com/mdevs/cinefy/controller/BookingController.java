@@ -9,7 +9,7 @@ import com.mdevs.cinefy.dto.booking.PastBookingDTO;
 import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.payment.CardTokenCallbackDTO;
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
-import com.mdevs.cinefy.dto.payment.PaymentRedirectionDTO;
+import com.mdevs.cinefy.dto.RedirectionDTO;
 import com.mdevs.cinefy.dto.payment.SavedCardPaymentDTO;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
@@ -139,13 +139,13 @@ public class BookingController {
 
     @PreAuthorize("hasRole('CLIENT')")
     @PostMapping("/{uuid}/pay")
-    public ResponseEntity<PaymentRedirectionDTO> payBooking(@PathVariable String uuid) {
+    public ResponseEntity<RedirectionDTO> payBooking(@PathVariable String uuid) {
         return ResponseEntity.ok(bookingService.createPaymentCheckout(uuid));
     }
 
     @PreAuthorize("hasRole('CLIENT')")
     @PostMapping("/{uuid}/pay-saved-card")
-    public ResponseEntity<PaymentRedirectionDTO> paySavedCard(@PathVariable String uuid,
+    public ResponseEntity<RedirectionDTO> paySavedCard(@PathVariable String uuid,
                                                               @Valid @RequestBody SavedCardPaymentDTO dto) {
         return ResponseEntity.ok(bookingService.paySavedCard(uuid, dto));
     }

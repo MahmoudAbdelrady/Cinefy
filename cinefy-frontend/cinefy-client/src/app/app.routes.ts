@@ -10,6 +10,7 @@ import {
   LoginPage,
   MovieDetailPage,
   MoviesPage,
+  OAuthCallbackPage,
   ProfilePage,
   SeatSelectionPage,
   SignUpPage,
@@ -32,6 +33,10 @@ export const routes: Routes = [
       {
         path: 'forgot-password',
         component: ForgotPasswordPage,
+      },
+      {
+        path: 'oauth/callback',
+        component: OAuthCallbackPage,
       },
     ],
   },

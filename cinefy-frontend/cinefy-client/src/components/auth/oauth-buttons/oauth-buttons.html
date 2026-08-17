@@ -2,9 +2,18 @@
 
 <div class="ob-grid">
   @for (provider of providers; track provider.code) {
-    <button type="button" class="btn-base ob-btn" (click)="provider.authenticate()">
-      <img class="ob-icon" [src]="provider.iconSrc" [alt]="provider.label" />
-      <span>{{ provider.label }}</span>
+    <button
+      type="button"
+      class="btn-base ob-btn"
+      [disabled]="pendingProvider() !== null"
+      (click)="authenticateWith(provider.code)"
+    >
+      @if (pendingProvider() === provider.code) {
+        <loading-spinner variant="xs" />
+      } @else {
+        <img class="ob-icon" [src]="provider.iconSrc" [alt]="provider.label" />
+        <span>{{ provider.label }}</span>
+      }
     </button>
   }
 </div>

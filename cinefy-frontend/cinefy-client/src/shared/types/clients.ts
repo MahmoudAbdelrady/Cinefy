@@ -5,6 +5,7 @@ export interface CurrentUser {
   fullName: string;
   email: string;
   phoneNumber: string;
+  hasPassword: boolean;
 }
 
 export interface UpdateProfilePayload {
@@ -14,7 +15,7 @@ export interface UpdateProfilePayload {
 }
 
 export interface ChangePasswordPayload {
-  currentPassword: string;
+  currentPassword?: string;
   newPassword: string;
 }
 
