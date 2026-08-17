@@ -156,8 +156,8 @@ export class CheckoutPage {
       .paySavedCard(booking.id, method.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ redirectionUrl }) => {
-          window.location.href = redirectionUrl;
+        next: ({ url }) => {
+          window.location.href = url;
         },
         error: () => {
           this.processing.set(false);
@@ -174,8 +174,8 @@ export class CheckoutPage {
       .payBooking(booking.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ redirectionUrl }) => {
-          window.location.href = redirectionUrl;
+        next: ({ url }) => {
+          window.location.href = url;
         },
         error: () => {
           this.redirecting.set(false);

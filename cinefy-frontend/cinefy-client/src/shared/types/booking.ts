@@ -92,10 +92,6 @@ interface BookingRequest {
   seats: string[];
 }
 
-interface PaymentRedirection {
-  redirectionUrl: string;
-}
-
 export type {
   BookingShowtime,
   HallTypeShowtimes,
@@ -108,5 +104,4 @@ export type {
   BookingConfirmation,
   PastBooking,
   BookingRequest,
-  PaymentRedirection,
 };

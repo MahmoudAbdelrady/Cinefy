@@ -2,7 +2,7 @@ package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.payment.PaymentAttemptDTO;
 import com.mdevs.cinefy.dto.payment.PaymentCallbackData;
-import com.mdevs.cinefy.dto.payment.PaymentRedirectionDTO;
+import com.mdevs.cinefy.dto.RedirectionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobIntentionRequestDTO;
 import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
@@ -49,7 +49,7 @@ public class PaymentService {
 
         String checkoutUrl = paymobClient.getUnifiedCheckoutUrl(gateway.credentials(), intention.clientSecret());
 
-        return PaymentAttemptDTO.redirection(gateway.entity(), new PaymentRedirectionDTO(checkoutUrl));
+        return PaymentAttemptDTO.redirection(gateway.entity(), new RedirectionDTO(checkoutUrl));
     }
 
     public PaymentAttemptDTO payWithSavedCard(Booking booking, ClientPaymentMethod paymentMethod) {

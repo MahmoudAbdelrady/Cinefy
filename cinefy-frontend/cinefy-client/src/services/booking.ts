@@ -9,7 +9,7 @@ import type {
   BookingSummary,
   HallTypeShowtimes,
   PastBooking,
-  PaymentRedirection,
+  Redirection,
   SavedCardPaymentRequest,
   SeatSelection,
 } from '../shared/types';
@@ -66,12 +66,12 @@ export class BookingService {
     return this.http.delete<void>(`/booking/${uuid}`, { context });
   }
 
-  payBooking(uuid: string): Observable<PaymentRedirection> {
-    return this.http.post<PaymentRedirection>(`/booking/${uuid}/pay`, null);
+  payBooking(uuid: string): Observable<Redirection> {
+    return this.http.post<Redirection>(`/booking/${uuid}/pay`, null);
   }
 
-  paySavedCard(uuid: string, paymentMethodId: string): Observable<PaymentRedirection> {
+  paySavedCard(uuid: string, paymentMethodId: string): Observable<Redirection> {
     const payload: SavedCardPaymentRequest = { paymentMethodId };
-    return this.http.post<PaymentRedirection>(`/booking/${uuid}/pay-saved-card`, payload);
+    return this.http.post<Redirection>(`/booking/${uuid}/pay-saved-card`, payload);
   }
 }

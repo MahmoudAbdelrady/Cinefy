@@ -13,7 +13,7 @@ import com.mdevs.cinefy.dto.booking.SeatSelectionDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
 import com.mdevs.cinefy.dto.payment.PaymentAttemptDTO;
-import com.mdevs.cinefy.dto.payment.PaymentRedirectionDTO;
+import com.mdevs.cinefy.dto.RedirectionDTO;
 import com.mdevs.cinefy.dto.payment.PaymobPayResponseDTO;
 import com.mdevs.cinefy.dto.payment.SavedCardPaymentDTO;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
@@ -322,7 +322,7 @@ public class BookingService {
     }
 
     @Transactional
-    public PaymentRedirectionDTO createPaymentCheckout(String uuid) {
+    public RedirectionDTO createPaymentCheckout(String uuid) {
         Booking booking = prepareBookingForPayment(uuid);
         PaymentAttemptDTO attempt = paymentService.createCheckout(booking);
 
@@ -333,7 +333,7 @@ public class BookingService {
     }
 
     @Transactional
-    public PaymentRedirectionDTO paySavedCard(String uuid, SavedCardPaymentDTO dto) {
+    public RedirectionDTO paySavedCard(String uuid, SavedCardPaymentDTO dto) {
         Booking booking = prepareBookingForPayment(uuid);
         ClientPaymentMethod paymentMethod = clientPaymentMethodService.findOwnedByCurrentClient(dto.getPaymentMethodId());
 
@@ -344,11 +344,11 @@ public class BookingService {
 
         if (result.success()) {
             confirmPaidBooking(booking, result.id());
-            return new PaymentRedirectionDTO(buildBookingConfirmationUrl(booking.getUuid()));
+            return new RedirectionDTO(buildBookingConfirmationUrl(booking.getUuid()));
         }
         if (result.pending()) {
             bookingRepository.save(booking);
-            return new PaymentRedirectionDTO(result.redirectionUrl());
+            return new RedirectionDTO(result.redirectionUrl());
         }
 
         throw new BusinessException(StringUtils.defaultIfEmpty(result.message(), "The payment was declined"));

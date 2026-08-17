@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.dto.RedirectionDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OAuthCallbackDTO;
 import com.mdevs.cinefy.dto.auth.OAuthCallbackResultDTO;
@@ -50,13 +51,13 @@ public class ClientAuthController {
 
     @PublicApi
     @GetMapping("/oauth/{provider}/authorization-url")
-    public ResponseEntity<String> getOAuthAuthorizationUrl(@PathVariable String provider) {
+    public ResponseEntity<RedirectionDTO> getOAuthAuthorizationUrl(@PathVariable String provider) {
         OAuthAuthorizationDTO authorization = clientAuthService.getOAuthAuthorizationUrl(provider);
         ResponseCookie stateCookie = cookieUtil.buildOAuthStateCookie(authorization.cookieStateToken(), OAuthProviderClient.OAUTH_STATE_COOKIE_MAX_AGE_MS);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, stateCookie.toString())
-                .body(authorization.authorizationUrl());
+                .body(new RedirectionDTO(authorization.authorizationUrl()));
     }
 
     @PublicApi

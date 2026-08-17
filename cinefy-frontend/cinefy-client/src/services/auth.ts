@@ -8,6 +8,7 @@ import type {
   SendOtpPayload,
   VerifyOtpPayload,
   ResetPasswordPayload,
+  Redirection,
   OAuthCallbackPayload,
   OAuthRegistration,
   OAuthSignUpPayload,
@@ -44,9 +45,9 @@ export class AuthService {
   }
 
   getOAuthAuthorizationUrl(provider: string): Observable<string> {
-    return this.http.get(`/clients/auth/oauth/${provider}/authorization-url`, {
-      responseType: 'text',
-    });
+    return this.http
+      .get<Redirection>(`/clients/auth/oauth/${provider}/authorization-url`)
+      .pipe(map((response) => response.url));
   }
 
   handleOAuthCallback(

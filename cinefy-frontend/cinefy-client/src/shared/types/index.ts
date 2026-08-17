@@ -28,7 +28,7 @@ export type {
   ClientPaymentMethod,
   SavedCardPaymentRequest,
 } from './clients';
-export type { ApiError, ApiErrorCode } from './api';
+export type { ApiError, ApiErrorCode, Redirection } from './api';
 export type {
   BookingShowtime,
   HallTypeShowtimes,
@@ -41,6 +41,5 @@ export type {
   BookingConfirmation,
   PastBooking,
   BookingRequest,
-  PaymentRedirection,
 } from './booking';
 export type { SelectableSeatCategory, SeatLayout, SeatLayoutResponse, TicketPrice } from './seats';
