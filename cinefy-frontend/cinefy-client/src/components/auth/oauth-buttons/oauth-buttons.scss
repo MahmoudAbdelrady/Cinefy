@@ -38,8 +38,13 @@
   background-color: rgba($color-input, 0.2);
   color: $color-foreground;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: rgba($color-input, 0.4);
+  }
+
+  &:disabled {
+    color: $color-muted-foreground;
+    cursor: not-allowed;
   }
 }
 

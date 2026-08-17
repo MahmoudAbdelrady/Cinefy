@@ -23,9 +23,9 @@ export class OAuthButtonsComponent {
       iconSrc: '/Assets/google-icon-logo.svg',
     },
     {
-      label: 'Apple',
-      code: 'APPLE',
-      iconSrc: '/Assets/apple-icon-logo.png',
+      label: 'Microsoft',
+      code: 'MICROSOFT',
+      iconSrc: '/Assets/microsoft-icon-logo.svg',
     },
   ];
 

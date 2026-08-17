@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public enum OAuthProvider {
     GOOGLE,
-    APPLE;
+    MICROSOFT;
 
     public static OAuthProvider fromString(String name) {
         return Arrays.stream(values())
