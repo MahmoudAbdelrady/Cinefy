@@ -10,6 +10,7 @@ import {
   LoginPage,
   MovieDetailPage,
   MoviesPage,
+  NotFoundPage,
   OAuthCallbackPage,
   ProfilePage,
   SeatSelectionPage,
@@ -75,6 +76,10 @@ export const routes: Routes = [
         path: 'profile',
         component: ProfilePage,
         canActivate: [authGuard],
+      },
+      {
+        path: '**',
+        component: NotFoundPage,
       },
     ],
   },
