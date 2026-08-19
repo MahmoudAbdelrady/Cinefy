@@ -1,6 +1,7 @@
 export { DashboardPage } from './dashboard/dashboard';
 export { HallsPage } from './halls/halls';
 export { MoviesPage } from './movies/movies';
+export { StatisticsPage } from './statistics/statistics';
 export { PaymentPage } from './payment/payment';
 export { StaffPage } from './staff/staff';
 export { AccessDeniedPage } from './access-denied/access-denied';

@@ -1,0 +1,6 @@
+@use 'cinefy-ui/styles/mixins' as *;
+
+.statistics-container {
+  @include flex-column;
+  gap: 24px;
+}

@@ -6,6 +6,7 @@ import {
   DashboardPage,
   HallsPage,
   MoviesPage,
+  StatisticsPage,
   PaymentPage,
   StaffPage,
   LoginPage,
@@ -43,6 +44,15 @@ export const routes: Routes = [
       },
       {
         path: 'movies',
+        component: AccessDeniedPage,
+      },
+      {
+        path: 'statistics',
+        component: StatisticsPage,
+        canMatch: [positionCanMatch],
+      },
+      {
+        path: 'statistics',
         component: AccessDeniedPage,
       },
       {
