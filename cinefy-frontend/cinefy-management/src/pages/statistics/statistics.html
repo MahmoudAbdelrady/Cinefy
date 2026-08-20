@@ -1,1 +1,9 @@
-<div class="statistics-container"></div>
+<div class="statistics-container">
+  <header class="statistics-header">
+    <date-range-selector (rangeChange)="onRangeChange($event)" />
+  </header>
+
+  @if (range(); as range) {
+    <summary-cards [range]="range" />
+  }
+</div>

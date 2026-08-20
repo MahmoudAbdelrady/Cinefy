@@ -1,8 +1,10 @@
 export {
   LucideArrowDown as ArrowDownIcon,
+  LucideArrowDownRight as ArrowDownRightIcon,
   LucideArrowLeft as ArrowLeftIcon,
   LucideArrowRight as ArrowRightIcon,
   LucideArrowUp as ArrowUpIcon,
+  LucideArrowUpRight as ArrowUpRightIcon,
   LucideBriefcaseBusiness as BriefCaseIcon,
   LucideCalendar as CalendarIcon,
   LucideCalendarClock as CalendarClockIcon,
@@ -40,6 +42,7 @@ export {
   LucideMapPin as MapPinIcon,
   LucideMegaphone as MegaphoneIcon,
   LucideMenu as MenuIcon,
+  LucideMinus as MinusIcon,
   LucidePhone as PhoneIcon,
   LucidePlus as PlusIcon,
   LucidePower as PowerIcon,

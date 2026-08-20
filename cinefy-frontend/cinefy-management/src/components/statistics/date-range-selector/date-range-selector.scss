@@ -1,0 +1,146 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+.range-selector {
+  @include flex-align;
+  gap: 8px;
+
+  .rs-label {
+    font-size: 14px;
+    color: $gray-600;
+  }
+
+  .preset-pills {
+    @include flex-align;
+    gap: 4px;
+    padding: 4px;
+    background-color: $gray-100;
+    border-radius: $radius-lg;
+
+    button {
+      padding: 6px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: $gray-600;
+      border-radius: $radius-md;
+      cursor: pointer;
+      transition:
+        background-color 150ms ease,
+        color 150ms ease,
+        box-shadow 150ms ease;
+
+      &:hover:not(.selected) {
+        color: $gray-900;
+      }
+
+      &.selected {
+        background-color: $color-background;
+        color: $gray-900;
+        box-shadow: $shadow-xs;
+      }
+
+      &:focus-visible {
+        outline: none;
+        box-shadow: $shadow-focus-ring;
+      }
+    }
+  }
+
+  .custom-trigger {
+    @include flex-center;
+    @include lucide-icon-fix;
+
+    padding: 8px;
+    color: $gray-600;
+    background-color: $color-background;
+    border: 1px solid $gray-300;
+    border-radius: $radius-lg;
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      color 150ms ease;
+
+    &:hover {
+      background-color: $gray-100;
+    }
+
+    &.selected {
+      color: $blue-600;
+      background-color: $blue-50;
+      border-color: $blue-600;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: $shadow-focus-ring;
+    }
+  }
+
+  @include below-mobile {
+    width: 100%;
+
+    .preset-pills {
+      flex: 1;
+
+      button {
+        flex: 1;
+      }
+    }
+  }
+}
+
+// ─── Custom range popover ────────────────────────────────────────────────────
+
+.custom-range-popover {
+  position: absolute;
+  width: 288px;
+  padding: 16px;
+  background-color: $color-background;
+  border: 1px solid $gray-200;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-lg;
+  z-index: 30;
+
+  .crp-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: $gray-900;
+    margin-bottom: 12px;
+  }
+
+  .crp-fields {
+    @include flex-column;
+    gap: 12px;
+  }
+
+  .crp-field {
+    @include flex-column;
+    gap: 4px;
+
+    > span {
+      font-size: 12px;
+      font-weight: 500;
+      color: $gray-600;
+    }
+  }
+
+  .crp-error {
+    margin-top: 8px;
+    font-size: 12px;
+    color: $red-600;
+  }
+
+  .crp-actions {
+    @include flex-align;
+    gap: 8px;
+    margin-top: 16px;
+
+    button {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+}

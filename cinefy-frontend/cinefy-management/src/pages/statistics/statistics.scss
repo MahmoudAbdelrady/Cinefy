@@ -1,6 +1,19 @@
 @use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
 
 .statistics-container {
   @include flex-column;
   gap: 24px;
+}
+
+.statistics-header {
+  @include flex-align;
+
+  justify-content: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  @include below-mobile {
+    justify-content: stretch;
+  }
 }

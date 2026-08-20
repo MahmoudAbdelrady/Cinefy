@@ -1,0 +1,60 @@
+@if (loading()) {
+  <div class="summary-loading">
+    <loading-spinner variant="xl" />
+  </div>
+} @else if (failed()) {
+  <empty-state
+    [icon]="icons.WarningIcon"
+    title="Couldn't load the summary"
+    description="Something went wrong. Please try again later."
+  />
+} @else {
+  <ul class="summary-grid">
+    @for (card of cards(); track card.key) {
+      <li class="summary-card">
+        <p class="sc-label">{{ card.label }}</p>
+
+        <p class="sc-value">
+          {{ card.value }}
+          @if (card.unit) {
+            <span class="sc-unit">{{ card.unit }}</span>
+          }
+        </p>
+
+        @if (card.note) {
+          <p class="sc-note">{{ card.note }}</p>
+        }
+
+        @switch (card.delta.kind) {
+          @case ('none') {
+            <p class="sc-delta neutral">Nothing recorded in {{ comparisonLabel() }} to compare</p>
+          }
+          @case ('flat') {
+            <p class="sc-delta neutral">
+              <svg [lucideIcon]="icons.MinusIcon" [size]="12"></svg>
+              <span>No change vs {{ comparisonLabel() }}</span>
+            </p>
+          }
+          @default {
+            <p
+              class="sc-delta"
+              [class.positive]="(card.delta.kind === 'up') === card.higherIsBetter"
+              [class.negative]="(card.delta.kind === 'up') !== card.higherIsBetter"
+            >
+              <svg
+                [lucideIcon]="
+                  card.delta.kind === 'up' ? icons.ArrowUpRightIcon : icons.ArrowDownRightIcon
+                "
+                [size]="12"
+              ></svg>
+              <span>
+                {{ card.delta.kind === 'up' ? 'Up' : 'Down' }}
+                {{ card.delta.percent.toFixed(1) }}% vs {{ comparisonLabel() }}
+              </span>
+            </p>
+          }
+        }
+      </li>
+    }
+  </ul>
+}
