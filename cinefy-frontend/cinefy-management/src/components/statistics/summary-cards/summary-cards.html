@@ -15,7 +15,7 @@
         <p class="sc-label">{{ card.label }}</p>
 
         <p class="sc-value">
-          {{ card.value }}
+          {{ (card.value | number) + (card.isPercentage ? '%' : '') }}
           @if (card.unit) {
             <span class="sc-unit">{{ card.unit }}</span>
           }

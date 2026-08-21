@@ -1,10 +1,14 @@
 import { Component, signal } from '@angular/core';
-import { DateRangeSelectorComponent, SummaryCardsComponent } from '../../components';
+import {
+  DateRangeSelectorComponent,
+  SalesChartComponent,
+  SummaryCardsComponent,
+} from '../../components';
 import type { DateRange } from '../../shared/types';
 
 @Component({
   selector: 'statistics-page',
-  imports: [DateRangeSelectorComponent, SummaryCardsComponent],
+  imports: [DateRangeSelectorComponent, SummaryCardsComponent, SalesChartComponent],
   templateUrl: './statistics.html',
   styleUrl: './statistics.scss',
 })

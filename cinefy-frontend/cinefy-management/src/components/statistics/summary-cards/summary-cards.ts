@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import {
@@ -18,16 +19,24 @@ type MetricDelta = { kind: 'none' } | { kind: 'flat' } | { kind: 'up' | 'down'; 
 interface SummaryCard {
   key: string;
   label: string;
-  value: string;
+  value: number;
+  isPercentage?: boolean;
   unit?: string;
   note?: string;
   delta: MetricDelta;
   higherIsBetter: boolean;
 }
 
+function computeDelta(current: number, previous: number): MetricDelta {
+  if (previous === 0) return current === 0 ? { kind: 'flat' } : { kind: 'none' };
+  if (current === previous) return { kind: 'flat' };
+  const change = (current - previous) / previous;
+  return { kind: change > 0 ? 'up' : 'down', percent: Math.abs(change) * 100 };
+}
+
 @Component({
   selector: 'summary-cards',
-  imports: [LucideDynamicIcon, LoadingSpinnerComponent, EmptyStateComponent],
+  imports: [LucideDynamicIcon, LoadingSpinnerComponent, EmptyStateComponent, DecimalPipe],
   templateUrl: './summary-cards.html',
   styleUrl: './summary-cards.scss',
 })
@@ -66,7 +75,7 @@ export class SummaryCardsComponent {
       {
         key: 'gross',
         label: 'Total sales',
-        value: formatMoney(grossCurrent),
+        value: grossCurrent,
         unit: CURRENCY,
         delta: computeDelta(grossCurrent, grossPrevious),
         higherIsBetter: true,
@@ -74,7 +83,7 @@ export class SummaryCardsComponent {
       {
         key: 'net',
         label: 'Net revenue',
-        value: formatMoney(current.netRevenue),
+        value: current.netRevenue,
         unit: CURRENCY,
         note: 'Sales minus refunds',
         delta: computeDelta(current.netRevenue, previous.netRevenue),
@@ -83,23 +92,24 @@ export class SummaryCardsComponent {
       {
         key: 'refunds',
         label: 'Refunded',
-        value: formatMoney(current.refunded),
+        value: current.refunded,
         unit: CURRENCY,
-        note: `${formatPercent(refundShare)} of sales`,
+        note: `${(refundShare * 100).toFixed(1)}% of sales`,
         delta: computeDelta(current.refunded, previous.refunded),
         higherIsBetter: false,
       },
       {
         key: 'tickets',
         label: 'Tickets sold',
-        value: formatCount(current.ticketsSold),
+        value: current.ticketsSold,
         delta: computeDelta(current.ticketsSold, previous.ticketsSold),
         higherIsBetter: true,
       },
       {
         key: 'occupancy',
         label: 'Occupancy',
-        value: formatPercent(current.occupancy),
+        value: current.occupancy,
+        isPercentage: true,
         delta: computeDelta(current.occupancy, previous.occupancy),
         higherIsBetter: true,
       },
@@ -124,26 +134,4 @@ export class SummaryCardsComponent {
       },
     });
   }
-}
-
-function computeDelta(current: number, previous: number): MetricDelta {
-  if (previous === 0) return current === 0 ? { kind: 'flat' } : { kind: 'none' };
-  if (current === previous) return { kind: 'flat' };
-  const change = (current - previous) / previous;
-  return { kind: change > 0 ? 'up' : 'down', percent: Math.abs(change) * 100 };
-}
-
-function formatMoney(amount: number): string {
-  return amount.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
-function formatCount(value: number): string {
-  return value.toLocaleString('en-US');
-}
-
-function formatPercent(fraction: number): string {
-  return `${(fraction * 100).toFixed(1)}%`;
 }

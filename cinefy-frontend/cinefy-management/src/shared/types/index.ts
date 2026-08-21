@@ -52,7 +52,12 @@ export type {
 
 export type { StatsCard } from './stats';
 
-export type { DateRange, StatisticsSummary } from './statistics';
+export type {
+  DateRange,
+  SalesPoint,
+  StatisticsPeriodTotals,
+  StatisticsSummary,
+} from './statistics';
 
 export { USER_POSITION_LABELS, EMPLOYMENT_TYPE_LABELS, WEEK_DAY_LABELS } from './staff';
 export type {

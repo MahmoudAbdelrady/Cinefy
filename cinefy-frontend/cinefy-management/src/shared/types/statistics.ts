@@ -15,4 +15,9 @@ interface StatisticsSummary {
   previous: StatisticsPeriodTotals;
 }
 
-export type { DateRange, StatisticsPeriodTotals, StatisticsSummary };
+interface SalesPoint {
+  date: string;
+  details: StatisticsPeriodTotals;
+}
+
+export type { DateRange, SalesPoint, StatisticsPeriodTotals, StatisticsSummary };
