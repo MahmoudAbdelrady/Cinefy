@@ -188,8 +188,11 @@ $min-bar-slot-width: 18px;
   }
 
   .numeric {
-    text-align: right;
+    text-align: center;
     font-variant-numeric: tabular-nums;
+  }
+
+  td.numeric {
     color: $gray-900;
   }
 

@@ -1,3 +1,4 @@
+@use '../../shared/styles/colors' as *;
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
@@ -9,9 +10,20 @@
 .statistics-header {
   @include flex-align;
 
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
+
+  .statistics-range-label {
+    font-size: 14px;
+    color: $gray-600;
+
+    span {
+      font-weight: 600;
+      color: $gray-900;
+      white-space: nowrap;
+    }
+  }
 
   @include below-mobile {
     justify-content: stretch;

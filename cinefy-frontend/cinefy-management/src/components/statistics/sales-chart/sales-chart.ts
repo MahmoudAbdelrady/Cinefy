@@ -3,9 +3,9 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ChartColumnIcon, WarningIcon } from '../../../shared/icons';
 import { StatisticsService } from '../../../services';
+import { CURRENCY } from '../../../shared/types';
 import type { DateRange, SalesPoint, StatisticsPeriodTotals } from '../../../shared/types';
 
-const CURRENCY = 'EGP';
 const MIN_BAR_HEIGHT_PCT = 2;
 
 interface SalesBar {

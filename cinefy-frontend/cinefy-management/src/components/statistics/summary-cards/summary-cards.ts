@@ -10,9 +10,8 @@ import {
 } from '../../../shared/icons';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
 import { StatisticsService } from '../../../services';
+import { CURRENCY } from '../../../shared/types';
 import type { DateRange, StatisticsSummary } from '../../../shared/types';
-
-const CURRENCY = 'EGP';
 
 type MetricDelta = { kind: 'none' } | { kind: 'flat' } | { kind: 'up' | 'down'; percent: number };
 

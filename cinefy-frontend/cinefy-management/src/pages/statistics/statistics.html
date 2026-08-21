@@ -1,10 +1,20 @@
 <div class="statistics-container">
   <header class="statistics-header">
+    @if (range(); as range) {
+      <p class="statistics-range-label">
+        Showing
+        <span>{{ range.from | date: 'd MMM y' }}</span>
+        to
+        <span>{{ range.to | date: 'd MMM y' }}</span>
+      </p>
+    }
+
     <date-range-selector (rangeChange)="onRangeChange($event)" />
   </header>
 
   @if (range(); as range) {
     <summary-cards [range]="range" />
     <sales-chart [range]="range" />
+    <movie-performance [range]="range" />
   }
 </div>

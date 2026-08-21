@@ -1,3 +1,5 @@
+const CURRENCY = 'EGP';
+
 interface DateRange {
   from: string;
   to: string;
@@ -20,4 +22,14 @@ interface SalesPoint {
   details: StatisticsPeriodTotals;
 }
 
-export type { DateRange, SalesPoint, StatisticsPeriodTotals, StatisticsSummary };
+interface MoviePerformance {
+  movieTitle: string;
+  netRevenue: number;
+  refunded: number;
+  totalShowtimes: number;
+  ticketsSold: number;
+  totalSeats: number;
+}
+
+export { CURRENCY };
+export type { DateRange, MoviePerformance, SalesPoint, StatisticsPeriodTotals, StatisticsSummary };

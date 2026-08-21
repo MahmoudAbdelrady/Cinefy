@@ -52,8 +52,10 @@ export type {
 
 export type { StatsCard } from './stats';
 
+export { CURRENCY } from './statistics';
 export type {
   DateRange,
+  MoviePerformance,
   SalesPoint,
   StatisticsPeriodTotals,
   StatisticsSummary,

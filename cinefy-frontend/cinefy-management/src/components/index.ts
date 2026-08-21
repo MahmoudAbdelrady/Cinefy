@@ -30,5 +30,6 @@ export { ProfileIdentityComponent } from './profile/profile-identity/profile-ide
 export { ProfilePersonalDetailsComponent } from './profile/profile-personal-details/profile-personal-details';
 export { ProfilePasswordComponent } from './profile/profile-password/profile-password';
 export { DateRangeSelectorComponent } from './statistics/date-range-selector/date-range-selector';
+export { MoviePerformanceComponent } from './statistics/movie-performance/movie-performance';
 export { SalesChartComponent } from './statistics/sales-chart/sales-chart';
 export { SummaryCardsComponent } from './statistics/summary-cards/summary-cards';
