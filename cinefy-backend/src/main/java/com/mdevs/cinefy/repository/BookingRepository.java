@@ -2,6 +2,8 @@ package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookingCountsProjection;
+import com.mdevs.cinefy.dto.statistics.DailyRevenueProjection;
+import com.mdevs.cinefy.dto.statistics.DailyTicketsSoldProjection;
 import com.mdevs.cinefy.dto.statistics.RevenueProjection;
 import com.mdevs.cinefy.dto.statistics.TicketsSoldProjection;
 import com.mdevs.cinefy.entity.Booking;
@@ -211,6 +213,33 @@ public interface BookingRepository extends BaseRepository<Booking> {
     TicketsSoldProjection countTicketsSoldBetween(@Param("previousFrom") LocalDateTime previousFrom,
                                                   @Param("from") LocalDateTime from,
                                                   @Param("to") LocalDateTime to);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.DailyRevenueProjection(
+                CAST(s.startDateTime AS LocalDate),
+                COALESCE(SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN b.status = 'REFUNDED' THEN b.totalAmount ELSE 0 END), 0))
+            FROM Booking b
+            JOIN b.showtime s
+            WHERE s.startDateTime BETWEEN :from AND :to
+            GROUP BY CAST(s.startDateTime AS LocalDate)
+            """)
+    List<DailyRevenueProjection> sumDailyRevenueBetween(@Param("from") LocalDateTime from,
+                                                        @Param("to") LocalDateTime to);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.DailyTicketsSoldProjection(
+                CAST(s.startDateTime AS LocalDate),
+                COUNT(bs.id))
+            FROM BookingSeat bs
+            JOIN bs.booking b
+            JOIN bs.showtime s
+            WHERE b.status = 'CONFIRMED'
+            AND s.startDateTime BETWEEN :from AND :to
+            GROUP BY CAST(s.startDateTime AS LocalDate)
+            """)
+    List<DailyTicketsSoldProjection> countDailyTicketsSoldBetween(@Param("from") LocalDateTime from,
+                                                                  @Param("to") LocalDateTime to);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT b FROM Booking b WHERE b.uuid = :uuid")

@@ -1,12 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { delay, Observable, of } from 'rxjs';
-import { eachDayOfInterval, format, parseISO } from 'date-fns';
 import type { PaginatedResponse } from 'cinefy-ui/types';
 import type { DateRange, MoviePerformance, SalesPoint, StatisticsSummary } from '../shared/types';
 
 const MOCK_LATENCY_MS = 600;
-const AVERAGE_TICKET_PRICE = 103;
 
 const MOCK_MOVIE_PERFORMANCE: MoviePerformance[] = [
   {
@@ -118,7 +116,9 @@ export class StatisticsService {
   }
 
   getSales(range: DateRange): Observable<SalesPoint[]> {
-    return of(mockSalesPoints(range)).pipe(delay(MOCK_LATENCY_MS));
+    return this.http.get<SalesPoint[]>('/statistics/sales', {
+      params: { from: range.from, to: range.to },
+    });
   }
 
   getMoviePerformance(
@@ -137,24 +137,4 @@ export class StatisticsService {
       },
     }).pipe(delay(MOCK_LATENCY_MS));
   }
-}
-
-function mockSalesPoints(range: DateRange): SalesPoint[] {
-  const days = eachDayOfInterval({ start: parseISO(range.from), end: parseISO(range.to) });
-
-  return days.map((day, index) => {
-    const weekday = day.getDay();
-    const weekendBoost = weekday === 4 || weekday === 5 ? 1.6 : 1;
-    const wave = 1 + 0.35 * Math.sin(index * 1.7);
-    const netRevenue = Math.round(24000 * weekendBoost * wave);
-    return {
-      date: format(day, 'yyyy-MM-dd'),
-      details: {
-        netRevenue,
-        refunded: index % 4 === 0 ? Math.round(netRevenue * 0.06) : 0,
-        ticketsSold: Math.round(netRevenue / AVERAGE_TICKET_PRICE),
-        occupancy: Math.min(95, 42 * weekendBoost * wave),
-      },
-    };
-  });
 }

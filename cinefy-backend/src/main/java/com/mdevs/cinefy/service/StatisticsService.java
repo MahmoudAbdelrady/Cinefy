@@ -1,8 +1,12 @@
 package com.mdevs.cinefy.service;
 
+import com.mdevs.cinefy.dto.statistics.DailyHallProjection;
+import com.mdevs.cinefy.dto.statistics.DailyRevenueProjection;
+import com.mdevs.cinefy.dto.statistics.DailyTicketsSoldProjection;
 import com.mdevs.cinefy.dto.statistics.DateRangeDTO;
 import com.mdevs.cinefy.dto.statistics.HallPeriodProjection;
 import com.mdevs.cinefy.dto.statistics.RevenueProjection;
+import com.mdevs.cinefy.dto.statistics.SalesPointDTO;
 import com.mdevs.cinefy.dto.statistics.StatisticsPeriodTotalsDTO;
 import com.mdevs.cinefy.dto.statistics.StatisticsSummaryDTO;
 import com.mdevs.cinefy.dto.statistics.TicketsSoldProjection;
@@ -18,6 +22,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +70,40 @@ public class StatisticsService {
         dto.setCurrent(toPeriodTotals(revenue.currentNetRevenue(), revenue.currentRefunded(), ticketsSold.current(), currentSeats));
         dto.setPrevious(toPeriodTotals(revenue.previousNetRevenue(), revenue.previousRefunded(), ticketsSold.previous(), previousSeats));
         return dto;
+    }
+
+    public List<SalesPointDTO> getSales(DateRangeDTO range) {
+        validateDateRange(range);
+
+        LocalDateTime from = range.getFrom().atStartOfDay();
+        LocalDateTime to = range.getTo().atTime(LocalTime.MAX);
+
+        Map<LocalDate, DailyRevenueProjection> revenueByDate = bookingRepository.sumDailyRevenueBetween(from, to)
+                .stream()
+                .collect(Collectors.toMap(DailyRevenueProjection::date, Function.identity()));
+        Map<LocalDate, Long> ticketsByDate = bookingRepository.countDailyTicketsSoldBetween(from, to)
+                .stream()
+                .collect(Collectors.toMap(DailyTicketsSoldProjection::date, DailyTicketsSoldProjection::ticketsSold));
+        Map<LocalDate, Long> seatsByDate = hallRepository.findDailyHallsWithShowtimesBetween(from, to)
+                .stream()
+                .collect(Collectors.groupingBy(DailyHallProjection::date,
+                        Collectors.summingLong(projection -> projection.hall().getCapacity())));
+
+        List<SalesPointDTO> points = new ArrayList<>();
+        for (LocalDate date = range.getFrom(); !date.isAfter(range.getTo()); date = date.plusDays(1)) {
+            DailyRevenueProjection revenue = revenueByDate.get(date);
+            long ticketsSold = ticketsByDate.getOrDefault(date, 0L);
+
+            SalesPointDTO point = new SalesPointDTO();
+            point.setDate(date);
+            point.setDetails(toPeriodTotals(
+                    revenue == null ? BigDecimal.ZERO : revenue.netRevenue(),
+                    revenue == null ? BigDecimal.ZERO : revenue.refunded(),
+                    ticketsSold,
+                    seatsByDate.getOrDefault(date, 0L)));
+            points.add(point);
+        }
+        return points;
     }
 
     // =========================== Helpers ===========================
