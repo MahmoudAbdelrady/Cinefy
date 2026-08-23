@@ -4,8 +4,10 @@
       <p class="statistics-range-label">
         Showing
         <span>{{ range.from | date: 'd MMM y' }}</span>
-        to
-        <span>{{ range.to | date: 'd MMM y' }}</span>
+        @if (range.from !== range.to) {
+          to
+          <span>{{ range.to | date: 'd MMM y' }}</span>
+        }
       </p>
     }
 
