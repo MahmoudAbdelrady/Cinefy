@@ -15,7 +15,10 @@ The app won't boot without these (typically set in `application-local.properties
 - `cinefy.jwt.secret`, `cinefy.jwt.access-token-expiration`, `cinefy.jwt.refresh-token-expiration`, `cinefy.jwt.refresh-token-rotation-threshold` — JWT signing key + token lifetimes (read by `JwtUtil` / `AuthCookieResponseFactory` / `JwtSessionService`).
 - `cinefy.cookie.secure`, `cinefy.cookie.same-site` — auth-cookie flags (read by `CookieUtil`).
 - `cinefy.admin.email` (required), `cinefy.admin.password` (optional — the admin seed is skipped with a warning if empty) — bootstrap admin account (`CinefyApplication`).
-- `cinefy.otp.expiration` — OTP lifetime in ms, read by `OtpService`. No default in `application.properties`, so the app won't boot without it.
+- `cinefy.otp.expiration-minutes` — OTP lifetime in **minutes**, read by `OtpService`. No default in `application.properties`, so the app won't boot without it. (Renamed from the older millisecond-valued `cinefy.otp.expiration`; a deployment still setting the old key fails to start.)
+- `cinefy.oauth.redirect-uri` — the OAuth callback **path** (e.g. `/membership/oauth/callback`), concatenated onto `AppConfig.getFrontendClientUrl()`. The provider redirects the browser to the **frontend**, not to a backend endpoint.
+- `cinefy.oauth.google.client-id` / `cinefy.oauth.google.client-secret`, `cinefy.oauth.microsoft.client-id` / `cinefy.oauth.microsoft.client-secret` — per-provider OAuth credentials.
+- `cinefy.oauth.registration-token-expiration-minutes` — lifetime of the encrypted OAuth registration token issued to a first-time social sign-in.
 - `app.frontend.mgmt.url`, `app.frontend.client.url` — the two allowed CORS origins (management + client), read by `SecurityConfig` into a CORS allow-list of both.
 - `app.tmdb.api-base-url`, `app.tmdb.image-base-url` — defaulted in `application.properties` to TMDB v3; the TMDB bearer token `app.tmdb.access-token` is read by `TmdbMovieService`.
 - `app.paymob.api-base-url` — defaulted in `application.properties` to `https://accept.paymob.com`.
@@ -37,6 +40,8 @@ The app won't boot without these (typically set in `application-local.properties
 
   **Every secret-taking `PaymobClient` method takes `GatewayProviderCredentials`, never a raw key string** — it casts to `PaymobGateway.Credentials` on the first line of the body. That keeps `PaymobGateway.*` types out of `PaymentService`, so a second provider only needs a new spec + client, not changes at the call sites. `createIntention` also takes the gateway's `List<PaymentGatewayChannel<?>>` and derives `currency` + `payment_methods` from the **active** channels itself (private `readChannelCurrency` / `readIntegrationIds`); those two fields are absent from `PaymobIntentionRequestDTO` and are injected into the JSON body at send time via `objectMapper.valueToTree`. A gateway whose active channels disagree on currency throws — one intention carries exactly one currency.
 
+- **OAuth2 social sign-in (client app only)** — `shared/oauth/` holds an abstract `OAuthProviderClient` over `RestClient` with two `@Component` subclasses, `GoogleOAuthClient` and `MicrosoftOAuthClient`; `OAuthProviderClientFactory.getClient(OAuthProvider)` resolves between them with an exhaustive `switch` (no `default`, so a new enum constant breaks the build until handled). The base class owns the CSRF-style `state` handshake, the `oauthState` cookie constants, and the 5s/10s connect/read timeouts; subclasses supply only endpoints, scopes, and the provider's JSON field names. Google additionally **requires `email_verified`**; Microsoft reads `mail` with a `userPrincipalName` fallback. JSON is parsed with `tools.jackson.databind.JsonNode` (**Jackson 3**).
+
 - **Credential encryption** — `CredentialCipher` under `shared/security/` (AES-256-GCM); requires `cinefy.encryption.key` (Base64 of 32 bytes). Encrypts the `PaymentGateway.credentials` JSON blob before persisting.
 - **libphonenumber** (Google) — phone validation/normalization for `StaffMember` and `Client`
 - `@EnableJpaAuditing`, `@EnableScheduling`, `@EnableAsync`, and `@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)` on `CinefyApplication`
@@ -50,10 +55,14 @@ com.mdevs.cinefy
 │   └── general/    — AppConfig (mail, env, password encoder), SecurityConfig (CORS + filter chain)
 ├── controller/     — REST controllers (@RestController)
 │                     Hall, Showtime, StaffMember, PaymentGateway, TmdbMovie,
-│                     ManagementAuth, Booking, Client, ClientAuth
+│                     ManagementAuth, Booking, Client, ClientAuth, Statistics
 ├── filter/         — JwtAuthenticationFilter (cookie JWT → SecurityContext),
 │                     CsrfValidationFilter (double-submit CSRF token check)
-├── dto/            — Request/response DTOs, grouped per domain
+├── dto/            — Request/response DTOs, grouped per domain.
+│                     `RedirectionDTO` (a bare `record RedirectionDTO(String url)`) sits at the
+│                     top level, not under a domain folder — it is shared by the Paymob checkout
+│                     redirect and the OAuth authorization-url response (renamed from the former
+│                     `payment/PaymentRedirectionDTO`).
 │   ├── hall/       — HallDTO, HallDetailDTO, HallLayoutDTO, HallSummaryDTO,
 │   │                  HallReferenceDTO, HallTypeDTO, HallLayout (JSONB payload record),
 │   │                  SeatLayoutDTO, TicketPricingDTO
@@ -80,9 +89,17 @@ com.mdevs.cinefy
 │   │                  GatewayProviderChannelConfig, PaymobGateway (the Paymob spec),
 │   │                  PaymentCallbackData (sealed interface, permits the two below),
 │   │                  TransactionCallbackDTO, CardTokenCallbackDTO,
-│   │                  PaymentRedirectionDTO, SavedCardPaymentDTO, ClientPaymentMethodDTO,
+│   │                  SavedCardPaymentDTO, ClientPaymentMethodDTO,
 │   │                  PaymobIntentionDTO, PaymobIntentionRequestDTO, PaymobPayResponseDTO
+│   ├── statistics/ — DateRangeDTO (the shared ?from=&to= query DTO),
+│   │                  StatisticsSummaryDTO, StatisticsPeriodTotalsDTO,
+│   │                  SalesPointDTO, MoviePerformanceDTO,
+│   │                  RevenueProjection, TicketsSoldProjection, HallPeriodProjection,
+│   │                  DailyRevenueProjection, DailyTicketsSoldProjection, DailyHallProjection,
+│   │                  MovieRevenueProjection, MovieTicketsSoldProjection, MovieHallProjection
 │   └── auth/       — LoginDTO, ForgotPasswordDTO, OtpCodeDTO, SendOtpDTO,
+│                      OAuthCallbackDTO, OAuthCallbackResultDTO, OAuthRegistrationDTO,
+│                      OAuthSignUpDTO,
 │                      ResetPasswordDTO, TokenPairDTO
 ├── entity/         — JPA entities (@Entity / @MappedSuperclass)
 │                     Hall, HallType, Showtime, TmdbMovie, Booking, BookingSeat,
@@ -96,7 +113,8 @@ com.mdevs.cinefy
 │                     PaymentGatewayService, TmdbMovieService, ManagementAuthService,
 │                     BookingService, PaymentService, ClientPaymentMethodService,
 │                     ClientService, ClientAuthService, CurrentUserService,
-│                     JwtSessionService, OtpService, EmailService, InvalidJwtService)
+│                     JwtSessionService, OtpService, EmailService, InvalidJwtService,
+│                     StatisticsService)
 ├── aspect/         — RequestLoggingAspect, TransactionLoggingAspect
 ├── job/            — Scheduled jobs: ShowtimeStatusJob, TmdbSyncJob,
 │                     BookingCleanupJob, OtpCleanupJob, InvalidJwtCleanupJob
@@ -104,6 +122,10 @@ com.mdevs.cinefy
 │   ├── annotation/ — @PublicApi (marks endpoints that skip authentication)
 │   ├── exception/  — Global @RestControllerAdvice (CinefyExceptionHandler) + CinefyExceptionResponse
 │   │                 + exception types under types/ (Business, Conflict, NotFound, Forbidden, Unauthorized) + ErrorCode
+│   ├── oauth/      — OAuthProviderClient (abstract base), GoogleOAuthClient,
+│   │                  MicrosoftOAuthClient, OAuthProviderClientFactory,
+│   │                  OAuthState, OAuthAuthorizationDTO, OAuthUserProfile,
+│   │                  OAuthRegistrationToken
 │   ├── payment/    — PaymobClient (RestClient client for the Paymob Unified Checkout API)
 │   ├── security/   — JwtUtil, JwtClaims, TokenType, UserPrincipal, SecurityUtil,
 │   │                 CinefyApiAuthorizationManager, CinefyAuthenticationEntryPoint,
@@ -180,8 +202,11 @@ Global `@RestControllerAdvice` in `CinefyExceptionHandler`:
 - `ConflictException` → 409 (same shape as `BusinessException`, optional `ErrorCode`). Thrown **only** from inside a `catch (DataIntegrityViolationException)` — i.e. a constraint the DB actually rejected, not a pre-check. An `existsBy*` pre-check that fails is ordinary validation and stays a `BusinessException` → 400.
 - `DataIntegrityViolationException` → 409 `"A record with the same unique value already exists"`
 - `UnauthorizedException` / `AuthenticationException` / `JwtException` → 401
-- `ForbiddenException` / `AuthorizationDeniedException` → 403
-- `MethodArgumentNotValidException` / `ConstraintViolationException` → 400 with field-level errors
+- `ForbiddenException` / `AuthorizationDeniedException` → 403. `ForbiddenException` carries an optional `ErrorCode` **and an optional `Object data`** payload (3-arg constructor), serialized as `data` on the response — the OAuth callback uses `Map.of("email", ...)` with `ACCOUNT_NOT_VERIFIED` so the frontend can prefill its OTP screen.
+- `BindException` / `ConstraintViolationException` → 400 with field-level errors.
+  The handler is registered on `BindException` (not its subclass `MethodArgumentNotValidException`)
+  so it covers **both** `@Valid @RequestBody` and `@Valid @ModelAttribute` query-param binding —
+  the latter throws the superclass, and would otherwise fall through to the generic 500.
 - Generic `Exception` → 500 (message hidden in production)
 
 Responses use the `CinefyExceptionResponse` record.
@@ -313,7 +338,7 @@ BookingSeat
 User (@MappedSuperclass — abstract; no table)
  ├── firstName, lastName, fullName (derived)
  ├── email (unique), phoneNumber (unique; digits only — frontend owns the +)
- └── password (bcrypt-hashed)
+ └── password (bcrypt-hashed, NULLABLE — OAuth-registered clients never get one)
 
 StaffMember extends User
  ├── position (StaffPosition enum)
@@ -322,7 +347,8 @@ StaffMember extends User
  └── workingHourStart, workingHourEnd (LocalTime)
 
 Client extends User
- └── isVerified (boolean, default false)
+ ├── isVerified (boolean, default false)
+ └── hasPassword() — helper, not a column; drives "set password" vs "change password"
 
 PaymentGateway   (one configured provider account; at most one is `active` at a time)
  ├── name, code (derived via static toCode(name) — the Hall pattern; unique only
@@ -343,7 +369,12 @@ Enums:
   SeatCategory:            NORMAL | VIP | AISLE
   ShowtimeStatus:          DRAFT | PUBLISHED | RUNNING | FINISHED
                            (+ static sets: ACTIVE_STATUSES={DRAFT,PUBLISHED},
-                            COMMITTED_STATUSES={PUBLISHED,RUNNING}, LIVE_STATUSES={DRAFT,PUBLISHED,RUNNING})
+                            COMMITTED_STATUSES={PUBLISHED,RUNNING}, LIVE_STATUSES={DRAFT,PUBLISHED,RUNNING},
+                            REPORTABLE_STATUSES={PUBLISHED,RUNNING,FINISHED} — every status except
+                            DRAFT; used by all statistics queries. NOT interchangeable with
+                            COMMITTED_STATUSES: ShowtimeStatusJob flips finished showtimes to
+                            FINISHED, so a committed-only filter matches almost nothing in a
+                            past date range.)
   BookingStatus:           PENDING_PAYMENT | CONFIRMED | REFUNDED
                            (+ SETTLED_STATUSES={CONFIRMED,REFUNDED} and a static
                             isSettled(status) — null-safe, use it instead of comparing)
@@ -355,6 +386,7 @@ Enums:
   EmploymentType:          FULL_TIME | PART_TIME
   UserType:                STAFF_MEMBER | CLIENT
   OtpType:                 RESET_PASSWORD | EMAIL_VERIFICATION
+  OAuthProvider:           GOOGLE | MICROSOFT
   PaymentProvider:         PAYMOB
                            (carries its own GatewayProviderSpec — PAYMOB(new PaymobGateway())
                             + Lombok @Getter, so provider.getSpec() answers credentialsType() /
@@ -524,8 +556,8 @@ Access is **not** uniform here — check the column. Five handlers are `@PublicA
 | POST   | `/booking`                       | BookingRequestDTO + `Idempotency-Key` hdr (UUID) | 201 BookingDetailDTO          | CLIENT+staff                           |
 | DELETE | `/booking/{uuid}`                |                                                  | 204 (cancel/release hold)     | CLIENT+staff                           |
 | POST   | `/booking/{uuid}/settle`         | OnSitePaymentDTO `{isCash, transactionId?}`      | BookingConfirmationDTO        | **staff only** (ADMIN/MANAGER/CASHIER) |
-| POST   | `/booking/{uuid}/pay`            |                                                  | PaymentRedirectionDTO         | **CLIENT only**                        |
-| POST   | `/booking/{uuid}/pay-saved-card` | SavedCardPaymentDTO                              | PaymentRedirectionDTO         | **CLIENT only**                        |
+| POST   | `/booking/{uuid}/pay`            |                                                  | RedirectionDTO                | **CLIENT only**                        |
+| POST   | `/booking/{uuid}/pay-saved-card` | SavedCardPaymentDTO                              | RedirectionDTO                | **CLIENT only**                        |
 | GET    | `/booking/payment-redirect`      | flat `Map<String,String>` query params           | 302 FOUND + `Location`        | @PublicApi (HMAC)                      |
 | POST   | `/booking/payment-callback`      | JsonNode body + ?hmac                            | 200 (Paymob webhook)          | @PublicApi (HMAC)                      |
 
@@ -564,3 +596,128 @@ All endpoints `@PublicApi` **except** `/logout`. Cookies (access/refresh/`XSRF-T
 | GET    | `/clients/auth/session`        | refresh cookie         | 200 if valid, else 401                      |
 | POST   | `/clients/auth/refresh`        | refresh cookie         | 200 + new access cookie                     |
 | POST   | `/clients/auth/logout`         | access/refresh cookies | 200 + clears cookies (requires auth)        |
+
+**OAuth2 social sign-in** — three additional `@PublicApi` endpoints:
+
+| Method | Path                                               | Input                                             | Output / Effect                                       |
+| ------ | -------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------- |
+| GET    | `/clients/auth/oauth/{provider}/authorization-url` | provider = `GOOGLE` \| `MICROSOFT`                | 200 RedirectionDTO + sets `oauthState` cookie         |
+| POST   | `/clients/auth/oauth/callback`                     | OAuthCallbackDTO + `oauthState` cookie            | 200 (auth cookies) or 200 OAuthRegistrationDTO or 403 |
+| POST   | `/clients/auth/oauth/sign-up`                      | OAuthSignUpDTO `{registrationToken, phoneNumber}` | 200 + sets auth cookies                               |
+
+**The redirect target is the frontend, not the backend.** `cinefy.oauth.redirect-uri` is a _path_
+appended to `AppConfig.getFrontendClientUrl()`, so the provider bounces the browser to an Angular
+route that reads `code`/`state` from the query string and POSTs them to `/oauth/callback`. There is
+no backend GET callback endpoint.
+
+**`state` is split across the wire and a cookie.** `getAuthorizationUrl()` sends
+`state=<PROVIDER>:<uuid>` to the provider but stores only the `uuid` in the HttpOnly `oauthState`
+cookie (10-minute max-age). On callback, `parseState` recovers the provider from the query value and
+`validateState` compares the token halves with `MessageDigest.isEqual` (constant-time). The cookie is
+cleared on **every** callback outcome, success or failure.
+
+**The callback has three outcomes**, all keyed on the provider's email:
+
+- **Known + verified** → tokens, logged in.
+- **Known + unverified** → sends an `EMAIL_VERIFICATION` OTP and throws `ForbiddenException` (403)
+  with `ACCOUNT_NOT_VERIFIED` and `data.email`.
+- **Unknown** → 200 with an `OAuthRegistrationDTO` carrying an **encrypted registration token**.
+
+**The registration token is stateless.** `issueRegistrationToken` serializes an
+`OAuthRegistrationToken(email, firstName, lastName, expiresAt)` and encrypts it whole with
+`CredentialCipher` (the same AES-256-GCM helper used for gateway credentials, so
+`cinefy.encryption.key` is load-bearing for OAuth too). Nothing is persisted and no cookie is set —
+the token round-trips through the client and is decrypted on `/oauth/sign-up`, which rejects it if
+it fails to decrypt or its `expiresAt` has passed. Sign-up only needs the one field the providers
+don't supply: `phoneNumber`.
+
+**OAuth clients are created verified and password-less.** `ClientService.createOAuthClient` sets
+`isVerified = true` (the provider already vouched for the email) and never calls `setPassword`,
+which is why `User.password` is nullable. `changePassword` branches on `Client.hasPassword()`: a
+password-less client may set an initial password without supplying a current one; everyone else
+still gets the `PASSWORD_INCORRECT` check. `CurrentClientDTO` exposes `hasPassword` so the profile
+UI can render "set" vs "change".
+
+> **Existing databases need a manual migration.** `ddl-auto=update` never drops the `NOT NULL` that
+> was already generated for `PASSWORD`, so OAuth sign-up fails on any pre-existing database until
+> you run `ALTER TABLE USERS ALTER COLUMN PASSWORD DROP NOT NULL` (per concrete table — `CLIENTS`,
+> and `STAFF_MEMBERS` if it inherited the constraint).
+
+### `/statistics` — StatisticsController
+
+Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. All three endpoints bind the same
+`DateRangeDTO` via `@Valid @ModelAttribute` (query params, not a body).
+
+| Method | Path                  | Input                | Output                      |
+| ------ | --------------------- | -------------------- | --------------------------- |
+| GET    | `/statistics/summary` | ?from, ?to           | StatisticsSummaryDTO        |
+| GET    | `/statistics/sales`   | ?from, ?to           | List\<SalesPointDTO\>       |
+| GET    | `/statistics/movies`  | ?from, ?to, Pageable | Page\<MoviePerformanceDTO\> |
+
+`from`/`to` are ISO `yyyy-MM-dd` (`@DateTimeFormat(ISO.DATE)`), both `@NotNull`. `@ModelAttribute`
+binding failures raise **`BindException`**, not `MethodArgumentNotValidException` — the global
+handler is registered on `BindException` (the superclass) so both query-param and request-body
+validation produce the same field-level 400.
+
+### Statistics conventions
+
+**One validator, four rules.** `StatisticsService.validateDateRange(DateRangeDTO)` is `public
+static` so every statistics endpoint calls the same rules: `from <= to`, span ≤ 1 year, `from` not
+before the start of last calendar year, and `to` not after today. The `@NotNull` checks stay on the
+DTO; these four are `BusinessException` → 400.
+
+**Every statistics query filters `s.status IN REPORTABLE_STATUSES`.** DRAFT showtimes are excluded
+from revenue, ticket counts, and capacity alike — an unpublished schedule with test bookings must
+not appear as real sales. All seven queries carry the filter; adding a new one means adding it too.
+
+**Everything is keyed to `Showtime.startDateTime`, never `Booking.createdAt`.** The statistics
+answer "how did the screenings in this window perform", so numerator and denominator share one
+clock. A ticket sold in July for an August screening counts in August. A consequence worth knowing:
+`validateDateRange` caps `to` at today, so advance sales for future showtimes appear in no period
+until the screening date arrives — the summary deliberately does not reconcile against total cash
+taken.
+
+**Occupancy denominators are per-showtime, not per-hall.** `totalSeats` sums `Hall.getCapacity()`
+once for **each showtime**, so a 200-seat hall running four shows contributes 800. The hall queries
+therefore return one row per showtime and deliberately carry **no `GROUP BY`** — an earlier
+`GROUP BY h` deduped halls and produced occupancy above 100%. `getCapacity()` subtracts AISLE
+positions from the JSONB layout, which SQL cannot compute, so these queries must return `Hall`
+entities and sum in Java rather than `SUM(totalRows * totalColumns)`.
+
+**Occupancy is a percentage, scaled to `OCCUPANCY_SCALE` (2).** `67.60`, not `0.676` — the frontend
+appends `%` without multiplying. Zero denominators short-circuit to `BigDecimal.ZERO`.
+
+**`SUM` needs `ELSE 0` + an outer `COALESCE`; `COUNT` needs neither.** `SUM(CASE WHEN c THEN x ELSE
+0 END)` skips non-matching rows, and `COALESCE(..., 0)` covers the empty-result case where `SUM`
+returns null. `COUNT(CASE WHEN c THEN 1 END)` has **no** `ELSE` on purpose — `COUNT` ignores nulls,
+so adding `ELSE 0` would count every row.
+
+**Watch the fan-out when joining bookings or seats.** `b.totalAmount` lives on the booking row, so
+joining `BookingSeat` (or `LEFT JOIN Booking` under a showtime) repeats it once per child and
+inflates `SUM`. `MovieRevenueProjection` counts showtimes with `COUNT(DISTINCT s.id)` for exactly
+this reason, and its `countQuery` uses `COUNT(DISTINCT m.id)`. This is also why revenue and ticket
+counts stay in **separate queries** rather than one joined query.
+
+**Summary returns both periods from one query each.** The previous window is the N days immediately
+before `from`, derived in the service. Rather than running six queries, each of the three splits the
+windows inside the aggregate with `CASE WHEN ... >= :from` over a single contiguous
+`BETWEEN :previousFrom AND :to` scan.
+
+**Sales zero-fills.** `getSales` walks every date from `from` to `to` and emits a point per day,
+defaulting missing days to zero, because the chart's bar heights are peak-relative and would
+misrepresent the shape if days were absent. `SalesPointDTO.date` is a `LocalDate` — Jackson
+serializes ISO `yyyy-MM-dd`, so no manual formatting.
+
+**Movie performance pages on the revenue query only.** `findMoviePerformanceBetween` drives the row
+set (pre-sorted `netRevenue DESC`); the tickets and seats queries are then scoped by
+`movieIds IN (...)` for just that page. A caller-supplied `sort` param would append after the
+built-in `ORDER BY` — restrict it if the frontend ever sends one.
+
+**`@Query` strings are not checked by `mvn compile`.** They are parsed at bean-creation time, so a
+broken JPQL constructor expression compiles fine and fails at startup. When adding or reshaping a
+statistics query, boot the app (or generate its SQL) rather than trusting a clean compile. Two
+traps met in practice: `MAX(...)` returns `Integer`, so projecting into a `boolean` record
+component needs `MAX(...) > 0` in the query (a type mismatch surfaces as the unhelpful
+`Missing constructor for type '...'`); and Hibernate expands `GROUP BY <entity>` to the primary key
+alone, which is what keeps the JSONB `LAYOUT`/`CATEGORY_PRICES` columns out of the `GROUP BY` —
+Postgres has no equality operator for `jsonb` and would otherwise reject the query.

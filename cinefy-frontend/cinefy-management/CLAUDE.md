@@ -120,8 +120,7 @@ src/
 │   ├── showtime-events.ts              # Cross-component event bus (RxJS Subjects): created$/updated$/published$/deleted$/singleDeleted$/committedChanged$/highlightChanged$/showtimeOccupancyChanged$
 │   ├── staff.ts                        # Staff CRUD + position coverage + current-user (/staff/me) cache
 │   ├── payment-gateways.ts             # Payment gateway CRUD + active-status toggle
-│   ├── statistics.ts                   # Summary / daily sales / movie performance.
-│   │                                   #   STILL MOCK DATA — no HTTP calls yet.
+│   ├── statistics.ts                   # Summary / daily sales / movie performance (HttpClient).
 │   ├── header-actions.ts               # Signal-based template injection for header
 │   └── sidebar.ts                      # Sidebar open/close state (signal)
 │                                       # (Toasts are NOT a local service — ToastService comes from cinefy-ui/services.)
@@ -373,16 +372,16 @@ POST   /booking                          # Create booking (sends Idempotency-Key
 POST   /booking/:id/settle               # Record on-site payment → BookingConfirmation
 DELETE /booking/:id                      # Cancel booking
 
-# Statistics (NOT WIRED — StatisticsService returns mock data with an artificial delay)
+# Statistics (ADMIN/MANAGER only). All three take from=&to= as ISO yyyy-MM-dd.
 GET    /statistics/summary               # Period totals + previous-period totals
-GET    /statistics/sales?from=&to=       # Daily points, sorted by date
+GET    /statistics/sales                 # One point per day in range (zero-filled), ascending
 GET    /statistics/movies?page=&size=    # Paginated movie performance, pre-sorted by netRevenue
 ```
 
 ### Statistics page
 
-The `/statistics` page is four components driven by one `DateRange`, and the only place in the app
-still backed by mock data.
+The `/statistics` page is four components driven by one `DateRange`, backed by the three
+`/statistics/*` endpoints.
 
 **The date range has exactly one owner.** `date-range-selector` holds the preset state _and_ the
 default; `StatisticsPage.range` starts as `signal<DateRange | null>(null)` and is filled by the
@@ -403,12 +402,15 @@ all declare `range` as `input.required<DateRange>()`, so the page wraps them in
 `formatMoney` / `formatPercent` / `format(date, ...)` helpers — numbers go through `DecimalPipe`
 (`| number`) and dates through `DatePipe` (`| date: 'd MMM'`), matching the rest of the app. The
 backend sends pre-rounded values, so digit-format args are omitted; the pipe is still what supplies
-thousands separators. The one exception is `movie-performance`'s occupancy (`| number: '1.1-1'`),
-which is computed client-side and sits in a fixed-width column.
+thousands separators. Percentages carry two decimals to match the backend's `OCCUPANCY_SCALE`:
+`movie-performance`'s occupancy is `| number: '1.2-2'` in a 60px fixed-width column, and
+`summary-cards`' delta is `| number: '1.2-2'` (a pipe, not `.toFixed()` — deltas can reach four
+digits when a metric grows from near-zero, and only the pipe adds thousands separators).
 
-**Occupancy is a percentage number, not a fraction.** `StatisticsPeriodTotals.occupancy` is `67.6`,
-not `0.676` — templates append `%` without multiplying. `movie-performance` derives its own as
-`ticketsSold / totalSeats * 100`.
+**Occupancy is a percentage number, not a fraction.** `StatisticsPeriodTotals.occupancy` is
+`67.60`, not `0.676` — templates append `%` without multiplying. `movie-performance` has no
+`occupancy` field on the wire and derives its own as `ticketsSold / totalSeats * 100`, guarded
+against a zero denominator.
 
 **Gross revenue is derived, never sent.** `grossRevenue = netRevenue + refunded`, computed the same
 way in `summary-cards` and `sales-chart`. If the API ever returns a gross that isn't exactly that
@@ -419,11 +421,15 @@ sum, both panels will disagree with it.
 `linkedSignal` sourced from `range` (`computation: () => 1`) so a range change resets to page 1
 while the pager can still write to it — a `signal` + reset `effect` would fire the fetch twice.
 
-**When wiring the real API:** `StatisticsService` currently returns `of(mock).pipe(delay(...))`. The
-agreed wire format sends dates as `DD-MM-YYYY`, so `getSales` will need to convert them to ISO
-before components see them — `sales-chart` binds `| date` to `point.date` and would render
-`Invalid Date` otherwise. Whether the backend gap-fills zero-revenue days is still open; the chart
-assumes one point per day in range.
+**No client-side date or gap-fill mapping.** `SalesPointDTO.date` is a Java `LocalDate`, which
+Jackson serializes as ISO `yyyy-MM-dd`, so `sales-chart`'s `| date` binding parses it directly — an
+earlier plan to send `DD-MM-YYYY` and convert in `getSales` was dropped, and the service passes
+responses through untouched. The backend also emits one point per day across the whole range,
+zero-filling days with no showtimes, which is what the chart's peak-relative bar heights assume.
+
+**The page header collapses a single-day range.** `statistics.html` renders
+`Showing {from} to {to}`, but wraps the `to` half in `@if (range.from !== range.to)` so a one-day
+range reads `Showing 23 Aug 2026`. The comparison is a plain `===` because both are ISO strings.
 
 ## Styling
 
