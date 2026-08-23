@@ -5,6 +5,10 @@ import com.mdevs.cinefy.dto.statistics.DailyRevenueProjection;
 import com.mdevs.cinefy.dto.statistics.DailyTicketsSoldProjection;
 import com.mdevs.cinefy.dto.statistics.DateRangeDTO;
 import com.mdevs.cinefy.dto.statistics.HallPeriodProjection;
+import com.mdevs.cinefy.dto.statistics.MovieHallProjection;
+import com.mdevs.cinefy.dto.statistics.MoviePerformanceDTO;
+import com.mdevs.cinefy.dto.statistics.MovieRevenueProjection;
+import com.mdevs.cinefy.dto.statistics.MovieTicketsSoldProjection;
 import com.mdevs.cinefy.dto.statistics.RevenueProjection;
 import com.mdevs.cinefy.dto.statistics.SalesPointDTO;
 import com.mdevs.cinefy.dto.statistics.StatisticsPeriodTotalsDTO;
@@ -12,8 +16,11 @@ import com.mdevs.cinefy.dto.statistics.StatisticsSummaryDTO;
 import com.mdevs.cinefy.dto.statistics.TicketsSoldProjection;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.HallRepository;
+import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -35,6 +42,8 @@ public class StatisticsService {
     private final BookingRepository bookingRepository;
 
     private final HallRepository hallRepository;
+
+    private final TmdbMovieRepository tmdbMovieRepository;
 
     private static final int MAX_RANGE_YEARS = 1;
 
@@ -106,6 +115,32 @@ public class StatisticsService {
         return points;
     }
 
+    public Page<MoviePerformanceDTO> getMoviePerformance(DateRangeDTO range, Pageable pageable) {
+        validateDateRange(range);
+
+        LocalDateTime from = range.getFrom().atStartOfDay();
+        LocalDateTime to = range.getTo().atTime(LocalTime.MAX);
+
+        Page<MovieRevenueProjection> revenuePage = tmdbMovieRepository.findMoviePerformanceBetween(from, to, pageable);
+        if (revenuePage.isEmpty()) {
+            return revenuePage.map(revenue -> toMoviePerformance(revenue, 0, 0));
+        }
+
+        List<Long> movieIds = revenuePage.getContent().stream().map(MovieRevenueProjection::movieId).toList();
+        Map<Long, Long> ticketsByMovie = bookingRepository.countMovieTicketsSoldBetween(movieIds, from, to)
+                .stream()
+                .collect(Collectors.toMap(MovieTicketsSoldProjection::movieId, MovieTicketsSoldProjection::ticketsSold));
+        Map<Long, Long> seatsByMovie = hallRepository.findMovieShowtimeHallsBetween(movieIds, from, to)
+                .stream()
+                .collect(Collectors.groupingBy(MovieHallProjection::movieId,
+                        Collectors.summingLong(projection -> projection.hall().getCapacity())));
+
+        return revenuePage.map(revenue -> toMoviePerformance(
+                revenue,
+                ticketsByMovie.getOrDefault(revenue.movieId(), 0L),
+                seatsByMovie.getOrDefault(revenue.movieId(), 0L)));
+    }
+
     // =========================== Helpers ===========================
 
     public static void validateDateRange(DateRangeDTO range) {
@@ -138,6 +173,17 @@ public class StatisticsService {
         totals.setTicketsSold(ticketsSold);
         totals.setOccupancy(toOccupancy(ticketsSold, totalSeats));
         return totals;
+    }
+
+    private MoviePerformanceDTO toMoviePerformance(MovieRevenueProjection revenue, long ticketsSold, long totalSeats) {
+        MoviePerformanceDTO dto = new MoviePerformanceDTO();
+        dto.setMovieTitle(revenue.movieTitle());
+        dto.setNetRevenue(revenue.netRevenue());
+        dto.setRefunded(revenue.refunded());
+        dto.setTotalShowtimes(revenue.totalShowtimes());
+        dto.setTicketsSold(ticketsSold);
+        dto.setTotalSeats(totalSeats);
+        return dto;
     }
 
     private static BigDecimal toOccupancy(long ticketsSold, long totalSeats) {

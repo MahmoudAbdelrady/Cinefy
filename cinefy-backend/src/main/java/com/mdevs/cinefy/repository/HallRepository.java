@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.dto.statistics.DailyHallProjection;
+import com.mdevs.cinefy.dto.statistics.MovieHallProjection;
 import com.mdevs.cinefy.dto.statistics.HallPeriodProjection;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.enums.HallStatus;
@@ -65,6 +66,19 @@ public interface HallRepository extends BaseRepository<Hall> {
             """)
     List<DailyHallProjection> findDailyHallsWithShowtimesBetween(@Param("from") LocalDateTime from,
                                                                  @Param("to") LocalDateTime to);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.MovieHallProjection(
+                s.tmdbMovie.id,
+                h)
+            FROM Hall h
+            JOIN Showtime s ON s.hall = h
+            WHERE s.tmdbMovie.id IN :movieIds
+            AND s.startDateTime BETWEEN :from AND :to
+            """)
+    List<MovieHallProjection> findMovieShowtimeHallsBetween(@Param("movieIds") List<Long> movieIds,
+                                                            @Param("from") LocalDateTime from,
+                                                            @Param("to") LocalDateTime to);
 
     boolean existsByCode(String code);
 

@@ -3,6 +3,7 @@ package com.mdevs.cinefy.repository;
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookingCountsProjection;
 import com.mdevs.cinefy.dto.statistics.DailyRevenueProjection;
+import com.mdevs.cinefy.dto.statistics.MovieTicketsSoldProjection;
 import com.mdevs.cinefy.dto.statistics.DailyTicketsSoldProjection;
 import com.mdevs.cinefy.dto.statistics.RevenueProjection;
 import com.mdevs.cinefy.dto.statistics.TicketsSoldProjection;
@@ -239,6 +240,22 @@ public interface BookingRepository extends BaseRepository<Booking> {
             GROUP BY CAST(s.startDateTime AS LocalDate)
             """)
     List<DailyTicketsSoldProjection> countDailyTicketsSoldBetween(@Param("from") LocalDateTime from,
+                                                                  @Param("to") LocalDateTime to);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.MovieTicketsSoldProjection(
+                s.tmdbMovie.id,
+                COUNT(bs.id))
+            FROM BookingSeat bs
+            JOIN bs.booking b
+            JOIN bs.showtime s
+            WHERE b.status = 'CONFIRMED'
+            AND s.tmdbMovie.id IN :movieIds
+            AND s.startDateTime BETWEEN :from AND :to
+            GROUP BY s.tmdbMovie.id
+            """)
+    List<MovieTicketsSoldProjection> countMovieTicketsSoldBetween(@Param("movieIds") List<Long> movieIds,
+                                                                  @Param("from") LocalDateTime from,
                                                                   @Param("to") LocalDateTime to);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
