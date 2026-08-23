@@ -2,6 +2,8 @@ package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookingCountsProjection;
+import com.mdevs.cinefy.dto.statistics.RevenueProjection;
+import com.mdevs.cinefy.dto.statistics.TicketsSoldProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import com.mdevs.cinefy.entity.enums.BookingStatus;
@@ -181,6 +183,34 @@ public interface BookingRepository extends BaseRepository<Booking> {
     Page<Booking> findSettledByClient(@Param("clientId") Long clientId,
                                       @Param("statuses") Set<BookingStatus> statuses,
                                       Pageable pageable);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.RevenueProjection(
+                COALESCE(SUM(CASE WHEN s.startDateTime >= :from AND b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN s.startDateTime >= :from AND b.status = 'REFUNDED' THEN b.totalAmount ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN s.startDateTime < :from AND b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN s.startDateTime < :from AND b.status = 'REFUNDED' THEN b.totalAmount ELSE 0 END), 0))
+            FROM Booking b
+            JOIN b.showtime s
+            WHERE s.startDateTime BETWEEN :previousFrom AND :to
+            """)
+    RevenueProjection sumRevenueBetween(@Param("previousFrom") LocalDateTime previousFrom,
+                                        @Param("from") LocalDateTime from,
+                                        @Param("to") LocalDateTime to);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.TicketsSoldProjection(
+                COUNT(CASE WHEN s.startDateTime >= :from THEN 1 END),
+                COUNT(CASE WHEN s.startDateTime < :from THEN 1 END))
+            FROM BookingSeat bs
+            JOIN bs.booking b
+            JOIN bs.showtime s
+            WHERE b.status = 'CONFIRMED'
+            AND s.startDateTime BETWEEN :previousFrom AND :to
+            """)
+    TicketsSoldProjection countTicketsSoldBetween(@Param("previousFrom") LocalDateTime previousFrom,
+                                                  @Param("from") LocalDateTime from,
+                                                  @Param("to") LocalDateTime to);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT b FROM Booking b WHERE b.uuid = :uuid")

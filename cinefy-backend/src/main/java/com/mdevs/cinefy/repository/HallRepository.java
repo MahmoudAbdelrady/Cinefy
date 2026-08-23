@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.repository;
 
+import com.mdevs.cinefy.dto.statistics.HallPeriodProjection;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.enums.HallStatus;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -35,6 +37,21 @@ public interface HallRepository extends BaseRepository<Hall> {
             )
             """)
     int flipIdleScheduledHallsToActive(@Param("showtimeStatuses") Set<ShowtimeStatus> showtimeStatuses);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.HallPeriodProjection(
+                h,
+                MAX(CASE WHEN s.startDateTime BETWEEN :from AND :to THEN 1 ELSE 0 END) > 0,
+                MAX(CASE WHEN s.startDateTime BETWEEN :previousFrom AND :previousTo THEN 1 ELSE 0 END) > 0)
+            FROM Hall h
+            JOIN Showtime s ON s.hall = h
+            WHERE s.startDateTime BETWEEN :previousFrom AND :to
+            GROUP BY h
+            """)
+    List<HallPeriodProjection> findHallsWithShowtimesBetween(@Param("previousFrom") LocalDateTime previousFrom,
+                                                             @Param("previousTo") LocalDateTime previousTo,
+                                                             @Param("from") LocalDateTime from,
+                                                             @Param("to") LocalDateTime to);
 
     boolean existsByCode(String code);
 

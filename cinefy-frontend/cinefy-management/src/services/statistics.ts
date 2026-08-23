@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { delay, Observable, of } from 'rxjs';
 import { eachDayOfInterval, format, parseISO } from 'date-fns';
 import type { PaginatedResponse } from 'cinefy-ui/types';
@@ -6,21 +7,6 @@ import type { DateRange, MoviePerformance, SalesPoint, StatisticsSummary } from 
 
 const MOCK_LATENCY_MS = 600;
 const AVERAGE_TICKET_PRICE = 103;
-
-const MOCK_SUMMARY: StatisticsSummary = {
-  current: {
-    netRevenue: 816995,
-    refunded: 36817,
-    ticketsSold: 7932,
-    occupancy: 67.6,
-  },
-  previous: {
-    netRevenue: 571896,
-    refunded: 28493,
-    ticketsSold: 6584,
-    occupancy: 58.2,
-  },
-};
 
 const MOCK_MOVIE_PERFORMANCE: MoviePerformance[] = [
   {
@@ -123,8 +109,12 @@ const MOCK_MOVIE_PERFORMANCE: MoviePerformance[] = [
 
 @Injectable({ providedIn: 'root' })
 export class StatisticsService {
-  getSummary(_range: DateRange): Observable<StatisticsSummary> {
-    return of(MOCK_SUMMARY).pipe(delay(MOCK_LATENCY_MS));
+  private readonly http = inject(HttpClient);
+
+  getSummary(range: DateRange): Observable<StatisticsSummary> {
+    return this.http.get<StatisticsSummary>('/statistics/summary', {
+      params: { from: range.from, to: range.to },
+    });
   }
 
   getSales(range: DateRange): Observable<SalesPoint[]> {
