@@ -49,7 +49,7 @@
               ></svg>
               <span>
                 {{ card.delta.kind === 'up' ? 'Up' : 'Down' }}
-                {{ card.delta.percent.toFixed(1) }}% vs {{ comparisonLabel() }}
+                {{ card.delta.percent | number: '1.2-2' }}% vs {{ comparisonLabel() }}
               </span>
             </p>
           }
