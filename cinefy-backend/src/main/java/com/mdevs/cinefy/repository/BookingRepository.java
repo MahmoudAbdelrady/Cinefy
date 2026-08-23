@@ -10,6 +10,7 @@ import com.mdevs.cinefy.dto.statistics.TicketsSoldProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import com.mdevs.cinefy.entity.enums.BookingStatus;
+import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -195,9 +196,11 @@ public interface BookingRepository extends BaseRepository<Booking> {
                 COALESCE(SUM(CASE WHEN s.startDateTime < :from AND b.status = 'REFUNDED' THEN b.totalAmount ELSE 0 END), 0))
             FROM Booking b
             JOIN b.showtime s
-            WHERE s.startDateTime BETWEEN :previousFrom AND :to
+            WHERE s.status IN :statuses
+            AND s.startDateTime BETWEEN :previousFrom AND :to
             """)
-    RevenueProjection sumRevenueBetween(@Param("previousFrom") LocalDateTime previousFrom,
+    RevenueProjection sumRevenueBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                        @Param("previousFrom") LocalDateTime previousFrom,
                                         @Param("from") LocalDateTime from,
                                         @Param("to") LocalDateTime to);
 
@@ -209,9 +212,11 @@ public interface BookingRepository extends BaseRepository<Booking> {
             JOIN bs.booking b
             JOIN bs.showtime s
             WHERE b.status = 'CONFIRMED'
+            AND s.status IN :statuses
             AND s.startDateTime BETWEEN :previousFrom AND :to
             """)
-    TicketsSoldProjection countTicketsSoldBetween(@Param("previousFrom") LocalDateTime previousFrom,
+    TicketsSoldProjection countTicketsSoldBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                  @Param("previousFrom") LocalDateTime previousFrom,
                                                   @Param("from") LocalDateTime from,
                                                   @Param("to") LocalDateTime to);
 
@@ -222,10 +227,12 @@ public interface BookingRepository extends BaseRepository<Booking> {
                 COALESCE(SUM(CASE WHEN b.status = 'REFUNDED' THEN b.totalAmount ELSE 0 END), 0))
             FROM Booking b
             JOIN b.showtime s
-            WHERE s.startDateTime BETWEEN :from AND :to
+            WHERE s.status IN :statuses
+            AND s.startDateTime BETWEEN :from AND :to
             GROUP BY CAST(s.startDateTime AS LocalDate)
             """)
-    List<DailyRevenueProjection> sumDailyRevenueBetween(@Param("from") LocalDateTime from,
+    List<DailyRevenueProjection> sumDailyRevenueBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                        @Param("from") LocalDateTime from,
                                                         @Param("to") LocalDateTime to);
 
     @Query("""
@@ -236,10 +243,12 @@ public interface BookingRepository extends BaseRepository<Booking> {
             JOIN bs.booking b
             JOIN bs.showtime s
             WHERE b.status = 'CONFIRMED'
+            AND s.status IN :statuses
             AND s.startDateTime BETWEEN :from AND :to
             GROUP BY CAST(s.startDateTime AS LocalDate)
             """)
-    List<DailyTicketsSoldProjection> countDailyTicketsSoldBetween(@Param("from") LocalDateTime from,
+    List<DailyTicketsSoldProjection> countDailyTicketsSoldBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                                  @Param("from") LocalDateTime from,
                                                                   @Param("to") LocalDateTime to);
 
     @Query("""
@@ -250,11 +259,13 @@ public interface BookingRepository extends BaseRepository<Booking> {
             JOIN bs.booking b
             JOIN bs.showtime s
             WHERE b.status = 'CONFIRMED'
+            AND s.status IN :statuses
             AND s.tmdbMovie.id IN :movieIds
             AND s.startDateTime BETWEEN :from AND :to
             GROUP BY s.tmdbMovie.id
             """)
-    List<MovieTicketsSoldProjection> countMovieTicketsSoldBetween(@Param("movieIds") List<Long> movieIds,
+    List<MovieTicketsSoldProjection> countMovieTicketsSoldBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                                  @Param("movieIds") List<Long> movieIds,
                                                                   @Param("from") LocalDateTime from,
                                                                   @Param("to") LocalDateTime to);
 

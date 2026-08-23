@@ -14,6 +14,7 @@ import com.mdevs.cinefy.dto.statistics.SalesPointDTO;
 import com.mdevs.cinefy.dto.statistics.StatisticsPeriodTotalsDTO;
 import com.mdevs.cinefy.dto.statistics.StatisticsSummaryDTO;
 import com.mdevs.cinefy.dto.statistics.TicketsSoldProjection;
+import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.HallRepository;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
@@ -58,14 +59,13 @@ public class StatisticsService {
         LocalDateTime to = range.getTo().atTime(LocalTime.MAX);
         long days = ChronoUnit.DAYS.between(range.getFrom(), range.getTo()) + 1;
         LocalDateTime previousFrom = range.getFrom().minusDays(days).atStartOfDay();
-        LocalDateTime previousTo = range.getFrom().minusDays(1).atTime(LocalTime.MAX);
 
-        RevenueProjection revenue = bookingRepository.sumRevenueBetween(previousFrom, from, to);
-        TicketsSoldProjection ticketsSold = bookingRepository.countTicketsSoldBetween(previousFrom, from, to);
+        RevenueProjection revenue = bookingRepository.sumRevenueBetween(ShowtimeStatus.REPORTABLE_STATUSES, previousFrom, from, to);
+        TicketsSoldProjection ticketsSold = bookingRepository.countTicketsSoldBetween(ShowtimeStatus.REPORTABLE_STATUSES, previousFrom, from, to);
 
         long currentSeats = 0;
         long previousSeats = 0;
-        for (HallPeriodProjection projection : hallRepository.findHallsWithShowtimesBetween(previousFrom, previousTo, from, to)) {
+        for (HallPeriodProjection projection : hallRepository.findShowtimeHallsBetween(ShowtimeStatus.REPORTABLE_STATUSES, previousFrom, from, to)) {
             int capacity = projection.hall().getCapacity();
             if (projection.inCurrent()) {
                 currentSeats += capacity;
@@ -87,13 +87,13 @@ public class StatisticsService {
         LocalDateTime from = range.getFrom().atStartOfDay();
         LocalDateTime to = range.getTo().atTime(LocalTime.MAX);
 
-        Map<LocalDate, DailyRevenueProjection> revenueByDate = bookingRepository.sumDailyRevenueBetween(from, to)
+        Map<LocalDate, DailyRevenueProjection> revenueByDate = bookingRepository.sumDailyRevenueBetween(ShowtimeStatus.REPORTABLE_STATUSES, from, to)
                 .stream()
                 .collect(Collectors.toMap(DailyRevenueProjection::date, Function.identity()));
-        Map<LocalDate, Long> ticketsByDate = bookingRepository.countDailyTicketsSoldBetween(from, to)
+        Map<LocalDate, Long> ticketsByDate = bookingRepository.countDailyTicketsSoldBetween(ShowtimeStatus.REPORTABLE_STATUSES, from, to)
                 .stream()
                 .collect(Collectors.toMap(DailyTicketsSoldProjection::date, DailyTicketsSoldProjection::ticketsSold));
-        Map<LocalDate, Long> seatsByDate = hallRepository.findDailyHallsWithShowtimesBetween(from, to)
+        Map<LocalDate, Long> seatsByDate = hallRepository.findDailyShowtimeHallsBetween(ShowtimeStatus.REPORTABLE_STATUSES, from, to)
                 .stream()
                 .collect(Collectors.groupingBy(DailyHallProjection::date,
                         Collectors.summingLong(projection -> projection.hall().getCapacity())));
@@ -121,16 +121,16 @@ public class StatisticsService {
         LocalDateTime from = range.getFrom().atStartOfDay();
         LocalDateTime to = range.getTo().atTime(LocalTime.MAX);
 
-        Page<MovieRevenueProjection> revenuePage = tmdbMovieRepository.findMoviePerformanceBetween(from, to, pageable);
+        Page<MovieRevenueProjection> revenuePage = tmdbMovieRepository.findMoviePerformanceBetween(ShowtimeStatus.REPORTABLE_STATUSES, from, to, pageable);
         if (revenuePage.isEmpty()) {
             return revenuePage.map(revenue -> toMoviePerformance(revenue, 0, 0));
         }
 
         List<Long> movieIds = revenuePage.getContent().stream().map(MovieRevenueProjection::movieId).toList();
-        Map<Long, Long> ticketsByMovie = bookingRepository.countMovieTicketsSoldBetween(movieIds, from, to)
+        Map<Long, Long> ticketsByMovie = bookingRepository.countMovieTicketsSoldBetween(ShowtimeStatus.REPORTABLE_STATUSES, movieIds, from, to)
                 .stream()
                 .collect(Collectors.toMap(MovieTicketsSoldProjection::movieId, MovieTicketsSoldProjection::ticketsSold));
-        Map<Long, Long> seatsByMovie = hallRepository.findMovieShowtimeHallsBetween(movieIds, from, to)
+        Map<Long, Long> seatsByMovie = hallRepository.findMovieShowtimeHallsBetween(ShowtimeStatus.REPORTABLE_STATUSES, movieIds, from, to)
                 .stream()
                 .collect(Collectors.groupingBy(MovieHallProjection::movieId,
                         Collectors.summingLong(projection -> projection.hall().getCapacity())));

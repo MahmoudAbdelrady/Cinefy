@@ -96,7 +96,8 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
             FROM TmdbMovie m
             JOIN Showtime s ON s.tmdbMovie = m
             LEFT JOIN Booking b ON b.showtime = s
-            WHERE s.startDateTime BETWEEN :from AND :to
+            WHERE s.status IN :statuses
+            AND s.startDateTime BETWEEN :from AND :to
             GROUP BY m.id
             ORDER BY COALESCE(SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0) DESC
             """,
@@ -104,9 +105,11 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
                     SELECT COUNT(DISTINCT m.id)
                     FROM TmdbMovie m
                     JOIN Showtime s ON s.tmdbMovie = m
-                    WHERE s.startDateTime BETWEEN :from AND :to
+                    WHERE s.status IN :statuses
+                    AND s.startDateTime BETWEEN :from AND :to
                     """)
-    Page<MovieRevenueProjection> findMoviePerformanceBetween(@Param("from") LocalDateTime from,
+    Page<MovieRevenueProjection> findMoviePerformanceBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                             @Param("from") LocalDateTime from,
                                                              @Param("to") LocalDateTime to,
                                                              Pageable pageable);
 

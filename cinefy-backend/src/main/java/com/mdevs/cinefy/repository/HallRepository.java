@@ -43,17 +43,17 @@ public interface HallRepository extends BaseRepository<Hall> {
     @Query("""
             SELECT new com.mdevs.cinefy.dto.statistics.HallPeriodProjection(
                 h,
-                MAX(CASE WHEN s.startDateTime BETWEEN :from AND :to THEN 1 ELSE 0 END) > 0,
-                MAX(CASE WHEN s.startDateTime BETWEEN :previousFrom AND :previousTo THEN 1 ELSE 0 END) > 0)
+                s.startDateTime >= :from,
+                s.startDateTime < :from)
             FROM Hall h
             JOIN Showtime s ON s.hall = h
-            WHERE s.startDateTime BETWEEN :previousFrom AND :to
-            GROUP BY h
+            WHERE s.status IN :statuses
+            AND s.startDateTime BETWEEN :previousFrom AND :to
             """)
-    List<HallPeriodProjection> findHallsWithShowtimesBetween(@Param("previousFrom") LocalDateTime previousFrom,
-                                                             @Param("previousTo") LocalDateTime previousTo,
-                                                             @Param("from") LocalDateTime from,
-                                                             @Param("to") LocalDateTime to);
+    List<HallPeriodProjection> findShowtimeHallsBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                        @Param("previousFrom") LocalDateTime previousFrom,
+                                                        @Param("from") LocalDateTime from,
+                                                        @Param("to") LocalDateTime to);
 
     @Query("""
             SELECT new com.mdevs.cinefy.dto.statistics.DailyHallProjection(
@@ -61,11 +61,12 @@ public interface HallRepository extends BaseRepository<Hall> {
                 h)
             FROM Hall h
             JOIN Showtime s ON s.hall = h
-            WHERE s.startDateTime BETWEEN :from AND :to
-            GROUP BY CAST(s.startDateTime AS LocalDate), h
+            WHERE s.status IN :statuses
+            AND s.startDateTime BETWEEN :from AND :to
             """)
-    List<DailyHallProjection> findDailyHallsWithShowtimesBetween(@Param("from") LocalDateTime from,
-                                                                 @Param("to") LocalDateTime to);
+    List<DailyHallProjection> findDailyShowtimeHallsBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                            @Param("from") LocalDateTime from,
+                                                            @Param("to") LocalDateTime to);
 
     @Query("""
             SELECT new com.mdevs.cinefy.dto.statistics.MovieHallProjection(
@@ -73,10 +74,12 @@ public interface HallRepository extends BaseRepository<Hall> {
                 h)
             FROM Hall h
             JOIN Showtime s ON s.hall = h
-            WHERE s.tmdbMovie.id IN :movieIds
+            WHERE s.status IN :statuses
+            AND s.tmdbMovie.id IN :movieIds
             AND s.startDateTime BETWEEN :from AND :to
             """)
-    List<MovieHallProjection> findMovieShowtimeHallsBetween(@Param("movieIds") List<Long> movieIds,
+    List<MovieHallProjection> findMovieShowtimeHallsBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                            @Param("movieIds") List<Long> movieIds,
                                                             @Param("from") LocalDateTime from,
                                                             @Param("to") LocalDateTime to);
 
