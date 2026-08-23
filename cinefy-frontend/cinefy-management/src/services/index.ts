@@ -7,4 +7,5 @@ export { PaymentGatewaysService } from './payment-gateways';
 export { ShowtimeEventsService } from './showtime-events';
 export { ShowtimesService } from './showtimes';
 export { SidebarService } from './sidebar';
+export { StatisticsService } from './statistics';
 export { StaffService } from './staff';

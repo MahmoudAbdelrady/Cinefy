@@ -2,9 +2,15 @@ package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
 import com.mdevs.cinefy.dto.showtime.ShowtimeBookingCountsProjection;
+import com.mdevs.cinefy.dto.statistics.DailyRevenueProjection;
+import com.mdevs.cinefy.dto.statistics.MovieTicketsSoldProjection;
+import com.mdevs.cinefy.dto.statistics.DailyTicketsSoldProjection;
+import com.mdevs.cinefy.dto.statistics.RevenueProjection;
+import com.mdevs.cinefy.dto.statistics.TicketsSoldProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import com.mdevs.cinefy.entity.enums.BookingStatus;
+import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -181,6 +187,87 @@ public interface BookingRepository extends BaseRepository<Booking> {
     Page<Booking> findSettledByClient(@Param("clientId") Long clientId,
                                       @Param("statuses") Set<BookingStatus> statuses,
                                       Pageable pageable);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.RevenueProjection(
+                COALESCE(SUM(CASE WHEN s.startDateTime >= :from AND b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN s.startDateTime >= :from AND b.status = 'REFUNDED' THEN b.totalAmount ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN s.startDateTime < :from AND b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN s.startDateTime < :from AND b.status = 'REFUNDED' THEN b.totalAmount ELSE 0 END), 0))
+            FROM Booking b
+            JOIN b.showtime s
+            WHERE s.status IN :statuses
+            AND s.startDateTime BETWEEN :previousFrom AND :to
+            """)
+    RevenueProjection sumRevenueBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                        @Param("previousFrom") LocalDateTime previousFrom,
+                                        @Param("from") LocalDateTime from,
+                                        @Param("to") LocalDateTime to);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.TicketsSoldProjection(
+                COUNT(CASE WHEN s.startDateTime >= :from THEN 1 END),
+                COUNT(CASE WHEN s.startDateTime < :from THEN 1 END))
+            FROM BookingSeat bs
+            JOIN bs.booking b
+            JOIN bs.showtime s
+            WHERE b.status = 'CONFIRMED'
+            AND s.status IN :statuses
+            AND s.startDateTime BETWEEN :previousFrom AND :to
+            """)
+    TicketsSoldProjection countTicketsSoldBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                  @Param("previousFrom") LocalDateTime previousFrom,
+                                                  @Param("from") LocalDateTime from,
+                                                  @Param("to") LocalDateTime to);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.DailyRevenueProjection(
+                CAST(s.startDateTime AS LocalDate),
+                COALESCE(SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN b.status = 'REFUNDED' THEN b.totalAmount ELSE 0 END), 0))
+            FROM Booking b
+            JOIN b.showtime s
+            WHERE s.status IN :statuses
+            AND s.startDateTime BETWEEN :from AND :to
+            GROUP BY CAST(s.startDateTime AS LocalDate)
+            """)
+    List<DailyRevenueProjection> sumDailyRevenueBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                        @Param("from") LocalDateTime from,
+                                                        @Param("to") LocalDateTime to);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.DailyTicketsSoldProjection(
+                CAST(s.startDateTime AS LocalDate),
+                COUNT(bs.id))
+            FROM BookingSeat bs
+            JOIN bs.booking b
+            JOIN bs.showtime s
+            WHERE b.status = 'CONFIRMED'
+            AND s.status IN :statuses
+            AND s.startDateTime BETWEEN :from AND :to
+            GROUP BY CAST(s.startDateTime AS LocalDate)
+            """)
+    List<DailyTicketsSoldProjection> countDailyTicketsSoldBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                                  @Param("from") LocalDateTime from,
+                                                                  @Param("to") LocalDateTime to);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.statistics.MovieTicketsSoldProjection(
+                s.tmdbMovie.id,
+                COUNT(bs.id))
+            FROM BookingSeat bs
+            JOIN bs.booking b
+            JOIN bs.showtime s
+            WHERE b.status = 'CONFIRMED'
+            AND s.status IN :statuses
+            AND s.tmdbMovie.id IN :movieIds
+            AND s.startDateTime BETWEEN :from AND :to
+            GROUP BY s.tmdbMovie.id
+            """)
+    List<MovieTicketsSoldProjection> countMovieTicketsSoldBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                                  @Param("movieIds") List<Long> movieIds,
+                                                                  @Param("from") LocalDateTime from,
+                                                                  @Param("to") LocalDateTime to);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT b FROM Booking b WHERE b.uuid = :uuid")

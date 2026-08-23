@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -63,8 +63,8 @@ public class CinefyExceptionHandler {
         return ExceptionResponseMaker.makeResponse("You do not have permission to access this resource", HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException exception) {
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<?> handleValidationException(BindException exception) {
         List<Map<String, String>> errorsList = exception.getBindingResult().getAllErrors().stream().map(error -> {
             Map<String, String> errorMap = new HashMap<>();
             String fieldName = ((FieldError) error).getField();

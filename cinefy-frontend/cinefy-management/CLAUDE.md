@@ -59,6 +59,12 @@ src/
 │   │   ├── payment-channels/           # Per-gateway channel editor (currency + integration ids)
 │   │   └── provider-spec.ts            # Provider field/channel specs driving the form
 │   ├── profile/                        # profile-identity, profile-personal-details, profile-password
+│   ├── statistics/
+│   │   ├── date-range-selector/        # Preset pills (7/14/30) + custom-range popover.
+│   │   │                               #   Owns the default range: emits it once via afterNextRender.
+│   │   ├── summary-cards/              # Period totals + vs-previous deltas
+│   │   ├── sales-chart/                # Daily bar chart + hover tooltip + View Details table
+│   │   └── movie-performance/          # Paginated per-movie table ranked by net revenue
 │   ├── staff/
 │   │   ├── manage-staff-modal/         # Create/edit staff member form
 │   │   ├── staff-details/              # Read-only staff detail view
@@ -95,6 +101,7 @@ src/
 │   ├── movies/                         # Movies / showtimes page (/movies)
 │   ├── payment/                        # Payment gateways page (/payment)
 │   ├── staff/                          # Staff management page (/staff)
+│   ├── statistics/                     # Sales & performance statistics page (/statistics)
 │   ├── profile/                        # Current-user profile page (/profile)
 │   ├── access-denied/                  # Shown when a route's position check fails
 │   └── not-found/                      # 404 page (wildcard ** route, authed)
@@ -113,6 +120,8 @@ src/
 │   ├── showtime-events.ts              # Cross-component event bus (RxJS Subjects): created$/updated$/published$/deleted$/singleDeleted$/committedChanged$/highlightChanged$/showtimeOccupancyChanged$
 │   ├── staff.ts                        # Staff CRUD + position coverage + current-user (/staff/me) cache
 │   ├── payment-gateways.ts             # Payment gateway CRUD + active-status toggle
+│   ├── statistics.ts                   # Summary / daily sales / movie performance.
+│   │                                   #   STILL MOCK DATA — no HTTP calls yet.
 │   ├── header-actions.ts               # Signal-based template injection for header
 │   └── sidebar.ts                      # Sidebar open/close state (signal)
 │                                       # (Toasts are NOT a local service — ToastService comes from cinefy-ui/services.)
@@ -122,7 +131,8 @@ src/
 │   ├── validation.ts                   # Shared form regexes (password/email/name/username patterns)
 │   ├── constants/                      # UI constants (SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE)
 │   ├── guards/                         # auth-guard, guest-guard, position-guard (route CanActivate/CanMatch)
-│   ├── types/                          # halls, movies, showtimes, booking, staff, payment-gateway, stats, auth, api
+│   ├── types/                          # halls, movies, showtimes, booking, staff, payment-gateway,
+│   │                                   #   stats, statistics, auth, api
 │   └── styles/
 │       ├── _colors.scss                # Full color palette ($gray-*, $blue-*, etc.) — project-owned
 │       ├── _shadows.scss                # $shadow-xs/sm/md/lg + focus-ring tokens — project-owned
@@ -150,6 +160,7 @@ Two layout shells, each gated by a guard:
 ├── /movies     → MoviesPage        (canMatch: positionCanMatch)   movie search + showtimes scheduling
 ├── /payment    → PaymentPage       (canMatch: positionCanMatch)   payment gateways
 ├── /staff      → StaffPage         (canMatch: positionCanMatch)   staff management
+├── /statistics → StatisticsPage    (canMatch: positionCanMatch)   sales & movie performance
 └── /profile    → ProfilePage       (current-user profile; no position gate)
 
 '' (AuthLayout, canActivate: guestGuard)       # redirects away if already authenticated
@@ -159,9 +170,9 @@ Two layout shells, each gated by a guard:
 **                 → NotFoundPage      (canActivate: authGuard)   catch-all 404
 ```
 
-**Position-based access:** a protected route is declared twice — once with `canMatch: [positionCanMatch]` (renders the real page if the current staff position may access it) and once falling through to `AccessDeniedPage`. `/halls`, `/movies`, `/payment`, and `/staff` follow this exactly. Two routes deviate today, so check before assuming: `/` (dashboard) has the `canMatch` but **no** `AccessDeniedPage` fallthrough — a denied position falls through to the `**` wildcard and gets `NotFoundPage` instead; `/profile` has the fallthrough entry but **no** `canMatch` on the first, so the `AccessDeniedPage` line is dead and profile is open to any authenticated staff member (which is the intent — it's the current user's own profile). The position → route mapping lives in [`shared/access.ts`](src/shared/access.ts) (`canAccessRoute`), and `positionCanMatch` ([`shared/guards/position-guard.ts`](src/shared/guards/position-guard.ts)) reads it. `authGuard` / `guestGuard` ([`shared/guards/`](src/shared/guards/)) gate the two shells on authentication state.
+**Position-based access:** a protected route is declared twice — once with `canMatch: [positionCanMatch]` (renders the real page if the current staff position may access it) and once falling through to `AccessDeniedPage`. `/halls`, `/movies`, `/payment`, `/staff`, and `/statistics` follow this exactly. Two routes deviate today, so check before assuming: `/` (dashboard) has the `canMatch` but **no** `AccessDeniedPage` fallthrough — a denied position falls through to the `**` wildcard and gets `NotFoundPage` instead; `/profile` has the fallthrough entry but **no** `canMatch` on the first, so the `AccessDeniedPage` line is dead and profile is open to any authenticated staff member (which is the intent — it's the current user's own profile). The position → route mapping lives in [`shared/access.ts`](src/shared/access.ts) (`canAccessRoute`), and `positionCanMatch` ([`shared/guards/position-guard.ts`](src/shared/guards/position-guard.ts)) reads it. `authGuard` / `guestGuard` ([`shared/guards/`](src/shared/guards/)) gate the two shells on authentication state.
 
-Planned but not yet implemented: `/statistics`, `/settings`.
+Planned but not yet implemented: `/settings`.
 
 ## Architecture & Patterns
 
@@ -361,7 +372,58 @@ GET    /booking/showtimes/:showtimeId    # Seat selection (layout + active booki
 POST   /booking                          # Create booking (sends Idempotency-Key header)
 POST   /booking/:id/settle               # Record on-site payment → BookingConfirmation
 DELETE /booking/:id                      # Cancel booking
+
+# Statistics (NOT WIRED — StatisticsService returns mock data with an artificial delay)
+GET    /statistics/summary               # Period totals + previous-period totals
+GET    /statistics/sales?from=&to=       # Daily points, sorted by date
+GET    /statistics/movies?page=&size=    # Paginated movie performance, pre-sorted by netRevenue
 ```
+
+### Statistics page
+
+The `/statistics` page is four components driven by one `DateRange`, and the only place in the app
+still backed by mock data.
+
+**The date range has exactly one owner.** `date-range-selector` holds the preset state _and_ the
+default; `StatisticsPage.range` starts as `signal<DateRange | null>(null)` and is filled by the
+selector's first emit. Don't re-derive the default in the page — that duplication was removed
+deliberately.
+
+**The initial emit must be deferred.** `output()` has no replay buffer, and a parent's
+`(rangeChange)` listener is not attached until _after_ the child's constructor returns. Emitting
+from the constructor fires into an emitter with zero subscribers and is silently dropped, leaving
+the page's `range` permanently `null`. The selector therefore emits from `afterNextRender`. This
+applies to any component that wants to announce an initial value through an `output()`.
+
+**Panels are gated on a non-null range.** `summary-cards`, `sales-chart`, and `movie-performance`
+all declare `range` as `input.required<DateRange>()`, so the page wraps them in
+`@if (range(); as range)`. Rendering them before the first emit throws.
+
+**Formatting lives in templates, not TypeScript.** These components deliberately carry no
+`formatMoney` / `formatPercent` / `format(date, ...)` helpers — numbers go through `DecimalPipe`
+(`| number`) and dates through `DatePipe` (`| date: 'd MMM'`), matching the rest of the app. The
+backend sends pre-rounded values, so digit-format args are omitted; the pipe is still what supplies
+thousands separators. The one exception is `movie-performance`'s occupancy (`| number: '1.1-1'`),
+which is computed client-side and sits in a fixed-width column.
+
+**Occupancy is a percentage number, not a fraction.** `StatisticsPeriodTotals.occupancy` is `67.6`,
+not `0.676` — templates append `%` without multiplying. `movie-performance` derives its own as
+`ticketsSold / totalSeats * 100`.
+
+**Gross revenue is derived, never sent.** `grossRevenue = netRevenue + refunded`, computed the same
+way in `summary-cards` and `sales-chart`. If the API ever returns a gross that isn't exactly that
+sum, both panels will disagree with it.
+
+**Movie performance does not sort.** The endpoint returns rows pre-sorted by `netRevenue`; rank is
+`(page - 1) * pageSize + index + 1` so it stays continuous across pages. Its `page` is a
+`linkedSignal` sourced from `range` (`computation: () => 1`) so a range change resets to page 1
+while the pager can still write to it — a `signal` + reset `effect` would fire the fetch twice.
+
+**When wiring the real API:** `StatisticsService` currently returns `of(mock).pipe(delay(...))`. The
+agreed wire format sends dates as `DD-MM-YYYY`, so `getSales` will need to convert them to ISO
+before components see them — `sales-chart` binds `| date` to `point.date` and would render
+`Invalid Date` otherwise. Whether the backend gap-fills zero-revenue days is still open; the chart
+assumes one point per day in range.
 
 ## Styling
 

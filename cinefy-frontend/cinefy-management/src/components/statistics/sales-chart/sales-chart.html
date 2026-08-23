@@ -1,0 +1,102 @@
+<section class="sales-chart">
+  <header class="sc-header">
+    <div>
+      <h3 class="sc-title">Sales over time</h3>
+      <p class="sc-subtitle">Daily sales and performance across the selected range</p>
+    </div>
+
+    @if (!loading() && !failed() && !isEmpty()) {
+      <button type="button" class="sc-details-toggle" (click)="toggleTable()">
+        {{ showTable() ? 'Hide Details' : 'View Details' }}
+      </button>
+    }
+  </header>
+
+  @if (loading()) {
+    <div class="sc-loading">
+      <loading-spinner variant="xl" />
+    </div>
+  } @else if (failed()) {
+    <empty-state
+      [icon]="icons.WarningIcon"
+      title="Couldn't load sales over time"
+      description="Something went wrong. Please try again later."
+    />
+  } @else if (isEmpty()) {
+    <empty-state
+      [icon]="icons.ChartColumnIcon"
+      title="No sales in this range"
+      description="No captured payments landed between these dates."
+    />
+  } @else {
+    <div class="sc-body">
+      <ul class="sc-bars">
+        @for (bar of bars(); track bar.date; let index = $index) {
+          <li class="sc-bar-slot" (mouseenter)="onBarEnter(index)" (mouseleave)="onBarLeave()">
+            <span class="sc-bar-track">
+              <span
+                class="sc-bar"
+                [class.active]="hovered() === index"
+                [style.height.%]="bar.heightPct"
+              >
+                @if (hovered() === index) {
+                  <span class="sc-tooltip">
+                    <span class="sc-tooltip-day">{{ bar.date | date: 'EEE d MMM' }}</span>
+                    <span class="sc-tooltip-value">
+                      {{ bar.grossRevenue | number }} <span>{{ currency }}</span>
+                    </span>
+                  </span>
+                }
+              </span>
+            </span>
+            <span class="sc-bar-label" [class.active]="hovered() === index">
+              {{ bar.date | date: 'd MMM' }}
+            </span>
+          </li>
+        }
+      </ul>
+
+      @if (showTable()) {
+        <div class="sc-table-wrapper">
+          <table class="sc-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th class="numeric">Sales</th>
+                <th class="numeric">Net revenue</th>
+                <th class="numeric">Refunded</th>
+                <th class="numeric">Tickets sold</th>
+                <th class="numeric">Occupancy</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (bar of bars(); track bar.date) {
+                <tr>
+                  <td class="sc-cell-date">{{ bar.date | date: 'EEE d MMM' }}</td>
+                  <td class="numeric">
+                    {{ bar.grossRevenue | number }}
+                    <span class="sc-cell-unit">{{ currency }}</span>
+                  </td>
+                  <td class="numeric">
+                    {{ bar.details.netRevenue | number }}
+                    <span class="sc-cell-unit">{{ currency }}</span>
+                  </td>
+                  <td class="numeric">
+                    @if (bar.details.refunded === 0) {
+                      <span class="sc-cell-empty">--</span>
+                    } @else {
+                      {{ bar.details.refunded | number }}
+                      <span class="sc-cell-unit">{{ currency }}</span>
+                    }
+                  </td>
+                  <td class="numeric">{{ bar.details.ticketsSold | number }}</td>
+                  <td class="numeric">{{ bar.details.occupancy | number }}%</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</section>

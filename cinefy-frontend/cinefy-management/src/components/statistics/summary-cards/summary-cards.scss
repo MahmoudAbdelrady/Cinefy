@@ -1,0 +1,91 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+
+  @include below-mobile {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include below-phone {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summary-card {
+  padding: 20px;
+  background-color: $color-card;
+  border: 1px solid $card-border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-xs;
+  transition: box-shadow 200ms ease;
+  list-style: none;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+
+  .sc-label {
+    font-size: 13px;
+    color: $gray-600;
+  }
+
+  .sc-value {
+    margin-top: 6px;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: $gray-900;
+    font-variant-numeric: tabular-nums;
+
+    .sc-unit {
+      margin-left: 6px;
+      font-size: 14px;
+      font-weight: 400;
+      color: $gray-500;
+    }
+  }
+
+  .sc-note {
+    margin-top: 6px;
+    font-size: 12px;
+    color: $gray-500;
+  }
+
+  .sc-delta {
+    @include flex-align;
+    @include lucide-icon-fix;
+
+    gap: 4px;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &.positive {
+      color: $green-600;
+    }
+
+    &.negative {
+      color: $red-600;
+    }
+
+    &.neutral {
+      color: $gray-500;
+      font-weight: 400;
+    }
+  }
+}
+
+// ─── Loading ─────────────────────────────────────────────────────────────────
+
+.summary-loading {
+  @include flex-center;
+
+  min-height: 160px;
+  color: $blue-600;
+}

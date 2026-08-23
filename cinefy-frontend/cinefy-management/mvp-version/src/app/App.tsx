@@ -48,6 +48,10 @@ import {
   QrCode,
   ScanLine,
   Keyboard,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus,
+  RefreshCw,
 } from 'lucide-react';
 import { ImageWithFallback } from './components/figma/ImageWithFallback';
 
@@ -2131,6 +2135,1133 @@ function ProfileSection() {
 }
 
 // ============================================================================
+// Statistics Section — sales, tickets and occupancy over a date range
+// ============================================================================
+
+type RangePreset = 7 | 14 | 30 | 'custom';
+
+type DateRange = {
+  /** Inclusive ISO date (yyyy-mm-dd) of the first business day in range. */
+  from: string;
+  /** Inclusive ISO date (yyyy-mm-dd) of the last business day in range. */
+  to: string;
+};
+
+/**
+ * Every metric ships its own comparison against the immediately preceding
+ * period of equal length, so the card renders a delta without the UI ever
+ * doing the arithmetic. `previous` of 0 means the delta is not meaningful.
+ */
+type MetricPair = {
+  current: number;
+  previous: number;
+};
+
+/**
+ * `grossRevenue` / `netRevenue` are the wire names, but refunds are the only
+ * thing subtracted between them — no VAT, gateway fees or other costs are
+ * involved. "Net revenue" here means net OF REFUNDS ONLY — it is not a
+ * post-VAT figure, despite what the name implies in an Egyptian context.
+ */
+type StatisticsSummary = {
+  range: DateRange;
+  /** Captured payments in range, before refunds. Shown as "Total sales". */
+  grossRevenue: MetricPair;
+  refunds: MetricPair;
+  /** Sales minus refunds. Shown as "Net revenue" — this is not post-tax. */
+  netRevenue: MetricPair;
+  ticketsSold: MetricPair;
+  /** Decimal fraction 0..1 — formatted as a percentage here, not upstream. */
+  occupancyRate: MetricPair;
+  currency: string;
+};
+
+type RevenuePoint = {
+  date: string;
+  grossRevenue: number;
+  refunds: number;
+  netRevenue: number;
+};
+
+type RevenueTimeseries = {
+  granularity: 'DAY';
+  currency: string;
+  /** Gap-filled — a day with no bookings arrives as a zero, never omitted. */
+  points: RevenuePoint[];
+};
+
+type MoviePerformanceRow = {
+  movieId: number;
+  title: string;
+  ticketsSold: number;
+  /** Captured payments for this movie in range, before refunds. */
+  grossRevenue: number;
+  refunds: number;
+  /** grossRevenue - refunds. The figure the table ranks and leads with. */
+  netRevenue: number;
+  /** How many showtimes this movie had in range, across every hall. */
+  showtimeCount: number;
+  /**
+   * Sum of hall capacity over all of this movie's showtimes in range — a
+   * movie in a 200-seat hall three times offered 600 seats. This is the
+   * occupancy denominator, so the rate is seat-weighted: a big hall counts
+   * for more than a small one.
+   */
+  seatsAvailable: number;
+  /** ticketsSold / seatsAvailable, as a fraction 0..1. */
+  occupancyRate: number;
+};
+
+type MoviePerformanceResult = {
+  currency: string;
+  movies: MoviePerformanceRow[];
+};
+
+/** Each panel loads on its own, so a slow query never blanks its neighbours. */
+type PanelState = 'loading' | 'ready' | 'empty' | 'error';
+
+const RANGE_PRESETS: { value: RangePreset; label: string }[] = [
+  { value: 7, label: '7 days' },
+  { value: 14, label: '14 days' },
+  { value: 30, label: '30 days' },
+];
+
+/** The demo clock. A real build resolves "today" in Africa/Cairo. */
+const STATS_TODAY = '2026-08-14';
+
+const CURRENCY_LABEL = 'EGP';
+
+function isoDaysBefore(iso: string, days: number): string {
+  const date = new Date(`${iso}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() - days);
+  return date.toISOString().slice(0, 10);
+}
+
+function daysBetween(from: string, to: string): number {
+  const start = new Date(`${from}T00:00:00Z`).getTime();
+  const end = new Date(`${to}T00:00:00Z`).getTime();
+  return Math.round((end - start) / 86_400_000) + 1;
+}
+
+function rangeForPreset(days: number): DateRange {
+  return { from: isoDaysBefore(STATS_TODAY, days - 1), to: STATS_TODAY };
+}
+
+function formatRangeDay(iso: string, withYear: boolean): string {
+  const date = new Date(`${iso}T00:00:00Z`);
+  return date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: withYear ? 'numeric' : undefined,
+    timeZone: 'UTC',
+  });
+}
+
+/** "1 Aug to 14 Aug 2026, compared to previous 14 days" */
+function describeRange(range: DateRange): string {
+  const length = daysBetween(range.from, range.to);
+  return `${formatRangeDay(range.from, false)} to ${formatRangeDay(range.to, true)}, compared to previous ${length} ${length === 1 ? 'day' : 'days'}`;
+}
+
+function formatStatMoney(amount: number): string {
+  return amount.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+}
+
+function formatStatCount(value: number): string {
+  return value.toLocaleString('en-US');
+}
+
+function formatPercent(fraction: number, decimals = 0): string {
+  return `${(fraction * 100).toFixed(decimals)}%`;
+}
+
+function formatTooltipDay(iso: string): string {
+  const date = new Date(`${iso}T00:00:00Z`);
+  return date.toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  });
+}
+
+/**
+ * Seeded pseudo-random so the mock series is stable across re-renders —
+ * a range switch should not reshuffle bars that represent the same days.
+ */
+function seededValue(seed: string, min: number, max: number): number {
+  let hash = 2166136261;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash ^= seed.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  const unit = ((hash >>> 0) % 10_000) / 10_000;
+  return min + unit * (max - min);
+}
+
+function buildTimeseries(range: DateRange): RevenuePoint[] {
+  const length = daysBetween(range.from, range.to);
+  return Array.from({ length }, (_, index) => {
+    const date = isoDaysBefore(range.to, length - 1 - index);
+    const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+    // Thursday–Saturday carry the week in Egyptian cinemas.
+    const weekendLift = weekday === 4 || weekday === 5 || weekday === 6 ? 1.55 : 1;
+    const gross = Math.round(seededValue(date, 28_000, 62_000) * weekendLift);
+    const refundShare = seededValue(`${date}-refund`, 0.01, 0.07);
+    const refunds = Math.round(gross * refundShare);
+    return {
+      date,
+      grossRevenue: gross,
+      refunds,
+      // Derived by subtraction so the row always adds up on screen.
+      netRevenue: gross - refunds,
+    };
+  });
+}
+
+const MOVIE_CATALOGUE = [
+  { movieId: 41, title: 'The Salt Road' },
+  { movieId: 27, title: 'Dune: Part Three' },
+  { movieId: 63, title: 'Cairo After Midnight' },
+  { movieId: 12, title: 'The Quiet Harbour' },
+  { movieId: 88, title: 'Northbound' },
+  { movieId: 15, title: 'The Last Projectionist' },
+  { movieId: 34, title: 'Desert Lines' },
+  { movieId: 52, title: 'A House in Zamalek' },
+  { movieId: 71, title: 'Blue Hour' },
+  { movieId: 19, title: 'The Weight of Water' },
+  { movieId: 45, title: 'Nile Crossing' },
+  { movieId: 66, title: 'Paper Boats' },
+  { movieId: 23, title: 'The Long Return' },
+  { movieId: 90, title: 'Static' },
+  { movieId: 38, title: 'Alexandria, 1962' },
+  { movieId: 57, title: 'The Understudy' },
+  { movieId: 11, title: 'Glasshouse' },
+  { movieId: 82, title: 'Every Other Sunday' },
+];
+
+/**
+ * Every movie screened in the range, ranked by net revenue — the most
+ * profitable title first. Not truncated; the table pages through it.
+ */
+function buildMoviePerformance(range: DateRange): MoviePerformanceRow[] {
+  const scale = daysBetween(range.from, range.to) / 14;
+  return MOVIE_CATALOGUE.map((seed) => {
+    // Built the way the real query aggregates: showtimes across every hall,
+    // seats offered as the sum of those halls' capacity, occupancy last.
+    const showtimeCount = Math.max(
+      1,
+      Math.round(seededValue(`${seed.title}-shows`, 2, 16) * scale),
+    );
+    const averageHallSize = Math.round(seededValue(`${seed.title}-hall`, 90, 240));
+    const seatsAvailable = showtimeCount * averageHallSize;
+    const fill = seededValue(`${seed.title}-occ`, 0.18, 0.86);
+    const ticketsSold = Math.round(seatsAvailable * fill);
+    const grossRevenue = Math.round(ticketsSold * seededValue(`${seed.title}-price`, 88, 132));
+    const refunds = Math.round(grossRevenue * seededValue(`${seed.title}-refund`, 0, 0.09));
+    return {
+      ...seed,
+      ticketsSold,
+      grossRevenue,
+      refunds,
+      // Subtracted, not rounded separately, so the row adds up on screen.
+      netRevenue: grossRevenue - refunds,
+      showtimeCount,
+      seatsAvailable,
+      occupancyRate: ticketsSold / seatsAvailable,
+    };
+  }).sort((a, b) => b.netRevenue - a.netRevenue);
+}
+
+/** Page numbers with ellipsis gaps, matching the staff table's pager. */
+function buildPageItems(current: number, total: number): (number | 'gap')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const items: (number | 'gap')[] = [1];
+  const left = Math.max(2, current - 1);
+  const right = Math.min(total - 1, current + 1);
+  if (left > 2) items.push('gap');
+  for (let i = left; i <= right; i++) items.push(i);
+  if (right < total - 1) items.push('gap');
+  items.push(total);
+  return items;
+}
+
+function buildSummary(range: DateRange): StatisticsSummary {
+  const points = buildTimeseries(range);
+  const length = daysBetween(range.from, range.to);
+  const previousRange: DateRange = {
+    from: isoDaysBefore(range.from, length),
+    to: isoDaysBefore(range.from, 1),
+  };
+  const previousPoints = buildTimeseries(previousRange);
+
+  const sumGross = (series: RevenuePoint[]) =>
+    series.reduce((total, p) => total + p.grossRevenue, 0);
+  const sumNet = (series: RevenuePoint[]) => series.reduce((total, p) => total + p.netRevenue, 0);
+
+  const gross = sumGross(points);
+  const net = sumNet(points);
+  const previousGross = sumGross(previousPoints);
+  const previousNet = sumNet(previousPoints);
+
+  return {
+    range,
+    grossRevenue: { current: gross, previous: previousGross },
+    refunds: { current: gross - net, previous: previousGross - previousNet },
+    netRevenue: { current: net, previous: previousNet },
+    ticketsSold: {
+      current: Math.round(net / 103),
+      previous: Math.round(previousNet / 103),
+    },
+    occupancyRate: {
+      current: seededValue(`${range.from}-occ`, 0.44, 0.79),
+      previous: seededValue(`${previousRange.from}-occ`, 0.44, 0.79),
+    },
+    currency: CURRENCY_LABEL,
+  };
+}
+
+/**
+ * A delta is only meaningful when the previous period had something to
+ * compare against — a jump from zero is reported as new, not as +∞%.
+ */
+type Delta = { kind: 'none' } | { kind: 'flat' } | { kind: 'up' | 'down'; percent: number };
+
+function computeDelta(pair: MetricPair): Delta {
+  if (pair.previous === 0) return pair.current === 0 ? { kind: 'flat' } : { kind: 'none' };
+  const change = (pair.current - pair.previous) / pair.previous;
+  const percent = Math.abs(change) * 100;
+  if (percent < 0.5) return { kind: 'flat' };
+  return { kind: change > 0 ? 'up' : 'down', percent };
+}
+
+/**
+ * Direction and sentiment are separate axes: refunds climbing is an up
+ * arrow but a bad outcome, so each card declares which way is good.
+ */
+function deltaTone(delta: Delta, higherIsBetter: boolean): string {
+  if (delta.kind === 'up') return higherIsBetter ? 'text-green-600' : 'text-red-600';
+  if (delta.kind === 'down') return higherIsBetter ? 'text-red-600' : 'text-green-600';
+  return 'text-gray-500';
+}
+
+function DeltaLine({
+  delta,
+  higherIsBetter,
+  comparisonLabel,
+}: {
+  delta: Delta;
+  higherIsBetter: boolean;
+  comparisonLabel: string;
+}) {
+  if (delta.kind === 'none') {
+    return <p className="text-xs text-gray-500 mt-1.5">No {comparisonLabel} to compare</p>;
+  }
+
+  if (delta.kind === 'flat') {
+    return (
+      <p className="text-xs text-gray-500 mt-1.5 flex items-center gap-1">
+        <Minus size={12} className="flex-shrink-0" />
+        <span>No change vs {comparisonLabel}</span>
+      </p>
+    );
+  }
+
+  const Arrow = delta.kind === 'up' ? ArrowUpRight : ArrowDownRight;
+
+  return (
+    <p
+      className={`text-xs font-medium mt-1.5 flex items-center gap-1 ${deltaTone(delta, higherIsBetter)}`}
+    >
+      <Arrow size={12} className="flex-shrink-0" />
+      <span>
+        {delta.kind === 'up' ? 'Up' : 'Down'} {delta.percent.toFixed(1)}% vs {comparisonLabel}
+      </span>
+    </p>
+  );
+}
+
+function SkeletonBlock({ className, style }: { className: string; style?: React.CSSProperties }) {
+  return <div className={`bg-gray-200 rounded animate-pulse ${className}`} style={style} />;
+}
+
+/** Shared failure body — a message plus a retry scoped to this panel alone. */
+function PanelError({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-10 px-6">
+      <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-3">
+        <AlertCircle size={22} className="text-red-600" />
+      </div>
+      <p className="text-gray-900 font-medium">{message}</p>
+      <p className="text-sm text-gray-500 mt-1 mb-4">The other panels are unaffected.</p>
+      <button
+        onClick={onRetry}
+        className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg border border-gray-300 transition-colors inline-flex items-center gap-2"
+      >
+        <RefreshCw size={16} />
+        <span>Retry</span>
+      </button>
+    </div>
+  );
+}
+
+function PanelEmpty({ icon, message }: { icon: React.ReactNode; message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-10 px-6">
+      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+        {icon}
+      </div>
+      <p className="text-gray-900 font-medium">Nothing sold in this range</p>
+      <p className="text-sm text-gray-500 mt-1">{message}</p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Range selector — presets plus a custom from/to pair
+// ---------------------------------------------------------------------------
+
+function DateRangeSelector({
+  preset,
+  range,
+  onSelectPreset,
+  onSelectCustom,
+}: {
+  preset: RangePreset;
+  range: DateRange;
+  onSelectPreset: (days: number) => void;
+  onSelectCustom: (range: DateRange) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState<DateRange>(range);
+  const popoverRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (!popoverRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  const openCustom = () => {
+    setDraft(range);
+    setOpen((wasOpen) => !wasOpen);
+  };
+
+  const invalidDraft = draft.from > draft.to;
+  const draftTooLong = !invalidDraft && daysBetween(draft.from, draft.to) > 366;
+
+  const applyCustom = () => {
+    if (invalidDraft || draftTooLong) return;
+    onSelectCustom(draft);
+    setOpen(false);
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      {/* Presets are a radio group: one range governs the whole page. */}
+      <div
+        role="radiogroup"
+        aria-label="Statistics date range"
+        className="flex items-center gap-1 bg-gray-100 rounded-lg p-1"
+      >
+        {RANGE_PRESETS.map((option) => {
+          const selected = preset === option.value;
+          return (
+            <button
+              key={option.value}
+              role="radio"
+              aria-checked={selected}
+              onClick={() => onSelectPreset(option.value as number)}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 ${
+                selected ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="relative" ref={popoverRef}>
+        <button
+          onClick={openCustom}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          className={`p-2 rounded-lg border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 ${
+            preset === 'custom'
+              ? 'border-blue-600 bg-blue-50 text-blue-600'
+              : 'border-gray-300 text-gray-600 hover:bg-gray-100'
+          }`}
+          title="Custom range"
+        >
+          <Calendar size={18} />
+        </button>
+
+        {open && (
+          <div
+            role="dialog"
+            aria-label="Custom date range"
+            className="absolute right-0 top-full mt-2 z-20 w-72 bg-white rounded-xl border border-gray-200 shadow-lg p-4"
+          >
+            <p className="text-sm font-semibold text-gray-900 mb-3">Custom range</p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">From</label>
+                <input
+                  type="date"
+                  value={draft.from}
+                  max={STATS_TODAY}
+                  onChange={(event) => setDraft({ ...draft, from: event.target.value })}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">To</label>
+                <input
+                  type="date"
+                  value={draft.to}
+                  max={STATS_TODAY}
+                  onChange={(event) => setDraft({ ...draft, to: event.target.value })}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {invalidDraft && (
+              <p className="text-xs text-red-600 mt-2">
+                The start date must fall on or before the end date.
+              </p>
+            )}
+            {draftTooLong && (
+              <p className="text-xs text-red-600 mt-2">Pick a range of 366 days or fewer.</p>
+            )}
+
+            <div className="flex items-center gap-2 mt-4">
+              <button
+                onClick={() => setOpen(false)}
+                className="flex-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg border border-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={applyCustom}
+                disabled={invalidDraft || draftTooLong}
+                className="flex-1 px-3 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Summary cards — what came in, what was kept, what went back out
+// ---------------------------------------------------------------------------
+
+function SummaryCards({ range }: { range: DateRange }) {
+  const [state, setState] = useState<PanelState>('loading');
+  const [summary, setSummary] = useState<StatisticsSummary | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  useEffect(() => {
+    setState('loading');
+    // TODO: GET /api/admin/statistics/summary
+    const timer = setTimeout(() => {
+      setSummary(buildSummary(range));
+      setState('ready');
+    }, 550);
+    return () => clearTimeout(timer);
+  }, [range.from, range.to, reloadToken]);
+
+  const comparisonLabel = `previous ${daysBetween(range.from, range.to)} days`;
+
+  if (state === 'loading' || !summary) {
+    return (
+      <div className="grid gap-4 mb-6 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div key={index} className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+            <SkeletonBlock className="h-3 w-20" />
+            <SkeletonBlock className="h-7 w-28 mt-3" />
+            <SkeletonBlock className="h-3 w-24 mt-3" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (state === 'error') {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-6">
+        <PanelError
+          message="Couldn't load the summary"
+          onRetry={() => setReloadToken((token) => token + 1)}
+        />
+      </div>
+    );
+  }
+
+  const refundShare =
+    summary.grossRevenue.current === 0 ? 0 : summary.refunds.current / summary.grossRevenue.current;
+
+  const cards = [
+    {
+      key: 'gross',
+      label: 'Total sales',
+      value: formatStatMoney(summary.grossRevenue.current),
+      unit: summary.currency,
+      pair: summary.grossRevenue,
+      higherIsBetter: true,
+      note: null as string | null,
+    },
+    {
+      key: 'net',
+      label: 'Net revenue',
+      value: formatStatMoney(summary.netRevenue.current),
+      unit: summary.currency,
+      pair: summary.netRevenue,
+      higherIsBetter: true,
+      // Refunds are the only deduction — spelled out so "net" isn't read
+      // as post-VAT, which is the default reading in Egypt.
+      note: 'Sales minus refunds',
+    },
+    {
+      key: 'refunds',
+      label: 'Refunded',
+      value: formatStatMoney(summary.refunds.current),
+      unit: summary.currency,
+      pair: summary.refunds,
+      higherIsBetter: false,
+      note: `${formatPercent(refundShare, 1)} of sales`,
+    },
+    {
+      key: 'tickets',
+      label: 'Tickets sold',
+      value: formatStatCount(summary.ticketsSold.current),
+      unit: null as string | null,
+      pair: summary.ticketsSold,
+      higherIsBetter: true,
+      note: null,
+    },
+    {
+      key: 'occupancy',
+      label: 'Occupancy',
+      value: formatPercent(summary.occupancyRate.current, 1),
+      unit: null,
+      pair: summary.occupancyRate,
+      higherIsBetter: true,
+      note: null,
+    },
+  ];
+
+  return (
+    <div className="grid gap-4 mb-6 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
+      {cards.map((card) => (
+        <div
+          key={card.key}
+          className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 hover:shadow-md transition-shadow"
+        >
+          <p className="text-[13px] text-gray-600">{card.label}</p>
+          <p className="text-2xl font-medium text-gray-900 mt-1.5 tabular-nums">
+            {card.value}
+            {card.unit && (
+              <span className="text-sm font-normal text-gray-500 ml-1.5">{card.unit}</span>
+            )}
+          </p>
+          {card.note && <p className="text-xs text-gray-500 mt-1.5">{card.note}</p>}
+          <DeltaLine
+            delta={computeDelta(card.pair)}
+            higherIsBetter={card.higherIsBetter}
+            comparisonLabel={comparisonLabel}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Revenue over time — one bar per business day
+// ---------------------------------------------------------------------------
+
+function RevenueChart({ range }: { range: DateRange }) {
+  const [state, setState] = useState<PanelState>('loading');
+  const [series, setSeries] = useState<RevenueTimeseries | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [showTable, setShowTable] = useState(false);
+
+  useEffect(() => {
+    setState('loading');
+    // TODO: GET /api/admin/statistics/revenue-timeseries
+    const timer = setTimeout(() => {
+      const points = buildTimeseries(range);
+      setSeries({ granularity: 'DAY', currency: CURRENCY_LABEL, points });
+      setState(points.every((point) => point.grossRevenue === 0) ? 'empty' : 'ready');
+    }, 850);
+    return () => clearTimeout(timer);
+  }, [range.from, range.to, reloadToken]);
+
+  const points = series?.points ?? [];
+  const peak = points.reduce((max, point) => Math.max(max, point.grossRevenue), 0);
+  const total = points.reduce((sum, point) => sum + point.grossRevenue, 0);
+  const totalRefunds = points.reduce((sum, point) => sum + point.refunds, 0);
+
+  // Only first, middle and last get a label — more crowds at 30 days.
+  const labelledIndexes = new Set(
+    points.length === 0 ? [] : [0, Math.floor((points.length - 1) / 2), points.length - 1],
+  );
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-6">
+      <div className="flex items-center justify-between gap-4 p-6 border-b border-gray-200">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">Sales over time</h3>
+          <p className="text-sm text-gray-600 mt-1">Daily totals across the selected range</p>
+        </div>
+        {state === 'ready' && (
+          <button
+            onClick={() => setShowTable((shown) => !shown)}
+            aria-expanded={showTable}
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 rounded flex-shrink-0"
+          >
+            {showTable ? 'Hide Details' : 'View Details'}
+          </button>
+        )}
+      </div>
+
+      {state === 'loading' && (
+        <div className="p-6">
+          <div className="flex items-end gap-1.5 h-[130px]">
+            {Array.from({ length: 14 }).map((_, index) => (
+              <SkeletonBlock
+                key={index}
+                className="flex-1 rounded-t"
+                // Staggered heights read as a chart, not as a grey block.
+                style={{ height: `${35 + ((index * 37) % 60)}%` }}
+              />
+            ))}
+          </div>
+          <div className="flex justify-between mt-3">
+            <SkeletonBlock className="h-3 w-12" />
+            <SkeletonBlock className="h-3 w-12" />
+            <SkeletonBlock className="h-3 w-12" />
+          </div>
+        </div>
+      )}
+
+      {state === 'error' && (
+        <PanelError
+          message="Couldn't load sales over time"
+          onRetry={() => setReloadToken((token) => token + 1)}
+        />
+      )}
+
+      {state === 'empty' && (
+        <PanelEmpty
+          icon={<BarChart3 size={22} className="text-gray-400" />}
+          message="No captured payments landed between these dates."
+        />
+      )}
+
+      {state === 'ready' && (
+        <div className="p-6">
+          {/* Text alternative — the chart's shape stated in words. */}
+          <p className="sr-only">
+            Daily sales from {formatRangeDay(range.from, true)} to {formatRangeDay(range.to, true)}.
+            Total {formatStatMoney(total)} {CURRENCY_LABEL} across {points.length} days, peaking at{' '}
+            {formatStatMoney(peak)} {CURRENCY_LABEL}. Refunded {formatStatMoney(totalRefunds)}{' '}
+            {CURRENCY_LABEL} over the same period.
+          </p>
+
+          <div className="relative">
+            <div className="flex items-end gap-1.5 h-[130px]" aria-hidden="true">
+              {points.map((point, index) => {
+                const heightPct = peak === 0 ? 0 : (point.grossRevenue / peak) * 100;
+                const active = hovered === index;
+                return (
+                  <div
+                    key={point.date}
+                    className="flex-1 h-full flex items-end min-w-0"
+                    onMouseEnter={() => setHovered(index)}
+                    onMouseLeave={() => setHovered(null)}
+                  >
+                    <div
+                      className={`w-full rounded-t transition-colors ${
+                        active ? 'bg-blue-700' : 'bg-blue-500'
+                      }`}
+                      style={{ height: `${Math.max(heightPct, 2)}%` }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            {hovered !== null && points[hovered] && (
+              <div
+                className="absolute top-0 pointer-events-none z-10"
+                style={{
+                  left: `${((hovered + 0.5) / points.length) * 100}%`,
+                  transform: 'translate(-50%, calc(-100% - 4px))',
+                }}
+              >
+                <div className="bg-gray-900 text-white rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
+                  <p className="text-xs text-gray-300">{formatTooltipDay(points[hovered].date)}</p>
+                  <p className="text-sm font-semibold tabular-nums">
+                    {formatStatMoney(points[hovered].grossRevenue)} {CURRENCY_LABEL}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-between mt-3 text-xs text-gray-500">
+            {points.map((point, index) =>
+              labelledIndexes.has(index) ? (
+                <span key={point.date}>{formatRangeDay(point.date, false)}</span>
+              ) : null,
+            )}
+          </div>
+
+          {showTable && (
+            <div className="mt-5 border-t border-gray-200 pt-4 max-h-64 overflow-y-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                    <th className="py-2 pr-4">Date</th>
+                    <th className="py-2 px-4 text-right">Sales</th>
+                    <th className="py-2 px-4 text-right">Net revenue</th>
+                    <th className="py-2 pl-4 text-right">Refunded</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {points.map((point) => (
+                    <tr key={point.date}>
+                      <td className="py-2 pr-4 text-gray-600">{formatTooltipDay(point.date)}</td>
+                      <td className="py-2 px-4 text-right text-gray-900 tabular-nums">
+                        {formatStatMoney(point.grossRevenue)}
+                        <span className="ml-1 text-xs text-gray-500">{CURRENCY_LABEL}</span>
+                      </td>
+                      <td className="py-2 px-4 text-right text-gray-900 tabular-nums">
+                        {formatStatMoney(point.netRevenue)}
+                        <span className="ml-1 text-xs text-gray-500">{CURRENCY_LABEL}</span>
+                      </td>
+                      <td className="py-2 pl-4 text-right tabular-nums">
+                        {point.refunds === 0 ? (
+                          <span className="text-gray-400">-</span>
+                        ) : (
+                          <>
+                            <span className="text-gray-900">{formatStatMoney(point.refunds)}</span>
+                            <span className="ml-1 text-xs text-gray-500">{CURRENCY_LABEL}</span>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Movie performance — every movie in range, ranked by net revenue, paginated
+// ---------------------------------------------------------------------------
+
+function MoviePerformanceTable({ range }: { range: DateRange }) {
+  const [state, setState] = useState<PanelState>('loading');
+  const [movies, setMovies] = useState<MoviePerformanceRow[]>([]);
+  const [reloadToken, setReloadToken] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    setState('loading');
+    // TODO: GET /api/admin/statistics/movies?page=&size=
+    const timer = setTimeout(() => {
+      const result = buildMoviePerformance(range);
+      setMovies(result);
+      setState(result.length === 0 ? 'empty' : 'ready');
+    }, 1150);
+    return () => clearTimeout(timer);
+  }, [range.from, range.to, reloadToken]);
+
+  // A new range is a different result set — start it from the first page.
+  useEffect(() => {
+    setPage(1);
+  }, [range.from, range.to, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(movies.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const rangeStart = movies.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const rangeEnd = Math.min(currentPage * pageSize, movies.length);
+  const pagedMovies = movies.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <div className="p-6 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900">Movie performance</h3>
+        <p className="text-sm text-gray-600 mt-1">Ranked by net revenue</p>
+      </div>
+
+      {state === 'loading' && (
+        <div className="p-6 space-y-4">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="flex items-center gap-4">
+              <SkeletonBlock className="h-4 w-6" />
+              <SkeletonBlock className="h-4 flex-1 max-w-[240px]" />
+              <SkeletonBlock className="h-4 w-24" />
+              <SkeletonBlock className="h-4 w-16" />
+              <SkeletonBlock className="h-4 w-16" />
+              <SkeletonBlock className="h-4 w-32" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {state === 'error' && (
+        <PanelError
+          message="Couldn't load movie performance"
+          onRetry={() => setReloadToken((token) => token + 1)}
+        />
+      )}
+
+      {state === 'empty' && (
+        <PanelEmpty
+          icon={<Film size={22} className="text-gray-400" />}
+          message="No movies were screened between these dates."
+        />
+      )}
+
+      {state === 'ready' && (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[820px] text-left">
+              <thead>
+                <tr className="border-b border-gray-200 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                  <th className="py-3 pl-6 pr-4 w-14">Rank</th>
+                  <th className="py-3 px-4">Title</th>
+                  <th className="py-3 px-4 text-right">Net revenue</th>
+                  <th className="py-3 px-4 text-right">Tickets</th>
+                  <th className="py-3 px-4 text-right">Showtimes</th>
+                  <th className="py-3 pl-4 pr-6 w-60">Occupancy</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {pagedMovies.map((movie, index) => (
+                  <tr key={movie.movieId} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-4 pl-6 pr-4">
+                      {/* Rank is position in the whole range, not on this page. */}
+                      <span className="text-sm font-semibold text-gray-400 tabular-nums">
+                        {rangeStart + index}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="font-medium text-gray-900">{movie.title}</span>
+                    </td>
+                    <td className="py-4 px-4 text-right tabular-nums">
+                      {/* Net leads; the sales it came from and the refunds
+                          taken out sit under it, so all three are visible
+                          without three columns. */}
+                      <span className="text-gray-900">{formatStatMoney(movie.netRevenue)}</span>
+                      <span className="ml-1 text-sm text-gray-500">{CURRENCY_LABEL}</span>
+                      <p className="mt-1.5 text-xs text-gray-500">
+                        {formatStatMoney(movie.grossRevenue)} sales
+                        {movie.refunds > 0 && <> - {formatStatMoney(movie.refunds)} refunded</>}
+                      </p>
+                    </td>
+                    <td className="py-4 px-4 text-right text-gray-900 tabular-nums">
+                      {formatStatCount(movie.ticketsSold)}
+                    </td>
+                    <td className="py-4 px-4 text-right text-gray-900 tabular-nums">
+                      {formatStatCount(movie.showtimeCount)}
+                    </td>
+                    <td className="py-4 pl-4 pr-6">
+                      {/* Bar plus number: a title that sold well but ran half
+                        empty is visible without reading the digits. The seat
+                        counts spell out the denominator — the percentage is
+                        across every showtime, not one hall. */}
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500 rounded-full"
+                            style={{ width: `${movie.occupancyRate * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-sm text-gray-600 tabular-nums w-10 text-right">
+                          {formatPercent(movie.occupancyRate)}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 text-xs text-gray-500 tabular-nums">
+                        {formatStatCount(movie.ticketsSold)} of{' '}
+                        {formatStatCount(movie.seatsAvailable)} seats
+                      </p>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pager mirrors the staff table's, so the two read the same. */}
+          <div className="px-6 py-4 border-t border-gray-200 bg-gradient-to-b from-white to-gray-50/60">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-center gap-4 text-sm">
+                <span className="text-gray-600">
+                  Showing{' '}
+                  <span className="font-semibold text-gray-900 tabular-nums">
+                    {rangeStart}–{rangeEnd}
+                  </span>{' '}
+                  of{' '}
+                  <span className="font-semibold text-gray-900 tabular-nums">{movies.length}</span>{' '}
+                  movies
+                </span>
+                <span className="h-4 w-px bg-gray-200" />
+                <label className="flex items-center gap-2 text-gray-600">
+                  <span>Rows</span>
+                  <select
+                    value={pageSize}
+                    onChange={(event) => setPageSize(Number(event.target.value))}
+                    className="px-2 py-1 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent tabular-nums"
+                  >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  disabled={currentPage === 1}
+                  className="px-2.5 h-9 text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent hover:border-gray-200 rounded-lg transition-all flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-600 disabled:hover:border-transparent disabled:hover:shadow-none"
+                  title="Previous page"
+                >
+                  <ChevronLeft size={16} />
+                  <span className="hidden sm:inline text-sm">Prev</span>
+                </button>
+
+                <div className="flex items-center gap-1 px-1">
+                  {buildPageItems(currentPage, totalPages).map((item, idx) =>
+                    item === 'gap' ? (
+                      <span
+                        key={`gap-${idx}`}
+                        className="w-9 h-9 flex items-center justify-center text-gray-400 select-none"
+                      >
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={item}
+                        onClick={() => setPage(item)}
+                        aria-current={item === currentPage ? 'page' : undefined}
+                        className={
+                          item === currentPage
+                            ? 'w-9 h-9 flex items-center justify-center text-sm font-semibold rounded-lg bg-gray-900 text-white shadow-sm ring-1 ring-gray-900/10 tabular-nums'
+                            : 'w-9 h-9 flex items-center justify-center text-sm font-medium rounded-lg text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent hover:border-gray-200 transition-all tabular-nums'
+                        }
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-2.5 h-9 text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent hover:border-gray-200 rounded-lg transition-all flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-600 disabled:hover:border-transparent disabled:hover:shadow-none"
+                  title="Next page"
+                >
+                  <span className="hidden sm:inline text-sm">Next</span>
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Page container — owns the range; every panel below is presentational
+// ---------------------------------------------------------------------------
+
+function StatisticsSection() {
+  const [preset, setPreset] = useState<RangePreset>(14);
+  const [range, setRange] = useState<DateRange>(() => rangeForPreset(14));
+
+  const selectPreset = (days: number) => {
+    setPreset(days as RangePreset);
+    setRange(rangeForPreset(days));
+  };
+
+  const selectCustom = (next: DateRange) => {
+    setPreset('custom');
+    setRange(next);
+  };
+
+  return (
+    <>
+      {/* Top Bar */}
+      <div className="bg-white border-b border-gray-200 px-8 py-4 sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900">Statistics</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Sales, tickets and occupancy across a date range
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-8 max-w-[1280px] mx-auto">
+        {/* Filter row — the range governs every panel below it, so it sits
+            above all of them rather than inside any one panel's header. */}
+        <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
+          <p className="text-sm text-gray-600">{describeRange(range)}</p>
+          <DateRangeSelector
+            preset={preset}
+            range={range}
+            onSelectPreset={selectPreset}
+            onSelectCustom={selectCustom}
+          />
+        </div>
+
+        <SummaryCards range={range} />
+        <RevenueChart range={range} />
+        <MoviePerformanceTable range={range} />
+      </div>
+    </>
+  );
+}
+
+// ============================================================================
 // Staff Seat Reservation — book seats on behalf of a walk-in customer
 // ============================================================================
 
@@ -2185,8 +3316,7 @@ interface ScannedTicket {
 }
 
 type ScanResult =
-  | { status: 'VALID'; ticket: ScannedTicket }
-  | { status: 'INVALID'; bookingReference: string };
+  { status: 'VALID'; ticket: ScannedTicket } | { status: 'INVALID'; bookingReference: string };
 
 const SEAT_ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 const SEAT_COLS = 12;
@@ -5127,6 +6257,8 @@ export default function App() {
 
         {activeSection === 'payment' && <PaymentSection />}
 
+        {activeSection === 'statistics' && <StatisticsSection />}
+
         {activeSection === 'profile' && <ProfileSection />}
 
         {/* Staff Management Section */}
@@ -6671,7 +7803,6 @@ export default function App() {
                       </div>
                     </div>
                   </div>
-
                 </div>
 
                 <div className="mt-6 flex gap-3">
@@ -6701,8 +7832,8 @@ export default function App() {
                   </span>
                   <h4 className="text-lg font-bold text-gray-900">Ticket not recognised</h4>
                   <p className="text-sm text-gray-600 mt-1 max-w-xs">
-                    No confirmed booking was found for this reference. Check the code and try
-                    again, or verify the booking manually.
+                    No confirmed booking was found for this reference. Check the code and try again,
+                    or verify the booking manually.
                   </p>
                   <span className="mt-4 font-mono text-xs text-gray-500 bg-gray-100 border border-gray-200 rounded-md px-3 py-1.5">
                     #{scanResult.bookingReference}
@@ -6731,80 +7862,80 @@ export default function App() {
             ) : (
               /* Modal Content */
               <div className="p-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Booking Reference
-              </label>
-              <div className="relative">
-                <ScanLine
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={20}
-                />
-                <input
-                  ref={scanInputRef}
-                  type="text"
-                  autoFocus
-                  value={scanReference}
-                  placeholder={scanManualEntry ? 'e.g. F2AC9WJKRV' : 'Waiting for scan...'}
-                  onChange={(e) => setScanReference(e.target.value.toUpperCase())}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleScanSubmit();
-                    }
-                  }}
-                  onBlur={() => {
-                    if (!scanManualEntry) {
-                      scanInputRef.current?.focus();
-                    }
-                  }}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg font-mono tracking-widest uppercase focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
-                />
-              </div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Booking Reference
+                </label>
+                <div className="relative">
+                  <ScanLine
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
+                  <input
+                    ref={scanInputRef}
+                    type="text"
+                    autoFocus
+                    value={scanReference}
+                    placeholder={scanManualEntry ? 'e.g. F2AC9WJKRV' : 'Waiting for scan...'}
+                    onChange={(e) => setScanReference(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleScanSubmit();
+                      }
+                    }}
+                    onBlur={() => {
+                      if (!scanManualEntry) {
+                        scanInputRef.current?.focus();
+                      }
+                    }}
+                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg font-mono tracking-widest uppercase focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
+                  />
+                </div>
 
-              {!scanManualEntry && (
-                <div className="mt-3 flex items-center gap-2 text-sm text-emerald-700">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                {!scanManualEntry && (
+                  <div className="mt-3 flex items-center gap-2 text-sm text-emerald-700">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span>Listening for scanner input — the field stays focused</span>
+                  </div>
+                )}
+
+                <label className="mt-5 flex items-center gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={scanManualEntry}
+                    onChange={(e) => {
+                      setScanManualEntry(e.target.checked);
+                      if (!e.target.checked) {
+                        scanInputRef.current?.focus();
+                      }
+                    }}
+                    className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  <span className="flex items-center gap-2 text-sm text-gray-700">
+                    <Keyboard size={16} className="text-gray-400" />
+                    Enter the reference manually
                   </span>
-                  <span>Listening for scanner input — the field stays focused</span>
-                </div>
-              )}
+                </label>
 
-              <label className="mt-5 flex items-center gap-3 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={scanManualEntry}
-                  onChange={(e) => {
-                    setScanManualEntry(e.target.checked);
-                    if (!e.target.checked) {
-                      scanInputRef.current?.focus();
-                    }
-                  }}
-                  className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                />
-                <span className="flex items-center gap-2 text-sm text-gray-700">
-                  <Keyboard size={16} className="text-gray-400" />
-                  Enter the reference manually
-                </span>
-              </label>
-
-              {scanManualEntry && (
-                <div className="mt-6 flex gap-3">
-                  <button
-                    onClick={handleCloseScanModal}
-                    className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleScanSubmit}
-                    disabled={!scanReference.trim()}
-                    className="flex-1 px-6 py-2 bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors shadow-md"
-                  >
-                    Verify Ticket
-                  </button>
-                </div>
+                {scanManualEntry && (
+                  <div className="mt-6 flex gap-3">
+                    <button
+                      onClick={handleCloseScanModal}
+                      className="flex-1 px-6 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleScanSubmit}
+                      disabled={!scanReference.trim()}
+                      className="flex-1 px-6 py-2 bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors shadow-md"
+                    >
+                      Verify Ticket
+                    </button>
+                  </div>
                 )}
               </div>
             )}

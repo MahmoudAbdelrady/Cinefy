@@ -1,0 +1,78 @@
+<section class="movie-performance">
+  <header class="mp-header">
+    <h3 class="mp-title">Movie performance</h3>
+    <p class="mp-subtitle">Ranked by net revenue</p>
+  </header>
+
+  @if (loading()) {
+    <div class="mp-loading">
+      <loading-spinner variant="xl" />
+    </div>
+  } @else if (failed()) {
+    <empty-state
+      [icon]="icons.WarningIcon"
+      title="Couldn't load movie performance"
+      description="Something went wrong. Please try again later."
+    />
+  } @else if (rows().length === 0) {
+    <empty-state
+      [icon]="icons.ClapperboardIcon"
+      title="No movies screened"
+      description="No movies were screened between these dates."
+    />
+  } @else {
+    <div class="mp-table-wrapper">
+      <table class="mp-table">
+        <thead>
+          <tr>
+            <th class="mp-col-rank">Rank</th>
+            <th>Title</th>
+            <th class="numeric">Net revenue</th>
+            <th class="numeric">Refunded</th>
+            <th class="numeric">Showtimes</th>
+            <th class="mp-col-occupancy">Occupancy</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track $index) {
+            <tr>
+              <td class="mp-cell-rank">{{ row.rank }}</td>
+              <td class="mp-cell-title">{{ row.movieTitle }}</td>
+              <td class="numeric">
+                {{ row.netRevenue | number }}
+                <span class="mp-cell-unit">{{ currency }}</span>
+              </td>
+              <td class="numeric">
+                @if (row.refunded === 0) {
+                  <span class="mp-cell-empty">--</span>
+                } @else {
+                  {{ row.refunded | number }}
+                  <span class="mp-cell-unit">{{ currency }}</span>
+                }
+              </td>
+              <td class="numeric">{{ row.totalShowtimes }}</td>
+              <td class="mp-cell-occupancy">
+                <div class="mp-occupancy-row">
+                  <span class="mp-occupancy-track">
+                    <span class="mp-occupancy-fill" [style.width.%]="row.occupancy"></span>
+                  </span>
+                  <span class="mp-occupancy-value">{{ row.occupancy | number: '1.2-2' }}%</span>
+                </div>
+                <p class="mp-occupancy-note">{{ row.ticketsSold }} of {{ row.totalSeats }} seats</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mp-footer">
+      <pagination-component
+        [(page)]="page"
+        [pageCount]="pageCount()"
+        [totalItems]="totalItems()"
+        [pageSize]="pageSize"
+      />
+    </div>
+  }
+</section>

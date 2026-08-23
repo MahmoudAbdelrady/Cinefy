@@ -1,0 +1,66 @@
+<div class="range-selector">
+  <span class="rs-label">Range filter</span>
+
+  <div class="preset-pills">
+    @for (option of presetOptions; track option.value) {
+      <button
+        type="button"
+        [class.selected]="preset() === option.value"
+        (click)="selectPreset(option.value)"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </div>
+
+  <button
+    type="button"
+    class="custom-trigger"
+    [class.selected]="preset() === 'custom'"
+    [ngpPopoverTrigger]="customRangePopover"
+    ngpPopoverTriggerPlacement="bottom-end"
+    ngpPopoverTriggerOffset="8"
+    ngpPopoverTriggerContainer=".content-container"
+    #customTrigger="ngpPopoverTrigger"
+  >
+    <svg [lucideIcon]="icons.CalendarIcon" [size]="18"></svg>
+  </button>
+
+  <ng-template #customRangePopover>
+    <div ngpPopover class="custom-range-popover" [formGroup]="customForm">
+      <p class="crp-title">Custom range</p>
+
+      <div class="crp-fields">
+        <label class="crp-field">
+          <span>From</span>
+          <date-picker
+            [control]="customForm.controls.from"
+            [max]="today"
+            placeholder="Start date"
+          />
+        </label>
+
+        <label class="crp-field">
+          <span>To</span>
+          <date-picker [control]="customForm.controls.to" [max]="today" placeholder="End date" />
+        </label>
+      </div>
+
+      @if (customError(); as error) {
+        <p class="crp-error">{{ error }}</p>
+      }
+
+      <div class="crp-actions">
+        <button type="button" class="btn-secondary" (click)="customTrigger.hide()">Cancel</button>
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="!canApply()"
+          (click)="applyCustom(); customTrigger.hide()"
+        >
+          Apply
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</div>

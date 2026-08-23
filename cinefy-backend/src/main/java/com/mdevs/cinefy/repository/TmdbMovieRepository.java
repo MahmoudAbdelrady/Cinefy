@@ -2,8 +2,10 @@ package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.dto.movie.MovieWithCommittedShowtimeProjection;
 import com.mdevs.cinefy.dto.movie.NowShowingProjection;
+import com.mdevs.cinefy.dto.statistics.MovieRevenueProjection;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -82,6 +85,33 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
             GROUP BY m
             """)
     List<MovieWithCommittedShowtimeProjection> findMoviesWithCommittedShowtime(@Param("ids") List<Long> ids, @Param("statuses") Set<ShowtimeStatus> statuses);
+
+    @Query(value = """
+            SELECT new com.mdevs.cinefy.dto.statistics.MovieRevenueProjection(
+                m.id,
+                m.title,
+                COALESCE(SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN b.status = 'REFUNDED' THEN b.totalAmount ELSE 0 END), 0),
+                COUNT(DISTINCT s.id))
+            FROM TmdbMovie m
+            JOIN Showtime s ON s.tmdbMovie = m
+            LEFT JOIN Booking b ON b.showtime = s
+            WHERE s.status IN :statuses
+            AND s.startDateTime BETWEEN :from AND :to
+            GROUP BY m.id
+            ORDER BY COALESCE(SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0) DESC
+            """,
+            countQuery = """
+                    SELECT COUNT(DISTINCT m.id)
+                    FROM TmdbMovie m
+                    JOIN Showtime s ON s.tmdbMovie = m
+                    WHERE s.status IN :statuses
+                    AND s.startDateTime BETWEEN :from AND :to
+                    """)
+    Page<MovieRevenueProjection> findMoviePerformanceBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                             @Param("from") LocalDateTime from,
+                                                             @Param("to") LocalDateTime to,
+                                                             Pageable pageable);
 
     List<TmdbMovie> findByIdGreaterThanOrderByIdAsc(Long maxId, Pageable pageable);
 }
