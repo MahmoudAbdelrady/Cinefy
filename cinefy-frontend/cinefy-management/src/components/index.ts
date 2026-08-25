@@ -3,6 +3,7 @@ export { SidebarComponent } from './sidebar/sidebar';
 export { NowShowingComponent } from './dashboard/now-showing/now-showing';
 export { UpcomingMoviesWidgetComponent } from './dashboard/upcoming-movies-widget/upcoming-movies-widget';
 export { TodayScheduleComponent } from './dashboard/today-schedule/today-schedule';
+export { TodayStatisticsComponent } from './dashboard-v2/today-statistics/today-statistics';
 export { HallsStatisticsComponent } from './halls/halls-statistics/halls-statistics';
 export { HallsListComponent } from './halls/halls-list/halls-list';
 export { HallLayoutEditorComponent } from './halls/hall-layout-editor/hall-layout-editor';

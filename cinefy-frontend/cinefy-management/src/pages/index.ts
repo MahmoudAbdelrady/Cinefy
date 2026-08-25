@@ -1,4 +1,5 @@
 export { DashboardPage } from './dashboard/dashboard';
+export { DashboardV2Page } from './dashboard-v2/dashboard-v2';
 export { HallsPage } from './halls/halls';
 export { MoviesPage } from './movies/movies';
 export { StatisticsPage } from './statistics/statistics';

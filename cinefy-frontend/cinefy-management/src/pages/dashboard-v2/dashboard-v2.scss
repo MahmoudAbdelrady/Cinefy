@@ -1,0 +1,7 @@
+@use 'cinefy-ui/styles/mixins' as *;
+
+.dashboard-v2-container {
+  @include flex-column;
+
+  gap: 20px;
+}
