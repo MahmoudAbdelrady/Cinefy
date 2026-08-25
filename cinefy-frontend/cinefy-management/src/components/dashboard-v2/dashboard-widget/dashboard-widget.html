@@ -1,0 +1,23 @@
+<section class="dw-card">
+  <header class="dw-header">
+    <span class="dw-header-icon" [style.color]="iconColor()">
+      <svg [lucideIcon]="icon()" [size]="18"></svg>
+    </span>
+    <div class="dw-header-text">
+      <h3>{{ title() }}</h3>
+      @if (subtitle(); as subtitle) {
+        <p>{{ subtitle }}</p>
+      }
+    </div>
+    @if (actionLabel(); as actionLabel) {
+      <a class="dw-header-action" [routerLink]="actionLink()">
+        @if (actionIcon(); as actionIcon) {
+          <svg [lucideIcon]="actionIcon" [size]="15"></svg>
+        }
+        <span>{{ actionLabel }}</span>
+      </a>
+    }
+  </header>
+
+  <ng-content />
+</section>

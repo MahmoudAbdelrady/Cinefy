@@ -1,18 +1,12 @@
-<section class="tsch-card">
-  <header class="tsch-header">
-    <span class="tsch-header-icon">
-      <svg [lucideIcon]="icons.ClockIcon" [size]="18"></svg>
-    </span>
-    <div class="tsch-header-text">
-      <h3>Today's schedule</h3>
-      <p>{{ screenings.length }} showtimes</p>
-    </div>
-    <a class="tsch-header-action" routerLink="/movies">
-      <svg [lucideIcon]="icons.CalendarIcon" [size]="15"></svg>
-      <span>Manage showtimes</span>
-    </a>
-  </header>
-
+<dashboard-widget
+  [icon]="icons.ClockIcon"
+  title="Today's schedule"
+  subtitle="{{ screenings.length }} showtimes"
+  iconColor="var(--tsch-icon-color)"
+  actionLabel="Manage showtimes"
+  [actionIcon]="icons.CalendarIcon"
+  actionLink="/movies"
+>
   <ul class="tsch-list">
     @for (screening of screenings; track screening.id) {
       <li class="tsch-row">
@@ -43,4 +37,4 @@
       </li>
     }
   </ul>
-</section>
+</dashboard-widget>

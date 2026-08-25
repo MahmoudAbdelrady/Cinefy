@@ -1,10 +1,10 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInMinutes, parse } from 'date-fns';
 import { MediaImageComponent } from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { CalendarIcon, ClockIcon, TicketIcon } from '../../../shared/icons';
+import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
 
 interface Screening {
   id: string;
@@ -110,7 +110,7 @@ const TODAY_SCREENINGS: Screening[] = [
 
 @Component({
   selector: 'today-schedule',
-  imports: [RouterLink, LucideDynamicIcon, MediaImageComponent, Time12hPipe],
+  imports: [DashboardWidgetComponent, LucideDynamicIcon, MediaImageComponent, Time12hPipe],
   templateUrl: './today-schedule.html',
   styleUrl: './today-schedule.scss',
 })

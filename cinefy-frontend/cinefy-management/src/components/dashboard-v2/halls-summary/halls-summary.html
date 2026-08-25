@@ -1,0 +1,34 @@
+<dashboard-widget
+  [icon]="icons.LayoutIcon"
+  title="Halls"
+  iconColor="var(--hs-icon-color)"
+  actionLabel="Manage"
+  actionLink="/halls"
+>
+  <div class="hs-body">
+    <p class="hs-total">
+      <span class="hs-total-count">{{ totalHalls() }}</span>
+      <span class="hs-total-label">halls</span>
+    </p>
+
+    <div class="hs-bar">
+      @for (segment of barSegments(); track segment.status) {
+        <span
+          class="hs-bar-segment"
+          [attr.data-status]="segment.status"
+          [style.flex]="segment.count"
+        ></span>
+      }
+    </div>
+
+    <ul class="hs-legend">
+      @for (entry of statusCounts(); track entry.status) {
+        <li class="hs-legend-item">
+          <span class="hs-legend-swatch" [attr.data-status]="entry.status"></span>
+          <span class="hs-legend-label">{{ entry.label }}</span>
+          <span class="hs-legend-count">{{ entry.count }}</span>
+        </li>
+      }
+    </ul>
+  </div>
+</dashboard-widget>

@@ -3,183 +3,106 @@
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
-.tsch-card {
-  background-color: #ffffff;
-  border: 1px solid $gray-200;
-  border-radius: $radius-xl;
-  box-shadow: $shadow-xs;
-  overflow: hidden;
+:host {
+  --tsch-icon-color: #{$blue-600};
+}
 
-  .tsch-header {
+.tsch-list {
+  padding: 0 8px;
+  max-height: 608px;
+  overflow-y: auto;
+  list-style: none;
+
+  .tsch-row {
     @include flex-align;
 
-    gap: 12px;
-    padding: 16px 20px;
-    border-bottom: 1px solid $gray-200;
+    gap: 14px;
+    padding: 14px 12px;
 
-    .tsch-header-icon {
-      @include flex-center;
-      @include lucide-icon-fix;
+    + .tsch-row {
+      border-top: 1px solid $gray-100;
+    }
+  }
 
-      flex-shrink: 0;
-      width: 36px;
-      height: 36px;
-      border-radius: $radius-lg;
-      background-color: $blue-50;
-      color: $blue-600;
+  .tsch-poster {
+    flex-shrink: 0;
+    width: 44px;
+    height: 64px;
+    border-radius: $radius-lg;
+    overflow: hidden;
+  }
+
+  .tsch-main {
+    flex: 1;
+    min-width: 0;
+
+    .tsch-title {
+      @include text-truncate;
+
+      font-size: 14px;
+      font-weight: 600;
+      color: $gray-900;
     }
 
-    .tsch-header-text {
-      min-width: 0;
-
-      h3 {
-        font-size: 15px;
-        font-weight: 600;
-        line-height: 1.25;
-        color: $gray-900;
-      }
-
-      p {
-        margin-top: 2px;
-        font-size: 12px;
-        color: $gray-600;
-      }
-    }
-
-    .tsch-header-action {
+    .tsch-seats {
       @include flex-align;
       @include lucide-icon-fix;
 
-      gap: 8px;
-      margin-left: auto;
-      flex-shrink: 0;
-      padding: 10px 14px;
-      border: 1px solid $gray-200;
-      border-radius: $radius-lg;
-      font-size: 13px;
-      font-weight: 500;
-      color: $gray-700;
-      white-space: nowrap;
-      transition: background-color 150ms ease;
-      text-decoration: none;
-
-      &:hover {
-        background-color: $gray-50;
-      }
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 12px;
+      color: $gray-600;
+      font-variant-numeric: tabular-nums;
 
       svg {
+        flex-shrink: 0;
         color: $gray-400;
-      }
-    }
-
-    @include below-mobile {
-      flex-wrap: wrap;
-
-      .tsch-header-action {
-        width: 100%;
-        margin-left: 0;
-        justify-content: center;
       }
     }
   }
 
-  .tsch-list {
-    padding: 0 8px;
-    max-height: 608px;
-    overflow-y: auto;
-    list-style: none;
+  .tsch-side {
+    flex-shrink: 0;
+    text-align: right;
 
-    .tsch-row {
+    .tsch-time {
+      font-size: 13px;
+      font-weight: 600;
+      color: $gray-900;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .tsch-tag {
       @include flex-align;
 
-      gap: 14px;
-      padding: 14px 12px;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
 
-      + .tsch-row {
-        border-top: 1px solid $gray-100;
-      }
-    }
-
-    .tsch-poster {
-      flex-shrink: 0;
-      width: 44px;
-      height: 64px;
-      border-radius: $radius-lg;
-      overflow: hidden;
-    }
-
-    .tsch-main {
-      flex: 1;
-      min-width: 0;
-
-      .tsch-title {
-        @include text-truncate;
-
-        font-size: 14px;
-        font-weight: 600;
-        color: $gray-900;
+      .tsch-tag-dot {
+        flex-shrink: 0;
+        width: 6px;
+        height: 6px;
+        border-radius: $radius-full;
       }
 
-      .tsch-seats {
-        @include flex-align;
-        @include lucide-icon-fix;
-
-        gap: 6px;
-        margin-top: 6px;
-        font-size: 12px;
-        color: $gray-600;
-        font-variant-numeric: tabular-nums;
-
-        svg {
-          flex-shrink: 0;
-          color: $gray-400;
-        }
-      }
-    }
-
-    .tsch-side {
-      flex-shrink: 0;
-      text-align: right;
-
-      .tsch-time {
-        font-size: 13px;
-        font-weight: 600;
-        color: $gray-900;
-        font-variant-numeric: tabular-nums;
-        white-space: nowrap;
-      }
-
-      .tsch-tag {
-        @include flex-align;
-
-        justify-content: flex-end;
-        gap: 6px;
-        margin-top: 4px;
-        font-size: 12px;
-        font-weight: 500;
-        white-space: nowrap;
+      &.running {
+        color: $green-700;
 
         .tsch-tag-dot {
-          flex-shrink: 0;
-          width: 6px;
-          height: 6px;
-          border-radius: $radius-full;
+          background-color: $green-500;
         }
+      }
 
-        &.running {
-          color: $green-700;
+      &.soon {
+        color: $amber-700;
 
-          .tsch-tag-dot {
-            background-color: $green-500;
-          }
-        }
-
-        &.soon {
-          color: $amber-700;
-
-          .tsch-tag-dot {
-            background-color: $amber-500;
-          }
+        .tsch-tag-dot {
+          background-color: $amber-500;
         }
       }
     }

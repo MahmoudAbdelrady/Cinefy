@@ -1,9 +1,13 @@
 import { Component } from '@angular/core';
-import { TodayScheduleV2Component, TodayStatisticsComponent } from '../../components';
+import {
+  HallsSummaryComponent,
+  TodayScheduleV2Component,
+  TodayStatisticsComponent,
+} from '../../components';
 
 @Component({
   selector: 'dashboard-v2-page',
-  imports: [TodayStatisticsComponent, TodayScheduleV2Component],
+  imports: [TodayStatisticsComponent, TodayScheduleV2Component, HallsSummaryComponent],
   templateUrl: './dashboard-v2.html',
   styleUrl: './dashboard-v2.scss',
 })
