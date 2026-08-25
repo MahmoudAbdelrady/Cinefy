@@ -18,7 +18,7 @@ export function ActiveGateway({
     <section className="bg-white rounded-xl border border-gray-200 shadow-sm">
       <WidgetHeader
         icon={CreditCard}
-        title="Payment gateway"
+        title="Active gateway"
         actionLabel="Settings"
         onAction={onOpenSettings}
         tone="amber"
@@ -33,12 +33,7 @@ function GatewayDetails({ gateway }: { gateway: ActiveGatewayInfo }) {
 
   return (
     <div className="p-5">
-      <div className="flex items-center gap-2.5">
-        <h4 className="text-[17px] font-semibold text-gray-900">{gateway.name}</h4>
-        <span className="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-xs font-medium">
-          Active
-        </span>
-      </div>
+      <h4 className="text-[17px] font-semibold text-gray-900">{gateway.name}</h4>
       <p className="text-[13px] text-gray-600 mt-1">{gateway.provider}</p>
 
       <div className="mt-4 pt-3.5 border-t border-gray-100">

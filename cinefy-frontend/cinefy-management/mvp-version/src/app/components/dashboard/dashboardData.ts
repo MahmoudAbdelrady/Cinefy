@@ -231,46 +231,6 @@ export const ON_SHIFT_TOTAL = ON_SHIFT_COUNTS.reduce((sum, p) => sum + p.count, 
 
 export const STAFF_TOTAL = 14;
 
-// ─── Ticket scanning ─────────────────────────────────────────────────────────
-
-export type RecentScan = {
-  reference: string;
-  title: string;
-  hall: string;
-  time: string;
-  seats: string[];
-  scannedAgo: string;
-};
-
-export const RECENT_SCANS: RecentScan[] = [
-  {
-    reference: 'F2AC9WJKRV',
-    title: 'Wicked',
-    hall: 'Hall 2',
-    time: '13:15',
-    seats: ['F7', 'F8'],
-    scannedAgo: '2 min ago',
-  },
-  {
-    reference: 'K8PLM2QW7Z',
-    title: 'Dune: Part Two',
-    hall: 'Hall 1',
-    time: '14:00',
-    seats: ['C3'],
-    scannedAgo: '6 min ago',
-  },
-  {
-    reference: 'R4TYN6BXC1',
-    title: 'Dune: Part Two',
-    hall: 'Hall 1',
-    time: '14:00',
-    seats: ['H11', 'H12', 'H13'],
-    scannedAgo: '9 min ago',
-  },
-];
-
-export const SCANNED_THIS_SHIFT = 18;
-
 // ─── Formatting ──────────────────────────────────────────────────────────────
 
 export function formatMoney(amount: number): string {

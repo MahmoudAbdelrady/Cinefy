@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { CircleCheck, Keyboard, MapPin, ScanLine, Ticket, TriangleAlert } from 'lucide-react';
-import { RECENT_SCANS, SCANNED_THIS_SHIFT } from './dashboardData';
-import { WidgetHeader } from './WidgetHeader';
 
 type ScannedTicket = {
   reference: string;
@@ -85,36 +83,6 @@ export function TicketScanner() {
         ) : (
           <RejectedTicket reference={outcome.reference} onScanAnother={reset} />
         )}
-      </section>
-
-      <section className="bg-white rounded-xl border border-gray-200 shadow-sm">
-        <WidgetHeader
-          icon={CircleCheck}
-          title="Verified in this shift"
-          subtitle={`${SCANNED_THIS_SHIFT} tickets`}
-          tone="green"
-        />
-        <ul className="p-2">
-          {RECENT_SCANS.map((scan) => (
-            <li
-              key={scan.reference}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50"
-            >
-              <span className="w-[30px] h-[30px] rounded-full bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0">
-                <CircleCheck size={16} />
-              </span>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-gray-900 truncate">{scan.title}</h4>
-                <p className="text-xs text-gray-600 mt-0.5 tabular-nums truncate">
-                  {scan.hall} · {scan.time} · {scan.seats.join(', ')} · #{scan.reference}
-                </p>
-              </div>
-              <span className="text-xs text-gray-400 tabular-nums whitespace-nowrap">
-                {scan.scannedAgo}
-              </span>
-            </li>
-          ))}
-        </ul>
       </section>
     </div>
   );
