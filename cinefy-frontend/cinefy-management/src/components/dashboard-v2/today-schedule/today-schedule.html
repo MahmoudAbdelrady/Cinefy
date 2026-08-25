@@ -1,0 +1,46 @@
+<section class="tsch-card">
+  <header class="tsch-header">
+    <span class="tsch-header-icon">
+      <svg [lucideIcon]="icons.ClockIcon" [size]="18"></svg>
+    </span>
+    <div class="tsch-header-text">
+      <h3>Today's schedule</h3>
+      <p>{{ screenings.length }} showtimes</p>
+    </div>
+    <a class="tsch-header-action" routerLink="/movies">
+      <svg [lucideIcon]="icons.CalendarIcon" [size]="15"></svg>
+      <span>Manage showtimes</span>
+    </a>
+  </header>
+
+  <ul class="tsch-list">
+    @for (screening of screenings; track screening.id) {
+      <li class="tsch-row">
+        <div class="tsch-poster">
+          <media-image [src]="screening.poster" [alt]="screening.title" [iconSize]="18" />
+        </div>
+
+        <div class="tsch-main">
+          <h4 class="tsch-title">{{ screening.title }}</h4>
+          <p class="tsch-seats">
+            <svg [lucideIcon]="icons.TicketIcon" [size]="13"></svg>
+            <span>{{ screening.sold }} / {{ screening.capacity }}</span>
+          </p>
+        </div>
+
+        <div class="tsch-side">
+          <p class="tsch-time">
+            {{ screening.startsAt | time12h }} - {{ screening.endsAt | time12h }}
+          </p>
+          @let state = stateOf(screening);
+          @if (state.running || state.startsSoon) {
+            <p class="tsch-tag" [class]="state.running ? 'running' : 'soon'">
+              <span class="tsch-tag-dot"></span>
+              <span>{{ state.running ? 'Running' : 'Starts soon' }}</span>
+            </p>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+</section>
