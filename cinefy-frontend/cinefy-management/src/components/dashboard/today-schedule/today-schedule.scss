@@ -21,6 +21,10 @@
   overflow-y: auto;
   list-style: none;
 
+  .tsch-empty {
+    padding: 48px 20px;
+  }
+
   .tsch-row {
     @include flex-align;
 

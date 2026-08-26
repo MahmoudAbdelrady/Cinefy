@@ -9,6 +9,13 @@
     <div class="hs-loading">
       <loading-spinner variant="lg" />
     </div>
+  } @else if (totalHalls() === 0) {
+    <empty-state
+      class="hs-empty"
+      [icon]="icons.LayoutIcon"
+      title="No halls yet"
+      description="Create a hall to start scheduling showtimes."
+    />
   } @else {
     <div class="hs-body">
       <p class="hs-total">

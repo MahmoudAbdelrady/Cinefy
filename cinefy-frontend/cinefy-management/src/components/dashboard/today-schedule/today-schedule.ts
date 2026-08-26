@@ -1,10 +1,14 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInMinutes, format, parse, startOfMinute } from 'date-fns';
-import { LoadingSpinnerComponent, MediaImageComponent } from 'cinefy-ui/components';
+import {
+  EmptyStateComponent,
+  LoadingSpinnerComponent,
+  MediaImageComponent,
+} from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { ShowtimesService } from '../../../services';
-import { CalendarIcon, ClockIcon, TicketIcon } from '../../../shared/icons';
+import { CalendarClockIcon, CalendarIcon, ClockIcon, TicketIcon } from '../../../shared/icons';
 import type { ScheduledShowtime } from '../../../shared/types';
 import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
 
@@ -28,6 +32,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
     LucideDynamicIcon,
     MediaImageComponent,
     LoadingSpinnerComponent,
+    EmptyStateComponent,
     Time12hPipe,
   ],
   templateUrl: './today-schedule.html',
@@ -36,6 +41,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
 export class TodayScheduleComponent {
   protected readonly icons = {
     CalendarIcon,
+    CalendarClockIcon,
     ClockIcon,
     TicketIcon,
   };
