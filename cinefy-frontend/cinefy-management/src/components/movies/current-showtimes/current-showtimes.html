@@ -5,17 +5,19 @@
       <p>Manage movies currently showing in your cinema</p>
     </div>
     <div class="h-controls">
-      <div class="h-filter">
-        <span class="hf-label" (click)="showHighlightedOnly.set(!showHighlightedOnly())">
-          Show highlighted movies only
-        </span>
-        <cui-switch
-          size="sm"
-          color="highlight"
-          [checked]="showHighlightedOnly()"
-          (checkedChange)="showHighlightedOnly.set($event)"
-        />
-      </div>
+      @if (canManage()) {
+        <div class="h-filter">
+          <span class="hf-label" (click)="showHighlightedOnly.set(!showHighlightedOnly())">
+            Show highlighted movies only
+          </span>
+          <cui-switch
+            size="sm"
+            color="highlight"
+            [checked]="showHighlightedOnly()"
+            (checkedChange)="showHighlightedOnly.set($event)"
+          />
+        </div>
+      }
       <div class="h-search">
         <input-field
           [control]="searchControl"

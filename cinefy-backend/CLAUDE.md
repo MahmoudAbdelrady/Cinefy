@@ -65,7 +65,7 @@ com.mdevs.cinefy
 │                     `payment/PaymentRedirectionDTO`).
 │   ├── hall/       — HallDTO, HallDetailDTO, HallLayoutDTO, HallSummaryDTO,
 │   │                  HallReferenceDTO, HallTypeDTO, HallLayout (JSONB payload record),
-│   │                  SeatLayoutDTO, TicketPricingDTO
+│   │                  SeatLayoutDTO, TicketPricingDTO, HallStatusCountProjection
 │   ├── movie/      — MovieBaseDTO, MovieSummaryDTO, MovieSearchResultDTO, MovieDetailDTO,
 │   │                  MovieCredits, HighlightedMovieDTO, NowShowingMovieDTO, UpcomingMovieDTO,
 │   │                  HighlightRequestDTO, AnnouncementRequestDTO,
@@ -74,13 +74,14 @@ com.mdevs.cinefy
 │   │                  MovieShowtimeDatesDTO, MovieShowtimeListItemDTO,
 │   │                  MovieShowtimeCountProjection, MovieWithShowtimesDTO,
 │   │                  ShowtimesStatisticsDTO, PublishShowtimesDTO,
-│   │                  BookingShowtimeDTO, HallTypeShowtimesDTO,
+│   │                  BookingShowtimeDTO, HallTypeShowtimesDTO, ScheduledShowtimeDTO,
 │   │                  ShowtimeBookedSeatsProjection, ShowtimeBookingCountsProjection
 │   ├── booking/    — SeatSelectionDTO, ActiveBookingDTO, BookingRequestDTO,
 │   │                  BookingDetailDTO, BookingSummaryDTO, BookedSeatDTO,
 │   │                  BookingConfirmationDTO, OnSitePaymentDTO
 │   ├── staff/      — StaffMemberDTO, StaffMemberDetailDTO, StaffMemberSummaryDTO,
 │   │                  PositionCoverageDTO, PositionCoverageItemDTO, PositionCoverageProjection,
+│   │                  OnShiftSummaryDTO,
 │   │                  CurrentStaffMemberDTO, UpdateProfileDTO, ChangePasswordDTO (self-service /staff/me)
 │   ├── client/     — CurrentClientDTO, SignUpDTO
 │   ├── payment/    — PaymentGatewayDTO, PaymentGatewaySummaryDTO, PaymentGatewayListDTO,
@@ -424,6 +425,7 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`, **except** `GET /
 | Method | Path                   | Input                     | Output                         |
 | ------ | ---------------------- | ------------------------- | ------------------------------ |
 | GET    | `/halls`               | ?excludeHallId, ?statuses | List<HallSummaryDTO> (unpaged) |
+| GET    | `/halls/status-counts` |                           | Map<HallStatus, Long>          |
 | GET    | `/halls/{uuid}`        |                           | HallDetailDTO                  |
 | GET    | `/halls/{uuid}/layout` |                           | HallLayoutDTO                  |
 | POST   | `/halls`               | HallDTO                   | HallSummaryDTO                 |
@@ -458,6 +460,7 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`; the three read en
 | Method | Path                          | Input                       | Output                          |
 | ------ | ----------------------------- | --------------------------- | ------------------------------- |
 | GET    | `/showtimes/movies`           |                             | List<MovieWithShowtimesDTO>     |
+| GET    | `/showtimes/schedule`         | ?day (LocalDate)            | List<ScheduledShowtimeDTO>      |
 | GET    | `/showtimes/statistics`       |                             | ShowtimesStatisticsDTO          |
 | GET    | `/showtimes/movie-dates`      | ?movieId (TMDB id)          | MovieShowtimeDatesDTO           |
 | GET    | `/showtimes/movie-day`        | ?movieId, ?date (LocalDate) | MovieShowtimesDTO               |
@@ -478,6 +481,7 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. The self-service 
 | PUT    | `/staff/me`                | UpdateProfileDTO       | StaffMemberDetailDTO (own name/phone)              |
 | PUT    | `/staff/me/password`       | ChangePasswordDTO      | 204 (own password; `updatePassword`)               |
 | GET    | `/staff/position-coverage` |                        | PositionCoverageDTO (ADMIN/MANAGER)                |
+| GET    | `/staff/on-shift`          |                        | OnShiftSummaryDTO (ADMIN/MANAGER)                  |
 | GET    | `/staff/{uuid}`            |                        | StaffMemberDetailDTO (isAuthenticated + view rule) |
 | POST   | `/staff`                   | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
 | PUT    | `/staff/{uuid}`            | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
@@ -492,6 +496,7 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`.
 | Method | Path                              | Input              | Output                       |
 | ------ | --------------------------------- | ------------------ | ---------------------------- |
 | GET    | `/payment-gateways`               |                    | PaymentGatewayListDTO        |
+| GET    | `/payment-gateways/active`        |                    | PaymentGatewaySummaryDTO     |
 | POST   | `/payment-gateways`               | PaymentGatewayDTO  | 201 PaymentGatewaySummaryDTO |
 | PUT    | `/payment-gateways/{uuid}`        | PaymentGatewayDTO  | PaymentGatewaySummaryDTO     |
 | POST   | `/payment-gateways/{uuid}/status` | `{"active": bool}` | 204                          |
@@ -543,7 +548,7 @@ CREATE UNIQUE INDEX UK_PAYMENT_GATEWAYS_CODE
 
 ### `/booking` — BookingController
 
-Access is **not** uniform here — check the column. Five handlers are `@PublicApi` + `permitAll()` (the three browse reads **plus the two Paymob callbacks**, which arrive unauthenticated and are instead authenticated by HMAC); the booking lifecycle is `hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')`; the online-payment endpoints are **`hasRole('CLIENT')`** only; and on-site settle is **staff-only** (no CLIENT). The class is `@Validated` (needed for the `@Pattern` on the `Idempotency-Key` header).
+Access is **not** uniform here — check the column. Five handlers are `@PublicApi` + `permitAll()` (the three browse reads **plus the two Paymob callbacks**, which arrive unauthenticated and are instead authenticated by HMAC); the booking lifecycle is `hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')`; the online-payment endpoints are **`hasRole('CLIENT')`** only; and on-site settle is **staff-only** (no CLIENT). Ticket scanning is the **only** endpoint in the app that grants `USHER` — it is `hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')`, since verifying tickets at the door is the usher's job. The class is `@Validated` (needed for the `@Pattern` on the `Idempotency-Key` header **and** on the `bookingReference` path variable).
 
 | Method | Path                             | Input                                            | Output / Effect               | Access                                 |
 | ------ | -------------------------------- | ------------------------------------------------ | ----------------------------- | -------------------------------------- |
@@ -556,6 +561,7 @@ Access is **not** uniform here — check the column. Five handlers are `@PublicA
 | POST   | `/booking`                       | BookingRequestDTO + `Idempotency-Key` hdr (UUID) | 201 BookingDetailDTO          | CLIENT+staff                           |
 | DELETE | `/booking/{uuid}`                |                                                  | 204 (cancel/release hold)     | CLIENT+staff                           |
 | POST   | `/booking/{uuid}/settle`         | OnSitePaymentDTO `{isCash, transactionId?}`      | BookingConfirmationDTO        | **staff only** (ADMIN/MANAGER/CASHIER) |
+| POST   | `/booking/tickets/{ref}/scan`    | (bookingReference, no whitespace)                | BookingConfirmationDTO        | **staff only** (+USHER)                |
 | POST   | `/booking/{uuid}/pay`            |                                                  | RedirectionDTO                | **CLIENT only**                        |
 | POST   | `/booking/{uuid}/pay-saved-card` | SavedCardPaymentDTO                              | RedirectionDTO                | **CLIENT only**                        |
 | GET    | `/booking/payment-redirect`      | flat `Map<String,String>` query params           | 302 FOUND + `Location`        | @PublicApi (HMAC)                      |
@@ -721,3 +727,42 @@ component needs `MAX(...) > 0` in the query (a type mismatch surfaces as the unh
 `Missing constructor for type '...'`); and Hibernate expands `GROUP BY <entity>` to the primary key
 alone, which is what keeps the JSONB `LAYOUT`/`CATEGORY_PRICES` columns out of the `GROUP BY` —
 Postgres has no equality operator for `jsonb` and would otherwise reject the query.
+
+### Dashboard aggregate endpoints
+
+Four endpoints exist purely to back the management dashboard's widgets:
+`GET /halls/status-counts`, `GET /staff/on-shift`, `GET /showtimes/schedule?day=`, and
+`GET /payment-gateways/active`.
+
+**Count-by-enum responses seed every key.** A bare `GROUP BY` returns **no row** for an enum
+constant with zero matches, which would silently drop keys from the JSON. Both
+`HallService.getHallStatusCounts` and `StaffMemberService.getOnShiftSummary` therefore pre-fill an
+`EnumMap` with every constant at `0L` and overlay the query results on top. `EnumMap` also fixes
+iteration to enum-declaration order, so key order in the response is stable. `getOnShiftSummary`
+skips `ADMIN` when seeding (the admin is excluded from all staff aggregates — see _Admin Account
+Policy_), so its `details` map holds exactly `MANAGER`/`CASHIER`/`USHER`, always present, possibly
+zero. Adding a constant to either enum surfaces it automatically; a hardcoded key list would not.
+
+**On-shift is a two-stage filter: hours in SQL, days in Java.** `findAllOnShiftAt(time)` matches on
+working hours only, handling the wrap-around case (`workingHourStart > workingHourEnd` = a night
+shift crossing midnight). The **day** check can't be expressed the same way, because a night shift
+that began yesterday evening is still yesterday's shift after midnight — so
+`StaffMemberService.isWorkingDay` shifts the current day back by one when the shift wraps _and_ the
+current time is before `workingHourStart` (which is exactly the post-midnight half, given the row
+already matched the hours filter). `isDayInRange` then compares `DayOfWeek.getValue()` manually,
+because a working week may itself wrap (Saturday → Wednesday) and no built-in range check handles
+that. Changing either half means changing both.
+
+**`ScheduledShowtimeDTO` filters on `COMMITTED_STATUSES`,** so `FINISHED` screenings drop off the
+list as the day progresses — the widget answers "what is on now and later", not "the full day's
+plan". Switch to `REPORTABLE_STATUSES` if completed screenings should remain visible.
+
+**`findByMovieStatusesAndDateRangeWithHall` takes an optional `movieId`** (`:movieId IS NULL OR …`)
+so the per-movie day view and the whole-cinema schedule share one query. It also `JOIN FETCH`es
+`s.tmdbMovie` — the schedule response reads the movie for every row and the association is `LAZY`,
+so omitting it reintroduces an N+1.
+
+**`GET /payment-gateways/active` 404s when nothing is active,** unlike `GET /payment-gateways`,
+which simply omits its `active` field. It reuses the masking `toSummaryDTO(gateway)`, **not**
+`getActivePaymentGatewayForPayment()` — the latter returns unmasked credentials and must never be
+serialized to a response.
