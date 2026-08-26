@@ -3,6 +3,19 @@
     <today-statistics />
   }
 
+  @if (isUsher()) {
+    <section class="dv-scan-card">
+      <div class="dv-scan-inner">
+        <header class="dv-scan-head">
+          <h2>{{ scanTicket.modalTitle() }}</h2>
+          <p>{{ scanTicket.modalDescription() }}</p>
+        </header>
+
+        <scan-ticket-modal #scanTicket />
+      </div>
+    </section>
+  }
+
   <div class="dv-columns">
     @if (canBook()) {
       <today-schedule />

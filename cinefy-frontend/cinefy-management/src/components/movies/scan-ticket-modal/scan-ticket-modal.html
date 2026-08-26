@@ -1,123 +1,118 @@
-<app-modal
-  [modalTitle]="modalTitle()"
-  [description]="modalDescription()"
-  width="480px"
-  [close]="close()"
->
-  @let scan = result();
+@let scan = result();
 
-  @if (scan === null) {
-    <form id="stm-form" class="stm-form" [formGroup]="scanForm" (ngSubmit)="submit()">
-      <input-field
-        label="Booking Reference"
-        [control]="scanForm.controls.reference"
-        [placeholder]="manualEntry() ? 'e.g. F2AC9WJKRV' : 'Waiting for scan...'"
-        [leadingIcon]="icons.ScanLineIcon"
-        [uppercase]="true"
-        [autoFocus]="true"
-        (blurred)="onInputBlur()"
+@if (scan === null) {
+  <form id="stm-form" class="stm-form" [formGroup]="scanForm" (ngSubmit)="submit()">
+    <input-field
+      label="Booking Reference"
+      [control]="scanForm.controls.reference"
+      [placeholder]="manualEntry() ? 'e.g. F2AC9WJKRV' : 'Waiting for scan...'"
+      [leadingIcon]="icons.ScanLineIcon"
+      [uppercase]="true"
+      [autoFocus]="true"
+      (blurred)="onInputBlur()"
+    />
+
+    @if (!manualEntry()) {
+      <p class="stm-listening">
+        <span class="stm-pulse"></span>
+        <span>Listening for scanner input</span>
+      </p>
+    }
+
+    <label class="stm-manual">
+      <input
+        type="checkbox"
+        [checked]="manualEntry()"
+        (change)="onManualEntryChange($event.target.checked)"
       />
-
-      @if (!manualEntry()) {
-        <p class="stm-listening">
-          <span class="stm-pulse"></span>
-          <span>Listening for scanner input</span>
-        </p>
-      }
-
-      <label class="stm-manual">
-        <input
-          type="checkbox"
-          [checked]="manualEntry()"
-          (change)="onManualEntryChange($event.target.checked)"
+      <span>Enter the reference manually</span>
+    </label>
+  </form>
+} @else {
+  <article class="stm-ticket">
+    <header class="stm-ticket-head">
+      <div class="stm-poster">
+        <media-image
+          [src]="scan.movie.posterUrl"
+          [alt]="scan.movie.title + ' poster'"
+          [iconSize]="20"
         />
-        <span>Enter the reference manually</span>
-      </label>
-    </form>
-  } @else {
-    <article class="stm-ticket">
-      <header class="stm-ticket-head">
-        <div class="stm-poster">
-          <media-image
-            [src]="scan.movie.posterUrl"
-            [alt]="scan.movie.title + ' poster'"
-            [iconSize]="20"
-          />
-        </div>
-        <div class="stm-ticket-title">
-          <h3>{{ scan.movie.title }}</h3>
-          <p>{{ experience() }}</p>
-        </div>
-      </header>
+      </div>
+      <div class="stm-ticket-title">
+        <h3>{{ scan.movie.title }}</h3>
+        <p>{{ experience() }}</p>
+      </div>
+    </header>
 
-      <div class="stm-tear"></div>
+    <div class="stm-tear"></div>
 
-      <dl class="stm-facts">
-        <div class="stm-fact">
-          <dt>
-            <svg [lucideIcon]="icons.QrCodeIcon" [size]="15"></svg>
-            <span>Booking Reference</span>
-          </dt>
-          <dd>#{{ scan.bookingReference }}</dd>
-        </div>
-        <div class="stm-fact">
-          <dt>
-            <svg [lucideIcon]="icons.MapPinIcon" [size]="15"></svg>
-            <span>Hall</span>
-          </dt>
-          <dd>{{ scan.hallName }}</dd>
-        </div>
-        <div class="stm-fact">
-          <dt>
-            <svg [lucideIcon]="icons.CalendarIcon" [size]="15"></svg>
-            <span>Date</span>
-          </dt>
-          <dd>{{ scan.startDateTime | date: 'MMM d, y' }}</dd>
-        </div>
-        <div class="stm-fact">
-          <dt>
-            <svg [lucideIcon]="icons.ClockIcon" [size]="15"></svg>
-            <span>Time</span>
-          </dt>
-          <dd>{{ scan.startDateTime | date: 'shortTime' }}</dd>
-        </div>
-        <div class="stm-fact stm-fact-seats">
-          <dt>
-            <svg [lucideIcon]="icons.TicketIcon" [size]="15"></svg>
-            <span>Seats ({{ seats().length }})</span>
-          </dt>
-          <dd>
-            <ul class="stm-seats">
-              @for (seat of seats(); track seat.position) {
-                <li class="stm-seat">{{ seat.position }}</li>
-              }
-            </ul>
-          </dd>
-        </div>
-      </dl>
-    </article>
-  }
+    <dl class="stm-facts">
+      <div class="stm-fact">
+        <dt>
+          <svg [lucideIcon]="icons.QrCodeIcon" [size]="15"></svg>
+          <span>Booking Reference</span>
+        </dt>
+        <dd>#{{ scan.bookingReference }}</dd>
+      </div>
+      <div class="stm-fact">
+        <dt>
+          <svg [lucideIcon]="icons.MapPinIcon" [size]="15"></svg>
+          <span>Hall</span>
+        </dt>
+        <dd>{{ scan.hallName }}</dd>
+      </div>
+      <div class="stm-fact">
+        <dt>
+          <svg [lucideIcon]="icons.CalendarIcon" [size]="15"></svg>
+          <span>Date</span>
+        </dt>
+        <dd>{{ scan.startDateTime | date: 'MMM d, y' }}</dd>
+      </div>
+      <div class="stm-fact">
+        <dt>
+          <svg [lucideIcon]="icons.ClockIcon" [size]="15"></svg>
+          <span>Time</span>
+        </dt>
+        <dd>{{ scan.startDateTime | date: 'shortTime' }}</dd>
+      </div>
+      <div class="stm-fact stm-fact-seats">
+        <dt>
+          <svg [lucideIcon]="icons.TicketIcon" [size]="15"></svg>
+          <span>Seats ({{ seats().length }})</span>
+        </dt>
+        <dd>
+          <ul class="stm-seats">
+            @for (seat of seats(); track seat.position) {
+              <li class="stm-seat">{{ seat.position }}</li>
+            }
+          </ul>
+        </dd>
+      </div>
+    </dl>
+  </article>
+}
 
-  @if (scan !== null || manualEntry()) {
-    <div modal-footer class="stm-actions">
-      <button type="button" class="btn-secondary" (click)="close()()">
+@if (scan !== null || manualEntry()) {
+  <div class="stm-actions">
+    @if (close(); as close) {
+      <button type="button" class="btn-secondary" (click)="close()">
         {{ scan === null ? 'Cancel' : 'Close' }}
       </button>
-      @if (scan === null) {
-        <button
-          type="submit"
-          form="stm-form"
-          class="btn-primary"
-          [disabled]="scanForm.invalid || scanning()"
-        >
-          {{ scanning() ? 'Verifying...' : 'Verify Ticket' }}
-        </button>
-      } @else {
-        <button type="button" class="btn-primary" (click)="scanAgain()">
-          <svg [lucideIcon]="icons.ScanLineIcon" [size]="16"></svg>
-          <span>Scan Again</span>
-        </button>
-      }
-    </div>
-  }
-</app-modal>
+    }
+    @if (scan === null) {
+      <button
+        type="submit"
+        form="stm-form"
+        class="btn-primary"
+        [disabled]="scanForm.invalid || scanning()"
+      >
+        {{ scanning() ? 'Verifying...' : 'Verify Ticket' }}
+      </button>
+    } @else {
+      <button type="button" class="btn-primary" (click)="scanAgain()">
+        <svg [lucideIcon]="icons.ScanLineIcon" [size]="16"></svg>
+        <span>Scan Again</span>
+      </button>
+    }
+  </div>
+}

@@ -175,5 +175,10 @@
 
   gap: 12px;
   width: 100%;
+  margin-top: 20px;
   justify-content: flex-end;
+
+  &:has(> :only-child) {
+    justify-content: center;
+  }
 }

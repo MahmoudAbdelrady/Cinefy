@@ -30,7 +30,14 @@
     }
 
     <ng-template #scanTicketDialog let-close="close">
-      <scan-ticket-modal [close]="close" />
+      <app-modal
+        [modalTitle]="scanTicket.modalTitle()"
+        [description]="scanTicket.modalDescription()"
+        width="480px"
+        [close]="close"
+      >
+        <scan-ticket-modal #scanTicket [close]="close" />
+      </app-modal>
     </ng-template>
 
     <ng-template #activeBookingsDialog let-close="close">

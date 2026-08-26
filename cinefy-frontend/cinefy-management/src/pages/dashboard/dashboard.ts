@@ -4,6 +4,7 @@ import {
   ActiveGatewayComponent,
   HallsSummaryComponent,
   OnShiftSummaryComponent,
+  ScanTicketModalComponent,
   TodayScheduleComponent,
   TodayStatisticsComponent,
 } from '../../components';
@@ -18,6 +19,7 @@ import { canBook as canBookPosition, canManage as canManagePosition } from '../.
     HallsSummaryComponent,
     ActiveGatewayComponent,
     OnShiftSummaryComponent,
+    ScanTicketModalComponent,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -36,4 +38,6 @@ export class DashboardPage {
     const user = this.currentUser();
     return user ? canBookPosition(user.position) : false;
   });
+
+  protected readonly isUsher = computed(() => this.currentUser()?.position === 'USHER');
 }

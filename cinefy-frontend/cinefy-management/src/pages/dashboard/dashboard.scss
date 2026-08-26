@@ -1,3 +1,5 @@
+@use '../../shared/styles/colors' as *;
+@use '../../shared/styles/shadows' as *;
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
@@ -5,6 +7,36 @@
   @include flex-column;
 
   gap: 20px;
+
+  .dv-scan-card {
+    padding: 32px 24px;
+    background-color: #ffffff;
+    border: 1px solid $gray-200;
+    border-radius: $radius-xl;
+    box-shadow: $shadow-xs;
+
+    .dv-scan-inner {
+      max-width: 520px;
+      margin: 0 auto;
+
+      .dv-scan-head {
+        margin-bottom: 20px;
+        text-align: center;
+
+        h2 {
+          font-size: 17px;
+          font-weight: 600;
+          color: $gray-900;
+        }
+
+        p {
+          margin-top: 4px;
+          font-size: 13px;
+          color: $gray-600;
+        }
+      }
+    }
+  }
 
   .dv-columns {
     display: grid;
