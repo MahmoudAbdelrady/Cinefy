@@ -40,6 +40,7 @@ public class ShowtimeController {
     }
 
     @GetMapping("/schedule")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
     public ResponseEntity<List<ScheduledShowtimeDTO>> getScheduleForDate(@RequestParam LocalDate day) {
         return ResponseEntity.ok(showtimeService.getScheduleForDate(day));
     }

@@ -1,13 +1,19 @@
 <div class="dashboard-container">
-  <today-statistics />
+  @if (canManage()) {
+    <today-statistics />
+  }
 
   <div class="dv-columns">
-    <today-schedule />
+    @if (canBook()) {
+      <today-schedule />
+    }
 
-    <div class="dv-side">
-      <halls-summary />
-      <active-gateway />
-      <on-shift-summary />
-    </div>
+    @if (canManage()) {
+      <div class="dv-side">
+        <halls-summary />
+        <active-gateway />
+        <on-shift-summary />
+      </div>
+    }
   </div>
 </div>

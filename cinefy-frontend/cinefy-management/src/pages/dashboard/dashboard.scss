@@ -13,7 +13,9 @@
     align-items: start;
 
     @include from-desktop {
-      grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+      &:has(today-schedule):has(.dv-side) {
+        grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+      }
     }
   }
 
