@@ -9,6 +9,35 @@
   <section class="test-sandbox">
     <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <div class="test-sandbox-body"></div>
+    <form class="test-sandbox-body" [formGroup]="pickerForm">
+      <div class="test-field">
+        <label class="test-field-label" for="test-date">Date picker</label>
+        <p-datepicker
+          inputId="test-date"
+          formControlName="date"
+          dateFormat="yy-mm-dd"
+          placeholder="yyyy-mm-dd"
+          [showIcon]="true"
+        />
+        <span class="test-field-value">{{ pickerForm.controls.date.value ?? 'null' }}</span>
+      </div>
+
+      <div class="test-field">
+        <label class="test-field-label" for="test-time">Time picker</label>
+        <p-datepicker
+          inputId="test-time"
+          formControlName="time"
+          placeholder="HH:mm AM/PM"
+          hourFormat="12"
+          [timeOnly]="true"
+          [showIcon]="true"
+        >
+          <ng-template #triggericon>
+            <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
+          </ng-template>
+        </p-datepicker>
+        <span class="test-field-value">{{ pickerForm.controls.time.value ?? 'null' }}</span>
+      </div>
+    </form>
   </section>
 </div>

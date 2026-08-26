@@ -11,6 +11,8 @@ import {
 } from './core/interceptors';
 import { provideMenuConfig } from 'ng-primitives/menu';
 import { provideCinefyToast } from 'cinefy-ui/services';
+import { providePrimeNG } from 'primeng/config';
+import { CinefyPreset } from './cinefy-preset';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,5 +29,13 @@ export const appConfig: ApplicationConfig = {
     ),
     provideCinefyToast(),
     provideMenuConfig({ scrollBehavior: 'reposition' }),
+    providePrimeNG({
+      theme: {
+        preset: CinefyPreset,
+        options: {
+          darkModeSelector: false,
+        },
+      },
+    }),
   ],
 };
