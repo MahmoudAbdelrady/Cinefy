@@ -46,6 +46,14 @@
     }
   }
 
+  .ts-loading {
+    @include flex-center;
+
+    flex: 1;
+    padding: 24px;
+    color: $gray-400;
+  }
+
   .ts-figures {
     display: grid;
     flex: 1;
@@ -93,10 +101,6 @@
         letter-spacing: -0.025em;
         font-variant-numeric: tabular-nums;
         color: $gray-900;
-
-        &.negative {
-          color: $red-600;
-        }
       }
 
       .ts-figure-unit {
