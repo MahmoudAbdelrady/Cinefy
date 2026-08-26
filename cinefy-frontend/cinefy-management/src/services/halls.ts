@@ -6,6 +6,7 @@ import type {
   HallDetail,
   HallLayout,
   HallStatus,
+  HallStatusCounts,
   HallSummary,
   HallType,
 } from '../shared/types';
@@ -36,6 +37,10 @@ export class HallsService {
       ...(statuses && statuses.length > 0 && { statuses: statuses.join(',') }),
     };
     return this.http.get<HallSummary[]>('/halls', { params });
+  }
+
+  getHallStatusCounts(): Observable<HallStatusCounts> {
+    return this.http.get<HallStatusCounts>('/halls/status-counts');
   }
 
   getHall(id: string): Observable<HallDetail> {

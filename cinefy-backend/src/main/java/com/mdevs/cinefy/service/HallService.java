@@ -4,6 +4,7 @@ import com.mdevs.cinefy.dto.hall.HallDTO;
 import com.mdevs.cinefy.dto.hall.HallDetailDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
+import com.mdevs.cinefy.dto.hall.HallStatusCountProjection;
 import com.mdevs.cinefy.dto.hall.HallSummaryDTO;
 import com.mdevs.cinefy.dto.hall.HallTypeDTO;
 import com.mdevs.cinefy.dto.hall.SeatLayoutDTO;
@@ -115,6 +116,18 @@ public class HallService {
 
     public HallLayoutDTO getHallLayout(String uuid) {
         return getHallLayout(findHallWithType(uuid));
+    }
+
+    public Map<HallStatus, Long> getHallStatusCounts() {
+        Map<HallStatus, Long> counts = new EnumMap<>(HallStatus.class);
+        for (HallStatus status : HallStatus.values()) {
+            counts.put(status, 0L);
+        }
+
+        for (HallStatusCountProjection projection : hallRepository.countByStatus()) {
+            counts.put(projection.status(), projection.total());
+        }
+        return counts;
     }
 
     @Transactional

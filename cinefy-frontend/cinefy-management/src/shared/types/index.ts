@@ -11,6 +11,7 @@ export type {
   HallDetail,
   HallLayout,
   Hall,
+  HallStatusCounts,
   StatisticsChange,
 } from './halls';
 

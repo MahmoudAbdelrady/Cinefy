@@ -83,6 +83,8 @@ interface Hall {
   ticketPricing: TicketPricing[];
 }
 
+type HallStatusCounts = Record<HallStatus, number>;
+
 type StatisticsChange =
   | { action: 'set'; totalHalls: number; activeHalls: number; totalCapacity: number }
   | { action: 'reset' }
@@ -107,5 +109,6 @@ export type {
   HallDetail,
   HallLayout,
   Hall,
+  HallStatusCounts,
   StatisticsChange,
 };
