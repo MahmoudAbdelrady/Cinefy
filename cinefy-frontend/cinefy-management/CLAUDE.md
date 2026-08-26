@@ -55,7 +55,9 @@ src/
 │   │                                   #   movie-showtimes-modal, manage-showtime-modal,
 │   │                                   #   movies-statistics, book-seats (seat selection + on-site payment),
 │   │                                   #   booking-ticket (printable stub shown in book-seats' `done` stage),
-│   │                                   #   active-bookings-list (staff's own in-progress holds)
+│   │                                   #   active-bookings-list (staff's own in-progress holds),
+│   │                                   #   scan-ticket-modal (ticket verification — despite the name it
+│   │                                   #     renders NO <app-modal>; see "Ticket scanning" below)
 │   ├── payment/
 │   │   ├── gateway-list/               # Gateway list + active/inactive toggles
 │   │   ├── manage-gateway-modal/       # Create/edit payment gateway form
@@ -113,16 +115,19 @@ src/
 │   └── auth-layout/                    # Guest shell for /login + /forgot-password
 ├── services/
 │   ├── auth.ts                         # Login, logout, refresh, forgot/verify/reset password
-│   ├── halls.ts                        # Hall & hall-type CRUD (HttpClient)
+│   ├── halls.ts                        # Hall & hall-type CRUD + getHallStatusCounts (HttpClient)
 │   ├── movies.ts                       # Movie search + detail
-│   ├── showtimes.ts                    # Showtime CRUD + publish + stats
+│   ├── showtimes.ts                    # Showtime CRUD + publish + stats + getScheduleForDate (dashboard)
 │   ├── booking.ts                      # Seat-selection fetch + active bookings + create/cancel booking +
-│   │                                   #   settlePayment (on-site). getSeatSelection takes an optional
-│   │                                   #   HttpContext so callers can pass skipErrorToast() when they
-│   │                                   #   render the failure themselves (book-seats does).
+│   │                                   #   settlePayment (on-site) + scanTicket. getSeatSelection takes an
+│   │                                   #   optional HttpContext so callers can pass skipErrorToast() when
+│   │                                   #   they render the failure themselves (book-seats does).
 │   ├── showtime-events.ts              # Cross-component event bus (RxJS Subjects): created$/updated$/published$/deleted$/singleDeleted$/committedChanged$/highlightChanged$/showtimeOccupancyChanged$
-│   ├── staff.ts                        # Staff CRUD + position coverage + current-user (/staff/me) cache
-│   ├── payment-gateways.ts             # Payment gateway CRUD + active-status toggle
+│   ├── staff.ts                        # Staff CRUD + position coverage + on-shift summary +
+│   │                                   #   current-user (/staff/me) cache
+│   ├── payment-gateways.ts             # Payment gateway CRUD + active-status toggle +
+│   │                                   #   getActivePaymentGateway (optional HttpContext — the dashboard
+│   │                                   #   widget passes skipErrorToast(), since 404 = "none active")
 │   ├── statistics.ts                   # Summary / daily sales / movie performance (HttpClient).
 │   ├── header-actions.ts               # Signal-based template injection for header
 │   └── sidebar.ts                      # Sidebar open/close state (signal)
@@ -157,7 +162,7 @@ Two layout shells, each gated by a guard:
 
 ```
 '' (AppLayout, canActivate: authGuard)        # redirects to /login if not authenticated
-├── /           → DashboardPage     (canMatch: positionCanMatch)
+├── /           → DashboardPage     (canMatch: positionCanMatch)   all positions; gated per widget
 ├── /halls      → HallsPage         (canMatch: positionCanMatch)
 ├── /movies     → MoviesPage        (canMatch: positionCanMatch)   movie search + showtimes scheduling
 ├── /payment    → PaymentPage       (canMatch: positionCanMatch)   payment gateways
@@ -308,6 +313,7 @@ Reference: [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-
 ```
 # Halls
 GET    /halls                            # Unpaged list (filters: excludeHallId, statuses)
+GET    /halls/status-counts              # { HallStatus: count } — all 4 keys always present
 GET    /halls/:id                        # Hall detail
 GET    /halls/:id/layout                 # Hall layout (seats + pricing)
 POST   /halls                            # Create hall
@@ -330,6 +336,7 @@ POST   /movies/:id/highlight             # Toggle isHighlighted
 # Showtimes
 GET    /showtimes/movies                 # Movies with grouped showtimes
 GET    /showtimes/statistics             # Showtime stats
+GET    /showtimes/schedule?day=          # A day's committed screenings (dashboard)
 GET    /showtimes/movie-dates            # Dates a movie has showtimes on
 GET    /showtimes/movie-day              # Showtimes for a movie on a given day
 POST   /showtimes                        # Create showtime
@@ -341,6 +348,7 @@ POST   /showtimes/publish                # Publish a batch of showtimes
 # Staff
 GET    /staff                            # Paginated list
 GET    /staff/position-coverage          # Coverage by position
+GET    /staff/on-shift                   # { total, details: { MANAGER, CASHIER, USHER } }
 GET    /staff/:id                        # Staff detail
 POST   /staff                            # Create
 PUT    /staff/:id                        # Update
@@ -362,6 +370,7 @@ POST   /management/auth/reset-password
 
 # Payment gateways
 GET    /payment-gateways
+GET    /payment-gateways/active          # 404 when none is active (not an empty body)
 GET    /payment-gateways/:id
 POST   /payment-gateways
 PUT    /payment-gateways/:id
@@ -373,6 +382,7 @@ GET    /booking/active                   # This staff member's in-progress holds
 GET    /booking/showtimes/:showtimeId    # Seat selection (layout + active booking)
 POST   /booking                          # Create booking (sends Idempotency-Key header)
 POST   /booking/:id/settle               # Record on-site payment → BookingConfirmation
+POST   /booking/tickets/:ref/scan        # Verify + mark used → BookingConfirmation (USHER allowed)
 DELETE /booking/:id                      # Cancel booking
 
 # Statistics (ADMIN/MANAGER only). All three take from=&to= as ISO yyyy-MM-dd.
@@ -433,6 +443,53 @@ zero-filling days with no showtimes, which is what the chart's peak-relative bar
 **The page header collapses a single-day range.** `statistics.html` renders
 `Showing {from} to {to}`, but wraps the `to` half in `@if (range.from !== range.to)` so a one-day
 range reads `Showing 23 Aug 2026`. The comparison is a plain `===` because both are ISO strings.
+
+### Dashboard page
+
+The dashboard is **position-gated per widget**, not per route — `/` is reachable by every
+position, and `DashboardPage` decides what to render from the current staff member:
+
+| Widget                                                                    | Gate          |
+| ------------------------------------------------------------------------- | ------------- |
+| `today-statistics`, `halls-summary`, `active-gateway`, `on-shift-summary` | `canManage()` |
+| `today-schedule`                                                          | `canBook()`   |
+| `scan-ticket-modal` (inline card)                                         | `isUsher()`   |
+
+`canManage`/`canBook` come from [`shared/access.ts`](src/shared/access.ts); `isUsher` is a direct
+`position === 'USHER'` check, since scanning has no predicate there. **Each gate must match the
+role its widget's endpoint requires** — every manage-gated widget calls an ADMIN/MANAGER-only
+endpoint, so ungating one produces a 403 toast on page load rather than a hidden card. All three
+computeds return `false` until `/staff/me` resolves, so widgets appear once rather than flashing.
+
+`.dv-columns` sets its two-column desktop template behind `&:has(today-schedule):has(.dv-side)` —
+with one column gated away the surviving one would otherwise sit in a 1.9fr track with dead space
+beside it.
+
+**Every widget follows the same data shape:** a `signal` holding the response (`null`/`[]` until
+loaded), `computed`s deriving the view model from it, a `loading` signal, and a fetch fired from
+`afterNextRender`. The `error` handler only clears `loading` — the widget falls through to its
+empty state and `errorToastInterceptor` surfaces the message. Loading branches use a
+`<loading-spinner variant="lg" />` inside a block whose `min-height` matches that widget's loaded
+height, so cards don't collapse and jump.
+
+### Ticket scanning
+
+`scan-ticket-modal` is used in **two** places and therefore renders **no** `<app-modal>` of its
+own, despite the name:
+
+- **`/movies`** — the page wraps it in `<app-modal>` inside the `#scanTicketDialog` template.
+- **Dashboard (usher)** — rendered inline in a plain card.
+
+Both read the component's `modalTitle()` / `modalDescription()` computeds through a
+`#scanTicket` template reference, so the header text ("Scan Ticket" → "Ticket Info") stays in one
+place. Those two computeds are **public** for exactly that reason — a template ref can only reach
+public members.
+
+Its `close` input is `input<(() => void) | null>(null)`, not required: the dashboard has nothing to
+close, so the Cancel/Close button is wrapped in `@if (close(); as close)`. `.stm-actions` centers
+its single remaining button via `&:has(> :only-child)`. Because the footer no longer carries the
+`modal-footer` attribute, the buttons render in the modal **body** — the modal's own footer strip
+collapses via its `&:empty` rule.
 
 ## Styling
 
