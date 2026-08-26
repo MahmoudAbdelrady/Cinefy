@@ -75,6 +75,7 @@ export type {
   WeekDay,
   PositionCoverage,
   PositionCoverageItem,
+  OnShiftSummary,
   CoverageChange,
 } from './staff';
 export type {

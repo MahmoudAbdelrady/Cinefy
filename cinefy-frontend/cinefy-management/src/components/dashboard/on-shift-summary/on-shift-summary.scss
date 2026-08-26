@@ -5,6 +5,14 @@
   --oss-icon-color: #{$orange-600};
 }
 
+.oss-loading {
+  @include flex-center;
+
+  min-height: 86px;
+  padding: 20px;
+  color: $gray-400;
+}
+
 .oss-positions {
   display: flex;
   padding: 4px 0;

@@ -2,6 +2,7 @@ package com.mdevs.cinefy.controller;
 
 import com.mdevs.cinefy.dto.staff.ChangePasswordDTO;
 import com.mdevs.cinefy.dto.staff.CurrentStaffMemberDTO;
+import com.mdevs.cinefy.dto.staff.OnShiftSummaryDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberDTO;
 import com.mdevs.cinefy.dto.staff.UpdateProfileDTO;
@@ -62,6 +63,11 @@ public class StaffMemberController {
     @GetMapping("/position-coverage")
     public ResponseEntity<PositionCoverageDTO> getPositionCoverage() {
         return ResponseEntity.ok(staffMemberService.getPositionCoverage());
+    }
+
+    @GetMapping("/on-shift")
+    public ResponseEntity<OnShiftSummaryDTO> getOnShiftSummary() {
+        return ResponseEntity.ok(staffMemberService.getOnShiftSummary());
     }
 
     @GetMapping("/{uuid}")

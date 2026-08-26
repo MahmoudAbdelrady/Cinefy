@@ -5,6 +5,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import com.mdevs.cinefy.dto.staff.ChangePasswordDTO;
 import com.mdevs.cinefy.dto.staff.CurrentStaffMemberDTO;
+import com.mdevs.cinefy.dto.staff.OnShiftSummaryDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageItemDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageProjection;
@@ -36,9 +37,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -74,6 +78,24 @@ public class StaffMemberService implements UserDetailsService {
                 new PositionCoverageItemDTO(StaffPosition.CASHIER.name(), countResult.cashierCount()),
                 new PositionCoverageItemDTO(StaffPosition.USHER.name(), countResult.usherCount())));
         return dto;
+    }
+
+    public OnShiftSummaryDTO getOnShiftSummary() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalTime currentTime = now.toLocalTime();
+
+        Map<StaffPosition, Long> details = new EnumMap<>(StaffPosition.class);
+        for (StaffPosition position : StaffPosition.values()) {
+            if (!position.equals(StaffPosition.ADMIN)) {
+                details.put(position, 0L);
+            }
+        }
+
+        staffMemberRepository.findAllOnShiftAt(currentTime).stream()
+                .filter(staffMember -> isWorkingDay(staffMember, now))
+                .forEach(staffMember -> details.merge(staffMember.getPosition(), 1L, Long::sum));
+
+        return new OnShiftSummaryDTO(staffMemberRepository.countNonAdmin(), details);
     }
 
     public CurrentStaffMemberDTO getCurrentStaffMember() {
@@ -276,6 +298,27 @@ public class StaffMemberService implements UserDetailsService {
         staffMember.setWorkingDayEnd(parseDayOfWeek(dto.getWorkingDayEnd(), "workingDayEnd"));
         staffMember.setWorkingHourStart(parseTime(dto.getWorkingHourStart(), "workingHourStart"));
         staffMember.setWorkingHourEnd(parseTime(dto.getWorkingHourEnd(), "workingHourEnd"));
+    }
+
+    private boolean isWorkingDay(StaffMember staffMember, LocalDateTime now) {
+        DayOfWeek currentDay = now.getDayOfWeek();
+
+        // A night shift that started yesterday is still the previous day's shift after midnight
+        if (staffMember.getWorkingHourStart().isAfter(staffMember.getWorkingHourEnd())
+                && now.toLocalTime().isBefore(staffMember.getWorkingHourStart())) {
+            currentDay = currentDay.minus(1);
+        }
+
+        return isDayInRange(currentDay, staffMember.getWorkingDayStart(), staffMember.getWorkingDayEnd());
+    }
+
+    private boolean isDayInRange(DayOfWeek day, DayOfWeek start, DayOfWeek end) {
+        if (start.getValue() <= end.getValue()) {
+            return day.getValue() >= start.getValue() && day.getValue() <= end.getValue();
+        }
+
+        // The working week wraps around the end of the week (e.g. Saturday -> Wednesday)
+        return day.getValue() >= start.getValue() || day.getValue() <= end.getValue();
     }
 
     private DayOfWeek parseDayOfWeek(String value, String fieldName) {

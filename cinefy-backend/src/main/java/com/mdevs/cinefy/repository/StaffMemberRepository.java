@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface StaffMemberRepository extends BaseRepository<StaffMember> {
@@ -30,6 +32,19 @@ public interface StaffMemberRepository extends BaseRepository<StaffMember> {
             "COALESCE(SUM(CASE WHEN s.position = 'USHER' THEN 1 ELSE 0 END), 0)) " +
             "FROM StaffMember s")
     PositionCoverageProjection getPositionCoverage();
+
+    @Query("""
+            SELECT s FROM StaffMember s
+            WHERE s.position != 'ADMIN'
+            AND (
+                (s.workingHourStart > s.workingHourEnd AND (:time >= s.workingHourStart OR :time < s.workingHourEnd))
+                OR (s.workingHourStart < s.workingHourEnd AND (:time >= s.workingHourStart AND :time < s.workingHourEnd))
+            )
+            """)
+    List<StaffMember> findAllOnShiftAt(@Param("time") LocalTime time);
+
+    @Query("SELECT COUNT(s) FROM StaffMember s WHERE s.position != 'ADMIN'")
+    long countNonAdmin();
 
     boolean existsByEmail(String email);
 

@@ -1,7 +1,9 @@
-import { Component, computed, signal } from '@angular/core';
+import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
+import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { StaffService } from '../../../services';
 import { ContactRoundIcon } from '../../../shared/icons';
 import { USER_POSITION_LABELS } from '../../../shared/types';
-import type { UserPosition } from '../../../shared/types';
+import type { OnShiftSummary, UserPosition } from '../../../shared/types';
 import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
 
 interface ShiftCount {
@@ -10,36 +12,47 @@ interface ShiftCount {
   count: number;
 }
 
-const ON_SHIFT_COUNTS: Partial<Record<UserPosition, number>> = {
-  MANAGER: 1,
-  CASHIER: 2,
-  USHER: 3,
-};
-
-const STAFF_TOTAL = 14;
-
 @Component({
   selector: 'on-shift-summary',
-  imports: [DashboardWidgetComponent],
+  imports: [DashboardWidgetComponent, LoadingSpinnerComponent],
   templateUrl: './on-shift-summary.html',
   styleUrl: './on-shift-summary.scss',
 })
 export class OnShiftSummaryComponent {
   protected readonly icons = { ContactRoundIcon };
 
-  private readonly onShiftCounts = signal(ON_SHIFT_COUNTS);
-  private readonly staffTotal = signal(STAFF_TOTAL);
+  private readonly staffService = inject(StaffService);
 
-  protected readonly positionCounts = computed<ShiftCount[]>(() =>
-    (Object.entries(this.onShiftCounts()) as [UserPosition, number][]).map(([position, count]) => ({
+  private readonly onShift = signal<OnShiftSummary | null>(null);
+  protected readonly loading = signal(true);
+
+  protected readonly positionCounts = computed<ShiftCount[]>(() => {
+    const details = this.onShift()?.details;
+    if (!details) return [];
+
+    return (Object.entries(details) as [UserPosition, number][]).map(([position, count]) => ({
       position,
       label: USER_POSITION_LABELS[position],
       count,
-    })),
-  );
+    }));
+  });
 
   protected readonly subtitle = computed(() => {
     const onShift = this.positionCounts().reduce((sum, entry) => sum + entry.count, 0);
-    return `${onShift} of ${this.staffTotal()} staff`;
+    return `${onShift} of ${this.onShift()?.total ?? 0} staff`;
   });
+
+  constructor() {
+    afterNextRender(() => this.load());
+  }
+
+  private load(): void {
+    this.staffService.getOnShiftSummary().subscribe({
+      next: (summary) => {
+        this.onShift.set(summary);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
+  }
 }
