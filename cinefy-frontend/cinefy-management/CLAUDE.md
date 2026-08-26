@@ -41,7 +41,10 @@ src/
 ├── components/                         # Reusable UI components
 │   ├── auth/                           # forgot-password (progress-dots + steps: request/otp/reset/done)
 │   │                                   #   — the OTP input itself is cinefy-ui's <input-otp>, not local
-│   ├── dashboard/                      # now-showing, today-schedule, upcoming-movies-widget
+│   ├── dashboard/                      # dashboard-widget (shared card shell: icon/title/subtitle/
+│   │                                   #   iconColor/actionLabel/actionLink + <ng-content> body),
+│   │                                   #   today-statistics, today-schedule, halls-summary,
+│   │                                   #   active-gateway, on-shift-summary
 │   ├── halls/
 │   │   ├── hall-config-modal/          # Create/edit hall form + layout editor
 │   │   ├── hall-layout-editor/         # Interactive seat grid editor

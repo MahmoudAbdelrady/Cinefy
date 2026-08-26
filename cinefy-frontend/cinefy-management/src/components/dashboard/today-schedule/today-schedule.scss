@@ -1,254 +1,110 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/shadows' as *;
-@use '../../../shared/styles/mixins' as *;
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
-.today {
-  background-color: #ffffff;
-  border-radius: $radius-lg;
-  border: 1px solid $gray-200;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+:host {
+  --tsch-icon-color: #{$blue-600};
+}
 
-  > .header {
+.tsch-list {
+  padding: 0 8px;
+  max-height: 608px;
+  overflow-y: auto;
+  list-style: none;
+
+  .tsch-row {
     @include flex-align;
-    gap: 12px;
-    padding: 20px 24px;
-    border-bottom: 1px solid $gray-100;
 
-    @include below-mobile {
-      padding: 16px;
+    gap: 14px;
+    padding: 14px 12px;
+
+    + .tsch-row {
+      border-top: 1px solid $gray-100;
+    }
+  }
+
+  .tsch-poster {
+    flex-shrink: 0;
+    width: 44px;
+    height: 64px;
+    border-radius: $radius-lg;
+    overflow: hidden;
+  }
+
+  .tsch-main {
+    flex: 1;
+    min-width: 0;
+
+    .tsch-title {
+      @include text-truncate;
+
+      font-size: 14px;
+      font-weight: 600;
+      color: $gray-900;
     }
 
-    .header-left {
+    .tsch-seats {
       @include flex-align;
-      gap: 12px;
+      @include lucide-icon-fix;
 
-      .hl-icon {
-        @include icon-box(40px);
-        background-color: $blue-50;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 12px;
+      color: $gray-600;
+      font-variant-numeric: tabular-nums;
 
-        svg {
-          color: $blue-600;
-        }
-      }
-
-      .hl-info {
-        h3 {
-          font-size: 18px;
-          font-weight: 700;
-          color: $gray-900;
-        }
-
-        p {
-          font-size: 12px;
-          color: $gray-400;
-          margin-top: 2px;
-        }
+      svg {
+        flex-shrink: 0;
+        color: $gray-400;
       }
     }
   }
-}
 
-.today-schedule-list {
-  .ts-card {
-    @include flex-align;
-    gap: 20px;
-    padding: 16px 24px;
-    border-bottom: 1px solid $gray-100;
-    transition: background-color 150ms ease;
-    cursor: pointer;
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    &:hover {
-      background-color: rgba(249, 250, 251, 0.8);
-    }
-
-    &.in-progress {
-      background-color: rgba(240, 253, 244, 0.3);
-    }
-
-    @include below-mobile {
-      gap: 12px;
-      padding: 16px;
-    }
-  }
-}
-
-.ts-poster {
-  width: 48px;
-  height: 64px;
-  border-radius: $radius-md;
-  overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: $shadow-sm;
-
-  @include below-mobile {
-    width: 40px;
-    height: 56px;
-  }
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-}
-
-.ts-info {
-  flex: 1;
-  min-width: 0;
-  @include flex-between;
-  gap: 12px;
-}
-
-.tsi-left {
-  min-width: 0;
-
-  h4 {
-    font-size: 14px;
-    font-weight: 600;
-    color: $gray-900;
-    @include text-truncate;
-
-    @include from-mobile {
-      font-size: 16px;
-    }
-  }
-}
-
-.tsil-details {
-  @include flex-align;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.tsild-item {
-  @include flex-align;
-  gap: 4px;
-  font-size: 12px;
-  color: $gray-500;
-
-  svg {
-    display: flex;
+  .tsch-side {
     flex-shrink: 0;
-  }
-}
+    text-align: right;
 
-.tsild-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: $radius-pill;
-  background-color: $gray-300;
-}
-
-.tsi-right {
-  @include flex-align;
-  gap: 8px;
-  flex-shrink: 0;
-
-  > svg {
-    color: $gray-300;
-    display: flex;
-
-    @include below-mobile {
-      display: none;
+    .tsch-time {
+      font-size: 13px;
+      font-weight: 600;
+      color: $gray-900;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
     }
-  }
-}
 
-.tsir-details {
-  text-align: right;
-}
+    .tsch-tag {
+      @include flex-align;
 
-.tsir-interval {
-  font-size: 14px;
-  font-weight: 700;
-  color: $gray-900;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
 
-  @include below-mobile {
-    font-size: 12px;
-  }
-}
+      .tsch-tag-dot {
+        flex-shrink: 0;
+        width: 6px;
+        height: 6px;
+        border-radius: $radius-full;
+      }
 
-.tsir-status {
-  margin-top: 4px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: $radius-full;
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-  float: right;
+      &.running {
+        color: $green-700;
 
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    min-width: 6px;
-    min-height: 6px;
-    border-radius: $radius-pill;
-    flex-shrink: 0;
-    padding: 0;
-  }
+        .tsch-tag-dot {
+          background-color: $green-500;
+        }
+      }
 
-  &.status-in-progress {
-    background-color: $green-100;
-    color: $green-700;
+      &.soon {
+        color: $amber-700;
 
-    .status-dot {
-      background-color: $green-500;
-      animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        .tsch-tag-dot {
+          background-color: $amber-500;
+        }
+      }
     }
-  }
-
-  &.status-upcoming {
-    background-color: $orange-100;
-    color: $orange-700;
-
-    .status-dot {
-      background-color: $orange-400;
-    }
-  }
-}
-
-.ts-actions {
-  padding: 12px 24px;
-  border-top: 1px solid $gray-100;
-  background-color: rgba(249, 250, 251, 0.5);
-
-  a {
-    display: block;
-    width: 100%;
-    padding: 8px 0;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 500;
-    color: $blue-600;
-    transition: color 150ms ease;
-
-    &:hover {
-      color: $blue-700;
-    }
-  }
-}
-
-@keyframes pulse-dot {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(0.85);
   }
 }

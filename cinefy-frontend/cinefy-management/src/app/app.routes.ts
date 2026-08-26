@@ -4,7 +4,6 @@ import { AuthLayout } from '../layout/auth-layout/auth-layout';
 import { authGuard, guestGuard, positionCanMatch } from '../shared/guards';
 import {
   DashboardPage,
-  DashboardV2Page,
   HallsPage,
   MoviesPage,
   StatisticsPage,
@@ -28,10 +27,6 @@ export const routes: Routes = [
         pathMatch: 'full',
         component: DashboardPage,
         canMatch: [positionCanMatch],
-      },
-      {
-        path: 'dashboard-v2',
-        component: DashboardV2Page,
       },
       {
         path: 'halls',
