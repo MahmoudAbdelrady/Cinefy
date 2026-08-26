@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {
+  ActiveGatewayComponent,
   HallsSummaryComponent,
   TodayScheduleV2Component,
   TodayStatisticsComponent,
@@ -7,7 +8,12 @@ import {
 
 @Component({
   selector: 'dashboard-v2-page',
-  imports: [TodayStatisticsComponent, TodayScheduleV2Component, HallsSummaryComponent],
+  imports: [
+    TodayStatisticsComponent,
+    TodayScheduleV2Component,
+    HallsSummaryComponent,
+    ActiveGatewayComponent,
+  ],
   templateUrl: './dashboard-v2.html',
   styleUrl: './dashboard-v2.scss',
 })
