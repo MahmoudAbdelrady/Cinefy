@@ -74,6 +74,13 @@ public class PaymentGatewayService {
         return new PaymentGatewayListDTO(active, standBy);
     }
 
+    public PaymentGatewaySummaryDTO getActivePaymentGateway() {
+        PaymentGateway gateway = paymentGatewayRepository.findByActiveTrueAndDeletedAtIsNull()
+                .orElseThrow(() -> new NotFoundException("No active payment gateway found"));
+
+        return toSummaryDTO(gateway);
+    }
+
     public ResolvedPaymentGateway getActivePaymentGatewayForPayment() {
         PaymentGateway gateway = paymentGatewayRepository.findByActiveTrueAndDeletedAtIsNull()
                 .orElseThrow(() -> new BusinessException("Online payment is currently unavailable"));

@@ -1,36 +1,34 @@
-import { Component, computed, signal } from '@angular/core';
+import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EmptyStateComponent } from 'cinefy-ui/components';
+import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { skipErrorToast } from '../../../app/core/interceptors';
+import { PaymentGatewaysService } from '../../../services';
 import { AlertIcon, CreditCardIcon } from '../../../shared/icons';
 import { GATEWAY_PROVIDER_LABELS } from '../../../shared/types';
 import type { PaymentGateway } from '../../../shared/types';
 import { PAYMENT_PROVIDERS } from '../../payment/provider-spec';
 import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
 
-const ACTIVE_GATEWAY: PaymentGateway | null = {
-  id: 'pg_01',
-  name: 'Primary Paymob',
-  provider: 'PAYMOB',
-  active: true,
-  createdAt: '2026-01-14T09:00:00',
-  paymentChannels: [
-    { name: 'Card', currency: 'EGP', active: true, providerConfig: {} },
-    { name: 'Mobile wallet', currency: 'EGP', active: true, providerConfig: {} },
-    { name: 'Card', currency: 'USD', active: false, providerConfig: {} },
-  ],
-};
-
 @Component({
   selector: 'active-gateway',
-  imports: [DashboardWidgetComponent, RouterLink, LucideDynamicIcon, EmptyStateComponent],
+  imports: [
+    DashboardWidgetComponent,
+    RouterLink,
+    LucideDynamicIcon,
+    EmptyStateComponent,
+    LoadingSpinnerComponent,
+  ],
   templateUrl: './active-gateway.html',
   styleUrl: './active-gateway.scss',
 })
 export class ActiveGatewayComponent {
   protected readonly icons = { AlertIcon, CreditCardIcon };
 
-  protected readonly gateway = signal<PaymentGateway | null>(ACTIVE_GATEWAY);
+  private readonly paymentGatewaysService = inject(PaymentGatewaysService);
+
+  protected readonly gateway = signal<PaymentGateway | null>(null);
+  protected readonly loading = signal(true);
 
   protected readonly providerLabel = computed(() => {
     const provider = this.gateway()?.provider;
@@ -52,4 +50,18 @@ export class ActiveGatewayComponent {
     if (!this.providerSpec()?.channelsRequired) return false;
     return !this.channels().some((channel) => channel.active);
   });
+
+  constructor() {
+    afterNextRender(() => this.load());
+  }
+
+  private load(): void {
+    this.paymentGatewaysService.getActivePaymentGateway(skipErrorToast()).subscribe({
+      next: (gateway) => {
+        this.gateway.set(gateway);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
+  }
 }

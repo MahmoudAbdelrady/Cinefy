@@ -5,6 +5,14 @@
   --ag-icon-color: #{$amber-700};
 }
 
+.ag-loading {
+  @include flex-center;
+
+  min-height: 180px;
+  padding: 20px;
+  color: $gray-400;
+}
+
 .ag-body {
   padding: 20px;
 
@@ -118,6 +126,7 @@
     font-weight: 500;
     color: #ffffff;
     transition: background-color 150ms ease;
+    text-decoration: none;
 
     &:hover {
       background-color: $gray-800;
