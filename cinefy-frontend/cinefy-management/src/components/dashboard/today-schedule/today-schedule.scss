@@ -7,6 +7,14 @@
   --tsch-icon-color: #{$blue-600};
 }
 
+.tsch-loading {
+  @include flex-center;
+
+  min-height: 240px;
+  padding: 20px;
+  color: $gray-400;
+}
+
 .tsch-list {
   padding: 0 8px;
   max-height: 608px;

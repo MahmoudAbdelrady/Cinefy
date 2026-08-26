@@ -48,6 +48,7 @@ export type {
   MovieShowtimeListItem,
   MovieShowtimeDatesResponse,
   MovieShowtimesResponse,
+  ScheduledShowtime,
   EditableShowtime,
 } from './showtimes';
 

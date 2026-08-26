@@ -81,7 +81,8 @@ public interface ShowtimeRepository extends BaseRepository<Showtime> {
             SELECT s FROM Showtime s
             JOIN FETCH s.hall h
             JOIN FETCH h.type
-            WHERE s.tmdbMovie.id = :movieId
+            JOIN FETCH s.tmdbMovie
+            WHERE (:movieId IS NULL OR s.tmdbMovie.id = :movieId)
             AND s.status IN :statuses
             AND s.startDateTime >= :startDateTime
             AND s.startDateTime < :endDateTime

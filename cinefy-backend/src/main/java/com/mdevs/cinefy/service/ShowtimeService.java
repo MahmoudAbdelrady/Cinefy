@@ -5,6 +5,8 @@ import com.mdevs.cinefy.dto.showtime.MovieShowtimeDatesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeListItemDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieWithShowtimesDTO;
+import com.mdevs.cinefy.dto.showtime.ScheduledShowtimeDTO;
+import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
 import com.mdevs.cinefy.dto.showtime.ShowtimeDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimeSummaryDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimesStatisticsDTO;
@@ -99,6 +101,24 @@ public class ShowtimeService {
                 .map(showtime -> toMovieShowtimeListItem(showtime, countsByShowtime.get(showtime.getId())))
                 .toList());
         return dto;
+    }
+
+    public List<ScheduledShowtimeDTO> getScheduleForDate(LocalDate day) {
+        List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(
+                null, ShowtimeStatus.COMMITTED_STATUSES, day.atStartOfDay(), day.plusDays(1).atStartOfDay());
+
+        if (showtimes.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> showtimeIds = showtimes.stream().map(Showtime::getId).toList();
+        Map<Long, ShowtimeBookedSeatsProjection> countsByShowtime = bookingRepository.countBookedSeatsByShowtime(showtimeIds, LocalDateTime.now(), null, null)
+                .stream()
+                .collect(Collectors.toMap(ShowtimeBookedSeatsProjection::getShowtimeId, Function.identity()));
+
+        return showtimes.stream()
+                .map(showtime -> toScheduledShowtime(showtime, countsByShowtime.get(showtime.getId())))
+                .toList();
     }
 
     public ShowtimesStatisticsDTO getShowtimesStatistics() {
@@ -335,6 +355,17 @@ public class ShowtimeService {
         dto.setMyOnHoldSeats(counts != null ? counts.getMyOnHoldSeats() : 0);
         dto.setTotalSeats(hall.getCapacity());
         dto.setBookable(BookingService.isBookable(showtime));
+        return dto;
+    }
+
+    private ScheduledShowtimeDTO toScheduledShowtime(Showtime showtime, ShowtimeBookedSeatsProjection counts) {
+        ScheduledShowtimeDTO dto = new ScheduledShowtimeDTO();
+        dto.setId(showtime.getUuid());
+        dto.setMovie(tmdbMovieService.toSearchResult(showtime.getTmdbMovie()));
+        dto.setStartsAt(showtime.getStartDateTime().toLocalTime().format(TIME_FORMATTER));
+        dto.setEndsAt(showtime.getEndDateTime().toLocalTime().format(TIME_FORMATTER));
+        dto.setTicketsSold(counts != null ? counts.getBookedSeats() : 0);
+        dto.setTotalSeats(showtime.getHall().getCapacity());
         return dto;
     }
 

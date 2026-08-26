@@ -4,6 +4,7 @@ import com.mdevs.cinefy.dto.showtime.MovieShowtimeDatesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieWithShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.PublishShowtimesDTO;
+import com.mdevs.cinefy.dto.showtime.ScheduledShowtimeDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimeDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimeSummaryDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimesStatisticsDTO;
@@ -36,6 +37,11 @@ public class ShowtimeController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
     public ResponseEntity<MovieShowtimesDTO> getMovieShowtimesForDate(@RequestParam Long movieId, @RequestParam LocalDate date) {
         return ResponseEntity.ok(showtimeService.getMovieShowtimesForDate(movieId, date));
+    }
+
+    @GetMapping("/schedule")
+    public ResponseEntity<List<ScheduledShowtimeDTO>> getScheduleForDate(@RequestParam LocalDate day) {
+        return ResponseEntity.ok(showtimeService.getScheduleForDate(day));
     }
 
     @GetMapping("/statistics")

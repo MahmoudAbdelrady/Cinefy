@@ -6,6 +6,7 @@ import type {
   MovieShowtimesResponse,
   MovieWithShowtimes,
   PublishShowtimesInput,
+  ScheduledShowtime,
   Showtime,
   ShowtimeDraft,
   ShowtimesStatistics,
@@ -33,6 +34,10 @@ export class ShowtimesService {
     return this.http.get<MovieShowtimesResponse>('/showtimes/movie-day', {
       params: { movieId, date },
     });
+  }
+
+  getScheduleForDate(day: string): Observable<ScheduledShowtime[]> {
+    return this.http.get<ScheduledShowtime[]>('/showtimes/schedule', { params: { day } });
   }
 
   createShowtime(data: ShowtimeDraft): Observable<Showtime> {
