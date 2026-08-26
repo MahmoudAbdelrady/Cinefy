@@ -1,0 +1,84 @@
+@use '../../../shared/styles/colors' as *;
+@use '../../../shared/styles/shadows' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+.dw-card {
+  background-color: #ffffff;
+  border: 1px solid $gray-200;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-xs;
+  overflow: hidden;
+
+  .dw-header {
+    @include flex-align;
+
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid $gray-200;
+
+    .dw-header-icon {
+      @include flex-center;
+      @include lucide-icon-fix;
+
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: $radius-lg;
+      background-color: hsl(from currentColor h s 96%);
+    }
+
+    .dw-header-text {
+      min-width: 0;
+
+      h3 {
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.25;
+        color: $gray-900;
+      }
+
+      p {
+        margin-top: 2px;
+        font-size: 12px;
+        color: $gray-600;
+      }
+    }
+
+    .dw-header-action {
+      @include flex-align;
+      @include lucide-icon-fix;
+
+      gap: 8px;
+      margin-left: auto;
+      flex-shrink: 0;
+      padding: 10px 14px;
+      border: 1px solid $gray-200;
+      border-radius: $radius-lg;
+      font-size: 13px;
+      font-weight: 500;
+      color: $gray-700;
+      white-space: nowrap;
+      transition: background-color 150ms ease;
+      text-decoration: none;
+
+      &:hover {
+        background-color: $gray-50;
+      }
+
+      svg {
+        color: $gray-400;
+      }
+    }
+
+    @include below-mobile {
+      flex-wrap: wrap;
+
+      .dw-header-action {
+        width: 100%;
+        margin-left: 0;
+        justify-content: center;
+      }
+    }
+  }
+}

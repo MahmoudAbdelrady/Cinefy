@@ -1,75 +1,43 @@
-import { DatePipe } from '@angular/common';
-import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
-import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ChevronDownIcon,
-  ClockIcon,
-  DollarSignIcon,
-  ClapperboardIcon,
-  LayoutIcon,
-  LayoutTemplateIcon,
-  PlusIcon,
-  TicketIcon,
-  TrendingUpIcon,
-} from '../../shared/icons';
-import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
-import {
-  NowShowingComponent,
-  UpcomingMoviesWidgetComponent,
+  ActiveGatewayComponent,
+  HallsSummaryComponent,
+  OnShiftSummaryComponent,
+  ScanTicketModalComponent,
   TodayScheduleComponent,
+  TodayStatisticsComponent,
 } from '../../components';
-import { HeaderActionsService } from '../../services';
-
-interface DropDownMenuItem {
-  icon: LucideIcon;
-  label: string;
-  code: string;
-}
+import { StaffService } from '../../services';
+import { canBook as canBookPosition, canManage as canManagePosition } from '../../shared/access';
 
 @Component({
   selector: 'dashboard-page',
   imports: [
-    DatePipe,
-    LucideDynamicIcon,
-    NowShowingComponent,
-    UpcomingMoviesWidgetComponent,
+    TodayStatisticsComponent,
     TodayScheduleComponent,
-    NgpMenu,
-    NgpMenuItem,
-    NgpMenuTrigger,
+    HallsSummaryComponent,
+    ActiveGatewayComponent,
+    OnShiftSummaryComponent,
+    ScanTicketModalComponent,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class DashboardPage implements OnInit {
-  protected readonly icons = {
-    ChevronDownIcon,
-    DollarSignIcon,
-    ClapperboardIcon,
-    LayoutIcon,
-    PlusIcon,
-    TicketIcon,
-    ArrowUpIcon,
-    ArrowDownIcon,
-    TrendingUpIcon,
-  };
-  private headerActions = inject(HeaderActionsService);
-  private destroyRef = inject(DestroyRef);
+export class DashboardPage {
+  private readonly staffService = inject(StaffService);
 
-  private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
+  private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
 
-  protected currentDate = new Date();
+  protected readonly canManage = computed(() => {
+    const user = this.currentUser();
+    return user ? canManagePosition(user.position) : false;
+  });
 
-  protected readonly quickAddMenuItems: DropDownMenuItem[] = [
-    { icon: ClapperboardIcon, label: 'Movie', code: 'movie' },
-    { icon: LayoutTemplateIcon, label: 'Hall', code: 'hall' },
-    { icon: ClockIcon, label: 'Showtime', code: 'showtime' },
-  ];
+  protected readonly canBook = computed(() => {
+    const user = this.currentUser();
+    return user ? canBookPosition(user.position) : false;
+  });
 
-  ngOnInit() {
-    this.headerActions.template.set(this.headerActionsTemplate());
-    this.destroyRef.onDestroy(() => this.headerActions.template.set(null));
-  }
+  protected readonly isUsher = computed(() => this.currentUser()?.position === 'USHER');
 }

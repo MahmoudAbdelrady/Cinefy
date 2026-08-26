@@ -11,6 +11,7 @@ export type {
   HallDetail,
   HallLayout,
   Hall,
+  HallStatusCounts,
   StatisticsChange,
 } from './halls';
 
@@ -47,6 +48,7 @@ export type {
   MovieShowtimeListItem,
   MovieShowtimeDatesResponse,
   MovieShowtimesResponse,
+  ScheduledShowtime,
   EditableShowtime,
 } from './showtimes';
 
@@ -74,6 +76,7 @@ export type {
   WeekDay,
   PositionCoverage,
   PositionCoverageItem,
+  OnShiftSummary,
   CoverageChange,
 } from './staff';
 export type {

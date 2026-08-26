@@ -5,6 +5,7 @@ import com.mdevs.cinefy.dto.hall.HallDetailDTO;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
 import com.mdevs.cinefy.dto.hall.HallSummaryDTO;
 import com.mdevs.cinefy.dto.hall.HallTypeDTO;
+import com.mdevs.cinefy.entity.enums.HallStatus;
 import com.mdevs.cinefy.service.HallService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/halls")
@@ -55,6 +57,11 @@ public class HallController {
     public ResponseEntity<List<HallSummaryDTO>> getHalls(@RequestParam(required = false) String excludeHallId,
                                                          @RequestParam(required = false) List<String> statuses) {
         return ResponseEntity.ok(hallService.getHalls(excludeHallId, statuses));
+    }
+
+    @GetMapping("/status-counts")
+    public ResponseEntity<Map<HallStatus, Long>> getHallStatusCounts() {
+        return ResponseEntity.ok(hallService.getHallStatusCounts());
     }
 
     @GetMapping("/{uuid}")

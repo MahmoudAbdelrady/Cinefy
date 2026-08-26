@@ -8,12 +8,10 @@ import {
   Calendar,
   Users,
   TrendingUp,
-  DollarSign,
   Eye,
   Ticket,
   Clock,
   Star,
-  MoreVertical,
   Edit,
   Trash2,
   Settings,
@@ -52,8 +50,12 @@ import {
   ArrowDownRight,
   Minus,
   RefreshCw,
+  type LucideIcon,
 } from 'lucide-react';
 import { ImageWithFallback } from './components/figma/ImageWithFallback';
+import { DashboardSection } from './components/dashboard/DashboardSection';
+import type { GatewayPreview } from './components/dashboard/dashboardData';
+import { canAccessSection, type NavSection, type StaffPosition } from './access';
 
 // ============================================================================
 // Payment Section — payment gateway routing
@@ -1403,7 +1405,6 @@ function DeleteGatewayDialog({
 // Staff Section — Cinema staff roster management
 // ============================================================================
 
-type StaffPosition = 'Manager' | 'Cashier' | 'Projectionist' | 'Usher' | 'Concessions';
 type EmploymentType = 'Full-time' | 'Part-time';
 type Weekday = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
 
@@ -4032,8 +4033,20 @@ function StaffReservationModal({ showtime, onClose }: { showtime: any; onClose: 
   );
 }
 
+const NAV_ITEMS: { section: NavSection; label: string; icon: LucideIcon }[] = [
+  { section: 'dashboard', label: 'Dashboard', icon: Home },
+  { section: 'halls', label: 'Halls', icon: Layout },
+  { section: 'movies', label: 'Movies', icon: Film },
+  { section: 'payment', label: 'Payment', icon: CreditCard },
+  { section: 'statistics', label: 'Statistics', icon: BarChart3 },
+  { section: 'staff', label: 'Staff', icon: ContactRound },
+  { section: 'profile', label: 'Profile', icon: User },
+];
+
 export default function App() {
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState<NavSection>('dashboard');
+  const [position, setPosition] = useState<StaffPosition>(CURRENT_USER.position);
+  const [gatewayPreview, setGatewayPreview] = useState<GatewayPreview>('active');
   const [showAddHallModal, setShowAddHallModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedHall, setSelectedHall] = useState<any>(null);
@@ -4366,72 +4379,6 @@ export default function App() {
       occupancy: 0,
     },
   ]);
-
-  const nowShowingMovies = [
-    {
-      title: 'The Matrix Resurrections',
-      poster:
-        'https://images.unsplash.com/photo-1572188863110-46d457c9234d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400',
-      genre: 'Sci-Fi',
-      rating: 4.5,
-      showtimes: 8,
-      revenue: '$12,450',
-      occupancy: '78%',
-      status: 'Now Showing',
-    },
-    {
-      title: 'Dune: Part Two',
-      poster:
-        'https://images.unsplash.com/photo-1761948245703-cbf27a3e7502?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400',
-      genre: 'Adventure',
-      rating: 4.8,
-      showtimes: 6,
-      revenue: '$18,900',
-      occupancy: '92%',
-      status: 'Now Showing',
-    },
-    {
-      title: 'Spider-Man: No Way Home',
-      poster:
-        'https://images.unsplash.com/photo-1758232589439-f5ec09dc92c2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400',
-      genre: 'Action',
-      rating: 4.7,
-      showtimes: 10,
-      revenue: '$24,350',
-      occupancy: '85%',
-      status: 'Now Showing',
-    },
-    {
-      title: 'Avatar: The Way of Water',
-      poster:
-        'https://images.unsplash.com/photo-1753944847480-92f369a5f00e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400',
-      genre: 'Fantasy',
-      rating: 4.6,
-      showtimes: 7,
-      revenue: '$15,200',
-      occupancy: '81%',
-      status: 'Now Showing',
-    },
-  ];
-
-  const upcomingMovies = [
-    {
-      title: 'The Dark Knight Returns',
-      poster:
-        'https://images.unsplash.com/photo-1618410321132-9f4cebb2f7f5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400',
-      genre: 'Action',
-      releaseDate: 'March 30, 2026',
-      status: 'Upcoming',
-    },
-    {
-      title: 'Interstellar Journey',
-      poster:
-        'https://images.unsplash.com/photo-1758232589376-9f3db5aa371d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400',
-      genre: 'Sci-Fi',
-      releaseDate: 'April 5, 2026',
-      status: 'Upcoming',
-    },
-  ];
 
   // Complete movie database for search
   const [allMovies] = useState([
@@ -5100,96 +5047,29 @@ export default function App() {
 
         <nav className="flex-1 p-4 overflow-auto">
           <div className="space-y-1">
-            <button
-              onClick={() => setActiveSection('dashboard')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                activeSection === 'dashboard'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <Home size={20} />
-              <span className="flex-1 text-left font-medium">Dashboard</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSection('halls')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                activeSection === 'halls'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <Layout size={20} />
-              <span className="flex-1 text-left font-medium">Halls</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSection('movies')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                activeSection === 'movies'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <Film size={20} />
-              <span className="flex-1 text-left font-medium">Movies</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSection('payment')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                activeSection === 'payment'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <CreditCard size={20} />
-              <span className="flex-1 text-left font-medium">Payment</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSection('statistics')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                activeSection === 'statistics'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <BarChart3 size={20} />
-              <span className="flex-1 text-left font-medium">Statistics</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSection('staff')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                activeSection === 'staff'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <ContactRound size={20} />
-              <span className="flex-1 text-left font-medium">Staff</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSection('profile')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                activeSection === 'profile'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <User size={20} />
-              <span className="flex-1 text-left font-medium">Profile</span>
-            </button>
-
-            <div className="pt-4 mt-4 border-t border-gray-200">
-              <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-all">
-                <Settings size={20} />
-                <span className="flex-1 text-left font-medium">Settings</span>
+            {NAV_ITEMS.filter((item) => canAccessSection(item.section, position)).map((item) => (
+              <button
+                key={item.section}
+                onClick={() => setActiveSection(item.section)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                  activeSection === item.section
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <item.icon size={20} />
+                <span className="flex-1 text-left font-medium">{item.label}</span>
               </button>
-            </div>
+            ))}
+
+            {position === 'Manager' && (
+              <div className="pt-4 mt-4 border-t border-gray-200">
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-all">
+                  <Settings size={20} />
+                  <span className="flex-1 text-left font-medium">Settings</span>
+                </button>
+              </div>
+            )}
           </div>
         </nav>
 
@@ -5217,382 +5097,13 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 overflow-auto bg-gray-50">
         {activeSection === 'dashboard' && (
-          <>
-            {/* Top Bar */}
-            <div className="bg-white border-b border-gray-200 px-8 py-4 sticky top-0 z-10 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-semibold text-gray-900">Dashboard Overview</h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Welcome back! Here's what's happening today
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg border border-gray-300 transition-colors flex items-center gap-2">
-                    <BarChart3 size={18} />
-                    <span>View Reports</span>
-                  </button>
-                  <button className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 shadow-sm">
-                    <Plus size={18} />
-                    <span>Quick Add</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-8">
-              {/* Today's Overview */}
-              <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Today's Performance</h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Real-time metrics for March 25, 2026
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setActiveSection('statistics')}
-                    className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 text-sm"
-                  >
-                    View Full Statistics <ChevronRight size={16} />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Ticket size={28} className="text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Tickets Sold</p>
-                      <p className="text-3xl font-bold text-gray-900">342</p>
-                      <p className="text-xs text-green-600 font-semibold mt-1">
-                        ↑ 12% vs yesterday
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <DollarSign size={28} className="text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Revenue</p>
-                      <p className="text-3xl font-bold text-gray-900">$8.5K</p>
-                      <p className="text-xs text-green-600 font-semibold mt-1">
-                        ↑ 15% vs yesterday
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Users size={28} className="text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Active Viewers</p>
-                      <p className="text-3xl font-bold text-gray-900">156</p>
-                      <p className="text-xs text-gray-600 mt-1">In theaters now</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <TrendingUp size={28} className="text-orange-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Occupancy Rate</p>
-                      <p className="text-3xl font-bold text-gray-900">84%</p>
-                      <p className="text-xs text-green-600 font-semibold mt-1">↑ 8% vs last week</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Overview Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                      <Layout size={24} className="text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">8</p>
-                      <p className="text-sm text-gray-600">Total Halls</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-sm text-gray-600">
-                      <span className="font-semibold text-green-600">3</span> Active Now
-                    </span>
-                    <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                      Manage →
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                      <Film size={24} className="text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">12</p>
-                      <p className="text-sm text-gray-600">Total Movies</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-sm text-gray-600">
-                      <span className="font-semibold text-purple-600">6</span> Now Showing
-                    </span>
-                    <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                      View All →
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                      <Calendar size={24} className="text-orange-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">24</p>
-                      <p className="text-sm text-gray-600">Today's Showtimes</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-sm text-gray-600">
-                      <span className="font-semibold text-orange-600">18</span> Scheduled
-                    </span>
-                    <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                      Details →
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Now Showing Movies */}
-              <div className="mb-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                      <Film className="text-purple-600" size={24} />
-                      Now Showing Movies
-                    </h3>
-                    <p className="text-sm text-gray-600 mt-1">Currently screening in your cinema</p>
-                  </div>
-                  <button className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
-                    View All <ChevronRight size={18} />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {nowShowingMovies.map((movie, index) => (
-                    <div
-                      key={index}
-                      className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all hover:-translate-y-1 group"
-                    >
-                      <div className="relative">
-                        <ImageWithFallback
-                          src={movie.poster}
-                          alt={movie.title}
-                          className="w-full h-72 object-cover"
-                        />
-                        <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
-                          <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                          {movie.rating}
-                        </div>
-                        <div className="absolute top-3 left-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold uppercase">
-                          {movie.status}
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="absolute bottom-3 left-3 right-3 flex gap-2">
-                            <button className="flex-1 bg-white text-gray-900 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-1">
-                              <Edit size={16} />
-                              Edit
-                            </button>
-                            <button className="px-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="p-4">
-                        <h4 className="font-semibold text-gray-900 mb-1 truncate">{movie.title}</h4>
-                        <p className="text-sm text-gray-600 mb-3">{movie.genre}</p>
-
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600 flex items-center gap-1">
-                              <Clock size={14} />
-                              Showtimes
-                            </span>
-                            <span className="font-semibold text-gray-900">
-                              {movie.showtimes} times
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600 flex items-center gap-1">
-                              <DollarSign size={14} />
-                              Revenue
-                            </span>
-                            <span className="font-semibold text-green-600">{movie.revenue}</span>
-                          </div>
-
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600 flex items-center gap-1">
-                              <Eye size={14} />
-                              Occupancy
-                            </span>
-                            <span className="font-semibold text-blue-600">{movie.occupancy}</span>
-                          </div>
-                        </div>
-
-                        <button className="w-full mt-3 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors">
-                          Manage Showtimes
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Upcoming Movies */}
-                <div className="lg:col-span-1">
-                  <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Calendar className="text-orange-600" size={20} />
-                      Upcoming Movies
-                    </h3>
-                    <div className="space-y-4">
-                      {upcomingMovies.map((movie, index) => (
-                        <div
-                          key={index}
-                          className="flex gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-                        >
-                          <ImageWithFallback
-                            src={movie.poster}
-                            alt={movie.title}
-                            className="w-16 h-24 object-cover rounded"
-                          />
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900 text-sm mb-1">
-                              {movie.title}
-                            </h4>
-                            <p className="text-xs text-gray-600 mb-2">{movie.genre}</p>
-                            <p className="text-xs text-orange-600 font-medium">
-                              {movie.releaseDate}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                      <button className="w-full py-2 text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors">
-                        View All Upcoming
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Today's Showtimes Schedule */}
-                <div className="lg:col-span-2">
-                  <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                        <Clock className="text-blue-600" size={20} />
-                        Today's Schedule
-                      </h3>
-                      <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                        View Full Schedule
-                      </button>
-                    </div>
-                    <div className="space-y-3">
-                      {[
-                        {
-                          movie: 'Spider-Man: No Way Home',
-                          hall: 'Hall 2',
-                          time: '14:30',
-                          seats: '89/150',
-                          status: 'In Progress',
-                          color: 'green',
-                        },
-                        {
-                          movie: 'Dune: Part Two',
-                          hall: 'Hall 3',
-                          time: '15:00',
-                          seats: '32/100',
-                          status: 'Upcoming',
-                          color: 'orange',
-                        },
-                        {
-                          movie: 'The Matrix Resurrections',
-                          hall: 'Hall 1',
-                          time: '16:00',
-                          seats: '45/120',
-                          status: 'Upcoming',
-                          color: 'orange',
-                        },
-                        {
-                          movie: 'Avatar: The Way of Water',
-                          hall: 'Hall 1',
-                          time: '18:30',
-                          seats: '67/120',
-                          status: 'Upcoming',
-                          color: 'orange',
-                        },
-                        {
-                          movie: 'Dune: Part Two',
-                          hall: 'Hall 2',
-                          time: '19:00',
-                          seats: '78/150',
-                          status: 'Upcoming',
-                          color: 'orange',
-                        },
-                      ].map((showtime, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50/50 transition-all"
-                        >
-                          <div className="text-center min-w-[80px]">
-                            <p className="text-2xl font-bold text-gray-900">{showtime.time}</p>
-                            <p className="text-xs text-gray-500 uppercase">{showtime.hall}</p>
-                          </div>
-
-                          <div className="h-12 w-px bg-gray-200"></div>
-
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900 mb-1">{showtime.movie}</h4>
-                            <div className="flex items-center gap-3 text-sm">
-                              <span
-                                className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                                  showtime.color === 'green'
-                                    ? 'bg-green-100 text-green-700'
-                                    : 'bg-orange-100 text-orange-700'
-                                }`}
-                              >
-                                {showtime.status}
-                              </span>
-                              <span className="text-gray-600">
-                                <Ticket size={14} className="inline mr-1" />
-                                {showtime.seats} seats
-                              </span>
-                            </div>
-                          </div>
-
-                          <button className="text-gray-400 hover:text-gray-600">
-                            <MoreVertical size={20} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
+          <DashboardSection
+            position={position}
+            onPositionChange={setPosition}
+            gatewayPreview={gatewayPreview}
+            onGatewayPreviewChange={setGatewayPreview}
+            onNavigate={setActiveSection}
+          />
         )}
 
         {/* Halls Management Section */}

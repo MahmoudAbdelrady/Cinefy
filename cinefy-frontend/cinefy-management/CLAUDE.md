@@ -41,7 +41,10 @@ src/
 ├── components/                         # Reusable UI components
 │   ├── auth/                           # forgot-password (progress-dots + steps: request/otp/reset/done)
 │   │                                   #   — the OTP input itself is cinefy-ui's <input-otp>, not local
-│   ├── dashboard/                      # now-showing, today-schedule, upcoming-movies-widget
+│   ├── dashboard/                      # dashboard-widget (shared card shell: icon/title/subtitle/
+│   │                                   #   iconColor/actionLabel/actionLink + <ng-content> body),
+│   │                                   #   today-statistics, today-schedule, halls-summary,
+│   │                                   #   active-gateway, on-shift-summary
 │   ├── halls/
 │   │   ├── hall-config-modal/          # Create/edit hall form + layout editor
 │   │   ├── hall-layout-editor/         # Interactive seat grid editor
@@ -494,12 +497,13 @@ Nest by the **element's place in the template**, not by the class-name prefix. A
 .rs-done-title { ... }
 ```
 
-Two limits:
+**Nest as deep as the template does.** There is no depth limit — if the markup is five elements deep, the stylesheet is five blocks deep. Component styles are scoped by Angular's view encapsulation, so the long selector never competes with anything outside the component and the specificity is inert. Flattening a rule out to the top level just to save a level of indentation breaks the mirror between template and stylesheet, which is the whole point.
 
-- **Don't use `&-` name concatenation** (`&-icon { }` to build `.rs-done-icon`). It saves a few characters but makes the full class name ungreppable — searching `rs-done-icon` finds nothing. Write the selector out in full inside the parent.
-- **Don't nest past ~3 levels.** Deep nesting produces long, high-specificity selectors that are hard to override. If a block gets that deep, the markup usually wants a flatter class instead.
+One limit: **don't use `&-` name concatenation** (`&-icon { }` to build `.rs-done-icon`). It saves a few characters but makes the full class name ungreppable — searching `rs-done-icon` finds nothing. Write the selector out in full inside the parent.
 
-**Top-level siblings are still correct** for genuinely sibling regions — the stage-level blocks (`.bs-loading`, `.bs-layout`, `.bs-done`) or `:host`. Nesting expresses containment; it isn't a mandate to bury every rule.
+**Top-level siblings are only for genuinely sibling regions** — elements that really are siblings in the template, like the stage-level blocks in `book-seats` (`.bs-loading`, `.bs-layout`, `.bs-done`), or `:host`. A component whose template has a single root element therefore has a single top-level block, with everything else nested inside it.
+
+**The card wrapper is an element, not `:host`.** A component that renders a card (background, border, radius, shadow) puts that chrome on a real wrapper element in the template — `.tsch-card`, `.today`, `.upcoming` — and nests the card's contents inside it. Reserve `:host` for how the component sits in its **parent's** layout (`align-self: start`, `display: block`), not for its own surface.
 
 ### Prettier
 

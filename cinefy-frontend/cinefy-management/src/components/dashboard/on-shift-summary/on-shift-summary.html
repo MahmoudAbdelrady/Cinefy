@@ -1,0 +1,23 @@
+<dashboard-widget
+  [icon]="icons.ContactRoundIcon"
+  title="On shift now"
+  [subtitle]="subtitle()"
+  iconColor="var(--oss-icon-color)"
+  actionLabel="Manage staff"
+  actionLink="/staff"
+>
+  @if (loading()) {
+    <div class="oss-loading">
+      <loading-spinner variant="lg" />
+    </div>
+  } @else {
+    <ul class="oss-positions">
+      @for (entry of positionCounts(); track entry.position) {
+        <li class="oss-position" [class.empty]="entry.count === 0">
+          <p class="oss-position-count">{{ entry.count }}</p>
+          <p class="oss-position-label">{{ entry.label }}</p>
+        </li>
+      }
+    </ul>
+  }
+</dashboard-widget>

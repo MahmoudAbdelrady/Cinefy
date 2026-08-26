@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type { PaymentGateway, PaymentGatewayList, PaymentGatewayRequest } from '../shared/types';
 
@@ -9,6 +9,10 @@ export class PaymentGatewaysService {
 
   getPaymentGateways(): Observable<PaymentGatewayList> {
     return this.http.get<PaymentGatewayList>('/payment-gateways');
+  }
+
+  getActivePaymentGateway(context?: HttpContext): Observable<PaymentGateway> {
+    return this.http.get<PaymentGateway>('/payment-gateways/active', { context });
   }
 
   createPaymentGateway(data: PaymentGatewayRequest): Observable<PaymentGateway> {

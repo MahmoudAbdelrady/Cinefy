@@ -1,0 +1,107 @@
+@use '../../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+
+:host {
+  --hs-icon-color: #{$purple-600};
+}
+
+@mixin status-swatches {
+  &[data-status='ACTIVE'] {
+    background-color: $green-500;
+  }
+
+  &[data-status='SCHEDULED'] {
+    background-color: $blue-500;
+  }
+
+  &[data-status='UNDER_MAINTENANCE'] {
+    background-color: $amber-500;
+  }
+
+  &[data-status='INACTIVE'] {
+    background-color: $gray-300;
+  }
+}
+
+.hs-loading {
+  @include flex-center;
+
+  min-height: 180px;
+  padding: 20px;
+  color: $gray-400;
+}
+
+.hs-empty {
+  padding: 40px 20px;
+}
+
+.hs-body {
+  padding: 20px;
+
+  .hs-total {
+    @include flex-align;
+
+    align-items: baseline;
+    gap: 8px;
+
+    .hs-total-count {
+      font-size: 34px;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: -0.025em;
+      color: $gray-900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hs-total-label {
+      font-size: 14px;
+      color: $gray-600;
+    }
+  }
+
+  .hs-bar {
+    display: flex;
+    gap: 2px;
+    margin-top: 16px;
+
+    .hs-bar-segment {
+      height: 10px;
+      border-radius: $radius-sm;
+
+      @include status-swatches;
+    }
+  }
+
+  .hs-legend {
+    margin-top: 14px;
+    list-style: none;
+
+    .hs-legend-item {
+      @include flex-align;
+
+      gap: 10px;
+      font-size: 13px;
+      color: $gray-600;
+
+      + .hs-legend-item {
+        margin-top: 8px;
+      }
+
+      .hs-legend-swatch {
+        flex-shrink: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: $radius-sm;
+
+        @include status-swatches;
+      }
+
+      .hs-legend-count {
+        margin-left: auto;
+        font-weight: 600;
+        color: $gray-900;
+        font-variant-numeric: tabular-nums;
+      }
+    }
+  }
+}

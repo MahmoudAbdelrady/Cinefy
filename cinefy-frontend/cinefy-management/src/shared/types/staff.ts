@@ -96,6 +96,11 @@ interface PositionCoverage {
   positions: PositionCoverageItem[];
 }
 
+interface OnShiftSummary {
+  total: number;
+  details: Record<Exclude<UserPosition, 'ADMIN'>, number>;
+}
+
 type CoverageChange =
   | { action: 'add'; position: UserPosition }
   | { action: 'delete'; position: UserPosition }
@@ -114,5 +119,6 @@ export type {
   WeekDay,
   PositionCoverage,
   PositionCoverageItem,
+  OnShiftSummary,
   CoverageChange,
 };

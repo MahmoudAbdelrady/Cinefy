@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.repository;
 
+import com.mdevs.cinefy.dto.hall.HallStatusCountProjection;
 import com.mdevs.cinefy.dto.statistics.DailyHallProjection;
 import com.mdevs.cinefy.dto.statistics.MovieHallProjection;
 import com.mdevs.cinefy.dto.statistics.HallPeriodProjection;
@@ -27,6 +28,15 @@ public interface HallRepository extends BaseRepository<Hall> {
             "WHERE (:excludeHallId IS NULL OR h.uuid != :excludeHallId) " +
             "AND (:statuses IS NULL OR h.status IN :statuses) ORDER BY h.createdAt")
     List<Hall> findAllFiltered(@Param("excludeHallId") String excludeHallId, @Param("statuses") List<HallStatus> statuses);
+
+    @Query("""
+            SELECT new com.mdevs.cinefy.dto.hall.HallStatusCountProjection(
+                h.status,
+                COUNT(h))
+            FROM Hall h
+            GROUP BY h.status
+            """)
+    List<HallStatusCountProjection> countByStatus();
 
     @Modifying
     @Query("""

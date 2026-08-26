@@ -12,6 +12,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { PlusIcon, QrCodeIcon, TicketIcon } from '../../shared/icons';
 import { canManage as canManagePosition, canBook as canBookPosition } from '../../shared/access';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
+import { ModalComponent } from 'cinefy-ui/components';
 import {
   ActiveBookingsListComponent,
   CurrentShowtimesComponent,
@@ -33,6 +34,7 @@ import { HeaderActionsService, StaffService } from '../../services';
     UpcomingMoviesComponent,
     ActiveBookingsListComponent,
     ScanTicketModalComponent,
+    ModalComponent,
   ],
   templateUrl: './movies.html',
   styleUrl: './movies.scss',

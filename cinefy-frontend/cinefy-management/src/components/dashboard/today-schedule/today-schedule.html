@@ -1,57 +1,57 @@
-<div class="today">
-  <div class="header">
-    <div class="header-left">
-      <div class="hl-icon">
-        <svg [lucideIcon]="icons.ClockIcon" [size]="20"></svg>
-      </div>
-      <div class="hl-info">
-        <h3>Today's Schedule</h3>
-        <p>5 showtimes remaining</p>
-      </div>
+<dashboard-widget
+  [icon]="icons.ClockIcon"
+  title="Today's schedule"
+  subtitle="{{ screenings().length }} showtimes"
+  iconColor="var(--tsch-icon-color)"
+  actionLabel="Manage showtimes"
+  [actionIcon]="icons.CalendarIcon"
+  actionLink="/movies"
+>
+  @if (loading()) {
+    <div class="tsch-loading">
+      <loading-spinner variant="lg" />
     </div>
-  </div>
-  <ul class="today-schedule-list">
-    @for (movie of todayScheduleMovies; track movie.title) {
-      <li class="ts-card" [class.in-progress]="movie.status === 'In Progress'">
-        <div class="ts-poster">
-          <img [src]="movie.poster" [alt]="movie.title" />
-        </div>
-        <div class="ts-info">
-          <div class="tsi-left">
-            <h4>{{ movie.title }}</h4>
-            <div class="tsil-details">
-              <div class="tsild-item">
-                <svg [lucideIcon]="icons.LayoutIcon" [size]="12"></svg>
-                <span>{{ movie.hall }}</span>
-              </div>
-              <span class="tsild-dot"></span>
-              <div class="tsild-item">
-                <svg [lucideIcon]="icons.TicketIcon" [size]="12"></svg>
-                <span>{{ movie.ticketsSold }}</span>
-              </div>
-            </div>
+  } @else {
+    <ul class="tsch-list">
+      @for (screening of screenings(); track screening.id) {
+        <li class="tsch-row">
+          <div class="tsch-poster">
+            <media-image
+              [src]="screening.movie.posterUrl"
+              [alt]="screening.movie.title"
+              [iconSize]="18"
+            />
           </div>
-          <div class="tsi-right">
-            <div class="tsir-details">
-              <div class="tsir-interval">
-                {{ movie.durationInterval }}
-              </div>
-              <div
-                class="tsir-status"
-                [class.status-in-progress]="movie.status === 'In Progress'"
-                [class.status-upcoming]="movie.status === 'Upcoming'"
-              >
-                <span class="status-dot"></span>
-                <span class="status-text">{{ movie.status }}</span>
-              </div>
-            </div>
-            <svg [lucideIcon]="icons.ChevronRightIcon" [size]="16"></svg>
+
+          <div class="tsch-main">
+            <h4 class="tsch-title">{{ screening.movie.title }}</h4>
+            <p class="tsch-seats">
+              <svg [lucideIcon]="icons.TicketIcon" [size]="13"></svg>
+              <span>{{ screening.ticketsSold }} / {{ screening.totalSeats }}</span>
+            </p>
           </div>
-        </div>
-      </li>
-    }
-  </ul>
-  <div class="ts-actions">
-    <a [routerLink]="'/movies'">View Full Schedule</a>
-  </div>
-</div>
+
+          <div class="tsch-side">
+            <p class="tsch-time">
+              {{ screening.startsAt | time12h }} - {{ screening.endsAt | time12h }}
+            </p>
+            @let state = stateOf(screening);
+            @if (state.running || state.startsSoon) {
+              <p class="tsch-tag" [class]="state.running ? 'running' : 'soon'">
+                <span class="tsch-tag-dot"></span>
+                <span>{{ state.running ? 'Running' : 'Starts soon' }}</span>
+              </p>
+            }
+          </div>
+        </li>
+      } @empty {
+        <empty-state
+          class="tsch-empty"
+          [icon]="icons.CalendarClockIcon"
+          title="No showtimes today"
+          description="Schedule a showtime to start selling tickets."
+        />
+      }
+    </ul>
+  }
+</dashboard-widget>

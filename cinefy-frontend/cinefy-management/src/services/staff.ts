@@ -4,6 +4,7 @@ import { BehaviorSubject, filter, Observable } from 'rxjs';
 import type {
   ChangePasswordPayload,
   CurrentStaffMember,
+  OnShiftSummary,
   PositionCoverage,
   StaffMemberDetail,
   StaffMemberPayload,
@@ -65,6 +66,10 @@ export class StaffService {
 
   getPositionCoverage(): Observable<PositionCoverage> {
     return this.http.get<PositionCoverage>('/staff/position-coverage');
+  }
+
+  getOnShiftSummary(): Observable<OnShiftSummary> {
+    return this.http.get<OnShiftSummary>('/staff/on-shift');
   }
 
   getStaffMember(id: string): Observable<StaffMemberDetail> {

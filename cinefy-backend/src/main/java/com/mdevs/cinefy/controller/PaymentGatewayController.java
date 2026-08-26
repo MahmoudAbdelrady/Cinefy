@@ -32,6 +32,11 @@ public class PaymentGatewayController {
         return ResponseEntity.ok(paymentGatewayService.getPaymentGateways());
     }
 
+    @GetMapping("/active")
+    public ResponseEntity<PaymentGatewaySummaryDTO> getActivePaymentGateway() {
+        return ResponseEntity.ok(paymentGatewayService.getActivePaymentGateway());
+    }
+
     @PostMapping
     public ResponseEntity<PaymentGatewaySummaryDTO> createPaymentGateway(@Valid @RequestBody PaymentGatewayDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentGatewayService.createPaymentGateway(dto));

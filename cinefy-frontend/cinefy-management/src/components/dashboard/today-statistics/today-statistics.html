@@ -1,0 +1,26 @@
+<div class="ts-card">
+  <div class="ts-day">
+    <p class="ts-day-label">Today</p>
+    <p class="ts-day-date">{{ today | date: 'EEEE, d MMMM' }}</p>
+  </div>
+
+  @if (loading()) {
+    <div class="ts-loading">
+      <loading-spinner variant="lg" />
+    </div>
+  } @else {
+    <ul class="ts-figures">
+      @for (figure of figures(); track figure.key) {
+        <li class="ts-figure">
+          <p class="ts-figure-label">{{ figure.label }}</p>
+          <p class="ts-figure-value">
+            {{ (figure.value | number) + (figure.isPercentage ? '%' : '') }}
+            @if (figure.unit) {
+              <span class="ts-figure-unit">{{ figure.unit }}</span>
+            }
+          </p>
+        </li>
+      }
+    </ul>
+  }
+</div>

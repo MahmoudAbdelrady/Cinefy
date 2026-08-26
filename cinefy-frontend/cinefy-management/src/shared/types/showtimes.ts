@@ -1,5 +1,5 @@
 import type { HallRef } from './halls';
-import type { MovieSummary } from './movies';
+import type { MovieSearchResult, MovieSummary } from './movies';
 
 const SHOWTIME_STATUS_LABELS = {
   DRAFT: 'Draft',
@@ -83,6 +83,15 @@ interface EditableShowtime {
   specialNotes: string;
 }
 
+interface ScheduledShowtime {
+  id: string;
+  movie: MovieSearchResult;
+  startsAt: string;
+  endsAt: string;
+  ticketsSold: number;
+  totalSeats: number;
+}
+
 export { SHOWTIME_STATUS_LABELS };
 export type {
   ShowtimeStatus,
@@ -94,5 +103,6 @@ export type {
   MovieShowtimeListItem,
   MovieShowtimeDatesResponse,
   MovieShowtimesResponse,
+  ScheduledShowtime,
   EditableShowtime,
 };

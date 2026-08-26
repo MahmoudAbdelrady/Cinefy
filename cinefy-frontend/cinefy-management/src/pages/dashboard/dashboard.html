@@ -1,94 +1,32 @@
-<ng-template #headerActionsTemplate>
-  <button [ngpMenuTrigger]="quickAddMenu" ngpMenuTriggerScrollBehavior="reposition">
-    <svg [lucideIcon]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></svg>
-    <span>Quick Add</span>
-    <svg [lucideIcon]="icons.ChevronDownIcon" [size]="14"></svg>
-  </button>
-  <ng-template #quickAddMenu>
-    <div class="quick-add-menu-items" ngpMenu>
-      @for (item of quickAddMenuItems; track item.label) {
-        <div class="qam-item" ngpMenuItem>
-          <svg [lucideIcon]="item.icon" [size]="16"></svg>
-          <span>{{ item.label }}</span>
-        </div>
-      }
-    </div>
-  </ng-template>
-</ng-template>
-
 <div class="dashboard-container">
-  <div class="today-stats">
-    <div class="header">
-      <h3>Today's Performance</h3>
-      <p>Real-time metrics for {{ currentDate | date: 'EEEE, MMM d, yyyy' }}</p>
-    </div>
-    <div class="stats-cards">
-      <div class="sc-item">
-        <div class="sc-icon">
-          <svg [lucideIcon]="icons.TicketIcon" [size]="28"></svg>
-        </div>
-        <div class="sc-info">
-          <span>Tickets Sold</span>
-          <h3>342</h3>
-          <div class="percentage-box">
-            <svg [lucideIcon]="icons.ArrowUpIcon" [size]="14"></svg>
-            <span>12% vs yesterday</span>
-          </div>
-        </div>
+  @if (canManage()) {
+    <today-statistics />
+  }
+
+  @if (isUsher()) {
+    <section class="dv-scan-card">
+      <div class="dv-scan-inner">
+        <header class="dv-scan-head">
+          <h2>{{ scanTicket.modalTitle() }}</h2>
+          <p>{{ scanTicket.modalDescription() }}</p>
+        </header>
+
+        <scan-ticket-modal #scanTicket />
       </div>
-      <div class="sc-item">
-        <div class="sc-icon">
-          <svg [lucideIcon]="icons.DollarSignIcon" [size]="28"></svg>
-        </div>
-        <div class="sc-info">
-          <span>Revenue</span>
-          <h3>$8.5K</h3>
-          <div class="percentage-box">
-            <svg [lucideIcon]="icons.ArrowDownIcon" [size]="14"></svg>
-            <span>15% vs yesterday</span>
-          </div>
-        </div>
+    </section>
+  }
+
+  <div class="dv-columns">
+    @if (canBook()) {
+      <today-schedule />
+    }
+
+    @if (canManage()) {
+      <div class="dv-side">
+        <halls-summary />
+        <active-gateway />
+        <on-shift-summary />
       </div>
-      <div class="sc-item">
-        <div class="sc-icon">
-          <svg [lucideIcon]="icons.TrendingUpIcon" [size]="28"></svg>
-        </div>
-        <div class="sc-info">
-          <span>Occupancy Rate</span>
-          <h3>84%</h3>
-          <div class="percentage-box">
-            <svg [lucideIcon]="icons.ArrowUpIcon" [size]="14"></svg>
-            <span>8% vs last week</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="quick-overview">
-    <div class="overview-card">
-      <div class="card-icon">
-        <svg [lucideIcon]="icons.LayoutIcon" [size]="24"></svg>
-      </div>
-      <div class="card-info">
-        <span>Total Halls</span>
-        <h3>8</h3>
-      </div>
-      <span class="card-badge">3 active</span>
-    </div>
-    <div class="overview-card">
-      <div class="card-icon">
-        <svg [lucideIcon]="icons.ClapperboardIcon" [size]="24"></svg>
-      </div>
-      <div class="card-info">
-        <span>Total Movies</span>
-        <h3>12</h3>
-      </div>
-      <span class="card-badge">6 showing</span>
-    </div>
-  </div>
-  <now-showing-component />
-  <div class="schedule-container">
-    <upcoming-movies-widget />
-    <today-schedule-component />
+    }
   </div>
 </div>

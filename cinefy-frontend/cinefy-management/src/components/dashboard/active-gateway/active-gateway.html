@@ -1,0 +1,53 @@
+<dashboard-widget
+  [icon]="icons.CreditCardIcon"
+  title="Active gateway"
+  iconColor="var(--ag-icon-color)"
+  actionLabel="Configure"
+  actionLink="/payment"
+>
+  @if (loading()) {
+    <div class="ag-loading">
+      <loading-spinner variant="lg" />
+    </div>
+  } @else if (gateway(); as gateway) {
+    <div class="ag-body">
+      <h4 class="ag-name">{{ gateway.name }}</h4>
+      <p class="ag-provider">{{ providerLabel() }}</p>
+
+      @if (supportsChannels()) {
+        <div class="ag-channels">
+          <p class="ag-channels-title">Channels</p>
+
+          <ul class="ag-channel-list">
+            @for (channel of channels(); track $index) {
+              <li class="ag-channel">
+                <span class="ag-channel-dot" [class.active]="channel.active"></span>
+                <span class="ag-channel-name">{{ channel.name }}</span>
+                <span class="ag-channel-currency">{{ channel.currency }}</span>
+              </li>
+            }
+          </ul>
+
+          @if (noChannelActive()) {
+            <p class="ag-warning">
+              <svg [lucideIcon]="icons.AlertIcon" [size]="14"></svg>
+              <span>No channel is switched on, so online payments can't be taken.</span>
+            </p>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="ag-empty">
+      <empty-state
+        [icon]="icons.AlertIcon"
+        title="No active gateway"
+        description="Online bookings can't be paid for until one is activated."
+      />
+      <a class="ag-empty-action" routerLink="/payment">
+        <svg [lucideIcon]="icons.CreditCardIcon" [size]="15"></svg>
+        <span>Activate a gateway</span>
+      </a>
+    </div>
+  }
+</dashboard-widget>

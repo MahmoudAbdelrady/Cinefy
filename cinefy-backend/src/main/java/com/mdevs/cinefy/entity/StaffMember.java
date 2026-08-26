@@ -22,7 +22,8 @@ import java.time.LocalTime;
 @Table(indexes = {
         @Index(columnList = "FULL_NAME"),
         @Index(columnList = "POSITION"),
-        @Index(columnList = "CREATED_AT")
+        @Index(columnList = "CREATED_AT"),
+        @Index(columnList = "WORKING_HOUR_START, WORKING_HOUR_END")
 })
 public class StaffMember extends User {
 

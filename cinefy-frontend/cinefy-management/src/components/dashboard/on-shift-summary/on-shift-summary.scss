@@ -1,0 +1,55 @@
+@use '../../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+
+:host {
+  --oss-icon-color: #{$orange-600};
+}
+
+.oss-loading {
+  @include flex-center;
+
+  min-height: 86px;
+  padding: 20px;
+  color: $gray-400;
+}
+
+.oss-positions {
+  display: flex;
+  padding: 4px 0;
+  list-style: none;
+
+  .oss-position {
+    flex: 1;
+    padding: 16px 12px;
+    text-align: center;
+
+    + .oss-position {
+      border-left: 1px solid $gray-100;
+    }
+
+    .oss-position-count {
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: -0.025em;
+      color: $gray-900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .oss-position-label {
+      margin-top: 6px;
+      font-size: 12px;
+      color: $gray-600;
+    }
+
+    &.empty {
+      .oss-position-count {
+        color: $gray-300;
+      }
+
+      .oss-position-label {
+        color: $gray-400;
+      }
+    }
+  }
+}

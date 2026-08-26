@@ -1,8 +1,10 @@
 export { HeaderComponent } from './header/header';
 export { SidebarComponent } from './sidebar/sidebar';
-export { NowShowingComponent } from './dashboard/now-showing/now-showing';
-export { UpcomingMoviesWidgetComponent } from './dashboard/upcoming-movies-widget/upcoming-movies-widget';
+export { TodayStatisticsComponent } from './dashboard/today-statistics/today-statistics';
 export { TodayScheduleComponent } from './dashboard/today-schedule/today-schedule';
+export { HallsSummaryComponent } from './dashboard/halls-summary/halls-summary';
+export { ActiveGatewayComponent } from './dashboard/active-gateway/active-gateway';
+export { OnShiftSummaryComponent } from './dashboard/on-shift-summary/on-shift-summary';
 export { HallsStatisticsComponent } from './halls/halls-statistics/halls-statistics';
 export { HallsListComponent } from './halls/halls-list/halls-list';
 export { HallLayoutEditorComponent } from './halls/hall-layout-editor/hall-layout-editor';

@@ -1,256 +1,59 @@
 @use '../../shared/styles/colors' as *;
 @use '../../shared/styles/shadows' as *;
-@use '../../shared/styles/mixins' as *;
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
-// ─── Header Actions: Quick Add Menu ─────────────────────────────────────────────
+.dashboard-container {
+  @include flex-column;
 
-.quick-add-menu-items {
-  position: absolute;
-  right: 0;
-  width: 192px;
-  background-color: #ffffff;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-lg;
-  border: 1px solid $card-border-subtle;
-  padding: 6px 0;
-  overflow: hidden;
-  z-index: 30;
-}
+  gap: 20px;
 
-.qam-item {
-  @include flex-align;
-  gap: 12px;
-  width: 100%;
-  padding: 10px 16px;
-  font-size: 14px;
-  color: $gray-700;
-  transition: background-color 150ms ease;
-  cursor: pointer;
+  .dv-scan-card {
+    padding: 32px 24px;
+    background-color: #ffffff;
+    border: 1px solid $gray-200;
+    border-radius: $radius-xl;
+    box-shadow: $shadow-xs;
 
-  &:hover {
-    background-color: $gray-50;
-  }
+    .dv-scan-inner {
+      max-width: 520px;
+      margin: 0 auto;
 
-  @include lucide-icon-fix;
+      .dv-scan-head {
+        margin-bottom: 20px;
+        text-align: center;
 
-  svg {
-    color: $gray-400;
-  }
-}
+        h2 {
+          font-size: 17px;
+          font-weight: 600;
+          color: $gray-900;
+        }
 
-// ─── Today's Performance ────────────────────────────────────────────────────────
-
-.today-stats {
-  background-color: #ffffff;
-  border-radius: $radius-lg;
-  border: 1px solid $gray-200;
-  padding: 24px;
-  margin-bottom: 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-  > .header {
-    margin-bottom: 24px;
-
-    h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: $gray-900;
-      margin-bottom: 4px;
-    }
-
-    p {
-      font-size: 14px;
-      color: $gray-600;
-    }
-  }
-}
-
-.stats-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-
-  @include below-tablet {
-    grid-template-columns: 1fr;
-  }
-}
-
-.sc-item {
-  @include flex-align;
-  gap: 16px;
-
-  .sc-icon {
-    @include icon-box(56px);
-  }
-
-  &:nth-child(1) .sc-icon {
-    background-color: $blue-100;
-
-    svg {
-      color: $blue-600;
+        p {
+          margin-top: 4px;
+          font-size: 13px;
+          color: $gray-600;
+        }
+      }
     }
   }
 
-  &:nth-child(2) .sc-icon {
-    background-color: $green-100;
+  .dv-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
 
-    svg {
-      color: $green-600;
+    @include from-desktop {
+      &:has(today-schedule):has(.dv-side) {
+        grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+      }
     }
   }
 
-  &:nth-child(3) .sc-icon {
-    background-color: $orange-100;
+  .dv-side {
+    @include flex-column;
 
-    svg {
-      color: $orange-600;
-    }
-  }
-
-  .sc-info {
-    > span {
-      font-size: 14px;
-      color: $gray-600;
-      margin-bottom: 4px;
-      display: block;
-    }
-
-    h3 {
-      font-size: 30px;
-      font-weight: 700;
-      color: $gray-900;
-      line-height: 1.2;
-    }
-  }
-}
-
-.percentage-box {
-  @include flex-align;
-  gap: 2px;
-  margin-top: 4px;
-
-  @include lucide-icon-fix;
-
-  span {
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  &.up,
-  .sc-item:nth-child(1) &,
-  .sc-item:nth-child(3) & {
-    svg {
-      color: $green-600;
-    }
-
-    span {
-      color: $green-600;
-    }
-  }
-
-  &.down,
-  .sc-item:nth-child(2) & {
-    svg {
-      color: $red-600;
-    }
-
-    span {
-      color: $red-600;
-    }
-  }
-}
-
-// ─── Quick Overview ─────────────────────────────────────────────────────────────
-
-.quick-overview {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  margin-bottom: 32px;
-
-  @include below-tablet {
-    grid-template-columns: 1fr;
-  }
-}
-
-.overview-card {
-  background-color: #ffffff;
-  border-radius: $radius-lg;
-  border: 1px solid $gray-200;
-  padding: 20px;
-  @include flex-align;
-  gap: 16px;
-
-  .card-icon {
-    @include icon-box(48px);
-  }
-
-  &:nth-child(1) .card-icon {
-    background-color: $blue-100;
-
-    svg {
-      color: $blue-600;
-    }
-  }
-
-  &:nth-child(2) .card-icon {
-    background-color: $purple-100;
-
-    svg {
-      color: $purple-600;
-    }
-  }
-
-  .card-info {
-    span {
-      font-size: 14px;
-      color: $gray-500;
-      display: block;
-    }
-
-    h3 {
-      font-size: 24px;
-      font-weight: 700;
-      color: $gray-900;
-      line-height: 1.3;
-    }
-  }
-
-  .card-badge {
-    margin-left: auto;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 10px;
-    border-radius: $radius-full;
-  }
-
-  &:nth-child(1) .card-badge {
-    color: $green-600;
-    background-color: $green-50;
-  }
-
-  &:nth-child(2) .card-badge {
-    color: $purple-600;
-    background-color: $purple-50;
-  }
-}
-
-// ─── Schedule Container ─────────────────────────────────────────────────────────
-
-.schedule-container {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 24px;
-
-  upcoming-movies-widget,
-  today-schedule-component {
-    display: block;
-  }
-
-  @include below-desktop {
-    grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 20px;
   }
 }
