@@ -7,6 +7,7 @@ export { TodayStatisticsComponent } from './dashboard-v2/today-statistics/today-
 export { TodayScheduleComponent as TodayScheduleV2Component } from './dashboard-v2/today-schedule/today-schedule';
 export { HallsSummaryComponent } from './dashboard-v2/halls-summary/halls-summary';
 export { ActiveGatewayComponent } from './dashboard-v2/active-gateway/active-gateway';
+export { OnShiftSummaryComponent } from './dashboard-v2/on-shift-summary/on-shift-summary';
 export { HallsStatisticsComponent } from './halls/halls-statistics/halls-statistics';
 export { HallsListComponent } from './halls/halls-list/halls-list';
 export { HallLayoutEditorComponent } from './halls/hall-layout-editor/hall-layout-editor';

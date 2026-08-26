@@ -22,6 +22,7 @@ export {
   LucideCircleQuestionMark as CircleQuestionIcon,
   LucideCircleX as CircleXIcon,
   LucideClock as ClockIcon,
+  LucideContactRound as ContactRoundIcon,
   LucideCreditCard as CreditCardIcon,
   LucideDollarSign as DollarSignIcon,
   LucideEllipsisVertical as EllipsisIcon,
