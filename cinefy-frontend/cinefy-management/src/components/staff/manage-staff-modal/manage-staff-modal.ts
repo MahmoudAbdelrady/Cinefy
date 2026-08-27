@@ -17,6 +17,7 @@ import {
   InputField,
   PasswordChecklist,
   CustomSelectComponent,
+  CustomSelectV2,
   LoadingSpinnerComponent,
   DEFAULT_COUNTRY,
   PhoneInput,
@@ -50,6 +51,7 @@ import { assignableStaffPositions } from '../../../shared/access';
     PasswordChecklist,
     PhoneInput,
     CustomSelectComponent,
+    CustomSelectV2,
     NgpRadioGroup,
     NgpRadioItem,
     ReactiveFormsModule,
@@ -91,10 +93,14 @@ export class ManageStaffModalComponent {
   private readonly initialFormSnapshot = signal<string | null>(null);
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
-  protected readonly staffPositions = computed<UserPosition[]>(() => {
+  private readonly staffPositions = computed<UserPosition[]>(() => {
     const user = this.currentUser();
     return user ? assignableStaffPositions(user.position) : [];
   });
+
+  protected readonly staffPositionEntries = computed(() =>
+    this.staffPositions().map((value) => ({ value, label: USER_POSITION_LABELS[value] })),
+  );
 
   protected readonly staffForm = new FormGroup({
     firstName: new FormControl('', {
@@ -180,9 +186,6 @@ export class ManageStaffModalComponent {
     return JSON.stringify(this.staffForm.getRawValue()) !== snapshot;
   });
 
-  protected readonly positionDisplayFn = (position: UserPosition): string =>
-    USER_POSITION_LABELS[position];
-
   protected readonly weekDayDisplayFn = (day: WeekDay): string => WEEK_DAY_LABELS[day];
 
   constructor() {
@@ -248,14 +251,6 @@ export class ManageStaffModalComponent {
       this.staffForm.markAllAsTouched();
       this.initialFormSnapshot.set(JSON.stringify(this.staffForm.getRawValue()));
     });
-  }
-
-  protected onPositionChange(position: UserPosition): void {
-    this.staffForm.controls.position.setValue(position);
-  }
-
-  protected onPositionCleared(): void {
-    this.staffForm.controls.position.setValue(null);
   }
 
   protected onWorkingDayStartChange(day: WeekDay): void {

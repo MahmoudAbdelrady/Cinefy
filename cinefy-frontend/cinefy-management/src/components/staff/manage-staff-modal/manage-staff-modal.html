@@ -79,17 +79,15 @@
         <password-checklist [control]="staffForm.controls.password" />
       </div>
       <div class="input-group">
-        <custom-select
+        <custom-select-v2
           label="Position"
-          [items]="staffPositions()"
-          [displayFn]="positionDisplayFn"
-          [control]="staffForm.controls.position"
-          [errorMessages]="{ required: 'Position is required' }"
-          [required]="true"
+          labelField="label"
+          valueField="value"
           placeholder="Select a position"
+          [control]="staffForm.controls.position"
+          [items]="staffPositionEntries()"
           [container]="modal.panelEl()"
-          (selectionChange)="onPositionChange($event)"
-          (cleared)="onPositionCleared()"
+          [errorMessages]="{ required: 'Position is required' }"
         />
       </div>
       <div class="input-group">
