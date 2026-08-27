@@ -16,7 +16,6 @@ import {
   ModalComponent,
   InputField,
   PasswordChecklist,
-  CustomSelectComponent,
   CustomSelectV2,
   LoadingSpinnerComponent,
   DEFAULT_COUNTRY,
@@ -50,7 +49,6 @@ import { assignableStaffPositions } from '../../../shared/access';
     InputField,
     PasswordChecklist,
     PhoneInput,
-    CustomSelectComponent,
     CustomSelectV2,
     NgpRadioGroup,
     NgpRadioItem,
@@ -75,7 +73,9 @@ export class ManageStaffModalComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
-  protected readonly weekDays = Object.keys(WEEK_DAY_LABELS) as WeekDay[];
+  protected readonly weekDayEntries = (Object.entries(WEEK_DAY_LABELS) as [WeekDay, string][]).map(
+    ([value, label]) => ({ value, label }),
+  );
   protected readonly employmentTypeEntries = Object.entries(EMPLOYMENT_TYPE_LABELS).map(
     ([value, label]) => ({ value: value as EmploymentType, label }),
   );
@@ -186,8 +186,6 @@ export class ManageStaffModalComponent {
     return JSON.stringify(this.staffForm.getRawValue()) !== snapshot;
   });
 
-  protected readonly weekDayDisplayFn = (day: WeekDay): string => WEEK_DAY_LABELS[day];
-
   constructor() {
     this.staffForm.controls.workingHourEnd.addValidators((control) => {
       const start = this.staffForm.controls.workingHourStart.value;
@@ -251,22 +249,6 @@ export class ManageStaffModalComponent {
       this.staffForm.markAllAsTouched();
       this.initialFormSnapshot.set(JSON.stringify(this.staffForm.getRawValue()));
     });
-  }
-
-  protected onWorkingDayStartChange(day: WeekDay): void {
-    this.staffForm.controls.workingDayStart.setValue(day);
-  }
-
-  protected onWorkingDayStartCleared(): void {
-    this.staffForm.controls.workingDayStart.setValue(null);
-  }
-
-  protected onWorkingDayEndChange(day: WeekDay): void {
-    this.staffForm.controls.workingDayEnd.setValue(day);
-  }
-
-  protected onWorkingDayEndCleared(): void {
-    this.staffForm.controls.workingDayEnd.setValue(null);
   }
 
   protected saveMember() {

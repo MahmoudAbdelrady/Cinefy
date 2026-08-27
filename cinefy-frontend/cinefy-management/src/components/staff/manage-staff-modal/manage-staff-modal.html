@@ -109,29 +109,25 @@
         <label data-required>Working days</label>
         <div class="fields">
           <div class="input-group">
-            <custom-select
-              [items]="weekDays"
-              [displayFn]="weekDayDisplayFn"
-              [control]="staffForm.controls.workingDayStart"
-              [errorMessages]="{ required: 'Start day is required' }"
-              [required]="true"
+            <custom-select-v2
+              labelField="label"
+              valueField="value"
               placeholder="Select start day"
+              [control]="staffForm.controls.workingDayStart"
+              [items]="weekDayEntries"
               [container]="modal.panelEl()"
-              (selectionChange)="onWorkingDayStartChange($event)"
-              (cleared)="onWorkingDayStartCleared()"
+              [errorMessages]="{ required: 'Start day is required' }"
             />
           </div>
           <div class="input-group">
-            <custom-select
-              [items]="weekDays"
-              [displayFn]="weekDayDisplayFn"
-              [control]="staffForm.controls.workingDayEnd"
-              [errorMessages]="{ required: 'End day is required' }"
-              [required]="true"
+            <custom-select-v2
+              labelField="label"
+              valueField="value"
               placeholder="Select end day"
+              [control]="staffForm.controls.workingDayEnd"
+              [items]="weekDayEntries"
               [container]="modal.panelEl()"
-              (selectionChange)="onWorkingDayEndChange($event)"
-              (cleared)="onWorkingDayEndCleared()"
+              [errorMessages]="{ required: 'End day is required' }"
             />
           </div>
         </div>
