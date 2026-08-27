@@ -9,6 +9,39 @@
   <section class="test-sandbox">
     <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <div class="test-sandbox-body"></div>
+    <form class="test-sandbox-body" [formGroup]="selectForm">
+      <div class="test-field">
+        <custom-select-v2
+          label="Hall"
+          hint="Single select, required, searchable and clearable."
+          placeholder="Select a hall"
+          labelField="label"
+          valueField="id"
+          [control]="selectForm.controls.hall"
+          [items]="hallOptions"
+          [searchable]="true"
+          [clearable]="true"
+          [errorMessages]="{ required: 'Hall is required' }"
+        />
+        <span class="test-field-value">{{ selectForm.controls.hall.value ?? 'null' }}</span>
+      </div>
+
+      <div class="test-field">
+        <custom-select-v2
+          label="Halls"
+          placeholder="Select halls"
+          labelField="label"
+          valueField="id"
+          [control]="selectForm.controls.halls"
+          [items]="hallOptions"
+          [multi]="true"
+          [searchable]="true"
+          [clearable]="true"
+        />
+        <span class="test-field-value">
+          {{ selectForm.controls.halls.value ?? 'null' }}
+        </span>
+      </div>
+    </form>
   </section>
 </div>

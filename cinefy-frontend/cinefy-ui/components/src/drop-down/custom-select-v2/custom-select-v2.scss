@@ -1,0 +1,30 @@
+@use "../../../../src/styles/mixins" as *;
+
+:host {
+  display: inline-block;
+  width: 100%;
+}
+
+.csv2-wrapper {
+  @include flex-column;
+  gap: 8px;
+
+  .csv2-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cui-text-primary);
+
+    &[data-required]::after {
+      content: "*";
+      color: var(--cui-text-error);
+      margin-left: 3px;
+    }
+  }
+
+  .csv2-hint {
+    font-size: 12px;
+    color: var(--cui-text-hint);
+    line-height: 1.5;
+  }
+}

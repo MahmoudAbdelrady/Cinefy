@@ -1,0 +1,41 @@
+import { Component, computed, input, type InputSignal } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { startWith, switchMap } from "rxjs";
+import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Select } from "primeng/select";
+import { MultiSelect } from "primeng/multiselect";
+import { FieldErrorComponent } from "../../field-error/field-error";
+
+@Component({
+  selector: "custom-select-v2",
+  imports: [ReactiveFormsModule, Select, MultiSelect, FieldErrorComponent],
+  templateUrl: "./custom-select-v2.html",
+  styleUrl: "./custom-select-v2.scss",
+})
+export class CustomSelectV2<T> {
+  readonly control: InputSignal<FormControl> = input.required<FormControl>();
+  readonly items = input.required<T[]>();
+  readonly multi = input(false);
+  readonly labelField = input.required<string>();
+  readonly valueField = input<string | undefined>(undefined);
+  readonly label: InputSignal<string | null> = input<string | null>(null);
+  readonly hint: InputSignal<string | null> = input<string | null>(null);
+  readonly placeholder = input("Select an option");
+  readonly disabled = input(false);
+  readonly clearable = input(false);
+  readonly searchable = input(false);
+  readonly required = input<boolean | undefined>(undefined);
+  readonly errorMessages = input<Record<string, string>>({});
+
+  private readonly controlStatus = toSignal(
+    toObservable(this.control).pipe(switchMap((c) => c.statusChanges.pipe(startWith(c.status)))),
+  );
+
+  protected readonly isRequired = computed(() => {
+    const required = this.required();
+    if (required !== undefined) return required;
+    this.controlStatus();
+    const c = this.control();
+    return c.hasValidator(Validators.required) && c.enabled;
+  });
+}

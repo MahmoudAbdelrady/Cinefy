@@ -1,0 +1,35 @@
+<div class="csv2-wrapper">
+  @if (label(); as labelText) {
+  <label class="csv2-label" [attr.data-required]="isRequired() ? '' : null">{{ labelText }}</label>
+  } @if (multi()) {
+  <p-multiselect
+    [formControl]="control()"
+    [options]="items()"
+    [optionLabel]="labelField()"
+    [optionValue]="valueField()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [showClear]="clearable()"
+    [filter]="searchable()"
+    [invalid]="control().touched && control().invalid"
+    size="large"
+  />
+  } @else {
+  <p-select
+    [formControl]="control()"
+    [options]="items()"
+    [optionLabel]="labelField()"
+    [optionValue]="valueField()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [showClear]="clearable()"
+    [filter]="searchable()"
+    [invalid]="control().touched && control().invalid"
+    size="large"
+  />
+  } @if (hint(); as hintText) {
+  <p class="csv2-hint">{{ hintText }}</p>
+  } @if (control().touched && control().errors) {
+  <field-error [control]="control()" [messages]="errorMessages()" />
+  }
+</div>
