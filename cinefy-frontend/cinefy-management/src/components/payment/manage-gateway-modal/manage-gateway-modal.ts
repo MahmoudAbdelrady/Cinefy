@@ -14,7 +14,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  CustomSelectComponent,
+  CustomSelectV2,
   InputField,
   LoadingSpinnerComponent,
   ModalComponent,
@@ -31,7 +31,7 @@ import type {
 } from '../../../shared/types';
 import { PaymentGatewaysService } from '../../../services';
 import { PaymentChannelsComponent } from '../payment-channels/payment-channels';
-import { PAYMENT_PROVIDERS, type CredentialField, type ProviderSpec } from '../provider-spec';
+import { PAYMENT_PROVIDERS, type CredentialField } from '../provider-spec';
 
 function buildCredentialsGroup(
   fields: CredentialField[],
@@ -57,7 +57,7 @@ function buildCredentialsGroup(
     ReactiveFormsModule,
     ModalComponent,
     InputField,
-    CustomSelectComponent,
+    CustomSelectV2,
     Switch,
     LucideDynamicIcon,
     LoadingSpinnerComponent,
@@ -97,10 +97,13 @@ export class ManageGatewayModalComponent {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(60)],
     }),
-    provider: new FormControl<GatewayProvider>('PAYMOB', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
+    provider: new FormControl<GatewayProvider>(
+      { value: 'PAYMOB', disabled: true },
+      {
+        nonNullable: true,
+        validators: [Validators.required],
+      },
+    ),
     credentials: new FormGroup<Record<string, FormControl<string>>>({}),
   });
 
@@ -162,10 +165,6 @@ export class ManageGatewayModalComponent {
     }
     return this.form.valid;
   });
-
-  protected readonly providerDisplayFn = (spec: ProviderSpec) => spec.label;
-
-  protected readonly providerValueFn = (spec: ProviderSpec) => spec.provider;
 
   constructor() {
     effect(() => {

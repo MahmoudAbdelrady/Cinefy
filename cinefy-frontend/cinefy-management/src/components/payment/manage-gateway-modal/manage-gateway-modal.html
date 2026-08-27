@@ -17,15 +17,12 @@
         }"
       />
 
-      <custom-select
+      <custom-select-v2
         label="Provider"
-        [items]="providers"
-        [displayFn]="providerDisplayFn"
-        [valueFn]="providerValueFn"
+        labelField="label"
+        valueField="provider"
         [control]="form.controls.provider"
-        [required]="true"
-        [disabled]="true"
-        (selectionChange)="form.controls.provider.setValue($event.provider)"
+        [items]="providers"
       />
     </div>
 
