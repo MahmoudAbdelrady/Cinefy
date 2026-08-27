@@ -188,7 +188,7 @@ export class ManageStaffModalComponent {
   constructor() {
     this.staffForm.controls.workingHourEnd.addValidators((control) => {
       const start = this.staffForm.controls.workingHourStart.value;
-      const end = control.value;
+      const end = control.value as string;
       if (!start || !end) return null;
       return start === end ? { sameAsStart: true } : null;
     });
@@ -245,6 +245,7 @@ export class ManageStaffModalComponent {
         workingHourStart: member.workingHourStart,
         workingHourEnd: member.workingHourEnd,
       });
+      this.staffForm.markAllAsTouched();
       this.initialFormSnapshot.set(JSON.stringify(this.staffForm.getRawValue()));
     });
   }

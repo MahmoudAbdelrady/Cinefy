@@ -145,13 +145,17 @@
             <time-picker
               [control]="staffForm.controls.workingHourStart"
               [container]="modal.panelEl()"
+              [errorMessages]="{ required: 'Start time is required' }"
             />
           </div>
           <div class="input-group">
             <time-picker
               [control]="staffForm.controls.workingHourEnd"
               [container]="modal.panelEl()"
-              [errorMessages]="{ sameAsStart: 'End time must be different from start time' }"
+              [errorMessages]="{
+                required: 'End time is required',
+                sameAsStart: 'End time must be different from start time',
+              }"
             />
           </div>
         </div>
