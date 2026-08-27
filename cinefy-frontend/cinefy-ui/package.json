@@ -24,7 +24,9 @@
   "devDependencies": {
     "@angular/compiler": "^21.1.0",
     "@angular/compiler-cli": "^21.1.0",
+    "@primeuix/themes": "^3.0.0",
     "ng-packagr": "^21.1.0",
+    "primeng": "^21.1.9",
     "typescript": "~5.9.2"
   },
   "sideEffects": false

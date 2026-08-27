@@ -167,9 +167,6 @@ importers:
       "@lucide/angular":
         specifier: ^1.18.0
         version: 1.18.0(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))
-      "@primeuix/themes":
-        specifier: ^3.0.0
-        version: 3.0.0
       date-fns:
         specifier: ^4.4.0
         version: 4.4.0
@@ -179,9 +176,6 @@ importers:
       ng-primitives:
         specifier: ^0.112.1
         version: 0.112.3(@angular/cdk@21.2.12(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/platform-browser@21.2.14(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(rxjs@7.8.2))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/forms@21.2.14(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/platform-browser@21.2.14(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(rxjs@7.8.2))(@floating-ui/dom@1.7.6)(rxjs@7.8.2)(typescript@5.9.3)
-      primeng:
-        specifier: ^21.1.9
-        version: 21.1.9(65dbcd33abc180767482238712a335e6)
       rxjs:
         specifier: ~7.8.0
         version: 7.8.2
@@ -195,9 +189,15 @@ importers:
       "@angular/compiler-cli":
         specifier: ^21.1.0
         version: 21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3)
+      "@primeuix/themes":
+        specifier: ^3.0.0
+        version: 3.0.0
       ng-packagr:
         specifier: ^21.1.0
         version: 21.2.3(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(tslib@2.8.1)(typescript@5.9.3)
+      primeng:
+        specifier: ^21.1.9
+        version: 21.1.9(65dbcd33abc180767482238712a335e6)
       typescript:
         specifier: ~5.9.2
         version: 5.9.3
