@@ -21,11 +21,13 @@ export class CustomSelectV2<T> {
   readonly label: InputSignal<string | null> = input<string | null>(null);
   readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly placeholder = input("Select an option");
-  readonly disabled = input(false);
   readonly clearable = input(false);
   readonly searchable = input(false);
   readonly required = input<boolean | undefined>(undefined);
   readonly errorMessages = input<Record<string, string>>({});
+  readonly container: InputSignal<string | HTMLElement | null> = input<
+    string | HTMLElement | null
+  >(null);
 
   private readonly controlStatus = toSignal(
     toObservable(this.control).pipe(switchMap((c) => c.statusChanges.pipe(startWith(c.status)))),

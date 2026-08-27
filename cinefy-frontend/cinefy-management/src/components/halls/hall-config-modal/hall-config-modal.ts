@@ -39,7 +39,7 @@ import {
   LoadingSpinnerComponent,
   EmptyStateComponent,
   InputField,
-  CustomSelectComponent,
+  CustomSelectV2,
   AsyncSelectComponent,
   Switch,
 } from 'cinefy-ui/components';
@@ -113,7 +113,7 @@ const SELECTABLE_HALL_STATUS_ENTRIES = (
     LoadingSpinnerComponent,
     EmptyStateComponent,
     InputField,
-    CustomSelectComponent,
+    CustomSelectV2,
     AsyncSelectComponent,
     HallLayoutEditorComponent,
   ],
@@ -197,7 +197,6 @@ export class HallConfigModalComponent {
     }),
     status: new FormControl<HallStatus>('ACTIVE', {
       nonNullable: true,
-      validators: [Validators.required],
     }),
     typeId: new FormControl('', {
       nonNullable: true,
@@ -238,19 +237,11 @@ export class HallConfigModalComponent {
   protected readonly supports3DValue = toSignal(this.hallForm.controls.supports3D.valueChanges, {
     initialValue: false,
   });
-  private readonly statusValue = toSignal(this.hallForm.controls.status.valueChanges, {
-    initialValue: this.hallForm.controls.status.value,
-  });
-
   private readonly seatStatsValue = computed(() => seatStats(this.seatLayout()));
   protected readonly hasNormalSeats = computed(() => this.seatStatsValue().normal > 0);
   protected readonly hasVipSeats = computed(() => this.seatStatsValue().vip > 0);
   protected readonly onSiteOnly = computed(() =>
     this.selectedSeatCategory().type === 'AISLE' ? false : this.onSiteOnlyPreference(),
-  );
-
-  protected readonly statusEntry = computed(
-    () => this.hallStatusEntries().find((e) => e.value === this.statusValue()) ?? null,
   );
 
   private readonly currentFormValue = toSignal(this.hallForm.valueChanges, {
@@ -263,9 +254,6 @@ export class HallConfigModalComponent {
     this.seatLayout();
     return this.serializeState() !== snapshot;
   });
-
-  protected readonly statusDisplayFn = (entry: HallStatusEntry) => entry.label;
-  protected readonly statusValueFn = (entry: HallStatusEntry) => entry.value;
 
   protected readonly hallTypeDisplayFn = (type: HallType) => type.name;
   protected readonly hallTypeValueFn = (type: HallType) => type.id ?? '';
@@ -314,6 +302,16 @@ export class HallConfigModalComponent {
       } else {
         this.hallForm.enable({ emitEvent: false });
       }
+
+      const statusCtrl = this.hallForm.controls.status;
+      if (this.isViewMode() || this.isStatusLocked()) {
+        statusCtrl.removeValidators(Validators.required);
+        statusCtrl.disable({ emitEvent: false });
+      } else {
+        statusCtrl.addValidators(Validators.required);
+        statusCtrl.enable({ emitEvent: false });
+      }
+      statusCtrl.updateValueAndValidity();
     });
 
     afterNextRender(() => {
@@ -350,10 +348,6 @@ export class HallConfigModalComponent {
     });
     this.applyLayoutData(detail);
     this.initialSnapshot.set(this.serializeState());
-  }
-
-  protected onStatusChange(entry: HallStatusEntry) {
-    this.hallForm.controls.status.setValue(entry.value);
   }
 
   protected onHallTypeChange(type: HallType) {

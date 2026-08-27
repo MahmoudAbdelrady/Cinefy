@@ -97,19 +97,16 @@
             </div>
           </div>
           <div class="input-group">
-            <custom-select
+            <custom-select-v2
               label="Status"
+              labelField="label"
+              valueField="value"
+              [control]="hallForm.controls.status"
               [items]="hallStatusEntries()"
-              [value]="statusEntry()"
-              [displayFn]="statusDisplayFn"
-              [valueFn]="statusValueFn"
-              [required]="!isViewMode() && !isStatusLocked()"
-              [disabled]="isViewMode() || isStatusLocked()"
               [hint]="
                 !isViewMode() && isStatusLocked() ? 'Locked while showtimes are scheduled.' : null
               "
               [container]="modal.panelEl()"
-              (selectionChange)="onStatusChange($event)"
             />
           </div>
           <div class="input-group type-group">
