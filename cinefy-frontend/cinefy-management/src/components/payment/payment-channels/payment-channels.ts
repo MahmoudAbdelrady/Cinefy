@@ -12,17 +12,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { NgTemplateOutlet } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
-import {
-  CustomSelectComponent,
-  FieldErrorComponent,
-  InputField,
-  Switch,
-} from 'cinefy-ui/components';
+import { CustomSelectV2, FieldErrorComponent, InputField, Switch } from 'cinefy-ui/components';
 import { DeleteIcon, EditIcon, PlusIcon } from '../../../shared/icons';
 import type { ChannelCurrency, PaymentChannel, ProviderConfigValue } from '../../../shared/types';
 import type { ProviderConfigField } from '../provider-spec';
 
 const CURRENCIES: ChannelCurrency[] = ['EGP', 'USD'];
+
+const CURRENCY_ENTRIES = CURRENCIES.map((currency) => ({ value: currency, label: currency }));
 
 const NEW_CHANNEL = 'new';
 
@@ -47,7 +44,7 @@ function buildProviderConfigGroup(
     NgTemplateOutlet,
     InputField,
     FieldErrorComponent,
-    CustomSelectComponent,
+    CustomSelectV2,
     Switch,
     LucideDynamicIcon,
   ],
@@ -61,7 +58,7 @@ export class PaymentChannelsComponent {
     DeleteIcon,
   };
 
-  protected readonly currencies = CURRENCIES;
+  protected readonly currencyEntries = CURRENCY_ENTRIES;
 
   readonly providerConfig = input<ProviderConfigField[]>([]);
 
@@ -103,8 +100,6 @@ export class PaymentChannelsComponent {
   protected readonly saveLabel = computed(() =>
     this.channelFormTarget() === NEW_CHANNEL ? 'Add channel' : 'Save channel',
   );
-
-  protected readonly currencyDisplayFn = (currency: ChannelCurrency) => currency;
 
   constructor() {
     effect(() =>

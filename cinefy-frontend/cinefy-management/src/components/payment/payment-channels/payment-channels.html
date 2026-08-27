@@ -69,13 +69,12 @@
         }"
       />
 
-      <custom-select
+      <custom-select-v2
         label="Currency"
-        [items]="currencies"
-        [displayFn]="currencyDisplayFn"
+        labelField="label"
+        valueField="value"
         [control]="channelForm.controls.currency"
-        [required]="true"
-        (selectionChange)="channelForm.controls.currency.setValue($event)"
+        [items]="currencyEntries"
       />
 
       <div class="channel-form-active">
