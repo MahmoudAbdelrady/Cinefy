@@ -17,7 +17,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  CustomSelectComponent,
+  CustomSelectV2,
   EmptyStateComponent,
   HoldTimerComponent,
   InputField,
@@ -52,7 +52,10 @@ import type {
   StaffPaymentRequest,
 } from '../../../shared/types';
 
-const PAYMENT_OPTIONS = [true, false];
+const PAYMENT_TYPE_ENTRIES = [
+  { value: true, label: 'Cash' },
+  { value: false, label: 'Card' },
+];
 
 function seatCategory(id: string, layout: ShowtimeSeatLayout): SeatCategory {
   if (layout.categories.AISLE?.includes(id)) return 'AISLE';
@@ -89,7 +92,7 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
     SeatMapComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
-    CustomSelectComponent,
+    CustomSelectV2,
     InputField,
     ModalComponent,
     HoldTimerComponent,
@@ -118,7 +121,7 @@ export class BookSeatsComponent {
   protected readonly expiredDialog = viewChild.required<TemplateRef<unknown>>('expiredDialog');
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
-  protected readonly paymentOptions = PAYMENT_OPTIONS;
+  protected readonly paymentTypeEntries = PAYMENT_TYPE_ENTRIES;
 
   readonly showtimeId = input.required<string>();
   readonly container = input<string | HTMLElement | null>(null);
@@ -191,9 +194,14 @@ export class BookSeatsComponent {
     this.pricedSeats().reduce((sum, { price }) => sum + price, 0),
   );
 
-  protected readonly paymentTypeLabel = (isCash: boolean) => (isCash ? 'Cash' : 'Card');
-
   constructor() {
+    this.paymentForm.controls.isCash.valueChanges.pipe(takeUntilDestroyed()).subscribe((isCash) => {
+      const transactionId = this.paymentForm.controls.transactionId;
+      transactionId.reset('');
+      transactionId.setValidators(isCash ? [] : [Validators.required]);
+      transactionId.updateValueAndValidity();
+    });
+
     afterNextRender(() => this.loadSeatSelection());
   }
 
@@ -278,16 +286,6 @@ export class BookSeatsComponent {
         },
         error: () => this.booking.set(false),
       });
-  }
-
-  protected onPaymentTypeChange(selected: boolean): void {
-    const { isCash, transactionId } = this.paymentForm.controls;
-
-    isCash.setValue(selected);
-
-    transactionId.reset('');
-    transactionId.setValidators(selected ? [] : [Validators.required]);
-    transactionId.updateValueAndValidity();
   }
 
   protected completePayment(): void {

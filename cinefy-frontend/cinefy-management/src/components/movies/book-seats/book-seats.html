@@ -117,16 +117,15 @@
                   }
                 </button>
               } @else {
-                <custom-select
+                <custom-select-v2
                   label="Payment type"
-                  [required]="true"
-                  [items]="paymentOptions"
-                  [control]="paymentForm.controls.isCash"
-                  [displayFn]="paymentTypeLabel"
-                  [container]="container()"
+                  labelField="label"
+                  valueField="value"
                   placeholder="Select payment type"
+                  [control]="paymentForm.controls.isCash"
+                  [items]="paymentTypeEntries"
+                  [container]="container()"
                   [errorMessages]="{ required: 'Payment type is required' }"
-                  (selectionChange)="onPaymentTypeChange($event)"
                 />
 
                 @if (paymentForm.controls.isCash.value === false) {
