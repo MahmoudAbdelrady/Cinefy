@@ -1,11 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AsyncSelectComponent,
-  CustomSelectComponent,
+  CustomSelectV2,
   EmptyStateComponent,
   InputField,
   LoadingSpinnerComponent,
@@ -26,8 +26,9 @@ import {
   imports: [
     RouterLink,
     LucideDynamicIcon,
+    ReactiveFormsModule,
     InputField,
-    CustomSelectComponent,
+    CustomSelectV2,
     AsyncSelectComponent,
     MediaImageComponent,
     EmptyStateComponent,
@@ -48,18 +49,28 @@ export class MoviesPage {
   private readonly moviesService = inject(MoviesService);
   private readonly hallsService = inject(HallsService);
 
-  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+  protected readonly filterForm = new FormGroup({
+    search: new FormControl<string>('', { nonNullable: true }),
+    genres: new FormControl<string[]>([], { nonNullable: true }),
+    contentRatings: new FormControl<string[]>([], { nonNullable: true }),
+  });
 
   protected readonly movies = rxResource({
     stream: () => this.moviesService.getNowShowing(),
   });
 
-  private readonly search = toSignal(this.searchControl.valueChanges, {
-    initialValue: this.searchControl.value,
+  private readonly search = toSignal(this.filterForm.controls.search.valueChanges, {
+    initialValue: this.filterForm.controls.search.value,
   });
   protected readonly selectedHallTypes = signal<HallType[]>([]);
-  protected readonly selectedGenres = signal<string[]>([]);
-  protected readonly selectedContentRatings = signal<string[]>([]);
+
+  protected readonly selectedGenres = toSignal(this.filterForm.controls.genres.valueChanges, {
+    initialValue: this.filterForm.controls.genres.value,
+  });
+  protected readonly selectedContentRatings = toSignal(
+    this.filterForm.controls.contentRatings.valueChanges,
+    { initialValue: this.filterForm.controls.contentRatings.value },
+  );
 
   protected readonly genres = [
     'Action',
@@ -84,6 +95,12 @@ export class MoviesPage {
   ];
 
   protected readonly contentRatings = ['G', 'PG', 'PG-13', 'R', 'NC-17'];
+
+  protected readonly genreEntries = this.genres.map((value) => ({ value, label: value }));
+  protected readonly contentRatingEntries = this.contentRatings.map((value) => ({
+    value,
+    label: value,
+  }));
 
   protected readonly filteredMovies = computed(() => {
     const searchedTitle = this.trimmedSearch().toLowerCase();
@@ -119,8 +136,6 @@ export class MoviesPage {
       this.selectedContentRatings().length > 0,
   );
 
-  protected readonly optionDisplayFn = (option: string): string => option;
-
   protected readonly fetchHallTypes = () => this.hallsService.getHallTypes();
 
   protected readonly hallTypeDisplayFn = (type: HallType): string => type.name;
@@ -128,19 +143,11 @@ export class MoviesPage {
   protected readonly hallTypeValueFn = (type: HallType): string => type.id;
 
   protected clearSearch(): void {
-    this.searchControl.setValue('');
+    this.filterForm.controls.search.setValue('');
   }
 
   protected onHallTypeChange(values: HallType[]): void {
     this.selectedHallTypes.set(values);
-  }
-
-  protected onGenreChange(values: string[]): void {
-    this.selectedGenres.set(values);
-  }
-
-  protected onContentRatingChange(values: string[]): void {
-    this.selectedContentRatings.set(values);
   }
 
   protected removeHallType(value: HallType): void {
@@ -148,17 +155,17 @@ export class MoviesPage {
   }
 
   protected removeGenre(value: string): void {
-    this.selectedGenres.update((values) => values.filter((v) => v !== value));
+    const control = this.filterForm.controls.genres;
+    control.setValue(control.value.filter((v) => v !== value));
   }
 
   protected removeContentRating(value: string): void {
-    this.selectedContentRatings.update((values) => values.filter((v) => v !== value));
+    const control = this.filterForm.controls.contentRatings;
+    control.setValue(control.value.filter((v) => v !== value));
   }
 
   protected clearAll(): void {
-    this.clearSearch();
     this.selectedHallTypes.set([]);
-    this.selectedGenres.set([]);
-    this.selectedContentRatings.set([]);
+    this.filterForm.reset();
   }
 }

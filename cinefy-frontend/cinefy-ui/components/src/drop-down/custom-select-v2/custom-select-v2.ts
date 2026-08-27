@@ -25,9 +25,7 @@ export class CustomSelectV2<T> {
   readonly searchable = input(false);
   readonly required = input<boolean | undefined>(undefined);
   readonly errorMessages = input<Record<string, string>>({});
-  readonly container: InputSignal<string | HTMLElement | null> = input<
-    string | HTMLElement | null
-  >(null);
+  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>(null);
 
   private readonly controlStatus = toSignal(
     toObservable(this.control).pipe(switchMap((c) => c.statusChanges.pipe(startWith(c.status)))),
@@ -40,4 +38,8 @@ export class CustomSelectV2<T> {
     const c = this.control();
     return c.hasValidator(Validators.required) && c.enabled;
   });
+
+  protected onMultiClear() {
+    this.control().setValue([]);
+  }
 }

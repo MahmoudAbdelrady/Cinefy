@@ -4,11 +4,11 @@
     <p>Browse everything showing in our cinemas right now.</p>
   </div>
 
-  <div class="movies-filters reveal" style="animation-delay: 60ms">
+  <form class="movies-filters reveal" style="animation-delay: 60ms" [formGroup]="filterForm">
     <div class="mf-search">
       <input-field
         placeholder="Search by title…"
-        [control]="searchControl"
+        [control]="filterForm.controls.search"
         [leadingIcon]="icons.SearchIcon"
         [clearable]="true"
       />
@@ -30,39 +30,37 @@
     </div>
 
     <div class="mf-select">
-      <custom-select
+      <custom-select-v2
         placeholder="Genre"
-        [items]="genres"
-        [displayFn]="optionDisplayFn"
-        [value]="selectedGenres()"
+        labelField="label"
+        valueField="value"
+        [control]="filterForm.controls.genres"
+        [items]="genreEntries"
         [multi]="true"
         [clearable]="true"
         [searchable]="true"
-        (multiSelectionChange)="onGenreChange($event)"
-        (cleared)="onGenreChange([])"
       />
     </div>
 
     <div class="mf-select">
-      <custom-select
+      <custom-select-v2
         placeholder="Content Rating"
-        [items]="contentRatings"
-        [displayFn]="optionDisplayFn"
-        [value]="selectedContentRatings()"
+        labelField="label"
+        valueField="value"
+        [control]="filterForm.controls.contentRatings"
+        [items]="contentRatingEntries"
         [multi]="true"
         [clearable]="true"
-        (multiSelectionChange)="onContentRatingChange($event)"
-        (cleared)="onContentRatingChange([])"
       />
     </div>
 
     @if (hasFilters()) {
-      <button class="mf-clear" (click)="clearAll()">
+      <button type="button" class="mf-clear" (click)="clearAll()">
         <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
         <span>Clear</span>
       </button>
     }
-  </div>
+  </form>
 
   @if (movies.isLoading()) {
     <div class="movies-loading">
