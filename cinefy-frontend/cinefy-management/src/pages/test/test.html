@@ -11,29 +11,33 @@
 
     <form class="test-sandbox-body" [formGroup]="pickerForm">
       <div class="test-field">
-        <label class="test-field-label" for="test-date">Date picker</label>
+        <label class="test-field-label" for="test-date">Date</label>
         <p-datepicker
           inputId="test-date"
           formControlName="date"
           dateFormat="yy-mm-dd"
-          placeholder="yyyy-mm-dd"
+          placeholder="Select a date"
           [showIcon]="true"
+          size="large"
+          [iconDisplay]="'input'"
         />
         <span class="test-field-value">{{ pickerForm.controls.date.value ?? 'null' }}</span>
       </div>
 
       <div class="test-field">
-        <label class="test-field-label" for="test-time">Time picker</label>
+        <label class="test-field-label" for="test-time">Time</label>
         <p-datepicker
           inputId="test-time"
           formControlName="time"
-          placeholder="HH:mm AM/PM"
+          placeholder="Select a time"
           hourFormat="12"
           [timeOnly]="true"
           [showIcon]="true"
+          size="large"
+          [iconDisplay]="'input'"
         >
-          <ng-template #triggericon>
-            <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
+          <ng-template #inputicon let-clickCallBack="clickCallBack">
+            <svg [lucideIcon]="icons.ClockIcon" [size]="16" (click)="clickCallBack($event)"></svg>
           </ng-template>
         </p-datepicker>
         <span class="test-field-value">{{ pickerForm.controls.time.value ?? 'null' }}</span>
