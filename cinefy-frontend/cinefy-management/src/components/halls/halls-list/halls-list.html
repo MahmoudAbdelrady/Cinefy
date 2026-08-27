@@ -4,26 +4,26 @@
       <h3>All Halls</h3>
       <p>Manage your cinema halls and seating arrangements</p>
     </div>
-    <div class="ah-header-right">
+    <form class="ah-header-right" [formGroup]="filterForm">
       <div class="search-filter">
         <input-field
-          [control]="searchControl"
+          [control]="filterForm.controls.search"
           [leadingIcon]="icons.SearchIcon"
           [clearable]="true"
           placeholder="Search halls…"
         />
       </div>
       <div class="drop-down-filter">
-        <custom-select
-          [items]="hallStatuses"
-          [displayFn]="statusDisplayFn"
-          [clearable]="true"
+        <custom-select-v2
+          labelField="label"
+          valueField="value"
           placeholder="All statuses"
-          (selectionChange)="onStatusFilterChange($event)"
-          (cleared)="onStatusFilterCleared()"
+          [control]="filterForm.controls.status"
+          [items]="hallStatusEntries"
+          [clearable]="true"
         />
       </div>
-    </div>
+    </form>
   </div>
   <div class="ah-items">
     @if (loading()) {

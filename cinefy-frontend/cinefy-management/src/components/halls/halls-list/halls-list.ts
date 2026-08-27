@@ -1,5 +1,5 @@
 import { afterNextRender, Component, computed, inject, output, signal } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
@@ -18,7 +18,7 @@ import {
   LoadingSpinnerComponent,
   ModalComponent,
   EmptyStateComponent,
-  CustomSelectComponent,
+  CustomSelectV2,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
@@ -35,8 +35,9 @@ import { HallsService } from '../../../services';
   imports: [
     LucideDynamicIcon,
     NgpDialogTrigger,
+    ReactiveFormsModule,
     InputField,
-    CustomSelectComponent,
+    CustomSelectV2,
     ModalComponent,
     HallConfigModalComponent,
     LoadingSpinnerComponent,
@@ -61,7 +62,6 @@ export class HallsListComponent {
   private readonly toastService = inject(ToastService);
 
   protected readonly statusLabels = HALL_STATUS_LABELS;
-  protected readonly hallStatuses = Object.keys(HALL_STATUS_LABELS) as HallStatus[];
 
   protected readonly loading = signal(true);
   protected readonly deletingHallId = signal<string | null>(null);
@@ -69,10 +69,18 @@ export class HallsListComponent {
 
   readonly statisticsChanged = output<StatisticsChange>();
 
-  protected readonly statusFilter = signal<HallStatus | undefined>(undefined);
+  protected readonly filterForm = new FormGroup({
+    search: new FormControl<string>('', { nonNullable: true }),
+    status: new FormControl<HallStatus | null>(null),
+  });
 
-  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
-  private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: '' });
+  private readonly searchTerm = toSignal(this.filterForm.controls.search.valueChanges, {
+    initialValue: '',
+  });
+
+  private readonly statusFilter = toSignal(this.filterForm.controls.status.valueChanges, {
+    initialValue: null,
+  });
 
   protected readonly filteredHalls = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
@@ -85,10 +93,12 @@ export class HallsListComponent {
   });
 
   protected readonly hasFilters = computed(
-    () => this.searchTerm().trim() !== '' || this.statusFilter() !== undefined,
+    () => this.searchTerm().trim() !== '' || this.statusFilter() !== null,
   );
 
-  protected readonly statusDisplayFn = (status: HallStatus): string => HALL_STATUS_LABELS[status];
+  protected readonly hallStatusEntries = (
+    Object.entries(HALL_STATUS_LABELS) as [HallStatus, string][]
+  ).map(([value, label]) => ({ value, label }));
 
   constructor() {
     afterNextRender(() => {
@@ -118,14 +128,6 @@ export class HallsListComponent {
       status: hall.status,
       capacity: hall.totalRows * hall.totalColumns,
     });
-  }
-
-  protected onStatusFilterChange(status: HallStatus): void {
-    this.statusFilter.set(status);
-  }
-
-  protected onStatusFilterCleared(): void {
-    this.statusFilter.set(undefined);
   }
 
   protected updateHall(updated: HallSummary): void {
