@@ -30,7 +30,7 @@ import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   ModalComponent,
   PaginationComponent,
-  CustomSelectV2,
+  CuiSelect,
   InputField,
   LoadingSpinnerComponent,
   EmptyStateComponent,
@@ -57,7 +57,7 @@ import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
   imports: [
     LucideDynamicIcon,
     ReactiveFormsModule,
-    CustomSelectV2,
+    CuiSelect,
     InputField,
     PaginationComponent,
     LoadingSpinnerComponent,

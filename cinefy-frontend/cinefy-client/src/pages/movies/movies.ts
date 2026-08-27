@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AsyncSelectComponent,
-  CustomSelectV2,
+  CuiSelect,
   EmptyStateComponent,
   InputField,
   LoadingSpinnerComponent,
@@ -28,7 +28,7 @@ import {
     LucideDynamicIcon,
     ReactiveFormsModule,
     InputField,
-    CustomSelectV2,
+    CuiSelect,
     AsyncSelectComponent,
     MediaImageComponent,
     EmptyStateComponent,

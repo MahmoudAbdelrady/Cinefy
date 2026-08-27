@@ -18,7 +18,7 @@ import {
   LoadingSpinnerComponent,
   ModalComponent,
   EmptyStateComponent,
-  CustomSelectV2,
+  CuiSelect,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
@@ -37,7 +37,7 @@ import { HallsService } from '../../../services';
     NgpDialogTrigger,
     ReactiveFormsModule,
     InputField,
-    CustomSelectV2,
+    CuiSelect,
     ModalComponent,
     HallConfigModalComponent,
     LoadingSpinnerComponent,

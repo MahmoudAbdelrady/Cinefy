@@ -17,7 +17,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  CustomSelectV2,
+  CuiSelect,
   EmptyStateComponent,
   HoldTimerComponent,
   InputField,
@@ -92,7 +92,7 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
     SeatMapComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
-    CustomSelectV2,
+    CuiSelect,
     InputField,
     ModalComponent,
     HoldTimerComponent,

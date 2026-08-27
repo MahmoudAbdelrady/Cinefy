@@ -1,6 +1,6 @@
-<div class="csv2-wrapper">
+<div class="cui-select-wrapper">
   @if (label(); as labelText) {
-  <label class="csv2-label" [attr.data-required]="isRequired() ? '' : null">{{ labelText }}</label>
+  <label class="cui-select-label" [attr.data-required]="isRequired() ? '' : null">{{ labelText }}</label>
   } @if (multi()) {
   <p-multiselect
     [formControl]="control()"
@@ -33,7 +33,7 @@
     }
   </p-select>
   } @if (hint(); as hintText) {
-  <p class="csv2-hint">{{ hintText }}</p>
+  <p class="cui-select-hint">{{ hintText }}</p>
   } @if (control().touched && control().errors) {
   <field-error [control]="control()" [messages]="errorMessages()" />
   }

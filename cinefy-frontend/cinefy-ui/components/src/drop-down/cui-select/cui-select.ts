@@ -7,12 +7,12 @@ import { MultiSelect } from "primeng/multiselect";
 import { FieldErrorComponent } from "../../field-error/field-error";
 
 @Component({
-  selector: "custom-select-v2",
+  selector: "cui-select",
   imports: [ReactiveFormsModule, Select, MultiSelect, FieldErrorComponent],
-  templateUrl: "./custom-select-v2.html",
-  styleUrl: "./custom-select-v2.scss",
+  templateUrl: "./cui-select.html",
+  styleUrl: "./cui-select.scss",
 })
-export class CustomSelectV2<T> {
+export class CuiSelect<T> {
   readonly control: InputSignal<FormControl> = input.required<FormControl>();
   readonly items = input.required<T[]>();
   readonly multi = input(false);

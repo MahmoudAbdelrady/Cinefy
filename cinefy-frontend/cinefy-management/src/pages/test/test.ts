@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CustomSelectV2 } from 'cinefy-ui/components';
+import { CuiSelect } from 'cinefy-ui/components';
 
 interface HallOption {
   id: string;
@@ -18,7 +18,7 @@ const HALL_OPTIONS: HallOption[] = [
 
 @Component({
   selector: 'test-page',
-  imports: [ReactiveFormsModule, CustomSelectV2],
+  imports: [ReactiveFormsModule, CuiSelect],
   templateUrl: './test.html',
   styleUrl: './test.scss',
 })

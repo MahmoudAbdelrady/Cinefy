@@ -39,7 +39,7 @@ import {
   LoadingSpinnerComponent,
   EmptyStateComponent,
   InputField,
-  CustomSelectV2,
+  CuiSelect,
   AsyncSelectComponent,
   Switch,
 } from 'cinefy-ui/components';
@@ -113,7 +113,7 @@ const SELECTABLE_HALL_STATUS_ENTRIES = (
     LoadingSpinnerComponent,
     EmptyStateComponent,
     InputField,
-    CustomSelectV2,
+    CuiSelect,
     AsyncSelectComponent,
     HallLayoutEditorComponent,
   ],

@@ -5,11 +5,11 @@
   width: 100%;
 }
 
-.csv2-wrapper {
+.cui-select-wrapper {
   @include flex-column;
   gap: 8px;
 
-  .csv2-label {
+  .cui-select-label {
     display: block;
     font-size: 14px;
     font-weight: 600;
@@ -22,7 +22,7 @@
     }
   }
 
-  .csv2-hint {
+  .cui-select-hint {
     font-size: 12px;
     color: var(--cui-text-hint);
     line-height: 1.5;

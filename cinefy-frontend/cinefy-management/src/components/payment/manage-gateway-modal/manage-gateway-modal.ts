@@ -14,7 +14,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  CustomSelectV2,
+  CuiSelect,
   InputField,
   LoadingSpinnerComponent,
   ModalComponent,
@@ -57,7 +57,7 @@ function buildCredentialsGroup(
     ReactiveFormsModule,
     ModalComponent,
     InputField,
-    CustomSelectV2,
+    CuiSelect,
     Switch,
     LucideDynamicIcon,
     LoadingSpinnerComponent,
