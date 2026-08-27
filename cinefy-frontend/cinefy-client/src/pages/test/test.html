@@ -1,0 +1,44 @@
+<div class="test-container">
+  <header class="test-header">
+    <h1 class="test-title">Component Playground</h1>
+    <p class="test-subtitle">
+      Scratch page for trying PrimeNG components before using them in real pages.
+    </p>
+  </header>
+
+  <section class="test-sandbox">
+    <h2 class="test-sandbox-title">Sandbox</h2>
+
+    <form class="test-sandbox-body" [formGroup]="selectForm">
+      <div class="test-field">
+        <custom-select-v2
+          label="Hall"
+          hint="Single select, searchable and clearable."
+          placeholder="Select a hall"
+          labelField="label"
+          valueField="id"
+          [control]="selectForm.controls.hall"
+          [items]="hallOptions"
+          [searchable]="true"
+          [clearable]="true"
+        />
+        <span class="test-field-value">{{ selectForm.controls.hall.value ?? 'null' }}</span>
+      </div>
+
+      <div class="test-field">
+        <custom-select-v2
+          label="Halls"
+          placeholder="Select halls"
+          labelField="label"
+          valueField="id"
+          [control]="selectForm.controls.halls"
+          [items]="hallOptions"
+          [multi]="true"
+          [searchable]="true"
+          [clearable]="true"
+        />
+        <span class="test-field-value">{{ selectForm.controls.halls.value ?? 'null' }}</span>
+      </div>
+    </form>
+  </section>
+</div>
