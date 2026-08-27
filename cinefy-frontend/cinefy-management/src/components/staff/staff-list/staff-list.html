@@ -4,26 +4,26 @@
       <h3>All Staff Members</h3>
       <p>Manage your cinema team and their shift schedules</p>
     </div>
-    <div class="sl-header-right">
+    <form class="sl-header-right" [formGroup]="filterForm">
       <div class="search-filter">
         <input-field
-          [control]="searchControl"
+          [control]="filterForm.controls.search"
           [leadingIcon]="icons.SearchIcon"
           [clearable]="true"
           placeholder="Search staff…"
         />
       </div>
       <div class="drop-down-filter">
-        <custom-select
-          [items]="staffPositions"
-          [displayFn]="positionDisplayFn"
-          [clearable]="true"
+        <custom-select-v2
+          labelField="label"
+          valueField="value"
           placeholder="All positions"
-          (selectionChange)="onPositionFilterChange($event)"
-          (cleared)="onPositionFilterCleared()"
+          [control]="filterForm.controls.position"
+          [items]="staffPositionEntries"
+          [clearable]="true"
         />
       </div>
-    </div>
+    </form>
   </div>
   <div class="sl-items">
     @if (loading()) {
