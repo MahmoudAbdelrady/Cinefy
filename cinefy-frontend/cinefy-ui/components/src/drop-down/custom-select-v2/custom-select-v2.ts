@@ -18,6 +18,7 @@ export class CustomSelectV2<T> {
   readonly multi = input(false);
   readonly labelField = input.required<string>();
   readonly valueField = input<string | undefined>(undefined);
+  readonly selectedItemLabel = input<string | undefined>(undefined);
   readonly label: InputSignal<string | null> = input<string | null>(null);
   readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly placeholder = input("Select an option");

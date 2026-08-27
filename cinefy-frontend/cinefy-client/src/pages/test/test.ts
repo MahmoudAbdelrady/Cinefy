@@ -5,13 +5,14 @@ import { CustomSelectV2 } from 'cinefy-ui/components';
 interface HallOption {
   id: string;
   label: string;
+  shortLabel: string;
 }
 
 const HALL_OPTIONS: HallOption[] = [
-  { id: 't1', label: 'Hall A — IMAX' },
-  { id: 't2', label: 'Hall B — Standard' },
-  { id: 't3', label: 'Hall C — VIP' },
-  { id: 't4', label: 'Hall D — 4DX' },
+  { id: 't1', label: 'Hall A — IMAX', shortLabel: 'HAI' },
+  { id: 't2', label: 'Hall B — Standard', shortLabel: 'HAB' },
+  { id: 't3', label: 'Hall C — VIP', shortLabel: 'HAV' },
+  { id: 't4', label: 'Hall D — 4DX', shortLabel: 'HA4D' },
 ];
 
 @Component({

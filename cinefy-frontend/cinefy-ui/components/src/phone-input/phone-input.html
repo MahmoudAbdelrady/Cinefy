@@ -4,17 +4,15 @@
   }
   <div class="phone-row">
     <div class="phone-country">
-      <custom-select
+      <custom-select-v2
+        labelField="label"
+        valueField="code"
+        selectedItemLabel="shortLabel"
+        placeholder="Country"
+        [control]="countryControl()"
         [items]="countryOptions"
-        [displayFn]="countryDisplayFn"
-        [triggerDisplayFn]="countryTriggerDisplayFn"
-        [compareWith]="countryCompareFn"
-        [value]="selectedCountryOption()"
         [searchable]="true"
         [container]="container()"
-        dropdownWidth="matchContent"
-        placeholder="Country"
-        (selectionChange)="onCountryChange($event)"
       />
     </div>
     <div class="phone-national">

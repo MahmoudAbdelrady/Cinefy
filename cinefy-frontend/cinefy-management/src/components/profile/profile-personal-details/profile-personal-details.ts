@@ -112,6 +112,7 @@ export class ProfilePersonalDetailsComponent {
       phoneCountry: country,
       phoneNumber: nationalNumber,
     });
+    this.personalForm.markAllAsTouched();
     this.isEditing.set(true);
   }
 

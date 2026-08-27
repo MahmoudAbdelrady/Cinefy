@@ -122,6 +122,7 @@ export class PersonalDetailsComponent {
       phoneCountry: country,
       phoneNumber: nationalNumber,
     });
+    this.personalForm.markAllAsTouched();
     this.initialFormSnapshot.set(JSON.stringify(this.personalForm.getRawValue()));
     this.isEditing.set(true);
   }

@@ -27,7 +27,11 @@
     [appendTo]="container()"
     [invalid]="control().touched && control().invalid"
     size="large"
-  />
+  >
+    @if (selectedItemLabel(); as selectedLabel) {
+    <ng-template #selectedItem let-item>{{ item[selectedLabel] }}</ng-template>
+    }
+  </p-select>
   } @if (hint(); as hintText) {
   <p class="csv2-hint">{{ hintText }}</p>
   } @if (control().touched && control().errors) {
