@@ -110,20 +110,17 @@
             />
           </div>
           <div class="input-group type-group">
-            <async-select
+            <cui-select
               label="Type"
-              [fetchFn]="fetchHallTypes"
-              [initialValue]="selectedHallType()"
-              [displayFn]="hallTypeDisplayFn"
-              [valueFn]="hallTypeValueFn"
-              [disabled]="isViewMode()"
-              [searchable]="true"
+              labelField="label"
+              valueField="value"
+              placeholder="Select a type"
               [control]="hallForm.controls.typeId"
+              [items]="hallTypeEntries()"
+              [searchable]="true"
               [required]="!isViewMode()"
               [errorMessages]="{ required: 'Hall type is required' }"
-              placeholder="Select a type"
               [container]="modal.panelEl()"
-              (selectionChange)="onHallTypeChange($event)"
             />
             <label class="switch-group" [class.disabled]="isViewMode()">
               <span class="sg-label-text">Supports 3D</span>
@@ -136,17 +133,16 @@
           </div>
           @if (!isViewMode()) {
             <div class="input-group">
-              <async-select
+              <cui-select
                 label="Copy Layout From Existing Hall"
                 placeholder="None"
+                labelField="label"
+                valueField="value"
+                [control]="copyLayoutControl"
+                [items]="hallEntries()"
                 [clearable]="true"
                 [searchable]="true"
-                [fetchFn]="fetchHalls"
-                [displayFn]="hallDisplayFn"
-                [valueFn]="hallValueFn"
                 [container]="modal.panelEl()"
-                (selectionChange)="copyLayoutFrom($event)"
-                (cleared)="restoreOriginalLayout()"
               />
             </div>
           }

@@ -40,7 +40,6 @@ import {
   EmptyStateComponent,
   InputField,
   CuiSelect,
-  AsyncSelectComponent,
   Switch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -114,7 +113,6 @@ const SELECTABLE_HALL_STATUS_ENTRIES = (
     EmptyStateComponent,
     InputField,
     CuiSelect,
-    AsyncSelectComponent,
     HallLayoutEditorComponent,
   ],
   templateUrl: './hall-config-modal.html',
@@ -175,7 +173,8 @@ export class HallConfigModalComponent {
   protected readonly loadHallError = signal(false);
 
   private readonly initialSnapshot = signal<string | null>(null);
-  protected readonly selectedHallType = signal<HallType | null>(null);
+  private readonly hallTypes = signal<HallType[]>([]);
+  private readonly halls = signal<HallSummary[]>([]);
 
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems[0]);
   private readonly onSiteOnlyPreference = signal(false);
@@ -206,6 +205,8 @@ export class HallConfigModalComponent {
     normalPrice: new FormControl<number | null>(null),
     vipPrice: new FormControl<number | null>(null),
   });
+
+  protected readonly copyLayoutControl = new FormControl<string | null>(null);
 
   protected readonly isViewMode = computed(
     () => this.selectedHallId() !== null && !this.isEditMode(),
@@ -255,15 +256,13 @@ export class HallConfigModalComponent {
     return this.serializeState() !== snapshot;
   });
 
-  protected readonly hallTypeDisplayFn = (type: HallType) => type.name;
-  protected readonly hallTypeValueFn = (type: HallType) => type.id ?? '';
+  protected readonly hallTypeEntries = computed(() =>
+    this.hallTypes().map((type) => ({ value: type.id!, label: type.name })),
+  );
 
-  protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
-  protected readonly hallValueFn = (hall: HallSummary) => hall.id;
-
-  protected readonly fetchHallTypes = () => this.hallsService.getHallTypes();
-  protected readonly fetchHalls = () =>
-    this.hallsService.getHalls(this.selectedHallId() ?? undefined);
+  protected readonly hallEntries = computed(() =>
+    this.halls().map((hall) => ({ value: hall.id, label: hall.name })),
+  );
 
   constructor() {
     effect(() => {
@@ -314,7 +313,22 @@ export class HallConfigModalComponent {
       statusCtrl.updateValueAndValidity();
     });
 
+    this.copyLayoutControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((hallId) => {
+        if (hallId) {
+          this.copyLayoutFrom(hallId);
+        } else {
+          this.restoreOriginalLayout();
+        }
+      });
+
     afterNextRender(() => {
+      this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
+      this.hallsService
+        .getHalls(this.selectedHallId() ?? undefined)
+        .subscribe((halls) => this.halls.set(halls));
+
       const hallId = this.selectedHallId();
       if (hallId) {
         this.loadHallData(hallId);
@@ -339,7 +353,6 @@ export class HallConfigModalComponent {
   }
 
   private applyHallDetail(detail: HallDetail) {
-    this.selectedHallType.set(detail.type);
     this.hallForm.patchValue({
       name: detail.name,
       status: detail.status,
@@ -348,11 +361,6 @@ export class HallConfigModalComponent {
     });
     this.applyLayoutData(detail);
     this.initialSnapshot.set(this.serializeState());
-  }
-
-  protected onHallTypeChange(type: HallType) {
-    this.selectedHallType.set(type);
-    this.hallForm.controls.typeId.setValue(type.id ?? '');
   }
 
   protected selectSeatCategory(category: SeatCategoryItem) {
@@ -378,7 +386,7 @@ export class HallConfigModalComponent {
     this.applyHallDetail(this.selectedHallData()!);
   }
 
-  protected restoreOriginalLayout() {
+  private restoreOriginalLayout() {
     const detail = this.selectedHallData();
     if (detail) {
       this.applyLayoutData(detail);
@@ -410,8 +418,8 @@ export class HallConfigModalComponent {
     }
   }
 
-  protected copyLayoutFrom(hall: HallSummary) {
-    this.hallsService.getHallLayout(hall.id).subscribe({
+  private copyLayoutFrom(hallId: string) {
+    this.hallsService.getHallLayout(hallId).subscribe({
       next: (hallLayout) => this.applyLayoutData(hallLayout),
     });
   }
