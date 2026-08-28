@@ -72,20 +72,15 @@
         </div>
         <div class="input-group">
           <label>Hall</label>
-          <async-select
+          <cui-select
             placeholder="Select a hall"
-            [searchable]="true"
-            [fetchFn]="fetchHalls"
-            [displayFn]="hallDisplayFn"
-            [valueFn]="hallValueFn"
-            [initialValue]="selectedHall()"
-            [container]="modal.panelEl()"
-            (selectionChange)="onHallChange($event)"
-            (cleared)="onHallChange(null)"
-          />
-          <field-error
+            labelField="label"
+            valueField="value"
             [control]="showtimeForm.controls.hallId"
-            [messages]="{ required: 'Hall is required' }"
+            [items]="hallEntries()"
+            [searchable]="true"
+            [container]="modal.panelEl()"
+            [errorMessages]="{ required: 'Hall is required' }"
           />
         </div>
         <div class="switch-group">
