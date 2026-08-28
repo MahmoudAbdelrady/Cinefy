@@ -80,6 +80,11 @@ export class CuiPaginatedSelect<T> {
     this.control().setValue([]);
   }
 
+  protected onSelectAll() {
+    const valueField = this.valueField();
+    this.control().setValue(this.items().map((item) => (item as Record<string, unknown>)[valueField]));
+  }
+
   protected readonly isLoadMore = (option: T): boolean =>
     (option as Record<string, unknown>)[this.valueField()] === LOAD_MORE_OPTION.value;
 

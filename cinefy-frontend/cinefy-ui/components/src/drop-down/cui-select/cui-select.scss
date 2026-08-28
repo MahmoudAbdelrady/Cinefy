@@ -28,3 +28,39 @@
     line-height: 1.5;
   }
 }
+
+::ng-deep .cui-select-header {
+  @include flex-align;
+
+  gap: 4px;
+  padding: 8px 12px 0;
+
+  .cui-select-header-action {
+    padding: 4px 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--cui-accent-subtle);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cui-accent);
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+
+    &:hover {
+      background-color: var(--cui-accent);
+      color: var(--cui-text-on-accent);
+    }
+
+    &[data-variant="clear"] {
+      background-color: var(--cui-danger-subtle);
+      color: var(--cui-danger);
+
+      &:hover {
+        background-color: var(--cui-danger);
+        color: var(--cui-danger-text);
+      }
+    }
+  }
+}

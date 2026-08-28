@@ -15,9 +15,21 @@
     [filter]="searchable()"
     [appendTo]="container()"
     [loading]="loading()"
+    [showToggleAll]="false"
     [invalid]="control().touched && control().invalid"
     size="large"
   >
+    <ng-template #header>
+      @if (options().length) {
+      <div class="cui-paginated-select-header">
+        <button type="button" class="cui-paginated-select-header-action" (click)="onSelectAll()">Select All</button>
+        <button type="button" class="cui-paginated-select-header-action" data-variant="clear" (click)="onMultiClear()">
+          Clear
+        </button>
+      </div>
+      }
+    </ng-template>
+
     <ng-template #empty>
       @if (loading()) {
       <div class="cui-paginated-select-empty">

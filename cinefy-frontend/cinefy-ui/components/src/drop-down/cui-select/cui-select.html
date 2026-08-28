@@ -12,9 +12,21 @@
     [showClear]="clearable()"
     [filter]="searchable()"
     [appendTo]="container()"
+    [showToggleAll]="false"
     [invalid]="control().touched && control().invalid"
     size="large"
-  />
+  >
+    <ng-template #header>
+      @if (items().length) {
+      <div class="cui-select-header">
+        <button type="button" class="cui-select-header-action" (click)="onSelectAll()">Select All</button>
+        <button type="button" class="cui-select-header-action" data-variant="clear" (click)="onMultiClear()">
+          Clear
+        </button>
+      </div>
+      }
+    </ng-template>
+  </p-multiselect>
   } @else {
   <p-select
     [formControl]="control()"
