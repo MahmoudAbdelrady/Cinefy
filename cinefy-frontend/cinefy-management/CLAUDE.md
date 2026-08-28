@@ -80,20 +80,18 @@ src/
 │   ├── sidebar/                        # Navigation sidebar
 │   └── stats/                          # Generic stat-card component
 │                                       # Shared UI (input-field, field-error, loading-spinner,
-│                                       # custom-select, async-select, phone-input, toast,
+│                                       # cui-select, cui-paginated-select, phone-input, toast,
 │                                       # modal, pagination, date-picker, time-picker, switch,
 │                                       # empty-state, seat-map, hold-timer, not-found,
 │                                       # input-otp, password-checklist, media-image) lives in cinefy-ui.
 │                                       #   empty-state: inputs [icon]/[title]/[description]; add class="fill" to stretch to full height.
 │                                       #   switch (<cui-switch>): size md|sm, color accent|highlight;
 │                                       #     [checked]/[disabled] inputs, (checkedChange) output.
-│                                       #   custom-select: static items[] + client-side search.
-│                                       #   async-select: lazy fetchFn (loads on first open, spinner);
-│                                       #     accepts a paged (PaginatedResponse) or flat (T[]) source.
-│                                       #   both selects: [multi] toggles multi-select (default false). Single
-│                                       #     mode emits (selectionChange)=T; multi mode emits
-│                                       #     (multiSelectionChange)=T[] and shows checkmarks + a "first +N"
-│                                       #     trigger. [value] is a controlled input (parent echoes changes back).
+│                                       #   cui-select: PrimeNG-backed; static items[] + client-side search.
+│                                       #   cui-paginated-select: fetchFn (page, size) => PaginatedResponse<T>,
+│                                       #     loads page 0 on open, "Load More" row while page < totalPages.
+│                                       #   both selects: write a [control] directly (no selectionChange output);
+│                                       #     labelField/valueField are field NAMES; [multi] toggles multi-select.
 │                                       # Imports are grouped by subpath:
 │                                       #   from 'cinefy-ui/components' — component classes
 │                                       #   from 'cinefy-ui/services'   — ToastService

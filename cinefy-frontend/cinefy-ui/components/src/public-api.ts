@@ -10,7 +10,6 @@ export * from "./modal/modal";
 export * from "./pagination/pagination";
 export * from "./drop-down/cui-select/cui-select";
 export * from "./drop-down/cui-paginated-select/cui-paginated-select";
-export * from "./drop-down/async-select/async-select";
 export * from "./phone-input/phone-input";
 export * from "./date-time/date-picker/date-picker";
 export * from "./date-time/time-picker/time-picker";
