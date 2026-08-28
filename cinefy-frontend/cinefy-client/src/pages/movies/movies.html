@@ -15,17 +15,15 @@
     </div>
 
     <div class="mf-select">
-      <async-select
+      <cui-select
         placeholder="Experience"
-        [fetchFn]="fetchHallTypes"
-        [displayFn]="hallTypeDisplayFn"
-        [valueFn]="hallTypeValueFn"
-        [initialValue]="selectedHallTypes()"
+        labelField="label"
+        valueField="value"
+        [control]="filterForm.controls.hallTypes"
+        [items]="hallTypeEntries()"
         [multi]="true"
         [clearable]="true"
         [searchable]="true"
-        (multiSelectionChange)="onHallTypeChange($event)"
-        (cleared)="onHallTypeChange([])"
       />
     </div>
 
@@ -91,10 +89,10 @@
           </button>
         </span>
       }
-      @for (hallType of selectedHallTypes(); track hallType.id) {
+      @for (hallTypeId of selectedHallTypes(); track hallTypeId) {
         <span class="filter-chip">
-          <span>Experience: {{ hallType.name }}</span>
-          <button class="fc-clear" (click)="removeHallType(hallType)">
+          <span>Experience: {{ hallTypeLabel(hallTypeId) }}</span>
+          <button class="fc-clear" (click)="removeHallType(hallTypeId)">
             <svg [lucideIcon]="icons.XIcon" [size]="12"></svg>
           </button>
         </span>

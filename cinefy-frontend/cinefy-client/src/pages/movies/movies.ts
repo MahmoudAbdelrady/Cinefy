@@ -1,10 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  AsyncSelectComponent,
   CuiSelect,
   EmptyStateComponent,
   InputField,
@@ -12,7 +11,6 @@ import {
   MediaImageComponent,
 } from 'cinefy-ui/components';
 import { HallsService, MoviesService } from '../../services';
-import type { HallType } from '../../shared/types';
 import {
   ClapperboardIcon,
   SearchIcon,
@@ -29,7 +27,6 @@ import {
     ReactiveFormsModule,
     InputField,
     CuiSelect,
-    AsyncSelectComponent,
     MediaImageComponent,
     EmptyStateComponent,
     LoadingSpinnerComponent,
@@ -51,6 +48,7 @@ export class MoviesPage {
 
   protected readonly filterForm = new FormGroup({
     search: new FormControl<string>('', { nonNullable: true }),
+    hallTypes: new FormControl<string[]>([], { nonNullable: true }),
     genres: new FormControl<string[]>([], { nonNullable: true }),
     contentRatings: new FormControl<string[]>([], { nonNullable: true }),
   });
@@ -59,10 +57,16 @@ export class MoviesPage {
     stream: () => this.moviesService.getNowShowing(),
   });
 
+  private readonly hallTypes = rxResource({
+    stream: () => this.hallsService.getHallTypes(),
+  });
+
   private readonly search = toSignal(this.filterForm.controls.search.valueChanges, {
     initialValue: this.filterForm.controls.search.value,
   });
-  protected readonly selectedHallTypes = signal<HallType[]>([]);
+  protected readonly selectedHallTypes = toSignal(this.filterForm.controls.hallTypes.valueChanges, {
+    initialValue: this.filterForm.controls.hallTypes.value,
+  });
 
   protected readonly selectedGenres = toSignal(this.filterForm.controls.genres.valueChanges, {
     initialValue: this.filterForm.controls.genres.value,
@@ -113,7 +117,7 @@ export class MoviesPage {
 
       const matchesHallType =
         !selectedHallTypes.length ||
-        selectedHallTypes.some((t) => movie.hallTypes?.includes(t.name));
+        selectedHallTypes.some((id) => movie.hallTypes?.includes(this.hallTypeLabel(id)));
 
       const matchesGenre =
         !selectedGenres.length || selectedGenres.some((g) => movie.genres?.includes(g));
@@ -136,22 +140,24 @@ export class MoviesPage {
       this.selectedContentRatings().length > 0,
   );
 
-  protected readonly fetchHallTypes = () => this.hallsService.getHallTypes();
+  protected readonly hallTypeEntries = computed(() =>
+    (this.hallTypes.hasValue() ? this.hallTypes.value() : []).map((type) => ({
+      value: type.id,
+      label: type.name,
+    })),
+  );
 
-  protected readonly hallTypeDisplayFn = (type: HallType): string => type.name;
-
-  protected readonly hallTypeValueFn = (type: HallType): string => type.id;
+  protected hallTypeLabel(id: string): string {
+    return this.hallTypeEntries().find((entry) => entry.value === id)?.label ?? '';
+  }
 
   protected clearSearch(): void {
     this.filterForm.controls.search.setValue('');
   }
 
-  protected onHallTypeChange(values: HallType[]): void {
-    this.selectedHallTypes.set(values);
-  }
-
-  protected removeHallType(value: HallType): void {
-    this.selectedHallTypes.update((values) => values.filter((v) => v.id !== value.id));
+  protected removeHallType(value: string): void {
+    const control = this.filterForm.controls.hallTypes;
+    control.setValue(control.value.filter((v) => v !== value));
   }
 
   protected removeGenre(value: string): void {
@@ -165,7 +171,6 @@ export class MoviesPage {
   }
 
   protected clearAll(): void {
-    this.selectedHallTypes.set([]);
     this.filterForm.reset();
   }
 }
