@@ -11,36 +11,35 @@
 
     <form class="test-sandbox-body" [formGroup]="selectForm">
       <div class="test-field">
-        <cui-select
-          label="Hall"
-          hint="Single select, required, searchable and clearable."
-          placeholder="Select a hall"
-          labelField="label"
+        <cui-paginated-select
+          label="Staff member"
+          hint="Single select, paginated via GET /staff."
+          placeholder="Select a staff member"
+          labelField="fullName"
           valueField="id"
-          selectedItemLabel="short"
-          [control]="selectForm.controls.hall"
-          [items]="hallOptions"
-          [searchable]="true"
+          [control]="selectForm.controls.staff"
+          [fetchFn]="fetchStaff"
+          [pageSize]="2"
           [clearable]="true"
-          [errorMessages]="{ required: 'Hall is required' }"
         />
-        <span class="test-field-value">{{ selectForm.controls.hall.value ?? 'null' }}</span>
+        <span class="test-field-value">{{ selectForm.controls.staff.value ?? 'null' }}</span>
       </div>
 
       <div class="test-field">
-        <cui-select
-          label="Halls"
-          placeholder="Select halls"
-          labelField="label"
+        <cui-paginated-select
+          label="Staff members"
+          hint="Multi select, paginated via GET /staff."
+          placeholder="Select staff members"
+          labelField="fullName"
           valueField="id"
-          [control]="selectForm.controls.halls"
-          [items]="hallOptions"
+          [control]="selectForm.controls.staffMulti"
+          [fetchFn]="fetchStaff"
+          [pageSize]="5"
           [multi]="true"
-          [searchable]="true"
           [clearable]="true"
         />
         <span class="test-field-value">
-          {{ selectForm.controls.halls.value ?? 'null' }}
+          {{ selectForm.controls.staffMulti.value.length }} selected
         </span>
       </div>
     </form>

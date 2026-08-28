@@ -17,7 +17,7 @@ export class CuiSelect<T> {
   readonly items = input.required<T[]>();
   readonly multi = input(false);
   readonly labelField = input.required<string>();
-  readonly valueField = input<string | undefined>(undefined);
+  readonly valueField = input.required<string>();
   readonly selectedItemLabel = input<string | undefined>(undefined);
   readonly label: InputSignal<string | null> = input<string | null>(null);
   readonly hint: InputSignal<string | null> = input<string | null>(null);

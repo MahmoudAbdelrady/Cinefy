@@ -63,3 +63,22 @@
     }
   }
 }
+
+::ng-deep .test-load-more {
+  display: block;
+  width: 100%;
+  font-size: 13px;
+  font-weight: 600;
+  color: $blue-600;
+  text-align: center;
+  cursor: pointer;
+  pointer-events: auto;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+::ng-deep li:has(.test-load-more) .p-checkbox {
+  display: none;
+}

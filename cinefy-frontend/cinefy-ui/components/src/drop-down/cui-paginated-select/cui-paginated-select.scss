@@ -1,0 +1,61 @@
+@use "../../../../src/styles/mixins" as *;
+
+:host {
+  display: inline-block;
+  width: 100%;
+}
+
+.cui-paginated-select-wrapper {
+  @include flex-column;
+  gap: 8px;
+
+  .cui-paginated-select-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cui-text-primary);
+
+    &[data-required]::after {
+      content: "*";
+      color: var(--cui-text-error);
+      margin-left: 3px;
+    }
+  }
+
+  .cui-paginated-select-hint {
+    font-size: 12px;
+    color: var(--cui-text-hint);
+    line-height: 1.5;
+  }
+}
+
+::ng-deep .cui-paginated-select-load-more {
+  @include flex-center;
+
+  width: 100%;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cui-accent);
+  text-align: center;
+  cursor: pointer;
+  pointer-events: auto;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &[data-loading] {
+    cursor: default;
+    pointer-events: none;
+  }
+}
+
+::ng-deep .cui-paginated-select-empty {
+  @include flex-center;
+
+  padding: 8px 0;
+}
+
+::ng-deep li:has(.cui-paginated-select-load-more) .p-checkbox {
+  display: none;
+}
