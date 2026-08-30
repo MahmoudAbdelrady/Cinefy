@@ -276,6 +276,7 @@
     .gl-switch-trigger {
       position: absolute;
       inset: 0;
+      z-index: 2;
       border: none;
       border-radius: $radius-full;
       background: none;

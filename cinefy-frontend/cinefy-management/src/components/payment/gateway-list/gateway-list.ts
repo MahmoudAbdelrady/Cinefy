@@ -7,7 +7,7 @@ import {
   EmptyStateComponent,
   LoadingSpinnerComponent,
   ModalComponent,
-  Switch,
+  CinefySwitch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import {
@@ -33,7 +33,7 @@ import { PAYMENT_PROVIDERS } from '../provider-spec';
     DatePipe,
     NgTemplateOutlet,
     NgpDialogTrigger,
-    Switch,
+    CinefySwitch,
     EmptyStateComponent,
     LoadingSpinnerComponent,
     ModalComponent,
