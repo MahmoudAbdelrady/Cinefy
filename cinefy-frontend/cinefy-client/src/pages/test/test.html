@@ -9,37 +9,26 @@
   <section class="test-sandbox">
     <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <form class="test-sandbox-body" [formGroup]="selectForm">
+    <div class="test-sandbox-body">
       <div class="test-field">
-        <cui-select
-          label="Hall"
-          hint="Single select, searchable and clearable."
-          placeholder="Select a hall"
-          labelField="label"
-          valueField="id"
-          selectedItemLabel="shortLabel"
-          [control]="selectForm.controls.hall"
-          [items]="hallOptions"
-          [searchable]="true"
-          [clearable]="true"
-        />
-        <span class="test-field-value">{{ selectForm.controls.hall.value ?? 'null' }}</span>
+        <cui-switch-v2 [control]="notifications" />
+        <span class="test-field-value">md / accent — {{ notifications.value }}</span>
       </div>
 
       <div class="test-field">
-        <cui-select
-          label="Halls"
-          placeholder="Select halls"
-          labelField="label"
-          valueField="id"
-          [control]="selectForm.controls.halls"
-          [items]="hallOptions"
-          [multi]="true"
-          [searchable]="true"
-          [clearable]="true"
-        />
-        <span class="test-field-value">{{ selectForm.controls.halls.value ?? 'null' }}</span>
+        <cui-switch-v2 size="sm" [control]="compact" />
+        <span class="test-field-value">sm / accent — {{ compact.value }}</span>
       </div>
-    </form>
+
+      <div class="test-field">
+        <cui-switch-v2 color="highlight" [control]="highlight" />
+        <span class="test-field-value">md / highlight — {{ highlight.value }}</span>
+      </div>
+
+      <div class="test-field">
+        <cui-switch-v2 [control]="locked" />
+        <span class="test-field-value">disabled via control</span>
+      </div>
+    </div>
   </section>
 </div>

@@ -48,9 +48,9 @@
       align-items: flex-start;
 
       .test-field {
-        @include flex-column;
+        @include flex-align;
 
-        gap: 6px;
+        gap: 12px;
 
         .test-field-value {
           font-size: 12px;
