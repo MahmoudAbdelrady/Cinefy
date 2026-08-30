@@ -23,7 +23,7 @@ import {
   EmptyStateComponent,
   InputField,
   MediaImageComponent,
-  Switch,
+  CinefySwitch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { DurationPipe } from 'cinefy-ui/pipes';
@@ -44,7 +44,7 @@ import {
     LoadingSpinnerComponent,
     EmptyStateComponent,
     InputField,
-    Switch,
+    CinefySwitch,
     ManageShowtimeModalComponent,
     MovieShowtimesModal,
     MediaImageComponent,
