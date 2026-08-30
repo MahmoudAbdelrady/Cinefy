@@ -1,0 +1,18 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.cui-input-otp {
+  --p-inputotp-gap: 8px;
+
+  display: flex;
+
+  ::ng-deep .p-inputotp-input {
+    width: 100%;
+    max-width: 52px;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    font-weight: 600;
+  }
+}

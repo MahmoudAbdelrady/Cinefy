@@ -6,6 +6,7 @@ export * from "./field-error/field-error";
 export * from "./input-field/input-field";
 export * from "./password-checklist/password-checklist";
 export * from "./input-otp/input-otp";
+export * from "./input-otp/input-otp-v2";
 export * from "./modal/modal";
 export * from "./pagination/pagination";
 export * from "./drop-down/cui-select/cui-select";

@@ -11,18 +11,23 @@
 
     <div class="test-sandbox-body">
       <div class="test-field">
-        <p-inputotp [formControl]="code" [length]="6" [integerOnly]="true" size="large" />
-        <span class="test-field-value">6 digits, integer only — {{ code.value || '—' }}</span>
+        <input-otp-v2 [control]="code" />
+        <span class="test-field-value">default length 6 — {{ code.value || '—' }}</span>
       </div>
 
       <div class="test-field">
-        <p-inputotp [formControl]="pin" [length]="4" />
-        <span class="test-field-value">4 chars, any input — {{ pin.value || '—' }}</span>
+        <input-otp-v2 [control]="pin" [length]="4" />
+        <span class="test-field-value">length 4 — {{ pin.value || '—' }}</span>
       </div>
 
       <div class="test-field">
-        <p-inputotp [formControl]="masked" [length]="6" [mask]="true" [integerOnly]="true" />
-        <span class="test-field-value">masked — {{ masked.value || '—' }}</span>
+        <input-otp-v2
+          [control]="required"
+          [errorMessages]="{ required: 'Enter the code', minlength: 'Code must be 6 digits' }"
+        />
+        <button type="button" class="btn-secondary" (click)="required.markAsTouched()">
+          Touch to show error
+        </button>
       </div>
     </div>
   </section>
