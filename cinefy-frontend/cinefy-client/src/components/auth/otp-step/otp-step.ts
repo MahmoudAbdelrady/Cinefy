@@ -1,10 +1,9 @@
 import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule } from '@angular/forms';
 import { Observable, interval, takeWhile } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { InputOtp, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { InputOtpV2, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
 import type { OtpType } from '../../../shared/types';
@@ -14,7 +13,7 @@ const RESEND_COOLDOWN_SECONDS = 10 * 60;
 
 @Component({
   selector: 'auth-otp-step',
-  imports: [FormsModule, LucideDynamicIcon, InputOtp, LoadingSpinnerComponent],
+  imports: [FormsModule, LucideDynamicIcon, InputOtpV2, LoadingSpinnerComponent],
   templateUrl: './otp-step.html',
   styleUrl: './otp-step.scss',
 })
@@ -38,12 +37,12 @@ export class OtpStep {
   readonly verified = output<string>();
   readonly back = output<void>();
 
-  protected readonly code = signal('');
   protected readonly complete = signal(false);
   protected readonly resendCountdown = signal(0);
   protected readonly verifying = signal(false);
   protected readonly resending = signal(false);
-  protected readonly error = signal<string | null>(null);
+
+  protected readonly code = new FormControl('', { nonNullable: true });
 
   protected readonly resendLabel = computed(() => {
     const seconds = this.resendCountdown();
@@ -52,24 +51,18 @@ export class OtpStep {
     return `You can resend in ${minutes}:${String(remainder).padStart(2, '0')}`;
   });
 
-  protected onCodeChange(next: string) {
-    this.code.set(next);
-    if (this.error()) this.error.set(null);
-  }
-
   protected onSubmit() {
     if (!this.complete() || this.verifying()) return;
     this.verifying.set(true);
 
-    const code = this.code();
+    const code = this.code.value;
     this.verifyFn()(code)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.verified.emit(code),
-        error: (err: HttpErrorResponse) => {
+        error: () => {
           this.verifying.set(false);
-          this.code.set('');
-          this.error.set(err.error?.message ?? 'That code is invalid or has expired.');
+          this.code.setValue('');
         },
       });
   }
@@ -77,7 +70,7 @@ export class OtpStep {
   protected onResend() {
     if (this.resendCountdown() > 0 || this.resending()) return;
     this.resending.set(true);
-    this.onCodeChange('');
+    this.code.setValue('');
 
     this.authService
       .sendOtp({ email: this.email(), otpType: this.otpType() })
