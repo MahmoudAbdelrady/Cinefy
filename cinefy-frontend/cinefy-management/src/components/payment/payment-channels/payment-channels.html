@@ -17,7 +17,7 @@
               </p>
             </div>
             <div class="channel-actions">
-              <cui-switch-v2
+              <cui-switch
                 size="sm"
                 [checked]="channel.active"
                 (checkedChange)="toggleChannel($index, $event)"
@@ -79,7 +79,7 @@
 
       <div class="channel-form-active">
         <span>Active</span>
-        <cui-switch-v2 [control]="channelForm.controls.isActive" />
+        <cui-switch [control]="channelForm.controls.isActive" />
       </div>
     </div>
 

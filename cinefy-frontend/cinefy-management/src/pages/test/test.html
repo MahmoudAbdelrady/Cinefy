@@ -11,42 +11,42 @@
 
     <div class="test-sandbox-body">
       <div class="test-field">
-        <cui-switch-v2 [control]="notifications" />
+        <cui-switch [control]="notifications" />
         <span class="test-field-value">md / accent — {{ notifications.value }}</span>
       </div>
 
       <div class="test-field">
-        <cui-switch-v2 size="sm" [control]="compact" />
+        <cui-switch size="sm" [control]="compact" />
         <span class="test-field-value">sm / accent — {{ compact.value }}</span>
       </div>
 
       <div class="test-field">
-        <cui-switch-v2 color="highlight" [control]="highlight" />
+        <cui-switch color="highlight" [control]="highlight" />
         <span class="test-field-value">md / highlight — {{ highlight.value }}</span>
       </div>
 
       <div class="test-field">
-        <cui-switch-v2 [control]="locked" />
+        <cui-switch [control]="locked" />
         <span class="test-field-value">disabled via control</span>
       </div>
 
       <div class="test-field">
-        <cui-switch-v2 [checked]="signalMode()" (checkedChange)="signalMode.set($event)" />
+        <cui-switch [checked]="signalMode()" (checkedChange)="signalMode.set($event)" />
         <span class="test-field-value">signal mode — {{ signalMode() }}</span>
       </div>
 
       <div class="test-field">
-        <cui-switch-v2 [checked]="true" [disabled]="true" />
+        <cui-switch [checked]="true" [disabled]="true" />
         <span class="test-field-value">disabled + checked — keeps accent</span>
       </div>
 
       <div class="test-field">
-        <cui-switch-v2 color="highlight" [checked]="true" [disabled]="true" />
+        <cui-switch color="highlight" [checked]="true" [disabled]="true" />
         <span class="test-field-value">disabled + checked — keeps highlight</span>
       </div>
 
       <div class="test-field">
-        <cui-switch-v2 [checked]="false" [disabled]="true" />
+        <cui-switch [checked]="false" [disabled]="true" />
         <span class="test-field-value">disabled + unchecked — grey</span>
       </div>
     </div>

@@ -7,18 +7,18 @@ type SwitchSize = "sm" | "md";
 type SwitchColor = "accent" | "highlight";
 
 @Component({
-  selector: "cui-switch-v2",
+  selector: "cui-switch",
   imports: [FormsModule, ReactiveFormsModule, ToggleSwitch],
   template: `@if (control(); as control) {
       <p-toggleswitch
-        class="cui-switch-v2"
+        class="cui-switch"
         [attr.data-size]="size()"
         [attr.data-color]="color()"
         [formControl]="control"
       />
     } @else {
       <p-toggleswitch
-        class="cui-switch-v2"
+        class="cui-switch"
         [attr.data-size]="size()"
         [attr.data-color]="color()"
         [ngModel]="checked()"

@@ -11,22 +11,22 @@
 
     <div class="test-sandbox-body">
       <div class="test-field">
-        <cui-switch-v2 [control]="notifications" />
+        <cui-switch [control]="notifications" />
         <span class="test-field-value">md / accent — {{ notifications.value }}</span>
       </div>
 
       <div class="test-field">
-        <cui-switch-v2 size="sm" [control]="compact" />
+        <cui-switch size="sm" [control]="compact" />
         <span class="test-field-value">sm / accent — {{ compact.value }}</span>
       </div>
 
       <div class="test-field">
-        <cui-switch-v2 color="highlight" [control]="highlight" />
+        <cui-switch color="highlight" [control]="highlight" />
         <span class="test-field-value">md / highlight — {{ highlight.value }}</span>
       </div>
 
       <div class="test-field">
-        <cui-switch-v2 [control]="locked" />
+        <cui-switch [control]="locked" />
         <span class="test-field-value">disabled via control</span>
       </div>
     </div>

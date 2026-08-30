@@ -10,7 +10,7 @@
           <span class="hf-label" (click)="showHighlightedOnly.set(!showHighlightedOnly())">
             Show highlighted movies only
           </span>
-          <cui-switch-v2
+          <cui-switch
             size="sm"
             color="highlight"
             [checked]="showHighlightedOnly()"
@@ -109,7 +109,7 @@
                     @if (isHighlighting(shMovie.id)) {
                       <loading-spinner class="mcfh-pending" variant="xs" />
                     }
-                    <cui-switch-v2
+                    <cui-switch
                       size="sm"
                       color="highlight"
                       [checked]="shMovie.highlighted"

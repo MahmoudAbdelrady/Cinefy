@@ -12,7 +12,7 @@
         <span class="hf-label" (click)="showAnnouncedOnly.set(!showAnnouncedOnly())">
           Show announced movies only
         </span>
-        <cui-switch-v2
+        <cui-switch
           size="sm"
           color="highlight"
           [checked]="showAnnouncedOnly()"
@@ -109,7 +109,7 @@
                   @if (isAnnouncePending(upcomingMovie.id)) {
                     <loading-spinner class="mcv-pending" variant="xs" />
                   }
-                  <cui-switch-v2
+                  <cui-switch
                     size="sm"
                     color="highlight"
                     [checked]="upcomingMovie.announced"
@@ -144,7 +144,7 @@
                   @if (isHighlightPending(upcomingMovie.id)) {
                     <loading-spinner class="mcv-pending" variant="xs" />
                   }
-                  <cui-switch-v2
+                  <cui-switch
                     size="sm"
                     color="highlight"
                     [checked]="upcomingMovie.highlighted"
