@@ -9,6 +9,21 @@
   <section class="test-sandbox">
     <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <div class="test-sandbox-body"></div>
+    <div class="test-sandbox-body">
+      <div class="test-field">
+        <p-inputotp [formControl]="code" [length]="6" [integerOnly]="true" />
+        <span class="test-field-value">6 digits, integer only — {{ code.value || '—' }}</span>
+      </div>
+
+      <div class="test-field">
+        <p-inputotp [formControl]="pin" [length]="4" />
+        <span class="test-field-value">4 chars, any input — {{ pin.value || '—' }}</span>
+      </div>
+
+      <div class="test-field">
+        <p-inputotp [formControl]="masked" [length]="6" [mask]="true" [integerOnly]="true" />
+        <span class="test-field-value">masked — {{ masked.value || '—' }}</span>
+      </div>
+    </div>
   </section>
 </div>
