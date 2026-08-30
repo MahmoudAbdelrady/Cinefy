@@ -18,7 +18,7 @@ import {
   InputField,
   LoadingSpinnerComponent,
   ModalComponent,
-  Switch,
+  CinefySwitch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { ExternalLinkIcon, KeyIcon, LockIcon, WebhookIcon } from '../../../shared/icons';
@@ -58,7 +58,7 @@ function buildCredentialsGroup(
     ModalComponent,
     InputField,
     CuiSelect,
-    Switch,
+    CinefySwitch,
     LucideDynamicIcon,
     LoadingSpinnerComponent,
     PaymentChannelsComponent,

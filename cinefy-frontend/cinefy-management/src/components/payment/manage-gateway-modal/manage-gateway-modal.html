@@ -68,7 +68,7 @@
             <h3>Payment channels</h3>
           </div>
           @if (!channelsRequired()) {
-            <cui-switch
+            <cui-switch-v2
               size="sm"
               [checked]="channelsEnabled()"
               (checkedChange)="onChannelsToggle($event)"
