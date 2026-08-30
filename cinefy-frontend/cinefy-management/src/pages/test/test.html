@@ -9,39 +9,6 @@
   <section class="test-sandbox">
     <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <form class="test-sandbox-body" [formGroup]="selectForm">
-      <div class="test-field">
-        <cui-paginated-select
-          label="Staff member"
-          hint="Single select, paginated via GET /staff."
-          placeholder="Select a staff member"
-          labelField="fullName"
-          valueField="id"
-          [control]="selectForm.controls.staff"
-          [fetchFn]="fetchStaff"
-          [pageSize]="2"
-          [clearable]="true"
-        />
-        <span class="test-field-value">{{ selectForm.controls.staff.value ?? 'null' }}</span>
-      </div>
-
-      <div class="test-field">
-        <cui-paginated-select
-          label="Staff members"
-          hint="Multi select, paginated via GET /staff."
-          placeholder="Select staff members"
-          labelField="fullName"
-          valueField="id"
-          [control]="selectForm.controls.staffMulti"
-          [fetchFn]="fetchStaff"
-          [pageSize]="5"
-          [multi]="true"
-          [clearable]="true"
-        />
-        <span class="test-field-value">
-          {{ selectForm.controls.staffMulti.value.length }} selected
-        </span>
-      </div>
-    </form>
+    <div class="test-sandbox-body"></div>
   </section>
 </div>
