@@ -1,11 +1,10 @@
 import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule } from '@angular/forms';
 import { interval, takeWhile } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertIcon, ArrowLeftIcon, ArrowRightIcon } from '../../../../../shared/icons';
-import { LoadingSpinnerComponent, InputOtp } from 'cinefy-ui/components';
+import { LoadingSpinnerComponent, InputOtpV2 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../../../services/auth';
 
@@ -13,7 +12,7 @@ const RESEND_COOLDOWN_SECONDS = 10 * 60;
 
 @Component({
   selector: 'fp-otp-step',
-  imports: [FormsModule, LucideDynamicIcon, LoadingSpinnerComponent, InputOtp],
+  imports: [FormsModule, LucideDynamicIcon, LoadingSpinnerComponent, InputOtpV2],
   templateUrl: './otp-step.html',
   styleUrl: './otp-step.scss',
 })
@@ -33,12 +32,13 @@ export class OtpStep {
   readonly verified = output<string>();
   readonly back = output<void>();
 
-  protected readonly code = signal('');
-  protected readonly error = signal<string | null>(null);
   protected readonly verifying = signal(false);
-  protected readonly complete = signal(false);
   protected readonly resending = signal(false);
   protected readonly resendCountdown = signal(0);
+
+  protected readonly complete = signal(false);
+
+  protected readonly code = new FormControl('', { nonNullable: true });
 
   protected readonly resendLabel = computed(() => {
     const seconds = this.resendCountdown();
@@ -47,15 +47,10 @@ export class OtpStep {
     return `You can resend in ${minutes}:${String(remainder).padStart(2, '0')}`;
   });
 
-  protected onCodeChange(next: string) {
-    this.code.set(next);
-    if (this.error()) this.error.set(null);
-  }
-
   protected onResend() {
     if (this.resending() || this.resendCountdown() > 0) return;
     this.resending.set(true);
-    this.onCodeChange('');
+    this.code.setValue('');
     this.authService
       .forgotPassword({ email: this.email() })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -63,8 +58,6 @@ export class OtpStep {
         next: () => {
           this.resending.set(false);
           this.startResendCooldown();
-          this.code.set('');
-          this.error.set(null);
           this.toast.success('A new code has been sent to your email.');
         },
         error: () => this.resending.set(false),
@@ -74,7 +67,7 @@ export class OtpStep {
   protected onSubmit() {
     if (!this.complete() || this.verifying()) return;
     this.verifying.set(true);
-    const code = this.code();
+    const code = this.code.value;
     this.authService
       .verifyResetCode({ code })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -83,10 +76,9 @@ export class OtpStep {
           this.verifying.set(false);
           this.verified.emit(code);
         },
-        error: (err: HttpErrorResponse) => {
+        error: () => {
           this.verifying.set(false);
-          this.code.set('');
-          this.error.set(err.error?.message ?? 'That code is invalid or has expired.');
+          this.code.setValue('');
         },
       });
   }

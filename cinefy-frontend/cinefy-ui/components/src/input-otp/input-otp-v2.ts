@@ -1,5 +1,7 @@
-import { Component, input } from "@angular/core";
+import { Component, computed, DestroyRef, inject, input, output, signal } from "@angular/core";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { distinctUntilChanged, startWith, switchMap } from "rxjs";
 import { InputOtp as PrimeInputOtp } from "primeng/inputotp";
 import { FieldErrorComponent } from "../field-error/field-error";
 
@@ -10,7 +12,28 @@ import { FieldErrorComponent } from "../field-error/field-error";
   styleUrl: "./input-otp-v2.scss",
 })
 export class InputOtpV2 {
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly control = input.required<FormControl<string>>();
   readonly errorMessages = input<Record<string, string>>({});
   readonly length = input(6);
+
+  readonly completeChange = output<boolean>();
+
+  private readonly value = signal("");
+
+  private readonly complete = computed(() => this.value().length === this.length());
+
+  constructor() {
+    toObservable(this.control)
+      .pipe(
+        switchMap((control) => control.valueChanges.pipe(startWith(control.value))),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((value) => this.value.set(value));
+
+    toObservable(this.complete)
+      .pipe(distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe((complete) => this.completeChange.emit(complete));
+  }
 }
