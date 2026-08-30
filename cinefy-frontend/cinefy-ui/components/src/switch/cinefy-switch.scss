@@ -21,4 +21,11 @@
     --p-toggleswitch-checked-hover-background: var(--cui-highlight);
     --p-toggleswitch-focus-ring-color: var(--cui-highlight-ring);
   }
+
+  &.p-toggleswitch-checked.p-disabled {
+    --p-toggleswitch-disabled-background: var(--p-toggleswitch-checked-background);
+    --p-toggleswitch-handle-disabled-background: var(--p-toggleswitch-handle-checked-background);
+
+    opacity: 0.5;
+  }
 }

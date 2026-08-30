@@ -40,7 +40,7 @@ import {
   EmptyStateComponent,
   InputField,
   CuiSelect,
-  Switch,
+  CinefySwitch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import {
@@ -107,7 +107,7 @@ const SELECTABLE_HALL_STATUS_ENTRIES = (
     NgClass,
     ReactiveFormsModule,
     LucideDynamicIcon,
-    Switch,
+    CinefySwitch,
     ModalComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
@@ -235,9 +235,6 @@ export class HallConfigModalComponent {
     computation: ({ rows, cols }, previous) => resizeGrid(previous?.value ?? [], rows, cols),
   });
 
-  protected readonly supports3DValue = toSignal(this.hallForm.controls.supports3D.valueChanges, {
-    initialValue: false,
-  });
   private readonly seatStatsValue = computed(() => seatStats(this.seatLayout()));
   protected readonly hasNormalSeats = computed(() => this.seatStatsValue().normal > 0);
   protected readonly hasVipSeats = computed(() => this.seatStatsValue().vip > 0);

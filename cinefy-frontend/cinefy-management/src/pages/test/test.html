@@ -29,6 +29,26 @@
         <cui-switch-v2 [control]="locked" />
         <span class="test-field-value">disabled via control</span>
       </div>
+
+      <div class="test-field">
+        <cui-switch-v2 [checked]="signalMode()" (checkedChange)="signalMode.set($event)" />
+        <span class="test-field-value">signal mode — {{ signalMode() }}</span>
+      </div>
+
+      <div class="test-field">
+        <cui-switch-v2 [checked]="true" [disabled]="true" />
+        <span class="test-field-value">disabled + checked — keeps accent</span>
+      </div>
+
+      <div class="test-field">
+        <cui-switch-v2 color="highlight" [checked]="true" [disabled]="true" />
+        <span class="test-field-value">disabled + checked — keeps highlight</span>
+      </div>
+
+      <div class="test-field">
+        <cui-switch-v2 [checked]="false" [disabled]="true" />
+        <span class="test-field-value">disabled + unchecked — grey</span>
+      </div>
     </div>
   </section>
 </div>

@@ -124,11 +124,7 @@
             />
             <label class="switch-group" [class.disabled]="isViewMode()">
               <span class="sg-label-text">Supports 3D</span>
-              <cui-switch
-                [checked]="supports3DValue()"
-                [disabled]="isViewMode()"
-                (checkedChange)="hallForm.controls.supports3D.setValue($event)"
-              />
+              <cui-switch-v2 [control]="hallForm.controls.supports3D" />
             </label>
           </div>
           @if (!isViewMode()) {
@@ -180,7 +176,7 @@
                         <span class="sg-label-icon">S</span>
                         <span class="sg-label-text">On-Site Only</span>
                       </div>
-                      <cui-switch
+                      <cui-switch-v2
                         color="highlight"
                         [checked]="onSiteOnly()"
                         [disabled]="selectedSeatCategory().type === 'AISLE'"

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { CinefySwitch } from 'cinefy-ui/components';
 
@@ -16,4 +16,6 @@ export class TestPage {
     { value: true, disabled: true },
     { nonNullable: true },
   );
+
+  protected readonly signalMode = signal(false);
 }
