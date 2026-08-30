@@ -9,46 +9,6 @@
   <section class="test-sandbox">
     <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <div class="test-sandbox-body">
-      <div class="test-field">
-        <cui-switch [control]="notifications" />
-        <span class="test-field-value">md / accent — {{ notifications.value }}</span>
-      </div>
-
-      <div class="test-field">
-        <cui-switch size="sm" [control]="compact" />
-        <span class="test-field-value">sm / accent — {{ compact.value }}</span>
-      </div>
-
-      <div class="test-field">
-        <cui-switch color="highlight" [control]="highlight" />
-        <span class="test-field-value">md / highlight — {{ highlight.value }}</span>
-      </div>
-
-      <div class="test-field">
-        <cui-switch [control]="locked" />
-        <span class="test-field-value">disabled via control</span>
-      </div>
-
-      <div class="test-field">
-        <cui-switch [checked]="signalMode()" (checkedChange)="signalMode.set($event)" />
-        <span class="test-field-value">signal mode — {{ signalMode() }}</span>
-      </div>
-
-      <div class="test-field">
-        <cui-switch [checked]="true" [disabled]="true" />
-        <span class="test-field-value">disabled + checked — keeps accent</span>
-      </div>
-
-      <div class="test-field">
-        <cui-switch color="highlight" [checked]="true" [disabled]="true" />
-        <span class="test-field-value">disabled + checked — keeps highlight</span>
-      </div>
-
-      <div class="test-field">
-        <cui-switch [checked]="false" [disabled]="true" />
-        <span class="test-field-value">disabled + unchecked — grey</span>
-      </div>
-    </div>
+    <div class="test-sandbox-body"></div>
   </section>
 </div>
