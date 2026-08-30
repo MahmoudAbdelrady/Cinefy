@@ -17,7 +17,7 @@ import {
   EmptyStateComponent,
   InputField,
   MediaImageComponent,
-  Switch,
+  CinefySwitch,
 } from 'cinefy-ui/components';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MoviesService, ShowtimeEventsService } from '../../../services';
@@ -29,7 +29,7 @@ const COMING_SOON_WINDOW_DAYS = 10;
   imports: [
     LucideDynamicIcon,
     NgpDialogTrigger,
-    Switch,
+    CinefySwitch,
     LoadingSpinnerComponent,
     EmptyStateComponent,
     InputField,
