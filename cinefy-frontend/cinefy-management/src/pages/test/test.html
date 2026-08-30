@@ -9,26 +9,6 @@
   <section class="test-sandbox">
     <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <div class="test-sandbox-body">
-      <div class="test-field">
-        <input-otp [control]="code" />
-        <span class="test-field-value">default length 6 — {{ code.value || '—' }}</span>
-      </div>
-
-      <div class="test-field">
-        <input-otp [control]="pin" [length]="4" />
-        <span class="test-field-value">length 4 — {{ pin.value || '—' }}</span>
-      </div>
-
-      <div class="test-field">
-        <input-otp
-          [control]="required"
-          [errorMessages]="{ required: 'Enter the code', minlength: 'Code must be 6 digits' }"
-        />
-        <button type="button" class="btn-secondary" (click)="required.markAsTouched()">
-          Touch to show error
-        </button>
-      </div>
-    </div>
+    <div class="test-sandbox-body"></div>
   </section>
 </div>
