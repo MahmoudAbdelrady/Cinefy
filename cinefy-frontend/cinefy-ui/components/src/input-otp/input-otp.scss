@@ -1,78 +1,18 @@
-@use "../../../src/styles/mixins" as *;
-@use "../../../src/styles/radii" as *;
-
 :host {
   display: block;
   width: 100%;
 }
 
-.otp-root {
-  position: relative;
-}
+.cui-input-otp {
+  --p-inputotp-gap: 8px;
 
-.otp-row {
-  @include flex-between;
-  gap: 8px;
+  display: flex;
 
-  &--shake {
-    animation: otp-shake 320ms ease-in-out;
-  }
-}
-
-@keyframes otp-shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  20%,
-  60% {
-    transform: translateX(-4px);
-  }
-  40%,
-  80% {
-    transform: translateX(4px);
-  }
-}
-
-.otp-cell {
-  width: 100%;
-  max-width: 52px;
-  aspect-ratio: 1 / 1;
-  @include flex-center;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--cui-text-primary);
-  background-color: var(--cui-surface-base);
-  border: 1px solid var(--cui-border-subtle);
-  border-radius: $radius-md;
-  cursor: text;
-  user-select: none;
-  transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    background-color 150ms ease;
-
-  &:hover {
-    border-color: var(--cui-border-default);
-  }
-
-  &[data-filled] {
-    background-color: var(--cui-surface-disabled);
-    border-color: var(--cui-border-default);
-  }
-
-  &[data-active] {
-    border-color: var(--cui-ring);
-    box-shadow: 0 0 0 2px var(--cui-ring);
-    background-color: var(--cui-surface-base);
-  }
-
-  &--error {
-    border-color: var(--cui-danger);
-
-    &[data-active] {
-      border-color: var(--cui-danger);
-      box-shadow: 0 0 0 2px var(--cui-ring-error);
-    }
+  ::ng-deep .p-inputotp-input {
+    width: 100%;
+    max-width: 52px;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    font-weight: 600;
   }
 }

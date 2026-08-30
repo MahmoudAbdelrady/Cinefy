@@ -1,16 +1,10 @@
-<div
-  class="otp-root"
-  [ngpInputOtpValue]="value()"
-  [ngpInputOtpInputMode]="'numeric'"
-  [ngpInputOtpPattern]="'^[0-9]*$'"
-  (ngpInputOtpValueChange)="onValueChange($event)"
-  ngpInputOtp
->
-  <input #otpInput ngpInputOtpInput />
+<p-inputotp
+  class="cui-input-otp"
+  size="large"
+  [formControl]="control()"
+  [length]="length()"
+  [integerOnly]="true"
+  [invalid]="control().touched && control().invalid"
+/>
 
-  <div class="otp-row" [class.otp-row--shake]="shake()">
-    @for (i of slotIndices(); track i) {
-    <div class="otp-cell" [class.otp-cell--error]="error()" ngpInputOtpSlot></div>
-    }
-  </div>
-</div>
+<field-error [control]="control()" [messages]="errorMessages()" />

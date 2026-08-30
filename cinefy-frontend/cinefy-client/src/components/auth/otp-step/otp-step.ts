@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule } from '@angular/forms';
 import { Observable, interval, takeWhile } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { InputOtpV2, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { InputOtp, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
 import type { OtpType } from '../../../shared/types';
@@ -13,7 +13,7 @@ const RESEND_COOLDOWN_SECONDS = 10 * 60;
 
 @Component({
   selector: 'auth-otp-step',
-  imports: [FormsModule, LucideDynamicIcon, InputOtpV2, LoadingSpinnerComponent],
+  imports: [FormsModule, LucideDynamicIcon, InputOtp, LoadingSpinnerComponent],
   templateUrl: './otp-step.html',
   styleUrl: './otp-step.scss',
 })

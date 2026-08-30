@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { InputOtpV2 } from 'cinefy-ui/components';
+import { InputOtp } from 'cinefy-ui/components';
 
 @Component({
   selector: 'test-page',
-  imports: [InputOtpV2],
+  imports: [InputOtp],
   templateUrl: './test.html',
   styleUrl: './test.scss',
 })

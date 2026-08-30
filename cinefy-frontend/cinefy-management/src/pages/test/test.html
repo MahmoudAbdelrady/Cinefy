@@ -11,17 +11,17 @@
 
     <div class="test-sandbox-body">
       <div class="test-field">
-        <input-otp-v2 [control]="code" />
+        <input-otp [control]="code" />
         <span class="test-field-value">default length 6 — {{ code.value || '—' }}</span>
       </div>
 
       <div class="test-field">
-        <input-otp-v2 [control]="pin" [length]="4" />
+        <input-otp [control]="pin" [length]="4" />
         <span class="test-field-value">length 4 — {{ pin.value || '—' }}</span>
       </div>
 
       <div class="test-field">
-        <input-otp-v2
+        <input-otp
           [control]="required"
           [errorMessages]="{ required: 'Enter the code', minlength: 'Code must be 6 digits' }"
         />
