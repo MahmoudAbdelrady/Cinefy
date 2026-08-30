@@ -9,6 +9,9 @@
   <section class="test-sandbox">
     <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <div class="test-sandbox-body"></div>
+    <div class="test-sandbox-body">
+      <p-toggleswitch [(ngModel)]="notifications" />
+      <span class="test-field-value">{{ notifications() ? 'On' : 'Off' }}</span>
+    </div>
   </section>
 </div>
