@@ -85,10 +85,7 @@
         </div>
         <div class="switch-group">
           <span>Show in 3D</span>
-          <cui-switch
-            [checked]="showtimeForm.controls.is3D.value"
-            (checkedChange)="showtimeForm.controls.is3D.setValue($event)"
-          />
+          <cui-switch-v2 [control]="showtimeForm.controls.is3D" />
         </div>
         <div class="input-group">
           <label>Special Notes (Optional)</label>

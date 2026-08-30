@@ -35,7 +35,7 @@ import {
   FieldErrorComponent,
   LoadingSpinnerComponent,
   MediaImageComponent,
-  Switch,
+  CinefySwitch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { DurationPipe } from 'cinefy-ui/pipes';
@@ -81,7 +81,7 @@ function combineDateAndTime(date: Date, time: string): string {
     MoviePickerComponent,
     MediaImageComponent,
     DatePipe,
-    Switch,
+    CinefySwitch,
     FieldErrorComponent,
     LoadingSpinnerComponent,
     DurationPipe,
