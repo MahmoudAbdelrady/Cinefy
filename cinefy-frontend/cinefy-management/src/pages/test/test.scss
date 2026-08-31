@@ -41,8 +41,9 @@
     .test-sandbox-body {
       @include flex-column;
 
-      gap: 16px;
-      align-items: flex-start;
+      gap: 20px;
+      align-items: stretch;
+      max-width: 420px;
     }
   }
 }

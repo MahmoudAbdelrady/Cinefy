@@ -4,6 +4,7 @@ export * from "./media-image/media-image";
 export * from "./not-found/not-found";
 export * from "./field-error/field-error";
 export * from "./input-field/input-field";
+export * from "./input-field/input-field-v2";
 export * from "./password-checklist/password-checklist";
 export * from "./input-otp/input-otp";
 export * from "./modal/modal";
