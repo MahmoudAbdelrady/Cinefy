@@ -56,7 +56,7 @@
         </div>
         <form class="hi-form" [formGroup]="hallForm">
           <div class="input-group">
-            <input-field
+            <input-field-v2
               label="Hall Name"
               placeholder="e.g. Hall 1, VIP Hall, IMAX"
               [control]="hallForm.controls.name"
@@ -70,7 +70,7 @@
           </div>
           <div class="number-input-group">
             <div class="input-group">
-              <input-field
+              <input-field-v2
                 label="Number of Rows"
                 type="number"
                 placeholder="e.g. 10"
@@ -83,7 +83,7 @@
               />
             </div>
             <div class="input-group">
-              <input-field
+              <input-field-v2
                 label="Seats per Row"
                 type="number"
                 placeholder="e.g. 12"
@@ -209,7 +209,7 @@
                         >Normal</span
                       >
                     </div>
-                    <input-field
+                    <input-field-v2
                       type="number"
                       placeholder="e.g. 10"
                       [leadingIcon]="icons.DollarSignIcon"
@@ -231,7 +231,7 @@
                         >VIP</span
                       >
                     </div>
-                    <input-field
+                    <input-field-v2
                       type="number"
                       placeholder="e.g. 10"
                       [leadingIcon]="icons.DollarSignIcon"
