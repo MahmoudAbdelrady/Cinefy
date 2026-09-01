@@ -32,6 +32,7 @@ export const appConfig: ApplicationConfig = {
     provideCinefyToast(),
     provideMenuConfig({ scrollBehavior: 'reposition' }),
     providePrimeNG({
+      inputVariant: 'filled',
       theme: {
         preset: CinefyClientPreset,
       },

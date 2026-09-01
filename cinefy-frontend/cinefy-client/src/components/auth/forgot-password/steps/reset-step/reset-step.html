@@ -6,7 +6,7 @@
 
   <form class="fp-form" [formGroup]="resetForm" (ngSubmit)="onSubmit()">
     <div class="input-group">
-      <input-field
+      <input-field-v2
         label="New password"
         type="password"
         placeholder="Enter your password"
@@ -21,7 +21,7 @@
       <password-checklist [control]="resetForm.controls.newPassword" />
     </div>
 
-    <input-field
+    <input-field-v2
       label="Confirm new password"
       type="password"
       placeholder="Confirm your password"
