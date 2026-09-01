@@ -2,7 +2,7 @@
   <ng-content />
 </div>
 
-<p-menu #menu [model]="model()" [popup]="true" styleClass="cui-menu-panel">
+<p-menu #menu [model]="model()" [popup]="true" appendTo="body" styleClass="cui-menu-panel">
   <ng-template #submenuheader let-group>
     @if (group.label) {
     <span class="cui-menu-group">{{ group.label }}</span>

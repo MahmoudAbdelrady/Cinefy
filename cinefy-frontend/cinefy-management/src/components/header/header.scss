@@ -128,9 +128,7 @@
 }
 
 .user-info-container {
-  position: relative;
-
-  > button {
+  .user-info-trigger {
     @include flex-align;
     gap: 12px;
     padding: 6px 12px 6px 6px;
@@ -185,64 +183,6 @@
 
     &:hover > svg:last-child {
       color: $gray-600;
-    }
-  }
-}
-
-.user-info-menu-items {
-  position: absolute;
-  right: 0;
-  margin-top: 8px;
-  width: 192px;
-  background-color: #ffffff;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-lg;
-  border: 1px solid $card-border-subtle;
-  padding: 6px 0;
-  overflow: hidden;
-  z-index: 30;
-}
-
-.uim-item {
-  @include flex-align;
-  gap: 12px;
-  width: 100%;
-  padding: 10px 16px;
-  border: none;
-  background: none;
-  font-family: inherit;
-  font-size: 14px;
-  text-align: left;
-  color: $gray-700;
-  transition: background-color 150ms ease;
-  cursor: pointer;
-
-  &:not(:disabled):hover {
-    background-color: $gray-50;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  svg {
-    display: flex;
-    color: $gray-400;
-  }
-
-  &:last-child {
-    color: $red-600;
-    margin-top: 6px;
-    padding-top: 10px;
-    border-top: 1px solid $gray-100;
-
-    &:not(:disabled):hover {
-      background-color: $red-50;
-    }
-
-    svg {
-      color: $red-400;
     }
   }
 }
