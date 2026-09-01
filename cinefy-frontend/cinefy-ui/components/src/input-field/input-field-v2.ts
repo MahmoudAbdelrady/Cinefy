@@ -65,9 +65,9 @@ export class InputFieldV2 {
     return this.showPassword() ? "text" : "password";
   });
 
-  protected readonly invalid = computed(() => this.control().touched && this.control().invalid);
-
   protected readonly showClear = computed(() => this.clearable() && !this.isPassword() && !!this.controlValue());
+
+  protected readonly hasErrorMessages = computed(() => Object.keys(this.errorMessages()).length > 0);
 
   constructor() {
     afterNextRender(() => {

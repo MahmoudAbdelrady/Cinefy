@@ -14,7 +14,7 @@ import {
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
-  InputField,
+  InputFieldV2,
   LoadingSpinnerComponent,
   ModalComponent,
   EmptyStateComponent,
@@ -36,7 +36,7 @@ import { HallsService } from '../../../services';
     LucideDynamicIcon,
     NgpDialogTrigger,
     ReactiveFormsModule,
-    InputField,
+    InputFieldV2,
     CuiSelect,
     ModalComponent,
     HallConfigModalComponent,
