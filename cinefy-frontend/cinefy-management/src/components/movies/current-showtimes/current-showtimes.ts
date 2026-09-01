@@ -22,6 +22,7 @@ import {
   LoadingSpinnerComponent,
   EmptyStateComponent,
   InputField,
+  InputFieldV2,
   MediaImageComponent,
   CinefySwitch,
 } from 'cinefy-ui/components';
@@ -44,6 +45,7 @@ import {
     LoadingSpinnerComponent,
     EmptyStateComponent,
     InputField,
+    InputFieldV2,
     CinefySwitch,
     ManageShowtimeModalComponent,
     MovieShowtimesModal,

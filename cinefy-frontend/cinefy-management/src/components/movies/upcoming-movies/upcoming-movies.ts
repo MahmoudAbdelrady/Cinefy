@@ -16,6 +16,7 @@ import {
   LoadingSpinnerComponent,
   EmptyStateComponent,
   InputField,
+  InputFieldV2,
   MediaImageComponent,
   CinefySwitch,
 } from 'cinefy-ui/components';
@@ -33,6 +34,7 @@ const COMING_SOON_WINDOW_DAYS = 10;
     LoadingSpinnerComponent,
     EmptyStateComponent,
     InputField,
+    InputFieldV2,
     ManageShowtimeModalComponent,
     MediaImageComponent,
   ],
