@@ -15,7 +15,6 @@ import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   LoadingSpinnerComponent,
   EmptyStateComponent,
-  InputField,
   InputFieldV2,
   MediaImageComponent,
   CinefySwitch,
@@ -33,7 +32,6 @@ const COMING_SOON_WINDOW_DAYS = 10;
     CinefySwitch,
     LoadingSpinnerComponent,
     EmptyStateComponent,
-    InputField,
     InputFieldV2,
     ManageShowtimeModalComponent,
     MediaImageComponent,

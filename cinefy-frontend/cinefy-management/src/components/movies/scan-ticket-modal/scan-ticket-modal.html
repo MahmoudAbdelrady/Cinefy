@@ -2,15 +2,6 @@
 
 @if (scan === null) {
   <form id="stm-form" class="stm-form" [formGroup]="scanForm" (ngSubmit)="submit()">
-    <!-- <input-field
-      label="Booking Reference"
-      [control]="scanForm.controls.reference"
-      [placeholder]="manualEntry() ? 'e.g. F2AC9WJKRV' : 'Waiting for scan...'"
-      [leadingIcon]="icons.ScanLineIcon"
-      [uppercase]="true"
-      [autoFocus]="true"
-      (blurred)="onInputBlur()"
-    /> -->
     <input-field-v2
       label="Booking Reference"
       [control]="scanForm.controls.reference"

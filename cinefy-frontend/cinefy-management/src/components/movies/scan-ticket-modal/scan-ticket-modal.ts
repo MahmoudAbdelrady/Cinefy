@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { InputField, InputFieldV2, MediaImageComponent } from 'cinefy-ui/components';
+import { InputFieldV2, MediaImageComponent } from 'cinefy-ui/components';
 import {
   CalendarIcon,
   ClockIcon,
@@ -21,14 +21,7 @@ const AUTO_SUBMIT_DELAY_MS = 500;
 
 @Component({
   selector: 'scan-ticket-modal',
-  imports: [
-    DatePipe,
-    ReactiveFormsModule,
-    LucideDynamicIcon,
-    InputField,
-    InputFieldV2,
-    MediaImageComponent,
-  ],
+  imports: [DatePipe, ReactiveFormsModule, LucideDynamicIcon, InputFieldV2, MediaImageComponent],
   templateUrl: './scan-ticket-modal.html',
   styleUrl: './scan-ticket-modal.scss',
 })

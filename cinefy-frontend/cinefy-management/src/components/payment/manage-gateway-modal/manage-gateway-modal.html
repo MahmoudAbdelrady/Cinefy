@@ -6,7 +6,7 @@
 >
   <form class="gateway-form" [formGroup]="form" (ngSubmit)="save()">
     <div class="identity-row">
-      <input-field
+      <input-field-v2
         label="Name"
         placeholder="e.g. Paymob"
         hint="For display only"
@@ -40,7 +40,7 @@
 
       <div class="credential-fields">
         @for (field of providerSpec().credentialFields; track field.key) {
-          <input-field
+          <input-field-v2
             [label]="field.label"
             [type]="field.secret ? 'password' : 'text'"
             [placeholder]="field.secret && isEditMode() ? '' : field.placeholder"
@@ -54,7 +54,6 @@
               required: field.label + ' is required',
               pattern: field.label + ' cannot contain spaces',
             }"
-            [monospace]="true"
           />
         }
       </div>
