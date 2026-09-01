@@ -18,7 +18,19 @@
   } @else if (isEditing()) {
     <form class="pd-form" [formGroup]="personalForm" (ngSubmit)="save()">
       <div class="pd-name-row">
-        <input-field
+        <!-- <input-field
+          label="First name"
+          placeholder="Your first name"
+          [control]="personalForm.controls.firstName"
+          [leadingIcon]="icons.UserIcon"
+          [errorMessages]="{
+            required: 'First name is required',
+            minlength: 'Must be at least 2 characters',
+            maxlength: 'Must be at most 50 characters',
+            pattern: 'First name may only contain letters, spaces, hyphens, and apostrophes',
+          }"
+        /> -->
+        <input-field-v2
           label="First name"
           placeholder="Your first name"
           [control]="personalForm.controls.firstName"
@@ -30,7 +42,19 @@
             pattern: 'First name may only contain letters, spaces, hyphens, and apostrophes',
           }"
         />
-        <input-field
+        <!-- <input-field
+          label="Last name"
+          placeholder="Your last name"
+          [control]="personalForm.controls.lastName"
+          [leadingIcon]="icons.UserIcon"
+          [errorMessages]="{
+            required: 'Last name is required',
+            minlength: 'Must be at least 2 characters',
+            maxlength: 'Must be at most 50 characters',
+            pattern: 'Last name may only contain letters, spaces, hyphens, and apostrophes',
+          }"
+        /> -->
+        <input-field-v2
           label="Last name"
           placeholder="Your last name"
           [control]="personalForm.controls.lastName"
@@ -44,7 +68,14 @@
         />
       </div>
 
-      <input-field
+      <!-- <input-field
+        label="Email"
+        placeholder="Your email"
+        [control]="personalForm.controls.email"
+        [leadingIcon]="icons.EmailIcon"
+        hint="Your email is your account identity and it can't be changed."
+      /> -->
+      <input-field-v2
         label="Email"
         placeholder="Your email"
         [control]="personalForm.controls.email"

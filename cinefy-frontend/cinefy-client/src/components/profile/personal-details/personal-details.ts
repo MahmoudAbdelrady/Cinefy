@@ -5,6 +5,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
   InputField,
+  InputFieldV2,
   LoadingSpinnerComponent,
   parsePhoneDigits,
   PhoneInput,
@@ -25,6 +26,7 @@ import type { CurrentUser, UpdateProfilePayload } from '../../../shared/types';
     ReactiveFormsModule,
     LucideDynamicIcon,
     InputField,
+    InputFieldV2,
     PhoneInput,
     LoadingSpinnerComponent,
     PhoneFormatPipe,

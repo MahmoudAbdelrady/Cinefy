@@ -2,7 +2,12 @@ import { Component, computed, DestroyRef, effect, inject, signal } from '@angula
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputField, LoadingSpinnerComponent, PasswordChecklist } from 'cinefy-ui/components';
+import {
+  InputField,
+  InputFieldV2,
+  LoadingSpinnerComponent,
+  PasswordChecklist,
+} from 'cinefy-ui/components';
 import { linkConfirmPassword } from 'cinefy-ui/forms';
 import { ToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
@@ -12,7 +17,13 @@ import type { ApiError, ChangePasswordPayload } from '../../../shared/types';
 
 @Component({
   selector: 'profile-password',
-  imports: [ReactiveFormsModule, InputField, PasswordChecklist, LoadingSpinnerComponent],
+  imports: [
+    ReactiveFormsModule,
+    InputField,
+    InputFieldV2,
+    PasswordChecklist,
+    LoadingSpinnerComponent,
+  ],
   templateUrl: './profile-password.html',
   styleUrl: './profile-password.scss',
 })
