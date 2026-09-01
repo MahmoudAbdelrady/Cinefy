@@ -16,7 +16,7 @@ import examples from "libphonenumber-js/examples.mobile.json";
 export type PhoneCountryCode = CountryCode;
 import { PhoneIcon } from "../icons";
 import { CuiSelect } from "../drop-down/cui-select/cui-select";
-import { InputFieldV2 } from "../input-field/input-field-v2";
+import { CinefyInput } from "../input-field/cinefy-input";
 
 interface CountryOption {
   code: CountryCode;
@@ -65,7 +65,7 @@ export function parsePhoneDigits(phoneNumber: string): { country: CountryCode; n
 
 @Component({
   selector: "phone-input",
-  imports: [CuiSelect, InputFieldV2],
+  imports: [CuiSelect, CinefyInput],
   templateUrl: "./phone-input.html",
   styleUrl: "./phone-input.scss",
 })

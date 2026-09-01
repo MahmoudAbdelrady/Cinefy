@@ -13,20 +13,14 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, EMPTY, startWith, switchMap, tap } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { ChevronRightIcon, ClapperboardIcon, SearchIcon } from '../../../shared/icons';
-import { InputFieldV2, LoadingSpinnerComponent, MediaImageComponent } from 'cinefy-ui/components';
+import { CinefyInput, LoadingSpinnerComponent, MediaImageComponent } from 'cinefy-ui/components';
 import { MovieSearchResult } from '../../../shared/types';
 import { SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE } from '../../../shared/constants';
 import { MoviesService } from '../../../services';
 
 @Component({
   selector: 'movie-picker',
-  imports: [
-    InputFieldV2,
-    LucideDynamicIcon,
-    LoadingSpinnerComponent,
-    MediaImageComponent,
-    DatePipe,
-  ],
+  imports: [CinefyInput, LucideDynamicIcon, LoadingSpinnerComponent, MediaImageComponent, DatePipe],
   templateUrl: './movie-picker.html',
   styleUrl: './movie-picker.scss',
 })

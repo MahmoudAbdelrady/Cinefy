@@ -15,7 +15,7 @@ import { startWith } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CuiSelect,
-  InputFieldV2,
+  CinefyInput,
   LoadingSpinnerComponent,
   ModalComponent,
   CinefySwitch,
@@ -56,7 +56,7 @@ function buildCredentialsGroup(
   imports: [
     ReactiveFormsModule,
     ModalComponent,
-    InputFieldV2,
+    CinefyInput,
     CuiSelect,
     CinefySwitch,
     LucideDynamicIcon,

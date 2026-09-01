@@ -6,7 +6,7 @@
 
   <div class="lp-card">
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="lp-form">
-      <input-field-v2
+      <cui-input
         label="Email"
         placeholder="Enter your email"
         [leadingIcon]="icons.EmailIcon"
@@ -18,7 +18,7 @@
       />
 
       <div class="lp-password">
-        <input-field-v2
+        <cui-input
           label="Password"
           type="password"
           placeholder="Enter your password"

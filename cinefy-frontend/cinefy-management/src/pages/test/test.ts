@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { InputFieldV2 } from 'cinefy-ui/components';
+import { CinefyInput } from 'cinefy-ui/components';
 import { SearchIcon } from '../../shared/icons';
 import { PASSWORD_PATTERN } from '../../shared/validation';
 
 @Component({
   selector: 'test-page',
-  imports: [InputFieldV2],
+  imports: [CinefyInput],
   templateUrl: './test.html',
   styleUrl: './test.scss',
 })

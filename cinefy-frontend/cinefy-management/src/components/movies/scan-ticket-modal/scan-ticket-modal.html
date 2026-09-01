@@ -2,7 +2,7 @@
 
 @if (scan === null) {
   <form id="stm-form" class="stm-form" [formGroup]="scanForm" (ngSubmit)="submit()">
-    <input-field-v2
+    <cui-input
       label="Booking Reference"
       [control]="scanForm.controls.reference"
       [placeholder]="manualEntry() ? 'e.g. F2AC9WJKRV' : 'Waiting for scan...'"

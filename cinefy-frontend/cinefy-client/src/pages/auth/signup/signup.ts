@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
-  InputFieldV2,
+  CinefyInput,
   PasswordChecklist,
   LoadingSpinnerComponent,
   PhoneInput,
@@ -26,7 +26,7 @@ import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/i
     ReactiveFormsModule,
     RouterLink,
     LucideDynamicIcon,
-    InputFieldV2,
+    CinefyInput,
     PasswordChecklist,
     PhoneInput,
     LoadingSpinnerComponent,

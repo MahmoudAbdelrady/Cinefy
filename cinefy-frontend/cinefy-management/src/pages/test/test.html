@@ -10,14 +10,14 @@
     <h2 class="test-sandbox-title">Sandbox</h2>
 
     <div class="test-sandbox-body">
-      <input-field-v2
+      <cui-input
         label="Full name"
         placeholder="Jane Doe"
         hint="Plain text field with a hint."
         [control]="name"
       />
 
-      <input-field-v2
+      <cui-input
         label="Search"
         placeholder="Search movies"
         [control]="search"
@@ -25,14 +25,14 @@
         [clearable]="true"
       />
 
-      <input-field-v2
+      <cui-input
         label="Email"
         placeholder="jane@example.com"
         [control]="email"
         [errorMessages]="{ required: 'Email is required', email: 'Enter a valid email' }"
       />
 
-      <input-field-v2
+      <cui-input
         label="Password"
         type="password"
         placeholder="Password"
@@ -43,7 +43,7 @@
         }"
       />
 
-      <input-field-v2
+      <cui-input
         label="Booking reference"
         placeholder="ABC-123"
         size="small"

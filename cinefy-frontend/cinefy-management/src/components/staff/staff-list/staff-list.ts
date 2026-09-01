@@ -31,7 +31,7 @@ import {
   ModalComponent,
   PaginationComponent,
   CuiSelect,
-  InputFieldV2,
+  CinefyInput,
   LoadingSpinnerComponent,
   EmptyStateComponent,
 } from 'cinefy-ui/components';
@@ -58,7 +58,7 @@ import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
     LucideDynamicIcon,
     ReactiveFormsModule,
     CuiSelect,
-    InputFieldV2,
+    CinefyInput,
     PaginationComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,

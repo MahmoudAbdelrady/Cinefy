@@ -58,7 +58,7 @@
 <ng-template #channelFormTemplate>
   <form class="channel-form" [formGroup]="channelForm" (ngSubmit)="saveChannel()">
     <div class="channel-form-fields">
-      <input-field-v2
+      <cui-input
         label="Name"
         placeholder="e.g. Cards"
         [control]="channelForm.controls.name"
@@ -96,7 +96,7 @@
     <div class="channel-form-fields">
       @for (field of providerConfig(); track field.key) {
         @if (configControl(field.key); as control) {
-          <input-field-v2
+          <cui-input
             [label]="field.label"
             [type]="field.type"
             [placeholder]="field.placeholder"

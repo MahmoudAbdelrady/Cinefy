@@ -6,7 +6,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CuiSelect,
   EmptyStateComponent,
-  InputFieldV2,
+  CinefyInput,
   LoadingSpinnerComponent,
   MediaImageComponent,
 } from 'cinefy-ui/components';
@@ -25,7 +25,7 @@ import {
     RouterLink,
     LucideDynamicIcon,
     ReactiveFormsModule,
-    InputFieldV2,
+    CinefyInput,
     CuiSelect,
     MediaImageComponent,
     EmptyStateComponent,

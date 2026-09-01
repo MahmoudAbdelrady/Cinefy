@@ -6,7 +6,7 @@
 >
   <form class="gateway-form" [formGroup]="form" (ngSubmit)="save()">
     <div class="identity-row">
-      <input-field-v2
+      <cui-input
         label="Name"
         placeholder="e.g. Paymob"
         hint="For display only"
@@ -40,7 +40,7 @@
 
       <div class="credential-fields">
         @for (field of providerSpec().credentialFields; track field.key) {
-          <input-field-v2
+          <cui-input
             [label]="field.label"
             [type]="field.secret ? 'password' : 'text'"
             [placeholder]="field.secret && isEditMode() ? '' : field.placeholder"

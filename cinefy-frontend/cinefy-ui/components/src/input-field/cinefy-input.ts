@@ -19,15 +19,15 @@ import { InputText } from "primeng/inputtext";
 import { EyeIcon, EyeOffIcon, XIcon } from "../icons";
 import { FieldErrorComponent } from "../field-error/field-error";
 
-type InputFieldSize = "small" | "large";
+type CinefyInputSize = "small" | "large";
 
 @Component({
-  selector: "input-field-v2",
+  selector: "cui-input",
   imports: [ReactiveFormsModule, LucideDynamicIcon, IconField, InputIcon, InputText, FieldErrorComponent],
-  templateUrl: "./input-field-v2.html",
-  styleUrl: "./input-field-v2.scss",
+  templateUrl: "./cinefy-input.html",
+  styleUrl: "./cinefy-input.scss",
 })
-export class InputFieldV2 {
+export class CinefyInput {
   protected readonly icons = {
     EyeIcon,
     EyeOffIcon,
@@ -44,7 +44,7 @@ export class InputFieldV2 {
   readonly leadingIcon: InputSignal<LucideIcon | null> = input<LucideIcon | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
   readonly blockClipboard = input<boolean>(false);
-  readonly size: InputSignal<InputFieldSize> = input<InputFieldSize>("large");
+  readonly size: InputSignal<CinefyInputSize> = input<CinefyInputSize>("large");
   readonly autoFocus = input<boolean>(false);
   readonly clearable = input<boolean>(false);
   readonly uppercase = input<boolean>(false);

@@ -4,7 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { InputFieldV2, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyInput, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { OAuthButtonsComponent, OtpStep } from '../../../components';
 import { AuthFormStage, ApiError } from '../../../shared/types';
 import { ToastService } from 'cinefy-ui/services';
@@ -19,7 +19,7 @@ import { ArrowRightIcon, EmailIcon, LockIcon } from '../../../shared/icons';
     ReactiveFormsModule,
     RouterLink,
     LucideDynamicIcon,
-    InputFieldV2,
+    CinefyInput,
     LoadingSpinnerComponent,
     OAuthButtonsComponent,
     OtpStep,
