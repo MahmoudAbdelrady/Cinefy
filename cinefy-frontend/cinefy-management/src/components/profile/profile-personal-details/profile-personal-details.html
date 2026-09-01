@@ -29,7 +29,7 @@
   @if (isEditing()) {
     <form class="panel-body" [formGroup]="personalForm" (ngSubmit)="save()">
       <div class="form-fields">
-        <input-field
+        <input-field-v2
           [control]="personalForm.controls.firstName"
           label="First name"
           placeholder="Enter your first name"
@@ -41,7 +41,7 @@
             pattern: 'First name may only contain letters, spaces, hyphens, and apostrophes',
           }"
         />
-        <input-field
+        <input-field-v2
           [control]="personalForm.controls.lastName"
           label="Last name"
           placeholder="Enter your last name"

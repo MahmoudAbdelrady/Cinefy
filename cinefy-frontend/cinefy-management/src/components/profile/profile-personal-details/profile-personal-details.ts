@@ -4,7 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EditIcon, EmailIcon, PhoneIcon, LockIcon, UserIcon } from '../../../shared/icons';
 import {
-  InputField,
+  InputFieldV2,
   LoadingSpinnerComponent,
   DEFAULT_COUNTRY,
   PhoneInput,
@@ -24,7 +24,7 @@ import { StaffService } from '../../../services';
   imports: [
     ReactiveFormsModule,
     LucideDynamicIcon,
-    InputField,
+    InputFieldV2,
     PhoneInput,
     LoadingSpinnerComponent,
     PhoneFormatPipe,
