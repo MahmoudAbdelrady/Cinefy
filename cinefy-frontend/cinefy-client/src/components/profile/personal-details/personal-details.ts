@@ -4,7 +4,6 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
-  InputField,
   InputFieldV2,
   LoadingSpinnerComponent,
   parsePhoneDigits,
@@ -25,7 +24,6 @@ import type { CurrentUser, UpdateProfilePayload } from '../../../shared/types';
   imports: [
     ReactiveFormsModule,
     LucideDynamicIcon,
-    InputField,
     InputFieldV2,
     PhoneInput,
     LoadingSpinnerComponent,
