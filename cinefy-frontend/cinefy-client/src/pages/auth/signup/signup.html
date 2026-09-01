@@ -8,7 +8,7 @@
 
       <form class="sp-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
         <div class="sp-name-row">
-          <input-field
+          <input-field-v2
             label="First name"
             type="text"
             placeholder="Enter your first name"
@@ -21,7 +21,7 @@
               pattern: 'First name may only contain letters, spaces, hyphens, and apostrophes',
             }"
           />
-          <input-field
+          <input-field-v2
             label="Last name"
             type="text"
             placeholder="Enter your last name"
@@ -36,7 +36,7 @@
           />
         </div>
 
-        <input-field
+        <input-field-v2
           label="Email"
           type="text"
           placeholder="Enter your email"
@@ -54,7 +54,7 @@
         />
 
         <div class="input-group">
-          <input-field
+          <input-field-v2
             label="Password"
             type="password"
             placeholder="At least 8 characters"
@@ -69,7 +69,7 @@
           <password-checklist [control]="signupForm.controls.password" />
         </div>
 
-        <input-field
+        <input-field-v2
           label="Confirm password"
           type="password"
           placeholder="Re-enter the new password"
