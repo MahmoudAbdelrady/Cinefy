@@ -9,48 +9,6 @@
   <section class="test-sandbox">
     <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <div class="test-sandbox-body">
-      <cui-input
-        label="Full name"
-        placeholder="Jane Doe"
-        hint="Plain text field with a hint."
-        [control]="name"
-      />
-
-      <cui-input
-        label="Search"
-        placeholder="Search movies"
-        [control]="search"
-        [leadingIcon]="icons.SearchIcon"
-        [clearable]="true"
-      />
-
-      <cui-input
-        label="Email"
-        placeholder="jane@example.com"
-        [control]="email"
-        [errorMessages]="{ required: 'Email is required', email: 'Enter a valid email' }"
-      />
-
-      <cui-input
-        label="Password"
-        type="password"
-        placeholder="Password"
-        [control]="password"
-        [errorMessages]="{
-          required: 'Password is required',
-          pattern: 'Must be 8+ chars with upper, lower, number and symbol',
-        }"
-      />
-
-      <cui-input
-        label="Booking reference"
-        placeholder="ABC-123"
-        size="small"
-        [control]="reference"
-        [uppercase]="true"
-        [blockClipboard]="true"
-      />
-    </div>
+    <div class="test-sandbox-body"></div>
   </section>
 </div>
