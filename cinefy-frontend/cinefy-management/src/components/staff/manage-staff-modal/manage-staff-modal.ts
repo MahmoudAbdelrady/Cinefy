@@ -14,7 +14,7 @@ import { CheckIcon, EmailIcon, KeyIcon, PhoneIcon, UserIcon } from '../../../sha
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import {
   ModalComponent,
-  InputField,
+  InputFieldV2,
   PasswordChecklist,
   CuiSelect,
   LoadingSpinnerComponent,
@@ -46,7 +46,7 @@ import { assignableStaffPositions } from '../../../shared/access';
   selector: 'manage-staff-modal',
   imports: [
     ModalComponent,
-    InputField,
+    InputFieldV2,
     PasswordChecklist,
     PhoneInput,
     CuiSelect,
