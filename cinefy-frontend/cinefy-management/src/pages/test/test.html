@@ -34,6 +34,17 @@
         </p-menu>
       </div>
 
+      <div class="test-demo">
+        <h3 class="test-demo-title">cui-menu</h3>
+
+        <cui-menu [items]="cuiMenuGroups">
+          <button type="button" class="btn-secondary">
+            <svg [lucideIcon]="icons.EllipsisIcon" [size]="16"></svg>
+            Actions
+          </button>
+        </cui-menu>
+      </div>
+
       <p class="test-demo-output">
         Last action: <strong>{{ lastAction() ?? 'none' }}</strong>
       </p>

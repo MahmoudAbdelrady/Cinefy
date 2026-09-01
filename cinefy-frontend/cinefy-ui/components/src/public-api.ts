@@ -16,3 +16,4 @@ export * from "./date-time/time-picker/time-picker";
 export * from "./switch/cinefy-switch";
 export * from "./seat-map/seat-map";
 export * from "./hold-timer/hold-timer";
+export * from "./menu/cinefy-menu";

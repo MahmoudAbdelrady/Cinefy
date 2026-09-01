@@ -1,0 +1,22 @@
+<div class="cui-menu-trigger" (click)="toggle($event)">
+  <ng-content />
+</div>
+
+<p-menu #menu [model]="model()" [popup]="true" styleClass="cui-menu-panel">
+  <ng-template #submenuheader let-group>
+    @if (group.label) {
+    <span class="cui-menu-group">{{ group.label }}</span>
+    }
+  </ng-template>
+
+  <ng-template #item let-item>
+    <span class="cui-menu-item">
+      @if (item.loading) {
+      <loading-spinner variant="sm" />
+      } @else {
+      <svg [lucideIcon]="item.lucideIcon" [size]="16"></svg>
+      }
+      <span class="cui-menu-item-label">{{ item.label }}</span>
+    </span>
+  </ng-template>
+</p-menu>
