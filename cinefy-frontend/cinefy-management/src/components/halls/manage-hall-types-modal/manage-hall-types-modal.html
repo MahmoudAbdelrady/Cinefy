@@ -32,8 +32,7 @@
                     <svg [lucideIcon]="icons.TagIcon" [size]="17" [strokeWidth]="2"></svg>
                   </div>
                   <div class="inline-edit-field">
-                    <input-field
-                      size="sm"
+                    <input-field-v2
                       [control]="editTypeForm.controls.name"
                       [errorMessages]="nameErrorMessages"
                       [autoFocus]="true"
@@ -131,8 +130,7 @@
             <svg [lucideIcon]="icons.TagIcon" [size]="17" [strokeWidth]="2"></svg>
           </div>
           <div class="inline-edit-field">
-            <input-field
-              size="sm"
+            <input-field-v2
               placeholder="e.g. ScreenX, Dolby Atmos"
               [control]="newTypeForm.controls.name"
               [errorMessages]="nameErrorMessages"

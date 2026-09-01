@@ -16,7 +16,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import {
   ModalComponent,
   LoadingSpinnerComponent,
-  InputField,
+  InputFieldV2,
   EmptyStateComponent,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
@@ -33,7 +33,7 @@ import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
     NgpPopoverTrigger,
     ModalComponent,
     LoadingSpinnerComponent,
-    InputField,
+    InputFieldV2,
     EmptyStateComponent,
   ],
   templateUrl: './manage-hall-types-modal.html',
