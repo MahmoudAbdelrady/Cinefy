@@ -44,6 +44,56 @@
       gap: 20px;
       align-items: stretch;
       max-width: 420px;
+
+      .test-demo {
+        @include flex-column;
+
+        gap: 8px;
+        align-items: flex-start;
+
+        .test-demo-title {
+          font-size: 13px;
+          font-weight: 600;
+          color: $gray-700;
+        }
+      }
+
+      .test-demo-output {
+        font-size: 13px;
+        color: $gray-600;
+      }
+    }
+  }
+}
+
+::ng-deep .test-menu {
+  .p-menu-item-content {
+    .test-menu-item {
+      @include flex-align;
+
+      gap: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+
+      .test-menu-label {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .p-menu-item.p-disabled .test-menu-item {
+    cursor: default;
+  }
+
+  .p-menu-submenu-label {
+    padding: 0;
+
+    .test-menu-group {
+      display: block;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: $gray-500;
     }
   }
 }

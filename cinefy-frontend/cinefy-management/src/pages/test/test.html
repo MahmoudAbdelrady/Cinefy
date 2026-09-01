@@ -9,6 +9,34 @@
   <section class="test-sandbox">
     <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <div class="test-sandbox-body"></div>
+    <div class="test-sandbox-body">
+      <div class="test-demo">
+        <h3 class="test-demo-title">Popup menu</h3>
+
+        <button type="button" class="btn-secondary" (click)="toggleMenu($event)">
+          <svg [lucideIcon]="icons.EllipsisIcon" [size]="16"></svg>
+          Actions
+        </button>
+
+        <p-menu #popupMenu [model]="menuItems" [popup]="true" styleClass="test-menu">
+          <ng-template #submenuheader let-item>
+            <span class="test-menu-group">{{ item.label }}</span>
+          </ng-template>
+
+          <ng-template #item let-item>
+            <span class="test-menu-item">
+              @if (item.lucideIcon) {
+                <svg [lucideIcon]="item.lucideIcon" [size]="16"></svg>
+              }
+              <span class="test-menu-label">{{ item.label }}</span>
+            </span>
+          </ng-template>
+        </p-menu>
+      </div>
+
+      <p class="test-demo-output">
+        Last action: <strong>{{ lastAction() ?? 'none' }}</strong>
+      </p>
+    </div>
   </section>
 </div>
