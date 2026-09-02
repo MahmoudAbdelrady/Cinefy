@@ -1,4 +1,4 @@
-import { afterNextRender, Component, inject, input, signal } from '@angular/core';
+import { afterNextRender, Component, inject, model, output, signal } from '@angular/core';
 
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -14,7 +14,7 @@ import {
 } from '../../../shared/icons';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import {
-  ModalComponent,
+  CinefyDialog,
   LoadingSpinnerComponent,
   CinefyInput,
   EmptyStateComponent,
@@ -31,7 +31,7 @@ import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
     LucideDynamicIcon,
     NgpPopover,
     NgpPopoverTrigger,
-    ModalComponent,
+    CinefyDialog,
     LoadingSpinnerComponent,
     CinefyInput,
     EmptyStateComponent,
@@ -54,7 +54,9 @@ export class ManageHallTypesModalComponent {
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
 
-  readonly close = input.required<() => void>();
+  readonly visible = model(false);
+
+  readonly closed = output<void>();
 
   protected readonly hallTypes = signal<HallType[]>([]);
   protected readonly loadingTypes = signal(true);

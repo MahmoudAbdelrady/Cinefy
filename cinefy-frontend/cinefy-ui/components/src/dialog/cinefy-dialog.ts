@@ -20,6 +20,7 @@ export class CinefyDialog {
   private readonly projectedFooter = contentChild(CinefyDialogFooter);
 
   readonly header: InputSignal<string | null> = input<string | null>(null);
+  readonly description: InputSignal<string | null> = input<string | null>(null);
   readonly visible = model(false);
   readonly canClose = input(true);
   readonly style: InputSignal<CinefyDialogStyle | null> = input<CinefyDialogStyle | null>(null);

@@ -16,7 +16,12 @@
     @if (hasCustomHeader()) {
     <ng-content select="[customHeader]" />
     } @else {
-    <span class="cui-dialog-title">{{ header() }}</span>
+    <div class="cui-dialog-heading">
+      <span class="cui-dialog-title">{{ header() }}</span>
+      @if (description(); as description) {
+      <span class="cui-dialog-description">{{ description }}</span>
+      }
+    </div>
     }
   </ng-template>
 

@@ -1,5 +1,18 @@
 ::ng-deep .cui-dialog-panel {
+  .cui-dialog-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
   .cui-dialog-title {
     font-weight: 600;
+  }
+
+  .cui-dialog-description {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--cui-text-muted);
   }
 }

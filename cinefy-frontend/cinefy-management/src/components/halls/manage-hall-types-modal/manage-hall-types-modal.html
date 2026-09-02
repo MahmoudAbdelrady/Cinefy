@@ -1,8 +1,8 @@
-<app-modal
-  modalTitle="Manage Hall Types"
-  description="Create and manage hall types for your cinema"
-  [close]="close()"
-  width="480px"
+<cui-dialog
+  header="Manage Hall Types"
+  [(visible)]="visible"
+  (closed)="closed.emit()"
+  [style]="{ width: '480px' }"
 >
   <div class="manage-types-modal-content">
     <div class="existing-types-container">
@@ -71,7 +71,6 @@
                     [ngpPopoverTrigger]="deleteConfirm"
                     ngpPopoverTriggerPlacement="top"
                     ngpPopoverTriggerOffset="8"
-                    ngpPopoverTriggerContainer=".modal-overlay"
                     #deleteTrigger="ngpPopoverTrigger"
                   >
                     <svg [lucideIcon]="icons.DeleteIcon" [size]="14" [strokeWidth]="2.5"></svg>
@@ -159,4 +158,4 @@
       }
     </div>
   </div>
-</app-modal>
+</cui-dialog>
