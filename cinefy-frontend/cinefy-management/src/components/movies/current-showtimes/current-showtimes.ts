@@ -18,7 +18,8 @@ import {
 } from '../../../shared/icons';
 import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
-  ModalComponent,
+  CinefyDialog,
+  CinefyDialogFooter,
   LoadingSpinnerComponent,
   EmptyStateComponent,
   CinefyInput,
@@ -40,7 +41,8 @@ import {
   selector: 'current-showtimes',
   imports: [
     NgpDialogTrigger,
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogFooter,
     LoadingSpinnerComponent,
     EmptyStateComponent,
     CinefyInput,
@@ -82,6 +84,7 @@ export class CurrentShowtimesComponent {
   protected readonly loading = signal(true);
   protected readonly editingShowtime = signal<EditableShowtime | null>(null);
   protected readonly deletingShowtimeIds = signal<Set<number>>(new Set());
+  protected readonly movieToDelete = signal<MovieWithShowtimes | null>(null);
   protected readonly togglingHighlightIds = signal<Set<number>>(new Set());
   protected readonly moviesWithShowtimes = signal<MovieWithShowtimes[]>([]);
 
@@ -179,7 +182,7 @@ export class CurrentShowtimesComponent {
       });
   }
 
-  protected deleteShowtime(id: number, close: () => void): void {
+  protected deleteShowtime(id: number): void {
     if (this.deletingShowtimeIds().has(id)) return;
     this.markDeleting(id, true);
     this.showtimesService
@@ -190,7 +193,7 @@ export class CurrentShowtimesComponent {
           this.markDeleting(id, false);
           this.toastService.success('Showtimes deleted');
           this.showtimeEvents.notifyDeleted(id);
-          close();
+          this.movieToDelete.set(null);
         },
         error: () => this.markDeleting(id, false),
       });
