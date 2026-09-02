@@ -7,10 +7,9 @@ import {
   inject,
   input,
   linkedSignal,
+  model,
   output,
   signal,
-  TemplateRef,
-  viewChild,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
 import {
@@ -33,14 +32,15 @@ import {
   StarIcon,
   WarningIcon,
 } from '../../../shared/icons';
-import { NgpDialogManager } from 'ng-primitives/dialog';
 import {
-  ModalComponent,
   LoadingSpinnerComponent,
   EmptyStateComponent,
   CinefyInput,
   CuiSelect,
   CinefySwitch,
+  CinefyDialog,
+  CinefyDialogHeader,
+  CinefyDialogFooter,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import {
@@ -108,7 +108,9 @@ const SELECTABLE_HALL_STATUS_ENTRIES = (
     ReactiveFormsModule,
     LucideDynamicIcon,
     CinefySwitch,
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogHeader,
+    CinefyDialogFooter,
     LoadingSpinnerComponent,
     EmptyStateComponent,
     CinefyInput,
@@ -133,8 +135,6 @@ export class HallConfigModalComponent {
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly dialogManager = inject(NgpDialogManager);
-  private readonly discardDialog = viewChild<TemplateRef<unknown>>('discardDialog');
 
   protected readonly hallStatusEntries = computed<HallStatusEntry[]>(() => {
     const current = this.selectedHallData()?.status;
@@ -157,13 +157,15 @@ export class HallConfigModalComponent {
     type: key as SeatCategory,
   }));
 
-  readonly close = input.required<() => void>();
+  readonly visible = model(false);
   readonly selectedHallId = input<string | null>(null);
 
+  readonly closed = output<void>();
   readonly hallCreated = output<HallSummary>();
   readonly hallUpdated = output<HallSummary>();
 
   protected readonly isEditMode = signal(false);
+  protected readonly discardVisible = signal(false);
   private readonly selectedHallData = signal<HallDetail | null>(null);
 
   protected readonly saving = signal(false);
@@ -213,9 +215,10 @@ export class HallConfigModalComponent {
   );
   protected readonly modalTitle = computed(() => {
     if (!this.selectedHallId()) return 'Add New Hall';
-    if (this.isEditMode()) return 'Edit Hall';
     if (this.loadingHall()) return 'Loading…';
-    return this.selectedHallData()?.name ?? '—';
+    const hall = this.selectedHallData();
+    if (!hall) return '—';
+    return this.isEditMode() ? `Editing ${hall.name}` : `Viewing ${hall.name} config`;
   });
 
   private readonly numRowsValue = toSignal(
@@ -370,15 +373,14 @@ export class HallConfigModalComponent {
 
   protected toggleEditMode() {
     if (this.isEditMode() && this.hasChanges()) {
-      const discardDialog = this.discardDialog();
-      if (discardDialog) this.dialogManager.open(discardDialog as never);
+      this.discardVisible.set(true);
       return;
     }
     this.isEditMode.update((v) => !v);
   }
 
-  protected confirmDiscard(close: () => void) {
-    close();
+  protected confirmDiscard() {
+    this.discardVisible.set(false);
     this.isEditMode.set(false);
     this.applyHallDetail(this.selectedHallData()!);
   }
@@ -442,7 +444,7 @@ export class HallConfigModalComponent {
           this.hallCreated.emit(result);
           this.toastService.success('Hall created');
         }
-        this.close()();
+        this.visible.set(false);
       },
       error: () => this.saving.set(false),
     });

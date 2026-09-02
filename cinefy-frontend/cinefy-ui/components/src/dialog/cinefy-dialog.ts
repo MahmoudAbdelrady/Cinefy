@@ -1,4 +1,4 @@
-import { Component, Directive, computed, contentChild, input, model, type InputSignal } from "@angular/core";
+import { Component, Directive, computed, contentChild, input, model, output, type InputSignal } from "@angular/core";
 import { Dialog } from "primeng/dialog";
 
 type CinefyDialogStyle = Partial<CSSStyleDeclaration>;
@@ -23,6 +23,8 @@ export class CinefyDialog {
   readonly visible = model(false);
   readonly canClose = input(true);
   readonly style: InputSignal<CinefyDialogStyle | null> = input<CinefyDialogStyle | null>(null);
+
+  readonly closed = output<void>();
 
   protected readonly hasCustomHeader = computed(() => !!this.projectedHeader());
   protected readonly hasCustomFooter = computed(() => !!this.projectedFooter());

@@ -1,4 +1,12 @@
-import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { PlusIcon, SettingsIcon } from '../../shared/icons';
 import { HeaderActionsService } from '../../services';
@@ -33,6 +41,8 @@ export class HallsPage implements OnInit {
   private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
   protected readonly hallsList = viewChild.required(HallsListComponent);
   protected readonly hallsStatistics = viewChild.required(HallsStatisticsComponent);
+
+  protected readonly addHallVisible = signal(false);
 
   ngOnInit() {
     this.headerActions.template.set(this.headerActionsTemplate());

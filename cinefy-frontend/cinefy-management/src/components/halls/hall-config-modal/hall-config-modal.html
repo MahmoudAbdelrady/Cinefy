@@ -1,40 +1,23 @@
-<app-modal
-  #modal
-  [modalTitle]="modalTitle()"
-  description="Configure hall details and seat layout"
-  [close]="close()"
-  width="1300px"
->
-  @if (selectedHallId()) {
-    <div modal-header-actions>
-      @if (!loadingHall() && !loadHallError()) {
-        <button
-          class="mode-toggle-btn"
-          [class.edit]="!isEditMode()"
-          [class.view]="isEditMode()"
-          (click)="toggleEditMode()"
-          [title]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
-        >
-          <svg
-            [lucideIcon]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
-            [size]="20"
-            [strokeWidth]="2"
-          ></svg>
-        </button>
-      }
-      <ng-template #discardDialog let-close="close">
-        <app-modal modalTitle="Discard Changes" [close]="close" width="448px">
-          <p class="discard-message">
-            You have unsaved changes. Switching to view mode will discard them.
-          </p>
-          <div modal-footer class="discard-footer">
-            <button class="btn-secondary" (click)="close()">Cancel</button>
-            <button class="btn-danger" (click)="confirmDiscard(close)">Discard</button>
-          </div>
-        </app-modal>
-      </ng-template>
-    </div>
-  }
+<cui-dialog [(visible)]="visible" (closed)="closed.emit()" [style]="{ width: '1300px' }">
+  <div customHeader class="hall-config-modal-header">
+    <span class="hcmh-title">{{ modalTitle() }}</span>
+    @if (selectedHallId() && !loadingHall() && !loadHallError()) {
+      <button
+        class="mode-toggle-btn"
+        [class.edit]="!isEditMode()"
+        [class.view]="isEditMode()"
+        (click)="toggleEditMode()"
+        [title]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
+      >
+        <svg
+          [lucideIcon]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
+          [size]="20"
+          [strokeWidth]="2"
+        ></svg>
+      </button>
+    }
+  </div>
+
   @if (loadingHall()) {
     <div class="hall-config-loading">
       <loading-spinner variant="xl" />
@@ -106,7 +89,6 @@
               [hint]="
                 !isViewMode() && isStatusLocked() ? 'Locked while showtimes are scheduled.' : null
               "
-              [container]="modal.panelEl()"
             />
           </div>
           <div class="input-group type-group">
@@ -120,7 +102,6 @@
               [searchable]="true"
               [required]="!isViewMode()"
               [errorMessages]="{ required: 'Hall type is required' }"
-              [container]="modal.panelEl()"
             />
             <label class="switch-group" [class.disabled]="isViewMode()">
               <span class="sg-label-text">Supports 3D</span>
@@ -138,7 +119,6 @@
                 [items]="hallEntries()"
                 [clearable]="true"
                 [searchable]="true"
-                [container]="modal.panelEl()"
               />
             </div>
           }
@@ -267,10 +247,11 @@
       </div>
     </div>
   }
+
   @if (!isViewMode()) {
-    <div modal-footer class="hall-config-modal-footer">
+    <div customFooter class="hall-config-modal-footer">
       <div class="save-btns">
-        <button class="btn-secondary" (click)="close()()">Cancel</button>
+        <button class="btn-secondary" (click)="visible.set(false)">Cancel</button>
         <button
           class="btn-primary"
           (click)="saveHall()"
@@ -286,4 +267,13 @@
       </div>
     </div>
   }
-</app-modal>
+</cui-dialog>
+
+<cui-dialog header="Discard Changes" [(visible)]="discardVisible" [style]="{ width: '448px' }">
+  <p class="discard-message">You have unsaved changes. Switching to view mode will discard them.</p>
+
+  <div customFooter class="discard-footer">
+    <button class="btn-secondary" (click)="discardVisible.set(false)">Cancel</button>
+    <button class="btn-danger" (click)="confirmDiscard()">Discard</button>
+  </div>
+</cui-dialog>

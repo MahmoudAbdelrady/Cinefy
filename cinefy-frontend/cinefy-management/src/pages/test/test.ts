@@ -1,15 +1,17 @@
 import { Component, signal } from '@angular/core';
-import { CinefyDialog, CinefyDialogFooter, CinefyDialogHeader } from 'cinefy-ui/components';
+import { FormsModule } from '@angular/forms';
+import { Dialog } from 'primeng/dialog';
+import { ButtonDirective } from 'primeng/button';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
   selector: 'test-page',
-  imports: [CinefyDialog, CinefyDialogHeader, CinefyDialogFooter],
+  imports: [FormsModule, Dialog, ButtonDirective, InputText],
   templateUrl: './test.html',
   styleUrl: './test.scss',
 })
 export class TestPage {
-  protected readonly plainVisible = signal(false);
-  protected readonly customVisible = signal(false);
-  protected readonly bothVisible = signal(false);
-  protected readonly threeVisible = signal(false);
+  protected visible = false;
+  protected name = '';
+  protected email = '';
 }

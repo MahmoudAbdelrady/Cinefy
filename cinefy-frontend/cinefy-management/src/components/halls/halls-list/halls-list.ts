@@ -65,6 +65,7 @@ export class HallsListComponent {
 
   protected readonly loading = signal(true);
   protected readonly deletingHallId = signal<string | null>(null);
+  protected readonly viewHallId = signal<string | null>(null);
   protected readonly halls = signal<HallSummary[]>([]);
 
   readonly statisticsChanged = output<StatisticsChange>();

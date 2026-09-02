@@ -5,6 +5,17 @@
 
 // ─── Add / Edit Hall Modal ──────────────────────────────────────────────────────
 
+.hall-config-modal-header {
+  @include dialog-header;
+
+  flex: 1;
+  justify-content: space-between;
+
+  .hcmh-title {
+    font-size: 22px;
+  }
+}
+
 .hall-config-modal-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -425,8 +436,8 @@
 // ─── Hall Config Modal Footer ───────────────────────────────────────────────────
 
 .hall-config-modal-footer {
-  display: flex;
-  justify-content: flex-end;
+  @include dialog-footer;
+
   width: 100%;
 
   .save-btns {
@@ -468,6 +479,7 @@
   @include flex-center;
   @include lucide-icon-fix;
   padding: 8px;
+  margin-right: 5px;
   border-radius: $radius-lg;
   transition: all 150ms ease;
   cursor: pointer;

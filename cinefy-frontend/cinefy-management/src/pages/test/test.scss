@@ -42,39 +42,26 @@
       @include flex-column;
 
       gap: 20px;
-      align-items: stretch;
+      align-items: flex-start;
       max-width: 420px;
-
-      .test-demo {
-        @include flex-column;
-
-        gap: 8px;
-        align-items: flex-start;
-
-        .test-demo-title {
-          font-size: 13px;
-          font-weight: 600;
-          color: $gray-700;
-        }
-      }
-
-      .test-demo-output {
-        font-size: 13px;
-        color: $gray-600;
-      }
     }
   }
 }
 
-[customFooter] {
-  @include dialog-footer;
+.test-form {
+  @include flex-column;
 
-  &.test-compose {
-    justify-content: space-between;
-    width: 100%;
+  gap: 16px;
 
-    .action-btns {
-      @include dialog-footer;
+  .test-field {
+    @include flex-column;
+
+    gap: 6px;
+
+    label {
+      font-size: 14px;
+      font-weight: 500;
+      color: $gray-700;
     }
   }
 }

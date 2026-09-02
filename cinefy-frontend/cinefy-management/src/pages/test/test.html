@@ -10,85 +10,41 @@
     <h2 class="test-sandbox-title">Sandbox</h2>
 
     <div class="test-sandbox-body">
-      <div class="test-demo">
-        <h3 class="test-demo-title">Plain header</h3>
+      <button type="button" pButton (click)="visible = true">Edit Profile</button>
 
-        <button type="button" class="btn-secondary" (click)="plainVisible.set(true)">Open</button>
-
-        <cui-dialog header="Hall details" [(visible)]="plainVisible" [style]="{ width: '440px' }">
-          <p>Uses the plain header string and no footer.</p>
-        </cui-dialog>
-      </div>
-
-      <div class="test-demo">
-        <h3 class="test-demo-title">Custom header + footer, canClose false</h3>
-
-        <button type="button" class="btn-secondary" (click)="customVisible.set(true)">Open</button>
-
-        <cui-dialog [(visible)]="customVisible" [canClose]="false" [style]="{ width: '520px' }">
-          <span customHeader>Create hall</span>
-
-          <p>No close button, no Escape, no outside click.</p>
-
-          <div customFooter>
-            <button type="button" class="btn-secondary" (click)="customVisible.set(false)">
-              Cancel
-            </button>
-            <button type="button" class="btn-primary" (click)="customVisible.set(false)">
-              Save
-            </button>
-          </div>
-        </cui-dialog>
-      </div>
-
-      <div class="test-demo">
-        <h3 class="test-demo-title">Plain header + footer</h3>
-
-        <button type="button" class="btn-secondary" (click)="bothVisible.set(true)">Open</button>
-
-        <cui-dialog header="Delete hall?" [(visible)]="bothVisible" [style]="{ width: '400px' }">
-          <p>
-            Plain header string with a projected footer. Closes on Escape, X, and outside click.
-          </p>
-
-          <div customFooter>
-            <button type="button" class="btn-secondary" (click)="bothVisible.set(false)">
-              Cancel
-            </button>
-            <button type="button" class="btn-danger" (click)="bothVisible.set(false)">
-              Delete
-            </button>
-          </div>
-        </cui-dialog>
-      </div>
-
-      <div class="test-demo">
-        <h3 class="test-demo-title">Three footer buttons</h3>
-
-        <button type="button" class="btn-secondary" (click)="threeVisible.set(true)">Open</button>
-
-        <cui-dialog
-          header="Unsaved changes"
-          [(visible)]="threeVisible"
-          [style]="{ width: '480px' }"
+      @if (visible) {
+        <p-dialog
+          [(visible)]="visible"
+          [modal]="true"
+          [dismissableMask]="true"
+          header="Edit Profile"
+          [style]="{ width: '24rem' }"
         >
-          <p>Three actions in the footer, to check spacing and alignment.</p>
-
-          <div class="test-compose" customFooter>
-            <button type="button" class="btn-danger" (click)="threeVisible.set(false)">
-              Discard
-            </button>
-            <div class="action-btns">
-              <button type="button" class="btn-secondary" (click)="threeVisible.set(false)">
-                Cancel
-              </button>
-              <button type="button" class="btn-primary" (click)="threeVisible.set(false)">
-                Save
-              </button>
+          <div class="test-form">
+            <div class="test-field">
+              <label for="name">Name</label>
+              <input pInputText id="name" [(ngModel)]="name" />
+            </div>
+            <div class="test-field">
+              <label for="email">Email</label>
+              <input pInputText id="email" [(ngModel)]="email" />
             </div>
           </div>
-        </cui-dialog>
-      </div>
+
+          <ng-template #footer>
+            <button
+              type="button"
+              pButton
+              severity="secondary"
+              variant="outlined"
+              (click)="visible = false"
+            >
+              Cancel
+            </button>
+            <button type="button" pButton (click)="visible = false">Save</button>
+          </ng-template>
+        </p-dialog>
+      }
     </div>
   </section>
 </div>
