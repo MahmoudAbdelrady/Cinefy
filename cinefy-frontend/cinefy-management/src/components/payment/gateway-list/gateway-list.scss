@@ -512,40 +512,6 @@
   }
 }
 
-.gl-delete-warning {
-  @include flex-align;
-  @include lucide-icon-fix;
-
-  gap: 8px;
-  padding: 16px;
-  border: 1px solid rgba($red-400, 0.4);
-  border-radius: $radius-md;
-  background-color: $red-50;
-  text-align: left;
-
-  > svg {
-    flex-shrink: 0;
-    align-self: flex-start;
-    margin-top: 2px;
-    color: $red-600;
-  }
-
-  p {
-    margin-bottom: 4px;
-    font-size: 14px;
-    color: $red-800;
-  }
-
-  ul {
-    @include flex-column;
-
-    gap: 4px;
-    padding-left: 20px;
-    font-size: 14px;
-    color: $red-800;
-  }
-}
-
 .gl-confirm-footer {
   @include flex-align;
 

@@ -8,6 +8,7 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -17,12 +18,13 @@ import {
   CuiSelect,
   CinefyInput,
   LoadingSpinnerComponent,
-  ModalComponent,
+  CinefyDialog,
+  CinefyDialogFooter,
   CinefySwitch,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { ExternalLinkIcon, KeyIcon, LockIcon, WebhookIcon } from '../../../shared/icons';
-import { NO_WHITESPACE_PATTERN } from '../../../shared/validation';
+import { NO_WHITESPACE_PATTERN, RESOURCE_NAME_PATTERN } from '../../../shared/validation';
 import type {
   GatewayProvider,
   PaymentChannel,
@@ -55,7 +57,8 @@ function buildCredentialsGroup(
   selector: 'manage-gateway-modal',
   imports: [
     ReactiveFormsModule,
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogFooter,
     CinefyInput,
     CuiSelect,
     CinefySwitch,
@@ -78,11 +81,13 @@ export class ManageGatewayModalComponent {
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
+  private readonly dialog = viewChild.required(CinefyDialog);
+
   protected readonly providers = PAYMENT_PROVIDERS;
 
-  readonly close = input.required<() => void>();
   readonly gateway = input<PaymentGateway | null>(null);
 
+  readonly closed = output<void>();
   readonly gatewayCreated = output<PaymentGateway>();
   readonly gatewayUpdated = output<PaymentGateway>();
 
@@ -95,7 +100,11 @@ export class ManageGatewayModalComponent {
   protected readonly form = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(60)],
+      validators: [
+        Validators.required,
+        Validators.maxLength(60),
+        Validators.pattern(RESOURCE_NAME_PATTERN),
+      ],
     }),
     provider: new FormControl<GatewayProvider>(
       { value: 'PAYMOB', disabled: true },
@@ -235,7 +244,7 @@ export class ManageGatewayModalComponent {
           this.gatewayCreated.emit(gateway);
         }
         this.toastService.success(editing ? 'Payment gateway updated' : 'Payment gateway added');
-        this.close()();
+        this.dialog().close();
       },
       error: () => this.saving.set(false),
     });

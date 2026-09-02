@@ -128,195 +128,201 @@
       type="button"
       class="gl-switch-trigger"
       [title]="gateway.active ? 'Disable' : 'Activate'"
-      [ngpDialogTrigger]="toggleDialog"
+      (click)="gatewayToToggle.set(gateway)"
     ></button>
   </span>
 
-  <ng-template #toggleDialog let-close="close">
-    <app-modal [close]="close" width="448px" [customHeader]="true">
-      <div class="gl-confirm">
-        <div class="gl-confirm-icon" [class.activate]="!gateway.active">
-          <svg
-            [lucideIcon]="gateway.active ? icons.PowerOffIcon : icons.PowerIcon"
-            [size]="24"
-            [strokeWidth]="2"
-          ></svg>
-        </div>
-
-        <h3 class="gl-confirm-title">
-          {{ gateway.active ? 'Deactivate' : 'Activate' }} {{ gateway.name }}?
-        </h3>
-        <p class="gl-confirm-text">
-          {{
-            gateway.active
-              ? 'This gateway will stop receiving new payments.'
-              : 'New payments will start routing to this gateway.'
-          }}
-        </p>
-
-        <div class="gl-confirm-notes">
-          @if (gateway.active) {
-            <div class="gl-confirm-note danger">
-              <svg [lucideIcon]="icons.AlertIcon" [size]="16" [strokeWidth]="2"></svg>
-              <p>
-                No other gateway takes over automatically. Activate one, or customers won't be able
-                to pay online.
-              </p>
-            </div>
-          }
-
-          @if (!gateway.active && activeGateway(); as displaced) {
-            <div class="gl-confirm-note danger">
-              <svg [lucideIcon]="icons.InfoIcon" [size]="16" [strokeWidth]="2"></svg>
-              <p>
-                <strong>{{ displaced.name }}</strong> is active now. Activating this one deactivates
-                it.
-              </p>
-            </div>
-          }
-
-          <div class="gl-confirm-note routing">
-            <svg [lucideIcon]="icons.InfoIcon" [size]="16" [strokeWidth]="2"></svg>
-            <p>
-              Payments already in progress finish on their current gateway. Only new payments follow
-              this change.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div modal-footer class="gl-confirm-footer">
-        <button class="btn-secondary" [disabled]="applyingAction()" (click)="close()">
-          Cancel
-        </button>
-        <button
-          [class]="gateway.active ? 'btn-danger' : 'btn-success'"
-          [disabled]="applyingAction()"
-          (click)="toggleGateway(gateway.id, !gateway.active, close)"
-        >
-          @if (applyingAction()) {
-            <loading-spinner variant="sm" />
-            <span>{{ gateway.active ? 'Deactivating…' : 'Activating…' }}</span>
-          } @else {
-            <span>{{ gateway.active ? 'Deactivate' : 'Activate' }}</span>
-          }
-        </button>
-      </div>
-    </app-modal>
-  </ng-template>
-
-  <button type="button" class="gl-action" [ngpDialogTrigger]="channelsDialog">
+  <button type="button" class="gl-action" (click)="gatewayToViewChannels.set(gateway)">
     <svg [lucideIcon]="icons.EyeIcon" [size]="16" [strokeWidth]="2"></svg>
     <span>Channels</span>
   </button>
 
-  <ng-template #channelsDialog let-close="close">
-    <app-modal [modalTitle]="'Channels for ' + gateway.name" [close]="close" width="640px">
-      @if (!gateway.paymentChannels?.length) {
-        <empty-state
-          [icon]="icons.WebhookIcon"
-          title="No channels configured"
-          description="Edit the gateway to add one."
-        />
-      } @else {
-        <div class="gl-channels-scroll">
-          <table class="gl-channels-table">
-            <thead>
-              <tr>
-                <th>Channel</th>
-                <th>Currency</th>
-                <th class="gl-channels-status">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (channel of gateway.paymentChannels; track channel.name) {
-                <tr>
-                  <td class="gl-channel-name">{{ channel.name }}</td>
-                  <td>{{ channel.currency }}</td>
-                  <td class="gl-channels-status">
-                    <span class="gl-channel-status" [class.active]="channel.active">
-                      <span class="gl-channel-status-dot"></span>
-                      {{ channel.active ? 'On' : 'Off' }}
-                    </span>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    </app-modal>
-  </ng-template>
-  <button type="button" class="gl-action edit" [ngpDialogTrigger]="editDialog">
+  <button type="button" class="gl-action edit" (click)="gatewayToEdit.set(gateway)">
     <svg [lucideIcon]="icons.EditIcon" [size]="16" [strokeWidth]="2"></svg>
     <span>Edit</span>
   </button>
 
-  <ng-template #editDialog let-close="close">
-    <manage-gateway-modal
-      [close]="close"
-      [gateway]="gateway"
-      (gatewayUpdated)="updateGateway($event)"
-    />
-  </ng-template>
   @if (!gateway.active) {
     <button
       type="button"
       class="gl-action delete"
       title="Delete gateway"
-      [ngpDialogTrigger]="deleteDialog"
+      [disabled]="isDeleting(gateway.id)"
+      (click)="gatewayToDelete.set(gateway)"
     >
-      <svg [lucideIcon]="icons.DeleteIcon" [size]="16" [strokeWidth]="2"></svg>
+      @if (isDeleting(gateway.id)) {
+        <loading-spinner variant="sm" />
+      } @else {
+        <svg [lucideIcon]="icons.DeleteIcon" [size]="16" [strokeWidth]="2"></svg>
+      }
       <span>Delete</span>
     </button>
-
-    <ng-template #deleteDialog let-close="close">
-      <app-modal [close]="close" width="460px" [customHeader]="true">
-        <div class="gl-confirm">
-          <div class="gl-confirm-icon">
-            <svg [lucideIcon]="icons.AlertIcon" [size]="24" [strokeWidth]="2"></svg>
-          </div>
-
-          <h3 class="gl-confirm-title">Delete {{ gateway.name }}?</h3>
-          @let deletedChannelCount = gateway.paymentChannels?.length ?? 0;
-          <p class="gl-confirm-text">
-            This removes the gateway, its credentials, and its {{ deletedChannelCount }}
-            {{ deletedChannelCount === 1 ? 'channel' : 'channels' }}. This can't be undone.
-          </p>
-
-          <div class="gl-delete-warning">
-            <svg [lucideIcon]="icons.AlertIcon" [size]="16" [strokeWidth]="2"></svg>
-            <div>
-              <p><strong>Warning:</strong></p>
-              <ul>
-                <li>A gateway with payments still in progress can't be deleted</li>
-                <li>
-                  A gateway stays locked for 7 days after its most recent transaction, so refunds
-                  and disputes can still be settled
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div modal-footer class="gl-confirm-footer">
-          <button class="btn-secondary" [disabled]="applyingAction()" (click)="close()">
-            Cancel
-          </button>
-          <button
-            class="btn-danger"
-            [disabled]="applyingAction()"
-            (click)="deleteGateway(gateway.id, close)"
-          >
-            @if (applyingAction()) {
-              <loading-spinner variant="sm" />
-              <span>Deleting…</span>
-            } @else {
-              <span>Delete gateway</span>
-            }
-          </button>
-        </div>
-      </app-modal>
-    </ng-template>
   }
 </ng-template>
+
+@if (gatewayToToggle(); as gateway) {
+  <cui-dialog
+    [canClose]="!togglingGateway()"
+    [style]="{ width: '448px' }"
+    (closed)="gatewayToToggle.set(null)"
+  >
+    <div class="gl-confirm">
+      <div class="gl-confirm-icon" [class.activate]="!gateway.active">
+        <svg
+          [lucideIcon]="gateway.active ? icons.PowerOffIcon : icons.PowerIcon"
+          [size]="24"
+          [strokeWidth]="2"
+        ></svg>
+      </div>
+
+      <h3 class="gl-confirm-title">
+        {{ gateway.active ? 'Deactivate' : 'Activate' }} {{ gateway.name }}?
+      </h3>
+      <p class="gl-confirm-text">
+        {{
+          gateway.active
+            ? 'This gateway will stop receiving new payments.'
+            : 'New payments will start routing to this gateway.'
+        }}
+      </p>
+
+      <div class="gl-confirm-notes">
+        @if (gateway.active) {
+          <div class="gl-confirm-note danger">
+            <svg [lucideIcon]="icons.AlertIcon" [size]="16" [strokeWidth]="2"></svg>
+            <p>
+              No other gateway takes over automatically. Activate one, or customers won't be able to
+              pay online.
+            </p>
+          </div>
+        }
+
+        @if (!gateway.active && activeGateway(); as displaced) {
+          <div class="gl-confirm-note danger">
+            <svg [lucideIcon]="icons.InfoIcon" [size]="16" [strokeWidth]="2"></svg>
+            <p>
+              <strong>{{ displaced.name }}</strong> is active now. Activating this one deactivates
+              it.
+            </p>
+          </div>
+        }
+
+        <div class="gl-confirm-note routing">
+          <svg [lucideIcon]="icons.InfoIcon" [size]="16" [strokeWidth]="2"></svg>
+          <p>
+            Payments already in progress finish on their current gateway. Only new payments follow
+            this change.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div customFooter class="gl-confirm-footer">
+      <button
+        class="btn-secondary"
+        [disabled]="togglingGateway()"
+        (click)="gatewayToToggle.set(null)"
+      >
+        Cancel
+      </button>
+      <button
+        [class]="gateway.active ? 'btn-danger' : 'btn-success'"
+        [disabled]="togglingGateway()"
+        (click)="toggleGateway(gateway.id, !gateway.active)"
+      >
+        @if (togglingGateway()) {
+          <loading-spinner variant="sm" />
+          <span>{{ gateway.active ? 'Deactivating…' : 'Activating…' }}</span>
+        } @else {
+          <span>{{ gateway.active ? 'Deactivate' : 'Activate' }}</span>
+        }
+      </button>
+    </div>
+  </cui-dialog>
+}
+
+@if (gatewayToViewChannels(); as gateway) {
+  <cui-dialog
+    [header]="'Channels for ' + gateway.name"
+    [style]="{ width: '640px' }"
+    (closed)="gatewayToViewChannels.set(null)"
+  >
+    @if (!gateway.paymentChannels?.length) {
+      <empty-state
+        [icon]="icons.WebhookIcon"
+        title="No channels configured"
+        description="Edit the gateway to add one."
+      />
+    } @else {
+      <div class="gl-channels-scroll">
+        <table class="gl-channels-table">
+          <thead>
+            <tr>
+              <th>Channel</th>
+              <th>Currency</th>
+              <th class="gl-channels-status">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (channel of gateway.paymentChannels; track channel.name) {
+              <tr>
+                <td class="gl-channel-name">{{ channel.name }}</td>
+                <td>{{ channel.currency }}</td>
+                <td class="gl-channels-status">
+                  <span class="gl-channel-status" [class.active]="channel.active">
+                    <span class="gl-channel-status-dot"></span>
+                    {{ channel.active ? 'On' : 'Off' }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </cui-dialog>
+}
+
+@if (gatewayToEdit(); as gateway) {
+  <manage-gateway-modal
+    [gateway]="gateway"
+    (closed)="gatewayToEdit.set(null)"
+    (gatewayUpdated)="updateGateway($event)"
+  />
+}
+
+@if (gatewayToDelete(); as gateway) {
+  @let deleting = isDeleting(gateway.id);
+  <cui-dialog
+    [canClose]="!deleting"
+    [style]="{ width: '460px' }"
+    (closed)="gatewayToDelete.set(null)"
+  >
+    <div class="gl-confirm">
+      <div class="gl-confirm-icon">
+        <svg [lucideIcon]="icons.AlertIcon" [size]="24" [strokeWidth]="2"></svg>
+      </div>
+
+      <h3 class="gl-confirm-title">Delete {{ gateway.name }}?</h3>
+      @let deletedChannelCount = gateway.paymentChannels?.length ?? 0;
+      <p class="gl-confirm-text">
+        This removes the gateway, its credentials, and its {{ deletedChannelCount }}
+        {{ deletedChannelCount === 1 ? 'channel' : 'channels' }}. This can't be undone.
+      </p>
+    </div>
+
+    <div customFooter class="gl-confirm-footer">
+      <button class="btn-secondary" [disabled]="deleting" (click)="gatewayToDelete.set(null)">
+        Cancel
+      </button>
+      <button class="btn-danger" [disabled]="deleting" (click)="deleteGateway(gateway.id)">
+        @if (deleting) {
+          <loading-spinner variant="sm" />
+          <span>Deleting…</span>
+        } @else {
+          <span>Delete gateway</span>
+        }
+      </button>
+    </div>
+  </cui-dialog>
+}

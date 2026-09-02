@@ -1,15 +1,18 @@
 <ng-template #headerActionsTemplate>
   <div class="action-buttons-container">
-    <button [ngpDialogTrigger]="addGatewayDialog">
+    <button (click)="addGatewayVisible.set(true)">
       <svg [lucideIcon]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></svg>
       <span>Add Payment Gateway</span>
     </button>
-
-    <ng-template #addGatewayDialog let-close="close">
-      <manage-gateway-modal [close]="close" (gatewayCreated)="gatewayList().addGateway($event)" />
-    </ng-template>
   </div>
 </ng-template>
+
+@if (addGatewayVisible()) {
+  <manage-gateway-modal
+    (closed)="addGatewayVisible.set(false)"
+    (gatewayCreated)="gatewayList().addGateway($event)"
+  />
+}
 
 <div class="payment-container">
   <gateway-list />
