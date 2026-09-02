@@ -1,8 +1,9 @@
-<app-modal
-  modalTitle="Active Bookings"
+<cui-dialog
+  header="Active Bookings"
   [description]="description()"
-  width="560px"
-  [close]="close()"
+  [(visible)]="visible"
+  (closed)="closed.emit()"
+  [style]="{ width: '560px' }"
 >
   @if (isLoading()) {
     <div class="abl-status">
@@ -62,27 +63,11 @@
             </div>
           </div>
           <div class="abli-actions">
-            <button
-              class="btn-primary"
-              [ngpDialogTrigger]="bookDialog"
-              (ngpDialogTriggerClosed)="loadActiveBookings()"
-            >
+            <button class="btn-primary" (click)="bookingToComplete.set(booking)">
               <svg [lucideIcon]="icons.TicketIcon" [size]="15"></svg>
               <span>Complete</span>
             </button>
           </div>
-
-          <ng-template #bookDialog let-close="close">
-            <app-modal
-              #bookModal
-              modalTitle="Book Seats"
-              [description]="bookingSummary(booking)"
-              [close]="close"
-              width="1200px"
-            >
-              <book-seats [showtimeId]="booking.showtimeId" [container]="bookModal.panelEl()" />
-            </app-modal>
-          </ng-template>
         </li>
       } @empty {
         <empty-state
@@ -92,4 +77,16 @@
       }
     </ul>
   }
-</app-modal>
+</cui-dialog>
+
+@if (bookingToComplete(); as booking) {
+  <cui-dialog
+    header="Book Seats"
+    [description]="bookingSummary(booking)"
+    [visible]="true"
+    (closed)="onBookSeatsClosed()"
+    [style]="{ width: '1200px' }"
+  >
+    <book-seats [showtimeId]="booking.showtimeId" />
+  </cui-dialog>
+}

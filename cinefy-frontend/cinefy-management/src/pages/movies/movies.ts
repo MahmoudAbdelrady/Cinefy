@@ -4,6 +4,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  signal,
   TemplateRef,
   viewChild,
 } from '@angular/core';
@@ -60,6 +61,8 @@ export class MoviesPage implements OnInit {
     const user = this.currentUser();
     return user ? canBookPosition(user.position) : false;
   });
+
+  protected readonly activeBookingsVisible = signal(false);
 
   ngOnInit(): void {
     this.headerActions.template.set(this.headerActionsTemplate());
