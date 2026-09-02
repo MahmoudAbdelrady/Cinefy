@@ -4,7 +4,6 @@ import {
   computed,
   DestroyRef,
   inject,
-  model,
   output,
   signal,
 } from '@angular/core';
@@ -55,9 +54,6 @@ export class ActiveBookingsListComponent {
 
   private readonly bookingService = inject(BookingService);
   private readonly destroyRef = inject(DestroyRef);
-
-  readonly visible = model(false);
-
   readonly closed = output<void>();
 
   protected readonly bookings = signal<BookingSummary[]>([]);

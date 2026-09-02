@@ -47,7 +47,7 @@
 </ng-template>
 
 @if (activeBookingsVisible()) {
-  <active-bookings-list [visible]="true" (closed)="activeBookingsVisible.set(false)" />
+  <active-bookings-list (closed)="activeBookingsVisible.set(false)" />
 }
 
 <div class="movies-container">

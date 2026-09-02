@@ -1,4 +1,4 @@
-import { afterNextRender, Component, inject, model, output, signal } from '@angular/core';
+import { afterNextRender, Component, inject, output, signal } from '@angular/core';
 
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -53,9 +53,6 @@ export class ManageHallTypesModalComponent {
 
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
-
-  readonly visible = model(false);
-
   readonly closed = output<void>();
 
   protected readonly hallTypes = signal<HallType[]>([]);

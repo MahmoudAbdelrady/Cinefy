@@ -1,4 +1,4 @@
-<cui-dialog [(visible)]="visible" (closed)="closed.emit()" [style]="{ width: '1300px' }">
+<cui-dialog #dialog (closed)="closed.emit()" [style]="{ width: '1300px' }">
   <div customHeader class="hall-config-modal-header">
     <span class="hcmh-title">{{ modalTitle() }}</span>
     @if (selectedHallId() && !loadingHall() && !loadHallError()) {
@@ -251,7 +251,7 @@
   @if (!isViewMode()) {
     <div customFooter class="hall-config-modal-footer">
       <div class="save-btns">
-        <button class="btn-secondary" (click)="visible.set(false)">Cancel</button>
+        <button class="btn-secondary" (click)="dialog.close()">Cancel</button>
         <button
           class="btn-primary"
           (click)="saveHall()"
@@ -269,11 +269,19 @@
   }
 </cui-dialog>
 
-<cui-dialog header="Discard Changes" [(visible)]="discardVisible" [style]="{ width: '448px' }">
-  <p class="discard-message">You have unsaved changes. Switching to view mode will discard them.</p>
+@if (discardVisible()) {
+  <cui-dialog
+    header="Discard Changes"
+    [style]="{ width: '448px' }"
+    (closed)="discardVisible.set(false)"
+  >
+    <p class="discard-message">
+      You have unsaved changes. Switching to view mode will discard them.
+    </p>
 
-  <div customFooter class="discard-footer">
-    <button class="btn-secondary" (click)="discardVisible.set(false)">Cancel</button>
-    <button class="btn-danger" (click)="confirmDiscard()">Discard</button>
-  </div>
-</cui-dialog>
+    <div customFooter class="discard-footer">
+      <button class="btn-secondary" (click)="discardVisible.set(false)">Cancel</button>
+      <button class="btn-danger" (click)="confirmDiscard()">Discard</button>
+    </div>
+  </cui-dialog>
+}

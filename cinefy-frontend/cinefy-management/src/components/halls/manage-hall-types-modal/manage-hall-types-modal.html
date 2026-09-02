@@ -1,9 +1,4 @@
-<cui-dialog
-  header="Manage Hall Types"
-  [(visible)]="visible"
-  (closed)="closed.emit()"
-  [style]="{ width: '480px' }"
->
+<cui-dialog header="Manage Hall Types" (closed)="closed.emit()" [style]="{ width: '480px' }">
   <div class="manage-types-modal-content">
     <div class="existing-types-container">
       <div class="section-head">

@@ -17,12 +17,11 @@
 </ng-template>
 
 @if (manageTypesVisible()) {
-  <manage-hall-types-modal [visible]="true" (closed)="manageTypesVisible.set(false)" />
+  <manage-hall-types-modal (closed)="manageTypesVisible.set(false)" />
 }
 
 @if (addHallVisible()) {
   <hall-config-modal
-    [visible]="true"
     (closed)="addHallVisible.set(false)"
     (hallCreated)="hallsList().addHall($event)"
   />

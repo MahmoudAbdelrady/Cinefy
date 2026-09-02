@@ -7,14 +7,11 @@ import {
   input,
   linkedSignal,
   signal,
-  TemplateRef,
-  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CuiSelect,
@@ -22,7 +19,8 @@ import {
   HoldTimerComponent,
   CinefyInput,
   LoadingSpinnerComponent,
-  ModalComponent,
+  CinefyDialog,
+  CinefyDialogFooter,
   SeatMapComponent,
 } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
@@ -87,14 +85,14 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
   imports: [
     CurrencyPipe,
     ReactiveFormsModule,
-    NgpDialogTrigger,
     LucideDynamicIcon,
     SeatMapComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
     CuiSelect,
     CinefyInput,
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogFooter,
     HoldTimerComponent,
     BookingTicketComponent,
   ],
@@ -116,9 +114,6 @@ export class BookSeatsComponent {
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly dialogManager = inject(NgpDialogManager);
-
-  protected readonly expiredDialog = viewChild.required<TemplateRef<unknown>>('expiredDialog');
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
   protected readonly paymentTypeEntries = PAYMENT_TYPE_ENTRIES;
@@ -127,6 +122,8 @@ export class BookSeatsComponent {
   readonly container = input<string | HTMLElement | null>(null);
 
   protected readonly booking = signal(false);
+  protected readonly cancelVisible = signal(false);
+  protected readonly expiredVisible = signal(false);
   protected readonly cancelling = signal(false);
   protected readonly settling = signal(false);
   protected readonly issuedTicket = signal<BookingConfirmation | null>(null);
@@ -317,7 +314,7 @@ export class BookSeatsComponent {
       });
   }
 
-  protected cancelPayment(close: () => void): void {
+  protected cancelPayment(): void {
     const booking = this.activeBooking();
     if (!booking || this.cancelling()) return;
 
@@ -329,7 +326,7 @@ export class BookSeatsComponent {
         next: () => {
           this.cancelling.set(false);
           this.resetBooking();
-          close();
+          this.cancelVisible.set(false);
           this.toastService.success('Booking cancelled successfully');
         },
         error: () => this.cancelling.set(false),
@@ -337,8 +334,12 @@ export class BookSeatsComponent {
   }
 
   protected onTimerExpired(): void {
-    const dialogRef = this.dialogManager.open(this.expiredDialog() as never);
-    dialogRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetBooking());
+    this.expiredVisible.set(true);
+  }
+
+  protected onExpiredClosed(): void {
+    this.expiredVisible.set(false);
+    this.resetBooking();
   }
 
   protected resetBooking(): void {

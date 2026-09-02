@@ -154,7 +154,7 @@
           }
         }
         @if (activeBooking()) {
-          <button type="button" class="bs-cancel" [ngpDialogTrigger]="cancelDialog">
+          <button type="button" class="bs-cancel" (click)="cancelVisible.set(true)">
             <svg [lucideIcon]="icons.XIcon" [size]="15"></svg>
             <span>Cancel booking</span>
           </button>
@@ -162,8 +162,13 @@
       </aside>
     </div>
 
-    <ng-template #cancelDialog let-close="close">
-      <app-modal modalTitle="Cancel this booking?" width="448px" [close]="close">
+    @if (cancelVisible()) {
+      <cui-dialog
+        header="Cancel this booking?"
+        [canClose]="!cancelling()"
+        [style]="{ width: '448px' }"
+        (closed)="cancelVisible.set(false)"
+      >
         <div class="bs-cancel-modal-content">
           <div class="rcm-icon">
             <svg [lucideIcon]="icons.WarningIcon" [size]="24" [strokeWidth]="2"></svg>
@@ -174,15 +179,20 @@
           </p>
         </div>
 
-        <div modal-footer class="bs-dialog-footer">
-          <button type="button" class="btn-secondary" [disabled]="cancelling()" (click)="close()">
+        <div customFooter class="bs-dialog-footer">
+          <button
+            type="button"
+            class="btn-secondary"
+            [disabled]="cancelling()"
+            (click)="cancelVisible.set(false)"
+          >
             Keep booking
           </button>
           <button
             type="button"
             class="btn-danger"
             [disabled]="cancelling()"
-            (click)="cancelPayment(close)"
+            (click)="cancelPayment()"
           >
             @if (cancelling()) {
               <loading-spinner variant="xs" />
@@ -191,11 +201,15 @@
             }
           </button>
         </div>
-      </app-modal>
-    </ng-template>
+      </cui-dialog>
+    }
 
-    <ng-template #expiredDialog let-close="close">
-      <app-modal modalTitle="Booking expired" width="448px" [close]="close">
+    @if (expiredVisible()) {
+      <cui-dialog
+        header="Booking expired"
+        [style]="{ width: '448px' }"
+        (closed)="onExpiredClosed()"
+      >
         <div class="bs-expired-modal-content">
           <div class="rem-icon">
             <svg [lucideIcon]="icons.ClockIcon" [size]="24" [strokeWidth]="2"></svg>
@@ -205,10 +219,12 @@
           </p>
         </div>
 
-        <div modal-footer class="bs-dialog-footer">
-          <button type="button" class="btn-primary" (click)="close()">Book again</button>
+        <div customFooter class="bs-dialog-footer">
+          <button type="button" class="btn-primary" (click)="expiredVisible.set(false)">
+            Book again
+          </button>
         </div>
-      </app-modal>
-    </ng-template>
+      </cui-dialog>
+    }
   }
 }

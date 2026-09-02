@@ -86,7 +86,6 @@
 
 @if (viewHallId(); as hallId) {
   <hall-config-modal
-    [visible]="true"
     (closed)="viewHallId.set(null)"
     [selectedHallId]="hallId"
     (hallUpdated)="updateHall($event)"
@@ -96,7 +95,6 @@
 @if (hallToDelete(); as hall) {
   <cui-dialog
     header="Delete Hall"
-    [visible]="true"
     [canClose]="!deleting()"
     [style]="{ width: '448px' }"
     (closed)="hallToDelete.set(null)"

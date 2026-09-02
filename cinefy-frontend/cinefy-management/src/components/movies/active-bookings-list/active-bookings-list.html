@@ -1,7 +1,6 @@
 <cui-dialog
   header="Active Bookings"
   [description]="description()"
-  [(visible)]="visible"
   (closed)="closed.emit()"
   [style]="{ width: '560px' }"
 >
@@ -83,7 +82,6 @@
   <cui-dialog
     header="Book Seats"
     [description]="bookingSummary(booking)"
-    [visible]="true"
     (closed)="onBookSeatsClosed()"
     [style]="{ width: '1200px' }"
   >

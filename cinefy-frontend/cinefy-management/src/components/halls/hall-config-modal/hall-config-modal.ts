@@ -7,9 +7,9 @@ import {
   inject,
   input,
   linkedSignal,
-  model,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
 import {
@@ -132,6 +132,8 @@ export class HallConfigModalComponent {
   };
   protected readonly maxGridDimension = MAX_GRID_DIMENSION;
 
+  private readonly dialog = viewChild.required(CinefyDialog);
+
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
@@ -157,7 +159,6 @@ export class HallConfigModalComponent {
     type: key as SeatCategory,
   }));
 
-  readonly visible = model(false);
   readonly selectedHallId = input<string | null>(null);
 
   readonly closed = output<void>();
@@ -444,7 +445,7 @@ export class HallConfigModalComponent {
           this.hallCreated.emit(result);
           this.toastService.success('Hall created');
         }
-        this.visible.set(false);
+        this.dialog().close();
       },
       error: () => this.saving.set(false),
     });
