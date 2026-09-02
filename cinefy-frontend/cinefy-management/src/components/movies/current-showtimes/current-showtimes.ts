@@ -3,7 +3,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { merge, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { EditableShowtime, MovieWithShowtimes } from '../../../shared/types';
+import { EditableShowtime, MovieSummary, MovieWithShowtimes } from '../../../shared/types';
 import { canManage as canManagePosition } from '../../../shared/access';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
@@ -16,7 +16,6 @@ import {
   StarIcon,
   WarningIcon,
 } from '../../../shared/icons';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   CinefyDialog,
   CinefyDialogFooter,
@@ -40,7 +39,6 @@ import {
 @Component({
   selector: 'current-showtimes',
   imports: [
-    NgpDialogTrigger,
     CinefyDialog,
     CinefyDialogFooter,
     LoadingSpinnerComponent,
@@ -85,6 +83,9 @@ export class CurrentShowtimesComponent {
   protected readonly editingShowtime = signal<EditableShowtime | null>(null);
   protected readonly deletingShowtimeIds = signal<Set<number>>(new Set());
   protected readonly movieToDelete = signal<MovieWithShowtimes | null>(null);
+  protected readonly movieToView = signal<MovieSummary | null>(null);
+  protected readonly movieToAdd = signal<MovieSummary | null>(null);
+  protected readonly movieToEdit = signal<MovieSummary | null>(null);
   protected readonly togglingHighlightIds = signal<Set<number>>(new Set());
   protected readonly moviesWithShowtimes = signal<MovieWithShowtimes[]>([]);
 

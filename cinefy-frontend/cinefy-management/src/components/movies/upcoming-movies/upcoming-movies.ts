@@ -11,7 +11,6 @@ import {
 } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
 import { differenceInCalendarDays } from 'date-fns';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   LoadingSpinnerComponent,
   EmptyStateComponent,
@@ -28,7 +27,6 @@ const COMING_SOON_WINDOW_DAYS = 10;
   selector: 'upcoming-movies',
   imports: [
     LucideDynamicIcon,
-    NgpDialogTrigger,
     CinefySwitch,
     LoadingSpinnerComponent,
     EmptyStateComponent,
@@ -54,6 +52,7 @@ export class UpcomingMoviesComponent {
 
   protected readonly loading = signal(true);
   protected readonly movies = signal<UpcomingMovie[]>([]);
+  protected readonly movieToSchedule = signal<UpcomingMovie | null>(null);
 
   private readonly announcePendingIds = signal<Set<number>>(new Set());
   private readonly highlightPendingIds = signal<Set<number>>(new Set());

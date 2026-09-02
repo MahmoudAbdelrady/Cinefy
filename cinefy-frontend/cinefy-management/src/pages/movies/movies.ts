@@ -63,6 +63,7 @@ export class MoviesPage implements OnInit {
   });
 
   protected readonly activeBookingsVisible = signal(false);
+  protected readonly scheduleMovieVisible = signal(false);
 
   ngOnInit(): void {
     this.headerActions.template.set(this.headerActionsTemplate());

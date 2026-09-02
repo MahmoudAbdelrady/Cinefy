@@ -1,9 +1,9 @@
-<app-modal
-  #modal
-  [modalTitle]="modalTitle()"
+<cui-dialog
+  #dialog
+  [header]="modalTitle()"
   [description]="modalDescription()"
-  [close]="close()"
-  width="640px"
+  [style]="{ width: '640px' }"
+  (closed)="closed.emit()"
 >
   @if (!activeMovie()) {
     <movie-picker (movieSelected)="pickedMovie.set($event)" />
@@ -51,7 +51,6 @@
             <date-picker
               [control]="showtimeForm.controls.date"
               placeholder="Select a date"
-              [container]="modal.panelEl()"
               [errorMessages]="{
                 required: 'Date is required',
                 pastDate: 'Date cannot be in the past',
@@ -62,7 +61,6 @@
             <label>Time</label>
             <time-picker
               [control]="showtimeForm.controls.time"
-              [container]="modal.panelEl()"
               [errorMessages]="{
                 required: 'Time is required',
                 pastTime: 'Time cannot be in the past',
@@ -79,7 +77,6 @@
             [control]="showtimeForm.controls.hallId"
             [items]="hallEntries()"
             [searchable]="true"
-            [container]="modal.panelEl()"
             [errorMessages]="{ required: 'Hall is required' }"
           />
         </div>
@@ -108,8 +105,8 @@
   }
 
   @if (activeMovie()) {
-    <div modal-footer class="manage-footer">
-      <button class="btn-secondary" (click)="close()()">Cancel</button>
+    <div customFooter class="manage-footer">
+      <button class="btn-secondary" (click)="dialog.close()">Cancel</button>
       <button
         class="btn-primary"
         [disabled]="showtimeForm.invalid || submitDisabled()"
@@ -124,4 +121,4 @@
       </button>
     </div>
   }
-</app-modal>
+</cui-dialog>

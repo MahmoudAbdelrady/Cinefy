@@ -23,7 +23,7 @@
     }
 
     @if (canManage()) {
-      <button [ngpDialogTrigger]="scheduleMovieDialog">
+      <button (click)="scheduleMovieVisible.set(true)">
         <svg [lucideIcon]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></svg>
         <span>Schedule Movie</span>
       </button>
@@ -39,12 +39,12 @@
         <scan-ticket-modal #scanTicket [close]="close" />
       </app-modal>
     </ng-template>
-
-    <ng-template #scheduleMovieDialog let-close="close">
-      <manage-showtime-modal [close]="close" />
-    </ng-template>
   </div>
 </ng-template>
+
+@if (scheduleMovieVisible()) {
+  <manage-showtime-modal (closed)="scheduleMovieVisible.set(false)" />
+}
 
 @if (activeBookingsVisible()) {
   <active-bookings-list (closed)="activeBookingsVisible.set(false)" />

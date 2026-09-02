@@ -121,9 +121,9 @@
               }
 
               <div class="mcf-actions">
-                <button class="mcfa-view" [ngpDialogTrigger]="viewShowtimesDialog">View</button>
+                <button class="mcfa-view" (click)="movieToView.set(shMovie)">View</button>
                 @if (canManage()) {
-                  <button class="mcfa-add" [ngpDialogTrigger]="addShowtimeDialog">
+                  <button class="mcfa-add" (click)="movieToAdd.set(shMovie)">
                     <svg [lucideIcon]="icons.PlusIcon" [size]="15"></svg>
                     <span>Add Showtime</span>
                   </button>
@@ -141,46 +141,6 @@
                 }
               </div>
             </div>
-
-            <ng-template #viewShowtimesDialog let-close="close">
-              <movie-showtimes-modal
-                [close]="close"
-                [selectedMovie]="shMovie"
-                (addShowtimeRequested)="openAddTrigger.click()"
-                (editShowtimeRequested)="editingShowtime.set($event); openEditTrigger.click()"
-              />
-            </ng-template>
-
-            <button
-              #openAddTrigger
-              type="button"
-              [ngpDialogTrigger]="addShowtimeDialog"
-              hidden
-            ></button>
-
-            <ng-template #addShowtimeDialog let-close="close">
-              <manage-showtime-modal
-                [close]="close"
-                [selectedMovie]="shMovie"
-                [showSelectedMovie]="false"
-              />
-            </ng-template>
-
-            <button
-              #openEditTrigger
-              type="button"
-              [ngpDialogTrigger]="editShowtimeDialog"
-              hidden
-            ></button>
-
-            <ng-template #editShowtimeDialog let-close="close">
-              <manage-showtime-modal
-                [close]="close"
-                [selectedMovie]="shMovie"
-                [showSelectedMovie]="false"
-                [editingShowtime]="editingShowtime()"
-              />
-            </ng-template>
           </li>
         } @empty {
           <empty-state
@@ -198,6 +158,32 @@
     }
   </div>
 </div>
+
+@if (movieToView(); as movie) {
+  <movie-showtimes-modal
+    [selectedMovie]="movie"
+    (closed)="movieToView.set(null)"
+    (addShowtimeRequested)="movieToAdd.set(movie)"
+    (editShowtimeRequested)="editingShowtime.set($event); movieToEdit.set(movie)"
+  />
+}
+
+@if (movieToAdd(); as movie) {
+  <manage-showtime-modal
+    [selectedMovie]="movie"
+    [showSelectedMovie]="false"
+    (closed)="movieToAdd.set(null)"
+  />
+}
+
+@if (movieToEdit(); as movie) {
+  <manage-showtime-modal
+    [selectedMovie]="movie"
+    [showSelectedMovie]="false"
+    [editingShowtime]="editingShowtime()"
+    (closed)="movieToEdit.set(null)"
+  />
+}
 
 @if (movieToDelete(); as item) {
   @let deleting = deletingShowtimeIds().has(item.movieDetails.id);

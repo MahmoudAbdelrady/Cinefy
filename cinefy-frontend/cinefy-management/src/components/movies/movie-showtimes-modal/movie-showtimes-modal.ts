@@ -10,6 +10,7 @@ import {
   output,
   signal,
   untracked,
+  viewChild,
   viewChildren,
   WritableSignal,
 } from '@angular/core';
@@ -39,9 +40,13 @@ import {
   TicketIcon,
   WarningIcon,
 } from '../../../shared/icons';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
-import { ModalComponent, LoadingSpinnerComponent, EmptyStateComponent } from 'cinefy-ui/components';
+import {
+  CinefyDialog,
+  CinefyDialogFooter,
+  LoadingSpinnerComponent,
+  EmptyStateComponent,
+} from 'cinefy-ui/components';
 import { BookSeatsComponent } from '../book-seats/book-seats';
 import { ToastService } from 'cinefy-ui/services';
 import { Time12hPipe } from 'cinefy-ui/pipes';
@@ -50,7 +55,8 @@ import { canManage as canManagePosition, canBook as canBookPosition } from '../.
 @Component({
   selector: 'movie-showtimes-modal',
   imports: [
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogFooter,
     NgpTabset,
     NgpTabList,
     NgpTabButton,
@@ -58,7 +64,6 @@ import { canManage as canManagePosition, canBook as canBookPosition } from '../.
     DatePipe,
     DecimalPipe,
     LucideDynamicIcon,
-    NgpDialogTrigger,
     LoadingSpinnerComponent,
     EmptyStateComponent,
     Time12hPipe,
@@ -98,14 +103,18 @@ export class MovieShowtimesModal {
   });
 
   private readonly noteEls = viewChildren<ElementRef<HTMLElement>>('noteText');
+  private readonly dialog = viewChild.required(CinefyDialog);
 
   protected readonly statusLabels = SHOWTIME_STATUS_LABELS;
 
-  readonly close = input.required<() => void>();
   readonly selectedMovie = input.required<MovieSummary>();
 
+  readonly closed = output<void>();
   readonly addShowtimeRequested = output<void>();
   readonly editShowtimeRequested = output<EditableShowtime>();
+
+  protected readonly bookingShowtime = signal<MovieShowtimeListItem | null>(null);
+  protected readonly showtimeToDelete = signal<MovieShowtimeListItem | null>(null);
 
   protected readonly movieShowtimes = signal<MovieShowtimeDatesResponse | null>(null);
   protected readonly movieShowtimeDetails = signal<MovieShowtimeListItem[]>([]);
@@ -222,7 +231,7 @@ export class MovieShowtimesModal {
     });
   }
 
-  protected onDeleteShowtime(id: string, close: () => void) {
+  protected onDeleteShowtime(id: string) {
     if (this.deletingShowtimeIds().has(id)) return;
     this.markDeleting(id, true);
 
@@ -234,7 +243,7 @@ export class MovieShowtimesModal {
           this.markDeleting(id, false);
           const { wasDraft, movieClosed } = this.applyLocalDeletion(id);
           this.toastService.success('Showtime deleted');
-          close();
+          this.showtimeToDelete.set(null);
 
           if (movieClosed) return;
 
@@ -478,7 +487,7 @@ export class MovieShowtimesModal {
 
     if (remainingDates.length === 0) {
       this.showtimeEvents.notifyDeleted(this.selectedMovieId());
-      this.close()();
+      this.dialog().close();
       return true;
     }
 

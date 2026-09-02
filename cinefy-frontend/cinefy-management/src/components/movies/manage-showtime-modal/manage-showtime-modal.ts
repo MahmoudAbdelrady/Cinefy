@@ -6,7 +6,9 @@ import {
   effect,
   inject,
   input,
+  output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import {
@@ -28,7 +30,8 @@ import {
   ShowtimeDraft,
 } from '../../../shared/types';
 import {
-  ModalComponent,
+  CinefyDialog,
+  CinefyDialogFooter,
   DatePicker,
   TimePicker,
   CuiSelect,
@@ -77,7 +80,8 @@ function combineDateAndTime(date: Date, time: string): string {
     TimePicker,
     CuiSelect,
     NgpTextarea,
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogFooter,
     MoviePickerComponent,
     MediaImageComponent,
     DatePipe,
@@ -97,10 +101,13 @@ export class ManageShowtimeModalComponent {
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly close = input.required<() => void>();
+  private readonly dialog = viewChild.required(CinefyDialog);
+
   readonly selectedMovie = input<MovieSearchResult | null>(null);
   readonly showSelectedMovie = input(true);
   readonly editingShowtime = input<EditableShowtime | null>(null);
+
+  readonly closed = output<void>();
 
   protected readonly submitting = signal(false);
   private readonly halls = signal<HallSummary[]>([]);
@@ -244,7 +251,7 @@ export class ManageShowtimeModalComponent {
           this.showtimeEvents.notifyCreated(showtime);
           this.toastService.success('Showtime created');
         }
-        this.close()();
+        this.dialog().close();
       },
       error: () => this.submitting.set(false),
     });
