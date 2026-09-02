@@ -17,3 +17,4 @@ export * from "./switch/cinefy-switch";
 export * from "./seat-map/seat-map";
 export * from "./hold-timer/hold-timer";
 export * from "./menu/cinefy-menu";
+export * from "./dialog/cinefy-dialog";

@@ -44,6 +44,37 @@
       gap: 20px;
       align-items: stretch;
       max-width: 420px;
+
+      .test-demo {
+        @include flex-column;
+
+        gap: 8px;
+        align-items: flex-start;
+
+        .test-demo-title {
+          font-size: 13px;
+          font-weight: 600;
+          color: $gray-700;
+        }
+      }
+
+      .test-demo-output {
+        font-size: 13px;
+        color: $gray-600;
+      }
+    }
+  }
+}
+
+[customFooter] {
+  @include dialog-footer;
+
+  &.test-compose {
+    justify-content: space-between;
+    width: 100%;
+
+    .action-btns {
+      @include dialog-footer;
     }
   }
 }

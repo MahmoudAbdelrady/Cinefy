@@ -32,6 +32,20 @@
   text-overflow: ellipsis;
 }
 
+@mixin dialog-header {
+  @include flex-align;
+
+  gap: 8px;
+  font-weight: 600;
+}
+
+@mixin dialog-footer {
+  @include flex-align;
+
+  gap: 12px;
+  justify-content: flex-end;
+}
+
 @mixin scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--cui-scrollbar-thumb) transparent;
