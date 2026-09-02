@@ -11,14 +11,14 @@ import {
   TagIcon,
   UsersIcon,
 } from '../../../shared/icons';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   CinefyInput,
   LoadingSpinnerComponent,
-  ModalComponent,
   EmptyStateComponent,
   CuiSelect,
+  CinefyDialog,
+  CinefyDialogFooter,
 } from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
@@ -34,11 +34,11 @@ import { HallsService } from '../../../services';
   selector: 'halls-list',
   imports: [
     LucideDynamicIcon,
-    NgpDialogTrigger,
     ReactiveFormsModule,
     CinefyInput,
     CuiSelect,
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogFooter,
     HallConfigModalComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
@@ -64,8 +64,9 @@ export class HallsListComponent {
   protected readonly statusLabels = HALL_STATUS_LABELS;
 
   protected readonly loading = signal(true);
-  protected readonly deletingHallId = signal<string | null>(null);
+  protected readonly deleting = signal(false);
   protected readonly viewHallId = signal<string | null>(null);
+  protected readonly hallToDelete = signal<HallSummary | null>(null);
   protected readonly halls = signal<HallSummary[]>([]);
 
   readonly statisticsChanged = output<StatisticsChange>();
@@ -142,8 +143,8 @@ export class HallsListComponent {
     });
   }
 
-  protected deleteHall(hall: HallSummary, close: () => void): void {
-    this.deletingHallId.set(hall.id);
+  protected deleteHall(hall: HallSummary): void {
+    this.deleting.set(true);
     this.hallsService.deleteHall(hall.id).subscribe({
       next: () => {
         this.halls.update((halls) => halls.filter((h) => h.id !== hall.id));
@@ -152,11 +153,11 @@ export class HallsListComponent {
           status: hall.status,
           capacity: hall.totalRows * hall.totalColumns,
         });
-        this.deletingHallId.set(null);
+        this.deleting.set(false);
         this.toastService.success('Hall deleted');
-        close();
+        this.hallToDelete.set(null);
       },
-      error: () => this.deletingHallId.set(null),
+      error: () => this.deleting.set(false),
     });
   }
 }
