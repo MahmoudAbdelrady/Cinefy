@@ -1,7 +1,7 @@
 <ng-template #headerActionsTemplate>
   <div class="action-buttons-container">
     @if (canBook()) {
-      <button [ngpDialogTrigger]="scanTicketDialog">
+      <button (click)="scanTicketVisible.set(true)">
         <svg
           [lucideIcon]="icons.QrCodeIcon"
           [size]="16"
@@ -28,19 +28,19 @@
         <span>Schedule Movie</span>
       </button>
     }
-
-    <ng-template #scanTicketDialog let-close="close">
-      <app-modal
-        [modalTitle]="scanTicket.modalTitle()"
-        [description]="scanTicket.modalDescription()"
-        width="480px"
-        [close]="close"
-      >
-        <scan-ticket-modal #scanTicket [close]="close" />
-      </app-modal>
-    </ng-template>
   </div>
 </ng-template>
+
+@if (scanTicketVisible()) {
+  <cui-dialog
+    [header]="scanTicket.modalTitle()"
+    [description]="scanTicket.modalDescription()"
+    [style]="{ width: '480px' }"
+    (closed)="scanTicketVisible.set(false)"
+  >
+    <scan-ticket-modal #scanTicket [close]="closeScanTicket" />
+  </cui-dialog>
+}
 
 @if (scheduleMovieVisible()) {
   <manage-showtime-modal (closed)="scheduleMovieVisible.set(false)" />

@@ -12,8 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { PlusIcon, QrCodeIcon, TicketIcon } from '../../shared/icons';
 import { canManage as canManagePosition, canBook as canBookPosition } from '../../shared/access';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { ModalComponent } from 'cinefy-ui/components';
+import { CinefyDialog } from 'cinefy-ui/components';
 import {
   ActiveBookingsListComponent,
   CurrentShowtimesComponent,
@@ -28,14 +27,13 @@ import { HeaderActionsService, StaffService } from '../../services';
   selector: 'movies-page',
   imports: [
     LucideDynamicIcon,
-    NgpDialogTrigger,
     ManageShowtimeModalComponent,
     MoviesStatisticsComponent,
     CurrentShowtimesComponent,
     UpcomingMoviesComponent,
     ActiveBookingsListComponent,
     ScanTicketModalComponent,
-    ModalComponent,
+    CinefyDialog,
   ],
   templateUrl: './movies.html',
   styleUrl: './movies.scss',
@@ -51,6 +49,7 @@ export class MoviesPage implements OnInit {
   private staffService = inject(StaffService);
   private destroyRef = inject(DestroyRef);
   private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
+  private readonly scanTicketDialog = viewChild(CinefyDialog);
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
   protected readonly canManage = computed(() => {
@@ -64,6 +63,9 @@ export class MoviesPage implements OnInit {
 
   protected readonly activeBookingsVisible = signal(false);
   protected readonly scheduleMovieVisible = signal(false);
+  protected readonly scanTicketVisible = signal(false);
+
+  protected readonly closeScanTicket = () => this.scanTicketDialog()?.close();
 
   ngOnInit(): void {
     this.headerActions.template.set(this.headerActionsTemplate());
