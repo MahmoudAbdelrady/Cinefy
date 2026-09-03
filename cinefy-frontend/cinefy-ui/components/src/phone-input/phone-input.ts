@@ -80,7 +80,7 @@ export class PhoneInput {
   readonly numberControl = input.required<FormControl<string>>();
   readonly label: InputSignal<string | null> = input<string | null>("Phone number");
   readonly required = input<boolean>(true);
-  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>(null);
+  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>("body");
   readonly errorMessages = input<Record<string, string>>({
     required: "Phone number is required",
     invalidPhone: "Phone number is invalid for the selected country",

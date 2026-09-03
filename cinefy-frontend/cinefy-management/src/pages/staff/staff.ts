@@ -1,8 +1,15 @@
-import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { UserPlusIcon } from '../../shared/icons';
 import { HeaderActionsService } from '../../services';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   ManageStaffModalComponent,
   StaffListComponent,
@@ -13,7 +20,6 @@ import {
   selector: 'staff-page',
   imports: [
     LucideDynamicIcon,
-    NgpDialogTrigger,
     StaffListComponent,
     ManageStaffModalComponent,
     StaffPositionCoverageComponent,
@@ -31,6 +37,8 @@ export class StaffPage implements OnInit {
   private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
   protected staffList = viewChild.required(StaffListComponent);
   protected staffPositionCoverage = viewChild.required(StaffPositionCoverageComponent);
+
+  protected readonly addStaffVisible = signal(false);
 
   ngOnInit(): void {
     this.headerActions.template.set(this.headerActionsTemplate());

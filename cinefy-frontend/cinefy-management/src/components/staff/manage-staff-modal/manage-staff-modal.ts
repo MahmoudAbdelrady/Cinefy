@@ -7,13 +7,15 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CheckIcon, EmailIcon, KeyIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import {
-  ModalComponent,
+  CinefyDialog,
+  CinefyDialogFooter,
   CinefyInput,
   PasswordChecklist,
   CuiSelect,
@@ -45,7 +47,8 @@ import { assignableStaffPositions } from '../../../shared/access';
 @Component({
   selector: 'manage-staff-modal',
   imports: [
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogFooter,
     CinefyInput,
     PasswordChecklist,
     PhoneInput,
@@ -72,6 +75,8 @@ export class ManageStaffModalComponent {
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
+  private readonly dialog = viewChild.required(CinefyDialog);
+
   protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
   protected readonly weekDayEntries = (Object.entries(WEEK_DAY_LABELS) as [WeekDay, string][]).map(
     ([value, label]) => ({ value, label }),
@@ -80,10 +85,10 @@ export class ManageStaffModalComponent {
     ([value, label]) => ({ value: value as EmploymentType, label }),
   );
 
-  readonly close = input.required<() => void>();
   readonly staffMemberId = input<string | null>(null);
   readonly selectedStaffMember = input<StaffMemberDetail | null>(null);
 
+  readonly closed = output<void>();
   readonly staffMemberCreated = output<StaffMemberSummary>();
   readonly staffMemberUpdated = output<StaffMemberSummary>();
 
@@ -285,7 +290,7 @@ export class ManageStaffModalComponent {
           this.staffMemberCreated.emit(member);
           this.toastService.success('Staff member created');
         }
-        this.close()();
+        this.dialog().close();
       },
       error: () => this.saving.set(false),
     });

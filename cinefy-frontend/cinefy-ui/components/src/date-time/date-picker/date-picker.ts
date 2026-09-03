@@ -22,5 +22,5 @@ export class DatePicker {
   readonly min = input<Date | undefined>(undefined);
   readonly max = input<Date | undefined>(undefined);
   readonly errorMessages = input<Record<string, string>>({});
-  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>(null);
+  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>("body");
 }

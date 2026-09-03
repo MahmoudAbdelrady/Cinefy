@@ -48,20 +48,14 @@
   }
 }
 
-.test-form {
+.test-field {
   @include flex-column;
 
-  gap: 16px;
+  gap: 6px;
 
-  .test-field {
-    @include flex-column;
-
-    gap: 6px;
-
-    label {
-      font-size: 14px;
-      font-weight: 500;
-      color: $gray-700;
-    }
+  label {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-700;
   }
 }

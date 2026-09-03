@@ -6,8 +6,6 @@ import {
   inject,
   output,
   signal,
-  TemplateRef,
-  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -26,9 +24,9 @@ import {
   SlidersHorizontalIcon,
   UsersIcon,
 } from '../../../shared/icons';
-import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
-  ModalComponent,
+  CinefyDialog,
+  CinefyDialogFooter,
   PaginationComponent,
   CuiSelect,
   CinefyInput,
@@ -62,8 +60,8 @@ import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
     PaginationComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
-    NgpDialogTrigger,
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogFooter,
     StaffDetailsComponent,
     ManageStaffModalComponent,
     Time12hPipe,
@@ -90,9 +88,6 @@ export class StaffListComponent {
   private readonly staffService = inject(StaffService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly dialogManager = inject(NgpDialogManager);
-
-  protected readonly editTemplate = viewChild.required<TemplateRef<unknown>>('editDialog');
 
   protected readonly positionLabels = USER_POSITION_LABELS;
   protected readonly weekDayLabels = WEEK_DAY_LABELS;
@@ -102,6 +97,9 @@ export class StaffListComponent {
 
   protected readonly pendingEditId = signal<string | null>(null);
   protected readonly pendingEditMember = signal<StaffMemberDetail | null>(null);
+  protected readonly editVisible = signal(false);
+  protected readonly memberToView = signal<string | null>(null);
+  protected readonly memberToDelete = signal<StaffMemberSummary | null>(null);
   protected readonly deletingStaffIds = signal<ReadonlySet<string>>(new Set());
 
   protected readonly positionFilter = signal<UserPosition | undefined>(undefined);
@@ -231,10 +229,10 @@ export class StaffListComponent {
       this.pendingEditId.set(null);
       this.pendingEditMember.set(idOrMember);
     }
-    this.dialogManager.open(this.editTemplate() as never);
+    this.editVisible.set(true);
   }
 
-  protected deleteStaffMember(id: string, close: () => void): void {
+  protected deleteStaffMember(id: string): void {
     if (this.deletingStaffIds().has(id)) return;
     this.deletingStaffIds.update((current) => new Set(current).add(id));
     this.staffService.deleteStaffMember(id).subscribe({
@@ -262,7 +260,7 @@ export class StaffListComponent {
           return next;
         });
         this.toastService.success('Staff member deleted');
-        close();
+        this.memberToDelete.set(null);
       },
       error: () => {
         this.deletingStaffIds.update((current) => {

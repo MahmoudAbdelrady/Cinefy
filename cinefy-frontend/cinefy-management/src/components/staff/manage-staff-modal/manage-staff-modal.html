@@ -1,9 +1,10 @@
-<app-modal
-  #modal
-  [modalTitle]="modalTitle()"
+<cui-dialog
+  #dialog
+  [header]="modalTitle()"
   [description]="modalDescription()"
-  [close]="close()"
-  width="700px"
+  [canClose]="!saving()"
+  [style]="{ width: '700px' }"
+  (closed)="closed.emit()"
 >
   @if (loading()) {
     <div class="manage-staff-modal-loading">
@@ -59,7 +60,6 @@
         <phone-input
           [countryControl]="staffForm.controls.phoneCountry"
           [numberControl]="staffForm.controls.phoneNumber"
-          [container]="modal.panelEl()"
         />
       </div>
       <div class="input-group">
@@ -86,7 +86,6 @@
           placeholder="Select a position"
           [control]="staffForm.controls.position"
           [items]="staffPositionEntries()"
-          [container]="modal.panelEl()"
           [errorMessages]="{ required: 'Position is required' }"
         />
       </div>
@@ -115,7 +114,6 @@
               placeholder="Select start day"
               [control]="staffForm.controls.workingDayStart"
               [items]="weekDayEntries"
-              [container]="modal.panelEl()"
               [errorMessages]="{ required: 'Start day is required' }"
             />
           </div>
@@ -126,7 +124,6 @@
               placeholder="Select end day"
               [control]="staffForm.controls.workingDayEnd"
               [items]="weekDayEntries"
-              [container]="modal.panelEl()"
               [errorMessages]="{ required: 'End day is required' }"
             />
           </div>
@@ -138,14 +135,12 @@
           <div class="input-group">
             <time-picker
               [control]="staffForm.controls.workingHourStart"
-              [container]="modal.panelEl()"
               [errorMessages]="{ required: 'Start time is required' }"
             />
           </div>
           <div class="input-group">
             <time-picker
               [control]="staffForm.controls.workingHourEnd"
-              [container]="modal.panelEl()"
               [errorMessages]="{
                 required: 'End time is required',
                 sameAsStart: 'End time must be different from start time',
@@ -156,9 +151,9 @@
       </div>
     </form>
   }
-  <div modal-footer class="manage-staff-modal-footer">
+  <div customFooter class="manage-staff-modal-footer">
     <div class="save-btns">
-      <button class="btn-secondary" (click)="close()()">Cancel</button>
+      <button class="btn-secondary" [disabled]="saving()" (click)="dialog.close()">Cancel</button>
       <button
         class="btn-primary"
         (click)="saveMember()"
@@ -168,4 +163,4 @@
       </button>
     </div>
   </div>
-</app-modal>
+</cui-dialog>
