@@ -4,8 +4,9 @@ import {
   computed,
   DestroyRef,
   inject,
-  input,
+  output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DatePipe } from '@angular/common';
@@ -13,10 +14,10 @@ import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInSeconds } from 'date-fns';
 import {
+  CinefyDialog,
   EmptyStateComponent,
   LoadingSpinnerComponent,
   MediaImageComponent,
-  ModalComponent,
 } from 'cinefy-ui/components';
 import { BookingService } from '../../../services';
 import type { BookingSummary } from '../../../shared/types';
@@ -34,7 +35,7 @@ import {
   imports: [
     RouterLink,
     LucideDynamicIcon,
-    ModalComponent,
+    CinefyDialog,
     EmptyStateComponent,
     LoadingSpinnerComponent,
     MediaImageComponent,
@@ -57,7 +58,9 @@ export class MyTicketsListComponent {
   private readonly bookingService = inject(BookingService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly close = input.required<() => void>();
+  private readonly dialog = viewChild.required(CinefyDialog);
+
+  readonly closed = output<void>();
 
   protected readonly bookings = signal<BookingSummary[]>([]);
   protected readonly isLoading = signal(true);
@@ -88,6 +91,10 @@ export class MyTicketsListComponent {
           this.isLoading.set(false);
         },
       });
+  }
+
+  protected closeDialog(): void {
+    this.dialog().close();
   }
 
   protected isExpiringSoon(booking: BookingSummary): boolean {

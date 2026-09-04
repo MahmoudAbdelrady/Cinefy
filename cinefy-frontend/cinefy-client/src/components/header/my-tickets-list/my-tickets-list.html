@@ -1,4 +1,9 @@
-<app-modal modalTitle="My Tickets" [description]="description()" width="512px" [close]="close()">
+<cui-dialog
+  header="My Tickets"
+  [description]="description()"
+  [style]="{ width: '512px' }"
+  (closed)="closed.emit()"
+>
   @if (isLoading()) {
     <div class="tickets-status">
       <loading-spinner variant="lg" />
@@ -60,7 +65,11 @@
             </div>
           </div>
           <div class="bi-actions">
-            <button class="btn-primary" routerLink="/checkout/{{ booking.id }}" (click)="close()()">
+            <button
+              class="btn-primary"
+              routerLink="/checkout/{{ booking.id }}"
+              (click)="closeDialog()"
+            >
               <span>Proceed</span>
               <svg [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
             </button>
@@ -74,4 +83,4 @@
       }
     </ul>
   }
-</app-modal>
+</cui-dialog>

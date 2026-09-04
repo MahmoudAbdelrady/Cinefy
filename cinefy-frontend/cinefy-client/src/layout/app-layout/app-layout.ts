@@ -3,7 +3,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   UserIcon,
   TicketIcon,
@@ -24,7 +23,6 @@ import type { CurrentUser } from '../../shared/types';
     RouterOutlet,
     RouterLink,
     LucideDynamicIcon,
-    NgpDialogTrigger,
     LoadingSpinnerComponent,
     MyTicketsListComponent,
     CinefyMenu,
@@ -47,6 +45,8 @@ export class AppLayout {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currentYear = new Date().getFullYear();
+
+  protected readonly myTicketsVisible = signal(false);
 
   protected readonly isAuthenticatedLoading = signal(true);
   protected readonly currentUserLoading = signal(true);

@@ -16,7 +16,7 @@
             <loading-spinner variant="sm" />
           </div>
         } @else if (isAuthenticated()) {
-          <button class="alh-tickets-btn btn-primary" [ngpDialogTrigger]="myTicketsDialog">
+          <button class="alh-tickets-btn btn-primary" (click)="myTicketsVisible.set(true)">
             <svg [lucideIcon]="icons.TicketIcon" [size]="18"></svg>
             <span>My Tickets</span>
           </button>
@@ -31,10 +31,6 @@
               }
             </button>
           </cui-menu>
-
-          <ng-template #myTicketsDialog let-close="close">
-            <my-tickets-list [close]="close" />
-          </ng-template>
         } @else {
           <div class="alh-auth">
             <a class="alh-auth-btn btn-secondary" routerLink="/membership/login">
@@ -50,6 +46,10 @@
       </div>
     </div>
   </header>
+
+  @if (myTicketsVisible()) {
+    <my-tickets-list (closed)="myTicketsVisible.set(false)" />
+  }
 
   <main class="app-layout-content">
     <router-outlet />
