@@ -1,8 +1,12 @@
-import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { EmptyStateComponent, LoadingSpinnerComponent, ModalComponent } from 'cinefy-ui/components';
+import {
+  CinefyDialog,
+  CinefyDialogFooter,
+  EmptyStateComponent,
+  LoadingSpinnerComponent,
+} from 'cinefy-ui/components';
 import { ToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
 import { CreditCardIcon, TrashIcon, TriangleAlertIcon } from '../../../shared/icons';
@@ -13,8 +17,8 @@ import type { ClientPaymentMethod } from '../../../shared/types';
   selector: 'profile-billing',
   imports: [
     LucideDynamicIcon,
-    NgpDialogTrigger,
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogFooter,
     EmptyStateComponent,
     LoadingSpinnerComponent,
   ],
@@ -31,6 +35,10 @@ export class ProfileBillingComponent {
   private readonly clientService = inject(ClientService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly dialog = viewChild(CinefyDialog);
+
+  protected readonly methodToRemove = signal<ClientPaymentMethod | null>(null);
 
   protected readonly paymentMethods = signal<ClientPaymentMethod[]>([]);
   protected readonly loading = signal(true);
@@ -55,7 +63,11 @@ export class ProfileBillingComponent {
       });
   }
 
-  protected confirmRemove(method: ClientPaymentMethod, close: () => void): void {
+  protected closeDialog(): void {
+    this.dialog()?.close();
+  }
+
+  protected confirmRemove(method: ClientPaymentMethod): void {
     if (this.removing()) return;
 
     this.removing.set(true);
@@ -66,7 +78,7 @@ export class ProfileBillingComponent {
         next: () => {
           this.paymentMethods.update((methods) => methods.filter((m) => m.id !== method.id));
           this.removing.set(false);
-          close();
+          this.closeDialog();
           this.toastService.success('Card removed');
         },
         error: () => this.removing.set(false),
