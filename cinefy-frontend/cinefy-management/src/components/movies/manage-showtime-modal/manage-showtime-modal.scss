@@ -195,5 +195,14 @@
       border-color: transparent;
       box-shadow: $shadow-focus-ring;
     }
+
+    &.invalid {
+      border-color: $red-500;
+
+      &:focus {
+        border-color: transparent;
+        box-shadow: $shadow-focus-ring-error;
+      }
+    }
   }
 }

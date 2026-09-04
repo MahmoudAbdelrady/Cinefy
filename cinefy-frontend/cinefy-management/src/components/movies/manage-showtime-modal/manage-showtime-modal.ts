@@ -48,7 +48,7 @@ import {
   ShowtimeEventsService,
   ShowtimesService,
 } from '../../../services';
-import { NgpTextarea } from 'ng-primitives/textarea';
+import { Textarea } from 'primeng/textarea';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
 
 function notInPastValidator(control: AbstractControl): ValidationErrors | null {
@@ -79,7 +79,7 @@ function combineDateAndTime(date: Date, time: string): string {
     DatePicker,
     TimePicker,
     CuiSelect,
-    NgpTextarea,
+    Textarea,
     CinefyDialog,
     CinefyDialogFooter,
     MoviePickerComponent,
