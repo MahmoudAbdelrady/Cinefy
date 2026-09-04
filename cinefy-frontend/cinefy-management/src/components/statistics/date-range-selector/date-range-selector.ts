@@ -1,8 +1,8 @@
-import { afterNextRender, Component, computed, output, signal } from '@angular/core';
+import { afterNextRender, Component, computed, output, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { Popover } from 'primeng/popover';
 import { DatePicker } from 'cinefy-ui/components';
 import { addDays, addYears, format, isAfter, parseISO } from 'date-fns';
 import { CalendarIcon } from '../../../shared/icons';
@@ -14,6 +14,10 @@ interface PresetOption {
 }
 
 const DEFAULT_PRESET_DAYS = 7;
+
+const ARROW_LEFT_VARIABLE = '--p-popover-arrow-left';
+
+const ARROW_LEFT_OFFSET = 50;
 
 const PRESET_OPTIONS: PresetOption[] = [
   { value: 7, label: '7 days' },
@@ -41,7 +45,7 @@ function exceedsOneYear(range: DateRange): boolean {
 
 @Component({
   selector: 'date-range-selector',
-  imports: [ReactiveFormsModule, LucideDynamicIcon, NgpPopover, NgpPopoverTrigger, DatePicker],
+  imports: [ReactiveFormsModule, LucideDynamicIcon, Popover, DatePicker],
   templateUrl: './date-range-selector.html',
   styleUrl: './date-range-selector.scss',
 })
@@ -49,6 +53,8 @@ export class DateRangeSelectorComponent {
   protected readonly icons = {
     CalendarIcon,
   };
+
+  private readonly customRangePopover = viewChild.required(Popover);
 
   protected readonly presetOptions = PRESET_OPTIONS;
   protected readonly today = new Date();
@@ -94,10 +100,31 @@ export class DateRangeSelectorComponent {
     this.rangeChange.emit(rangeForPreset(days));
   }
 
+  protected toggleCustomRange(event: Event): void {
+    this.customRangePopover().toggle(event);
+  }
+
+  // PrimeNG anchors the popover arrow left of the trigger; nudge it back under the button.
+  protected onCustomRangeShow(): void {
+    const panel = this.customRangePopover().container;
+    if (!panel) return;
+
+    const current = parseFloat(getComputedStyle(panel).getPropertyValue(ARROW_LEFT_VARIABLE));
+    panel.style.setProperty(
+      ARROW_LEFT_VARIABLE,
+      `${(Number.isNaN(current) ? 0 : current) + ARROW_LEFT_OFFSET}px`,
+    );
+  }
+
+  protected closeCustomRange(): void {
+    this.customRangePopover().hide();
+  }
+
   protected applyCustom(): void {
     const { from, to } = this.customForm.getRawValue();
     if (!from || !to) return;
     this.preset.set('custom');
     this.rangeChange.emit({ from: toIsoDate(from), to: toIsoDate(to) });
+    this.closeCustomRange();
   }
 }

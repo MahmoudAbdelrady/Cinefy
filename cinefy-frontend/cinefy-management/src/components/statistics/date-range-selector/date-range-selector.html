@@ -17,19 +17,14 @@
     type="button"
     class="custom-trigger"
     [class.selected]="preset() === 'custom'"
-    [ngpPopoverTrigger]="customRangePopover"
-    ngpPopoverTriggerPlacement="bottom-end"
-    ngpPopoverTriggerOffset="8"
-    ngpPopoverTriggerContainer=".content-container"
-    #customTrigger="ngpPopoverTrigger"
+    (click)="toggleCustomRange($event)"
   >
     <svg [lucideIcon]="icons.CalendarIcon" [size]="18"></svg>
+    <span>Custom range</span>
   </button>
 
-  <ng-template #customRangePopover>
-    <div ngpPopover class="custom-range-popover" [formGroup]="customForm">
-      <p class="crp-title">Custom range</p>
-
+  <p-popover (onShow)="onCustomRangeShow()">
+    <form class="custom-range-popover" [formGroup]="customForm">
       <div class="crp-fields">
         <label class="crp-field">
           <span>From</span>
@@ -51,16 +46,11 @@
       }
 
       <div class="crp-actions">
-        <button type="button" class="btn-secondary" (click)="customTrigger.hide()">Cancel</button>
-        <button
-          type="button"
-          class="btn-primary"
-          [disabled]="!canApply()"
-          (click)="applyCustom(); customTrigger.hide()"
-        >
+        <button type="button" class="btn-secondary" (click)="closeCustomRange()">Cancel</button>
+        <button type="button" class="btn-primary" [disabled]="!canApply()" (click)="applyCustom()">
           Apply
         </button>
       </div>
-    </div>
-  </ng-template>
+    </form>
+  </p-popover>
 </div>
