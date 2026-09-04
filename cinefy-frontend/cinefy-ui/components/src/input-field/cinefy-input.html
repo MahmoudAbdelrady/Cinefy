@@ -19,6 +19,7 @@
       [pSize]="size()"
       [invalid]="control().touched && control().invalid"
       [class.uppercase]="uppercase()"
+      (input)="onInput($event)"
       (blur)="blurred.emit()"
       (copy)="onClipboardEvent($event)"
       (cut)="onClipboardEvent($event)"

@@ -12,7 +12,7 @@ import {
   ScanLineIcon,
   TicketIcon,
 } from '../../../shared/icons';
-import { NO_WHITESPACE_PATTERN } from '../../../shared/validation';
+import { ALPHANUMERIC_PATTERN } from '../../../shared/validation';
 import { BookingService } from '../../../services';
 import { comparePositions } from '../../halls/seat-layout';
 import type { BookingConfirmation } from '../../../shared/types';
@@ -52,7 +52,7 @@ export class ScanTicketModalComponent {
   protected readonly scanForm = new FormGroup({
     reference: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.pattern(NO_WHITESPACE_PATTERN)],
+      validators: [Validators.required, Validators.pattern(ALPHANUMERIC_PATTERN)],
     }),
   });
 
@@ -89,8 +89,8 @@ export class ScanTicketModalComponent {
 
   protected onManualEntryChange(checked: boolean): void {
     this.manualEntry.set(checked);
+    this.clearReference();
     if (!checked) {
-      this.referenceControl.setValue('', { emitEvent: false });
       this.clearAutoSubmit();
       this.focusInput();
     }
@@ -105,7 +105,7 @@ export class ScanTicketModalComponent {
   protected submit(): void {
     if (this.referenceControl.invalid || this.scanning()) return;
 
-    const reference = this.referenceControl.value.toUpperCase();
+    const reference = this.referenceControl.value;
     this.scanning.set(true);
 
     this.bookingService
@@ -115,11 +115,11 @@ export class ScanTicketModalComponent {
         next: (confirmation) => {
           this.scanning.set(false);
           this.result.set(confirmation);
-          this.referenceControl.setValue('', { emitEvent: false });
+          this.clearReference();
         },
         error: () => {
           this.scanning.set(false);
-          this.referenceControl.setValue('', { emitEvent: false });
+          this.clearReference();
           this.focusInput();
         },
       });
@@ -127,10 +127,14 @@ export class ScanTicketModalComponent {
 
   protected scanAgain(): void {
     this.result.set(null);
-    this.referenceControl.setValue('', { emitEvent: false });
+    this.clearReference();
     this.clearAutoSubmit();
     // The input is re-created when the result clears, so focus after it renders
     setTimeout(() => this.focusInput());
+  }
+
+  private clearReference(): void {
+    this.referenceControl.reset('', { emitEvent: false });
   }
 
   private scheduleAutoSubmit(): void {
@@ -138,6 +142,7 @@ export class ScanTicketModalComponent {
 
     this.autoSubmitTimer = setTimeout(() => {
       this.autoSubmitTimer = null;
+      if (this.scanForm.invalid) return;
       this.submit();
     }, AUTO_SUBMIT_DELAY_MS);
   }

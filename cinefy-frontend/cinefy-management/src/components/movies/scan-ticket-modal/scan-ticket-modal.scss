@@ -8,6 +8,48 @@
   gap: 12px;
   padding: 2px;
 
+  .stm-reference {
+    @include flex-column;
+
+    gap: 8px;
+
+    .stm-reference-head {
+      @include flex-between;
+
+      gap: 16px;
+
+      .stm-reference-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: $gray-900;
+
+        &[data-required]::after {
+          content: '*';
+          margin-left: 3px;
+          color: $red-500;
+        }
+      }
+
+      .stm-manual {
+        @include flex-align;
+
+        flex-shrink: 0;
+        gap: 8px;
+        font-size: 13px;
+        color: $gray-700;
+        cursor: pointer;
+        user-select: none;
+
+        input {
+          width: 16px;
+          height: 16px;
+          accent-color: $blue-600;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
   .stm-listening {
     @include flex-align;
 
@@ -31,26 +73,6 @@
       border-radius: $radius-full;
       background-color: $green-500;
       animation: stm-ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
-    }
-  }
-
-  .stm-manual {
-    @include flex-align;
-
-    display: inline-flex;
-    align-self: flex-start;
-    gap: 10px;
-    margin-top: 4px;
-    font-size: 14px;
-    color: $gray-700;
-    cursor: pointer;
-    user-select: none;
-
-    input {
-      width: 16px;
-      height: 16px;
-      accent-color: $blue-600;
-      cursor: pointer;
     }
   }
 }

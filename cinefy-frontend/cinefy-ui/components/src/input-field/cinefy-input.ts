@@ -48,6 +48,7 @@ export class CinefyInput {
   readonly autoFocus = input<boolean>(false);
   readonly clearable = input<boolean>(false);
   readonly uppercase = input<boolean>(false);
+  readonly preventWhitespace = input<boolean>(false);
 
   readonly blurred = output<void>();
 
@@ -97,5 +98,43 @@ export class CinefyInput {
     if (this.blockClipboard()) {
       event.preventDefault();
     }
+  }
+
+  protected onInput(event: Event) {
+    const el = event.target as HTMLInputElement;
+
+    const original = el.value;
+
+    let value = original;
+    if (this.preventWhitespace()) value = this.stripWhitespace(el, value);
+    if (this.uppercase()) value = this.toUpperCase(el, value);
+    if (value === original) return;
+
+    this.control().setValue(value);
+  }
+
+  private stripWhitespace(el: HTMLInputElement, value: string): string {
+    const stripped = value.replace(/\s/g, "");
+    if (stripped === value) return value;
+
+    const caret = el.selectionStart;
+    el.value = stripped;
+    if (caret !== null) {
+      const nextCaret = caret - (value.length - stripped.length);
+      el.setSelectionRange(nextCaret, nextCaret);
+    }
+
+    return stripped;
+  }
+
+  private toUpperCase(el: HTMLInputElement, value: string): string {
+    const uppercased = value.toUpperCase();
+    if (uppercased === value) return value;
+
+    const caret = el.selectionStart;
+    el.value = uppercased;
+    if (caret !== null) el.setSelectionRange(caret, caret);
+
+    return uppercased;
   }
 }
