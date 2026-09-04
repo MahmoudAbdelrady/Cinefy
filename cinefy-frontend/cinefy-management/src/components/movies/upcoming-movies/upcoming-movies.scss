@@ -101,40 +101,6 @@
   flex-shrink: 0;
 }
 
-.h-tabs {
-  > [ngpToggleGroup] {
-    @include flex-align;
-    background-color: $gray-100;
-    border-radius: $radius-md;
-    padding: 4px;
-  }
-
-  button[ngpToggleGroupItem] {
-    padding: 6px 12px;
-    border-radius: $radius-xs;
-    font-size: 14px;
-    font-weight: 500;
-    color: $gray-500;
-    background-color: transparent;
-    transition:
-      background-color 150ms ease,
-      color 150ms ease,
-      box-shadow 150ms ease;
-
-    &:hover {
-      color: $gray-700;
-    }
-
-    &[data-selected] {
-      background-color: #ffffff;
-      color: $gray-900;
-      box-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.06),
-        0 2px 4px rgba(0, 0, 0, 0.08);
-    }
-  }
-}
-
 .h-tab-count {
   padding: 4px 12px;
   background-color: $orange-100;
