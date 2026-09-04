@@ -2,7 +2,7 @@
 
 ## Overview
 
-Angular 21 management dashboard for the Cinefy cinema platform. Standalone components, signal-based state, client-side rendered (no SSR — admin app behind auth), custom SCSS design system with ng-primitives for accessible headless UI.
+Angular 21 management dashboard for the Cinefy cinema platform. Standalone components, signal-based state, client-side rendered (no SSR — admin app behind auth), custom SCSS design system over PrimeNG-backed shared components from `cinefy-ui` (with a few remaining ng-primitives headless primitives).
 
 ## Workspace Layout
 
@@ -37,7 +37,7 @@ src/
 │   │   └── error-toast-context.ts      # SKIP_ERROR_TOAST token + skipErrorToast() helper
 │   ├── app.ts                          # Root component
 │   ├── app.routes.ts                   # Route definitions (AppLayout + AuthLayout, guarded)
-│   └── app.config.ts                   # Providers (router, HTTP + interceptors, toast, menu)
+│   └── app.config.ts                   # Providers (router, HTTP + interceptors, toast, PrimeNG)
 ├── components/                         # Reusable UI components
 │   ├── auth/                           # forgot-password (progress-dots + steps: request/otp/reset/done)
 │   │                                   #   — the OTP input itself is cinefy-ui's <input-otp>, not local
@@ -57,7 +57,7 @@ src/
 │   │                                   #   booking-ticket (printable stub shown in book-seats' `done` stage),
 │   │                                   #   active-bookings-list (staff's own in-progress holds),
 │   │                                   #   scan-ticket-modal (ticket verification — despite the name it
-│   │                                   #     renders NO <app-modal>; see "Ticket scanning" below)
+│   │                                   #     renders NO <cui-dialog>; see "Ticket scanning" below)
 │   ├── payment/
 │   │   ├── gateway-list/               # Gateway list + active/inactive toggles
 │   │   ├── manage-gateway-modal/       # Create/edit payment gateway form
@@ -81,10 +81,14 @@ src/
 │   └── stats/                          # Generic stat-card component
 │                                       # Shared UI (input-field, field-error, loading-spinner,
 │                                       # cui-select, cui-paginated-select, phone-input, toast,
-│                                       # modal, pagination, date-picker, time-picker, switch,
+│                                       # dialog, menu, pagination, date-picker, time-picker, switch,
 │                                       # empty-state, seat-map, hold-timer, not-found,
 │                                       # input-otp, password-checklist, media-image) lives in cinefy-ui.
 │                                       #   empty-state: inputs [icon]/[title]/[description]; add class="fill" to stretch to full height.
+│                                       #   dialog (<cui-dialog>): PrimeNG p-dialog wrapper. Inputs header/description/
+│                                       #     canClose/style/contentStyle; (closed) output; public close() method.
+│                                       #     Mounting opens it — always render behind an @if; (closed) unmounts.
+│                                       #     Slots: [customHeader]/[customFooter] (import CinefyDialogHeader/Footer).
 │                                       #   switch (<cui-switch>): size md|sm, color accent|highlight;
 │                                       #     [checked]/[disabled] inputs, (checkedChange) output.
 │                                       #   cui-select: PrimeNG-backed; static items[] + client-side search.
@@ -147,7 +151,7 @@ src/
 ├── environments/
 │   ├── environment.ts                  # Dev: apiUrl = http://localhost:8080
 │   └── environment.prod.ts             # Prod: apiUrl = /api
-└── styles.scss                         # Global reset + ng-primitives overrides (tooltip, dialog overlay)
+└── styles.scss                         # Global reset + --cui-* token bridge + ng-primitives tooltip overrides
 ```
 
 Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, `shared/guards/index.ts`, `app/core/interceptors/index.ts`, and a nested `components/auth/forgot-password/index.ts` — always import through them.
@@ -472,29 +476,32 @@ height, so cards don't collapse and jump.
 
 ### Ticket scanning
 
-`scan-ticket-modal` is used in **two** places and therefore renders **no** `<app-modal>` of its
+`scan-ticket-modal` is used in **two** places and therefore renders **no** `<cui-dialog>` of its
 own, despite the name:
 
-- **`/movies`** — the page wraps it in `<app-modal>` inside the `#scanTicketDialog` template.
+- **`/movies`** — the page wraps it in a `<cui-dialog>` behind an `@if (scanTicketVisible())`.
 - **Dashboard (usher)** — rendered inline in a plain card.
 
-Both read the component's `modalTitle()` / `modalDescription()` computeds through a
-`#scanTicket` template reference, so the header text ("Scan Ticket" → "Ticket Info") stays in one
+The `/movies` wrapper reads the component's `modalTitle()` / `modalDescription()` computeds through
+a `#scanTicket` template reference, so the header text ("Scan Ticket" → "Ticket Info") stays in one
 place. Those two computeds are **public** for exactly that reason — a template ref can only reach
-public members.
+public members. This works because content is projected in the **parent's** template scope, so the
+ref is visible to the surrounding `cui-dialog`'s inputs.
 
 Its `close` input is `input<(() => void) | null>(null)`, not required: the dashboard has nothing to
 close, so the Cancel/Close button is wrapped in `@if (close(); as close)`. `.stm-actions` centers
-its single remaining button via `&:has(> :only-child)`. Because the footer no longer carries the
-`modal-footer` attribute, the buttons render in the modal **body** — the modal's own footer strip
-collapses via its `&:empty` rule.
+its single remaining button via `&:has(> :only-child)`. `/movies` passes a `closeScanTicket` arrow
+field that calls `dialog().close()` on a `viewChild(CinefyDialog)` — going through the dialog (not
+setting the parent flag) is what runs the leave animation and PrimeNG's scroll-lock cleanup. The
+buttons render in the dialog **body**, not a footer slot.
 
 ## Styling
 
 ### Approach
 
 - **Custom SCSS** — no Tailwind, no CSS framework.
-- **ng-primitives** provides unstyled, accessible component primitives (dialog, combobox, menu, toast, switch, popover, tooltip, pagination, button, input).
+- **PrimeNG** backs the shared cinefy-ui components (`cui-dialog`, `cui-select`, `cui-menu`, the date/time pickers, inputs) — always consume them through cinefy-ui, not by importing `primeng/*` directly.
+- **ng-primitives** still provides a few unstyled primitives in this app: popover (`manage-hall-types-modal`, `date-range-selector`), radio (`manage-staff-modal`), tabs (`movie-showtimes-modal`), textarea (`manage-showtime-modal`). Migration to PrimeNG is ongoing — prefer a cinefy-ui component when one exists.
 - **lucide-angular** for SVG icons.
 - Component styles are scoped via Angular encapsulation.
 
@@ -624,7 +631,7 @@ LSP coverage in this repo: TypeScript files (Angular components, services, types
 4. Use **barrel exports** — import from `../components`, `../services`, `../shared/types`.
 5. Keep types in `shared/types/` with barrel re-exports.
 6. Use the existing **color palette, shadows, and mixins** — don't introduce new color or shadow values.
-7. Use **ng-primitives** directives for interactive UI (buttons, dialogs, selects, etc.).
+7. Use **cinefy-ui** components for interactive UI (`<cui-dialog>`, `<cui-select>`, `<cui-menu>`, `<cui-input>`, …) — they wrap PrimeNG. Don't import `primeng/*` directly in app code.
 8. Use **lucide-angular** for all icons. Re-export new icons through `shared/icons.ts`. Size icons via `[size]="N"` — never via SCSS `svg { width/height }`.
 9. Filenames use kebab-case without `.component`/`.service` suffixes (e.g., `halls-list.ts`, not `halls-list.component.ts`).
 10. Tests are skipped by default in schematics (`skipTests: true` in angular.json).
