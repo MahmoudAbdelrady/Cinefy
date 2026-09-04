@@ -121,6 +121,7 @@
 
 .radio-item {
   @include flex-center;
+  gap: 8px;
   padding: 10px 12px;
   border: 2px solid $gray-200;
   border-radius: $radius-md;
@@ -136,18 +137,18 @@
     color 150ms ease,
     box-shadow 150ms ease;
 
-  &:hover:not([data-checked]) {
+  &:hover:not(.selected) {
     border-color: $gray-300;
   }
 
-  &[data-checked] {
+  &.selected {
     border-color: $blue-500;
     background-color: $blue-50;
     color: $blue-800;
     box-shadow: $shadow-xs;
   }
 
-  &:focus-visible {
+  &:has(:focus-visible) {
     outline: none;
     box-shadow: $shadow-focus-ring;
   }

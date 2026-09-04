@@ -91,16 +91,15 @@
       </div>
       <div class="input-group">
         <label data-required>Employment Type</label>
-        <div
-          ngpRadioGroup
-          class="radio-group"
-          [ngpRadioGroupValue]="staffForm.controls.employmentType.value"
-          (ngpRadioGroupValueChange)="staffForm.controls.employmentType.setValue($event!)"
-        >
+        <div class="radio-group">
           @for (entry of employmentTypeEntries; track entry.value) {
-            <div ngpRadioItem [ngpRadioItemValue]="entry.value" class="radio-item">
+            <label
+              class="radio-item"
+              [class.selected]="staffForm.controls.employmentType.value === entry.value"
+            >
+              <p-radiobutton [value]="entry.value" formControlName="employmentType" />
               <span>{{ entry.label }}</span>
-            </div>
+            </label>
           }
         </div>
       </div>

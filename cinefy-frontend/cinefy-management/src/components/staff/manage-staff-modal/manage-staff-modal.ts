@@ -12,7 +12,7 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CheckIcon, EmailIcon, KeyIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
-import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
+import { RadioButton } from 'primeng/radiobutton';
 import {
   CinefyDialog,
   CinefyDialogFooter,
@@ -53,8 +53,7 @@ import { assignableStaffPositions } from '../../../shared/access';
     PasswordChecklist,
     PhoneInput,
     CuiSelect,
-    NgpRadioGroup,
-    NgpRadioItem,
+    RadioButton,
     ReactiveFormsModule,
     TimePicker,
     LoadingSpinnerComponent,
