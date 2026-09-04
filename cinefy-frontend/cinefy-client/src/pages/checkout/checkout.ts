@@ -1,25 +1,17 @@
-import {
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  linkedSignal,
-  TemplateRef,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, linkedSignal, viewChild } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
-import { NgpDialogTrigger, NgpDialogManager } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
+  CinefyDialog,
+  CinefyDialogFooter,
   EmptyStateComponent,
   HoldTimerComponent,
   LoadingSpinnerComponent,
   MediaImageComponent,
-  ModalComponent,
 } from 'cinefy-ui/components';
 import { BookingCancelledComponent } from '../../components';
 import { BookingService, ClientService } from '../../services';
@@ -44,10 +36,10 @@ import { brandChip } from '../../shared/payments';
   selector: 'checkout-page',
   imports: [
     RouterLink,
-    NgpDialogTrigger,
     LucideDynamicIcon,
     MediaImageComponent,
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogFooter,
     HoldTimerComponent,
     BookingCancelledComponent,
     EmptyStateComponent,
@@ -75,10 +67,9 @@ export class CheckoutPage {
   private readonly router = inject(Router);
   private readonly bookingService = inject(BookingService);
   private readonly clientService = inject(ClientService);
-  private readonly dialogManager = inject(NgpDialogManager);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly expiredDialog = viewChild.required<TemplateRef<unknown>>('expiredDialog');
+  private readonly cancelDialog = viewChild('cancelDialog', { read: CinefyDialog });
 
   protected readonly bookingId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('bookingId'))),
@@ -108,6 +99,8 @@ export class CheckoutPage {
   protected readonly cancelling = this.perBooking(false);
   protected readonly cancelled = this.perBooking(false);
   protected readonly bookingExpired = this.perBooking(false);
+  protected readonly cancelVisible = this.perBooking(false);
+  protected readonly expiredVisible = this.perBooking(false);
 
   private readonly paymentMethodsResource = rxResource({
     params: () => this.bookingId() ?? undefined,
@@ -185,18 +178,22 @@ export class CheckoutPage {
 
   protected onExpired(): void {
     this.bookingExpired.set(true);
-    this.dialogManager.open(this.expiredDialog() as TemplateRef<never>);
+    this.expiredVisible.set(true);
   }
 
-  protected goToSeatSelection(close: () => void): void {
+  protected goToSeatSelection(): void {
     const booking = this.booking();
-    close();
+    this.expiredVisible.set(false);
     if (!booking) return;
 
     this.router.navigateByUrl(`/movies/${booking.movie.id}/seats/${booking.showtimeId}`);
   }
 
-  protected confirmCancel(close: () => void): void {
+  protected closeCancelDialog(): void {
+    this.cancelDialog()?.close();
+  }
+
+  protected confirmCancel(): void {
     const booking = this.booking();
     if (!booking || this.cancelling()) return;
 
@@ -206,7 +203,7 @@ export class CheckoutPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          close();
+          this.closeCancelDialog();
           this.cancelled.set(true);
         },
         error: () => {
