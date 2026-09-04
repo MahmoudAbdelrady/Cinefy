@@ -23,6 +23,7 @@ export class CinefyDialog {
   readonly description: InputSignal<string | null> = input<string | null>(null);
   readonly canClose = input(true);
   readonly style: InputSignal<CinefyDialogStyle | null> = input<CinefyDialogStyle | null>(null);
+  readonly contentStyle: InputSignal<CinefyDialogStyle | null> = input<CinefyDialogStyle | null>(null);
 
   readonly closed = output<void>();
 

@@ -6,6 +6,8 @@
   [closable]="canClose()"
   [dismissableMask]="true"
   [style]="style() ?? {}"
+  [contentStyle]="contentStyle() ?? {}"
+  appendTo="body"
   (onHide)="closed.emit()"
   [content]="headerTpl"
   [footerTemplate]="hasCustomFooter() ? footerTpl : undefined"

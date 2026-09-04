@@ -1,10 +1,10 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ModalComponent } from 'cinefy-ui/components';
+import { CinefyDialog } from 'cinefy-ui/components';
 
 @Component({
   selector: 'trailer-modal',
-  imports: [ModalComponent],
+  imports: [CinefyDialog],
   templateUrl: './trailer-modal.html',
   styleUrl: './trailer-modal.scss',
 })
@@ -15,7 +15,7 @@ export class TrailerModalComponent {
 
   readonly title = input.required<string>();
 
-  readonly close = input.required<() => void>();
+  readonly closed = output<void>();
 
   protected readonly embedUrl = computed<SafeResourceUrl>(() =>
     this.sanitizer.bypassSecurityTrustResourceUrl(`${this.trailerUrl()}?autoplay=1`),

@@ -1,10 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   EmptyStateComponent,
   LoadingSpinnerComponent,
@@ -26,7 +25,6 @@ interface CrewMember {
   selector: 'movie-detail-page',
   imports: [
     LucideDynamicIcon,
-    NgpDialogTrigger,
     EmptyStateComponent,
     LoadingSpinnerComponent,
     MediaImageComponent,
@@ -53,6 +51,8 @@ export class MovieDetailPage {
   private readonly movieId = toSignal(
     this.route.paramMap.pipe(map((params) => Number(params.get('movieId')))),
   );
+
+  protected readonly trailerVisible = signal(false);
 
   protected readonly movieResource = rxResource({
     params: () => this.movieId(),

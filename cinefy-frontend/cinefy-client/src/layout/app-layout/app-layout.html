@@ -47,10 +47,6 @@
     </div>
   </header>
 
-  @if (myTicketsVisible()) {
-    <my-tickets-list (closed)="myTicketsVisible.set(false)" />
-  }
-
   <main class="app-layout-content">
     <router-outlet />
   </main>
@@ -65,3 +61,7 @@
     </div>
   </footer>
 </div>
+
+@if (myTicketsVisible()) {
+  <my-tickets-list (closed)="myTicketsVisible.set(false)" />
+}

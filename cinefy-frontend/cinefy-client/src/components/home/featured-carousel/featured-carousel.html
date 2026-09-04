@@ -38,27 +38,23 @@
               >Book Tickets</a
             >
           }
-          @if (slide.movieDetails.trailerUrl; as trailerUrl) {
-            <button
-              class="fc-trailer-btn btn-base"
-              [ngpDialogTrigger]="trailerDialog"
-              (click)="stopAutoAdvance()"
-              (ngpDialogTriggerClosed)="restartAutoAdvance()"
-            >
+          @if (slide.movieDetails.trailerUrl) {
+            <button class="fc-trailer-btn btn-base" (click)="openTrailer()">
               <svg [lucideIcon]="icons.PlayIcon" [size]="16"></svg>
               <span>Watch Trailer</span>
             </button>
-            <ng-template #trailerDialog let-close="close">
-              <trailer-modal
-                [trailerUrl]="trailerUrl"
-                [title]="slide.movieDetails.title"
-                [close]="close"
-              />
-            </ng-template>
           }
         </div>
       </div>
     </div>
+
+    @if (trailerVisible() && slide.movieDetails.trailerUrl; as trailerUrl) {
+      <trailer-modal
+        [trailerUrl]="trailerUrl"
+        [title]="slide.movieDetails.title"
+        (closed)="closeTrailer()"
+      />
+    }
   }
 
   @if (slides().length > 1) {

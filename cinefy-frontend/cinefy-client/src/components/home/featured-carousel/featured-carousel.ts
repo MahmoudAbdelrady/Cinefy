@@ -1,7 +1,6 @@
 import { afterNextRender, Component, computed, input, OnDestroy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   ClockIcon,
   EyeIcon,
@@ -22,7 +21,6 @@ const SWIPE_THRESHOLD = 20; // 20 pixels
   imports: [
     RouterLink,
     LucideDynamicIcon,
-    NgpDialogTrigger,
     TrailerModalComponent,
     MediaImageComponent,
     DurationPipe,
@@ -42,6 +40,8 @@ export class FeaturedCarouselComponent implements OnDestroy {
   readonly slides = input.required<HighlightedMovie[]>();
 
   protected readonly currentIndex = signal(0);
+
+  protected readonly trailerVisible = signal(false);
 
   protected readonly currentSlide = computed(() => this.slides()[this.currentIndex()]);
 
@@ -80,6 +80,16 @@ export class FeaturedCarouselComponent implements OnDestroy {
 
   protected goTo(index: number): void {
     this.currentIndex.set(index);
+    this.restartAutoAdvance();
+  }
+
+  protected openTrailer(): void {
+    this.stopAutoAdvance();
+    this.trailerVisible.set(true);
+  }
+
+  protected closeTrailer(): void {
+    this.trailerVisible.set(false);
     this.restartAutoAdvance();
   }
 
