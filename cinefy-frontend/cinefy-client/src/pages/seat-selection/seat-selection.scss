@@ -179,6 +179,11 @@
   border-radius: $radius-full;
   background: $color-primary;
   animation: ss-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  &.ss-booking-dot-expired {
+    background: $color-destructive;
+    animation: none;
+  }
 }
 
 .ss-cancel {

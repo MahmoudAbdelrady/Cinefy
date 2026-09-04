@@ -1,24 +1,16 @@
-import {
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  linkedSignal,
-  TemplateRef,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, linkedSignal, viewChild } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
-import { NgpDialogTrigger, NgpDialogManager } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
+  CinefyDialog,
+  CinefyDialogFooter,
   EmptyStateComponent,
   HoldTimerComponent,
   LoadingSpinnerComponent,
-  ModalComponent,
   SeatMapComponent,
 } from 'cinefy-ui/components';
 import { BookingCancelledComponent, BookingSummaryComponent } from '../../components';
@@ -70,13 +62,13 @@ function priceByCategory(pricing: TicketPrice[]): Record<SelectableSeatCategory,
   imports: [
     RouterLink,
     DatePipe,
-    NgpDialogTrigger,
     LucideDynamicIcon,
     SeatMapComponent,
     BookingSummaryComponent,
     HoldTimerComponent,
     BookingCancelledComponent,
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogFooter,
     EmptyStateComponent,
     LoadingSpinnerComponent,
   ],
@@ -93,10 +85,9 @@ export class SeatSelectionPage {
 
   private readonly route = inject(ActivatedRoute);
   private readonly bookingService = inject(BookingService);
-  private readonly dialogManager = inject(NgpDialogManager);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly expiredDialog = viewChild.required<TemplateRef<unknown>>('expiredDialog');
+  private readonly cancelDialog = viewChild('cancelDialog', { read: CinefyDialog });
 
   protected readonly movieId = toSignal(
     this.route.paramMap.pipe(map((params) => Number(params.get('movieId')))),
@@ -150,19 +141,25 @@ export class SeatSelectionPage {
   protected readonly cancelling = this.perShowtime(false);
   protected readonly cancelled = this.perShowtime(false);
   protected readonly bookingExpired = this.perShowtime(false);
+  protected readonly cancelVisible = this.perShowtime(false);
+  protected readonly expiredVisible = this.perShowtime(false);
 
   protected onExpired(): void {
     this.bookingExpired.set(true);
-    this.dialogManager.open(this.expiredDialog() as TemplateRef<never>);
+    this.expiredVisible.set(true);
   }
 
-  protected reloadSeats(close: () => void): void {
-    close();
+  protected reloadSeats(): void {
+    this.expiredVisible.set(false);
     this.bookingExpired.set(false);
     this.seatSelectionResource.reload();
   }
 
-  protected confirmCancel(close: () => void): void {
+  protected closeCancelDialog(): void {
+    this.cancelDialog()?.close();
+  }
+
+  protected confirmCancel(): void {
     const activeBooking = this.activeBooking();
     if (!activeBooking || this.cancelling()) return;
 
@@ -172,7 +169,7 @@ export class SeatSelectionPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          close();
+          this.closeCancelDialog();
           this.cancelled.set(true);
         },
         error: () => {
