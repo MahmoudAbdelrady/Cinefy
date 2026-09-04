@@ -45,17 +45,50 @@
       align-items: flex-start;
       max-width: 420px;
     }
+
+    .test-readout {
+      font-size: 14px;
+      color: $gray-600;
+    }
   }
 }
 
-.test-field {
+.test-popover {
   @include flex-column;
 
-  gap: 6px;
+  gap: 10px;
+  min-width: 200px;
 
-  label {
-    font-size: 14px;
-    font-weight: 500;
-    color: $gray-700;
+  .test-popover-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: $gray-900;
+  }
+
+  .test-popover-options {
+    @include flex-column;
+
+    gap: 4px;
+    list-style: none;
+
+    .test-popover-option {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: $radius-md;
+      font-size: 14px;
+      text-align: left;
+      color: $gray-700;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $gray-100;
+      }
+
+      &.test-popover-option-active {
+        background-color: $blue-50;
+        color: $blue-700;
+        font-weight: 500;
+      }
+    }
   }
 }

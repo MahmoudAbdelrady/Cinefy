@@ -1,26 +1,32 @@
-import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, signal, viewChild } from '@angular/core';
 import { ButtonDirective } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { Select } from 'primeng/select';
+import { Popover } from 'primeng/popover';
 
-const HALLS = [
-  { id: '1', name: 'Hall A' },
-  { id: '2', name: 'Hall B' },
-  { id: '3', name: 'Hall C' },
-  { id: '4', name: 'Hall D' },
+const PRESETS = [
+  { label: 'Last 7 days', days: 7 },
+  { label: 'Last 14 days', days: 14 },
+  { label: 'Last 30 days', days: 30 },
 ];
 
 @Component({
   selector: 'test-page',
-  imports: [FormsModule, ButtonDirective, Dialog, Select],
+  imports: [ButtonDirective, Popover],
   templateUrl: './test.html',
   styleUrl: './test.scss',
 })
 export class TestPage {
-  protected readonly halls = HALLS;
+  private readonly popover = viewChild.required(Popover);
 
-  protected readonly visible = signal(false);
+  protected readonly presets = PRESETS;
 
-  protected selectedHall: string | null = null;
+  protected readonly selectedPreset = signal(7);
+
+  protected togglePopover(event: Event): void {
+    this.popover().toggle(event);
+  }
+
+  protected selectPreset(days: number): void {
+    this.selectedPreset.set(days);
+    this.popover().hide();
+  }
 }

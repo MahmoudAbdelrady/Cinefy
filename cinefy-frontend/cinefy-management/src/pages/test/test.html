@@ -10,30 +10,32 @@
     <h2 class="test-sandbox-title">Sandbox</h2>
 
     <div class="test-sandbox-body">
-      <button type="button" pButton (click)="visible.set(true)">Open Dialog</button>
+      <button type="button" pButton (click)="togglePopover($event)">
+        <span>Pick a range</span>
+      </button>
 
-      @if (visible()) {
-        <p-dialog
-          [(visible)]="visible"
-          [modal]="true"
-          [dismissableMask]="true"
-          header="Small Dialog"
-          [style]="{ width: '24rem', height: '10rem' }"
-        >
-          <div class="test-field">
-            <label for="hall">Hall</label>
-            <p-select
-              inputId="hall"
-              appendTo="body"
-              [options]="halls"
-              [(ngModel)]="selectedHall"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Select a hall"
-            />
-          </div>
-        </p-dialog>
-      }
+      <p-popover>
+        <div class="test-popover">
+          <p class="test-popover-title">Date range</p>
+
+          <ul class="test-popover-options">
+            @for (preset of presets; track preset.days) {
+              <li>
+                <button
+                  type="button"
+                  class="test-popover-option"
+                  [class.test-popover-option-active]="selectedPreset() === preset.days"
+                  (click)="selectPreset(preset.days)"
+                >
+                  {{ preset.label }}
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      </p-popover>
+
+      <p class="test-readout">Selected: {{ selectedPreset() }} days</p>
     </div>
   </section>
 </div>
