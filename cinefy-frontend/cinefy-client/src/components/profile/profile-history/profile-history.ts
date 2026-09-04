@@ -2,7 +2,6 @@ import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   EmptyStateComponent,
   LoadingSpinnerComponent,
@@ -22,7 +21,6 @@ const PAGE_SIZE = 5;
     CurrencyPipe,
     DatePipe,
     LucideDynamicIcon,
-    NgpDialogTrigger,
     MediaImageComponent,
     PastBookingDetailsModalComponent,
     EmptyStateComponent,
@@ -44,6 +42,8 @@ export class ProfileHistoryComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly pageSize = PAGE_SIZE;
+
+  protected readonly bookingToView = signal<PastBooking | null>(null);
 
   protected readonly bookings = signal<PastBooking[]>([]);
   protected readonly totalItems = signal(0);

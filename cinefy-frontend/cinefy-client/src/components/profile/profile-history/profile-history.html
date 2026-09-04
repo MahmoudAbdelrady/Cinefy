@@ -54,14 +54,10 @@
               <button
                 type="button"
                 class="btn-secondary ph-view"
-                [ngpDialogTrigger]="detailsDialog"
+                (click)="bookingToView.set(booking)"
               >
                 View
               </button>
-
-              <ng-template #detailsDialog let-close="close">
-                <past-booking-details-modal [booking]="booking" [close]="close" />
-              </ng-template>
             </div>
           </li>
         } @empty {
@@ -80,4 +76,8 @@
       />
     }
   </div>
+}
+
+@if (bookingToView(); as booking) {
+  <past-booking-details-modal [booking]="booking" (closed)="bookingToView.set(null)" />
 }

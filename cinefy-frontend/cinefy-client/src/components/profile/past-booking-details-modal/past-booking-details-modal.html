@@ -1,8 +1,8 @@
-<app-modal
-  [modalTitle]="booking().movie.title"
+<cui-dialog
+  [header]="booking().movie.title"
   description="Booking details"
-  width="448px"
-  [close]="close()"
+  [style]="{ width: '448px' }"
+  (closed)="closed.emit()"
 >
   @if (details.isLoading()) {
     <div class="pbdm-loading">
@@ -72,4 +72,4 @@
       </dl>
     </div>
   }
-</app-modal>
+</cui-dialog>
