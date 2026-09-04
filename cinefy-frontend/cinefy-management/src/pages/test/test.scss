@@ -1,5 +1,7 @@
 @use '../../shared/styles/colors' as *;
+@use '../../shared/styles/shadows' as *;
 @use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
 
 .test-container {
   @include flex-column;
@@ -53,42 +55,77 @@
   }
 }
 
-.test-popover {
-  @include flex-column;
+.test-radio-row {
+  @include flex-align;
 
-  gap: 10px;
-  min-width: 200px;
+  gap: 20px;
 
-  .test-popover-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: $gray-900;
+  .test-radio {
+    @include flex-align;
+
+    gap: 8px;
+    font-size: 14px;
+    color: $gray-700;
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+.test-radio-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 100%;
+
+  @include below-phone {
+    grid-template-columns: 1fr;
   }
 
-  .test-popover-options {
-    @include flex-column;
+  .test-radio-card {
+    @include flex-align;
 
-    gap: 4px;
-    list-style: none;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 2px solid $gray-200;
+    border-radius: $radius-md;
+    background-color: #ffffff;
+    cursor: pointer;
+    user-select: none;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease,
+      box-shadow 150ms ease;
 
-    .test-popover-option {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: $radius-md;
+    &:hover:not(.selected) {
+      border-color: $gray-300;
+    }
+
+    &.selected {
+      border-color: $blue-500;
+      background-color: $blue-50;
+      box-shadow: $shadow-xs;
+
+      .test-radio-card-title {
+        color: $blue-800;
+      }
+    }
+
+    .test-radio-card-text {
+      @include flex-column;
+
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .test-radio-card-title {
       font-size: 14px;
-      text-align: left;
+      font-weight: 600;
       color: $gray-700;
-      cursor: pointer;
+    }
 
-      &:hover {
-        background-color: $gray-100;
-      }
-
-      &.test-popover-option-active {
-        background-color: $blue-50;
-        color: $blue-700;
-        font-weight: 500;
-      }
+    .test-radio-card-hint {
+      font-size: 12px;
+      color: $gray-500;
     }
   }
 }

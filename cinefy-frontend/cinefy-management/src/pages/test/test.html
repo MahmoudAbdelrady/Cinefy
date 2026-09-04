@@ -7,35 +7,39 @@
   </header>
 
   <section class="test-sandbox">
-    <h2 class="test-sandbox-title">Sandbox</h2>
+    <h2 class="test-sandbox-title">Plain radio buttons</h2>
 
     <div class="test-sandbox-body">
-      <button type="button" pButton (click)="togglePopover($event)">
-        <span>Pick a range</span>
-      </button>
+      <div class="test-radio-row">
+        @for (option of employmentTypes; track option.value) {
+          <label class="test-radio">
+            <p-radiobutton name="employment" [value]="option.value" [(ngModel)]="employmentType" />
+            <span>{{ option.label }}</span>
+          </label>
+        }
+      </div>
 
-      <p-popover>
-        <div class="test-popover">
-          <p class="test-popover-title">Date range</p>
+      <p class="test-readout">Selected: {{ employmentType }}</p>
+    </div>
+  </section>
 
-          <ul class="test-popover-options">
-            @for (preset of presets; track preset.days) {
-              <li>
-                <button
-                  type="button"
-                  class="test-popover-option"
-                  [class.test-popover-option-active]="selectedPreset() === preset.days"
-                  (click)="selectPreset(preset.days)"
-                >
-                  {{ preset.label }}
-                </button>
-              </li>
-            }
-          </ul>
-        </div>
-      </p-popover>
+  <section class="test-sandbox">
+    <h2 class="test-sandbox-title">Card radio buttons</h2>
 
-      <p class="test-readout">Selected: {{ selectedPreset() }} days</p>
+    <div class="test-sandbox-body">
+      <div class="test-radio-cards">
+        @for (option of shifts; track option.value) {
+          <label class="test-radio-card" [class.selected]="shift === option.value">
+            <p-radiobutton name="shift" [value]="option.value" [(ngModel)]="shift" />
+            <span class="test-radio-card-text">
+              <span class="test-radio-card-title">{{ option.label }}</span>
+              <span class="test-radio-card-hint">{{ option.hint }}</span>
+            </span>
+          </label>
+        }
+      </div>
+
+      <p class="test-readout">Selected: {{ shift }}</p>
     </div>
   </section>
 </div>
