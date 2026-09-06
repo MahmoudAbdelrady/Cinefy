@@ -1,6 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { LucideDynamicIcon } from '@lucide/angular';
-import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
+import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import {
   PersonalDetailsComponent,
   ProfileBillingComponent,
@@ -9,14 +8,26 @@ import {
 } from '../../components';
 import { CreditCardIcon, TicketIcon, UserIcon } from '../../shared/icons';
 
+type ProfileTab = 'account' | 'billing' | 'history';
+
+interface ProfileTabItem {
+  label: string;
+  value: ProfileTab;
+  icon: LucideIcon;
+}
+
+const PROFILE_TABS: readonly ProfileTabItem[] = [
+  { label: 'Account', value: 'account', icon: UserIcon },
+  { label: 'Billing', value: 'billing', icon: CreditCardIcon },
+  { label: 'Bookings', value: 'history', icon: TicketIcon },
+];
+
+const DEFAULT_TAB: ProfileTab = 'account';
+
 @Component({
   selector: 'profile-page',
   imports: [
     LucideDynamicIcon,
-    NgpTabset,
-    NgpTabList,
-    NgpTabButton,
-    NgpTabPanel,
     PersonalDetailsComponent,
     ProfilePasswordComponent,
     ProfileBillingComponent,
@@ -26,22 +37,19 @@ import { CreditCardIcon, TicketIcon, UserIcon } from '../../shared/icons';
   styleUrl: './profile.scss',
 })
 export class ProfilePage {
-  protected readonly icons = {
-    UserIcon,
-    CreditCardIcon,
-    TicketIcon,
-  };
+  protected readonly tabs = PROFILE_TABS;
 
-  protected readonly defaultTab = 'account';
+  protected readonly activeTab = signal<ProfileTab>(DEFAULT_TAB);
 
-  private readonly visitedTabs = signal<ReadonlySet<string>>(new Set([this.defaultTab]));
+  private readonly visitedTabs = signal<ReadonlySet<ProfileTab>>(new Set([DEFAULT_TAB]));
 
-  protected hasVisited(tab: string): boolean {
+  protected hasVisited(tab: ProfileTab): boolean {
     return this.visitedTabs().has(tab);
   }
 
-  protected onTabChange(tab: string | undefined): void {
-    if (!tab || this.visitedTabs().has(tab)) return;
+  protected selectTab(tab: ProfileTab): void {
+    this.activeTab.set(tab);
+    if (this.visitedTabs().has(tab)) return;
     this.visitedTabs.update((visited) => new Set(visited).add(tab));
   }
 }

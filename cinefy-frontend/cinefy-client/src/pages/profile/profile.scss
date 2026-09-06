@@ -59,7 +59,7 @@
         box-shadow: 0 0 0 3px rgba($color-primary, 0.5);
       }
 
-      &[data-active] {
+      &.active {
         border-color: $color-input;
         background-color: rgba($color-input, 0.3);
         color: $color-foreground;
@@ -71,15 +71,7 @@
     min-width: 0;
     flex: 1;
 
-    [ngpTabPanel]:not([data-active]) {
-      display: none;
-    }
-
-    [ngpTabPanel]:focus-visible {
-      outline: none;
-    }
-
-    .pt-account[data-active] {
+    .pt-account:not([hidden]) {
       @include flex-column;
       gap: 32px;
     }
