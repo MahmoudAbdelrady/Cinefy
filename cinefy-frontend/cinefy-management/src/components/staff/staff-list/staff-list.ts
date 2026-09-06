@@ -30,8 +30,8 @@ import {
   CinefyPaginator,
   CinefySelect,
   CinefyInput,
-  LoadingSpinnerComponent,
-  EmptyStateComponent,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
@@ -58,8 +58,8 @@ import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
     CinefySelect,
     CinefyInput,
     CinefyPaginator,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
     CinefyDialog,
     CinefyDialogFooter,
     StaffDetailsComponent,

@@ -5,6 +5,6 @@ import { CinefyToast } from 'cinefy-ui/components';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, CinefyToast],
-  template: '<router-outlet /><cinefy-toast />',
+  template: '<router-outlet /><cui-toast />',
 })
 export class App {}

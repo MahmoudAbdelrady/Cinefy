@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CinefyInput, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyInput, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { ArrowLeftIcon, ArrowRightIcon, EmailIcon } from '../../../../../shared/icons';
 import { EMAIL_PATTERN } from '../../../../../shared/validation';
 import { AuthService } from '../../../../../services/auth';
@@ -15,7 +15,7 @@ import { AuthService } from '../../../../../services/auth';
     RouterLink,
     LucideDynamicIcon,
     CinefyInput,
-    LoadingSpinnerComponent,
+    CinefyLoadingSpinner,
   ],
   templateUrl: './request-step.html',
   styleUrl: './request-step.scss',

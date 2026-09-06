@@ -1,5 +1,5 @@
 import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
-import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { HallsService } from '../../../services';
 import { LayoutIcon } from '../../../shared/icons';
 import { HALL_STATUS_LABELS } from '../../../shared/types';
@@ -14,7 +14,7 @@ interface HallStatusCount {
 
 @Component({
   selector: 'halls-summary',
-  imports: [DashboardWidgetComponent, LoadingSpinnerComponent, EmptyStateComponent],
+  imports: [DashboardWidgetComponent, CinefyLoadingSpinner, CinefyEmptyState],
   templateUrl: './halls-summary.html',
   styleUrl: './halls-summary.scss',
 })

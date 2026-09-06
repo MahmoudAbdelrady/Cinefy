@@ -8,7 +8,7 @@
 </div>
 
 <form class="orf-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-  <phone-input
+  <cui-phone-input
     [countryControl]="registerForm.controls.phoneCountry"
     [numberControl]="registerForm.controls.phoneNumber"
   />
@@ -19,7 +19,7 @@
     [disabled]="registerForm.invalid || submitting()"
   >
     @if (submitting()) {
-      <loading-spinner variant="xs" />
+      <cui-loading-spinner variant="xs" />
     } @else {
       <span>Create account</span>
       <svg class="orf-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

@@ -1,5 +1,5 @@
 @if (loadFailed()) {
-  <empty-state
+  <cui-empty-state
     [icon]="icons.TriangleAlertIcon"
     title="Couldn't load your bookings"
     description="Something went wrong. Please try again later."
@@ -11,14 +11,14 @@
 
       @if (loading()) {
         <div class="ph-loading">
-          <loading-spinner variant="lg" />
+          <cui-loading-spinner variant="lg" />
         </div>
       } @else {
         <ul class="ph-list">
           @for (booking of bookings(); track booking.id) {
             <li class="ph-row">
               <div class="ph-poster">
-                <media-image
+                <cui-media-image
                   [src]="booking.movie.posterUrl"
                   [alt]="booking.movie.title + ' poster'"
                 />
@@ -62,7 +62,7 @@
               </div>
             </li>
           } @empty {
-            <empty-state [icon]="icons.TicketIcon" title="No past bookings yet" />
+            <cui-empty-state [icon]="icons.TicketIcon" title="No past bookings yet" />
           }
         </ul>
       }

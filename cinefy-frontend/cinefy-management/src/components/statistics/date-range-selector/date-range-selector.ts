@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Popover } from 'primeng/popover';
-import { DatePicker } from 'cinefy-ui/components';
+import { CinefyDatePicker } from 'cinefy-ui/components';
 import { addDays, addYears, format, isAfter, parseISO } from 'date-fns';
 import { CalendarIcon } from '../../../shared/icons';
 import type { DateRange } from '../../../shared/types';
@@ -45,7 +45,7 @@ function exceedsOneYear(range: DateRange): boolean {
 
 @Component({
   selector: 'date-range-selector',
-  imports: [ReactiveFormsModule, LucideDynamicIcon, Popover, DatePicker],
+  imports: [ReactiveFormsModule, LucideDynamicIcon, Popover, CinefyDatePicker],
   templateUrl: './date-range-selector.html',
   styleUrl: './date-range-selector.scss',
 })

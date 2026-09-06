@@ -6,10 +6,10 @@
 >
   @if (isLoading()) {
     <div class="tickets-status">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (hasError()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.TriangleAlertIcon"
       title="We couldn't load your bookings. Please try again."
     />
@@ -19,7 +19,7 @@
         <li class="booking-item">
           <div class="bi-main">
             <div class="bi-movie-poster">
-              <media-image
+              <cui-media-image
                 [src]="booking.movie.posterUrl"
                 [alt]="booking.movie.title + ' poster'"
               />
@@ -76,7 +76,7 @@
           </div>
         </li>
       } @empty {
-        <empty-state
+        <cui-empty-state
           [icon]="icons.TicketIcon"
           title="Bookings you start will wait here until you complete them."
         />

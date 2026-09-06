@@ -5,9 +5,9 @@ import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
-  MediaImageComponent,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { DurationPipe } from 'cinefy-ui/pipes';
 import { BookingSectionComponent, TrailerModalComponent } from '../../components';
@@ -25,9 +25,9 @@ interface CrewMember {
   selector: 'movie-detail-page',
   imports: [
     LucideDynamicIcon,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
-    MediaImageComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
+    CinefyMediaImage,
     DurationPipe,
     BookingSectionComponent,
     TrailerModalComponent,

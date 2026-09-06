@@ -1,9 +1,9 @@
 @if (seatSelectionResource.isLoading()) {
   <div class="ss-loading">
-    <loading-spinner variant="lg" />
+    <cui-loading-spinner variant="lg" />
   </div>
 } @else if (seatSelectionResource.error()) {
-  <empty-state
+  <cui-empty-state
     class="ss-error"
     [icon]="icons.TriangleAlertIcon"
     title="Couldn't load this showtime"
@@ -45,7 +45,7 @@
               </span>
             </div>
 
-            <hold-timer [expiresAt]="booking.expiresAt" (expired)="onExpired()" />
+            <cui-hold-timer [expiresAt]="booking.expiresAt" (expired)="onExpired()" />
 
             @if (!expired) {
               <button type="button" class="btn-base ss-cancel" (click)="cancelVisible.set(true)">
@@ -59,7 +59,7 @@
     </div>
 
     @if (data.fullyBooked) {
-      <empty-state
+      <cui-empty-state
         class="ss-sold-out"
         [icon]="icons.TicketXIcon"
         title="Sold out"
@@ -74,7 +74,7 @@
             <span class="ss-screen-label">Screen</span>
           </div>
 
-          <seat-map
+          <cui-seat-map
             [rows]="hall()"
             [initialSelectedIds]="bookedSeats()"
             (selectionChange)="selectedSeats.set($event)"
@@ -121,7 +121,7 @@
       </button>
       <button type="button" class="btn-danger" [disabled]="cancelling()" (click)="confirmCancel()">
         @if (cancelling()) {
-          <loading-spinner variant="xs" />
+          <cui-loading-spinner variant="xs" />
         } @else {
           Cancel Booking
         }

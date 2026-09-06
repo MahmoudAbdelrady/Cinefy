@@ -28,7 +28,7 @@
   <div class="sl-items">
     @if (loading()) {
       <div class="sl-loading">
-        <loading-spinner variant="md" />
+        <cui-loading-spinner variant="md" />
       </div>
     } @else {
       <ul class="staff-members">
@@ -92,7 +92,7 @@
             </div>
           </li>
         } @empty {
-          <empty-state
+          <cui-empty-state
             [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.UsersIcon"
             [title]="hasFilters() ? 'No staff members found' : 'No staff members yet'"
             [description]="

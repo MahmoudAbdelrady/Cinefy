@@ -14,12 +14,12 @@ const FIXED_LEGEND_ITEMS: LegendItem[] = [
 ];
 
 @Component({
-  selector: "seat-map",
+  selector: "cui-seat-map",
   imports: [],
-  templateUrl: "./seat-map.html",
-  styleUrl: "./seat-map.scss",
+  templateUrl: "./cinefy-seat-map.html",
+  styleUrl: "./cinefy-seat-map.scss",
 })
-export class SeatMapComponent {
+export class CinefySeatMap {
   readonly rows = input.required<Seat[][]>();
   readonly initialSelectedIds = input<string[]>([]);
   readonly allowOnSiteOnly = input(false);

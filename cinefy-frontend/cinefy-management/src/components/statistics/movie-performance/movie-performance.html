@@ -5,13 +5,13 @@
   </header>
 
   @if (failed()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.WarningIcon"
       title="Couldn't load movie performance"
       description="Something went wrong. Please try again later."
     />
   } @else if (!loading() && rows().length === 0) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.ClapperboardIcon"
       title="No movies screened"
       description="No movies were screened between these dates."
@@ -19,7 +19,7 @@
   } @else {
     @if (loading()) {
       <div class="mp-loading">
-        <loading-spinner variant="xl" />
+        <cui-loading-spinner variant="xl" />
       </div>
     } @else {
       <div class="mp-table-wrapper">

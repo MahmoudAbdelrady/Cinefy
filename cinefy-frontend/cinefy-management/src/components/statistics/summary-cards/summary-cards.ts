@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import {
   ArrowDownRightIcon,
   ArrowUpRightIcon,
@@ -36,7 +36,7 @@ function computeDelta(current: number, previous: number): MetricDelta {
 
 @Component({
   selector: 'summary-cards',
-  imports: [LucideDynamicIcon, LoadingSpinnerComponent, EmptyStateComponent, DecimalPipe],
+  imports: [LucideDynamicIcon, CinefyLoadingSpinner, CinefyEmptyState, DecimalPipe],
   templateUrl: './summary-cards.html',
   styleUrl: './summary-cards.scss',
 })

@@ -8,10 +8,10 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefyDialog,
   CinefyDialogFooter,
-  EmptyStateComponent,
-  HoldTimerComponent,
-  LoadingSpinnerComponent,
-  MediaImageComponent,
+  CinefyEmptyState,
+  CinefyHoldTimer,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { BookingCancelledComponent } from '../../components';
 import { BookingService, ClientService } from '../../services';
@@ -37,13 +37,13 @@ import { brandChip } from '../../shared/payments';
   imports: [
     RouterLink,
     LucideDynamicIcon,
-    MediaImageComponent,
+    CinefyMediaImage,
     CinefyDialog,
     CinefyDialogFooter,
-    HoldTimerComponent,
+    CinefyHoldTimer,
     BookingCancelledComponent,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
     CurrencyPipe,
     DatePipe,
   ],

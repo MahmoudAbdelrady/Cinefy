@@ -12,12 +12,12 @@ function formatCountdown(seconds: number): string {
 }
 
 @Component({
-  selector: "hold-timer",
+  selector: "cui-hold-timer",
   imports: [LucideDynamicIcon],
-  templateUrl: "./hold-timer.html",
-  styleUrl: "./hold-timer.scss",
+  templateUrl: "./cinefy-hold-timer.html",
+  styleUrl: "./cinefy-hold-timer.scss",
 })
-export class HoldTimerComponent {
+export class CinefyHoldTimer {
   protected readonly icons = {
     ClockIcon,
   };

@@ -6,10 +6,10 @@
 >
   @if (isLoading()) {
     <div class="abl-status">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (hasError()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.WarningIcon"
       title="We couldn't load the active bookings. Please try again."
     />
@@ -18,7 +18,7 @@
       @for (booking of bookings(); track booking.id) {
         <li class="abl-item">
           <div class="abli-poster">
-            <media-image
+            <cui-media-image
               [src]="booking.movie.posterUrl"
               [alt]="booking.movie.title + ' poster'"
               [iconSize]="20"
@@ -69,7 +69,7 @@
           </div>
         </li>
       } @empty {
-        <empty-state
+        <cui-empty-state
           [icon]="icons.TicketIcon"
           title="Bookings you start will wait here until they're completed."
         />

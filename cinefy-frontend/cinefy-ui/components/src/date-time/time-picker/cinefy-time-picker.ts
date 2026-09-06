@@ -6,7 +6,7 @@ import { format, parse } from "date-fns";
 import { DatePicker as PrimeDatePicker } from "primeng/datepicker";
 import { LucideDynamicIcon } from "@lucide/angular";
 import { ClockIcon } from "../../icons";
-import { FieldErrorComponent } from "../../field-error/field-error";
+import { CinefyFieldError } from "../../field-error/cinefy-field-error";
 
 const DISPLAY_FORMAT = "hh:mm a";
 const VALUE_FORMAT = "HH:mm";
@@ -24,12 +24,12 @@ function toValueTime(displayValue: string | null): string | null {
 }
 
 @Component({
-  selector: "time-picker",
-  imports: [FormsModule, PrimeDatePicker, LucideDynamicIcon, FieldErrorComponent],
-  templateUrl: "./time-picker.html",
-  styleUrl: "./time-picker.scss",
+  selector: "cui-time-picker",
+  imports: [FormsModule, PrimeDatePicker, LucideDynamicIcon, CinefyFieldError],
+  templateUrl: "./cinefy-time-picker.html",
+  styleUrl: "./cinefy-time-picker.scss",
 })
-export class TimePicker {
+export class CinefyTimePicker {
   protected readonly icons = {
     ClockIcon,
   };

@@ -17,13 +17,13 @@ import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { InputText } from "primeng/inputtext";
 import { EyeIcon, EyeOffIcon, XIcon } from "../icons";
-import { FieldErrorComponent } from "../field-error/field-error";
+import { CinefyFieldError } from "../field-error/cinefy-field-error";
 
 type CinefyInputSize = "small" | "large";
 
 @Component({
   selector: "cui-input",
-  imports: [ReactiveFormsModule, LucideDynamicIcon, IconField, InputIcon, InputText, FieldErrorComponent],
+  imports: [ReactiveFormsModule, LucideDynamicIcon, IconField, InputIcon, InputText, CinefyFieldError],
   templateUrl: "./cinefy-input.html",
   styleUrl: "./cinefy-input.scss",
 })

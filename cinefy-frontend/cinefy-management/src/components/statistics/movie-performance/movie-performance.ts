@@ -2,8 +2,8 @@ import { Component, computed, effect, inject, input, linkedSignal, signal } from
 import { DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import {
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
   CinefyPaginator,
 } from 'cinefy-ui/components';
 import { ClapperboardIcon, WarningIcon } from '../../../shared/icons';
@@ -25,7 +25,7 @@ interface MovieRow {
 
 @Component({
   selector: 'movie-performance',
-  imports: [LoadingSpinnerComponent, EmptyStateComponent, CinefyPaginator, DecimalPipe],
+  imports: [CinefyLoadingSpinner, CinefyEmptyState, CinefyPaginator, DecimalPipe],
   templateUrl: './movie-performance.html',
   styleUrl: './movie-performance.scss',
 })

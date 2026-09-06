@@ -32,7 +32,7 @@
   <div class="content">
     @if (loading()) {
       <div class="um-loading">
-        <loading-spinner variant="md" />
+        <cui-loading-spinner variant="md" />
       </div>
     } @else {
       <ul class="um-list">
@@ -40,7 +40,7 @@
           <li class="movie-card">
             <div class="mc-main">
               <div class="mc-img">
-                <media-image
+                <cui-media-image
                   [src]="upcomingMovie.posterUrl"
                   [alt]="upcomingMovie.title"
                   [iconSize]="36"
@@ -99,7 +99,7 @@
                 </div>
                 <div class="mcv-control">
                   @if (isAnnouncePending(upcomingMovie.id)) {
-                    <loading-spinner class="mcv-pending" variant="xs" />
+                    <cui-loading-spinner class="mcv-pending" variant="xs" />
                   }
                   <cui-switch
                     size="sm"
@@ -134,7 +134,7 @@
                 </div>
                 <div class="mcv-control">
                   @if (isHighlightPending(upcomingMovie.id)) {
-                    <loading-spinner class="mcv-pending" variant="xs" />
+                    <cui-loading-spinner class="mcv-pending" variant="xs" />
                   }
                   <cui-switch
                     size="sm"
@@ -150,7 +150,7 @@
             </div>
           </li>
         } @empty {
-          <empty-state
+          <cui-empty-state
             class="um-empty"
             [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.CalendarIcon"
             [title]="hasFilters() ? 'No movies found' : 'No upcoming movies available'"

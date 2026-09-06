@@ -12,7 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { NgTemplateOutlet } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CinefySelect, FieldErrorComponent, CinefyInput, CinefySwitch } from 'cinefy-ui/components';
+import { CinefySelect, CinefyFieldError, CinefyInput, CinefySwitch } from 'cinefy-ui/components';
 import { DeleteIcon, EditIcon, PlusIcon } from '../../../shared/icons';
 import type { ChannelCurrency, PaymentChannel, ProviderConfigValue } from '../../../shared/types';
 import type { ProviderConfigField } from '../provider-spec';
@@ -43,7 +43,7 @@ function buildProviderConfigGroup(
     ReactiveFormsModule,
     NgTemplateOutlet,
     CinefyInput,
-    FieldErrorComponent,
+    CinefyFieldError,
     CinefySelect,
     CinefySwitch,
     LucideDynamicIcon,

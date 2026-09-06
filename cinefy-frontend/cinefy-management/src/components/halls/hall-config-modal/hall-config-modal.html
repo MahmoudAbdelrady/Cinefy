@@ -20,11 +20,11 @@
 
   @if (loadingHall()) {
     <div class="hall-config-loading">
-      <loading-spinner variant="xl" />
+      <cui-loading-spinner variant="xl" />
     </div>
   } @else if (loadHallError()) {
     <div class="hall-config-error">
-      <empty-state
+      <cui-empty-state
         [icon]="icons.WarningIcon"
         title="Failed to load hall"
         description="Something went wrong. Please try again later."
@@ -258,7 +258,7 @@
           [disabled]="hallForm.invalid || !hasChanges() || saving()"
         >
           @if (saving()) {
-            <loading-spinner variant="sm" />
+            <cui-loading-spinner variant="sm" />
             <span>{{ selectedHallId() ? 'Saving…' : 'Creating…' }}</span>
           } @else {
             {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}

@@ -33,8 +33,8 @@ import {
   WarningIcon,
 } from '../../../shared/icons';
 import {
-  LoadingSpinnerComponent,
-  EmptyStateComponent,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
   CinefyInput,
   CinefySelect,
   CinefySwitch,
@@ -111,8 +111,8 @@ const SELECTABLE_HALL_STATUS_ENTRIES = (
     CinefyDialog,
     CinefyDialogHeader,
     CinefyDialogFooter,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
     CinefyInput,
     CinefySelect,
     HallLayoutEditorComponent,

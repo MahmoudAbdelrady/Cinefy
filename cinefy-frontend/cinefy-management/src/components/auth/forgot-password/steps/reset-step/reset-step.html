@@ -19,7 +19,7 @@
           }"
           [blockClipboard]="true"
         />
-        <password-checklist [control]="resetForm.controls.newPassword" />
+        <cui-password-checklist [control]="resetForm.controls.newPassword" />
       </div>
 
       <div class="input-group">
@@ -39,7 +39,7 @@
 
       <button type="submit" class="fp-submit" [disabled]="!canSubmit()">
         @if (submitting()) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
           <span>Saving…</span>
         } @else {
           <span>Save new password</span>

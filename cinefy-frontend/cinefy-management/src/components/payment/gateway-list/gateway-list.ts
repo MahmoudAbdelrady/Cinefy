@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
   CinefyDialog,
   CinefyDialogFooter,
   CinefySwitch,
@@ -33,8 +33,8 @@ import { PAYMENT_PROVIDERS } from '../provider-spec';
     DatePipe,
     NgTemplateOutlet,
     CinefySwitch,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
     CinefyDialog,
     CinefyDialogFooter,
     ManageGatewayModalComponent,

@@ -28,7 +28,7 @@
   <div class="ah-items">
     @if (loading()) {
       <div class="ah-loading">
-        <loading-spinner variant="xl" />
+        <cui-loading-spinner variant="xl" />
       </div>
     } @else {
       <ul class="ah-items-container">
@@ -73,7 +73,7 @@
             </div>
           </li>
         } @empty {
-          <empty-state
+          <cui-empty-state
             [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.LayoutIcon"
             title="No halls found"
             [description]="hasFilters() ? 'Try adjusting your filters.' : null"
@@ -115,7 +115,7 @@
       </button>
       <button class="btn-danger" [disabled]="deleting()" (click)="deleteHall(hall)">
         @if (deleting()) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
           <span>Deleting…</span>
         } @else {
           <span>Delete Hall</span>

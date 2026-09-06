@@ -10,7 +10,7 @@
       </div>
       @if (loadingTypes()) {
         <div class="loading-types">
-          <loading-spinner variant="lg" />
+          <cui-loading-spinner variant="lg" />
         </div>
       } @else {
         <ul class="existing-types-list">
@@ -72,7 +72,7 @@
                     (click)="openDeleteConfirm($event, type)"
                   >
                     @if (isDeleting(type.id!)) {
-                      <loading-spinner variant="xs" />
+                      <cui-loading-spinner variant="xs" />
                     } @else {
                       <svg [lucideIcon]="icons.DeleteIcon" [size]="14" [strokeWidth]="2.5"></svg>
                     }
@@ -81,7 +81,7 @@
               }
             </li>
           } @empty {
-            <empty-state
+            <cui-empty-state
               [icon]="icons.TagIcon"
               title="No hall types yet"
               description="Add your first type below to get started"
@@ -155,7 +155,7 @@
           </button>
           <button class="btn-delete" [disabled]="isDeleting(type.id!)" (click)="deleteType(type)">
             @if (isDeleting(type.id!)) {
-              <loading-spinner variant="xs" />
+              <cui-loading-spinner variant="xs" />
               <span>Deleting…</span>
             } @else {
               Delete

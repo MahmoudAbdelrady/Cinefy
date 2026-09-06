@@ -64,12 +64,12 @@ export function parsePhoneDigits(phoneNumber: string): { country: CountryCode; n
 }
 
 @Component({
-  selector: "phone-input",
+  selector: "cui-phone-input",
   imports: [CinefySelect, CinefyInput],
-  templateUrl: "./phone-input.html",
-  styleUrl: "./phone-input.scss",
+  templateUrl: "./cinefy-phone-input.html",
+  styleUrl: "./cinefy-phone-input.scss",
 })
-export class PhoneInput {
+export class CinefyPhoneInput {
   protected readonly icons = { PhoneIcon };
 
   private readonly destroyRef = inject(DestroyRef);

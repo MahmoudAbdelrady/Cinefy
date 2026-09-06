@@ -33,7 +33,7 @@
     <ng-template #empty>
       @if (loading()) {
       <div class="cui-paginated-select-empty">
-        <loading-spinner variant="sm" />
+        <cui-loading-spinner variant="sm" />
       </div>
       } @else { No results found }
     </ng-template>
@@ -42,7 +42,7 @@
       @if (isLoadMore(option)) {
       <span class="cui-paginated-select-load-more" [attr.data-loading]="loading() ? '' : null" (click)="onLoadMore()">
         @if (loading()) {
-        <loading-spinner variant="xs" />
+        <cui-loading-spinner variant="xs" />
         } @else { {{ labelOf(option) }} }
       </span>
       } @else { {{ labelOf(option) }} }
@@ -71,7 +71,7 @@
     <ng-template #empty>
       @if (loading()) {
       <div class="cui-paginated-select-empty">
-        <loading-spinner variant="sm" />
+        <cui-loading-spinner variant="sm" />
       </div>
       } @else { No results found }
     </ng-template>
@@ -80,7 +80,7 @@
       @if (isLoadMore(option)) {
       <span class="cui-paginated-select-load-more" [attr.data-loading]="loading() ? '' : null" (click)="onLoadMore()">
         @if (loading()) {
-        <loading-spinner variant="xs" />
+        <cui-loading-spinner variant="xs" />
         } @else { {{ labelOf(option) }} }
       </span>
       } @else { {{ labelOf(option) }} }
@@ -89,6 +89,6 @@
   } @if (hint(); as hintText) {
   <p class="cui-paginated-select-hint">{{ hintText }}</p>
   } @if (control().touched && control().errors) {
-  <field-error [control]="control()" [messages]="errorMessages()" />
+  <cui-field-error [control]="control()" [messages]="errorMessages()" />
   }
 </div>

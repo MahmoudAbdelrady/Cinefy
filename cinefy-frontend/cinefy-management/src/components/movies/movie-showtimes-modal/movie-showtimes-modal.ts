@@ -44,8 +44,8 @@ import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../
 import {
   CinefyDialog,
   CinefyDialogFooter,
-  LoadingSpinnerComponent,
-  EmptyStateComponent,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
 } from 'cinefy-ui/components';
 import { BookSeatsComponent } from '../book-seats/book-seats';
 import { CinefyToastService } from 'cinefy-ui/services';
@@ -63,8 +63,8 @@ import { canManage as canManagePosition, canBook as canBookPosition } from '../.
     DatePipe,
     DecimalPipe,
     LucideDynamicIcon,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
     Time12hPipe,
     BookSeatsComponent,
   ],

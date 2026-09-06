@@ -18,7 +18,7 @@
           pattern: 'Password is too weak',
         }"
       />
-      <password-checklist [control]="resetForm.controls.newPassword" />
+      <cui-password-checklist [control]="resetForm.controls.newPassword" />
     </div>
 
     <cui-input
@@ -40,7 +40,7 @@
       [disabled]="resetForm.invalid || submitting()"
     >
       @if (submitting()) {
-        <loading-spinner variant="xs" />
+        <cui-loading-spinner variant="xs" />
       } @else {
         <span>Save new password</span>
         <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

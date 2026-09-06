@@ -1,5 +1,5 @@
 import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { StaffService } from '../../../services';
 import { ContactRoundIcon } from '../../../shared/icons';
 import { USER_POSITION_LABELS } from '../../../shared/types';
@@ -14,7 +14,7 @@ interface ShiftCount {
 
 @Component({
   selector: 'on-shift-summary',
-  imports: [DashboardWidgetComponent, LoadingSpinnerComponent],
+  imports: [DashboardWidgetComponent, CinefyLoadingSpinner],
   templateUrl: './on-shift-summary.html',
   styleUrl: './on-shift-summary.scss',
 })

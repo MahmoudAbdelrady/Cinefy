@@ -13,7 +13,7 @@
       <div class="alh-info">
         @if (isAuthenticatedLoading() || currentUserLoading()) {
           <div class="alh-auth-loading">
-            <loading-spinner variant="sm" />
+            <cui-loading-spinner variant="sm" />
           </div>
         } @else if (isAuthenticated()) {
           <button class="alh-tickets-btn btn-primary" (click)="myTicketsVisible.set(true)">

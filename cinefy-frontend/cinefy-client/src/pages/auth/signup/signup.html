@@ -48,7 +48,7 @@
           }"
         />
 
-        <phone-input
+        <cui-phone-input
           [countryControl]="signupForm.controls.phoneCountry"
           [numberControl]="signupForm.controls.phoneNumber"
         />
@@ -66,7 +66,7 @@
               pattern: 'Password is too weak',
             }"
           />
-          <password-checklist [control]="signupForm.controls.password" />
+          <cui-password-checklist [control]="signupForm.controls.password" />
         </div>
 
         <cui-input
@@ -88,7 +88,7 @@
           [disabled]="signupForm.invalid || submitting()"
         >
           @if (submitting()) {
-            <loading-spinner variant="xs" />
+            <cui-loading-spinner variant="xs" />
           } @else {
             <span>Create account</span>
             <svg class="sp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

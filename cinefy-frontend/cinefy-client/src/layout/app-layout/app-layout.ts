@@ -11,7 +11,7 @@ import {
   SignupIcon,
   ClapperboardIcon,
 } from '../../shared/icons';
-import { CinefyMenu, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyMenu, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import type { CinefyMenuGroup } from 'cinefy-ui/types';
 import { MyTicketsListComponent } from '../../components';
 import { AuthService, ClientService } from '../../services';
@@ -23,7 +23,7 @@ import type { CurrentUser } from '../../shared/types';
     RouterOutlet,
     RouterLink,
     LucideDynamicIcon,
-    LoadingSpinnerComponent,
+    CinefyLoadingSpinner,
     MyTicketsListComponent,
     CinefyMenu,
   ],

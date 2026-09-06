@@ -13,7 +13,7 @@
 
   @if (loading()) {
     <div class="pd-loading">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (isEditing()) {
     <form class="pd-form" [formGroup]="personalForm" (ngSubmit)="save()">
@@ -52,7 +52,7 @@
         hint="Your email is your account identity and it can't be changed."
       />
 
-      <phone-input
+      <cui-phone-input
         label="Phone"
         [countryControl]="personalForm.controls.phoneCountry"
         [numberControl]="personalForm.controls.phoneNumber"
@@ -68,7 +68,7 @@
           [disabled]="personalForm.invalid || !hasChanges() || saving()"
         >
           @if (saving()) {
-            <loading-spinner variant="xs" />
+            <cui-loading-spinner variant="xs" />
             <span>Saving…</span>
           } @else {
             <span>Save changes</span>

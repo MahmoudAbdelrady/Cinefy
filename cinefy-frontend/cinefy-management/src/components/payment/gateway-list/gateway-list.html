@@ -1,6 +1,6 @@
 @if (loading()) {
   <div class="gl-loading">
-    <loading-spinner variant="md" />
+    <cui-loading-spinner variant="md" />
   </div>
 } @else {
   @if (standbyGateways().length && !activeGateway()) {
@@ -30,7 +30,7 @@
         <p>Only one gateway is allowed to receives new payments.</p>
       </header>
 
-      <empty-state
+      <cui-empty-state
         class="gl-empty"
         [icon]="icons.CreditCardIcon"
         title="No payment gateways yet"
@@ -151,7 +151,7 @@
       (click)="gatewayToDelete.set(gateway)"
     >
       @if (isDeleting(gateway.id)) {
-        <loading-spinner variant="sm" />
+        <cui-loading-spinner variant="sm" />
       } @else {
         <svg [lucideIcon]="icons.DeleteIcon" [size]="16" [strokeWidth]="2"></svg>
       }
@@ -231,7 +231,7 @@
         (click)="toggleGateway(gateway.id, !gateway.active)"
       >
         @if (togglingGateway()) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
           <span>{{ gateway.active ? 'Deactivating…' : 'Activating…' }}</span>
         } @else {
           <span>{{ gateway.active ? 'Deactivate' : 'Activate' }}</span>
@@ -248,7 +248,7 @@
     (closed)="gatewayToViewChannels.set(null)"
   >
     @if (!gateway.paymentChannels?.length) {
-      <empty-state
+      <cui-empty-state
         [icon]="icons.WebhookIcon"
         title="No channels configured"
         description="Edit the gateway to add one."
@@ -317,7 +317,7 @@
       </button>
       <button class="btn-danger" [disabled]="deleting" (click)="deleteGateway(gateway.id)">
         @if (deleting) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
           <span>Deleting…</span>
         } @else {
           <span>Delete gateway</span>

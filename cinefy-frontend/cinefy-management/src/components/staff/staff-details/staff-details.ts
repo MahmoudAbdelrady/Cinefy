@@ -19,7 +19,7 @@ import {
   UserIcon,
 } from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
-import { CinefyDialog, CinefyDialogHeader, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyDialog, CinefyDialogHeader, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
 import {
   EMPLOYMENT_TYPE_LABELS,
@@ -36,7 +36,7 @@ import { canManageStaffMember } from '../../../shared/access';
     CinefyDialog,
     CinefyDialogHeader,
     LucideDynamicIcon,
-    LoadingSpinnerComponent,
+    CinefyLoadingSpinner,
     DatePipe,
     Time12hPipe,
     PhoneFormatPipe,

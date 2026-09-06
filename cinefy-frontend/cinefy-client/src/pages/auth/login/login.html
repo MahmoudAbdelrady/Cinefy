@@ -41,7 +41,7 @@
           [disabled]="loginForm.invalid || submitting()"
         >
           @if (submitting()) {
-            <loading-spinner variant="xs" />
+            <cui-loading-spinner variant="xs" />
           } @else {
             <span>Sign in</span>
             <svg class="lp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

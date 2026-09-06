@@ -19,10 +19,10 @@ import {
 import {
   CinefyDialog,
   CinefyDialogFooter,
-  LoadingSpinnerComponent,
-  EmptyStateComponent,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
   CinefyInput,
-  MediaImageComponent,
+  CinefyMediaImage,
   CinefySwitch,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
@@ -41,13 +41,13 @@ import {
   imports: [
     CinefyDialog,
     CinefyDialogFooter,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
     CinefyInput,
     CinefySwitch,
     ManageShowtimeModalComponent,
     MovieShowtimesModal,
-    MediaImageComponent,
+    CinefyMediaImage,
     LucideDynamicIcon,
     DurationPipe,
   ],

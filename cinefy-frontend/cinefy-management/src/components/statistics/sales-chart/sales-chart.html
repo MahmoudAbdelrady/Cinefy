@@ -14,16 +14,16 @@
 
   @if (loading()) {
     <div class="sc-loading">
-      <loading-spinner variant="xl" />
+      <cui-loading-spinner variant="xl" />
     </div>
   } @else if (failed()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.WarningIcon"
       title="Couldn't load sales over time"
       description="Something went wrong. Please try again later."
     />
   } @else if (isEmpty()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.ChartColumnIcon"
       title="No sales in this range"
       description="No captured payments landed between these dates."

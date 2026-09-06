@@ -2,7 +2,7 @@
   @switch (state().status) {
     @case ('loading') {
       <div class="cf-loading">
-        <loading-spinner variant="lg" />
+        <cui-loading-spinner variant="lg" />
       </div>
     }
     @case ('notFound') {
@@ -62,7 +62,7 @@
           @switch (paymentState()) {
             @case ('PENDING') {
               <span class="cf-badge cf-badge-pending">
-                <loading-spinner variant="xl" />
+                <cui-loading-spinner variant="xl" />
               </span>
             }
             @case ('FAILED') {
@@ -94,7 +94,7 @@
         <div class="cf-ticket reveal">
           <div class="cf-ticket-hero">
             <div class="cf-ticket-backdrop">
-              <media-image
+              <cui-media-image
                 [src]="booking.movie.backdropUrl"
                 [alt]="booking.movie.title + ' backdrop'"
               />

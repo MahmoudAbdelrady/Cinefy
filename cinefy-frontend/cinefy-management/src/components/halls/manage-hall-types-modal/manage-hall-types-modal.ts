@@ -15,9 +15,9 @@ import {
 import { Popover } from 'primeng/popover';
 import {
   CinefyDialog,
-  LoadingSpinnerComponent,
+  CinefyLoadingSpinner,
   CinefyInput,
-  EmptyStateComponent,
+  CinefyEmptyState,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { HallsService } from '../../../services';
@@ -31,9 +31,9 @@ import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
     LucideDynamicIcon,
     Popover,
     CinefyDialog,
-    LoadingSpinnerComponent,
+    CinefyLoadingSpinner,
     CinefyInput,
-    EmptyStateComponent,
+    CinefyEmptyState,
   ],
   templateUrl: './manage-hall-types-modal.html',
   styleUrl: './manage-hall-types-modal.scss',

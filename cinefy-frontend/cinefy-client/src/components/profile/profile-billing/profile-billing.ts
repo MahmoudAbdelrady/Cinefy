@@ -4,8 +4,8 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefyDialog,
   CinefyDialogFooter,
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
@@ -19,8 +19,8 @@ import type { ClientPaymentMethod } from '../../../shared/types';
     LucideDynamicIcon,
     CinefyDialog,
     CinefyDialogFooter,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
   ],
   templateUrl: './profile-billing.html',
   styleUrl: './profile-billing.scss',

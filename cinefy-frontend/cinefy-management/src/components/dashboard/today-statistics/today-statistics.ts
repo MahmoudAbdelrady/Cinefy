@@ -1,6 +1,6 @@
 import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { format } from 'date-fns';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
@@ -16,7 +16,7 @@ interface TodayFigure {
 
 @Component({
   selector: 'today-statistics',
-  imports: [DatePipe, DecimalPipe, LoadingSpinnerComponent],
+  imports: [DatePipe, DecimalPipe, CinefyLoadingSpinner],
   templateUrl: './today-statistics.html',
   styleUrl: './today-statistics.scss',
 })

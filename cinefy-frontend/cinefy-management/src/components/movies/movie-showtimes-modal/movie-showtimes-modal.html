@@ -5,12 +5,12 @@
 >
   @if (loadingDates()) {
     <div class="msm-loading">
-      <loading-spinner variant="md" />
+      <cui-loading-spinner variant="md" />
     </div>
   }
   @if (!loadingDates() && movieShowtimes(); as data) {
     @if (data.dates.length === 0) {
-      <empty-state
+      <cui-empty-state
         class="fill"
         [icon]="icons.CalendarIcon"
         title="No showtimes scheduled"
@@ -33,7 +33,7 @@
         <div class="date-showtimes">
           @if (loadingDay()) {
             <div class="msm-loading">
-              <loading-spinner variant="md" />
+              <cui-loading-spinner variant="md" />
             </div>
           } @else {
             <div class="ds-total">
@@ -128,7 +128,7 @@
                             (click)="onPublishShowtime(showtimeDetail.id)"
                           >
                             @if (publishingShowtimeIds().has(showtimeDetail.id)) {
-                              <loading-spinner variant="xs" />
+                              <cui-loading-spinner variant="xs" />
                             } @else {
                               <svg [lucideIcon]="icons.SendIcon" [size]="15"></svg>
                             }
@@ -182,7 +182,7 @@
             (click)="onPublishAllDrafts()"
           >
             @if (publishingAll()) {
-              <loading-spinner variant="sm" />
+              <cui-loading-spinner variant="sm" />
             } @else if (!hasDayDrafts()) {
               <svg [lucideIcon]="icons.SendIcon" [size]="16"></svg>
             }
@@ -196,7 +196,7 @@
             (click)="onPublishDayDrafts()"
           >
             @if (publishingDay()) {
-              <loading-spinner variant="sm" />
+              <cui-loading-spinner variant="sm" />
             } @else {
               <svg [lucideIcon]="icons.SendIcon" [size]="16"></svg>
             }
@@ -250,7 +250,7 @@
         (click)="onDeleteShowtime(showtimeDetail.id)"
       >
         @if (deleting) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
           <span>Deleting…</span>
         } @else {
           <span>Delete Showtime</span>

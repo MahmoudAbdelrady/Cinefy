@@ -13,12 +13,12 @@ import { LucideDynamicIcon, LucideIcon } from "@lucide/angular";
 import { ClapperboardIcon } from "../icons";
 
 @Component({
-  selector: "media-image",
+  selector: "cui-media-image",
   imports: [LucideDynamicIcon],
-  templateUrl: "./media-image.html",
-  styleUrl: "./media-image.scss",
+  templateUrl: "./cinefy-media-image.html",
+  styleUrl: "./cinefy-media-image.scss",
 })
-export class MediaImageComponent {
+export class CinefyMediaImage {
   private readonly imageRef = viewChild<ElementRef<HTMLImageElement>>("image");
 
   readonly src: InputSignal<string | undefined> = input<string | undefined>();

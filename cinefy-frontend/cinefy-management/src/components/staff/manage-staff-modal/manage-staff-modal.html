@@ -8,7 +8,7 @@
 >
   @if (loading()) {
     <div class="manage-staff-modal-loading">
-      <loading-spinner variant="md" />
+      <cui-loading-spinner variant="md" />
     </div>
   } @else {
     <form [formGroup]="staffForm">
@@ -57,7 +57,7 @@
         />
       </div>
       <div class="input-group">
-        <phone-input
+        <cui-phone-input
           [countryControl]="staffForm.controls.phoneCountry"
           [numberControl]="staffForm.controls.phoneNumber"
         />
@@ -76,7 +76,7 @@
             pattern: 'Password is too weak',
           }"
         />
-        <password-checklist [control]="staffForm.controls.password" />
+        <cui-password-checklist [control]="staffForm.controls.password" />
       </div>
       <div class="input-group">
         <cui-select
@@ -132,13 +132,13 @@
         <label data-required>Working hours</label>
         <div class="fields">
           <div class="input-group">
-            <time-picker
+            <cui-time-picker
               [control]="staffForm.controls.workingHourStart"
               [errorMessages]="{ required: 'Start time is required' }"
             />
           </div>
           <div class="input-group">
-            <time-picker
+            <cui-time-picker
               [control]="staffForm.controls.workingHourEnd"
               [errorMessages]="{
                 required: 'End time is required',

@@ -4,8 +4,8 @@ import { startWith, switchMap, type Observable } from "rxjs";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Select } from "primeng/select";
 import { MultiSelect } from "primeng/multiselect";
-import { FieldErrorComponent } from "../../field-error/field-error";
-import { LoadingSpinnerComponent } from "../../loading-spinner/loading-spinner";
+import { CinefyFieldError } from "../../field-error/cinefy-field-error";
+import { CinefyLoadingSpinner } from "../../loading-spinner/cinefy-loading-spinner";
 import type { PaginatedResponse } from "cinefy-ui/types";
 
 const LOAD_MORE_OPTION = {
@@ -15,7 +15,7 @@ const LOAD_MORE_OPTION = {
 
 @Component({
   selector: "cui-paginated-select",
-  imports: [ReactiveFormsModule, Select, MultiSelect, FieldErrorComponent, LoadingSpinnerComponent],
+  imports: [ReactiveFormsModule, Select, MultiSelect, CinefyFieldError, CinefyLoadingSpinner],
   templateUrl: "./cinefy-paginated-select.html",
   styleUrl: "./cinefy-paginated-select.scss",
 })

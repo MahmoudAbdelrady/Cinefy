@@ -19,7 +19,7 @@
 
       <button type="submit" class="fp-submit" [disabled]="requestForm.invalid || submitting()">
         @if (submitting()) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
           <span>Sending code…</span>
         } @else {
           <span>Send verification code</span>

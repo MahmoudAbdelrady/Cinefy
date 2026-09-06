@@ -13,7 +13,7 @@
         <div class="selected-movie-container">
           <div class="sm-info">
             <div class="sm-img">
-              <media-image
+              <cui-media-image
                 [src]="activeMovie()!.posterUrl"
                 alt="{{ activeMovie()!.title }} Poster"
                 [iconSize]="24"
@@ -48,7 +48,7 @@
         <div class="time-input-group">
           <div class="input-group">
             <label>Date</label>
-            <date-picker
+            <cui-date-picker
               [control]="showtimeForm.controls.date"
               placeholder="Select a date"
               [errorMessages]="{
@@ -59,7 +59,7 @@
           </div>
           <div class="input-group">
             <label>Time</label>
-            <time-picker
+            <cui-time-picker
               [control]="showtimeForm.controls.time"
               [errorMessages]="{
                 required: 'Time is required',
@@ -96,7 +96,7 @@
               showtimeForm.controls.specialNotes.invalid
             "
           ></textarea>
-          <field-error
+          <cui-field-error
             [control]="showtimeForm.controls.specialNotes"
             [messages]="{
               maxlength: 'Special notes cannot exceed 255 characters',
@@ -117,7 +117,7 @@
         (click)="onSubmit()"
       >
         @if (submitting()) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
           <span>{{ isEditMode() ? 'Saving…' : 'Creating…' }}</span>
         } @else {
           {{ submitLabel() }}

@@ -5,9 +5,9 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { EditIcon, EmailIcon, PhoneIcon, LockIcon, UserIcon } from '../../../shared/icons';
 import {
   CinefyInput,
-  LoadingSpinnerComponent,
+  CinefyLoadingSpinner,
   DEFAULT_COUNTRY,
-  PhoneInput,
+  CinefyPhoneInput,
   phoneNumberValidator,
   toE164Digits,
   parsePhoneDigits,
@@ -25,8 +25,8 @@ import { StaffService } from '../../../services';
     ReactiveFormsModule,
     LucideDynamicIcon,
     CinefyInput,
-    PhoneInput,
-    LoadingSpinnerComponent,
+    CinefyPhoneInput,
+    CinefyLoadingSpinner,
     PhoneFormatPipe,
   ],
   templateUrl: './profile-personal-details.html',

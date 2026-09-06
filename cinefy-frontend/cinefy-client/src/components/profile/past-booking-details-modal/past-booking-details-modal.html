@@ -6,10 +6,10 @@
 >
   @if (details.isLoading()) {
     <div class="pbdm-loading">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (details.error()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.TriangleAlertIcon"
       title="Couldn't load these details"
       description="Something went wrong. Please try again later."

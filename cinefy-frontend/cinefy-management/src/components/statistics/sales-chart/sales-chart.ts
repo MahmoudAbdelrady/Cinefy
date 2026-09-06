@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { ChartColumnIcon, WarningIcon } from '../../../shared/icons';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
@@ -22,7 +22,7 @@ function grossRevenueOf(details: StatisticsPeriodTotals): number {
 
 @Component({
   selector: 'sales-chart',
-  imports: [LoadingSpinnerComponent, EmptyStateComponent, DecimalPipe, DatePipe],
+  imports: [CinefyLoadingSpinner, CinefyEmptyState, DecimalPipe, DatePipe],
   templateUrl: './sales-chart.html',
   styleUrl: './sales-chart.scss',
 })

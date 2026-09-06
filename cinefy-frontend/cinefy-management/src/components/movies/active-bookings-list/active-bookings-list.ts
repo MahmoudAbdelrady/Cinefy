@@ -13,9 +13,9 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInSeconds, format } from 'date-fns';
 import {
   CinefyDialog,
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
-  MediaImageComponent,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { BookSeatsComponent } from '../book-seats/book-seats';
 import { BookingService } from '../../../services';
@@ -35,9 +35,9 @@ import {
     DatePipe,
     LucideDynamicIcon,
     CinefyDialog,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
-    MediaImageComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
+    CinefyMediaImage,
     BookSeatsComponent,
   ],
   templateUrl: './active-bookings-list.html',

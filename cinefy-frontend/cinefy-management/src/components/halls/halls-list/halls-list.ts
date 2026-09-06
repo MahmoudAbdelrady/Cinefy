@@ -14,8 +14,8 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   CinefyInput,
-  LoadingSpinnerComponent,
-  EmptyStateComponent,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
   CinefySelect,
   CinefyDialog,
   CinefyDialogFooter,
@@ -40,8 +40,8 @@ import { HallsService } from '../../../services';
     CinefyDialog,
     CinefyDialogFooter,
     HallConfigModalComponent,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
   ],
   templateUrl: './halls-list.html',
   styleUrl: './halls-list.scss',

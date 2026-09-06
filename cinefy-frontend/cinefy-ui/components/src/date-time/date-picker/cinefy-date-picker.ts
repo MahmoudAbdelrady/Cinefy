@@ -3,15 +3,15 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { DatePicker as PrimeDatePicker } from "primeng/datepicker";
 import { LucideDynamicIcon } from "@lucide/angular";
 import { CalendarIcon } from "../../icons";
-import { FieldErrorComponent } from "../../field-error/field-error";
+import { CinefyFieldError } from "../../field-error/cinefy-field-error";
 
 @Component({
-  selector: "date-picker",
-  imports: [ReactiveFormsModule, PrimeDatePicker, LucideDynamicIcon, FieldErrorComponent],
-  templateUrl: "./date-picker.html",
-  styleUrl: "./date-picker.scss",
+  selector: "cui-date-picker",
+  imports: [ReactiveFormsModule, PrimeDatePicker, LucideDynamicIcon, CinefyFieldError],
+  templateUrl: "./cinefy-date-picker.html",
+  styleUrl: "./cinefy-date-picker.scss",
 })
-export class DatePicker {
+export class CinefyDatePicker {
   protected readonly icons = {
     CalendarIcon,
   };

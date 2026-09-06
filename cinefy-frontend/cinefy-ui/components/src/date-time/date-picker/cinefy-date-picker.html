@@ -21,6 +21,6 @@
   @if (hint(); as hintText) {
   <p class="dp-hint">{{ hintText }}</p>
   } @if (control().touched && control().errors) {
-  <field-error [control]="control()" [messages]="errorMessages()" />
+  <cui-field-error [control]="control()" [messages]="errorMessages()" />
   }
 </div>

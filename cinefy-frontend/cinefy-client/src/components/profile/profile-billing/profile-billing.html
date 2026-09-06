@@ -1,6 +1,6 @@
 @if (loading()) {
   <div class="pb-loading">
-    <loading-spinner variant="lg" />
+    <cui-loading-spinner variant="lg" />
   </div>
 } @else {
   <ul class="pb-cards">
@@ -22,7 +22,7 @@
         </button>
       </li>
     } @empty {
-      <empty-state
+      <cui-empty-state
         [icon]="icons.CreditCardIcon"
         title="No saved cards"
         description="Cards are saved automatically when you choose to store them while paying."
@@ -58,7 +58,7 @@
         (click)="confirmRemove(method)"
       >
         @if (removing()) {
-          <loading-spinner variant="xs" />
+          <cui-loading-spinner variant="xs" />
           <span>Removing…</span>
         } @else {
           <svg [lucideIcon]="icons.TrashIcon" [size]="16"></svg>

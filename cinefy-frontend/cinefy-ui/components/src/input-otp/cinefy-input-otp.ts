@@ -3,15 +3,15 @@ import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { distinctUntilChanged, startWith, switchMap } from "rxjs";
 import { InputOtp as PrimeInputOtp } from "primeng/inputotp";
-import { FieldErrorComponent } from "../field-error/field-error";
+import { CinefyFieldError } from "../field-error/cinefy-field-error";
 
 @Component({
-  selector: "input-otp",
-  imports: [ReactiveFormsModule, PrimeInputOtp, FieldErrorComponent],
-  templateUrl: "./input-otp.html",
-  styleUrl: "./input-otp.scss",
+  selector: "cui-input-otp",
+  imports: [ReactiveFormsModule, PrimeInputOtp, CinefyFieldError],
+  templateUrl: "./cinefy-input-otp.html",
+  styleUrl: "./cinefy-input-otp.scss",
 })
-export class InputOtp {
+export class CinefyInputOtp {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly control = input.required<FormControl<string>>();

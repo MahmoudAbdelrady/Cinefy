@@ -4,11 +4,11 @@ import { startWith, switchMap } from "rxjs";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Select } from "primeng/select";
 import { MultiSelect } from "primeng/multiselect";
-import { FieldErrorComponent } from "../../field-error/field-error";
+import { CinefyFieldError } from "../../field-error/cinefy-field-error";
 
 @Component({
   selector: "cui-select",
-  imports: [ReactiveFormsModule, Select, MultiSelect, FieldErrorComponent],
+  imports: [ReactiveFormsModule, Select, MultiSelect, CinefyFieldError],
   templateUrl: "./cinefy-select.html",
   styleUrl: "./cinefy-select.scss",
 })

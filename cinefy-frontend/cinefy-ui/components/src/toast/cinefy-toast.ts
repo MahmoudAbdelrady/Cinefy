@@ -3,7 +3,7 @@ import { Toast } from "primeng/toast";
 import { CINEFY_TOAST_KEY, CINEFY_TOAST_LIFE } from "cinefy-ui/constants";
 
 @Component({
-  selector: "cinefy-toast",
+  selector: "cui-toast",
   imports: [Toast],
   templateUrl: "./cinefy-toast.html",
 })

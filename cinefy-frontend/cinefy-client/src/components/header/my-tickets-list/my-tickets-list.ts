@@ -15,9 +15,9 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInSeconds } from 'date-fns';
 import {
   CinefyDialog,
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
-  MediaImageComponent,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { BookingService } from '../../../services';
 import type { BookingSummary } from '../../../shared/types';
@@ -36,9 +36,9 @@ import {
     RouterLink,
     LucideDynamicIcon,
     CinefyDialog,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
-    MediaImageComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
+    CinefyMediaImage,
     CurrencyPipe,
     DatePipe,
   ],

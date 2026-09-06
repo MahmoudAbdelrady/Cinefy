@@ -31,7 +31,7 @@
   <div class="content">
     @if (loading()) {
       <div class="cs-loading">
-        <loading-spinner variant="md" />
+        <cui-loading-spinner variant="md" />
       </div>
     } @else {
       <ul class="cs-grid">
@@ -40,7 +40,7 @@
           <li class="movie-card" [class.movie-card--highlighted]="shMovie.highlighted">
             <div class="mc-identity">
               <div class="mci-poster">
-                <media-image
+                <cui-media-image
                   [src]="shMovie.posterUrl"
                   alt="{{ shMovie.title }} Poster"
                   [iconSize]="36"
@@ -107,7 +107,7 @@
                   </div>
                   <div class="mcfh-control">
                     @if (isHighlighting(shMovie.id)) {
-                      <loading-spinner class="mcfh-pending" variant="xs" />
+                      <cui-loading-spinner class="mcfh-pending" variant="xs" />
                     }
                     <cui-switch
                       size="sm"
@@ -133,7 +133,7 @@
                     (click)="movieToDelete.set(item)"
                   >
                     @if (deletingShowtimeIds().has(shMovie.id)) {
-                      <loading-spinner variant="sm" />
+                      <cui-loading-spinner variant="sm" />
                     } @else {
                       <svg [lucideIcon]="icons.DeleteIcon" [size]="17"></svg>
                     }
@@ -143,7 +143,7 @@
             </div>
           </li>
         } @empty {
-          <empty-state
+          <cui-empty-state
             class="cs-empty"
             [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.CalendarClockIcon"
             [title]="hasFilters() ? 'No movies found' : 'No showtimes scheduled yet'"
@@ -214,7 +214,7 @@
         (click)="deleteShowtime(item.movieDetails.id)"
       >
         @if (deleting) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
         } @else {
           <span>Delete All</span>
         }

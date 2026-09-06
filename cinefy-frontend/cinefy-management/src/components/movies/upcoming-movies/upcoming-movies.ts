@@ -12,10 +12,10 @@ import {
 import type { UpcomingMovie } from '../../../shared/types';
 import { differenceInCalendarDays } from 'date-fns';
 import {
-  LoadingSpinnerComponent,
-  EmptyStateComponent,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
   CinefyInput,
-  MediaImageComponent,
+  CinefyMediaImage,
   CinefySwitch,
 } from 'cinefy-ui/components';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
@@ -28,11 +28,11 @@ const COMING_SOON_WINDOW_DAYS = 10;
   imports: [
     LucideDynamicIcon,
     CinefySwitch,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
     CinefyInput,
     ManageShowtimeModalComponent,
-    MediaImageComponent,
+    CinefyMediaImage,
   ],
   templateUrl: './upcoming-movies.html',
   styleUrl: './upcoming-movies.scss',

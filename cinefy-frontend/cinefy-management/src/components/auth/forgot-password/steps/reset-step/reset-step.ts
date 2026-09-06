@@ -4,7 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CinefyInput, LoadingSpinnerComponent, PasswordChecklist } from 'cinefy-ui/components';
+import { CinefyInput, CinefyLoadingSpinner, CinefyPasswordChecklist } from 'cinefy-ui/components';
 import { linkConfirmPassword } from 'cinefy-ui/forms';
 import { ArrowRightIcon, PasswordIcon } from '../../../../../shared/icons';
 import { PASSWORD_PATTERN } from '../../../../../shared/validation';
@@ -17,8 +17,8 @@ import { AuthService } from '../../../../../services/auth';
     ReactiveFormsModule,
     LucideDynamicIcon,
     CinefyInput,
-    LoadingSpinnerComponent,
-    PasswordChecklist,
+    CinefyLoadingSpinner,
+    CinefyPasswordChecklist,
   ],
   templateUrl: './reset-step.html',
   styleUrl: './reset-step.scss',

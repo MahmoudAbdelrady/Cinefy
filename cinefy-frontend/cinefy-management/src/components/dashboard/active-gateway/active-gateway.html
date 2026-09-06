@@ -7,7 +7,7 @@
 >
   @if (loading()) {
     <div class="ag-loading">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (gateway(); as gateway) {
     <div class="ag-body">
@@ -39,7 +39,7 @@
     </div>
   } @else {
     <div class="ag-empty">
-      <empty-state
+      <cui-empty-state
         [icon]="icons.AlertIcon"
         title="No active gateway"
         description="Online bookings can't be paid for until one is activated."

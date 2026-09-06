@@ -9,7 +9,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from '../../../shared/icons';
-import { MediaImageComponent } from 'cinefy-ui/components';
+import { CinefyMediaImage } from 'cinefy-ui/components';
 import { DurationPipe } from 'cinefy-ui/pipes';
 import { HighlightedMovie } from '../../../shared/types';
 import { TrailerModalComponent } from '../../movies/trailer-modal/trailer-modal';
@@ -23,7 +23,7 @@ const AUTO_ADVANCE_INTERVAL = 5000; // 5 seconds
     LucideDynamicIcon,
     Carousel,
     TrailerModalComponent,
-    MediaImageComponent,
+    CinefyMediaImage,
     DurationPipe,
   ],
   templateUrl: './featured-carousel.html',

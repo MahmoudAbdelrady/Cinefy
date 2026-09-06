@@ -4,8 +4,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
-  LoadingSpinnerComponent,
-  PhoneInput,
+  CinefyLoadingSpinner,
+  CinefyPhoneInput,
   phoneNumberValidator,
   toE164Digits,
   type PhoneCountryCode,
@@ -16,7 +16,7 @@ import { ArrowRightIcon } from '../../../shared/icons';
 
 @Component({
   selector: 'oauth-register-form',
-  imports: [ReactiveFormsModule, LucideDynamicIcon, LoadingSpinnerComponent, PhoneInput],
+  imports: [ReactiveFormsModule, LucideDynamicIcon, CinefyLoadingSpinner, CinefyPhoneInput],
   templateUrl: './oauth-register-form.html',
   styleUrl: './oauth-register-form.scss',
 })

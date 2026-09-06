@@ -3,7 +3,7 @@ import { LucideDynamicIcon, type LucideIcon } from "@lucide/angular";
 import { Menu } from "primeng/menu";
 import type { MenuItem } from "primeng/api";
 import type { CinefyMenuGroup, CinefyMenuItem } from "cinefy-ui/types";
-import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner";
+import { CinefyLoadingSpinner } from "../loading-spinner/cinefy-loading-spinner";
 
 interface CinefyMenuModelItem extends MenuItem {
   lucideIcon: LucideIcon;
@@ -16,7 +16,7 @@ interface CinefyMenuModelGroup extends MenuItem {
 
 @Component({
   selector: "cui-menu",
-  imports: [Menu, LucideDynamicIcon, LoadingSpinnerComponent],
+  imports: [Menu, LucideDynamicIcon, CinefyLoadingSpinner],
   templateUrl: "./cinefy-menu.html",
   styleUrl: "./cinefy-menu.scss",
 })

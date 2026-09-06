@@ -13,12 +13,12 @@ import { LucideDynamicIcon } from "@lucide/angular";
 import { CircleCheckIcon } from "../icons";
 
 @Component({
-  selector: "password-checklist",
+  selector: "cui-password-checklist",
   imports: [LucideDynamicIcon],
-  templateUrl: "./password-checklist.html",
-  styleUrl: "./password-checklist.scss",
+  templateUrl: "./cinefy-password-checklist.html",
+  styleUrl: "./cinefy-password-checklist.scss",
 })
-export class PasswordChecklist implements OnInit {
+export class CinefyPasswordChecklist implements OnInit {
   protected readonly icons = {
     CircleCheckIcon,
   };

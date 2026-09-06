@@ -13,7 +13,7 @@ const VARIANT_PRESETS: Record<LoadingSpinnerVariant, { size: number; strokeWidth
 };
 
 @Component({
-  selector: "loading-spinner",
+  selector: "cui-loading-spinner",
   imports: [LucideDynamicIcon],
   template: `<div class="spinner" [style.width.px]="resolvedSize()" [style.height.px]="resolvedSize()">
     <svg [lucideIcon]="icons.LoaderIcon" [size]="resolvedSize()" [strokeWidth]="resolvedStrokeWidth()"></svg>
@@ -32,7 +32,7 @@ const VARIANT_PRESETS: Record<LoadingSpinnerVariant, { size: number; strokeWidth
     }
   `,
 })
-export class LoadingSpinnerComponent {
+export class CinefyLoadingSpinner {
   protected readonly icons = {
     LoaderIcon,
   };

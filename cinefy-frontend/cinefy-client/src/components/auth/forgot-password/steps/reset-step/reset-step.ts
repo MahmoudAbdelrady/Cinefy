@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CinefyInput, PasswordChecklist, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyInput, CinefyPasswordChecklist, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { linkConfirmPassword } from 'cinefy-ui/forms';
 import { PASSWORD_PATTERN } from '../../../../../shared/validation';
 import type { ApiError } from '../../../../../shared/types';
@@ -16,8 +16,8 @@ import { ArrowRightIcon, LockIcon } from '../../../../../shared/icons';
     ReactiveFormsModule,
     LucideDynamicIcon,
     CinefyInput,
-    PasswordChecklist,
-    LoadingSpinnerComponent,
+    CinefyPasswordChecklist,
+    CinefyLoadingSpinner,
   ],
   templateUrl: './reset-step.html',
   styleUrl: './reset-step.scss',

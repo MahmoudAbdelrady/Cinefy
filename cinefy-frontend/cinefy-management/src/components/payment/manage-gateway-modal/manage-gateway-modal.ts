@@ -17,7 +17,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefySelect,
   CinefyInput,
-  LoadingSpinnerComponent,
+  CinefyLoadingSpinner,
   CinefyDialog,
   CinefyDialogFooter,
   CinefySwitch,
@@ -63,7 +63,7 @@ function buildCredentialsGroup(
     CinefySelect,
     CinefySwitch,
     LucideDynamicIcon,
-    LoadingSpinnerComponent,
+    CinefyLoadingSpinner,
     PaymentChannelsComponent,
   ],
   templateUrl: './manage-gateway-modal.html',

@@ -2,7 +2,7 @@ import { Component, input } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
 
 @Component({
-  selector: "field-error",
+  selector: "cui-field-error",
   template: `
     @if (control().touched && control().errors; as errors) {
       @for (key of messageKeys; track key) {
@@ -27,7 +27,7 @@ import { AbstractControl } from "@angular/forms";
     }
   `,
 })
-export class FieldErrorComponent {
+export class CinefyFieldError {
   readonly control = input.required<AbstractControl>();
   readonly messages = input.required<Record<string, string>>();
 

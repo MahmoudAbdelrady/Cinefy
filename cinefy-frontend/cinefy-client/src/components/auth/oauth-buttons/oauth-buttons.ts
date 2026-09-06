@@ -1,12 +1,12 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { OAuthProvider } from '../../../shared/types';
 import { AuthService } from '../../../services';
 
 @Component({
   selector: 'oauth-buttons',
-  imports: [LoadingSpinnerComponent],
+  imports: [CinefyLoadingSpinner],
   templateUrl: './oauth-buttons.html',
   styleUrl: './oauth-buttons.scss',
 })

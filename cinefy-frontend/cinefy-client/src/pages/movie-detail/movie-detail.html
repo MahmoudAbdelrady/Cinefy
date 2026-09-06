@@ -1,9 +1,9 @@
 @if (movieResource.isLoading()) {
   <div class="md-loading">
-    <loading-spinner variant="lg" />
+    <cui-loading-spinner variant="lg" />
   </div>
 } @else if (movieResource.error()) {
-  <empty-state
+  <cui-empty-state
     class="md-error"
     [icon]="icons.TriangleAlertIcon"
     title="Failed to load this movie"
@@ -12,14 +12,14 @@
 } @else if (movie(); as movie) {
   <div class="movie-detail">
     <div class="md-backdrop">
-      <media-image [src]="movie.backdropUrl" [alt]="movie.title" [iconSize]="64" />
+      <cui-media-image [src]="movie.backdropUrl" [alt]="movie.title" [iconSize]="64" />
       <div class="md-backdrop-scrim"></div>
     </div>
 
     <div class="md-content">
       <div class="md-header">
         <div class="md-poster reveal">
-          <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" [iconSize]="48" />
+          <cui-media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" [iconSize]="48" />
         </div>
 
         <div class="md-info reveal" style="animation-delay: 90ms">

@@ -144,7 +144,7 @@
   position: relative;
   flex-shrink: 0;
 
-  media-image {
+  cui-media-image {
     width: 104px;
     height: 156px;
     border-radius: $radius-lg;
@@ -436,7 +436,7 @@
     gap: 12px;
   }
 
-  .mci-poster media-image {
+  .mci-poster cui-media-image {
     width: 72px;
     height: 108px;
   }

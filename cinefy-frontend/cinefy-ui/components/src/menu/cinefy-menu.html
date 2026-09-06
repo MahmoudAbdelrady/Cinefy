@@ -12,7 +12,7 @@
   <ng-template #item let-item>
     <span class="cui-menu-item">
       @if (item.loading) {
-      <loading-spinner variant="sm" />
+      <cui-loading-spinner variant="sm" />
       } @else {
       <svg [lucideIcon]="item.lucideIcon" [size]="16"></svg>
       }

@@ -23,7 +23,7 @@
       [disabled]="requestForm.invalid || submitting()"
     >
       @if (submitting()) {
-        <loading-spinner variant="xs" />
+        <cui-loading-spinner variant="xs" />
       } @else {
         <span>Send reset code</span>
         <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

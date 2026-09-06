@@ -1,7 +1,7 @@
 import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { skipErrorToast } from '../../../app/core/interceptors';
 import { PaymentGatewaysService } from '../../../services';
 import { AlertIcon, CreditCardIcon } from '../../../shared/icons';
@@ -16,8 +16,8 @@ import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
     DashboardWidgetComponent,
     RouterLink,
     LucideDynamicIcon,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
   ],
   templateUrl: './active-gateway.html',
   styleUrl: './active-gateway.scss',

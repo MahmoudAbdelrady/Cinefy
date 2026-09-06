@@ -15,13 +15,13 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefySelect,
-  EmptyStateComponent,
-  HoldTimerComponent,
+  CinefyEmptyState,
+  CinefyHoldTimer,
   CinefyInput,
-  LoadingSpinnerComponent,
+  CinefyLoadingSpinner,
   CinefyDialog,
   CinefyDialogFooter,
-  SeatMapComponent,
+  CinefySeatMap,
 } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
 import { CinefyToastService } from 'cinefy-ui/services';
@@ -86,14 +86,14 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
     CurrencyPipe,
     ReactiveFormsModule,
     LucideDynamicIcon,
-    SeatMapComponent,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
+    CinefySeatMap,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
     CinefySelect,
     CinefyInput,
     CinefyDialog,
     CinefyDialogFooter,
-    HoldTimerComponent,
+    CinefyHoldTimer,
     BookingTicketComponent,
   ],
   templateUrl: './book-seats.html',

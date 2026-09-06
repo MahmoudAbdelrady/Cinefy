@@ -3,9 +3,9 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
-  MediaImageComponent,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
   CinefyPaginator,
 } from 'cinefy-ui/components';
 import { PastBookingDetailsModalComponent } from '../past-booking-details-modal/past-booking-details-modal';
@@ -21,10 +21,10 @@ const PAGE_SIZE = 5;
     CurrencyPipe,
     DatePipe,
     LucideDynamicIcon,
-    MediaImageComponent,
+    CinefyMediaImage,
     PastBookingDetailsModalComponent,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
     CinefyPaginator,
   ],
   templateUrl: './profile-history.html',

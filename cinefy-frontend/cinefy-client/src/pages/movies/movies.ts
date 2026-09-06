@@ -5,10 +5,10 @@ import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefySelect,
-  EmptyStateComponent,
+  CinefyEmptyState,
   CinefyInput,
-  LoadingSpinnerComponent,
-  MediaImageComponent,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { HallsService, MoviesService } from '../../services';
 import {
@@ -27,9 +27,9 @@ import {
     ReactiveFormsModule,
     CinefyInput,
     CinefySelect,
-    MediaImageComponent,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
+    CinefyMediaImage,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
   ],
   templateUrl: './movies.html',
   styleUrl: './movies.scss',
