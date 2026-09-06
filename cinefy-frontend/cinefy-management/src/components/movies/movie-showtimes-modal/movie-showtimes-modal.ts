@@ -26,7 +26,7 @@ import {
   SHOWTIME_STATUS_LABELS,
   Showtime,
 } from '../../../shared/types';
-import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
+import { Tab, TabList, Tabs } from 'primeng/tabs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CalendarIcon,
@@ -57,10 +57,9 @@ import { canManage as canManagePosition, canBook as canBookPosition } from '../.
   imports: [
     CinefyDialog,
     CinefyDialogFooter,
-    NgpTabset,
-    NgpTabList,
-    NgpTabButton,
-    NgpTabPanel,
+    Tabs,
+    TabList,
+    Tab,
     DatePipe,
     DecimalPipe,
     LucideDynamicIcon,

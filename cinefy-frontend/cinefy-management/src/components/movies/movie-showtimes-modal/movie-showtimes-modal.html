@@ -18,21 +18,24 @@
       />
     } @else {
       <div class="movie-showtimes-container">
-        <div [(ngpTabsetValue)]="selectedTab" ngpTabset class="date-tabs">
-          <div ngpTabList>
-            @for (date of data.dates; track $index) {
-              <button
-                ngpTabButton
-                [ngpTabButtonValue]="date"
-                (ngpTabButtonValueChange)="selectedTab.set(date)"
-              >
+        <p-tabs class="date-tabs" [(value)]="selectedTab" scrollable>
+          <p-tablist>
+            @for (date of data.dates; track date) {
+              <p-tab class="date-tab" [value]="date">
                 <span class="dt-weekday">{{ date | date: 'EEE' }}</span>
                 <span class="dt-day">{{ date | date: 'd' }}</span>
                 <span class="dt-month">{{ date | date: 'MMM' }}</span>
-              </button>
+              </p-tab>
             }
-          </div>
-          <div ngpTabPanel [ngpTabPanelValue]="selectedTab()" class="date-showtimes">
+          </p-tablist>
+        </p-tabs>
+
+        <div class="date-showtimes">
+          @if (loadingDay()) {
+            <div class="msm-loading">
+              <loading-spinner variant="md" />
+            </div>
+          } @else {
             <div class="ds-total">
               {{ movieShowtimeDetails().length }} showtime{{
                 movieShowtimeDetails().length > 1 ? 's' : ''
@@ -156,7 +159,7 @@
                 </li>
               }
             </ul>
-          </div>
+          }
         </div>
       </div>
     }

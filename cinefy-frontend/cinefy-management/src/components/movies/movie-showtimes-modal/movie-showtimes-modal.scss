@@ -14,23 +14,12 @@
 
 .date-tabs {
   margin-top: -12px;
+  position: sticky;
+  top: -24px;
+  z-index: 1;
+  background: #ffffff;
 
-  [ngpTabList] {
-    display: flex;
-    overflow-x: auto;
-    border-bottom: 1px solid $color-border;
-    position: sticky;
-    top: -24px;
-    z-index: 1;
-    background: #ffffff;
-
-    scrollbar-width: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  button[ngpTabButton] {
+  .date-tab {
     @include flex-column;
     align-items: center;
     gap: 2px;
@@ -68,7 +57,7 @@
       border-bottom-color: $gray-300;
     }
 
-    &[data-active] {
+    &[data-p-active='true'] {
       color: $blue-600;
       border-bottom-color: $blue-600;
     }
