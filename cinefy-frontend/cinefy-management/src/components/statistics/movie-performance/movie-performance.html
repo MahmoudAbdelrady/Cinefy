@@ -66,13 +66,11 @@
       </table>
     </div>
 
-    <div class="mp-footer">
-      <pagination-component
-        [(page)]="page"
-        [pageCount]="pageCount()"
-        [totalItems]="totalItems()"
-        [pageSize]="pageSize"
-      />
-    </div>
+    <cui-paginator
+      [(page)]="page"
+      [pageCount]="pageCount()"
+      [totalItems]="totalItems()"
+      [pageSize]="pageSize"
+    />
   }
 </section>

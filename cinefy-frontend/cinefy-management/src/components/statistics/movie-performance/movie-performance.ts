@@ -3,7 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import {
   EmptyStateComponent,
   LoadingSpinnerComponent,
-  PaginationComponent,
+  CinefyPaginator,
 } from 'cinefy-ui/components';
 import { ClapperboardIcon, WarningIcon } from '../../../shared/icons';
 import { DEFAULT_PAGE_SIZE } from '../../../shared/constants';
@@ -24,7 +24,7 @@ interface MovieRow {
 
 @Component({
   selector: 'movie-performance',
-  imports: [LoadingSpinnerComponent, EmptyStateComponent, PaginationComponent, DecimalPipe],
+  imports: [LoadingSpinnerComponent, EmptyStateComponent, CinefyPaginator, DecimalPipe],
   templateUrl: './movie-performance.html',
   styleUrl: './movie-performance.scss',
 })
@@ -46,14 +46,14 @@ export class MoviePerformanceComponent {
   protected readonly pageCount = signal(1);
   protected readonly page = linkedSignal<DateRange, number>({
     source: this.range,
-    computation: () => 1,
+    computation: () => 0,
   });
   protected readonly loading = signal(true);
   protected readonly failed = signal(false);
 
   protected readonly rows = computed<MovieRow[]>(() =>
     this.movies().map((movie, index) => ({
-      rank: (this.page() - 1) * this.pageSize + index + 1,
+      rank: this.page() * this.pageSize + index + 1,
       movieTitle: movie.movieTitle,
       netRevenue: movie.netRevenue,
       refunded: movie.refunded,
@@ -71,7 +71,7 @@ export class MoviePerformanceComponent {
   private load(range: DateRange, page: number): void {
     this.loading.set(true);
     this.failed.set(false);
-    this.statisticsService.getMoviePerformance(range, page - 1, this.pageSize).subscribe({
+    this.statisticsService.getMoviePerformance(range, page, this.pageSize).subscribe({
       next: (response) => {
         this.movies.set(response.content);
         this.totalItems.set(response.page.totalElements);
