@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { CinefyToast } from 'cinefy-ui/components';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  template: '<router-outlet />',
+  imports: [RouterOutlet, CinefyToast],
+  template: '<router-outlet /><cinefy-toast />',
 })
 export class App {}

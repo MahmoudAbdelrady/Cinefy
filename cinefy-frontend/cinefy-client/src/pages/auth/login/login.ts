@@ -7,7 +7,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyInput, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { OAuthButtonsComponent, OtpStep } from '../../../components';
 import { AuthFormStage, ApiError } from '../../../shared/types';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
 import { skipErrorToast } from '../../../app/core/interceptors';
 import { EMAIL_PATTERN } from '../../../shared/validation';
@@ -37,7 +37,7 @@ export class LoginPage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly stage = signal<AuthFormStage>('form');

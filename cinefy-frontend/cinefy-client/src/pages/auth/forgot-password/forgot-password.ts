@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { OtpStep } from '../../../components';
 import {
   DoneStep,
@@ -19,7 +19,7 @@ import { AuthService } from '../../../services';
 })
 export class ForgotPasswordPage {
   private readonly authService = inject(AuthService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly stage = signal<ForgotPasswordStage>('request');

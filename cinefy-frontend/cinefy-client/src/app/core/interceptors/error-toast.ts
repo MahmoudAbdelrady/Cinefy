@@ -2,13 +2,13 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { tap } from 'rxjs';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { SKIP_ERROR_TOAST } from './error-toast-context';
 
 const DEFAULT_ERROR_MESSAGE = 'Something went wrong. Please try again.';
 
 export const errorToastInterceptor: HttpInterceptorFn = (req, next) => {
-  const toastService = inject(ToastService);
+  const toastService = inject(CinefyToastService);
   const isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   return next(req).pipe(
