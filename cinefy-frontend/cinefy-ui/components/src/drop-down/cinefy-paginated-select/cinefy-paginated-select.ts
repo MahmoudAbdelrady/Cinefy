@@ -16,10 +16,10 @@ const LOAD_MORE_OPTION = {
 @Component({
   selector: "cui-paginated-select",
   imports: [ReactiveFormsModule, Select, MultiSelect, FieldErrorComponent, LoadingSpinnerComponent],
-  templateUrl: "./cui-paginated-select.html",
-  styleUrl: "./cui-paginated-select.scss",
+  templateUrl: "./cinefy-paginated-select.html",
+  styleUrl: "./cinefy-paginated-select.scss",
 })
-export class CuiPaginatedSelect<T> {
+export class CinefyPaginatedSelect<T> {
   readonly control: InputSignal<FormControl> = input.required<FormControl>();
   readonly fetchFn = input.required<(page: number, size: number) => Observable<PaginatedResponse<T>>>();
   readonly multi = input(false);
