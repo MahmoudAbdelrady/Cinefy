@@ -42,7 +42,14 @@
       @include flex-column;
 
       gap: 16px;
-      align-items: stretch;
+      align-items: flex-start;
+
+      .test-toast-actions {
+        @include flex-align;
+
+        gap: 12px;
+        flex-wrap: wrap;
+      }
     }
   }
 }

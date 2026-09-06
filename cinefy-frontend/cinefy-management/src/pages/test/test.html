@@ -7,8 +7,18 @@
   </header>
 
   <section class="test-sandbox">
-    <h2 class="test-sandbox-title">Sandbox</h2>
+    <h2 class="test-sandbox-title">Toast</h2>
 
-    <div class="test-sandbox-body"></div>
+    <div class="test-sandbox-body">
+      <div class="test-toast-actions">
+        <button class="btn-primary" (click)="showSuccess()">Success</button>
+        <button class="btn-danger" (click)="showError()">Error</button>
+        <button class="btn-secondary" (click)="showSticky()">Sticky</button>
+        <button class="btn-secondary" (click)="showNotClosable()">Not closable</button>
+        <button class="btn-secondary" (click)="dismissAll()">Dismiss all</button>
+      </div>
+    </div>
   </section>
 </div>
+
+<p-toast [key]="toastKey" position="top-center" [life]="toastLife" />
