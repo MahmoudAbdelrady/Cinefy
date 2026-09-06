@@ -45,7 +45,80 @@
       @include flex-column;
 
       gap: 16px;
-      align-items: flex-start;
+      align-items: stretch;
+
+      .test-carousel-bar {
+        @include flex-between;
+
+        .test-carousel-nav {
+          @include flex-align;
+
+          gap: 8px;
+
+          .test-nav-button {
+            @include flex-center;
+            @include lucide-icon-fix;
+
+            width: 36px;
+            height: 36px;
+            border: 1px solid $color-border;
+            border-radius: $radius-full;
+            background-color: $color-background;
+            color: $color-foreground;
+            cursor: pointer;
+            transition:
+              border-color 0.15s ease,
+              background-color 0.15s ease;
+
+            &:hover {
+              border-color: $color-primary;
+              background-color: rgba($color-primary, 0.1);
+            }
+          }
+        }
+      }
+
+      .test-carousel {
+        display: block;
+
+        .test-slide {
+          @include flex-column;
+
+          gap: 6px;
+          height: 160px;
+          margin: 0 8px;
+          padding: 16px;
+          border: 1px solid $color-border;
+          border-radius: $radius-md;
+          background-color: $color-background;
+
+          .test-slide-rating {
+            align-self: flex-start;
+            padding: 2px 8px;
+            border-radius: $radius-sm;
+            background-color: rgba($color-primary, 0.15);
+            color: $color-primary;
+            font-size: 11px;
+            font-weight: 600;
+          }
+
+          .test-slide-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: $color-foreground;
+          }
+
+          .test-slide-genre {
+            font-size: 13px;
+            color: $color-muted-foreground;
+          }
+        }
+      }
+
+      .test-readout {
+        font-size: 14px;
+        color: $color-muted-foreground;
+      }
     }
   }
 }
