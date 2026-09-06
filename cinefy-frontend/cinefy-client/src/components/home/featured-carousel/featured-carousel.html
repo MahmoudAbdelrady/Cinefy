@@ -1,65 +1,71 @@
-<div class="featured-carousel" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
-  @if (currentSlide(); as slide) {
-    <div class="fc-backdrop">
-      <media-image
-        [src]="slide.movieDetails.backdropUrl"
-        [alt]="slide.movieDetails.title"
-        [iconSize]="64"
-      />
-      <div class="fc-scrim fc-scrim-bottom"></div>
-      <div class="fc-scrim fc-scrim-left"></div>
-    </div>
-
-    <div class="fc-content">
-      <div class="fc-data reveal">
-        <div class="fc-meta">
-          <div class="fc-badge">{{ slide.bookingOpened ? 'Now Showing' : 'Coming Soon' }}</div>
-          @if (slide.movieDetails.duration; as runtime) {
-            <span class="fc-meta-item">
-              <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
-              <span>{{ runtime | duration }}</span>
-            </span>
-          }
-          @if (slide.movieDetails.contentRating; as contentRating) {
-            <span class="fc-meta-item">
-              <svg [lucideIcon]="icons.EyeIcon" [size]="16"></svg>
-              <span>{{ contentRating }}</span>
-            </span>
-          }
+<div class="featured-carousel">
+  <p-carousel
+    class="fc-carousel"
+    [value]="slides()"
+    [numVisible]="1"
+    [numScroll]="1"
+    [circular]="true"
+    [autoplayInterval]="autoAdvanceInterval"
+    [showIndicators]="false"
+    [showNavigators]="false"
+    (onPage)="currentIndex.set($event.page ?? 0)"
+  >
+    <ng-template #item let-slide>
+      <div class="fc-slide">
+        <div class="fc-backdrop">
+          <media-image
+            [src]="slide.movieDetails.backdropUrl"
+            [alt]="slide.movieDetails.title"
+            [iconSize]="64"
+          />
+          <div class="fc-scrim fc-scrim-bottom"></div>
+          <div class="fc-scrim fc-scrim-left"></div>
         </div>
 
-        <h1 class="fc-title">{{ slide.movieDetails.title }}</h1>
+        <div class="fc-content">
+          <div class="fc-data reveal">
+            <div class="fc-meta">
+              <div class="fc-badge">{{ slide.bookingOpened ? 'Now Showing' : 'Coming Soon' }}</div>
+              @if (slide.movieDetails.duration; as runtime) {
+                <span class="fc-meta-item">
+                  <svg [lucideIcon]="icons.ClockIcon" [size]="16"></svg>
+                  <span>{{ runtime | duration }}</span>
+                </span>
+              }
+              @if (slide.movieDetails.contentRating; as contentRating) {
+                <span class="fc-meta-item">
+                  <svg [lucideIcon]="icons.EyeIcon" [size]="16"></svg>
+                  <span>{{ contentRating }}</span>
+                </span>
+              }
+            </div>
 
-        <p class="fc-synopsis">{{ slide.movieDetails.synopsis }}</p>
+            <h1 class="fc-title">{{ slide.movieDetails.title }}</h1>
 
-        <div class="fc-actions">
-          @if (slide.bookingOpened) {
-            <a class="fc-book-btn btn-primary" routerLink="/movies/{{ slide.movieDetails.id }}"
-              >Book Tickets</a
-            >
-          }
-          @if (slide.movieDetails.trailerUrl) {
-            <button class="fc-trailer-btn btn-base" (click)="openTrailer()">
-              <svg [lucideIcon]="icons.PlayIcon" [size]="16"></svg>
-              <span>Watch Trailer</span>
-            </button>
-          }
+            <p class="fc-synopsis">{{ slide.movieDetails.synopsis }}</p>
+
+            <div class="fc-actions">
+              @if (slide.bookingOpened) {
+                <a class="fc-book-btn btn-primary" routerLink="/movies/{{ slide.movieDetails.id }}"
+                  >Book Tickets</a
+                >
+              }
+              @if (slide.movieDetails.trailerUrl) {
+                <button class="fc-trailer-btn btn-base" (click)="openTrailer(slide)">
+                  <svg [lucideIcon]="icons.PlayIcon" [size]="16"></svg>
+                  <span>Watch Trailer</span>
+                </button>
+              }
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </ng-template>
+  </p-carousel>
 
-    @if (trailerVisible() && slide.movieDetails.trailerUrl; as trailerUrl) {
-      <trailer-modal
-        [trailerUrl]="trailerUrl"
-        [title]="slide.movieDetails.title"
-        (closed)="closeTrailer()"
-      />
-    }
-  }
-
-  @if (slides().length > 1) {
+  @if (hasMultipleSlides()) {
     <div class="fc-controls">
-      <button class="fc-nav fc-nav-prev" (click)="previous()">
+      <button class="fc-nav fc-nav-prev" (click)="previous($event)">
         <svg [lucideIcon]="icons.ChevronLeftIcon" [size]="20"></svg>
       </button>
 
@@ -68,14 +74,22 @@
           <button
             class="fc-dot"
             [class.active]="$index === currentIndex()"
-            (click)="goTo($index)"
+            (click)="goTo($event, $index)"
           ></button>
         }
       </div>
 
-      <button class="fc-nav fc-nav-next" (click)="next()">
+      <button class="fc-nav fc-nav-next" (click)="next($event)">
         <svg [lucideIcon]="icons.ChevronRightIcon" [size]="20"></svg>
       </button>
     </div>
   }
 </div>
+
+@if (trailerSlide(); as slide) {
+  <trailer-modal
+    [trailerUrl]="slide.movieDetails.trailerUrl!"
+    [title]="slide.movieDetails.title"
+    (closed)="closeTrailer()"
+  />
+}
