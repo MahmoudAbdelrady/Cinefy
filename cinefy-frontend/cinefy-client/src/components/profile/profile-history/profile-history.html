@@ -66,15 +66,12 @@
       </ul>
     </section>
 
-    @if (pageCount() > 1) {
-      <pagination-component
-        [page]="page()"
-        (pageChange)="onPageChange($event)"
-        [pageCount]="pageCount()"
-        [totalItems]="totalItems()"
-        [pageSize]="pageSize"
-      />
-    }
+    <cui-paginator
+      [(page)]="page"
+      [pageCount]="pageCount()"
+      [totalItems]="totalItems()"
+      [pageSize]="pageSize"
+    />
   </div>
 }
 
