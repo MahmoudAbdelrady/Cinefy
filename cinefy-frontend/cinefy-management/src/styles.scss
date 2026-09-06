@@ -95,17 +95,6 @@
   --cui-modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   --cui-modal-header-bg: linear-gradient(to right, #{$blue-50}, #{$purple-50});
   --cui-modal-footer-bg: #{$gray-50};
-
-  // Toast
-  --cui-toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  --cui-toast-success-surface: #{$green-50};
-  --cui-toast-success-border: #{$green-100};
-  --cui-toast-success-text: #{$green-700};
-  --cui-toast-success-icon: #{$green-500};
-  --cui-toast-error-surface: #{$red-50};
-  --cui-toast-error-border: rgba(239, 68, 68, 0.2);
-  --cui-toast-error-text: #{$red-600};
-  --cui-toast-error-icon: #{$red-500};
 }
 
 *,

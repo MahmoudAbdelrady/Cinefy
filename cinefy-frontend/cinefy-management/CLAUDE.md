@@ -2,7 +2,7 @@
 
 ## Overview
 
-Angular 21 management dashboard for the Cinefy cinema platform. Standalone components, signal-based state, client-side rendered (no SSR — admin app behind auth), custom SCSS design system over PrimeNG-backed shared components from `cinefy-ui` (with a few remaining ng-primitives headless primitives).
+Angular 21 management dashboard for the Cinefy cinema platform. Standalone components, signal-based state, client-side rendered (no SSR — admin app behind auth), custom SCSS design system over PrimeNG-backed shared components from `cinefy-ui`.
 
 ## Workspace Layout
 
@@ -35,7 +35,7 @@ src/
 │   │   ├── auth-retry.ts               # On 401, refreshes the access token and retries once
 │   │   ├── error-toast.ts              # On HTTP error, shows a toast (skippable via SKIP_ERROR_TOAST context)
 │   │   └── error-toast-context.ts      # SKIP_ERROR_TOAST token + skipErrorToast() helper
-│   ├── app.ts                          # Root component
+│   ├── app.ts                          # Root component (<router-outlet> + the single <cinefy-toast>)
 │   ├── app.routes.ts                   # Route definitions (AppLayout + AuthLayout, guarded)
 │   └── app.config.ts                   # Providers (router, HTTP + interceptors, toast, PrimeNG)
 ├── components/                         # Reusable UI components
@@ -81,10 +81,16 @@ src/
 │   └── stats/                          # Generic stat-card component
 │                                       # Shared UI (input-field, field-error, loading-spinner,
 │                                       # cui-select, cui-paginated-select, phone-input, toast,
-│                                       # dialog, menu, pagination, date-picker, time-picker, switch,
+│                                       # dialog, menu, paginator, date-picker, time-picker, switch,
 │                                       # empty-state, seat-map, hold-timer, not-found,
 │                                       # input-otp, password-checklist, media-image) lives in cinefy-ui.
 │                                       #   empty-state: inputs [icon]/[title]/[description]; add class="fill" to stretch to full height.
+│                                       #   paginator (<cui-paginator>): PrimeNG p-paginator wrapper.
+│                                       #     [(page)] is 0-INDEXED (matches Spring Pageable — pass it straight
+│                                       #     through, no -1); inputs pageCount/totalItems/pageSize.
+│                                       #     :host owns the chrome (padding + top border) — don't style it.
+│                                       #   toast (<cinefy-toast>): mounted ONCE in app.ts, not per page.
+│                                       #     Toasts are raised through CinefyToastService, never by markup.
 │                                       #   dialog (<cui-dialog>): PrimeNG p-dialog wrapper. Inputs header/description/
 │                                       #     canClose/style/contentStyle; (closed) output; public close() method.
 │                                       #     Mounting opens it — always render behind an @if; (closed) unmounts.
@@ -98,9 +104,10 @@ src/
 │                                       #     labelField/valueField are field NAMES; [multi] toggles multi-select.
 │                                       # Imports are grouped by subpath:
 │                                       #   from 'cinefy-ui/components' — component classes
-│                                       #   from 'cinefy-ui/services'   — ToastService
+│                                       #   from 'cinefy-ui/services'   — CinefyToastService, provideCinefyToast
 │                                       #   from 'cinefy-ui/pipes'      — PhoneFormat/RelativeTime/Time12h
-│                                       #   from 'cinefy-ui/types'      — PaginatedResponse, PageFields, ToastContext
+│                                       #   from 'cinefy-ui/types'      — PaginatedResponse, PageFields
+│                                       #   from 'cinefy-ui/constants'  — shared runtime constants (CINEFY_TOAST_KEY/LIFE)
 ├── pages/                              # Route-level components
 │   ├── auth/                           # login (/login), forgot-password (/forgot-password)
 │   ├── dashboard/                      # Dashboard page (/)
@@ -133,7 +140,7 @@ src/
 │   ├── statistics.ts                   # Summary / daily sales / movie performance (HttpClient).
 │   ├── header-actions.ts               # Signal-based template injection for header
 │   └── sidebar.ts                      # Sidebar open/close state (signal)
-│                                       # (Toasts are NOT a local service — ToastService comes from cinefy-ui/services.)
+│                                       # (Toasts are NOT a local service — CinefyToastService comes from cinefy-ui/services.)
 ├── shared/
 │   ├── icons.ts                        # Re-exports of lucide icons used in the app — sole source of glyphs
 │   ├── access.ts                       # Position → allowed-route/action rules (canAccessRoute, canManage, ...)
@@ -151,7 +158,7 @@ src/
 ├── environments/
 │   ├── environment.ts                  # Dev: apiUrl = http://localhost:8080
 │   └── environment.prod.ts             # Prod: apiUrl = /api
-└── styles.scss                         # Global reset + --cui-* token bridge + ng-primitives tooltip overrides
+└── styles.scss                         # Global reset + --cui-* token bridge
 ```
 
 Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, `shared/guards/index.ts`, `app/core/interceptors/index.ts`, and a nested `components/auth/forgot-password/index.ts` — always import through them.
@@ -500,10 +507,29 @@ buttons render in the dialog **body**, not a footer slot.
 ### Approach
 
 - **Custom SCSS** — no Tailwind, no CSS framework.
-- **PrimeNG** backs the shared cinefy-ui components (`cui-dialog`, `cui-select`, `cui-menu`, the date/time pickers, inputs) — always consume them through cinefy-ui, not by importing `primeng/*` directly.
-- **ng-primitives** still provides a few unstyled primitives in this app: popover (`manage-hall-types-modal`, `date-range-selector`), radio (`manage-staff-modal`), tabs (`movie-showtimes-modal`), textarea (`manage-showtime-modal`). Migration to PrimeNG is ongoing — prefer a cinefy-ui component when one exists.
+- **PrimeNG** backs the shared cinefy-ui components (`cui-dialog`, `cui-select`, `cui-menu`, `cui-paginator`, `cinefy-toast`, the date/time pickers, inputs) — always consume them through cinefy-ui, not by importing `primeng/*` directly.
+- **ng-primitives is fully removed** — the migration to PrimeNG is complete and the dependency is gone from all three `package.json` files. Reach for a cinefy-ui component first; if none exists, wrap the PrimeNG one in cinefy-ui rather than importing `primeng/*` in app code.
 - **lucide-angular** for SVG icons.
 - Component styles are scoped via Angular encapsulation.
+
+### Toasts
+
+Toasts are PrimeNG-backed and live entirely in cinefy-ui. Two pieces, and both are already wired:
+
+- **`provideCinefyToast()`** in [`app.config.ts`](src/app/app.config.ts) — this provides PrimeNG's
+  `MessageService` in the root injector. Without it every toast silently no-ops, because
+  `CinefyToastService` is `providedIn: 'root'` and resolves `MessageService` from the root injector
+  (a component-level provider is **not** visible to it).
+- **`<cinefy-toast />`** rendered **once** in [`app.ts`](src/app/app.ts), beside `<router-outlet>`.
+  It is the container every message renders into — one per app, never per page or per layout shell.
+
+To raise a toast, inject `CinefyToastService` and call `success(message)` / `error(message)`. That
+two-method surface is the whole API — there is no `warn`/`info`, no options argument, and no
+`ToastService` any more (the ng-primitives implementation was deleted).
+
+The service and the container are coupled by `CINEFY_TOAST_KEY` from `cinefy-ui/constants`:
+PrimeNG matches a message to its container by exact key equality, so a message with a different key
+renders nowhere. Don't pass a key by hand — the service and component both read the constant.
 
 ### SCSS Conventions
 

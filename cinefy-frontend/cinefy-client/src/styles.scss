@@ -59,17 +59,6 @@
   --cui-modal-backdrop: #{rgba($color-black, 0.5)};
   --cui-modal-shadow: #{$shadow-overlay};
 
-  // Toast (dark theme)
-  --cui-toast-shadow: #{$shadow-overlay};
-  --cui-toast-success-surface: #{$color-popover};
-  --cui-toast-success-border: #{rgba($color-success, 0.4)};
-  --cui-toast-success-text: #{$color-popover-foreground};
-  --cui-toast-success-icon: #{$color-success};
-  --cui-toast-error-surface: #{$color-popover};
-  --cui-toast-error-border: #{rgba($color-destructive, 0.4)};
-  --cui-toast-error-text: #{$color-popover-foreground};
-  --cui-toast-error-icon: #{$color-destructive};
-
   // Seat map
   --cui-seat-normal-surface: #{rgba($color-seat-premium, 0.5)};
   --cui-seat-normal-border: #{$color-seat-premium};
