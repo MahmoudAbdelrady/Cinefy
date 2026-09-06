@@ -10,32 +10,12 @@
     <h2 class="test-sandbox-title">Paginator</h2>
 
     <div class="test-sandbox-body">
-      <div class="test-paginator">
-        <p-paginator
-          [first]="currentPage()"
-          [rows]="pageSize"
-          [totalRecords]="totalRecords"
-          [showCurrentPageReport]="true"
-          [showPageLinks]="true"
-          [showJumpToPageDropdown]="false"
-          [showJumpToPageInput]="false"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-          (onPageChange)="onPageChange($event.first ?? 0)"
-        />
-
-        <div class="test-jump-to-page">
-          <span class="test-jump-to-page-label">Go to page</span>
-
-          <cui-select
-            labelField="label"
-            valueField="value"
-            placeholder="Select a page"
-            [clearable]="true"
-            [control]="jumpToPageControl"
-            [items]="pageOptions()"
-          />
-        </div>
-      </div>
+      <cui-paginator
+        [(page)]="page"
+        [pageCount]="pageCount"
+        [totalItems]="totalRecords"
+        [pageSize]="pageSize"
+      />
     </div>
   </section>
 </div>

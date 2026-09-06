@@ -1,6 +1,5 @@
 @use '../../shared/styles/colors' as *;
 @use 'cinefy-ui/styles/mixins' as *;
-@use 'cinefy-ui/styles/breakpoints' as *;
 
 .test-container {
   @include flex-column;
@@ -43,69 +42,7 @@
       @include flex-column;
 
       gap: 16px;
-      align-items: flex-start;
-
-      .test-paginator {
-        @include flex-align;
-
-        gap: 16px;
-        width: 100%;
-
-        @include below-tablet {
-          flex-direction: column;
-          align-items: stretch;
-        }
-
-        p-paginator {
-          flex: 1;
-          min-width: 0;
-        }
-
-        ::ng-deep .p-paginator {
-          flex-wrap: wrap;
-          justify-content: flex-end;
-          padding: 0;
-          background: transparent;
-
-          @include below-tablet {
-            flex-wrap: nowrap;
-            justify-content: center;
-          }
-
-          .p-paginator-pages {
-            @include below-tablet {
-              display: none;
-            }
-          }
-        }
-
-        .test-jump-to-page {
-          @include flex-align;
-
-          justify-content: center;
-          flex-shrink: 0;
-          gap: 8px;
-
-          @include from-tablet {
-            display: none;
-          }
-
-          .test-jump-to-page-label {
-            font-size: 14px;
-            color: $gray-900;
-            white-space: nowrap;
-          }
-
-          cui-select {
-            width: 140px;
-
-            @include below-phone {
-              width: auto;
-              flex: 1;
-            }
-          }
-        }
-      }
+      align-items: stretch;
     }
   }
 }

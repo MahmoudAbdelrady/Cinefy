@@ -1,0 +1,64 @@
+@use "../../../src/styles/mixins" as *;
+@use "../../../src/styles/breakpoints" as *;
+
+.cui-paginator {
+  @include flex-align;
+
+  gap: 16px;
+  width: 100%;
+
+  @include below-tablet {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  p-paginator {
+    flex: 1;
+    min-width: 0;
+  }
+
+  ::ng-deep .p-paginator {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding: 0;
+    background: transparent;
+
+    @include below-tablet {
+      flex-wrap: nowrap;
+      justify-content: center;
+    }
+
+    .p-paginator-pages {
+      @include below-tablet {
+        display: none;
+      }
+    }
+  }
+
+  .cui-paginator-jump {
+    @include flex-align;
+
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 8px;
+
+    @include from-tablet {
+      display: none;
+    }
+
+    .cui-paginator-jump-label {
+      font-size: 14px;
+      color: var(--cui-text-hint);
+      white-space: nowrap;
+    }
+
+    cui-select {
+      width: 140px;
+
+      @include below-phone {
+        width: auto;
+        flex: 1;
+      }
+    }
+  }
+}

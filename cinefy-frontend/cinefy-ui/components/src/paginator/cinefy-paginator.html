@@ -1,0 +1,23 @@
+<div class="cui-paginator">
+  <p-paginator
+    [first]="first()"
+    [rows]="pageSize()"
+    [totalRecords]="totalItems()"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+    (onPageChange)="onPageChange($event.first ?? 0)"
+  />
+
+  <div class="cui-paginator-jump">
+    <span class="cui-paginator-jump-label">Go to page</span>
+
+    <cui-select
+      labelField="label"
+      valueField="value"
+      placeholder="Select a page"
+      [clearable]="true"
+      [control]="jumpToPageControl"
+      [items]="pageOptions()"
+    />
+  </div>
+</div>
