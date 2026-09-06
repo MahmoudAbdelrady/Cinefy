@@ -1,19 +1,21 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { Tooltip } from 'primeng/tooltip';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { ChartColumnIcon, WarningIcon } from '../../../shared/icons';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
 import type { DateRange, SalesPoint, StatisticsPeriodTotals } from '../../../shared/types';
 
-const MIN_BAR_HEIGHT_PCT = 2;
+const TRACK_HEIGHT_PX = 130;
+const MIN_BAR_HEIGHT_PX = 3;
 
 interface SalesBar {
   date: string;
   details: StatisticsPeriodTotals;
   grossRevenue: number;
-  heightPct: number;
+  heightPx: number;
 }
 
 function grossRevenueOf(details: StatisticsPeriodTotals): number {
@@ -22,7 +24,7 @@ function grossRevenueOf(details: StatisticsPeriodTotals): number {
 
 @Component({
   selector: 'sales-chart',
-  imports: [CinefyLoadingSpinner, CinefyEmptyState, DecimalPipe, DatePipe],
+  imports: [CinefyLoadingSpinner, CinefyEmptyState, DecimalPipe, DatePipe, Tooltip],
   templateUrl: './sales-chart.html',
   styleUrl: './sales-chart.scss',
 })
@@ -41,7 +43,6 @@ export class SalesChartComponent {
   protected readonly points = signal<SalesPoint[]>([]);
   protected readonly loading = signal(true);
   protected readonly failed = signal(false);
-  protected readonly hovered = signal<number | null>(null);
   protected readonly showTable = signal(false);
 
   protected readonly isEmpty = computed(
@@ -60,10 +61,10 @@ export class SalesChartComponent {
         date: point.date,
         details: point.details,
         grossRevenue,
-        heightPct:
+        heightPx:
           peak === 0
-            ? MIN_BAR_HEIGHT_PCT
-            : Math.max((grossRevenue / peak) * 100, MIN_BAR_HEIGHT_PCT),
+            ? MIN_BAR_HEIGHT_PX
+            : Math.max((grossRevenue / peak) * TRACK_HEIGHT_PX, MIN_BAR_HEIGHT_PX),
       };
     });
   });
@@ -78,7 +79,6 @@ export class SalesChartComponent {
   private load(range: DateRange): Subscription {
     this.loading.set(true);
     this.failed.set(false);
-    this.hovered.set(null);
     return this.statisticsService.getSales(range).subscribe({
       next: (points) => {
         this.points.set(points);
@@ -93,13 +93,5 @@ export class SalesChartComponent {
 
   protected toggleTable(): void {
     this.showTable.update((shown) => !shown);
-  }
-
-  protected onBarEnter(index: number): void {
-    this.hovered.set(index);
-  }
-
-  protected onBarLeave(): void {
-    this.hovered.set(null);
   }
 }
