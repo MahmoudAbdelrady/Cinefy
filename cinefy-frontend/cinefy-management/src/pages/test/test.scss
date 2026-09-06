@@ -22,4 +22,48 @@
       color: $gray-600;
     }
   }
+
+  .test-sandbox {
+    @include flex-column;
+
+    gap: 16px;
+    padding: 24px;
+    border: 1px solid $gray-200;
+    border-radius: $radius-lg;
+    background-color: #ffffff;
+
+    .test-sandbox-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: $gray-900;
+    }
+
+    .test-date-tab {
+      @include flex-column;
+
+      align-items: center;
+      gap: 2px;
+
+      .test-tab-weekday {
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+
+      .test-tab-day {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .test-tab-month {
+        font-size: 12px;
+      }
+    }
+
+    .test-readout {
+      font-size: 14px;
+      color: $gray-600;
+    }
+  }
 }
