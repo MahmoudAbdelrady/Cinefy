@@ -13,7 +13,7 @@ import {
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
 import { PhoneFormatPipe } from 'cinefy-ui/pipes';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
 import { EmailIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import { NAME_PATTERN } from '../../../shared/validation';
@@ -40,7 +40,7 @@ export class PersonalDetailsComponent {
   };
 
   private readonly clientService = inject(ClientService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currentUser = signal<CurrentUser | null>(null);

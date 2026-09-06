@@ -7,7 +7,7 @@ import {
   EmptyStateComponent,
   LoadingSpinnerComponent,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
 import { CreditCardIcon, TrashIcon, TriangleAlertIcon } from '../../../shared/icons';
 import { brandChip } from '../../../shared/payments';
@@ -33,7 +33,7 @@ export class ProfileBillingComponent {
   };
 
   private readonly clientService = inject(ClientService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly dialog = viewChild(CinefyDialog);

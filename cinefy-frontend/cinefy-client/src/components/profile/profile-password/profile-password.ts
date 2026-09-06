@@ -4,7 +4,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CinefyInput, LoadingSpinnerComponent, PasswordChecklist } from 'cinefy-ui/components';
 import { linkConfirmPassword } from 'cinefy-ui/forms';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
 import { KeyRoundIcon, LockIcon } from '../../../shared/icons';
 import { PASSWORD_PATTERN } from '../../../shared/validation';
@@ -23,7 +23,7 @@ export class ProfilePasswordComponent {
   };
 
   private readonly clientService = inject(ClientService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly saving = signal(false);
