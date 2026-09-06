@@ -9,7 +9,7 @@ import {
   CinefyDialogFooter,
   CinefySwitch,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import {
   AlertIcon,
   CreditCardIcon,
@@ -56,7 +56,7 @@ export class GatewayListComponent {
   };
 
   private readonly paymentGatewaysService = inject(PaymentGatewaysService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly providerLabels = GATEWAY_PROVIDER_LABELS;

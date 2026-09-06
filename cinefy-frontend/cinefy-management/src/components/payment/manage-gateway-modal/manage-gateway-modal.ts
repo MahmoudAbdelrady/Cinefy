@@ -22,7 +22,7 @@ import {
   CinefyDialogFooter,
   CinefySwitch,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { ExternalLinkIcon, KeyIcon, LockIcon, WebhookIcon } from '../../../shared/icons';
 import { NO_WHITESPACE_PATTERN, RESOURCE_NAME_PATTERN } from '../../../shared/validation';
 import type {
@@ -78,7 +78,7 @@ export class ManageGatewayModalComponent {
   };
 
   private readonly paymentGatewaysService = inject(PaymentGatewaysService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly dialog = viewChild.required(CinefyDialog);

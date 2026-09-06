@@ -33,7 +33,7 @@ import {
   LoadingSpinnerComponent,
   EmptyStateComponent,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
 import type { PaginatedResponse } from 'cinefy-ui/types';
 import { StaffDetailsComponent } from '../staff-details/staff-details';
@@ -86,7 +86,7 @@ export class StaffListComponent {
   };
 
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly positionLabels = USER_POSITION_LABELS;

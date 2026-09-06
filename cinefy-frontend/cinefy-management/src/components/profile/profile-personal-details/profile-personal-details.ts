@@ -13,7 +13,7 @@ import {
   parsePhoneDigits,
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { PhoneFormatPipe } from 'cinefy-ui/pipes';
 import type { StaffMemberDetail } from '../../../shared/types';
 import { NAME_PATTERN } from '../../../shared/validation';
@@ -42,7 +42,7 @@ export class ProfilePersonalDetailsComponent {
   };
 
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly profile = input.required<StaffMemberDetail>();

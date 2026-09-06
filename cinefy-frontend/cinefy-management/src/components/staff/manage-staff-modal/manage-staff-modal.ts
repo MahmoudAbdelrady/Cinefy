@@ -28,7 +28,7 @@ import {
   type PhoneCountryCode,
   TimePicker,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import {
   EMPLOYMENT_TYPE_LABELS,
   USER_POSITION_LABELS,
@@ -71,7 +71,7 @@ export class ManageStaffModalComponent {
   };
 
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly dialog = viewChild.required(CinefyDialog);
