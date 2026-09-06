@@ -1,19 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { CinefyToastService } from 'cinefy-ui/services';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'test-page',
+  imports: [],
   templateUrl: './test.html',
   styleUrl: './test.scss',
 })
-export class TestPage {
-  private readonly toast = inject(CinefyToastService);
-
-  protected showSuccess(): void {
-    this.toast.success('Showtime published');
-  }
-
-  protected showError(): void {
-    this.toast.error('Could not delete the hall');
-  }
-}
+export class TestPage {}
