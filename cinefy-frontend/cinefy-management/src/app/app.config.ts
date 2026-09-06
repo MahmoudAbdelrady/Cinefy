@@ -9,7 +9,7 @@ import {
   authRetryInterceptor,
   errorToastInterceptor,
 } from './core/interceptors';
-import { provideCinefyToast } from 'cinefy-ui/services';
+import { provideCinefyToast, provideCinefyToastV2 } from 'cinefy-ui/services';
 import { providePrimeNG } from 'primeng/config';
 import { CinefyPreset } from './cinefy-preset';
 
@@ -27,6 +27,7 @@ export const appConfig: ApplicationConfig = {
       ]),
     ),
     provideCinefyToast(),
+    provideCinefyToastV2(),
     providePrimeNG({
       theme: {
         preset: CinefyPreset,

@@ -13,12 +13,9 @@
       <div class="test-toast-actions">
         <button class="btn-primary" (click)="showSuccess()">Success</button>
         <button class="btn-danger" (click)="showError()">Error</button>
-        <button class="btn-secondary" (click)="showSticky()">Sticky</button>
-        <button class="btn-secondary" (click)="showNotClosable()">Not closable</button>
-        <button class="btn-secondary" (click)="dismissAll()">Dismiss all</button>
       </div>
     </div>
   </section>
 </div>
 
-<p-toast [key]="toastKey" position="top-center" [life]="toastLife" />
+<cinefy-toast />
