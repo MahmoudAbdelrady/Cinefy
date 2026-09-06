@@ -36,7 +36,6 @@
     "@primeuix/themes": "^3.0.0",
     "cinefy-ui": "link:../cinefy-ui/dist",
     "date-fns": "^4.4.0",
-    "ng-primitives": "^0.112.1",
     "express": "^5.1.0",
     "primeng": "^21.1.9",
     "rxjs": "~7.8.0",
