@@ -25,7 +25,7 @@ import {
   MediaImageComponent,
   CinefySwitch,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { DurationPipe } from 'cinefy-ui/pipes';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
@@ -70,7 +70,7 @@ export class CurrentShowtimesComponent {
   private readonly moviesService = inject(MoviesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());

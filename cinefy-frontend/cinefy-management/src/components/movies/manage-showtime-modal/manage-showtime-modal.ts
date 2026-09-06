@@ -40,7 +40,7 @@ import {
   MediaImageComponent,
   CinefySwitch,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { DurationPipe } from 'cinefy-ui/pipes';
 import {
   HallsService,
@@ -98,7 +98,7 @@ export class ManageShowtimeModalComponent {
   private readonly moviesService = inject(MoviesService);
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly dialog = viewChild.required(CinefyDialog);

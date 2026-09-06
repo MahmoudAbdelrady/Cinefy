@@ -24,7 +24,7 @@ import {
   SeatMapComponent,
 } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { skipErrorToast } from '../../../app/core/interceptors';
 import { BookingService, ShowtimeEventsService } from '../../../services';
 import { BookingTicketComponent } from '../booking-ticket/booking-ticket';
@@ -112,7 +112,7 @@ export class BookSeatsComponent {
 
   private readonly bookingService = inject(BookingService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
