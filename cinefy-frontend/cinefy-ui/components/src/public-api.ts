@@ -6,7 +6,6 @@ export * from "./field-error/field-error";
 export * from "./input-field/cinefy-input";
 export * from "./password-checklist/password-checklist";
 export * from "./input-otp/input-otp";
-export * from "./pagination/pagination";
 export * from "./paginator/cinefy-paginator";
 export * from "./drop-down/cui-select/cui-select";
 export * from "./drop-down/cui-paginated-select/cui-paginated-select";
