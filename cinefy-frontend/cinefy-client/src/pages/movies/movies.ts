@@ -4,7 +4,7 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  CuiSelect,
+  CinefySelect,
   EmptyStateComponent,
   CinefyInput,
   LoadingSpinnerComponent,
@@ -26,7 +26,7 @@ import {
     LucideDynamicIcon,
     ReactiveFormsModule,
     CinefyInput,
-    CuiSelect,
+    CinefySelect,
     MediaImageComponent,
     EmptyStateComponent,
     LoadingSpinnerComponent,

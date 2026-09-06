@@ -28,7 +28,7 @@ import {
   CinefyDialog,
   CinefyDialogFooter,
   CinefyPaginator,
-  CuiSelect,
+  CinefySelect,
   CinefyInput,
   LoadingSpinnerComponent,
   EmptyStateComponent,
@@ -55,7 +55,7 @@ import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
   imports: [
     LucideDynamicIcon,
     ReactiveFormsModule,
-    CuiSelect,
+    CinefySelect,
     CinefyInput,
     CinefyPaginator,
     LoadingSpinnerComponent,

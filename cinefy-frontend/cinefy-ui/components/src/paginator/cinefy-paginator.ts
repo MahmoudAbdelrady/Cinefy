@@ -2,7 +2,7 @@ import { Component, DestroyRef, computed, inject, input, model } from "@angular/
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { Paginator } from "primeng/paginator";
-import { CuiSelect } from "../drop-down/cui-select/cui-select";
+import { CinefySelect } from "../drop-down/cinefy-select/cinefy-select";
 
 interface PageOption {
   label: string;
@@ -11,7 +11,7 @@ interface PageOption {
 
 @Component({
   selector: "cui-paginator",
-  imports: [Paginator, CuiSelect],
+  imports: [Paginator, CinefySelect],
   templateUrl: "./cinefy-paginator.html",
   styleUrl: "./cinefy-paginator.scss",
 })

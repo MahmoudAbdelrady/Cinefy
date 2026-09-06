@@ -9,10 +9,10 @@ import { FieldErrorComponent } from "../../field-error/field-error";
 @Component({
   selector: "cui-select",
   imports: [ReactiveFormsModule, Select, MultiSelect, FieldErrorComponent],
-  templateUrl: "./cui-select.html",
-  styleUrl: "./cui-select.scss",
+  templateUrl: "./cinefy-select.html",
+  styleUrl: "./cinefy-select.scss",
 })
-export class CuiSelect<T> {
+export class CinefySelect<T> {
   readonly control: InputSignal<FormControl> = input.required<FormControl>();
   readonly items = input.required<T[]>();
   readonly multi = input(false);

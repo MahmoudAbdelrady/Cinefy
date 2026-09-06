@@ -14,7 +14,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  CuiSelect,
+  CinefySelect,
   EmptyStateComponent,
   HoldTimerComponent,
   CinefyInput,
@@ -89,7 +89,7 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
     SeatMapComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
-    CuiSelect,
+    CinefySelect,
     CinefyInput,
     CinefyDialog,
     CinefyDialogFooter,

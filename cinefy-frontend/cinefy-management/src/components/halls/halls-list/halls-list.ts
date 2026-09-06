@@ -16,7 +16,7 @@ import {
   CinefyInput,
   LoadingSpinnerComponent,
   EmptyStateComponent,
-  CuiSelect,
+  CinefySelect,
   CinefyDialog,
   CinefyDialogFooter,
 } from 'cinefy-ui/components';
@@ -36,7 +36,7 @@ import { HallsService } from '../../../services';
     LucideDynamicIcon,
     ReactiveFormsModule,
     CinefyInput,
-    CuiSelect,
+    CinefySelect,
     CinefyDialog,
     CinefyDialogFooter,
     HallConfigModalComponent,

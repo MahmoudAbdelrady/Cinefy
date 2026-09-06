@@ -7,7 +7,7 @@ export * from "./input-field/cinefy-input";
 export * from "./password-checklist/password-checklist";
 export * from "./input-otp/input-otp";
 export * from "./paginator/cinefy-paginator";
-export * from "./drop-down/cui-select/cui-select";
+export * from "./drop-down/cinefy-select/cinefy-select";
 export * from "./drop-down/cui-paginated-select/cui-paginated-select";
 export * from "./phone-input/phone-input";
 export * from "./date-time/date-picker/date-picker";

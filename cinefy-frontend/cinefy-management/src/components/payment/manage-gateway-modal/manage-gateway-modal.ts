@@ -15,7 +15,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  CuiSelect,
+  CinefySelect,
   CinefyInput,
   LoadingSpinnerComponent,
   CinefyDialog,
@@ -60,7 +60,7 @@ function buildCredentialsGroup(
     CinefyDialog,
     CinefyDialogFooter,
     CinefyInput,
-    CuiSelect,
+    CinefySelect,
     CinefySwitch,
     LucideDynamicIcon,
     LoadingSpinnerComponent,
