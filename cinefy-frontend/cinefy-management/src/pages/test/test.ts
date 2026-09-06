@@ -1,10 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { CinefyToast } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 
 @Component({
   selector: 'test-page',
-  imports: [CinefyToast],
   templateUrl: './test.html',
   styleUrl: './test.scss',
 })

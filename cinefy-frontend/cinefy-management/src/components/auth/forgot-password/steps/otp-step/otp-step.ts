@@ -5,7 +5,7 @@ import { interval, takeWhile } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertIcon, ArrowLeftIcon, ArrowRightIcon } from '../../../../../shared/icons';
 import { LoadingSpinnerComponent, InputOtp } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../../../services/auth';
 
 const RESEND_COOLDOWN_SECONDS = 10 * 60;
@@ -24,7 +24,7 @@ export class OtpStep {
   };
 
   private readonly authService = inject(AuthService);
-  private readonly toast = inject(ToastService);
+  private readonly toast = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly email = input<string>('');

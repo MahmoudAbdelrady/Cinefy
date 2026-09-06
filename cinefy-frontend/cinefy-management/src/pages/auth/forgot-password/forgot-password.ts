@@ -9,7 +9,7 @@ import {
   ResetStep,
 } from '../../../components/auth/forgot-password';
 import { AuthService } from '../../../services/auth';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 
 @Component({
   selector: 'forgot-password-page',
@@ -19,7 +19,7 @@ import { ToastService } from 'cinefy-ui/services';
 })
 export class ForgotPasswordPage {
   private readonly authService = inject(AuthService);
-  private readonly toast = inject(ToastService);
+  private readonly toast = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly stage = signal<ForgotPasswordStage>('request');
