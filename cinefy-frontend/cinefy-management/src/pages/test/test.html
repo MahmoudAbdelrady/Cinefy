@@ -5,41 +5,4 @@
       Scratch page for trying PrimeNG components before using them in real pages.
     </p>
   </header>
-
-  <section class="test-sandbox">
-    <h2 class="test-sandbox-title">Plain radio buttons</h2>
-
-    <div class="test-sandbox-body">
-      <div class="test-radio-row">
-        @for (option of employmentTypes; track option.value) {
-          <label class="test-radio">
-            <p-radiobutton name="employment" [value]="option.value" [(ngModel)]="employmentType" />
-            <span>{{ option.label }}</span>
-          </label>
-        }
-      </div>
-
-      <p class="test-readout">Selected: {{ employmentType }}</p>
-    </div>
-  </section>
-
-  <section class="test-sandbox">
-    <h2 class="test-sandbox-title">Card radio buttons</h2>
-
-    <div class="test-sandbox-body">
-      <div class="test-radio-cards">
-        @for (option of shifts; track option.value) {
-          <label class="test-radio-card" [class.selected]="shift === option.value">
-            <p-radiobutton name="shift" [value]="option.value" [(ngModel)]="shift" />
-            <span class="test-radio-card-text">
-              <span class="test-radio-card-title">{{ option.label }}</span>
-              <span class="test-radio-card-hint">{{ option.hint }}</span>
-            </span>
-          </label>
-        }
-      </div>
-
-      <p class="test-readout">Selected: {{ shift }}</p>
-    </div>
-  </section>
 </div>
