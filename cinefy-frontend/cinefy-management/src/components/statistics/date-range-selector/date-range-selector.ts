@@ -63,6 +63,8 @@ export class DateRangeSelectorComponent {
 
   protected readonly preset = signal<ActiveSelection | null>(null);
 
+  private emittedRange: DateRange | null = null;
+
   protected readonly customForm = new FormGroup({
     from: new FormControl<Date | null>(null),
     to: new FormControl<Date | null>(null),
@@ -96,8 +98,9 @@ export class DateRangeSelectorComponent {
   }
 
   protected selectPreset(days: number): void {
+    if (this.preset() === days) return;
     this.preset.set(days);
-    this.rangeChange.emit(rangeForPreset(days));
+    this.emitRange(rangeForPreset(days));
   }
 
   protected toggleCustomRange(event: Event): void {
@@ -124,7 +127,14 @@ export class DateRangeSelectorComponent {
     const { from, to } = this.customForm.getRawValue();
     if (!from || !to) return;
     this.preset.set('custom');
-    this.rangeChange.emit({ from: toIsoDate(from), to: toIsoDate(to) });
+    this.emitRange({ from: toIsoDate(from), to: toIsoDate(to) });
     this.closeCustomRange();
+  }
+
+  private emitRange(range: DateRange): void {
+    const current = this.emittedRange;
+    if (current && current.from === range.from && current.to === range.to) return;
+    this.emittedRange = range;
+    this.rangeChange.emit(range);
   }
 }
