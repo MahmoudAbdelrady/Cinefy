@@ -1,8 +1,4 @@
-@if (loading()) {
-  <div class="ph-loading">
-    <loading-spinner variant="lg" />
-  </div>
-} @else if (loadFailed()) {
+@if (loadFailed()) {
   <empty-state
     [icon]="icons.TriangleAlertIcon"
     title="Couldn't load your bookings"
@@ -13,57 +9,63 @@
     <section class="ph-group">
       <h2>Past bookings</h2>
 
-      <ul class="ph-list">
-        @for (booking of bookings(); track booking.id) {
-          <li class="ph-row">
-            <div class="ph-poster">
-              <media-image
-                [src]="booking.movie.posterUrl"
-                [alt]="booking.movie.title + ' poster'"
-              />
-            </div>
-
-            <div class="ph-body">
-              <div class="ph-info">
-                <p class="ph-title">
-                  <span class="ph-title-text">{{ booking.movie.title }}</span>
-                  @if (booking.refunded) {
-                    <span class="ph-badge">REFUNDED</span>
-                  }
-                </p>
-                <div class="ph-meta">
-                  <span class="ph-meta-item">
-                    <svg [lucideIcon]="icons.ClockIcon" [size]="12"></svg>
-                    {{ booking.startDateTime | date: 'MMM d, y' }} ·
-                    {{ booking.startDateTime | date: 'shortTime' }}
-                  </span>
-                  <span class="ph-meta-item">
-                    <svg [lucideIcon]="icons.ClapperboardIcon" [size]="12"></svg>
-                    {{ booking.hallType }}
-                    @if (booking.is3D) {
-                      <span>(3D)</span>
-                    }
-                  </span>
-                </div>
+      @if (loading()) {
+        <div class="ph-loading">
+          <loading-spinner variant="lg" />
+        </div>
+      } @else {
+        <ul class="ph-list">
+          @for (booking of bookings(); track booking.id) {
+            <li class="ph-row">
+              <div class="ph-poster">
+                <media-image
+                  [src]="booking.movie.posterUrl"
+                  [alt]="booking.movie.title + ' poster'"
+                />
               </div>
 
-              <span class="ph-price" [class.ph-price-refunded]="booking.refunded">
-                {{ booking.totalPrice | currency: 'USD' }}
-              </span>
+              <div class="ph-body">
+                <div class="ph-info">
+                  <p class="ph-title">
+                    <span class="ph-title-text">{{ booking.movie.title }}</span>
+                    @if (booking.refunded) {
+                      <span class="ph-badge">REFUNDED</span>
+                    }
+                  </p>
+                  <div class="ph-meta">
+                    <span class="ph-meta-item">
+                      <svg [lucideIcon]="icons.ClockIcon" [size]="12"></svg>
+                      {{ booking.startDateTime | date: 'MMM d, y' }} ·
+                      {{ booking.startDateTime | date: 'shortTime' }}
+                    </span>
+                    <span class="ph-meta-item">
+                      <svg [lucideIcon]="icons.ClapperboardIcon" [size]="12"></svg>
+                      {{ booking.hallType }}
+                      @if (booking.is3D) {
+                        <span>(3D)</span>
+                      }
+                    </span>
+                  </div>
+                </div>
 
-              <button
-                type="button"
-                class="btn-secondary ph-view"
-                (click)="bookingToView.set(booking)"
-              >
-                View
-              </button>
-            </div>
-          </li>
-        } @empty {
-          <empty-state [icon]="icons.TicketIcon" title="No past bookings yet" />
-        }
-      </ul>
+                <span class="ph-price" [class.ph-price-refunded]="booking.refunded">
+                  {{ booking.totalPrice | currency: 'USD' }}
+                </span>
+
+                <button
+                  type="button"
+                  class="btn-secondary ph-view"
+                  (click)="bookingToView.set(booking)"
+                >
+                  View
+                </button>
+              </div>
+            </li>
+          } @empty {
+            <empty-state [icon]="icons.TicketIcon" title="No past bookings yet" />
+          }
+        </ul>
+      }
     </section>
 
     <cui-paginator

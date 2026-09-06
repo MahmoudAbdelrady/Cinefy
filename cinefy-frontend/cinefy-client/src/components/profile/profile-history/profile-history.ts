@@ -1,6 +1,6 @@
-import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   EmptyStateComponent,
@@ -39,7 +39,6 @@ export class ProfileHistoryComponent {
   };
 
   private readonly bookingService = inject(BookingService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly pageSize = PAGE_SIZE;
 
@@ -53,26 +52,26 @@ export class ProfileHistoryComponent {
   protected readonly loadFailed = signal(false);
 
   constructor() {
-    effect(() => this.loadPage(this.page()));
+    effect((onCleanup) => {
+      const sub = this.loadPage(this.page());
+      onCleanup(() => sub.unsubscribe());
+    });
   }
 
-  private loadPage(page: number): void {
+  private loadPage(page: number): Subscription {
     this.loading.set(true);
     this.loadFailed.set(false);
-    this.bookingService
-      .getPastBookings({ page, size: PAGE_SIZE })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.bookings.set(response.content);
-          this.totalItems.set(response.page.totalElements);
-          this.pageCount.set(Math.max(1, response.page.totalPages));
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loading.set(false);
-          this.loadFailed.set(true);
-        },
-      });
+    return this.bookingService.getPastBookings({ page, size: PAGE_SIZE }).subscribe({
+      next: (response) => {
+        this.bookings.set(response.content);
+        this.totalItems.set(response.page.totalElements);
+        this.pageCount.set(Math.max(1, response.page.totalPages));
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.loadFailed.set(true);
+      },
+    });
   }
 }
