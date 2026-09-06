@@ -19,7 +19,7 @@ import {
   CinefyInput,
   EmptyStateComponent,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { HallsService } from '../../../services';
 import { HallType } from '../../../shared/types';
 import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
@@ -51,7 +51,7 @@ export class ManageHallTypesModalComponent {
   };
 
   private readonly hallsService = inject(HallsService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
 
   private readonly deleteConfirm = viewChild.required(Popover);
 

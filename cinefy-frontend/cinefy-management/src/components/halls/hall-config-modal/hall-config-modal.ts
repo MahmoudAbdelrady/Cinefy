@@ -42,7 +42,7 @@ import {
   CinefyDialogHeader,
   CinefyDialogFooter,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import {
   HALL_STATUS_LABELS,
   SEAT_CATEGORY_LABELS,
@@ -135,7 +135,7 @@ export class HallConfigModalComponent {
   private readonly dialog = viewChild.required(CinefyDialog);
 
   private readonly hallsService = inject(HallsService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly hallStatusEntries = computed<HallStatusEntry[]>(() => {

@@ -20,7 +20,7 @@ import {
   CinefyDialog,
   CinefyDialogFooter,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
 import {
   HALL_STATUS_LABELS,
@@ -59,7 +59,7 @@ export class HallsListComponent {
   };
 
   private readonly hallsService = inject(HallsService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
 
   protected readonly statusLabels = HALL_STATUS_LABELS;
 
