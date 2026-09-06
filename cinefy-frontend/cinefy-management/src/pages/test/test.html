@@ -7,28 +7,8 @@
   </header>
 
   <section class="test-sandbox">
-    <h2 class="test-sandbox-title">Date tabs</h2>
+    <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <p-tabs [(value)]="selectedDate" scrollable>
-      <p-tablist>
-        @for (date of dates; track date) {
-          <p-tab class="test-date-tab" [value]="date">
-            <span class="test-tab-weekday">{{ date | date: 'EEE' }}</span>
-            <span class="test-tab-day">{{ date | date: 'd' }}</span>
-            <span class="test-tab-month">{{ date | date: 'MMM' }}</span>
-          </p-tab>
-        }
-      </p-tablist>
-
-      <p-tabpanels>
-        @for (date of dates; track date) {
-          <p-tabpanel [value]="date">
-            <p class="test-readout">Showtimes for {{ date | date: 'fullDate' }}</p>
-          </p-tabpanel>
-        }
-      </p-tabpanels>
-    </p-tabs>
-
-    <p class="test-readout">Selected: {{ selectedDate() }}</p>
+    <div class="test-sandbox-body"></div>
   </section>
 </div>

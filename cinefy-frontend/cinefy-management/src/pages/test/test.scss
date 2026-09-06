@@ -38,32 +38,11 @@
       color: $gray-900;
     }
 
-    .test-date-tab {
+    .test-sandbox-body {
       @include flex-column;
 
-      align-items: center;
-      gap: 2px;
-
-      .test-tab-weekday {
-        font-size: 12px;
-        font-weight: 500;
-        text-transform: uppercase;
-      }
-
-      .test-tab-day {
-        font-size: 24px;
-        font-weight: 700;
-        line-height: 1;
-      }
-
-      .test-tab-month {
-        font-size: 12px;
-      }
-    }
-
-    .test-readout {
-      font-size: 14px;
-      color: $gray-600;
+      gap: 16px;
+      align-items: flex-start;
     }
   }
 }

@@ -7,41 +7,8 @@
   </header>
 
   <section class="test-sandbox">
-    <h2 class="test-sandbox-title">Carousel</h2>
+    <h2 class="test-sandbox-title">Sandbox</h2>
 
-    <div class="test-sandbox-body">
-      <div class="test-carousel-bar">
-        <span class="test-readout">Page: {{ page() }}</span>
-
-        <div class="test-carousel-nav">
-          <button class="test-nav-button" (click)="prev($event)">
-            <svg [lucideIcon]="icons.ChevronLeftIcon" [size]="18"></svg>
-          </button>
-          <button class="test-nav-button" (click)="next($event)">
-            <svg [lucideIcon]="icons.ChevronRightIcon" [size]="18"></svg>
-          </button>
-        </div>
-      </div>
-
-      <p-carousel
-        class="test-carousel"
-        [value]="slides"
-        [numVisible]="1"
-        [numScroll]="1"
-        [page]="page()"
-        (onPage)="page.set($event.page ?? 0)"
-        [circular]="true"
-        [showIndicators]="true"
-        [showNavigators]="false"
-      >
-        <ng-template #item let-slide>
-          <article class="test-slide">
-            <span class="test-slide-rating">{{ slide.rating }}</span>
-            <span class="test-slide-title">{{ slide.title }}</span>
-            <span class="test-slide-genre">{{ slide.genre }}</span>
-          </article>
-        </ng-template>
-      </p-carousel>
-    </div>
+    <div class="test-sandbox-body"></div>
   </section>
 </div>
