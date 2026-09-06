@@ -1,6 +1,16 @@
 @use "../../../src/styles/mixins" as *;
 @use "../../../src/styles/breakpoints" as *;
 
+:host {
+  display: block;
+  padding: 16px 24px;
+  border-top: 1px solid var(--cui-border-subtle);
+
+  @include below-mobile {
+    padding: 16px;
+  }
+}
+
 .cui-paginator {
   @include flex-align;
 

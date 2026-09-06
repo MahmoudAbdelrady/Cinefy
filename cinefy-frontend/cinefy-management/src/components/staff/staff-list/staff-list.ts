@@ -27,7 +27,7 @@ import {
 import {
   CinefyDialog,
   CinefyDialogFooter,
-  PaginationComponent,
+  CinefyPaginator,
   CuiSelect,
   CinefyInput,
   LoadingSpinnerComponent,
@@ -57,7 +57,7 @@ import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
     ReactiveFormsModule,
     CuiSelect,
     CinefyInput,
-    PaginationComponent,
+    CinefyPaginator,
     LoadingSpinnerComponent,
     EmptyStateComponent,
     CinefyDialog,
@@ -103,7 +103,7 @@ export class StaffListComponent {
   protected readonly deletingStaffIds = signal<ReadonlySet<string>>(new Set());
 
   protected readonly positionFilter = signal<UserPosition | undefined>(undefined);
-  protected readonly page = signal(1);
+  protected readonly page = signal(0);
 
   protected readonly loading = signal(true);
   protected readonly staffPage = signal<PaginatedResponse<StaffMemberSummary> | null>(null);
@@ -144,7 +144,7 @@ export class StaffListComponent {
       debounceTime(SEARCH_DEBOUNCE_MS),
       distinctUntilChanged(),
       tap((search) => {
-        this.page.set(1);
+        this.page.set(0);
         this.appliedSearch.set(search.trim());
       }),
     ),
@@ -157,7 +157,7 @@ export class StaffListComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((position) => {
         this.positionFilter.set(position ?? undefined);
-        this.page.set(1);
+        this.page.set(0);
       });
 
     afterNextRender(() => {
@@ -166,7 +166,7 @@ export class StaffListComponent {
           tap(() => this.loading.set(true)),
           switchMap(([search, position, page]) =>
             this.staffService.getStaffMembers(search || undefined, position, {
-              page: page - 1,
+              page,
               size: this.pageSize,
             }),
           ),
@@ -241,7 +241,7 @@ export class StaffListComponent {
         if (staffPage) {
           const deletedPosition = staffPage.content.find((m) => m.id === id)?.position;
           const content = staffPage.content.filter((m) => m.id !== id);
-          if (content.length === 0 && this.page() > 1) {
+          if (content.length === 0 && this.page() > 0) {
             this.page.update((p) => p - 1);
           } else {
             this.staffPage.set({
