@@ -7,8 +7,33 @@
   </header>
 
   <section class="test-sandbox">
-    <h2 class="test-sandbox-title">Sandbox</h2>
+    <h2 class="test-sandbox-title">Tooltip</h2>
 
-    <div class="test-sandbox-body"></div>
+    <div class="test-sandbox-body">
+      <div class="test-tooltip-row">
+        <button class="btn-secondary" pTooltip="Tooltip on top" tooltipPosition="top">Top</button>
+        <button class="btn-secondary" pTooltip="Tooltip on the right" tooltipPosition="right">
+          Right
+        </button>
+        <button class="btn-secondary" pTooltip="Tooltip on the bottom" tooltipPosition="bottom">
+          Bottom
+        </button>
+        <button class="btn-secondary" pTooltip="Tooltip on the left" tooltipPosition="left">
+          Left
+        </button>
+      </div>
+
+      <div class="test-tooltip-row">
+        <button class="btn-secondary" pTooltip="Waits 500ms before showing" [showDelay]="500">
+          Show delay
+        </button>
+        <button class="btn-secondary" pTooltip="Shown on click" tooltipEvent="focus">
+          Focus trigger
+        </button>
+        <button class="btn-secondary" pTooltip="You will never see this" [tooltipDisabled]="true">
+          Disabled
+        </button>
+      </div>
+    </div>
   </section>
 </div>
