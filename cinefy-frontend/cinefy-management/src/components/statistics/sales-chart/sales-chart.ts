@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import { ChartColumnIcon, WarningIcon } from '../../../shared/icons';
 import { StatisticsService } from '../../../services';
@@ -68,14 +69,17 @@ export class SalesChartComponent {
   });
 
   constructor() {
-    effect(() => this.load(this.range()));
+    effect((onCleanup) => {
+      const sub = this.load(this.range());
+      onCleanup(() => sub.unsubscribe());
+    });
   }
 
-  private load(range: DateRange): void {
+  private load(range: DateRange): Subscription {
     this.loading.set(true);
     this.failed.set(false);
     this.hovered.set(null);
-    this.statisticsService.getSales(range).subscribe({
+    return this.statisticsService.getSales(range).subscribe({
       next: (points) => {
         this.points.set(points);
         this.loading.set(false);

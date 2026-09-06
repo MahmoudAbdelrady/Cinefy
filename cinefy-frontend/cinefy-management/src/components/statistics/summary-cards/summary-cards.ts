@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
 import {
@@ -114,13 +115,16 @@ export class SummaryCardsComponent {
   });
 
   constructor() {
-    effect(() => this.load(this.range()));
+    effect((onCleanup) => {
+      const sub = this.load(this.range());
+      onCleanup(() => sub.unsubscribe());
+    });
   }
 
-  private load(range: DateRange): void {
+  private load(range: DateRange): Subscription {
     this.loading.set(true);
     this.failed.set(false);
-    this.statisticsService.getSummary(range).subscribe({
+    return this.statisticsService.getSummary(range).subscribe({
       next: (summary) => {
         this.summary.set(summary);
         this.loading.set(false);

@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, input, linkedSignal, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { Subscription } from 'rxjs';
 import {
   EmptyStateComponent,
   LoadingSpinnerComponent,
@@ -65,13 +66,16 @@ export class MoviePerformanceComponent {
   );
 
   constructor() {
-    effect(() => this.load(this.range(), this.page()));
+    effect((onCleanup) => {
+      const sub = this.load(this.range(), this.page());
+      onCleanup(() => sub.unsubscribe());
+    });
   }
 
-  private load(range: DateRange, page: number): void {
+  private load(range: DateRange, page: number): Subscription {
     this.loading.set(true);
     this.failed.set(false);
-    this.statisticsService.getMoviePerformance(range, page, this.pageSize).subscribe({
+    return this.statisticsService.getMoviePerformance(range, page, this.pageSize).subscribe({
       next: (response) => {
         this.movies.set(response.content);
         this.totalItems.set(response.page.totalElements);
