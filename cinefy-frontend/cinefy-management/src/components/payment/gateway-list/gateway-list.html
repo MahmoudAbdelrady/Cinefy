@@ -122,16 +122,20 @@
 }
 
 <ng-template #gatewayActions let-gateway>
-  <span class="gl-switch">
-    <cui-switch size="sm" [checked]="gateway.active" />
-    <button
-      type="button"
-      class="gl-switch-trigger"
-      [pTooltip]="gateway.active ? 'Disable' : 'Activate'"
-      tooltipPosition="top"
-      (click)="gatewayToToggle.set(gateway)"
-    ></button>
-  </span>
+  <button
+    type="button"
+    class="gl-action"
+    [class.deactivate]="gateway.active"
+    [class.activate]="!gateway.active"
+    (click)="gatewayToToggle.set(gateway)"
+  >
+    <svg
+      [lucideIcon]="gateway.active ? icons.PowerOffIcon : icons.PowerIcon"
+      [size]="16"
+      [strokeWidth]="2"
+    ></svg>
+    <span>{{ gateway.active ? 'Deactivate' : 'Activate' }}</span>
+  </button>
 
   <button type="button" class="gl-action" (click)="gatewayToViewChannels.set(gateway)">
     <svg [lucideIcon]="icons.EyeIcon" [size]="16" [strokeWidth]="2"></svg>

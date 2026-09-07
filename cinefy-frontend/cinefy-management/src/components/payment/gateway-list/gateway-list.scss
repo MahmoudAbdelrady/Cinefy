@@ -267,22 +267,6 @@
 
   justify-content: flex-end;
   gap: 8px;
-
-  .gl-switch {
-    position: relative;
-    display: inline-flex;
-    margin-right: 8px;
-
-    .gl-switch-trigger {
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      border: none;
-      border-radius: $radius-full;
-      background: none;
-      cursor: pointer;
-    }
-  }
 }
 
 .gl-action {
@@ -305,6 +289,24 @@
 
   &:hover:not(:disabled) {
     background-color: $gray-100;
+  }
+
+  &.activate {
+    border-color: $green-300;
+    color: $green-700;
+
+    &:hover:not(:disabled) {
+      background-color: $green-50;
+    }
+  }
+
+  &.deactivate {
+    border-color: $red-200;
+    color: $red-600;
+
+    &:hover:not(:disabled) {
+      background-color: $red-50;
+    }
   }
 
   &.edit {
@@ -520,6 +522,24 @@
 
   button {
     flex: 1;
+  }
+}
+
+@include below-mobile {
+  .gl-active {
+    .gl-active-card {
+      padding: 20px 16px;
+    }
+
+    .gl-actions {
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+
+      .gl-action {
+        justify-content: center;
+      }
+    }
   }
 }
 
