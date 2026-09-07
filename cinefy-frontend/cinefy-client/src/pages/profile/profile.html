@@ -25,8 +25,8 @@
           <profile-billing />
         }
       </div>
-      <div [hidden]="activeTab() !== 'history'">
-        @if (hasVisited('history')) {
+      <div [hidden]="activeTab() !== 'bookings'">
+        @if (hasVisited('bookings')) {
           <profile-history />
         }
       </div>

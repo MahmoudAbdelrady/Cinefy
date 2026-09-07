@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import {
   PersonalDetailsComponent,
@@ -8,7 +9,7 @@ import {
 } from '../../components';
 import { CreditCardIcon, TicketIcon, UserIcon } from '../../shared/icons';
 
-type ProfileTab = 'account' | 'billing' | 'history';
+type ProfileTab = 'account' | 'billing' | 'bookings';
 
 interface ProfileTabItem {
   label: string;
@@ -19,7 +20,7 @@ interface ProfileTabItem {
 const PROFILE_TABS: readonly ProfileTabItem[] = [
   { label: 'Account', value: 'account', icon: UserIcon },
   { label: 'Billing', value: 'billing', icon: CreditCardIcon },
-  { label: 'Bookings', value: 'history', icon: TicketIcon },
+  { label: 'Bookings', value: 'bookings', icon: TicketIcon },
 ];
 
 const DEFAULT_TAB: ProfileTab = 'account';
@@ -39,9 +40,13 @@ const DEFAULT_TAB: ProfileTab = 'account';
 export class ProfilePage {
   protected readonly tabs = PROFILE_TABS;
 
-  protected readonly activeTab = signal<ProfileTab>(DEFAULT_TAB);
+  private readonly route = inject(ActivatedRoute);
 
-  private readonly visitedTabs = signal<ReadonlySet<ProfileTab>>(new Set([DEFAULT_TAB]));
+  private readonly initialTab = this.resolveInitialTab();
+
+  protected readonly activeTab = signal<ProfileTab>(this.initialTab);
+
+  private readonly visitedTabs = signal<ReadonlySet<ProfileTab>>(new Set([this.initialTab]));
 
   protected hasVisited(tab: ProfileTab): boolean {
     return this.visitedTabs().has(tab);
@@ -51,5 +56,10 @@ export class ProfilePage {
     this.activeTab.set(tab);
     if (this.visitedTabs().has(tab)) return;
     this.visitedTabs.update((visited) => new Set(visited).add(tab));
+  }
+
+  private resolveInitialTab(): ProfileTab {
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    return PROFILE_TABS.find(({ value }) => value === tab)?.value ?? DEFAULT_TAB;
   }
 }

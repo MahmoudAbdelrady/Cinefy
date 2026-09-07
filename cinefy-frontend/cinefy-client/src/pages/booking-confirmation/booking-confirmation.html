@@ -49,7 +49,11 @@
         <h1 class="cf-title">Something went wrong</h1>
         <p class="cf-note">We could not load this booking. Please try again in a moment.</p>
         <div class="cf-actions">
-          <a class="btn-primary cf-action" routerLink="/profile">
+          <a
+            class="btn-primary cf-action"
+            routerLink="/profile"
+            [queryParams]="{ tab: 'bookings' }"
+          >
             <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
             View my bookings
           </a>
@@ -191,7 +195,11 @@
                 <svg [lucideIcon]="icons.ClapperboardIcon" [size]="16"></svg>
                 Browse movies
               </a>
-              <a class="btn-primary cf-action" routerLink="/profile">
+              <a
+                class="btn-primary cf-action"
+                routerLink="/profile"
+                [queryParams]="{ tab: 'bookings' }"
+              >
                 <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
                 View my bookings
               </a>
