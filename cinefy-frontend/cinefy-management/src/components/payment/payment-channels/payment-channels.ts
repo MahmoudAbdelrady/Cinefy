@@ -12,6 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { NgTemplateOutlet } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { Tooltip } from 'primeng/tooltip';
 import { CinefySelect, CinefyFieldError, CinefyInput, CinefySwitch } from 'cinefy-ui/components';
 import { DeleteIcon, EditIcon, PlusIcon } from '../../../shared/icons';
 import type { ChannelCurrency, PaymentChannel, ProviderConfigValue } from '../../../shared/types';
@@ -47,6 +48,7 @@ function buildProviderConfigGroup(
     CinefySelect,
     CinefySwitch,
     LucideDynamicIcon,
+    Tooltip,
   ],
   templateUrl: './payment-channels.html',
   styleUrl: './payment-channels.scss',

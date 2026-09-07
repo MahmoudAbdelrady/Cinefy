@@ -129,6 +129,8 @@
                   </button>
                   <button
                     class="mcfa-delete"
+                    pTooltip="Delete all showtimes"
+                    tooltipPosition="top"
                     [disabled]="deletingShowtimeIds().has(shMovie.id)"
                     (click)="movieToDelete.set(item)"
                   >

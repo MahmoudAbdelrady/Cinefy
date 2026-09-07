@@ -23,6 +23,7 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { Tooltip } from 'primeng/tooltip';
 import {
   DollarSignIcon,
   EditIcon,
@@ -107,6 +108,7 @@ const SELECTABLE_HALL_STATUS_ENTRIES = (
     NgClass,
     ReactiveFormsModule,
     LucideDynamicIcon,
+    Tooltip,
     CinefySwitch,
     CinefyDialog,
     CinefyDialogHeader,

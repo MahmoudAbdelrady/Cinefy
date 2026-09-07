@@ -127,7 +127,8 @@
     <button
       type="button"
       class="gl-switch-trigger"
-      [title]="gateway.active ? 'Disable' : 'Activate'"
+      [pTooltip]="gateway.active ? 'Disable' : 'Activate'"
+      tooltipPosition="top"
       (click)="gatewayToToggle.set(gateway)"
     ></button>
   </span>
@@ -146,7 +147,6 @@
     <button
       type="button"
       class="gl-action delete"
-      title="Delete gateway"
       [disabled]="isDeleting(gateway.id)"
       (click)="gatewayToDelete.set(gateway)"
     >

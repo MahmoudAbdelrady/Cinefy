@@ -36,7 +36,7 @@
                   <div class="action-buttons editing">
                     <button
                       type="submit"
-                      title="Save"
+                      pTooltip="Save"
                       [disabled]="editTypeForm.invalid || savingTypeId() === type.id"
                     >
                       <svg
@@ -52,7 +52,7 @@
                       type="button"
                       (click)="cancelEditType()"
                       [disabled]="savingTypeId() === type.id"
-                      title="Cancel"
+                      pTooltip="Cancel"
                     >
                       <svg [lucideIcon]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></svg>
                     </button>
@@ -64,12 +64,19 @@
                 </div>
                 <span class="type-name">{{ type.name }}</span>
                 <div class="action-buttons">
-                  <button [disabled]="isDeleting(type.id!)" (click)="startEditingType(type)">
+                  <button
+                    [disabled]="isDeleting(type.id!)"
+                    (click)="startEditingType(type)"
+                    pTooltip="Edit"
+                    tooltipPosition="top"
+                  >
                     <svg [lucideIcon]="icons.EditIcon" [size]="14" [strokeWidth]="2.5"></svg>
                   </button>
                   <button
                     [disabled]="isDeleting(type.id!)"
                     (click)="openDeleteConfirm($event, type)"
+                    pTooltip="Delete"
+                    tooltipPosition="top"
                   >
                     @if (isDeleting(type.id!)) {
                       <cui-loading-spinner variant="xs" />
@@ -110,7 +117,12 @@
             />
           </div>
           <div class="action-buttons editing">
-            <button type="submit" title="Save" [disabled]="newTypeForm.invalid || addingType()">
+            <button
+              type="submit"
+              pTooltip="Save"
+              tooltipPosition="top"
+              [disabled]="newTypeForm.invalid || addingType()"
+            >
               <svg
                 [lucideIcon]="addingType() ? icons.LoaderIcon : icons.CheckIcon"
                 [size]="14"
@@ -122,7 +134,8 @@
               type="button"
               (click)="cancelAddType()"
               [disabled]="addingType()"
-              title="Cancel"
+              pTooltip="Cancel"
+              tooltipPosition="top"
             >
               <svg [lucideIcon]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></svg>
             </button>

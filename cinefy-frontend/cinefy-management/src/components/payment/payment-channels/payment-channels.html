@@ -21,15 +21,23 @@
                 size="sm"
                 [checked]="channel.active"
                 (checkedChange)="toggleChannel($index, $event)"
+                [pTooltip]="channel.active ? 'Deactivate channel' : 'Activate channel'"
+                tooltipPosition="top"
               />
               <span class="channel-divider"></span>
-              <button type="button" title="Edit channel" (click)="startEdit($index)">
+              <button
+                type="button"
+                pTooltip="Edit channel"
+                tooltipPosition="top"
+                (click)="startEdit($index)"
+              >
                 <svg [lucideIcon]="icons.EditIcon" [size]="15" [strokeWidth]="2"></svg>
               </button>
               <button
                 type="button"
                 class="danger"
-                title="Remove channel"
+                pTooltip="Remove channel"
+                tooltipPosition="top"
                 (click)="removeChannel($index)"
               >
                 <svg [lucideIcon]="icons.DeleteIcon" [size]="15" [strokeWidth]="2"></svg>

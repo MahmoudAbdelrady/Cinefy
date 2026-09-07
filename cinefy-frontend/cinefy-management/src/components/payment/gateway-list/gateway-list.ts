@@ -2,6 +2,7 @@ import { afterNextRender, Component, computed, DestroyRef, inject, signal } from
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { Tooltip } from 'primeng/tooltip';
 import {
   CinefyEmptyState,
   CinefyLoadingSpinner,
@@ -30,6 +31,7 @@ import { PAYMENT_PROVIDERS } from '../provider-spec';
   selector: 'gateway-list',
   imports: [
     LucideDynamicIcon,
+    Tooltip,
     DatePipe,
     NgTemplateOutlet,
     CinefySwitch,

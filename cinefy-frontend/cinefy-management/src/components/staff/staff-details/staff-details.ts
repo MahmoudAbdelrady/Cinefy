@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { Tooltip } from 'primeng/tooltip';
 import {
   BriefCaseIcon,
   CalendarIcon,
@@ -36,6 +37,7 @@ import { canManageStaffMember } from '../../../shared/access';
     CinefyDialog,
     CinefyDialogHeader,
     LucideDynamicIcon,
+    Tooltip,
     CinefyLoadingSpinner,
     DatePipe,
     Time12hPipe,

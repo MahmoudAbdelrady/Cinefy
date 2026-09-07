@@ -7,7 +7,7 @@
         [class.edit]="!isEditMode()"
         [class.view]="isEditMode()"
         (click)="toggleEditMode()"
-        [title]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
+        [pTooltip]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
       >
         <svg
           [lucideIcon]="isEditMode() ? icons.EyeIcon : icons.EditIcon"

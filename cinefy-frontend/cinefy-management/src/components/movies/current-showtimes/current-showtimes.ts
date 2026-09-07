@@ -6,6 +6,7 @@ import { switchMap } from 'rxjs/operators';
 import { EditableShowtime, MovieSummary, MovieWithShowtimes } from '../../../shared/types';
 import { canManage as canManagePosition } from '../../../shared/access';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { Tooltip } from 'primeng/tooltip';
 import {
   CalendarClockIcon,
   ClockIcon,
@@ -49,6 +50,7 @@ import {
     MovieShowtimesModal,
     CinefyMediaImage,
     LucideDynamicIcon,
+    Tooltip,
     DurationPipe,
   ],
   templateUrl: './current-showtimes.html',

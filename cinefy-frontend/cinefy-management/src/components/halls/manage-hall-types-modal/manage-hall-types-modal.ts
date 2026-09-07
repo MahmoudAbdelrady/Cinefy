@@ -13,6 +13,7 @@ import {
   XIcon,
 } from '../../../shared/icons';
 import { Popover } from 'primeng/popover';
+import { Tooltip } from 'primeng/tooltip';
 import {
   CinefyDialog,
   CinefyLoadingSpinner,
@@ -30,6 +31,7 @@ import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
     ReactiveFormsModule,
     LucideDynamicIcon,
     Popover,
+    Tooltip,
     CinefyDialog,
     CinefyLoadingSpinner,
     CinefyInput,
