@@ -1,5 +1,5 @@
-import { Component, input, output, type InputSignal } from "@angular/core";
-import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { Component, computed, effect, input, output, type InputSignal } from "@angular/core";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ToggleSwitch } from "primeng/toggleswitch";
 
 type SwitchSize = "sm" | "md";
@@ -8,25 +8,14 @@ type SwitchColor = "accent" | "highlight";
 
 @Component({
   selector: "cui-switch",
-  imports: [FormsModule, ReactiveFormsModule, ToggleSwitch],
-  template: `@if (control(); as control) {
-      <p-toggleswitch
-        class="cui-switch"
-        [attr.data-size]="size()"
-        [attr.data-color]="color()"
-        [formControl]="control"
-      />
-    } @else {
-      <p-toggleswitch
-        class="cui-switch"
-        [attr.data-size]="size()"
-        [attr.data-color]="color()"
-        [ngModel]="checked()"
-        [ngModelOptions]="{ standalone: true }"
-        [disabled]="disabled()"
-        (onChange)="checkedChange.emit($event.checked)"
-      />
-    }`,
+  imports: [ReactiveFormsModule, ToggleSwitch],
+  template: `<p-toggleswitch
+    class="cui-switch"
+    [attr.data-size]="size()"
+    [attr.data-color]="color()"
+    [formControl]="activeControl()"
+    (onChange)="checkedChange.emit($event.checked)"
+  />`,
   styleUrl: "./cinefy-switch.scss",
 })
 export class CinefySwitch {
@@ -37,4 +26,22 @@ export class CinefySwitch {
   readonly color: InputSignal<SwitchColor> = input<SwitchColor>("accent");
 
   readonly checkedChange = output<boolean>();
+
+  private readonly internalControl = new FormControl<boolean>(false, { nonNullable: true });
+
+  protected readonly activeControl = computed(() => this.control() ?? this.internalControl);
+
+  constructor() {
+    effect(() => {
+      if (this.control()) return;
+
+      const checked = this.checked();
+      if (this.internalControl.value !== checked) {
+        this.internalControl.setValue(checked, { emitEvent: false });
+      }
+      this.disabled()
+        ? this.internalControl.disable({ emitEvent: false })
+        : this.internalControl.enable({ emitEvent: false });
+    });
+  }
 }
