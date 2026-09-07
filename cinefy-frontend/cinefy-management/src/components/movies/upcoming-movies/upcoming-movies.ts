@@ -134,12 +134,12 @@ export class UpcomingMoviesComponent {
     if (this.isAnnouncePending(movieId)) return;
 
     this.setPending(movieId, true);
+    this.setAnnounced(movieId, announced);
     this.moviesService
       .setAnnouncement(movieId, announced)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.setAnnounced(movieId, announced);
           this.setPending(movieId, false);
           this.demoteHighlightIfUnhighlightable(movieId);
         },
@@ -155,12 +155,12 @@ export class UpcomingMoviesComponent {
     if (this.isHighlightPending(movieId)) return;
 
     this.setHighlightPending(movieId, true);
+    this.setHighlighted(movieId, highlighted);
     this.moviesService
       .setHighlight(movieId, highlighted)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.setHighlighted(movieId, highlighted);
           this.setHighlightPending(movieId, false);
           this.showtimeEvents.notifyHighlightChanged(movieId, highlighted);
         },

@@ -168,12 +168,12 @@ export class CurrentShowtimesComponent {
     if (this.isHighlighting(movieId)) return;
 
     this.markHighlightToggling(movieId, true);
+    this.setHighlighted(movieId, highlighted);
     this.moviesService
       .setHighlight(movieId, highlighted)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.setHighlighted(movieId, highlighted);
           this.markHighlightToggling(movieId, false);
           this.showtimeEvents.notifyHighlightChanged(movieId, highlighted);
         },
