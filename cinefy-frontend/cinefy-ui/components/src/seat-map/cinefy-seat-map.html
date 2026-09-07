@@ -13,7 +13,8 @@
           [attr.data-category]="seat.category"
           [class.selected]="isSelected(seat)"
           [disabled]="isTaken(seat)"
-          [title]="seat.id"
+          [pTooltip]="seat.id"
+          tooltipPosition="top"
           (click)="toggle(seat)"
         >
           @if (isSelected(seat)) { {{ seat.number }} }

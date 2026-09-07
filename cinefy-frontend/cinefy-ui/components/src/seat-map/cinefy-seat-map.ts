@@ -1,4 +1,5 @@
 import { Component, computed, input, linkedSignal, output } from "@angular/core";
+import { Tooltip } from "primeng/tooltip";
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from "cinefy-ui/types";
 
 interface LegendItem {
@@ -15,7 +16,7 @@ const FIXED_LEGEND_ITEMS: LegendItem[] = [
 
 @Component({
   selector: "cui-seat-map",
-  imports: [],
+  imports: [Tooltip],
   templateUrl: "./cinefy-seat-map.html",
   styleUrl: "./cinefy-seat-map.scss",
 })

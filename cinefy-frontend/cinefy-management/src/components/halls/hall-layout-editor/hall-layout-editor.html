@@ -14,7 +14,8 @@
               @if (seat.type === 'AISLE') {
                 <div
                   class="seat aisle"
-                  [title]="seatTitle(rowIndex, seatIndex, seat)"
+                  [pTooltip]="seatTitle(rowIndex, seatIndex, seat)"
+                  tooltipPosition="top"
                   (click)="handleSeatClick(rowIndex, seatIndex)"
                 ></div>
               } @else {
@@ -22,7 +23,8 @@
                   class="seat"
                   [class.normal]="seat.type === 'NORMAL'"
                   [class.vip]="seat.type === 'VIP'"
-                  [title]="seatTitle(rowIndex, seatIndex, seat)"
+                  [pTooltip]="seatTitle(rowIndex, seatIndex, seat)"
+                  tooltipPosition="top"
                   (click)="handleSeatClick(rowIndex, seatIndex)"
                 >
                   @if (seat.onsiteOnly) {

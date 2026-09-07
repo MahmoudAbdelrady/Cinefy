@@ -1,4 +1,5 @@
 import { Component, computed, input, model, output } from '@angular/core';
+import { Tooltip } from 'primeng/tooltip';
 import { CinefyEmptyState } from 'cinefy-ui/components';
 import type { Seat, SeatCategory } from '../../../shared/types';
 import { LayoutTemplateIcon } from '../../../shared/icons';
@@ -6,7 +7,7 @@ import { rowLabel, seatStats } from '../seat-layout';
 
 @Component({
   selector: 'hall-layout-editor',
-  imports: [CinefyEmptyState],
+  imports: [CinefyEmptyState, Tooltip],
   templateUrl: './hall-layout-editor.html',
   styleUrl: './hall-layout-editor.scss',
 })
