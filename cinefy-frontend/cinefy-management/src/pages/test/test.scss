@@ -44,11 +44,39 @@
       gap: 16px;
       align-items: flex-start;
 
-      .test-tooltip-row {
-        @include flex-align;
+      .test-form {
+        @include flex-column;
 
-        gap: 12px;
-        flex-wrap: wrap;
+        gap: 16px;
+        align-items: flex-start;
+      }
+
+      .test-readout {
+        @include flex-column;
+
+        gap: 6px;
+        padding: 16px;
+        border: 1px solid $gray-200;
+        border-radius: $radius-lg;
+        background-color: $gray-50;
+        font-size: 13px;
+
+        .test-readout-row {
+          @include flex-align;
+
+          gap: 8px;
+
+          dt {
+            min-width: 120px;
+            font-weight: 600;
+            color: $gray-700;
+          }
+
+          dd {
+            font-family: monospace;
+            color: $gray-900;
+          }
+        }
       }
     }
   }

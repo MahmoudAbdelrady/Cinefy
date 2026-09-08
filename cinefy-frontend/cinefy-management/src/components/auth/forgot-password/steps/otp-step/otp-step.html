@@ -8,7 +8,11 @@
     <form (ngSubmit)="onSubmit()">
       <label class="fp-otp-label">Verification code</label>
 
-      <cui-input-otp [control]="code" (completeChange)="complete.set($event)" />
+      <cui-input-otp
+        [control]="code"
+        (completeChange)="complete.set($event)"
+        (onEnter)="onSubmit()"
+      />
 
       <p class="fp-otp-meta">
         <span>Didn't get a code?</span>

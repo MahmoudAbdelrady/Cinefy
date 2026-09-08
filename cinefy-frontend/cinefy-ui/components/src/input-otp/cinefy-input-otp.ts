@@ -3,22 +3,24 @@ import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { distinctUntilChanged, startWith, switchMap } from "rxjs";
 import { InputOtp as PrimeInputOtp } from "primeng/inputotp";
-import { CinefyFieldError } from "../field-error/cinefy-field-error";
 
 @Component({
   selector: "cui-input-otp",
-  imports: [ReactiveFormsModule, PrimeInputOtp, CinefyFieldError],
+  imports: [ReactiveFormsModule, PrimeInputOtp],
   templateUrl: "./cinefy-input-otp.html",
   styleUrl: "./cinefy-input-otp.scss",
+  host: {
+    "(keydown.enter)": "onEnter.emit()",
+  },
 })
 export class CinefyInputOtp {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly control = input.required<FormControl<string>>();
-  readonly errorMessages = input<Record<string, string>>({});
   readonly length = input(6);
 
   readonly completeChange = output<boolean>();
+  readonly onEnter = output<void>();
 
   private readonly value = signal("");
 
