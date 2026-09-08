@@ -24,6 +24,7 @@
           placeholder="Enter your password"
           [leadingIcon]="icons.PasswordIcon"
           [control]="loginForm.controls.password"
+          [blockClipboard]="true"
           [errorMessages]="{
             required: 'Password is required',
           }"
