@@ -20,10 +20,12 @@
       <booking-ticket [ticket]="ticket" />
     }
 
-    <button type="button" class="btn-primary bs-done-action" (click)="resetBooking()">
-      <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
-      <span>Book more seats</span>
-    </button>
+    @if (showBookMoreSeats()) {
+      <button type="button" class="btn-primary bs-done-action" (click)="resetBooking()">
+        <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+        <span>Book more seats</span>
+      </button>
+    }
   </div>
 } @else if (seatSelection(); as selection) {
   @if (selection.fullyBooked) {

@@ -120,6 +120,7 @@ export class BookSeatsComponent {
 
   readonly showtimeId = input.required<string>();
   readonly container = input<string | HTMLElement | null>(null);
+  readonly showBookMoreSeats = input(true);
 
   protected readonly booking = signal(false);
   protected readonly cancelVisible = signal(false);
