@@ -23,12 +23,15 @@
         [uppercase]="true"
         [preventWhitespace]="true"
         [autoFocus]="true"
-        [errorMessages]="{
-          required: 'Booking reference is required',
-          pattern: 'Booking reference is invalid',
-        }"
         (blurred)="onInputBlur()"
       />
+
+      @if (scanForm.controls.reference.hasError('pattern')) {
+        <cui-field-error
+          [control]="scanForm.controls.reference"
+          [messages]="{ pattern: 'Booking reference is invalid' }"
+        />
+      }
     </div>
 
     @if (!manualEntry()) {
@@ -110,12 +113,7 @@
       </button>
     }
     @if (scan === null) {
-      <button
-        type="submit"
-        form="stm-form"
-        class="btn-primary"
-        [disabled]="scanForm.invalid || scanning()"
-      >
+      <button type="submit" form="stm-form" class="btn-primary" [disabled]="!canSubmit()">
         {{ scanning() ? 'Verifying...' : 'Verify Ticket' }}
       </button>
     } @else {

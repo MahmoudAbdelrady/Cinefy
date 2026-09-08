@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CinefyInput, CinefyMediaImage } from 'cinefy-ui/components';
+import { CinefyFieldError, CinefyInput, CinefyMediaImage } from 'cinefy-ui/components';
 import {
   CalendarIcon,
   ClockIcon,
@@ -21,7 +21,14 @@ const AUTO_SUBMIT_DELAY_MS = 500;
 
 @Component({
   selector: 'scan-ticket-modal',
-  imports: [DatePipe, ReactiveFormsModule, LucideDynamicIcon, CinefyInput, CinefyMediaImage],
+  imports: [
+    DatePipe,
+    ReactiveFormsModule,
+    LucideDynamicIcon,
+    CinefyInput,
+    CinefyFieldError,
+    CinefyMediaImage,
+  ],
   templateUrl: './scan-ticket-modal.html',
   styleUrl: './scan-ticket-modal.scss',
 })
@@ -52,7 +59,7 @@ export class ScanTicketModalComponent {
   protected readonly scanForm = new FormGroup({
     reference: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.pattern(ALPHANUMERIC_PATTERN)],
+      validators: [Validators.pattern(ALPHANUMERIC_PATTERN)],
     }),
   });
 
@@ -97,13 +104,15 @@ export class ScanTicketModalComponent {
   }
 
   protected onInputBlur(): void {
-    if (!this.manualEntry() && !this.result()) {
-      this.focusInput();
-    }
+    this.focusInput();
+  }
+
+  protected canSubmit(): boolean {
+    return !this.referenceControl.invalid && !!this.referenceControl.value && !this.scanning();
   }
 
   protected submit(): void {
-    if (this.referenceControl.invalid || this.scanning()) return;
+    if (!this.canSubmit()) return;
 
     const reference = this.referenceControl.value;
     this.scanning.set(true);
