@@ -29,7 +29,7 @@
     border: 1px solid $blue-200;
     color: $blue-600;
     cursor: pointer;
-    transition: all 150ms ease;
+    transition: all $transition-fast;
 
     &:hover {
       background-color: $blue-100;

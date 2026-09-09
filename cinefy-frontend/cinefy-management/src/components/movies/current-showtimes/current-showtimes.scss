@@ -112,9 +112,9 @@
   border: 1px solid $gray-200;
   background-color: #ffffff;
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    box-shadow 150ms ease;
+    border-color $transition-fast,
+    background-color $transition-fast,
+    box-shadow $transition-fast;
 
   &:hover {
     border-color: $gray-300;
@@ -269,7 +269,7 @@
     margin-top: 1px;
     flex-shrink: 0;
     color: $gray-400;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
   }
 
   .mcfh-text {
@@ -282,7 +282,7 @@
     font-weight: 500;
     color: $gray-600;
     @include text-truncate;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
   }
 
   .mcfh-subtitle {
@@ -330,8 +330,8 @@
   button {
     border-radius: $radius-lg;
     transition:
-      background-color 150ms ease,
-      color 150ms ease;
+      background-color $transition-fast,
+      color $transition-fast;
     white-space: nowrap;
   }
 

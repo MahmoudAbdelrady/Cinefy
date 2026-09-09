@@ -38,7 +38,7 @@
   font-size: 12.5px;
   color: $blue-600;
   cursor: pointer;
-  transition: color 150ms ease;
+  transition: color $transition-fast;
 
   &:hover {
     color: $blue-700;

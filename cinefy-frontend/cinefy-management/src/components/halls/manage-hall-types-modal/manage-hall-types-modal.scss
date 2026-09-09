@@ -71,8 +71,8 @@
   border-radius: $radius-md;
   border: 1px solid $gray-200;
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease;
+    border-color $transition-fast,
+    background-color $transition-fast;
 
   &:has(.inline-edit-field) {
     align-items: flex-start;
@@ -114,7 +114,7 @@
 
   &:not(.editing) {
     opacity: 0;
-    transition: opacity 150ms ease;
+    transition: opacity $transition-fast;
 
     .existing-type-item:hover &,
     .existing-type-item:focus-within & {
@@ -127,7 +127,7 @@
     @include lucide-icon-fix;
     padding: 6px;
     border-radius: $radius-sm;
-    transition: all 150ms ease;
+    transition: all $transition-fast;
 
     &:first-child {
       color: $blue-600;
@@ -205,7 +205,7 @@
       font-size: 13px;
       font-weight: 500;
       border-radius: $radius-sm;
-      transition: all 150ms ease;
+      transition: all $transition-fast;
 
       &.btn-cancel {
         color: $gray-700;
@@ -272,7 +272,7 @@
   background-color: $gray-50;
   border: 1px dashed $gray-300;
   border-radius: $radius-md;
-  transition: all 150ms ease;
+  transition: all $transition-fast;
 
   &:hover {
     background-color: $blue-50;

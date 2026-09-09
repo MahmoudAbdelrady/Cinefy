@@ -132,10 +132,10 @@
   cursor: pointer;
   user-select: none;
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    color 150ms ease,
-    box-shadow 150ms ease;
+    border-color $transition-fast,
+    background-color $transition-fast,
+    color $transition-fast,
+    box-shadow $transition-fast;
 
   &:hover:not(.selected) {
     border-color: $gray-300;

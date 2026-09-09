@@ -221,7 +221,7 @@
 
   tbody tr {
     border-bottom: 1px solid $gray-200;
-    transition: background-color 150ms ease;
+    transition: background-color $transition-fast;
 
     &:last-child {
       border-bottom: none;
@@ -283,9 +283,9 @@
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background-color 150ms ease,
-    color 150ms ease,
-    border-color 150ms ease;
+    background-color $transition-fast,
+    color $transition-fast,
+    border-color $transition-fast;
 
   &:hover:not(:disabled) {
     background-color: $gray-100;

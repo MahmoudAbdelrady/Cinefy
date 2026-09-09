@@ -78,9 +78,9 @@
   border-radius: $radius-xl;
   cursor: pointer;
   transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease;
+    background-color $transition-fast,
+    border-color $transition-fast,
+    color $transition-fast;
 
   svg {
     width: 16px;
@@ -108,8 +108,8 @@
   background: #ffffff;
   cursor: pointer;
   transition:
-    background-color 150ms ease,
-    border-color 150ms ease;
+    background-color $transition-fast,
+    border-color $transition-fast;
 
   &:hover {
     background-color: $blue-50;

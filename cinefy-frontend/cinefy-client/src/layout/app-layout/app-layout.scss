@@ -52,7 +52,7 @@ $max-width: 1152px;
   color: $color-foreground;
   text-decoration: none;
   cursor: pointer;
-  transition: opacity 150ms ease;
+  transition: opacity $transition-fast;
   user-select: none;
 
   &:hover {
@@ -85,7 +85,7 @@ $max-width: 1152px;
   color: rgba($color-foreground, 0.6);
   text-decoration: none;
   cursor: pointer;
-  transition: color 150ms ease;
+  transition: color $transition-fast;
 
   &:hover {
     color: rgba($color-foreground, 0.8);
@@ -166,8 +166,8 @@ $max-width: 1152px;
   color: rgba($color-foreground, 0.7);
   cursor: pointer;
   transition:
-    color 150ms ease,
-    background-color 150ms ease;
+    color $transition-fast,
+    background-color $transition-fast;
 
   &:hover {
     color: $color-foreground;

@@ -281,7 +281,7 @@
     border-radius: $radius-md;
     font-size: 14px;
     font-weight: 500;
-    transition: background-color 150ms ease;
+    transition: background-color $transition-fast;
 
     &:hover {
       background-color: $orange-100;
@@ -334,7 +334,7 @@
   margin-top: 2px;
   flex-shrink: 0;
   color: $gray-400;
-  transition: color 150ms ease;
+  transition: color $transition-fast;
 
   &--on {
     color: $orange-500;

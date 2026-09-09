@@ -82,7 +82,7 @@
       border: none;
       padding: 0;
       cursor: pointer;
-      transition: color 150ms ease;
+      transition: color $transition-fast;
 
       &:hover {
         color: $blue-700;
@@ -183,8 +183,8 @@
     resize: none;
     font-family: inherit;
     transition:
-      border-color 150ms ease,
-      box-shadow 150ms ease;
+      border-color $transition-fast,
+      box-shadow $transition-fast;
 
     &::placeholder {
       color: $gray-400;

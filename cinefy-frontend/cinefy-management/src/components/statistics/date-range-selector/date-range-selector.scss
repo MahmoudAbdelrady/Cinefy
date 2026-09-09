@@ -27,9 +27,9 @@
       border-radius: $radius-md;
       cursor: pointer;
       transition:
-        background-color 150ms ease,
-        color 150ms ease,
-        box-shadow 150ms ease;
+        background-color $transition-fast,
+        color $transition-fast,
+        box-shadow $transition-fast;
 
       &:hover:not(.selected) {
         color: $gray-900;
@@ -63,9 +63,9 @@
     border-radius: $radius-lg;
     cursor: pointer;
     transition:
-      background-color 150ms ease,
-      border-color 150ms ease,
-      color 150ms ease;
+      background-color $transition-fast,
+      border-color $transition-fast,
+      color $transition-fast;
 
     &:hover {
       background-color: $gray-100;

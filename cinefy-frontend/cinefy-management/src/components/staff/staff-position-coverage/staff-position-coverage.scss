@@ -51,7 +51,7 @@
 
 .spcc-bar {
   height: 100%;
-  transition: all 150ms ease;
+  transition: all $transition-fast;
 
   @include staff-position-solid-bg;
 }

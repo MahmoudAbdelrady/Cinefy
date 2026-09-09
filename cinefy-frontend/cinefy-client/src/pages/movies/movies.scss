@@ -61,8 +61,8 @@
   font-weight: 500;
   color: $color-muted-foreground;
   transition:
-    color 150ms ease,
-    background-color 150ms ease;
+    color $transition-fast,
+    background-color $transition-fast;
 
   &:hover {
     color: $color-foreground;
@@ -104,7 +104,7 @@
   height: 16px;
   border-radius: 9999px;
   color: inherit;
-  transition: background-color 150ms ease;
+  transition: background-color $transition-fast;
 
   &:hover {
     background-color: rgba($color-foreground, 0.1);
@@ -191,7 +191,7 @@
     font-size: 16px;
     font-weight: 600;
     line-height: 1.25;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
     white-space: normal;
     overflow: visible;
   }

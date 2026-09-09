@@ -1,4 +1,5 @@
 @use "../../../src/styles/mixins" as *;
+@use "../../../src/styles/tokens" as *;
 
 :host {
   display: block;
@@ -57,7 +58,7 @@
     padding: 0;
     color: var(--cui-text-muted);
     cursor: pointer;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
 
     &:hover {
       color: var(--cui-text-strong);

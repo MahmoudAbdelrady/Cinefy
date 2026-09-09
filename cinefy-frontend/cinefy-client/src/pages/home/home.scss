@@ -31,7 +31,7 @@
     font-size: 14px;
     font-weight: 500;
     color: $color-primary;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
     text-decoration: none;
 
     &:hover {
@@ -135,7 +135,7 @@
     font-size: 16px;
     font-weight: 600;
     line-height: 1.25;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
     white-space: normal;
     overflow: visible;
   }

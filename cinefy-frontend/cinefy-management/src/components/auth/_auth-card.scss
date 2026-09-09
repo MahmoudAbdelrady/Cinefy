@@ -67,8 +67,8 @@
   font-weight: 600;
   box-shadow: $shadow-xs;
   transition:
-    background-color 150ms ease,
-    box-shadow 150ms ease,
+    background-color $transition-fast,
+    box-shadow $transition-fast,
     transform 100ms ease;
   cursor: pointer;
   @include lucide-icon-fix;
@@ -90,7 +90,7 @@
 }
 
 @mixin auth-submit-arrow {
-  transition: transform 150ms ease;
+  transition: transform $transition-fast;
 }
 
 @mixin auth-submit-arrow-hover {
@@ -109,7 +109,7 @@
   border: none;
   cursor: pointer;
   padding: 0;
-  transition: color 150ms ease;
+  transition: color $transition-fast;
   @include lucide-icon-fix;
 
   &:hover {

@@ -182,7 +182,7 @@
   background-color: rgba($color-background, 0.2);
   backdrop-filter: blur(4px);
   color: $color-foreground;
-  transition: background-color 150ms ease;
+  transition: background-color $transition-fast;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);

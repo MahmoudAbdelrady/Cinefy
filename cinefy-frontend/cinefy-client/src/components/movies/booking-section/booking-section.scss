@@ -44,9 +44,9 @@
   border-radius: $radius-lg;
   background-color: $color-card;
   transition:
-    color 150ms ease,
-    border-color 150ms ease,
-    background-color 150ms ease;
+    color $transition-fast,
+    border-color $transition-fast,
+    background-color $transition-fast;
 
   &:hover:not(.active) {
     border-color: rgba($color-primary, 0.5);
@@ -130,8 +130,8 @@
   color: $color-foreground;
   text-decoration: none;
   transition:
-    color 150ms ease,
-    border-color 150ms ease;
+    color $transition-fast,
+    border-color $transition-fast;
 
   @include below-tablet {
     width: 100%;

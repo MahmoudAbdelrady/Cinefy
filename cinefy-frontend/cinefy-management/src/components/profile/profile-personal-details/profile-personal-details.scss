@@ -22,7 +22,7 @@
   background-color: $blue-600;
   border-radius: $radius-md;
   box-shadow: $shadow-xs;
-  transition: background-color 150ms ease;
+  transition: background-color $transition-fast;
   cursor: pointer;
 
   &:hover {

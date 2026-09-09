@@ -19,8 +19,8 @@
   border-radius: $radius-full;
   background-color: $gray-200;
   transition:
-    background-color 150ms ease,
-    box-shadow 150ms ease;
+    background-color $transition-fast,
+    box-shadow $transition-fast;
 
   &--active {
     background-color: $blue-600;
@@ -38,7 +38,7 @@
   letter-spacing: 0.12em;
   font-weight: 600;
   color: $gray-400;
-  transition: color 150ms ease;
+  transition: color $transition-fast;
 
   &--lit {
     color: $gray-800;
@@ -51,7 +51,7 @@
   height: 1px;
   margin-bottom: 20px;
   background-color: $gray-200;
-  transition: background-color 150ms ease;
+  transition: background-color $transition-fast;
 
   &--done {
     background-color: $blue-600;
