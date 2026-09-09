@@ -1,7 +1,7 @@
 @if (loadFailed()) {
   <cui-empty-state
     [icon]="icons.TriangleAlertIcon"
-    title="Couldn't load your bookings"
+    header="Couldn't load your bookings"
     description="Something went wrong. Please try again later."
   />
 } @else {
@@ -62,7 +62,7 @@
               </div>
             </li>
           } @empty {
-            <cui-empty-state [icon]="icons.TicketIcon" title="No past bookings yet" />
+            <cui-empty-state [icon]="icons.TicketIcon" header="No past bookings yet" />
           }
         </ul>
       }

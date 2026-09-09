@@ -5,7 +5,7 @@
 } @else if (errorMessage(); as message) {
   <cui-empty-state
     [icon]="icons.WarningIcon"
-    title="Couldn't load the seat layout"
+    header="Couldn't load the seat layout"
     [description]="message"
   />
 } @else if (stage() === 'done') {
@@ -32,7 +32,7 @@
     <cui-empty-state
       class="bs-sold-out"
       [icon]="icons.TicketXIcon"
-      title="Sold out"
+      header="Sold out"
       description="Every seat for this showtime is taken. Check another showtime or date."
     />
   } @else {

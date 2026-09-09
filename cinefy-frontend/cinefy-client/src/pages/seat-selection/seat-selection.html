@@ -6,7 +6,7 @@
   <cui-empty-state
     class="ss-error"
     [icon]="icons.TriangleAlertIcon"
-    title="Couldn't load this showtime"
+    header="Couldn't load this showtime"
     [description]="errorMessage()"
   />
 } @else if (cancelled()) {
@@ -62,7 +62,7 @@
       <cui-empty-state
         class="ss-sold-out"
         [icon]="icons.TicketXIcon"
-        title="Sold out"
+        header="Sold out"
         description="Every seat for this showtime is taken. Check another showtime or date."
       />
     } @else if (!bookingExpired()) {

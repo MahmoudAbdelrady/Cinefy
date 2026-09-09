@@ -7,13 +7,13 @@
   @if (failed()) {
     <cui-empty-state
       [icon]="icons.WarningIcon"
-      title="Couldn't load movie performance"
+      header="Couldn't load movie performance"
       description="Something went wrong. Please try again later."
     />
   } @else if (!loading() && rows().length === 0) {
     <cui-empty-state
       [icon]="icons.ClapperboardIcon"
-      title="No movies screened"
+      header="No movies screened"
       description="No movies were screened between these dates."
     />
   } @else {

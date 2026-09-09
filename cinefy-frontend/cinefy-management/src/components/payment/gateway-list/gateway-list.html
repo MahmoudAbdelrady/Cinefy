@@ -33,7 +33,7 @@
       <cui-empty-state
         class="gl-empty"
         [icon]="icons.CreditCardIcon"
-        title="No payment gateways yet"
+        header="No payment gateways yet"
         description="Add a gateway to start taking online payments."
       />
     </section>
@@ -254,7 +254,7 @@
     @if (!gateway.paymentChannels?.length) {
       <cui-empty-state
         [icon]="icons.WebhookIcon"
-        title="No channels configured"
+        header="No channels configured"
         description="Edit the gateway to add one."
       />
     } @else {

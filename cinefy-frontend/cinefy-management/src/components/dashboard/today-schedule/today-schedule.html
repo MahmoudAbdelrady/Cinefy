@@ -1,6 +1,6 @@
 <dashboard-widget
   [icon]="icons.ClockIcon"
-  title="Today's schedule"
+  header="Today's schedule"
   subtitle="{{ screenings().length }} showtimes"
   iconColor="var(--tsch-icon-color)"
   actionLabel="Manage showtimes"
@@ -48,7 +48,7 @@
         <cui-empty-state
           class="tsch-empty"
           [icon]="icons.CalendarClockIcon"
-          title="No showtimes today"
+          header="No showtimes today"
           description="Schedule a showtime to start selling tickets."
         />
       }

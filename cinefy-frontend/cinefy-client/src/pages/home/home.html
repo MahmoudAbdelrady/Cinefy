@@ -6,7 +6,7 @@
   } @else if (highlightedMovies.error()) {
     <cui-empty-state
       [icon]="icons.TriangleAlertIcon"
-      title="Failed to load movies"
+      header="Failed to load movies"
       description="Something went wrong. Please try again later."
     />
   } @else if (highlightedMovies.value()!.length) {
@@ -26,7 +26,7 @@
         <cui-empty-state
           class="ms-empty"
           [icon]="icons.TriangleAlertIcon"
-          title="Failed to load movies"
+          header="Failed to load movies"
           description="Something went wrong. Please try again later."
         />
       } @else {
@@ -63,7 +63,7 @@
             <cui-empty-state
               class="ms-empty"
               [icon]="icons.ClapperboardIcon"
-              title="No movies showing"
+              header="No movies showing"
               description="Check back soon for what's playing in theaters."
             />
           }
@@ -84,7 +84,7 @@
         <cui-empty-state
           class="ms-empty"
           [icon]="icons.TriangleAlertIcon"
-          title="Failed to load movies"
+          header="Failed to load movies"
           description="Something went wrong. Please try again later."
         />
       } @else {
@@ -113,7 +113,7 @@
             <cui-empty-state
               class="ms-empty"
               [icon]="icons.CalendarIcon"
-              title="No upcoming movies"
+              header="No upcoming movies"
               description="New releases will appear here as they're announced."
             />
           }

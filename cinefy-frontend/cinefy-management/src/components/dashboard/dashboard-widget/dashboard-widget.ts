@@ -10,7 +10,7 @@ import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 })
 export class DashboardWidgetComponent {
   readonly icon = input.required<LucideIcon>();
-  readonly title = input.required<string>();
+  readonly header = input.required<string>();
   readonly subtitle = input<string>();
   readonly iconColor = input.required<string>();
   readonly actionLabel = input<string>();

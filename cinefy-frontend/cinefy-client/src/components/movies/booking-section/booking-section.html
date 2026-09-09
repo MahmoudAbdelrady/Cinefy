@@ -8,7 +8,7 @@
   } @else if (datesResource.error()) {
     <cui-empty-state
       [icon]="icons.TriangleAlertIcon"
-      title="Couldn't load showtimes"
+      header="Couldn't load showtimes"
       description="Something went wrong. Please try again later."
     />
   } @else if (!dates().length) {
@@ -45,7 +45,7 @@
     } @else if (showtimesResource.error()) {
       <cui-empty-state
         [icon]="icons.TriangleAlertIcon"
-        title="Couldn't load showtimes"
+        header="Couldn't load showtimes"
         description="Something went wrong. Please try again later."
       />
     } @else {
@@ -81,7 +81,7 @@
         } @empty {
           <cui-empty-state
             [icon]="icons.CalendarIcon"
-            title="No showtimes for this date"
+            header="No showtimes for this date"
             description="Try another date above."
           />
         }

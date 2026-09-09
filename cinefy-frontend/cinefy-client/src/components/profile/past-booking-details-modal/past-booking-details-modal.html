@@ -11,7 +11,7 @@
   } @else if (details.error()) {
     <cui-empty-state
       [icon]="icons.TriangleAlertIcon"
-      title="Couldn't load these details"
+      header="Couldn't load these details"
       description="Something went wrong. Please try again later."
     />
   } @else if (details.value(); as detail) {

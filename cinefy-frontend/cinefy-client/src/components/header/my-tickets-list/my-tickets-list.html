@@ -11,7 +11,7 @@
   } @else if (hasError()) {
     <cui-empty-state
       [icon]="icons.TriangleAlertIcon"
-      title="We couldn't load your bookings. Please try again."
+      header="We couldn't load your bookings. Please try again."
     />
   } @else {
     <ul class="bookings-list">
@@ -78,7 +78,7 @@
       } @empty {
         <cui-empty-state
           [icon]="icons.TicketIcon"
-          title="Bookings you start will wait here until you complete them."
+          header="Bookings you start will wait here until you complete them."
         />
       }
     </ul>

@@ -68,7 +68,7 @@
     <div class="movies-empty">
       <cui-empty-state
         [icon]="icons.TriangleAlertIcon"
-        title="Failed to load movies"
+        header="Failed to load movies"
         description="Something went wrong. Please try again later."
       />
     </div>
@@ -151,7 +151,7 @@
       <div class="movies-empty">
         <cui-empty-state
           [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.ClapperboardIcon"
-          [title]="hasFilters() ? 'No movies match your filters' : 'No movies showing'"
+          [header]="hasFilters() ? 'No movies match your filters' : 'No movies showing'"
           [description]="
             hasFilters()
               ? 'Try adjusting your filters.'

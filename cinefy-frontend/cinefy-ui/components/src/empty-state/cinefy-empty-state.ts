@@ -9,6 +9,6 @@ import { LucideDynamicIcon, LucideIcon } from "@lucide/angular";
 })
 export class CinefyEmptyState {
   readonly icon: InputSignal<LucideIcon | null> = input<LucideIcon | null>(null);
-  readonly title = input.required<string>();
+  readonly header = input.required<string>();
   readonly description: InputSignal<string | null> = input<string | null>(null);
 }

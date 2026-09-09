@@ -94,7 +94,7 @@
         } @empty {
           <cui-empty-state
             [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.UsersIcon"
-            [title]="hasFilters() ? 'No staff members found' : 'No staff members yet'"
+            [header]="hasFilters() ? 'No staff members found' : 'No staff members yet'"
             [description]="
               hasFilters()
                 ? 'Try adjusting your filters.'
