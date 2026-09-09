@@ -1,7 +1,7 @@
 import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { HallsService } from '../../../services';
-import { LayoutIcon } from '../../../shared/icons';
+import { LayoutIcon, SettingsIcon } from '../../../shared/icons';
 import { HALL_STATUS_LABELS } from '../../../shared/types';
 import type { HallStatus, HallStatusCounts } from '../../../shared/types';
 import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
@@ -19,7 +19,7 @@ interface HallStatusCount {
   styleUrl: './halls-summary.scss',
 })
 export class HallsSummaryComponent {
-  protected readonly icons = { LayoutIcon };
+  protected readonly icons = { LayoutIcon, SettingsIcon };
 
   private readonly hallsService = inject(HallsService);
 
