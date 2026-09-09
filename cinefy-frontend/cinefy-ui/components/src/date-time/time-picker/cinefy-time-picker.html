@@ -7,13 +7,15 @@
     (onBlur)="control().markAsTouched()"
     [placeholder]="placeholder()"
     [appendTo]="container()"
-    [invalid]="control().touched && control().invalid"
+    [invalid]="!suppressError() && control().touched && control().invalid"
     dataType="string"
     hourFormat="12"
     [timeOnly]="true"
     [showIcon]="true"
     [iconDisplay]="'input'"
     size="large"
+    (onShow)="onOverlayShow()"
+    (onClose)="onOverlayClose()"
   >
     <ng-template #inputicon let-clickCallBack="clickCallBack">
       <svg [lucideIcon]="icons.ClockIcon" [size]="16" (click)="clickCallBack($event)"></svg>
@@ -22,7 +24,7 @@
 
   @if (hint(); as hintText) {
   <p class="tp-hint">{{ hintText }}</p>
-  } @if (control().touched && control().errors) {
+  } @if (hasErrorMessages() && !suppressError() && control().touched && control().invalid) {
   <cui-field-error [control]="control()" [messages]="errorMessages()" />
   }
 </div>

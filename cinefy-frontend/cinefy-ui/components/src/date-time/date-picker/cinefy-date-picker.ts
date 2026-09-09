@@ -1,4 +1,4 @@
-import { Component, input, type InputSignal } from "@angular/core";
+import { Component, computed, input, signal, type InputSignal } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { DatePicker as PrimeDatePicker } from "primeng/datepicker";
 import { LucideDynamicIcon } from "@lucide/angular";
@@ -23,4 +23,16 @@ export class CinefyDatePicker {
   readonly max = input<Date | undefined>(undefined);
   readonly errorMessages = input<Record<string, string>>({});
   readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>("body");
+
+  protected readonly suppressError = signal(false);
+
+  protected readonly hasErrorMessages = computed(() => Object.keys(this.errorMessages()).length > 0);
+
+  protected onOverlayShow(): void {
+    this.suppressError.set(this.control().untouched);
+  }
+
+  protected onOverlayClose(): void {
+    this.suppressError.set(false);
+  }
 }

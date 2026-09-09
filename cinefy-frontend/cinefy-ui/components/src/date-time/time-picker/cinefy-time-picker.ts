@@ -1,4 +1,4 @@
-import { Component, computed, input, type InputSignal } from "@angular/core";
+import { Component, computed, input, signal, type InputSignal } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormsModule } from "@angular/forms";
 import { startWith, switchMap } from "rxjs";
@@ -45,6 +45,18 @@ export class CinefyTimePicker {
   );
 
   protected readonly displayValue = computed(() => toDisplayTime(this.controlValue() ?? null));
+
+  protected readonly suppressError = signal(false);
+
+  protected readonly hasErrorMessages = computed(() => Object.keys(this.errorMessages()).length > 0);
+
+  protected onOverlayShow(): void {
+    this.suppressError.set(this.control().untouched);
+  }
+
+  protected onOverlayClose(): void {
+    this.suppressError.set(false);
+  }
 
   protected onDisplayChange(displayValue: string | null) {
     const c = this.control();
