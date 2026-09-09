@@ -44,8 +44,13 @@
   &.disabled .seat {
     cursor: default;
 
-    &::after {
+    &:not(.aisle)::after {
       display: none;
+    }
+
+    &.aisle:hover::after {
+      transform: none;
+      outline-color: $gray-300;
     }
   }
 }
