@@ -30,6 +30,8 @@
     }
 
     .pd-edit {
+      @include lucide-icon-fix;
+
       flex-shrink: 0;
     }
   }

@@ -15,7 +15,7 @@ import {
 import { PhoneFormatPipe } from 'cinefy-ui/pipes';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
-import { EmailIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
+import { EditIcon, EmailIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import { NAME_PATTERN } from '../../../shared/validation';
 import type { CurrentUser, UpdateProfilePayload } from '../../../shared/types';
 
@@ -37,6 +37,7 @@ export class PersonalDetailsComponent {
     UserIcon,
     EmailIcon,
     PhoneIcon,
+    EditIcon,
   };
 
   private readonly clientService = inject(ClientService);

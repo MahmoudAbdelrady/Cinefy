@@ -17,6 +17,7 @@ export {
   LucideMapPin as MapPinIcon,
   LucideGlasses as GlassesIcon,
   LucideEye as EyeIcon,
+  LucideSquarePen as EditIcon,
   LucideDollarSign as DollarIcon,
   LucideArrowRight as ArrowRightIcon,
   LucidePlay as PlayIcon,

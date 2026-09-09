@@ -6,7 +6,6 @@ import {
   CalendarClockIcon,
   CalendarIcon,
   ClockIcon,
-  LockIcon,
   ShieldCheckIcon,
 } from '../../../shared/icons';
 import { Time12hPipe } from 'cinefy-ui/pipes';
@@ -28,7 +27,6 @@ export class ProfileIdentityComponent {
     CalendarIcon,
     ClockIcon,
     BriefCaseIcon,
-    LockIcon,
     ShieldCheckIcon,
     CalendarClockIcon,
   };

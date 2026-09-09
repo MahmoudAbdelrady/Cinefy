@@ -10,7 +10,13 @@ import {
 } from 'cinefy-ui/components';
 import { PastBookingDetailsModalComponent } from '../past-booking-details-modal/past-booking-details-modal';
 import { BookingService } from '../../../services';
-import { ClapperboardIcon, ClockIcon, TicketIcon, TriangleAlertIcon } from '../../../shared/icons';
+import {
+  ClapperboardIcon,
+  ClockIcon,
+  EyeIcon,
+  TicketIcon,
+  TriangleAlertIcon,
+} from '../../../shared/icons';
 import type { PastBooking } from '../../../shared/types';
 
 const PAGE_SIZE = 5;
@@ -34,6 +40,7 @@ export class ProfileHistoryComponent {
   protected readonly icons = {
     ClockIcon,
     ClapperboardIcon,
+    EyeIcon,
     TicketIcon,
     TriangleAlertIcon,
   };

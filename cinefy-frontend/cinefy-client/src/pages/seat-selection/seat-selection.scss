@@ -193,9 +193,12 @@
   height: 36px;
   padding: 0 12px;
   color: $color-muted-foreground;
+  transition:
+    background-color $transition-fast,
+    color $transition-fast;
 
   &:hover {
-    border-color: rgba($color-destructive, 0.6);
+    background: $color-secondary;
     color: $color-destructive;
   }
 }

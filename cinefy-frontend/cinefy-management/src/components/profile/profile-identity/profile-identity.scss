@@ -122,10 +122,6 @@
   }
 }
 
-.ec-readonly {
-  @include profile-readonly-badge;
-}
-
 .ec-list {
   @include flex-column;
 }

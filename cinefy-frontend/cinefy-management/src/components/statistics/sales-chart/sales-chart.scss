@@ -34,20 +34,9 @@ $track-height: 130px;
   }
 
   .sc-details-toggle {
-    flex-shrink: 0;
-    padding: 0;
-    font-size: 14px;
-    font-weight: 500;
-    color: $blue-600;
-    background: none;
-    border: none;
-    border-radius: $radius-sm;
-    cursor: pointer;
-    transition: color 200ms ease;
+    @include lucide-icon-fix;
 
-    &:hover {
-      color: $blue-700;
-    }
+    flex-shrink: 0;
 
     &:focus-visible {
       outline: none;

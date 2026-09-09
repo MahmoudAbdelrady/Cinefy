@@ -5,8 +5,9 @@
       <p>The contact details tied to your bookings.</p>
     </div>
     @if (!isEditing() && !loading()) {
-      <button type="button" class="btn-secondary pd-edit" (click)="startEditing()">
-        Edit profile
+      <button type="button" class="btn-primary pd-edit" (click)="startEditing()">
+        <svg [lucideIcon]="icons.EditIcon" [size]="15" [strokeWidth]="2"></svg>
+        <span>Edit profile</span>
       </button>
     }
   </div>

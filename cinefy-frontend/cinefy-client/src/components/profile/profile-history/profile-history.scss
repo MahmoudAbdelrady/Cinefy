@@ -97,6 +97,8 @@
           }
 
           .ph-view {
+            @include lucide-icon-fix;
+
             flex-shrink: 0;
             padding: 8px 16px;
           }

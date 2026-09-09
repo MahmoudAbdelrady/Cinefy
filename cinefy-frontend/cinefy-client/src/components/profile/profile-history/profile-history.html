@@ -54,10 +54,11 @@
 
                 <button
                   type="button"
-                  class="btn-secondary ph-view"
+                  class="btn-primary ph-view"
                   (click)="bookingToView.set(booking)"
                 >
-                  View
+                  <svg [lucideIcon]="icons.EyeIcon" [size]="15" [strokeWidth]="2"></svg>
+                  <span>View</span>
                 </button>
               </div>
             </li>

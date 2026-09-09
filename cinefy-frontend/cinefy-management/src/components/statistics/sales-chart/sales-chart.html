@@ -6,8 +6,12 @@
     </div>
 
     @if (!loading() && !failed() && !isEmpty()) {
-      <button type="button" class="sc-details-toggle" (click)="toggleTable()">
-        {{ showTable() ? 'Hide Details' : 'View Details' }}
+      <button type="button" class="btn-secondary sc-details-toggle" (click)="toggleTable()">
+        <svg
+          [lucideIcon]="showTable() ? icons.ChevronUpIcon : icons.ChevronDownIcon"
+          [size]="16"
+        ></svg>
+        <span>{{ showTable() ? 'Hide Details' : 'View Details' }}</span>
       </button>
     }
   </header>

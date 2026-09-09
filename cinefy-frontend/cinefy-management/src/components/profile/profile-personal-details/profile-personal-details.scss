@@ -1,6 +1,5 @@
 @use '../../../shared/styles/colors' as *;
 @use 'cinefy-ui/styles/mixins' as *;
-@use '../../../shared/styles/shadows' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 @use '../panel' as *;
 
@@ -11,23 +10,9 @@
 }
 
 .ph-edit-btn {
-  @include flex-center;
-  gap: 8px;
   @include lucide-icon-fix;
-  flex-shrink: 0;
-  padding: 6px 12px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #ffffff;
-  background-color: $blue-600;
-  border-radius: $radius-md;
-  box-shadow: $shadow-xs;
-  transition: background-color $transition-fast;
-  cursor: pointer;
 
-  &:hover {
-    background-color: $blue-700;
-  }
+  flex-shrink: 0;
 }
 
 .panel-note {
