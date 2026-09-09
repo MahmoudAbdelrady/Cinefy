@@ -43,6 +43,7 @@
         >
           @if (submitting()) {
             <cui-loading-spinner variant="xs" />
+            <span>Signing in…</span>
           } @else {
             <span>Sign in</span>
             <svg class="lp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

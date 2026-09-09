@@ -27,6 +27,7 @@
     <button type="submit" class="btn-primary fp-submit" [disabled]="!complete() || verifying()">
       @if (verifying()) {
         <cui-loading-spinner variant="xs" />
+        <span>Verifying…</span>
       } @else {
         <span>Verify code</span>
         <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

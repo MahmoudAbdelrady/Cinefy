@@ -515,6 +515,31 @@ buttons render in the dialog **body**, not a footer slot.
 - **lucide-angular** for SVG icons.
 - Component styles are scoped via Angular encapsulation.
 
+### Button loading states
+
+**A button that shows `<cui-loading-spinner>` must also show a label** — never a bare spinner. The label is a **progressive form of the button's own action**, so the user can tell what is in flight:
+
+```html
+<button type="submit" class="btn-primary" [disabled]="saving()">
+  @if (saving()) {
+  <cui-loading-spinner variant="xs" />
+  <span>Saving…</span>
+  } @else {
+  <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
+  <span>Save changes</span>
+  }
+</button>
+```
+
+Rules:
+
+- Use the **progressive verb + `…`** (an ellipsis character, not three dots): `Saving…`, `Deleting…`, `Signing in…`, `Creating account…`, `Booking…`, `Cancelling…`. Where the idle label branches, the loading label branches with it (`{{ isEditMode() ? 'Saving…' : 'Creating…' }}`).
+- The spinner inside a button is **`variant="xs"`** (or `sm` on larger buttons) — `lg` is for page/section loading blocks, not buttons.
+- **Two exceptions, both already correct in the codebase:**
+  1. **Icon-only buttons** (a delete/edit icon with a `pTooltip` and no visible text) keep a bare spinner — there is no label to swap.
+  2. When the spinner replaces only a **leading icon** and the `<span>` label sits _outside_ the `@if`, the label is already permanently visible — that satisfies the rule, so don't add a second one.
+- Page-level and section-level loading (an `@if (loading())` block over a whole panel) is unaffected: those use a centered `<cui-loading-spinner variant="lg" />` with no label.
+
 ### Toasts
 
 Toasts are PrimeNG-backed and live entirely in cinefy-ui. Two pieces, and both are already wired:

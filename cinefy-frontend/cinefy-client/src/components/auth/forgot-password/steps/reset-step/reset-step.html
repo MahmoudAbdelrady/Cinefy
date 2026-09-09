@@ -41,6 +41,7 @@
     >
       @if (submitting()) {
         <cui-loading-spinner variant="xs" />
+        <span>Saving…</span>
       } @else {
         <span>Save new password</span>
         <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

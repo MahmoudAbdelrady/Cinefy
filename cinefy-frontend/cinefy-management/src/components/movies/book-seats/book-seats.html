@@ -97,6 +97,7 @@
             >
               @if (booking()) {
                 <cui-loading-spinner variant="xs" />
+                <span>Booking…</span>
               } @else {
                 <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
                 <span>Book</span>
@@ -113,6 +114,7 @@
                 >
                   @if (booking()) {
                     <cui-loading-spinner variant="xs" />
+                    <span>Updating…</span>
                   } @else {
                     <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
                     <span>Update booking</span>
@@ -146,6 +148,7 @@
                 >
                   @if (settling()) {
                     <cui-loading-spinner variant="xs" />
+                    <span>Completing…</span>
                   } @else {
                     <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
                     <span>Complete payment</span>
@@ -198,6 +201,7 @@
           >
             @if (cancelling()) {
               <cui-loading-spinner variant="xs" />
+              <span>Canceling…</span>
             } @else {
               Cancel booking
             }

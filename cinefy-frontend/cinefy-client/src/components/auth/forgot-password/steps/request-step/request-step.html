@@ -24,6 +24,7 @@
     >
       @if (submitting()) {
         <cui-loading-spinner variant="xs" />
+        <span>Sending code…</span>
       } @else {
         <span>Send reset code</span>
         <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

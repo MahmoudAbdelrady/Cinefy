@@ -243,6 +243,7 @@
       <button type="button" class="btn-danger" [disabled]="cancelling()" (click)="confirmCancel()">
         @if (cancelling()) {
           <cui-loading-spinner variant="xs" />
+          <span>Canceling…</span>
         } @else {
           Cancel Booking
         }

@@ -328,7 +328,7 @@ export class BookSeatsComponent {
           this.cancelling.set(false);
           this.resetBooking();
           this.cancelVisible.set(false);
-          this.toastService.success('Booking cancelled successfully');
+          this.toastService.success('Booking canceled successfully');
         },
         error: () => this.cancelling.set(false),
       });

@@ -20,6 +20,7 @@
   >
     @if (submitting()) {
       <cui-loading-spinner variant="xs" />
+      <span>Creating account…</span>
     } @else {
       <span>Create account</span>
       <svg class="orf-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

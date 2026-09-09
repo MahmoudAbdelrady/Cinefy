@@ -10,6 +10,7 @@
     >
       @if (pendingProvider() === provider.code) {
         <cui-loading-spinner variant="xs" />
+        <span>Connecting…</span>
       } @else {
         <img class="ob-icon" [src]="provider.iconSrc" [alt]="provider.label" />
         <span>{{ provider.label }}</span>
