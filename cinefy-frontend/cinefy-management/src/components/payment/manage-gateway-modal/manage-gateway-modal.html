@@ -1,12 +1,14 @@
-<app-modal
-  [modalTitle]="modalTitle()"
+<cui-dialog
+  #dialog
+  [header]="modalTitle()"
   [description]="modalDescription()"
-  [close]="close()"
-  width="720px"
+  [canClose]="!saving()"
+  [style]="{ width: '720px' }"
+  (closed)="closed.emit()"
 >
   <form class="gateway-form" [formGroup]="form" (ngSubmit)="save()">
     <div class="identity-row">
-      <input-field
+      <cui-input
         label="Name"
         placeholder="e.g. Paymob"
         hint="For display only"
@@ -14,18 +16,17 @@
         [errorMessages]="{
           required: 'Gateway name is required',
           maxlength: 'Gateway name must not exceed 60 characters',
+          pattern:
+            'Name may only contain letters, numbers, single spaces, and hyphens, with no leading or trailing spaces',
         }"
       />
 
-      <custom-select
+      <cui-select
         label="Provider"
-        [items]="providers"
-        [displayFn]="providerDisplayFn"
-        [valueFn]="providerValueFn"
+        labelField="label"
+        valueField="provider"
         [control]="form.controls.provider"
-        [required]="true"
-        [disabled]="true"
-        (selectionChange)="form.controls.provider.setValue($event.provider)"
+        [items]="providers"
       />
     </div>
 
@@ -43,7 +44,7 @@
 
       <div class="credential-fields">
         @for (field of providerSpec().credentialFields; track field.key) {
-          <input-field
+          <cui-input
             [label]="field.label"
             [type]="field.secret ? 'password' : 'text'"
             [placeholder]="field.secret && isEditMode() ? '' : field.placeholder"
@@ -57,7 +58,6 @@
               required: field.label + ' is required',
               pattern: field.label + ' cannot contain spaces',
             }"
-            [monospace]="true"
           />
         }
       </div>
@@ -91,13 +91,13 @@
     }
   </form>
 
-  <div class="gateway-footer" modal-footer>
+  <div class="gateway-footer" customFooter>
     <p class="encrypted-note">
       <svg [lucideIcon]="icons.LockIcon" [size]="13" [strokeWidth]="2"></svg>
       Credentials are encrypted and never sent back to the browser.
     </p>
     <div class="footer-actions">
-      <button type="button" class="btn-secondary" [disabled]="saving()" (click)="close()()">
+      <button type="button" class="btn-secondary" [disabled]="saving()" (click)="dialog.close()">
         Cancel
       </button>
       <button
@@ -107,7 +107,7 @@
         (click)="save()"
       >
         @if (saving()) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
           <span>Saving…</span>
         } @else {
           <span>{{ saveLabel() }}</span>
@@ -115,4 +115,4 @@
       </button>
     </div>
   </div>
-</app-modal>
+</cui-dialog>

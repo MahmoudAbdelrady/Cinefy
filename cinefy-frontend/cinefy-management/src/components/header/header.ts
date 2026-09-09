@@ -1,31 +1,17 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, DestroyRef, inject, Signal, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { ChevronDownIcon, LogoutIcon, MenuIcon, UserIcon } from '../../shared/icons';
-import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyMenu } from 'cinefy-ui/components';
+import { CinefyMenuGroup } from 'cinefy-ui/types';
 import { AuthService, HeaderActionsService, SidebarService, StaffService } from '../../services';
 import { USER_POSITION_LABELS } from '../../shared/types';
 
-interface DropDownMenuItem {
-  icon: LucideIcon;
-  label: string;
-  action: () => void;
-  loading?: Signal<boolean>;
-}
-
 @Component({
   selector: 'header-component',
-  imports: [
-    LucideDynamicIcon,
-    NgpMenu,
-    NgpMenuItem,
-    NgpMenuTrigger,
-    NgTemplateOutlet,
-    LoadingSpinnerComponent,
-  ],
+  imports: [LucideDynamicIcon, NgTemplateOutlet, CinefyMenu],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
@@ -44,13 +30,21 @@ export class HeaderComponent {
 
   protected readonly loggingOut = signal(false);
 
-  protected readonly userInfoMenuItems: DropDownMenuItem[] = [
-    { icon: UserIcon, label: 'Profile', action: () => this.router.navigateByUrl('/profile') },
+  protected readonly userInfoMenuGroups: CinefyMenuGroup[] = [
     {
-      icon: LogoutIcon,
-      label: 'Logout',
-      action: () => this.logout(),
-      loading: this.loggingOut,
+      items: [
+        { icon: UserIcon, label: 'Profile', action: () => this.router.navigateByUrl('/profile') },
+      ],
+    },
+    {
+      items: [
+        {
+          icon: LogoutIcon,
+          label: 'Logout',
+          action: () => this.logout(),
+          loading: this.loggingOut,
+        },
+      ],
     },
   ];
 

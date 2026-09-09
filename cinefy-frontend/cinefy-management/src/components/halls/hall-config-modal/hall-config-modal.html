@@ -1,49 +1,32 @@
-<app-modal
-  #modal
-  [modalTitle]="modalTitle()"
-  description="Configure hall details and seat layout"
-  [close]="close()"
-  width="1300px"
->
-  @if (selectedHallId()) {
-    <div modal-header-actions>
-      @if (!loadingHall() && !loadHallError()) {
-        <button
-          class="mode-toggle-btn"
-          [class.edit]="!isEditMode()"
-          [class.view]="isEditMode()"
-          (click)="toggleEditMode()"
-          [title]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
-        >
-          <svg
-            [lucideIcon]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
-            [size]="20"
-            [strokeWidth]="2"
-          ></svg>
-        </button>
-      }
-      <ng-template #discardDialog let-close="close">
-        <app-modal modalTitle="Discard Changes" [close]="close" width="448px">
-          <p class="discard-message">
-            You have unsaved changes. Switching to view mode will discard them.
-          </p>
-          <div modal-footer class="discard-footer">
-            <button class="btn-secondary" (click)="close()">Cancel</button>
-            <button class="btn-danger" (click)="confirmDiscard(close)">Discard</button>
-          </div>
-        </app-modal>
-      </ng-template>
-    </div>
-  }
+<cui-dialog #dialog (closed)="closed.emit()" [style]="{ width: '1300px' }">
+  <div customHeader class="hall-config-modal-header">
+    <span class="hcmh-title">{{ modalTitle() }}</span>
+    @if (selectedHallId() && !loadingHall() && !loadHallError()) {
+      <button
+        class="mode-toggle-btn"
+        [class.edit]="!isEditMode()"
+        [class.view]="isEditMode()"
+        (click)="toggleEditMode()"
+        [pTooltip]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
+      >
+        <svg
+          [lucideIcon]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
+          [size]="20"
+          [strokeWidth]="2"
+        ></svg>
+      </button>
+    }
+  </div>
+
   @if (loadingHall()) {
     <div class="hall-config-loading">
-      <loading-spinner variant="xl" />
+      <cui-loading-spinner variant="xl" />
     </div>
   } @else if (loadHallError()) {
     <div class="hall-config-error">
-      <empty-state
+      <cui-empty-state
         [icon]="icons.WarningIcon"
-        title="Failed to load hall"
+        header="Failed to load hall"
         description="Something went wrong. Please try again later."
       />
     </div>
@@ -56,7 +39,7 @@
         </div>
         <form class="hi-form" [formGroup]="hallForm">
           <div class="input-group">
-            <input-field
+            <cui-input
               label="Hall Name"
               placeholder="e.g. Hall 1, VIP Hall, IMAX"
               [control]="hallForm.controls.name"
@@ -70,7 +53,7 @@
           </div>
           <div class="number-input-group">
             <div class="input-group">
-              <input-field
+              <cui-input
                 label="Number of Rows"
                 type="number"
                 placeholder="e.g. 10"
@@ -83,7 +66,7 @@
               />
             </div>
             <div class="input-group">
-              <input-field
+              <cui-input
                 label="Seats per Row"
                 type="number"
                 placeholder="e.g. 12"
@@ -97,59 +80,45 @@
             </div>
           </div>
           <div class="input-group">
-            <custom-select
+            <cui-select
               label="Status"
+              labelField="label"
+              valueField="value"
+              [control]="hallForm.controls.status"
               [items]="hallStatusEntries()"
-              [value]="statusEntry()"
-              [displayFn]="statusDisplayFn"
-              [valueFn]="statusValueFn"
-              [required]="!isViewMode() && !isStatusLocked()"
-              [disabled]="isViewMode() || isStatusLocked()"
               [hint]="
                 !isViewMode() && isStatusLocked() ? 'Locked while showtimes are scheduled.' : null
               "
-              [container]="modal.panelEl()"
-              (selectionChange)="onStatusChange($event)"
             />
           </div>
           <div class="input-group type-group">
-            <async-select
+            <cui-select
               label="Type"
-              [fetchFn]="fetchHallTypes"
-              [initialValue]="selectedHallType()"
-              [displayFn]="hallTypeDisplayFn"
-              [valueFn]="hallTypeValueFn"
-              [disabled]="isViewMode()"
-              [searchable]="true"
+              labelField="label"
+              valueField="value"
+              placeholder="Select a type"
               [control]="hallForm.controls.typeId"
+              [items]="hallTypeEntries()"
+              [searchable]="true"
               [required]="!isViewMode()"
               [errorMessages]="{ required: 'Hall type is required' }"
-              placeholder="Select a type"
-              [container]="modal.panelEl()"
-              (selectionChange)="onHallTypeChange($event)"
             />
             <label class="switch-group" [class.disabled]="isViewMode()">
               <span class="sg-label-text">Supports 3D</span>
-              <cui-switch
-                [checked]="supports3DValue()"
-                [disabled]="isViewMode()"
-                (checkedChange)="hallForm.controls.supports3D.setValue($event)"
-              />
+              <cui-switch [control]="hallForm.controls.supports3D" />
             </label>
           </div>
           @if (!isViewMode()) {
             <div class="input-group">
-              <async-select
+              <cui-select
                 label="Copy Layout From Existing Hall"
                 placeholder="None"
+                labelField="label"
+                valueField="value"
+                [control]="copyLayoutControl"
+                [items]="hallEntries()"
                 [clearable]="true"
                 [searchable]="true"
-                [fetchFn]="fetchHalls"
-                [displayFn]="hallDisplayFn"
-                [valueFn]="hallValueFn"
-                [container]="modal.panelEl()"
-                (selectionChange)="copyLayoutFrom($event)"
-                (cleared)="restoreOriginalLayout()"
               />
             </div>
           }
@@ -220,7 +189,7 @@
                         >Normal</span
                       >
                     </div>
-                    <input-field
+                    <cui-input
                       type="number"
                       placeholder="e.g. 10"
                       [leadingIcon]="icons.DollarSignIcon"
@@ -242,7 +211,7 @@
                         >VIP</span
                       >
                     </div>
-                    <input-field
+                    <cui-input
                       type="number"
                       placeholder="e.g. 10"
                       [leadingIcon]="icons.DollarSignIcon"
@@ -278,17 +247,18 @@
       </div>
     </div>
   }
+
   @if (!isViewMode()) {
-    <div modal-footer class="hall-config-modal-footer">
+    <div customFooter class="hall-config-modal-footer">
       <div class="save-btns">
-        <button class="btn-secondary" (click)="close()()">Cancel</button>
+        <button class="btn-secondary" (click)="dialog.close()">Cancel</button>
         <button
           class="btn-primary"
           (click)="saveHall()"
           [disabled]="hallForm.invalid || !hasChanges() || saving()"
         >
           @if (saving()) {
-            <loading-spinner variant="sm" />
+            <cui-loading-spinner variant="sm" />
             <span>{{ selectedHallId() ? 'Saving…' : 'Creating…' }}</span>
           } @else {
             {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}
@@ -297,4 +267,21 @@
       </div>
     </div>
   }
-</app-modal>
+</cui-dialog>
+
+@if (discardVisible()) {
+  <cui-dialog
+    header="Discard Changes"
+    [style]="{ width: '448px' }"
+    (closed)="discardVisible.set(false)"
+  >
+    <p class="discard-message">
+      You have unsaved changes. Switching to view mode will discard them.
+    </p>
+
+    <div customFooter class="discard-footer">
+      <button class="btn-secondary" (click)="discardVisible.set(false)">Cancel</button>
+      <button class="btn-danger" (click)="confirmDiscard()">Discard</button>
+    </div>
+  </cui-dialog>
+}

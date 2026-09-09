@@ -1,12 +1,12 @@
 @if (bookingResource.isLoading()) {
   <div class="co-loading">
-    <loading-spinner variant="lg" />
+    <cui-loading-spinner variant="lg" />
   </div>
 } @else if (bookingResource.error()) {
-  <empty-state
+  <cui-empty-state
     class="co-error"
     [icon]="icons.TriangleAlertIcon"
-    title="Couldn't load this booking"
+    header="Couldn't load this booking"
     [description]="errorMessage()"
   />
 } @else if (booking(); as summary) {
@@ -22,14 +22,14 @@
       <div class="co-head">
         <h1 class="co-title">Checkout</h1>
 
-        <hold-timer [expiresAt]="timerExpiresAt()" (expired)="onExpired()" />
+        <cui-hold-timer [expiresAt]="timerExpiresAt()" (expired)="onExpired()" />
       </div>
 
       @if (!bookingExpired()) {
         <div class="co-stub reveal">
           <div class="co-summary-movie">
             <div class="co-summary-poster">
-              <media-image
+              <cui-media-image
                 [src]="summary.movie.posterUrl"
                 [alt]="summary.movie.title + ' poster'"
               />
@@ -107,7 +107,7 @@
           <section class="co-payment">
             @if (loadingMethods()) {
               <div class="co-methods-loading">
-                <loading-spinner variant="md" />
+                <cui-loading-spinner variant="md" />
               </div>
             } @else if (savedMethods().length) {
               <h2 class="co-payment-title">Pay with a saved card</h2>
@@ -150,7 +150,7 @@
                 (click)="paySaved()"
               >
                 @if (processing()) {
-                  <loading-spinner variant="xs" />
+                  <cui-loading-spinner variant="xs" />
                   Processing
                 } @else {
                   Pay {{ totalPrice() | currency: 'USD' }}
@@ -167,7 +167,7 @@
               >
                 <span class="co-pay-label">
                   @if (redirecting()) {
-                    <loading-spinner variant="xs" />
+                    <cui-loading-spinner variant="xs" />
                     Opening payment page
                   } @else {
                     Pay with another card
@@ -186,7 +186,7 @@
               >
                 <span class="co-pay-label">
                   @if (redirecting()) {
-                    <loading-spinner variant="xs" />
+                    <cui-loading-spinner variant="xs" />
                     Opening payment page
                   } @else {
                     Pay {{ totalPrice() | currency: 'USD' }}
@@ -204,49 +204,61 @@
           type="button"
           class="btn-base co-cancel"
           [disabled]="busy()"
-          [ngpDialogTrigger]="cancelDialog"
+          (click)="cancelVisible.set(true)"
         >
           <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
           Cancel booking
         </button>
       }
     </main>
-
-    <ng-template #cancelDialog let-close="close">
-      <app-modal modalTitle="Cancel this booking?" width="448px" [close]="close">
-        <div class="co-cancel-modal-content">
-          <div class="ccm-icon">
-            <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
-          </div>
-          <p class="ccm-message">
-            Your held seats will be released and you'll lose your place. This can't be undone.
-          </p>
-        </div>
-
-        <div modal-footer class="co-dialog-footer">
-          <button type="button" class="btn-secondary" [disabled]="cancelling()" (click)="close()">
-            Keep booking
-          </button>
-          <button
-            type="button"
-            class="btn-danger"
-            [disabled]="cancelling()"
-            (click)="confirmCancel(close)"
-          >
-            @if (cancelling()) {
-              <loading-spinner variant="xs" />
-            } @else {
-              Cancel Booking
-            }
-          </button>
-        </div>
-      </app-modal>
-    </ng-template>
   }
 }
 
-<ng-template #expiredDialog let-close="close">
-  <app-modal modalTitle="Booking expired" width="448px" [closeable]="false" [close]="close">
+@if (cancelVisible()) {
+  <cui-dialog
+    #cancelDialog
+    header="Cancel this booking?"
+    [style]="{ width: '448px' }"
+    [canClose]="!cancelling()"
+    (closed)="cancelVisible.set(false)"
+  >
+    <div class="co-cancel-modal-content">
+      <div class="ccm-icon">
+        <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
+      </div>
+      <p class="ccm-message">
+        Your held seats will be released and you'll lose your place. This can't be undone.
+      </p>
+    </div>
+
+    <div customFooter class="co-dialog-footer">
+      <button
+        type="button"
+        class="btn-secondary"
+        [disabled]="cancelling()"
+        (click)="closeCancelDialog()"
+      >
+        Keep booking
+      </button>
+      <button type="button" class="btn-danger" [disabled]="cancelling()" (click)="confirmCancel()">
+        @if (cancelling()) {
+          <cui-loading-spinner variant="xs" />
+          <span>Canceling…</span>
+        } @else {
+          Cancel Booking
+        }
+      </button>
+    </div>
+  </cui-dialog>
+}
+
+@if (expiredVisible()) {
+  <cui-dialog
+    header="Booking expired"
+    [style]="{ width: '448px' }"
+    [canClose]="false"
+    (closed)="expiredVisible.set(false)"
+  >
     <div class="co-expired-modal-content">
       <div class="ccm-icon">
         <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
@@ -254,10 +266,10 @@
       <p class="ccm-message">Your seat hold ran out and your seats were released.</p>
     </div>
 
-    <div modal-footer class="co-dialog-footer">
-      <button type="button" class="btn-primary" (click)="goToSeatSelection(close)">
+    <div customFooter class="co-dialog-footer">
+      <button type="button" class="btn-primary" (click)="goToSeatSelection()">
         Back to seat selection
       </button>
     </div>
-  </app-modal>
-</ng-template>
+  </cui-dialog>
+}

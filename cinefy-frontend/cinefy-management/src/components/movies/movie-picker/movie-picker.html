@@ -1,6 +1,6 @@
 <div class="movie-picker">
   <div class="search-bar">
-    <input-field
+    <cui-input
       [control]="searchControl"
       [leadingIcon]="icons.SearchIcon"
       [clearable]="true"
@@ -17,7 +17,7 @@
     </div>
   } @else if (loading()) {
     <div class="search-loading">
-      <loading-spinner variant="md" />
+      <cui-loading-spinner variant="md" />
     </div>
   } @else if (movies().length > 0) {
     <div class="search-count">{{ movies().length }} movies found</div>
@@ -26,7 +26,7 @@
         <li class="movie-item" (click)="onPick(movie)">
           <div class="mi-info">
             <div class="mi-img">
-              <media-image [src]="movie.posterUrl" alt="{{ movie.title }} Poster" [iconSize]="20" />
+              <cui-media-image [src]="movie.posterUrl" alt="{{ movie.title }} Poster" [iconSize]="20" />
             </div>
             <div class="mi-details">
               <h4>{{ movie.title }}</h4>
@@ -51,7 +51,7 @@
     @if (hasMore()) {
       <button type="button" class="load-more" [disabled]="loadingMore()" (click)="loadMore()">
         @if (loadingMore()) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
           <span>Loading…</span>
         } @else {
           <span>Load more</span>

@@ -1,9 +1,26 @@
-import { afterNextRender, Component, computed, inject, input, output, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { BriefCaseIcon, CalendarIcon, EditIcon, EmailIcon, PhoneIcon } from '../../../shared/icons';
+import { Tooltip } from 'primeng/tooltip';
+import {
+  BriefCaseIcon,
+  CalendarIcon,
+  EditIcon,
+  EmailIcon,
+  PhoneIcon,
+  UserIcon,
+} from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
-import { ModalComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyDialog, CinefyDialogHeader, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
 import {
   EMPLOYMENT_TYPE_LABELS,
@@ -17,9 +34,11 @@ import { canManageStaffMember } from '../../../shared/access';
 @Component({
   selector: 'staff-details',
   imports: [
-    ModalComponent,
+    CinefyDialog,
+    CinefyDialogHeader,
     LucideDynamicIcon,
-    LoadingSpinnerComponent,
+    Tooltip,
+    CinefyLoadingSpinner,
     DatePipe,
     Time12hPipe,
     PhoneFormatPipe,
@@ -34,29 +53,26 @@ export class StaffDetailsComponent {
     EmailIcon,
     PhoneIcon,
     BriefCaseIcon,
+    UserIcon,
   };
 
   private readonly staffService = inject(StaffService);
+
+  private readonly dialog = viewChild.required(CinefyDialog);
 
   protected readonly employmentTypeLabels = EMPLOYMENT_TYPE_LABELS;
   protected readonly positionLabels = USER_POSITION_LABELS;
   protected readonly weekDayLabels = WEEK_DAY_LABELS;
 
-  readonly close = input.required<() => void>();
   readonly staffMemberId = input.required<string>();
 
+  readonly closed = output<void>();
   readonly editRequested = output<StaffMemberDetail>();
 
   protected readonly staffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
-
-  protected readonly initials = computed(() => {
-    const member = this.staffMember();
-    if (!member) return '';
-    return (member.firstName.charAt(0) + member.lastName.charAt(0)).toUpperCase();
-  });
 
   protected readonly canManage = computed(() => {
     const user = this.currentUser();
@@ -80,7 +96,7 @@ export class StaffDetailsComponent {
   protected requestEdit(): void {
     const member = this.staffMember();
     if (!member) return;
-    this.close()();
+    this.dialog().close();
     this.editRequested.emit(member);
   }
 }

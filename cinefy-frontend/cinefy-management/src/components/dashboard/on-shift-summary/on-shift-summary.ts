@@ -1,7 +1,7 @@
 import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { StaffService } from '../../../services';
-import { ContactRoundIcon } from '../../../shared/icons';
+import { ContactRoundIcon, UsersIcon } from '../../../shared/icons';
 import { USER_POSITION_LABELS } from '../../../shared/types';
 import type { OnShiftSummary, UserPosition } from '../../../shared/types';
 import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
@@ -14,12 +14,12 @@ interface ShiftCount {
 
 @Component({
   selector: 'on-shift-summary',
-  imports: [DashboardWidgetComponent, LoadingSpinnerComponent],
+  imports: [DashboardWidgetComponent, CinefyLoadingSpinner],
   templateUrl: './on-shift-summary.html',
   styleUrl: './on-shift-summary.scss',
 })
 export class OnShiftSummaryComponent {
-  protected readonly icons = { ContactRoundIcon };
+  protected readonly icons = { ContactRoundIcon, UsersIcon };
 
   private readonly staffService = inject(StaffService);
 

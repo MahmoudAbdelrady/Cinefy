@@ -1,0 +1,28 @@
+<div class="phone-input">
+  @if (label(); as labelText) {
+  <label class="pi-label" [attr.data-required]="required() ? '' : null">{{ labelText }}</label>
+  }
+  <div class="phone-row">
+    <div class="phone-country">
+      <cui-select
+        labelField="label"
+        valueField="code"
+        selectedItemLabel="shortLabel"
+        placeholder="Country"
+        [control]="countryControl()"
+        [items]="countryOptions"
+        [searchable]="true"
+        [container]="container()"
+      />
+    </div>
+    <div class="phone-national">
+      <cui-input
+        type="number"
+        [control]="numberControl()"
+        [placeholder]="placeholder()"
+        [leadingIcon]="icons.PhoneIcon"
+        [errorMessages]="errorMessages()"
+      />
+    </div>
+  </div>
+</div>

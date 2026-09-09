@@ -21,15 +21,23 @@
                 size="sm"
                 [checked]="channel.active"
                 (checkedChange)="toggleChannel($index, $event)"
+                [pTooltip]="channel.active ? 'Deactivate channel' : 'Activate channel'"
+                tooltipPosition="top"
               />
               <span class="channel-divider"></span>
-              <button type="button" title="Edit channel" (click)="startEdit($index)">
+              <button
+                type="button"
+                pTooltip="Edit channel"
+                tooltipPosition="top"
+                (click)="startEdit($index)"
+              >
                 <svg [lucideIcon]="icons.EditIcon" [size]="15" [strokeWidth]="2"></svg>
               </button>
               <button
                 type="button"
                 class="danger"
-                title="Remove channel"
+                pTooltip="Remove channel"
+                tooltipPosition="top"
                 (click)="removeChannel($index)"
               >
                 <svg [lucideIcon]="icons.DeleteIcon" [size]="15" [strokeWidth]="2"></svg>
@@ -58,7 +66,7 @@
 <ng-template #channelFormTemplate>
   <form class="channel-form" [formGroup]="channelForm" (ngSubmit)="saveChannel()">
     <div class="channel-form-fields">
-      <input-field
+      <cui-input
         label="Name"
         placeholder="e.g. Cards"
         [control]="channelForm.controls.name"
@@ -69,21 +77,17 @@
         }"
       />
 
-      <custom-select
+      <cui-select
         label="Currency"
-        [items]="currencies"
-        [displayFn]="currencyDisplayFn"
+        labelField="label"
+        valueField="value"
         [control]="channelForm.controls.currency"
-        [required]="true"
-        (selectionChange)="channelForm.controls.currency.setValue($event)"
+        [items]="currencyEntries"
       />
 
       <div class="channel-form-active">
         <span>Active</span>
-        <cui-switch
-          [checked]="channelForm.controls.isActive.value"
-          (checkedChange)="channelForm.controls.isActive.setValue($event)"
-        />
+        <cui-switch [control]="channelForm.controls.isActive" />
       </div>
     </div>
 
@@ -91,7 +95,7 @@
 
     <div class="channel-form-section-head">
       <h4 class="channel-form-section-label">Channel settings</h4>
-      <field-error
+      <cui-field-error
         [control]="channelForm.controls.providerConfig"
         [messages]="{ duplicateConfig: 'Another channel already uses these settings' }"
       />
@@ -100,13 +104,12 @@
     <div class="channel-form-fields">
       @for (field of providerConfig(); track field.key) {
         @if (configControl(field.key); as control) {
-          <input-field
+          <cui-input
             [label]="field.label"
             [type]="field.type"
             [placeholder]="field.placeholder"
             [control]="control"
             [errorMessages]="{ required: field.label + ' is required' }"
-            [monospace]="true"
           />
         }
       }

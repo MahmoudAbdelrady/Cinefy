@@ -3,14 +3,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { merge, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { CalendarIcon, ClockIcon, ClapperboardIcon } from '../../../shared/icons';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { StatsComponent } from '../../stats/stats';
 import { ShowtimeEventsService, ShowtimesService } from '../../../services';
 import type { ShowtimesStatistics, StatsCard } from '../../../shared/types';
 
 @Component({
   selector: 'movies-statistics',
-  imports: [LoadingSpinnerComponent, StatsComponent],
+  imports: [CinefyLoadingSpinner, StatsComponent],
   templateUrl: './movies-statistics.html',
   styleUrl: './movies-statistics.scss',
 })

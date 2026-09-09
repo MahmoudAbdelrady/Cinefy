@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { InputField, LoadingSpinnerComponent } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyInput, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
 import { EMAIL_PATTERN } from '../../../shared/validation';
 import { ArrowRightIcon, EmailIcon, PasswordIcon } from '../../../shared/icons';
@@ -15,8 +15,8 @@ import { ArrowRightIcon, EmailIcon, PasswordIcon } from '../../../shared/icons';
     ReactiveFormsModule,
     RouterLink,
     LucideDynamicIcon,
-    InputField,
-    LoadingSpinnerComponent,
+    CinefyInput,
+    CinefyLoadingSpinner,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
@@ -29,7 +29,7 @@ export class LoginPage {
   };
 
   private readonly authService = inject(AuthService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 

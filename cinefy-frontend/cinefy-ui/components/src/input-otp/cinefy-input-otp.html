@@ -1,0 +1,8 @@
+<p-inputotp
+  class="cui-input-otp"
+  size="large"
+  [formControl]="control()"
+  [length]="length()"
+  [integerOnly]="true"
+  [invalid]="control().touched && control().invalid"
+/>

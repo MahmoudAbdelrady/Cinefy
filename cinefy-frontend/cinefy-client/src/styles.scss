@@ -42,6 +42,7 @@
   --cui-danger-text: #{$color-foreground};
   --cui-danger: #{$color-destructive-strong};
   --cui-danger-hover: #{$color-destructive};
+  --cui-danger-subtle: #{$color-destructive-subtle};
   --cui-success: #{$color-primary};
   --cui-success-hover: #{$color-primary};
 
@@ -57,17 +58,6 @@
   // Modal (MVP dialog uses the lighter `popover` surface, a black scrim, and a soft shadow)
   --cui-modal-backdrop: #{rgba($color-black, 0.5)};
   --cui-modal-shadow: #{$shadow-overlay};
-
-  // Toast (dark theme)
-  --cui-toast-shadow: #{$shadow-overlay};
-  --cui-toast-success-surface: #{$color-popover};
-  --cui-toast-success-border: #{rgba($color-success, 0.4)};
-  --cui-toast-success-text: #{$color-popover-foreground};
-  --cui-toast-success-icon: #{$color-success};
-  --cui-toast-error-surface: #{$color-popover};
-  --cui-toast-error-border: #{rgba($color-destructive, 0.4)};
-  --cui-toast-error-text: #{$color-popover-foreground};
-  --cui-toast-error-icon: #{$color-destructive};
 
   // Seat map
   --cui-seat-normal-surface: #{rgba($color-seat-premium, 0.5)};

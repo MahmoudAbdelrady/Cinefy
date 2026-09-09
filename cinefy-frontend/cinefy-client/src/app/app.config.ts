@@ -11,7 +11,8 @@ import {
   errorToastInterceptor,
 } from './core/interceptors';
 import { provideCinefyToast } from 'cinefy-ui/services';
-import { provideMenuConfig } from 'ng-primitives/menu';
+import { providePrimeNG } from 'primeng/config';
+import { CinefyClientPreset } from './cinefy-client-preset';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -28,6 +29,11 @@ export const appConfig: ApplicationConfig = {
       ]),
     ),
     provideCinefyToast(),
-    provideMenuConfig({ scrollBehavior: 'reposition' }),
+    providePrimeNG({
+      inputVariant: 'filled',
+      theme: {
+        preset: CinefyClientPreset,
+      },
+    }),
   ],
 };

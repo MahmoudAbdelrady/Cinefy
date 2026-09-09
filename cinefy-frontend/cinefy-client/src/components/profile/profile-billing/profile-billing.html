@@ -1,6 +1,6 @@
 @if (loading()) {
   <div class="pb-loading">
-    <loading-spinner variant="lg" />
+    <cui-loading-spinner variant="lg" />
   </div>
 } @else {
   <ul class="pb-cards">
@@ -13,54 +13,58 @@
         </div>
         <button
           type="button"
-          class="pb-remove"
+          class="btn-base pb-remove"
           [disabled]="removing()"
-          [ngpDialogTrigger]="removeDialog"
+          (click)="methodToRemove.set(method)"
         >
           <svg [lucideIcon]="icons.TrashIcon" [size]="16"></svg>
           Remove
         </button>
-
-        <ng-template #removeDialog let-close="close">
-          <app-modal modalTitle="Remove this card?" width="448px" [close]="close">
-            <div class="pb-remove-modal">
-              <div class="pb-remove-icon">
-                <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
-              </div>
-              <p class="pb-remove-message">
-                {{ method.cardBrand }} ending in {{ method.cardNumber.slice(-4) }} will be removed
-                from your account. You can save it again the next time you pay.
-              </p>
-            </div>
-
-            <div modal-footer class="pb-dialog-footer">
-              <button type="button" class="btn-secondary" [disabled]="removing()" (click)="close()">
-                Cancel
-              </button>
-              <button
-                type="button"
-                class="btn-danger"
-                [disabled]="removing()"
-                (click)="confirmRemove(method, close)"
-              >
-                @if (removing()) {
-                  <loading-spinner variant="xs" />
-                  <span>Removing…</span>
-                } @else {
-                  <svg [lucideIcon]="icons.TrashIcon" [size]="16"></svg>
-                  <span>Remove card</span>
-                }
-              </button>
-            </div>
-          </app-modal>
-        </ng-template>
       </li>
     } @empty {
-      <empty-state
+      <cui-empty-state
         [icon]="icons.CreditCardIcon"
-        title="No saved cards"
+        header="No saved cards"
         description="Cards are saved automatically when you choose to store them while paying."
       />
     }
   </ul>
+}
+
+@if (methodToRemove(); as method) {
+  <cui-dialog
+    header="Remove this card?"
+    [style]="{ width: '448px' }"
+    [canClose]="!removing()"
+    (closed)="methodToRemove.set(null)"
+  >
+    <div class="pb-remove-modal">
+      <div class="pb-remove-icon">
+        <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
+      </div>
+      <p class="pb-remove-message">
+        This card will be permanently removed from your account. This action cannot be undone.
+      </p>
+    </div>
+
+    <div customFooter class="pb-dialog-footer">
+      <button type="button" class="btn-secondary" [disabled]="removing()" (click)="closeDialog()">
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn-danger"
+        [disabled]="removing()"
+        (click)="confirmRemove(method)"
+      >
+        @if (removing()) {
+          <cui-loading-spinner variant="xs" />
+          <span>Removing…</span>
+        } @else {
+          <svg [lucideIcon]="icons.TrashIcon" [size]="16"></svg>
+          <span>Remove card</span>
+        }
+      </button>
+    </div>
+  </cui-dialog>
 }

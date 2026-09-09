@@ -1,13 +1,13 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { tap } from 'rxjs';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { SKIP_ERROR_TOAST } from './error-toast-context';
 
 const DEFAULT_ERROR_MESSAGE = 'Something went wrong. Please try again.';
 
 export const errorToastInterceptor: HttpInterceptorFn = (req, next) => {
-  const toastService = inject(ToastService);
+  const toastService = inject(CinefyToastService);
 
   return next(req).pipe(
     tap({

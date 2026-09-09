@@ -57,7 +57,7 @@
 }
 
 .sp-submit-arrow {
-  transition: transform 150ms ease;
+  transition: transform $transition-fast;
 
   .sp-submit:hover:not(:disabled) & {
     transform: translateX(2px);

@@ -1,0 +1,34 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [focusOnShow]="false"
+  [closable]="canClose()"
+  [dismissableMask]="true"
+  [style]="style() ?? {}"
+  [contentStyle]="contentStyle() ?? {}"
+  appendTo="body"
+  (onHide)="closed.emit()"
+  [content]="headerTpl"
+  [footerTemplate]="hasCustomFooter() ? footerTpl : undefined"
+  styleClass="cui-dialog-panel"
+>
+  <ng-template #headerTpl>
+    @if (hasCustomHeader()) {
+    <ng-content select="[customHeader]" />
+    } @else {
+    <div class="cui-dialog-heading">
+      <span class="cui-dialog-title">{{ header() }}</span>
+      @if (description(); as description) {
+      <span class="cui-dialog-description">{{ description }}</span>
+      }
+    </div>
+    }
+  </ng-template>
+
+  <ng-content />
+
+  <ng-template #footerTpl>
+    <ng-content select="[customFooter]" />
+  </ng-template>
+</p-dialog>

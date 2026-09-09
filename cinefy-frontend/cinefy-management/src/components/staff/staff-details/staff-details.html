@@ -1,29 +1,42 @@
-<app-modal [close]="close()" width="640px" [customHeader]="true">
-  @if (staffMember(); as member) {
-    <div modal-header class="sd-header" [attr.data-position]="member.position">
-      <div class="sdh-img">{{ initials() }}</div>
-      <div class="sdh-info">
-        <div class="sdhi-name">{{ member.firstName }} {{ member.lastName }}</div>
-        <div class="sdhi-position">
-          <svg [lucideIcon]="icons.BriefCaseIcon" [size]="11" [strokeWidth]="2.5"></svg>
-          <span>{{ positionLabels[member.position] }}</span>
-        </div>
-      </div>
-    </div>
-  }
-  @if (canManage()) {
-    <div modal-header-actions>
-      <button class="sd-action-btn" title="Edit Info" (click)="requestEdit()">
+<cui-dialog [style]="{ width: '640px' }" (closed)="closed.emit()">
+  <div customHeader class="sd-modal-header">
+    <span class="sdmh-title">Staff Details</span>
+    @if (canManage()) {
+      <button class="sd-action-btn" pTooltip="Edit Info" (click)="requestEdit()">
         <svg [lucideIcon]="icons.EditIcon" [size]="20" [strokeWidth]="2"></svg>
       </button>
-    </div>
-  }
+    }
+  </div>
+
   @if (loading()) {
     <div class="staff-details-loading">
-      <loading-spinner variant="md" />
+      <cui-loading-spinner variant="md" />
     </div>
   } @else if (staffMember(); as member) {
     <div class="staff-details-container">
+      <div class="sdc-section">
+        <div class="sdc-section-title">Identity</div>
+        <div class="sdc-section-items">
+          <div class="sdcs-item">
+            <div class="sdcs-item-icon">
+              <svg [lucideIcon]="icons.UserIcon" [size]="14"></svg>
+            </div>
+            <div class="sdcs-item-info">
+              <span class="item-title">Name</span>
+              <span class="item-value">{{ member.firstName }} {{ member.lastName }}</span>
+            </div>
+          </div>
+          <div class="sdcs-item">
+            <div class="sdcs-item-icon">
+              <svg [lucideIcon]="icons.BriefCaseIcon" [size]="14"></svg>
+            </div>
+            <div class="sdcs-item-info">
+              <span class="item-title">Position</span>
+              <span class="item-value">{{ positionLabels[member.position] }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="sdc-section">
         <div class="sdc-section-title">Contact</div>
         <div class="sdc-section-items full">
@@ -100,4 +113,4 @@
       </div>
     </div>
   }
-</app-modal>
+</cui-dialog>

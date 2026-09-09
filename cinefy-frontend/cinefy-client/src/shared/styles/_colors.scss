@@ -1,8 +1,6 @@
-@forward 'cinefy-ui/styles/radii';
+@forward 'cinefy-ui/styles/tokens';
 
 // ─── Cinefy client palette ───────────────────────────────────────────────────
-// Ported from mvp-version/src/styles/index.css (oklch tokens converted to hex).
-// Pure neutral grayscale with a single amber-500 accent. Dark theme only.
 
 // Core surfaces
 $color-background: #0a0a0a;
@@ -29,6 +27,7 @@ $color-accent-foreground: #fafafa;
 $color-destructive: #e7000b;
 $color-destructive-strong: #c20009;
 $color-destructive-foreground: #fafafa;
+$color-destructive-subtle: #3a1113;
 
 // Success
 $color-success: #22c55e;

@@ -1,0 +1,31 @@
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.cui-switch {
+  &[data-size="sm"] {
+    --p-toggleswitch-width: 36px;
+    --p-toggleswitch-height: 20px;
+    --p-toggleswitch-handle-size: 16px;
+  }
+
+  &[data-color="accent"] {
+    --p-toggleswitch-checked-background: var(--cui-accent);
+    --p-toggleswitch-checked-hover-background: var(--cui-accent);
+    --p-toggleswitch-focus-ring-color: var(--cui-ring);
+  }
+
+  &[data-color="highlight"] {
+    --p-toggleswitch-checked-background: var(--cui-highlight);
+    --p-toggleswitch-checked-hover-background: var(--cui-highlight);
+    --p-toggleswitch-focus-ring-color: var(--cui-highlight-ring);
+  }
+
+  &.p-toggleswitch-checked.p-disabled {
+    --p-toggleswitch-disabled-background: var(--p-toggleswitch-checked-background);
+    --p-toggleswitch-handle-disabled-background: var(--p-toggleswitch-handle-checked-background);
+
+    opacity: 0.5;
+  }
+}

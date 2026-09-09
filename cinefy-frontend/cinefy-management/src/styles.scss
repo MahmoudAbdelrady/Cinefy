@@ -41,6 +41,7 @@
   --cui-danger-text: #ffffff;
   --cui-danger: #{$red-600};
   --cui-danger-hover: #{$red-700};
+  --cui-danger-subtle: #{$red-200};
   --cui-success: #{$green-600};
   --cui-success-hover: #{$green-700};
 
@@ -94,17 +95,6 @@
   --cui-modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   --cui-modal-header-bg: linear-gradient(to right, #{$blue-50}, #{$purple-50});
   --cui-modal-footer-bg: #{$gray-50};
-
-  // Toast
-  --cui-toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  --cui-toast-success-surface: #{$green-50};
-  --cui-toast-success-border: #{$green-100};
-  --cui-toast-success-text: #{$green-700};
-  --cui-toast-success-icon: #{$green-500};
-  --cui-toast-error-surface: #{$red-50};
-  --cui-toast-error-border: rgba(239, 68, 68, 0.2);
-  --cui-toast-error-text: #{$red-600};
-  --cui-toast-error-icon: #{$red-500};
 }
 
 *,
@@ -134,53 +124,6 @@ button {
   cursor: pointer;
   font: inherit;
   color: inherit;
-}
-
-[ngpDialogOverlay] {
-  position: fixed;
-}
-
-[ngpTooltip] {
-  position: absolute;
-  z-index: 100;
-  background-color: $gray-800;
-  color: #ffffff;
-  padding: 6px 10px;
-  border-radius: $radius-sm;
-  font-size: 12px;
-  line-height: 1;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-[ngpTooltip][data-enter] {
-  animation: tooltip-fade-in 150ms ease-out;
-}
-
-[ngpTooltip][data-exit] {
-  animation: tooltip-fade-out 150ms ease-in;
-}
-
-@keyframes tooltip-fade-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes tooltip-fade-out {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.96);
-  }
 }
 
 // ─── Printing ─────────────────────────────────────────────────────────────────

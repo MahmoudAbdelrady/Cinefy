@@ -6,7 +6,7 @@
 
   <div class="lp-card">
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="lp-form">
-      <input-field
+      <cui-input
         label="Email"
         placeholder="Enter your email"
         [leadingIcon]="icons.EmailIcon"
@@ -18,12 +18,13 @@
       />
 
       <div class="lp-password">
-        <input-field
+        <cui-input
           label="Password"
           type="password"
           placeholder="Enter your password"
           [leadingIcon]="icons.PasswordIcon"
           [control]="loginForm.controls.password"
+          [blockClipboard]="true"
           [errorMessages]="{
             required: 'Password is required',
           }"
@@ -35,7 +36,7 @@
 
       <button type="submit" class="lp-submit" [disabled]="loginForm.invalid || submitting()">
         @if (submitting()) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
           <span>Signing in…</span>
         } @else {
           <span>Sign in</span>

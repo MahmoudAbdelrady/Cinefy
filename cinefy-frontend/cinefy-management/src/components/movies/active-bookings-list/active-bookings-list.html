@@ -1,24 +1,24 @@
-<app-modal
-  modalTitle="Active Bookings"
+<cui-dialog
+  header="Active Bookings"
   [description]="description()"
-  width="560px"
-  [close]="close()"
+  (closed)="closed.emit()"
+  [style]="{ width: '560px' }"
 >
   @if (isLoading()) {
     <div class="abl-status">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (hasError()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.WarningIcon"
-      title="We couldn't load the active bookings. Please try again."
+      header="We couldn't load the active bookings. Please try again."
     />
   } @else {
     <ul class="abl-list">
       @for (booking of bookings(); track booking.id) {
         <li class="abl-item">
           <div class="abli-poster">
-            <media-image
+            <cui-media-image
               [src]="booking.movie.posterUrl"
               [alt]="booking.movie.title + ' poster'"
               [iconSize]="20"
@@ -62,34 +62,29 @@
             </div>
           </div>
           <div class="abli-actions">
-            <button
-              class="btn-primary"
-              [ngpDialogTrigger]="bookDialog"
-              (ngpDialogTriggerClosed)="loadActiveBookings()"
-            >
+            <button class="btn-primary" (click)="bookingToComplete.set(booking)">
               <svg [lucideIcon]="icons.TicketIcon" [size]="15"></svg>
               <span>Complete</span>
             </button>
           </div>
-
-          <ng-template #bookDialog let-close="close">
-            <app-modal
-              #bookModal
-              modalTitle="Book Seats"
-              [description]="bookingSummary(booking)"
-              [close]="close"
-              width="1200px"
-            >
-              <book-seats [showtimeId]="booking.showtimeId" [container]="bookModal.panelEl()" />
-            </app-modal>
-          </ng-template>
         </li>
       } @empty {
-        <empty-state
+        <cui-empty-state
           [icon]="icons.TicketIcon"
-          title="Bookings you start will wait here until they're completed."
+          header="Bookings you start will wait here until they're completed."
         />
       }
     </ul>
   }
-</app-modal>
+</cui-dialog>
+
+@if (bookingToComplete(); as booking) {
+  <cui-dialog
+    header="Book Seats"
+    [description]="bookingSummary(booking)"
+    (closed)="onBookSeatsClosed()"
+    [style]="{ width: '1200px' }"
+  >
+    <book-seats [showtimeId]="booking.showtimeId" [showBookMoreSeats]="false" />
+  </cui-dialog>
+}

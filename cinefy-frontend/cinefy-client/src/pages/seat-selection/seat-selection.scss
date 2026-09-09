@@ -179,6 +179,11 @@
   border-radius: $radius-full;
   background: $color-primary;
   animation: ss-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  &.ss-booking-dot-expired {
+    background: $color-destructive;
+    animation: none;
+  }
 }
 
 .ss-cancel {
@@ -188,9 +193,12 @@
   height: 36px;
   padding: 0 12px;
   color: $color-muted-foreground;
+  transition:
+    background-color $transition-fast,
+    color $transition-fast;
 
   &:hover {
-    border-color: rgba($color-destructive, 0.6);
+    background: $color-secondary;
     color: $color-destructive;
   }
 }

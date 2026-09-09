@@ -24,7 +24,7 @@
       font-size: 12px;
       font-weight: 600;
       color: $gray-600;
-      transition: color 150ms ease;
+      transition: color $transition-fast;
 
       &:hover {
         color: $gray-900;

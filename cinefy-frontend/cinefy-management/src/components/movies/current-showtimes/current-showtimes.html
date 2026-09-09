@@ -19,7 +19,7 @@
         </div>
       }
       <div class="h-search">
-        <input-field
+        <cui-input
           [control]="searchControl"
           [leadingIcon]="icons.SearchIcon"
           [clearable]="true"
@@ -31,7 +31,7 @@
   <div class="content">
     @if (loading()) {
       <div class="cs-loading">
-        <loading-spinner variant="md" />
+        <cui-loading-spinner variant="md" />
       </div>
     } @else {
       <ul class="cs-grid">
@@ -40,7 +40,7 @@
           <li class="movie-card" [class.movie-card--highlighted]="shMovie.highlighted">
             <div class="mc-identity">
               <div class="mci-poster">
-                <media-image
+                <cui-media-image
                   [src]="shMovie.posterUrl"
                   alt="{{ shMovie.title }} Poster"
                   [iconSize]="36"
@@ -107,7 +107,7 @@
                   </div>
                   <div class="mcfh-control">
                     @if (isHighlighting(shMovie.id)) {
-                      <loading-spinner class="mcfh-pending" variant="xs" />
+                      <cui-loading-spinner class="mcfh-pending" variant="xs" />
                     }
                     <cui-switch
                       size="sm"
@@ -121,19 +121,21 @@
               }
 
               <div class="mcf-actions">
-                <button class="mcfa-view" [ngpDialogTrigger]="viewShowtimesDialog">View</button>
+                <button class="mcfa-view" (click)="movieToView.set(shMovie)">View</button>
                 @if (canManage()) {
-                  <button class="mcfa-add" [ngpDialogTrigger]="addShowtimeDialog">
+                  <button class="mcfa-add" (click)="movieToAdd.set(shMovie)">
                     <svg [lucideIcon]="icons.PlusIcon" [size]="15"></svg>
                     <span>Add Showtime</span>
                   </button>
                   <button
                     class="mcfa-delete"
-                    [ngpDialogTrigger]="deleteDialog"
+                    pTooltip="Delete all showtimes"
+                    tooltipPosition="top"
                     [disabled]="deletingShowtimeIds().has(shMovie.id)"
+                    (click)="movieToDelete.set(item)"
                   >
                     @if (deletingShowtimeIds().has(shMovie.id)) {
-                      <loading-spinner variant="sm" />
+                      <cui-loading-spinner variant="sm" />
                     } @else {
                       <svg [lucideIcon]="icons.DeleteIcon" [size]="17"></svg>
                     }
@@ -141,96 +143,12 @@
                 }
               </div>
             </div>
-
-            <ng-template #viewShowtimesDialog let-close="close">
-              <movie-showtimes-modal
-                [close]="close"
-                [selectedMovie]="shMovie"
-                (addShowtimeRequested)="openAddTrigger.click()"
-                (editShowtimeRequested)="editingShowtime.set($event); openEditTrigger.click()"
-              />
-            </ng-template>
-
-            <button
-              #openAddTrigger
-              type="button"
-              [ngpDialogTrigger]="addShowtimeDialog"
-              hidden
-            ></button>
-
-            <ng-template #addShowtimeDialog let-close="close">
-              <manage-showtime-modal
-                [close]="close"
-                [selectedMovie]="shMovie"
-                [showSelectedMovie]="false"
-              />
-            </ng-template>
-
-            <button
-              #openEditTrigger
-              type="button"
-              [ngpDialogTrigger]="editShowtimeDialog"
-              hidden
-            ></button>
-
-            <ng-template #editShowtimeDialog let-close="close">
-              <manage-showtime-modal
-                [close]="close"
-                [selectedMovie]="shMovie"
-                [showSelectedMovie]="false"
-                [editingShowtime]="editingShowtime()"
-              />
-            </ng-template>
-
-            <ng-template #deleteDialog let-close="close">
-              <app-modal modalTitle="Delete All Showtimes" [close]="close" width="500px">
-                <div class="delete-modal-content">
-                  <div class="dmc-icon">
-                    <svg [lucideIcon]="icons.WarningIcon" [size]="24" [strokeWidth]="2"></svg>
-                  </div>
-                  <p class="dmc-message">
-                    Are you sure you want to delete <strong>all showtimes</strong> for
-                    <strong>{{ shMovie.title }}</strong
-                    >? This action cannot be undone.
-                  </p>
-                  <div class="dmc-warning">
-                    <svg [lucideIcon]="icons.WarningIcon" [size]="16" [strokeWidth]="2"></svg>
-                    <div>
-                      <p><strong>Critical Warning:</strong></p>
-                      <ul>
-                        <li>
-                          {{ item.totalShowtimes }}
-                          {{ item.totalShowtimes === 1 ? 'showtime' : 'showtimes' }} will be deleted
-                        </li>
-                        <li>Showtimes with active reservations cannot be deleted</li>
-                        <li>Historical showtime data will be permanently removed</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div modal-footer class="delete-modal-footer">
-                  <button class="btn-secondary" (click)="close()">Cancel</button>
-                  <button
-                    class="btn-danger"
-                    [disabled]="deletingShowtimeIds().has(shMovie.id)"
-                    (click)="deleteShowtime(shMovie.id, close)"
-                  >
-                    @if (deletingShowtimeIds().has(shMovie.id)) {
-                      <loading-spinner variant="sm" />
-                    } @else {
-                      <span>Delete All</span>
-                    }
-                  </button>
-                </div>
-              </app-modal>
-            </ng-template>
           </li>
         } @empty {
-          <empty-state
+          <cui-empty-state
             class="cs-empty"
             [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.CalendarClockIcon"
-            [title]="hasFilters() ? 'No movies found' : 'No showtimes scheduled yet'"
+            [header]="hasFilters() ? 'No movies found' : 'No showtimes scheduled yet'"
             [description]="
               hasFilters()
                 ? 'Try adjusting your filters.'
@@ -242,3 +160,68 @@
     }
   </div>
 </div>
+
+@if (movieToView(); as movie) {
+  <movie-showtimes-modal
+    [selectedMovie]="movie"
+    (closed)="movieToView.set(null)"
+    (addShowtimeRequested)="movieToAdd.set(movie)"
+    (editShowtimeRequested)="editingShowtime.set($event); movieToEdit.set(movie)"
+  />
+}
+
+@if (movieToAdd(); as movie) {
+  <manage-showtime-modal
+    [selectedMovie]="movie"
+    [showSelectedMovie]="false"
+    (closed)="movieToAdd.set(null)"
+  />
+}
+
+@if (movieToEdit(); as movie) {
+  <manage-showtime-modal
+    [selectedMovie]="movie"
+    [showSelectedMovie]="false"
+    [editingShowtime]="editingShowtime()"
+    (closed)="movieToEdit.set(null)"
+  />
+}
+
+@if (movieToDelete(); as item) {
+  @let deleting = deletingShowtimeIds().has(item.movieDetails.id);
+  <cui-dialog
+    header="Delete All Showtimes"
+    [canClose]="!deleting"
+    [style]="{ width: '500px' }"
+    (closed)="movieToDelete.set(null)"
+  >
+    <div class="delete-modal-content">
+      <div class="dmc-icon">
+        <svg [lucideIcon]="icons.WarningIcon" [size]="24" [strokeWidth]="2"></svg>
+      </div>
+      <p class="dmc-message">
+        Are you sure you want to delete <strong>all showtimes</strong> for
+        <strong>{{ item.movieDetails.title }}</strong
+        >? This action cannot be undone.
+      </p>
+    </div>
+
+    <div customFooter class="delete-modal-footer">
+      <button class="btn-secondary" [disabled]="deleting" (click)="movieToDelete.set(null)">
+        Cancel
+      </button>
+      <button
+        class="btn-danger"
+        [disabled]="deleting"
+        (click)="deleteShowtime(item.movieDetails.id)"
+      >
+        @if (deleting) {
+          <cui-loading-spinner variant="sm" />
+          <span>Deleting…</span>
+        } @else {
+          <span>Delete All</span>
+        }
+      </button>
+    </div>
+  </cui-dialog>
+}

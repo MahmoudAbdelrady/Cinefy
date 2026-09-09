@@ -1,10 +1,10 @@
 import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { skipErrorToast } from '../../../app/core/interceptors';
 import { PaymentGatewaysService } from '../../../services';
-import { AlertIcon, CreditCardIcon } from '../../../shared/icons';
+import { AlertIcon, CreditCardIcon, SettingsIcon } from '../../../shared/icons';
 import { GATEWAY_PROVIDER_LABELS } from '../../../shared/types';
 import type { PaymentGateway } from '../../../shared/types';
 import { PAYMENT_PROVIDERS } from '../../payment/provider-spec';
@@ -16,14 +16,14 @@ import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
     DashboardWidgetComponent,
     RouterLink,
     LucideDynamicIcon,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
   ],
   templateUrl: './active-gateway.html',
   styleUrl: './active-gateway.scss',
 })
 export class ActiveGatewayComponent {
-  protected readonly icons = { AlertIcon, CreditCardIcon };
+  protected readonly icons = { AlertIcon, CreditCardIcon, SettingsIcon };
 
   private readonly paymentGatewaysService = inject(PaymentGatewaysService);
 

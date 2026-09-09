@@ -1,40 +1,41 @@
-<app-modal
-  modalTitle="Showtimes for {{ selectedMovie().title }}"
-  description="View and manage all scheduled showtimes"
-  [close]="close()"
-  width="1000px"
-  fixedHeight="850px"
+<cui-dialog
+  header="Showtimes for {{ selectedMovie().title }}"
+  [style]="{ width: '1000px', height: '850px', maxHeight: 'none' }"
+  (closed)="closed.emit()"
 >
   @if (loadingDates()) {
     <div class="msm-loading">
-      <loading-spinner variant="md" />
+      <cui-loading-spinner variant="md" />
     </div>
   }
   @if (!loadingDates() && movieShowtimes(); as data) {
     @if (data.dates.length === 0) {
-      <empty-state
+      <cui-empty-state
         class="fill"
         [icon]="icons.CalendarIcon"
-        title="No showtimes scheduled"
+        header="No showtimes scheduled"
         description="This movie has no live showtimes yet. Add one to get started."
       />
     } @else {
       <div class="movie-showtimes-container">
-        <div [(ngpTabsetValue)]="selectedTab" ngpTabset class="date-tabs">
-          <div ngpTabList>
-            @for (date of data.dates; track $index) {
-              <button
-                ngpTabButton
-                [ngpTabButtonValue]="date"
-                (ngpTabButtonValueChange)="selectedTab.set(date)"
-              >
+        <p-tabs class="date-tabs" [(value)]="selectedTab" scrollable>
+          <p-tablist>
+            @for (date of data.dates; track date) {
+              <p-tab class="date-tab" [value]="date">
                 <span class="dt-weekday">{{ date | date: 'EEE' }}</span>
                 <span class="dt-day">{{ date | date: 'd' }}</span>
                 <span class="dt-month">{{ date | date: 'MMM' }}</span>
-              </button>
+              </p-tab>
             }
-          </div>
-          <div ngpTabPanel [ngpTabPanelValue]="selectedTab()" class="date-showtimes">
+          </p-tablist>
+        </p-tabs>
+
+        <div class="date-showtimes">
+          @if (loadingDay()) {
+            <div class="msm-loading">
+              <cui-loading-spinner variant="md" />
+            </div>
+          } @else {
             <div class="ds-total">
               {{ movieShowtimeDetails().length }} showtime{{
                 movieShowtimeDetails().length > 1 ? 's' : ''
@@ -66,72 +67,6 @@
                         </span>
                       }
                     </div>
-
-                    <ng-template #bookDialog let-close="close">
-                      <app-modal
-                        #bookModal
-                        modalTitle="Book Seats"
-                        [description]="getShowtimeSummary(showtimeDetail)"
-                        [close]="close"
-                        width="1200px"
-                      >
-                        <book-seats
-                          [showtimeId]="showtimeDetail.id"
-                          [container]="bookModal.panelEl()"
-                        />
-                      </app-modal>
-                    </ng-template>
-
-                    <ng-template #deleteDialog let-close="close">
-                      <app-modal modalTitle="Delete Showtime" [close]="close" width="448px">
-                        <div class="delete-modal-content">
-                          <div class="dmc-icon">
-                            <svg
-                              [lucideIcon]="icons.WarningIcon"
-                              [size]="24"
-                              [strokeWidth]="2"
-                            ></svg>
-                          </div>
-                          <p class="dmc-message">
-                            Are you sure you want to delete this showtime for
-                            <strong>{{ selectedMovie().title }}</strong> on
-                            <strong>{{ selectedTab() | date: 'mediumDate' }}</strong> at
-                            <strong>{{ showtimeDetail.time | time12h }}</strong
-                            >?
-                          </p>
-                          <div class="dmc-warning">
-                            <svg
-                              [lucideIcon]="icons.WarningIcon"
-                              [size]="16"
-                              [strokeWidth]="2"
-                            ></svg>
-                            <div>
-                              <p><strong>Warning:</strong></p>
-                              <ul>
-                                <li>This action cannot be undone</li>
-                                <li>Historical showtime data will be permanently removed</li>
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div modal-footer class="delete-modal-footer">
-                          <button class="btn-secondary" (click)="close()">Cancel</button>
-                          <button
-                            class="btn-danger"
-                            [disabled]="deletingShowtimeIds().has(showtimeDetail.id)"
-                            (click)="onDeleteShowtime(showtimeDetail.id, close)"
-                          >
-                            @if (deletingShowtimeIds().has(showtimeDetail.id)) {
-                              <loading-spinner variant="sm" />
-                              <span>Deleting…</span>
-                            } @else {
-                              <span>Delete Showtime</span>
-                            }
-                          </button>
-                        </div>
-                      </app-modal>
-                    </ng-template>
                   </div>
                   <div class="ds-occupancy">
                     <div class="dso-bar">
@@ -173,8 +108,8 @@
                         @let unavailable = !showtimeDetail.bookable;
                         <button
                           class="dsi-action dsi-action-book"
-                          [ngpDialogTrigger]="bookDialog"
                           [disabled]="hasSoldOut || unavailable"
+                          (click)="bookingShowtime.set(showtimeDetail)"
                         >
                           <svg [lucideIcon]="icons.TicketIcon" [size]="15"></svg>
                           <span>Book</span>
@@ -193,7 +128,7 @@
                             (click)="onPublishShowtime(showtimeDetail.id)"
                           >
                             @if (publishingShowtimeIds().has(showtimeDetail.id)) {
-                              <loading-spinner variant="xs" />
+                              <cui-loading-spinner variant="xs" />
                             } @else {
                               <svg [lucideIcon]="icons.SendIcon" [size]="15"></svg>
                             }
@@ -212,7 +147,7 @@
                           </button>
                           <button
                             class="dsi-action dsi-action-delete"
-                            [ngpDialogTrigger]="deleteDialog"
+                            (click)="showtimeToDelete.set(showtimeDetail)"
                           >
                             <svg [lucideIcon]="icons.DeleteIcon" [size]="15"></svg>
                             <span>Delete</span>
@@ -224,13 +159,13 @@
                 </li>
               }
             </ul>
-          </div>
+          }
         </div>
       </div>
     }
   }
   @if (canManage() && !loadingDates() && movieShowtimes(); as data) {
-    <div modal-footer class="movie-showtimes-footer" [class.has-drafts]="hasAnyDrafts()">
+    <div customFooter class="movie-showtimes-footer" [class.has-drafts]="hasAnyDrafts()">
       <button
         [class]="hasAnyDrafts() ? 'btn-add-outlined' : 'btn-add-solid'"
         (click)="onAddShowtime()"
@@ -247,7 +182,7 @@
             (click)="onPublishAllDrafts()"
           >
             @if (publishingAll()) {
-              <loading-spinner variant="sm" />
+              <cui-loading-spinner variant="sm" />
             } @else if (!hasDayDrafts()) {
               <svg [lucideIcon]="icons.SendIcon" [size]="16"></svg>
             }
@@ -261,7 +196,7 @@
             (click)="onPublishDayDrafts()"
           >
             @if (publishingDay()) {
-              <loading-spinner variant="sm" />
+              <cui-loading-spinner variant="sm" />
             } @else {
               <svg [lucideIcon]="icons.SendIcon" [size]="16"></svg>
             }
@@ -271,4 +206,56 @@
       </div>
     </div>
   }
-</app-modal>
+</cui-dialog>
+
+@if (bookingShowtime(); as showtimeDetail) {
+  <cui-dialog
+    header="Book Seats"
+    [description]="getShowtimeSummary(showtimeDetail)"
+    [style]="{ width: '1200px' }"
+    (closed)="bookingShowtime.set(null)"
+  >
+    <book-seats [showtimeId]="showtimeDetail.id" />
+  </cui-dialog>
+}
+
+@if (showtimeToDelete(); as showtimeDetail) {
+  @let deleting = deletingShowtimeIds().has(showtimeDetail.id);
+  <cui-dialog
+    header="Delete Showtime"
+    [canClose]="!deleting"
+    [style]="{ width: '448px' }"
+    (closed)="showtimeToDelete.set(null)"
+  >
+    <div class="delete-modal-content">
+      <div class="dmc-icon">
+        <svg [lucideIcon]="icons.WarningIcon" [size]="24" [strokeWidth]="2"></svg>
+      </div>
+      <p class="dmc-message">
+        Are you sure you want to delete this showtime for
+        <strong>{{ selectedMovie().title }}</strong> on
+        <strong>{{ selectedTab() | date: 'mediumDate' }}</strong> at
+        <strong>{{ showtimeDetail.time | time12h }}</strong
+        >? This action cannot be undone.
+      </p>
+    </div>
+
+    <div customFooter class="delete-modal-footer">
+      <button class="btn-secondary" [disabled]="deleting" (click)="showtimeToDelete.set(null)">
+        Cancel
+      </button>
+      <button
+        class="btn-danger"
+        [disabled]="deleting"
+        (click)="onDeleteShowtime(showtimeDetail.id)"
+      >
+        @if (deleting) {
+          <cui-loading-spinner variant="sm" />
+          <span>Deleting…</span>
+        } @else {
+          <span>Delete Showtime</span>
+        }
+      </button>
+    </div>
+  </cui-dialog>
+}

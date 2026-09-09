@@ -4,75 +4,71 @@
     <p>Browse everything showing in our cinemas right now.</p>
   </div>
 
-  <div class="movies-filters reveal" style="animation-delay: 60ms">
+  <form class="movies-filters reveal" style="animation-delay: 60ms" [formGroup]="filterForm">
     <div class="mf-search">
-      <input-field
+      <cui-input
         placeholder="Search by title…"
-        [control]="searchControl"
+        [control]="filterForm.controls.search"
         [leadingIcon]="icons.SearchIcon"
         [clearable]="true"
       />
     </div>
 
     <div class="mf-select">
-      <async-select
+      <cui-select
         placeholder="Experience"
-        [fetchFn]="fetchHallTypes"
-        [displayFn]="hallTypeDisplayFn"
-        [valueFn]="hallTypeValueFn"
-        [initialValue]="selectedHallTypes()"
+        labelField="label"
+        valueField="value"
+        [control]="filterForm.controls.hallTypes"
+        [items]="hallTypeEntries()"
         [multi]="true"
         [clearable]="true"
         [searchable]="true"
-        (multiSelectionChange)="onHallTypeChange($event)"
-        (cleared)="onHallTypeChange([])"
       />
     </div>
 
     <div class="mf-select">
-      <custom-select
+      <cui-select
         placeholder="Genre"
-        [items]="genres"
-        [displayFn]="optionDisplayFn"
-        [value]="selectedGenres()"
+        labelField="label"
+        valueField="value"
+        [control]="filterForm.controls.genres"
+        [items]="genreEntries"
         [multi]="true"
         [clearable]="true"
         [searchable]="true"
-        (multiSelectionChange)="onGenreChange($event)"
-        (cleared)="onGenreChange([])"
       />
     </div>
 
     <div class="mf-select">
-      <custom-select
+      <cui-select
         placeholder="Content Rating"
-        [items]="contentRatings"
-        [displayFn]="optionDisplayFn"
-        [value]="selectedContentRatings()"
+        labelField="label"
+        valueField="value"
+        [control]="filterForm.controls.contentRatings"
+        [items]="contentRatingEntries"
         [multi]="true"
         [clearable]="true"
-        (multiSelectionChange)="onContentRatingChange($event)"
-        (cleared)="onContentRatingChange([])"
       />
     </div>
 
     @if (hasFilters()) {
-      <button class="mf-clear" (click)="clearAll()">
+      <button type="button" class="mf-clear" (click)="clearAll()">
         <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
         <span>Clear</span>
       </button>
     }
-  </div>
+  </form>
 
   @if (movies.isLoading()) {
     <div class="movies-loading">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (movies.error()) {
     <div class="movies-empty">
-      <empty-state
+      <cui-empty-state
         [icon]="icons.TriangleAlertIcon"
-        title="Failed to load movies"
+        header="Failed to load movies"
         description="Something went wrong. Please try again later."
       />
     </div>
@@ -93,10 +89,10 @@
           </button>
         </span>
       }
-      @for (hallType of selectedHallTypes(); track hallType.id) {
+      @for (hallTypeId of selectedHallTypes(); track hallTypeId) {
         <span class="filter-chip">
-          <span>Experience: {{ hallType.name }}</span>
-          <button class="fc-clear" (click)="removeHallType(hallType)">
+          <span>Experience: {{ hallTypeLabel(hallTypeId) }}</span>
+          <button class="fc-clear" (click)="removeHallType(hallTypeId)">
             <svg [lucideIcon]="icons.XIcon" [size]="12"></svg>
           </button>
         </span>
@@ -129,7 +125,7 @@
               [style.animation-delay.ms]="$index * 70"
             >
               <div class="mc-poster">
-                <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
+                <cui-media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
                 <div class="mc-poster-overlay">
                   <button class="mc-tickets-btn btn-primary">Get Tickets</button>
                 </div>
@@ -153,9 +149,9 @@
       </ul>
     } @else {
       <div class="movies-empty">
-        <empty-state
+        <cui-empty-state
           [icon]="hasFilters() ? icons.SlidersHorizontalIcon : icons.ClapperboardIcon"
-          [title]="hasFilters() ? 'No movies match your filters' : 'No movies showing'"
+          [header]="hasFilters() ? 'No movies match your filters' : 'No movies showing'"
           [description]="
             hasFilters()
               ? 'Try adjusting your filters.'

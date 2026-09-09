@@ -1,0 +1,94 @@
+<div class="cui-paginated-select-wrapper">
+  @if (label(); as labelText) {
+  <label class="cui-paginated-select-label" [attr.data-required]="isRequired() ? '' : null">{{ labelText }}</label>
+  } @if (multi()) {
+  <p-multiselect
+    [formControl]="control()"
+    (onClear)="onMultiClear()"
+    (onPanelShow)="onPanelShow()"
+    [options]="options()"
+    [optionLabel]="labelField()"
+    [optionValue]="valueField()"
+    [optionDisabled]="'disabled'"
+    [placeholder]="placeholder()"
+    [showClear]="clearable()"
+    [filter]="searchable()"
+    [appendTo]="container()"
+    [loading]="loading()"
+    [showToggleAll]="false"
+    [invalid]="control().touched && control().invalid"
+    size="large"
+  >
+    <ng-template #header>
+      @if (options().length) {
+      <div class="cui-paginated-select-header">
+        <button type="button" class="cui-paginated-select-header-action" (click)="onSelectAll()">Select All</button>
+        <button type="button" class="cui-paginated-select-header-action" data-variant="clear" (click)="onMultiClear()">
+          Clear
+        </button>
+      </div>
+      }
+    </ng-template>
+
+    <ng-template #empty>
+      @if (loading()) {
+      <div class="cui-paginated-select-empty">
+        <cui-loading-spinner variant="sm" />
+      </div>
+      } @else { No results found }
+    </ng-template>
+
+    <ng-template #item let-option>
+      @if (isLoadMore(option)) {
+      <span class="cui-paginated-select-load-more" [attr.data-loading]="loading() ? '' : null" (click)="onLoadMore()">
+        @if (loading()) {
+        <cui-loading-spinner variant="xs" />
+        } @else { {{ labelOf(option) }} }
+      </span>
+      } @else { {{ labelOf(option) }} }
+    </ng-template>
+  </p-multiselect>
+  } @else {
+  <p-select
+    [formControl]="control()"
+    (onShow)="onPanelShow()"
+    [options]="options()"
+    [optionLabel]="labelField()"
+    [optionValue]="valueField()"
+    [optionDisabled]="'disabled'"
+    [placeholder]="placeholder()"
+    [showClear]="clearable()"
+    [filter]="searchable()"
+    [appendTo]="container()"
+    [loading]="loading()"
+    [invalid]="control().touched && control().invalid"
+    size="large"
+  >
+    @if (selectedItemLabel(); as selectedLabel) {
+    <ng-template #selectedItem let-item>{{ item[selectedLabel] }}</ng-template>
+    }
+
+    <ng-template #empty>
+      @if (loading()) {
+      <div class="cui-paginated-select-empty">
+        <cui-loading-spinner variant="sm" />
+      </div>
+      } @else { No results found }
+    </ng-template>
+
+    <ng-template #item let-option>
+      @if (isLoadMore(option)) {
+      <span class="cui-paginated-select-load-more" [attr.data-loading]="loading() ? '' : null" (click)="onLoadMore()">
+        @if (loading()) {
+        <cui-loading-spinner variant="xs" />
+        } @else { {{ labelOf(option) }} }
+      </span>
+      } @else { {{ labelOf(option) }} }
+    </ng-template>
+  </p-select>
+  } @if (hint(); as hintText) {
+  <p class="cui-paginated-select-hint">{{ hintText }}</p>
+  } @if (control().touched && control().errors) {
+  <cui-field-error [control]="control()" [messages]="errorMessages()" />
+  }
+</div>

@@ -2,7 +2,7 @@
   @switch (state().status) {
     @case ('loading') {
       <div class="cf-loading">
-        <loading-spinner variant="lg" />
+        <cui-loading-spinner variant="lg" />
       </div>
     }
     @case ('notFound') {
@@ -49,7 +49,11 @@
         <h1 class="cf-title">Something went wrong</h1>
         <p class="cf-note">We could not load this booking. Please try again in a moment.</p>
         <div class="cf-actions">
-          <a class="btn-primary cf-action" routerLink="/profile">
+          <a
+            class="btn-primary cf-action"
+            routerLink="/profile"
+            [queryParams]="{ tab: 'bookings' }"
+          >
             <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
             View my bookings
           </a>
@@ -62,7 +66,7 @@
           @switch (paymentState()) {
             @case ('PENDING') {
               <span class="cf-badge cf-badge-pending">
-                <loading-spinner variant="xl" />
+                <cui-loading-spinner variant="xl" />
               </span>
             }
             @case ('FAILED') {
@@ -94,7 +98,7 @@
         <div class="cf-ticket reveal">
           <div class="cf-ticket-hero">
             <div class="cf-ticket-backdrop">
-              <media-image
+              <cui-media-image
                 [src]="booking.movie.backdropUrl"
                 [alt]="booking.movie.title + ' backdrop'"
               />
@@ -191,7 +195,11 @@
                 <svg [lucideIcon]="icons.ClapperboardIcon" [size]="16"></svg>
                 Browse movies
               </a>
-              <a class="btn-primary cf-action" routerLink="/profile">
+              <a
+                class="btn-primary cf-action"
+                routerLink="/profile"
+                [queryParams]="{ tab: 'bookings' }"
+              >
                 <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
                 View my bookings
               </a>

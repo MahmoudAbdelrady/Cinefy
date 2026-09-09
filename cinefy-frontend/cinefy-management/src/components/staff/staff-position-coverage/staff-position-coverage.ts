@@ -9,11 +9,11 @@ import {
 } from '../../../shared/types';
 import { StaffService } from '../../../services';
 import { InfoIcon } from '../../../shared/icons';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 
 @Component({
   selector: 'staff-position-coverage',
-  imports: [LoadingSpinnerComponent, LucideDynamicIcon],
+  imports: [CinefyLoadingSpinner, LucideDynamicIcon],
   templateUrl: './staff-position-coverage.html',
   styleUrl: './staff-position-coverage.scss',
 })

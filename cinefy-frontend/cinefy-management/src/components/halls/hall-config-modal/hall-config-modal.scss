@@ -5,6 +5,17 @@
 
 // ─── Add / Edit Hall Modal ──────────────────────────────────────────────────────
 
+.hall-config-modal-header {
+  @include dialog-header;
+
+  flex: 1;
+  justify-content: space-between;
+
+  .hcmh-title {
+    font-size: 22px;
+  }
+}
+
 .hall-config-modal-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -90,7 +101,7 @@
     background-color: $gray-50;
     margin-top: 16px;
     cursor: pointer;
-    transition: all 150ms ease;
+    transition: all $transition-fast;
 
     &:hover {
       border-color: $gray-300;
@@ -153,7 +164,7 @@
   padding: 12px;
   border-radius: $radius-md;
   border: 2px solid;
-  transition: all 150ms ease;
+  transition: all $transition-fast;
   cursor: pointer;
 
   &:hover {
@@ -265,7 +276,7 @@
     border: 2px solid $gray-200;
     background-color: $gray-50;
     cursor: pointer;
-    transition: all 150ms ease;
+    transition: all $transition-fast;
 
     &:hover {
       border-color: $gray-300;
@@ -306,7 +317,7 @@
     color: $gray-500;
     font-size: 12px;
     font-weight: 700;
-    transition: all 150ms ease;
+    transition: all $transition-fast;
   }
 
   .sg-label-text {
@@ -425,8 +436,8 @@
 // ─── Hall Config Modal Footer ───────────────────────────────────────────────────
 
 .hall-config-modal-footer {
-  display: flex;
-  justify-content: flex-end;
+  @include dialog-footer;
+
   width: 100%;
 
   .save-btns {
@@ -468,8 +479,9 @@
   @include flex-center;
   @include lucide-icon-fix;
   padding: 8px;
+  margin-right: 5px;
   border-radius: $radius-lg;
-  transition: all 150ms ease;
+  transition: all $transition-fast;
   cursor: pointer;
 
   &.edit {

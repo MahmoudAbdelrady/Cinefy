@@ -3,12 +3,12 @@
 
   @if (datesResource.isLoading()) {
     <div class="bs-loading">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (datesResource.error()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.TriangleAlertIcon"
-      title="Couldn't load showtimes"
+      header="Couldn't load showtimes"
       description="Something went wrong. Please try again later."
     />
   } @else if (!dates().length) {
@@ -40,12 +40,12 @@
 
     @if (showtimesResource.isLoading()) {
       <div class="bs-formats-loading">
-        <loading-spinner variant="lg" />
+        <cui-loading-spinner variant="lg" />
       </div>
     } @else if (showtimesResource.error()) {
-      <empty-state
+      <cui-empty-state
         [icon]="icons.TriangleAlertIcon"
-        title="Couldn't load showtimes"
+        header="Couldn't load showtimes"
         description="Something went wrong. Please try again later."
       />
     } @else {
@@ -79,9 +79,9 @@
             </ul>
           </li>
         } @empty {
-          <empty-state
+          <cui-empty-state
             [icon]="icons.CalendarIcon"
-            title="No showtimes for this date"
+            header="No showtimes for this date"
             description="Try another date above."
           />
         }

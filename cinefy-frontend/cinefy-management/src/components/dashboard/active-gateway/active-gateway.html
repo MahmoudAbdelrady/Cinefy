@@ -1,13 +1,14 @@
 <dashboard-widget
   [icon]="icons.CreditCardIcon"
-  title="Active gateway"
+  header="Active gateway"
   iconColor="var(--ag-icon-color)"
   actionLabel="Configure"
+  [actionIcon]="icons.SettingsIcon"
   actionLink="/payment"
 >
   @if (loading()) {
     <div class="ag-loading">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (gateway(); as gateway) {
     <div class="ag-body">
@@ -39,9 +40,9 @@
     </div>
   } @else {
     <div class="ag-empty">
-      <empty-state
+      <cui-empty-state
         [icon]="icons.AlertIcon"
-        title="No active gateway"
+        header="No active gateway"
         description="Online bookings can't be paid for until one is activated."
       />
       <a class="ag-empty-action" routerLink="/payment">

@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NotFoundComponent } from 'cinefy-ui/components';
+import { CinefyNotFound } from 'cinefy-ui/components';
 
 @Component({
   selector: 'not-found-page',
-  imports: [RouterLink, NotFoundComponent],
+  imports: [RouterLink, CinefyNotFound],
   templateUrl: './not-found.html',
 })
 export class NotFoundPage {}

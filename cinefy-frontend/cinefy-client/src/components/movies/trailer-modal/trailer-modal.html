@@ -1,4 +1,9 @@
-<app-modal [modalTitle]="title() + ' - Trailer'" width="900px" bodyPadding="0" [close]="close()">
+<cui-dialog
+  [header]="title() + ' - Trailer'"
+  [style]="{ width: '900px' }"
+  [contentStyle]="{ padding: '0' }"
+  (closed)="closed.emit()"
+>
   <div class="trailer-frame">
     <iframe
       [src]="embedUrl()"
@@ -14,4 +19,4 @@
       allowfullscreen
     ></iframe>
   </div>
-</app-modal>
+</cui-dialog>

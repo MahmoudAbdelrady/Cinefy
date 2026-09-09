@@ -13,44 +13,24 @@
       <div class="alh-info">
         @if (isAuthenticatedLoading() || currentUserLoading()) {
           <div class="alh-auth-loading">
-            <loading-spinner variant="sm" />
+            <cui-loading-spinner variant="sm" />
           </div>
         } @else if (isAuthenticated()) {
-          <button class="alh-tickets-btn btn-primary" [ngpDialogTrigger]="myTicketsDialog">
+          <button class="alh-tickets-btn btn-primary" (click)="myTicketsVisible.set(true)">
             <svg [lucideIcon]="icons.TicketIcon" [size]="18"></svg>
             <span>My Tickets</span>
           </button>
           <span class="alh-divider"></span>
-          <button class="alh-user" [ngpMenuTrigger]="userInfoMenu">
-            <span class="alh-user-icon">
-              <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
-            </span>
-            @if (userDisplayName()) {
-              <span class="alh-user-name">{{ userDisplayName() }}</span>
-            }
-          </button>
-          <ng-template #myTicketsDialog let-close="close">
-            <my-tickets-list [close]="close" />
-          </ng-template>
-          <ng-template #userInfoMenu>
-            <div class="user-info-menu-items" ngpMenu>
-              @for (item of userInfoMenuItems; track item.label) {
-                <button
-                  class="uim-item"
-                  ngpMenuItem
-                  [disabled]="item.loading?.() ?? false"
-                  (click)="item.action()"
-                >
-                  @if (item.loading?.()) {
-                    <loading-spinner variant="sm" />
-                  } @else {
-                    <svg [lucideIcon]="item.icon" [size]="16"></svg>
-                  }
-                  <span>{{ item.label }}</span>
-                </button>
+          <cui-menu [items]="userInfoMenuGroups">
+            <button class="alh-user">
+              <span class="alh-user-icon">
+                <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
+              </span>
+              @if (userDisplayName()) {
+                <span class="alh-user-name">{{ userDisplayName() }}</span>
               }
-            </div>
-          </ng-template>
+            </button>
+          </cui-menu>
         } @else {
           <div class="alh-auth">
             <a class="alh-auth-btn btn-secondary" routerLink="/membership/login">
@@ -81,3 +61,7 @@
     </div>
   </footer>
 </div>
+
+@if (myTicketsVisible()) {
+  <my-tickets-list (closed)="myTicketsVisible.set(false)" />
+}

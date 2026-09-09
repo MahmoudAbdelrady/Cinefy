@@ -1,5 +1,5 @@
 import { afterNextRender, Component, computed, inject, output, signal } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
@@ -11,16 +11,16 @@ import {
   TagIcon,
   UsersIcon,
 } from '../../../shared/icons';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
-  InputField,
-  LoadingSpinnerComponent,
-  ModalComponent,
-  EmptyStateComponent,
-  CustomSelectComponent,
+  CinefyInput,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
+  CinefySelect,
+  CinefyDialog,
+  CinefyDialogFooter,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { HallConfigModalComponent } from '../hall-config-modal/hall-config-modal';
 import {
   HALL_STATUS_LABELS,
@@ -34,13 +34,14 @@ import { HallsService } from '../../../services';
   selector: 'halls-list',
   imports: [
     LucideDynamicIcon,
-    NgpDialogTrigger,
-    InputField,
-    CustomSelectComponent,
-    ModalComponent,
+    ReactiveFormsModule,
+    CinefyInput,
+    CinefySelect,
+    CinefyDialog,
+    CinefyDialogFooter,
     HallConfigModalComponent,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
   ],
   templateUrl: './halls-list.html',
   styleUrl: './halls-list.scss',
@@ -58,21 +59,30 @@ export class HallsListComponent {
   };
 
   private readonly hallsService = inject(HallsService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
 
   protected readonly statusLabels = HALL_STATUS_LABELS;
-  protected readonly hallStatuses = Object.keys(HALL_STATUS_LABELS) as HallStatus[];
 
   protected readonly loading = signal(true);
-  protected readonly deletingHallId = signal<string | null>(null);
+  protected readonly deleting = signal(false);
+  protected readonly viewHallId = signal<string | null>(null);
+  protected readonly hallToDelete = signal<HallSummary | null>(null);
   protected readonly halls = signal<HallSummary[]>([]);
 
   readonly statisticsChanged = output<StatisticsChange>();
 
-  protected readonly statusFilter = signal<HallStatus | undefined>(undefined);
+  protected readonly filterForm = new FormGroup({
+    search: new FormControl<string>('', { nonNullable: true }),
+    status: new FormControl<HallStatus | null>(null),
+  });
 
-  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
-  private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: '' });
+  private readonly searchTerm = toSignal(this.filterForm.controls.search.valueChanges, {
+    initialValue: '',
+  });
+
+  private readonly statusFilter = toSignal(this.filterForm.controls.status.valueChanges, {
+    initialValue: null,
+  });
 
   protected readonly filteredHalls = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
@@ -85,10 +95,12 @@ export class HallsListComponent {
   });
 
   protected readonly hasFilters = computed(
-    () => this.searchTerm().trim() !== '' || this.statusFilter() !== undefined,
+    () => this.searchTerm().trim() !== '' || this.statusFilter() !== null,
   );
 
-  protected readonly statusDisplayFn = (status: HallStatus): string => HALL_STATUS_LABELS[status];
+  protected readonly hallStatusEntries = (
+    Object.entries(HALL_STATUS_LABELS) as [HallStatus, string][]
+  ).map(([value, label]) => ({ value, label }));
 
   constructor() {
     afterNextRender(() => {
@@ -120,14 +132,6 @@ export class HallsListComponent {
     });
   }
 
-  protected onStatusFilterChange(status: HallStatus): void {
-    this.statusFilter.set(status);
-  }
-
-  protected onStatusFilterCleared(): void {
-    this.statusFilter.set(undefined);
-  }
-
   protected updateHall(updated: HallSummary): void {
     const previous = this.halls().find((h) => h.id === updated.id);
     this.halls.update((halls) => halls.map((h) => (h.id === updated.id ? updated : h)));
@@ -139,8 +143,8 @@ export class HallsListComponent {
     });
   }
 
-  protected deleteHall(hall: HallSummary, close: () => void): void {
-    this.deletingHallId.set(hall.id);
+  protected deleteHall(hall: HallSummary): void {
+    this.deleting.set(true);
     this.hallsService.deleteHall(hall.id).subscribe({
       next: () => {
         this.halls.update((halls) => halls.filter((h) => h.id !== hall.id));
@@ -149,11 +153,11 @@ export class HallsListComponent {
           status: hall.status,
           capacity: hall.totalRows * hall.totalColumns,
         });
-        this.deletingHallId.set(null);
+        this.deleting.set(false);
         this.toastService.success('Hall deleted');
-        close();
+        this.hallToDelete.set(null);
       },
-      error: () => this.deletingHallId.set(null),
+      error: () => this.deleting.set(false),
     });
   }
 }

@@ -1,19 +1,20 @@
 <dashboard-widget
   [icon]="icons.LayoutIcon"
-  title="Halls"
+  header="Halls"
   iconColor="var(--hs-icon-color)"
   actionLabel="Manage"
+  [actionIcon]="icons.SettingsIcon"
   actionLink="/halls"
 >
   @if (loading()) {
     <div class="hs-loading">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (totalHalls() === 0) {
-    <empty-state
+    <cui-empty-state
       class="hs-empty"
       [icon]="icons.LayoutIcon"
-      title="No halls yet"
+      header="No halls yet"
       description="Create a hall to start scheduling showtimes."
     />
   } @else {

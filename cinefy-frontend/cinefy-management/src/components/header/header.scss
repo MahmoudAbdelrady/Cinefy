@@ -36,7 +36,7 @@
   margin-left: -8px;
   color: $gray-500;
   border-radius: $radius-md;
-  transition: all 150ms ease;
+  transition: all $transition-fast;
 
   &:hover {
     color: $gray-700;
@@ -82,7 +82,7 @@
       border-radius: $radius-lg;
       font-size: 14px;
       font-weight: 500;
-      transition: all 150ms ease;
+      transition: all $transition-fast;
       box-shadow: 0 1px 3px rgba($blue-600, 0.2);
       white-space: nowrap;
 
@@ -128,14 +128,12 @@
 }
 
 .user-info-container {
-  position: relative;
-
-  > button {
+  .user-info-trigger {
     @include flex-align;
     gap: 12px;
     padding: 6px 12px 6px 6px;
     border-radius: $radius-lg;
-    transition: background-color 150ms ease;
+    transition: background-color $transition-fast;
 
     &:hover {
       background-color: $gray-100;
@@ -175,7 +173,7 @@
 
     > svg:last-child {
       color: $gray-400;
-      transition: all 150ms ease;
+      transition: all $transition-fast;
       display: flex;
 
       @include below-desktop {
@@ -185,64 +183,6 @@
 
     &:hover > svg:last-child {
       color: $gray-600;
-    }
-  }
-}
-
-.user-info-menu-items {
-  position: absolute;
-  right: 0;
-  margin-top: 8px;
-  width: 192px;
-  background-color: #ffffff;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-lg;
-  border: 1px solid $card-border-subtle;
-  padding: 6px 0;
-  overflow: hidden;
-  z-index: 30;
-}
-
-.uim-item {
-  @include flex-align;
-  gap: 12px;
-  width: 100%;
-  padding: 10px 16px;
-  border: none;
-  background: none;
-  font-family: inherit;
-  font-size: 14px;
-  text-align: left;
-  color: $gray-700;
-  transition: background-color 150ms ease;
-  cursor: pointer;
-
-  &:not(:disabled):hover {
-    background-color: $gray-50;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  svg {
-    display: flex;
-    color: $gray-400;
-  }
-
-  &:last-child {
-    color: $red-600;
-    margin-top: 6px;
-    padding-top: 10px;
-    border-top: 1px solid $gray-100;
-
-    &:not(:disabled):hover {
-      background-color: $red-50;
-    }
-
-    svg {
-      color: $red-400;
     }
   }
 }

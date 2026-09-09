@@ -6,11 +6,9 @@ import {
   inject,
   output,
   signal,
-  TemplateRef,
-  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
@@ -26,16 +24,16 @@ import {
   SlidersHorizontalIcon,
   UsersIcon,
 } from '../../../shared/icons';
-import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
-  ModalComponent,
-  PaginationComponent,
-  CustomSelectComponent,
-  InputField,
-  LoadingSpinnerComponent,
-  EmptyStateComponent,
+  CinefyDialog,
+  CinefyDialogFooter,
+  CinefyPaginator,
+  CinefySelect,
+  CinefyInput,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
 import type { PaginatedResponse } from 'cinefy-ui/types';
 import { StaffDetailsComponent } from '../staff-details/staff-details';
@@ -56,13 +54,14 @@ import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
   selector: 'staff-list',
   imports: [
     LucideDynamicIcon,
-    CustomSelectComponent,
-    InputField,
-    PaginationComponent,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
-    NgpDialogTrigger,
-    ModalComponent,
+    ReactiveFormsModule,
+    CinefySelect,
+    CinefyInput,
+    CinefyPaginator,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
+    CinefyDialog,
+    CinefyDialogFooter,
     StaffDetailsComponent,
     ManageStaffModalComponent,
     Time12hPipe,
@@ -87,33 +86,40 @@ export class StaffListComponent {
   };
 
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly dialogManager = inject(NgpDialogManager);
-
-  protected readonly editTemplate = viewChild.required<TemplateRef<unknown>>('editDialog');
 
   protected readonly positionLabels = USER_POSITION_LABELS;
   protected readonly weekDayLabels = WEEK_DAY_LABELS;
-  protected readonly staffPositions = (Object.keys(USER_POSITION_LABELS) as UserPosition[]).filter(
-    (position) => position !== 'ADMIN',
-  );
   protected readonly pageSize = 10;
 
   readonly coverageChanged = output<CoverageChange>();
 
   protected readonly pendingEditId = signal<string | null>(null);
   protected readonly pendingEditMember = signal<StaffMemberDetail | null>(null);
+  protected readonly editVisible = signal(false);
+  protected readonly memberToView = signal<string | null>(null);
+  protected readonly memberToDelete = signal<StaffMemberSummary | null>(null);
   protected readonly deletingStaffIds = signal<ReadonlySet<string>>(new Set());
 
   protected readonly positionFilter = signal<UserPosition | undefined>(undefined);
-  protected readonly page = signal(1);
+  protected readonly page = signal(0);
 
   protected readonly loading = signal(true);
   protected readonly staffPage = signal<PaginatedResponse<StaffMemberSummary> | null>(null);
 
-  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+  protected readonly filterForm = new FormGroup({
+    search: new FormControl<string>('', { nonNullable: true }),
+    position: new FormControl<UserPosition | null>(null),
+  });
+
   private readonly appliedSearch = signal('');
+
+  protected readonly staffPositionEntries = (
+    Object.entries(USER_POSITION_LABELS) as [UserPosition, string][]
+  )
+    .filter(([value]) => value !== 'ADMIN')
+    .map(([value, label]) => ({ value, label }));
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
 
@@ -133,12 +139,12 @@ export class StaffListComponent {
   };
 
   private readonly staff$ = combineLatest([
-    this.searchControl.valueChanges.pipe(
+    this.filterForm.controls.search.valueChanges.pipe(
       startWith(''),
       debounceTime(SEARCH_DEBOUNCE_MS),
       distinctUntilChanged(),
       tap((search) => {
-        this.page.set(1);
+        this.page.set(0);
         this.appliedSearch.set(search.trim());
       }),
     ),
@@ -146,17 +152,21 @@ export class StaffListComponent {
     toObservable(this.page),
   ]);
 
-  protected readonly positionDisplayFn = (position: UserPosition): string =>
-    USER_POSITION_LABELS[position];
-
   constructor() {
+    this.filterForm.controls.position.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((position) => {
+        this.positionFilter.set(position ?? undefined);
+        this.page.set(0);
+      });
+
     afterNextRender(() => {
       this.staff$
         .pipe(
           tap(() => this.loading.set(true)),
           switchMap(([search, position, page]) =>
             this.staffService.getStaffMembers(search || undefined, position, {
-              page: page - 1,
+              page,
               size: this.pageSize,
             }),
           ),
@@ -211,16 +221,6 @@ export class StaffListComponent {
     return (first.charAt(0) + last.charAt(0)).toUpperCase();
   }
 
-  protected onPositionFilterChange(position: UserPosition): void {
-    this.positionFilter.set(position);
-    this.page.set(1);
-  }
-
-  protected onPositionFilterCleared(): void {
-    this.positionFilter.set(undefined);
-    this.page.set(1);
-  }
-
   protected openEditDialog(idOrMember: string | StaffMemberDetail): void {
     if (typeof idOrMember === 'string') {
       this.pendingEditId.set(idOrMember);
@@ -229,10 +229,10 @@ export class StaffListComponent {
       this.pendingEditId.set(null);
       this.pendingEditMember.set(idOrMember);
     }
-    this.dialogManager.open(this.editTemplate() as never);
+    this.editVisible.set(true);
   }
 
-  protected deleteStaffMember(id: string, close: () => void): void {
+  protected deleteStaffMember(id: string): void {
     if (this.deletingStaffIds().has(id)) return;
     this.deletingStaffIds.update((current) => new Set(current).add(id));
     this.staffService.deleteStaffMember(id).subscribe({
@@ -241,7 +241,7 @@ export class StaffListComponent {
         if (staffPage) {
           const deletedPosition = staffPage.content.find((m) => m.id === id)?.position;
           const content = staffPage.content.filter((m) => m.id !== id);
-          if (content.length === 0 && this.page() > 1) {
+          if (content.length === 0 && this.page() > 0) {
             this.page.update((p) => p - 1);
           } else {
             this.staffPage.set({
@@ -260,7 +260,7 @@ export class StaffListComponent {
           return next;
         });
         this.toastService.success('Staff member deleted');
-        close();
+        this.memberToDelete.set(null);
       },
       error: () => {
         this.deletingStaffIds.update((current) => {

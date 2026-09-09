@@ -1,4 +1,4 @@
-@use "radii" as *;
+@use "tokens" as *;
 @use "mixins" as *;
 
 .btn-base {
@@ -8,7 +8,7 @@
   font-size: 14px;
   font-weight: 500;
   border-radius: $radius-md;
-  transition: all 150ms ease;
+  transition: all $transition-fast;
   cursor: pointer;
 }
 

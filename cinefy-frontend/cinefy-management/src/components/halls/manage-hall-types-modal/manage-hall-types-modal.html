@@ -1,9 +1,4 @@
-<app-modal
-  modalTitle="Manage Hall Types"
-  description="Create and manage hall types for your cinema"
-  [close]="close()"
-  width="480px"
->
+<cui-dialog header="Manage Hall Types" (closed)="closed.emit()" [style]="{ width: '480px' }">
   <div class="manage-types-modal-content">
     <div class="existing-types-container">
       <div class="section-head">
@@ -15,7 +10,7 @@
       </div>
       @if (loadingTypes()) {
         <div class="loading-types">
-          <loading-spinner variant="lg" />
+          <cui-loading-spinner variant="lg" />
         </div>
       } @else {
         <ul class="existing-types-list">
@@ -32,8 +27,7 @@
                     <svg [lucideIcon]="icons.TagIcon" [size]="17" [strokeWidth]="2"></svg>
                   </div>
                   <div class="inline-edit-field">
-                    <input-field
-                      size="sm"
+                    <cui-input
                       [control]="editTypeForm.controls.name"
                       [errorMessages]="nameErrorMessages"
                       [autoFocus]="true"
@@ -42,7 +36,7 @@
                   <div class="action-buttons editing">
                     <button
                       type="submit"
-                      title="Save"
+                      pTooltip="Save"
                       [disabled]="editTypeForm.invalid || savingTypeId() === type.id"
                     >
                       <svg
@@ -54,7 +48,12 @@
                         [class.spin]="savingTypeId() === type.id"
                       ></svg>
                     </button>
-                    <button type="button" (click)="cancelEditType()" title="Cancel">
+                    <button
+                      type="button"
+                      (click)="cancelEditType()"
+                      [disabled]="savingTypeId() === type.id"
+                      pTooltip="Cancel"
+                    >
                       <svg [lucideIcon]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></svg>
                     </button>
                   </div>
@@ -65,54 +64,33 @@
                 </div>
                 <span class="type-name">{{ type.name }}</span>
                 <div class="action-buttons">
-                  <button (click)="startEditingType(type)">
+                  <button
+                    [disabled]="isDeleting(type.id!)"
+                    (click)="startEditingType(type)"
+                    pTooltip="Edit"
+                    tooltipPosition="top"
+                  >
                     <svg [lucideIcon]="icons.EditIcon" [size]="14" [strokeWidth]="2.5"></svg>
                   </button>
                   <button
-                    [ngpPopoverTrigger]="deleteConfirm"
-                    ngpPopoverTriggerPlacement="top"
-                    ngpPopoverTriggerOffset="8"
-                    ngpPopoverTriggerContainer=".modal-overlay"
-                    #deleteTrigger="ngpPopoverTrigger"
+                    [disabled]="isDeleting(type.id!)"
+                    (click)="openDeleteConfirm($event, type)"
+                    pTooltip="Delete"
+                    tooltipPosition="top"
                   >
-                    <svg [lucideIcon]="icons.DeleteIcon" [size]="14" [strokeWidth]="2.5"></svg>
+                    @if (isDeleting(type.id!)) {
+                      <cui-loading-spinner variant="xs" />
+                    } @else {
+                      <svg [lucideIcon]="icons.DeleteIcon" [size]="14" [strokeWidth]="2.5"></svg>
+                    }
                   </button>
-                  <ng-template #deleteConfirm>
-                    <div ngpPopover class="delete-confirm-popover">
-                      <div class="delete-confirm-header">
-                        <svg [lucideIcon]="icons.WarningIcon" [size]="16" [strokeWidth]="2.5"></svg>
-                        <span>Delete "{{ type.name }}"?</span>
-                      </div>
-                      <p>This action cannot be undone.</p>
-                      <div class="delete-confirm-actions">
-                        <button
-                          class="btn-cancel"
-                          (click)="$event.stopPropagation(); deleteTrigger.hide()"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          class="btn-delete"
-                          [disabled]="deletingTypeId() === type.id"
-                          (click)="$event.stopPropagation(); deleteType(type)"
-                        >
-                          @if (deletingTypeId() === type.id) {
-                            <loading-spinner variant="xs" />
-                            <span>Deleting…</span>
-                          } @else {
-                            Delete
-                          }
-                        </button>
-                      </div>
-                    </div>
-                  </ng-template>
                 </div>
               }
             </li>
           } @empty {
-            <empty-state
+            <cui-empty-state
               [icon]="icons.TagIcon"
-              title="No hall types yet"
+              header="No hall types yet"
               description="Add your first type below to get started"
             />
           }
@@ -131,8 +109,7 @@
             <svg [lucideIcon]="icons.TagIcon" [size]="17" [strokeWidth]="2"></svg>
           </div>
           <div class="inline-edit-field">
-            <input-field
-              size="sm"
+            <cui-input
               placeholder="e.g. ScreenX, Dolby Atmos"
               [control]="newTypeForm.controls.name"
               [errorMessages]="nameErrorMessages"
@@ -140,7 +117,12 @@
             />
           </div>
           <div class="action-buttons editing">
-            <button type="submit" title="Save" [disabled]="newTypeForm.invalid || addingType()">
+            <button
+              type="submit"
+              pTooltip="Save"
+              tooltipPosition="top"
+              [disabled]="newTypeForm.invalid || addingType()"
+            >
               <svg
                 [lucideIcon]="addingType() ? icons.LoaderIcon : icons.CheckIcon"
                 [size]="14"
@@ -148,7 +130,13 @@
                 [class.spin]="addingType()"
               ></svg>
             </button>
-            <button type="button" (click)="cancelAddType()" title="Cancel">
+            <button
+              type="button"
+              (click)="cancelAddType()"
+              [disabled]="addingType()"
+              pTooltip="Cancel"
+              tooltipPosition="top"
+            >
               <svg [lucideIcon]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></svg>
             </button>
           </div>
@@ -161,4 +149,33 @@
       }
     </div>
   </div>
-</app-modal>
+
+  <p-popover>
+    @if (typeToDelete(); as type) {
+      <div class="delete-confirm-popover">
+        <div class="delete-confirm-header">
+          <svg [lucideIcon]="icons.WarningIcon" [size]="16" [strokeWidth]="2.5"></svg>
+          <span>Delete "{{ type.name }}"?</span>
+        </div>
+        <p>This action cannot be undone.</p>
+        <div class="delete-confirm-actions">
+          <button
+            class="btn-cancel"
+            [disabled]="isDeleting(type.id!)"
+            (click)="closeDeleteConfirm()"
+          >
+            Cancel
+          </button>
+          <button class="btn-delete" [disabled]="isDeleting(type.id!)" (click)="deleteType(type)">
+            @if (isDeleting(type.id!)) {
+              <cui-loading-spinner variant="xs" />
+              <span>Deleting…</span>
+            } @else {
+              Delete
+            }
+          </button>
+        </div>
+      </div>
+    }
+  </p-popover>
+</cui-dialog>

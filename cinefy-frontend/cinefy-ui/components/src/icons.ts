@@ -7,8 +7,6 @@ export {
   LucideChevronDown as ChevronDownIcon,
   LucideChevronLeft as ChevronLeftIcon,
   LucideChevronRight as ChevronRightIcon,
-  LucideChevronsLeft as ChevronsLeftIcon,
-  LucideChevronsRight as ChevronsRightIcon,
   LucideX as XIcon,
   LucideCheck as CheckIcon,
   LucideCalendar as CalendarIcon,

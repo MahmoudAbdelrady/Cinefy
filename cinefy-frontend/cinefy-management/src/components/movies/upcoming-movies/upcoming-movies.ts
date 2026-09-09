@@ -11,13 +11,12 @@ import {
 } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
 import { differenceInCalendarDays } from 'date-fns';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
-  LoadingSpinnerComponent,
-  EmptyStateComponent,
-  InputField,
-  MediaImageComponent,
-  Switch,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
+  CinefyInput,
+  CinefyMediaImage,
+  CinefySwitch,
 } from 'cinefy-ui/components';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MoviesService, ShowtimeEventsService } from '../../../services';
@@ -28,13 +27,12 @@ const COMING_SOON_WINDOW_DAYS = 10;
   selector: 'upcoming-movies',
   imports: [
     LucideDynamicIcon,
-    NgpDialogTrigger,
-    Switch,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
-    InputField,
+    CinefySwitch,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
+    CinefyInput,
     ManageShowtimeModalComponent,
-    MediaImageComponent,
+    CinefyMediaImage,
   ],
   templateUrl: './upcoming-movies.html',
   styleUrl: './upcoming-movies.scss',
@@ -54,6 +52,7 @@ export class UpcomingMoviesComponent {
 
   protected readonly loading = signal(true);
   protected readonly movies = signal<UpcomingMovie[]>([]);
+  protected readonly movieToSchedule = signal<UpcomingMovie | null>(null);
 
   private readonly announcePendingIds = signal<Set<number>>(new Set());
   private readonly highlightPendingIds = signal<Set<number>>(new Set());
@@ -135,12 +134,12 @@ export class UpcomingMoviesComponent {
     if (this.isAnnouncePending(movieId)) return;
 
     this.setPending(movieId, true);
+    this.setAnnounced(movieId, announced);
     this.moviesService
       .setAnnouncement(movieId, announced)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.setAnnounced(movieId, announced);
           this.setPending(movieId, false);
           this.demoteHighlightIfUnhighlightable(movieId);
         },
@@ -156,12 +155,12 @@ export class UpcomingMoviesComponent {
     if (this.isHighlightPending(movieId)) return;
 
     this.setHighlightPending(movieId, true);
+    this.setHighlighted(movieId, highlighted);
     this.moviesService
       .setHighlight(movieId, highlighted)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.setHighlighted(movieId, highlighted);
           this.setHighlightPending(movieId, false);
           this.showtimeEvents.notifyHighlightChanged(movieId, highlighted);
         },

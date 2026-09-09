@@ -1,12 +1,17 @@
-<app-modal modalTitle="My Tickets" [description]="description()" width="512px" [close]="close()">
+<cui-dialog
+  header="My Tickets"
+  [description]="description()"
+  [style]="{ width: '512px' }"
+  (closed)="closed.emit()"
+>
   @if (isLoading()) {
     <div class="tickets-status">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (hasError()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.TriangleAlertIcon"
-      title="We couldn't load your bookings. Please try again."
+      header="We couldn't load your bookings. Please try again."
     />
   } @else {
     <ul class="bookings-list">
@@ -14,7 +19,7 @@
         <li class="booking-item">
           <div class="bi-main">
             <div class="bi-movie-poster">
-              <media-image
+              <cui-media-image
                 [src]="booking.movie.posterUrl"
                 [alt]="booking.movie.title + ' poster'"
               />
@@ -60,18 +65,22 @@
             </div>
           </div>
           <div class="bi-actions">
-            <button class="btn-primary" routerLink="/checkout/{{ booking.id }}" (click)="close()()">
+            <button
+              class="btn-primary"
+              routerLink="/checkout/{{ booking.id }}"
+              (click)="closeDialog()"
+            >
               <span>Proceed</span>
               <svg [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>
             </button>
           </div>
         </li>
       } @empty {
-        <empty-state
+        <cui-empty-state
           [icon]="icons.TicketIcon"
-          title="Bookings you start will wait here until you complete them."
+          header="Bookings you start will wait here until you complete them."
         />
       }
     </ul>
   }
-</app-modal>
+</cui-dialog>

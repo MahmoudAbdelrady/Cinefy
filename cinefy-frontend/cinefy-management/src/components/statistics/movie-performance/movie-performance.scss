@@ -162,19 +162,8 @@
   }
 }
 
-// ─── Footer ──────────────────────────────────────────────────────────────────
-
-.mp-footer {
-  padding: 16px 24px;
-  border-top: 1px solid $card-border;
-}
-
 @include below-mobile {
   .mp-header {
     padding: 20px 16px;
-  }
-
-  .mp-footer {
-    padding: 16px;
   }
 }

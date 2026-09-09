@@ -8,21 +8,23 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  CustomSelectComponent,
-  InputField,
-  LoadingSpinnerComponent,
-  ModalComponent,
-  Switch,
+  CinefySelect,
+  CinefyInput,
+  CinefyLoadingSpinner,
+  CinefyDialog,
+  CinefyDialogFooter,
+  CinefySwitch,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { ExternalLinkIcon, KeyIcon, LockIcon, WebhookIcon } from '../../../shared/icons';
-import { NO_WHITESPACE_PATTERN } from '../../../shared/validation';
+import { NO_WHITESPACE_PATTERN, RESOURCE_NAME_PATTERN } from '../../../shared/validation';
 import type {
   GatewayProvider,
   PaymentChannel,
@@ -31,7 +33,7 @@ import type {
 } from '../../../shared/types';
 import { PaymentGatewaysService } from '../../../services';
 import { PaymentChannelsComponent } from '../payment-channels/payment-channels';
-import { PAYMENT_PROVIDERS, type CredentialField, type ProviderSpec } from '../provider-spec';
+import { PAYMENT_PROVIDERS, type CredentialField } from '../provider-spec';
 
 function buildCredentialsGroup(
   fields: CredentialField[],
@@ -55,12 +57,13 @@ function buildCredentialsGroup(
   selector: 'manage-gateway-modal',
   imports: [
     ReactiveFormsModule,
-    ModalComponent,
-    InputField,
-    CustomSelectComponent,
-    Switch,
+    CinefyDialog,
+    CinefyDialogFooter,
+    CinefyInput,
+    CinefySelect,
+    CinefySwitch,
     LucideDynamicIcon,
-    LoadingSpinnerComponent,
+    CinefyLoadingSpinner,
     PaymentChannelsComponent,
   ],
   templateUrl: './manage-gateway-modal.html',
@@ -75,14 +78,16 @@ export class ManageGatewayModalComponent {
   };
 
   private readonly paymentGatewaysService = inject(PaymentGatewaysService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly dialog = viewChild.required(CinefyDialog);
 
   protected readonly providers = PAYMENT_PROVIDERS;
 
-  readonly close = input.required<() => void>();
   readonly gateway = input<PaymentGateway | null>(null);
 
+  readonly closed = output<void>();
   readonly gatewayCreated = output<PaymentGateway>();
   readonly gatewayUpdated = output<PaymentGateway>();
 
@@ -95,12 +100,19 @@ export class ManageGatewayModalComponent {
   protected readonly form = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(60)],
+      validators: [
+        Validators.required,
+        Validators.maxLength(60),
+        Validators.pattern(RESOURCE_NAME_PATTERN),
+      ],
     }),
-    provider: new FormControl<GatewayProvider>('PAYMOB', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
+    provider: new FormControl<GatewayProvider>(
+      { value: 'PAYMOB', disabled: true },
+      {
+        nonNullable: true,
+        validators: [Validators.required],
+      },
+    ),
     credentials: new FormGroup<Record<string, FormControl<string>>>({}),
   });
 
@@ -162,10 +174,6 @@ export class ManageGatewayModalComponent {
     }
     return this.form.valid;
   });
-
-  protected readonly providerDisplayFn = (spec: ProviderSpec) => spec.label;
-
-  protected readonly providerValueFn = (spec: ProviderSpec) => spec.provider;
 
   constructor() {
     effect(() => {
@@ -236,7 +244,7 @@ export class ManageGatewayModalComponent {
           this.gatewayCreated.emit(gateway);
         }
         this.toastService.success(editing ? 'Payment gateway updated' : 'Payment gateway added');
-        this.close()();
+        this.dialog().close();
       },
       error: () => this.saving.set(false),
     });

@@ -5,20 +5,21 @@
       <p>The contact details tied to your bookings.</p>
     </div>
     @if (!isEditing() && !loading()) {
-      <button type="button" class="btn-secondary pd-edit" (click)="startEditing()">
-        Edit profile
+      <button type="button" class="btn-primary pd-edit" (click)="startEditing()">
+        <svg [lucideIcon]="icons.EditIcon" [size]="15" [strokeWidth]="2"></svg>
+        <span>Edit profile</span>
       </button>
     }
   </div>
 
   @if (loading()) {
     <div class="pd-loading">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (isEditing()) {
     <form class="pd-form" [formGroup]="personalForm" (ngSubmit)="save()">
       <div class="pd-name-row">
-        <input-field
+        <cui-input
           label="First name"
           placeholder="Your first name"
           [control]="personalForm.controls.firstName"
@@ -30,7 +31,7 @@
             pattern: 'First name may only contain letters, spaces, hyphens, and apostrophes',
           }"
         />
-        <input-field
+        <cui-input
           label="Last name"
           placeholder="Your last name"
           [control]="personalForm.controls.lastName"
@@ -44,7 +45,7 @@
         />
       </div>
 
-      <input-field
+      <cui-input
         label="Email"
         placeholder="Your email"
         [control]="personalForm.controls.email"
@@ -52,7 +53,7 @@
         hint="Your email is your account identity and it can't be changed."
       />
 
-      <phone-input
+      <cui-phone-input
         label="Phone"
         [countryControl]="personalForm.controls.phoneCountry"
         [numberControl]="personalForm.controls.phoneNumber"
@@ -68,7 +69,7 @@
           [disabled]="personalForm.invalid || !hasChanges() || saving()"
         >
           @if (saving()) {
-            <loading-spinner variant="xs" />
+            <cui-loading-spinner variant="xs" />
             <span>Saving…</span>
           } @else {
             <span>Save changes</span>

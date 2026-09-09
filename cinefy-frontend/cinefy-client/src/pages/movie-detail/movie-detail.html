@@ -1,25 +1,25 @@
 @if (movieResource.isLoading()) {
   <div class="md-loading">
-    <loading-spinner variant="lg" />
+    <cui-loading-spinner variant="lg" />
   </div>
 } @else if (movieResource.error()) {
-  <empty-state
+  <cui-empty-state
     class="md-error"
     [icon]="icons.TriangleAlertIcon"
-    title="Failed to load this movie"
+    header="Failed to load this movie"
     [description]="errorMessage()"
   />
 } @else if (movie(); as movie) {
   <div class="movie-detail">
     <div class="md-backdrop">
-      <media-image [src]="movie.backdropUrl" [alt]="movie.title" [iconSize]="64" />
+      <cui-media-image [src]="movie.backdropUrl" [alt]="movie.title" [iconSize]="64" />
       <div class="md-backdrop-scrim"></div>
     </div>
 
     <div class="md-content">
       <div class="md-header">
         <div class="md-poster reveal">
-          <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" [iconSize]="48" />
+          <cui-media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" [iconSize]="48" />
         </div>
 
         <div class="md-info reveal" style="animation-delay: 90ms">
@@ -42,15 +42,12 @@
             </div>
           </div>
 
-          @if (movie.trailerUrl; as trailerUrl) {
+          @if (movie.trailerUrl) {
             <div class="md-actions">
-              <button class="md-trailer-btn btn-base" [ngpDialogTrigger]="trailerDialog">
+              <button class="md-trailer-btn btn-base" (click)="trailerVisible.set(true)">
                 <svg [lucideIcon]="icons.PlayIcon" [size]="16"></svg>
                 <span>Watch Trailer</span>
               </button>
-              <ng-template #trailerDialog let-close="close">
-                <trailer-modal [trailerUrl]="trailerUrl" [title]="movie.title" [close]="close" />
-              </ng-template>
             </div>
           }
 
@@ -95,6 +92,14 @@
       </div>
 
       <booking-section [movieId]="movie.id" [releaseDate]="movie.releaseDate" />
+
+      @if (trailerVisible() && movie.trailerUrl; as trailerUrl) {
+        <trailer-modal
+          [trailerUrl]="trailerUrl"
+          [title]="movie.title"
+          (closed)="trailerVisible.set(false)"
+        />
+      }
     </div>
   </div>
 }

@@ -3,30 +3,29 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   input,
   linkedSignal,
   signal,
-  TemplateRef,
-  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgpDialogManager, NgpDialogTrigger } from 'ng-primitives/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  CustomSelectComponent,
-  EmptyStateComponent,
-  HoldTimerComponent,
-  InputField,
-  LoadingSpinnerComponent,
-  ModalComponent,
-  SeatMapComponent,
+  CinefySelect,
+  CinefyEmptyState,
+  CinefyHoldTimer,
+  CinefyInput,
+  CinefyLoadingSpinner,
+  CinefyDialog,
+  CinefyDialogFooter,
+  CinefySeatMap,
 } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { skipErrorToast } from '../../../app/core/interceptors';
 import { BookingService, ShowtimeEventsService } from '../../../services';
 import { BookingTicketComponent } from '../booking-ticket/booking-ticket';
@@ -52,7 +51,10 @@ import type {
   StaffPaymentRequest,
 } from '../../../shared/types';
 
-const PAYMENT_OPTIONS = [true, false];
+const PAYMENT_TYPE_ENTRIES = [
+  { value: true, label: 'Cash' },
+  { value: false, label: 'Card' },
+];
 
 function seatCategory(id: string, layout: ShowtimeSeatLayout): SeatCategory {
   if (layout.categories.AISLE?.includes(id)) return 'AISLE';
@@ -84,15 +86,15 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
   imports: [
     CurrencyPipe,
     ReactiveFormsModule,
-    NgpDialogTrigger,
     LucideDynamicIcon,
-    SeatMapComponent,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
-    CustomSelectComponent,
-    InputField,
-    ModalComponent,
-    HoldTimerComponent,
+    CinefySeatMap,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
+    CinefySelect,
+    CinefyInput,
+    CinefyDialog,
+    CinefyDialogFooter,
+    CinefyHoldTimer,
     BookingTicketComponent,
   ],
   templateUrl: './book-seats.html',
@@ -111,19 +113,19 @@ export class BookSeatsComponent {
 
   private readonly bookingService = inject(BookingService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly dialogManager = inject(NgpDialogManager);
-
-  protected readonly expiredDialog = viewChild.required<TemplateRef<unknown>>('expiredDialog');
 
   protected readonly seatCategoryLabel = SEAT_CATEGORY_LABEL;
-  protected readonly paymentOptions = PAYMENT_OPTIONS;
+  protected readonly paymentTypeEntries = PAYMENT_TYPE_ENTRIES;
 
   readonly showtimeId = input.required<string>();
   readonly container = input<string | HTMLElement | null>(null);
+  readonly showBookMoreSeats = input(true);
 
   protected readonly booking = signal(false);
+  protected readonly cancelVisible = signal(false);
+  protected readonly expiredVisible = signal(false);
   protected readonly cancelling = signal(false);
   protected readonly settling = signal(false);
   protected readonly issuedTicket = signal<BookingConfirmation | null>(null);
@@ -191,9 +193,22 @@ export class BookSeatsComponent {
     this.pricedSeats().reduce((sum, { price }) => sum + price, 0),
   );
 
-  protected readonly paymentTypeLabel = (isCash: boolean) => (isCash ? 'Cash' : 'Card');
-
   constructor() {
+    this.paymentForm.controls.isCash.valueChanges.pipe(takeUntilDestroyed()).subscribe((isCash) => {
+      const transactionId = this.paymentForm.controls.transactionId;
+      transactionId.reset('');
+      transactionId.setValidators(isCash ? [] : [Validators.required]);
+      transactionId.updateValueAndValidity();
+    });
+
+    effect(() => {
+      if (this.settling()) {
+        this.paymentForm.disable({ emitEvent: false });
+      } else {
+        this.paymentForm.enable({ emitEvent: false });
+      }
+    });
+
     afterNextRender(() => this.loadSeatSelection());
   }
 
@@ -280,16 +295,6 @@ export class BookSeatsComponent {
       });
   }
 
-  protected onPaymentTypeChange(selected: boolean): void {
-    const { isCash, transactionId } = this.paymentForm.controls;
-
-    isCash.setValue(selected);
-
-    transactionId.reset('');
-    transactionId.setValidators(selected ? [] : [Validators.required]);
-    transactionId.updateValueAndValidity();
-  }
-
   protected completePayment(): void {
     const booking = this.activeBooking();
     const { isCash, transactionId } = this.paymentForm.getRawValue();
@@ -319,7 +324,7 @@ export class BookSeatsComponent {
       });
   }
 
-  protected cancelPayment(close: () => void): void {
+  protected cancelPayment(): void {
     const booking = this.activeBooking();
     if (!booking || this.cancelling()) return;
 
@@ -331,16 +336,20 @@ export class BookSeatsComponent {
         next: () => {
           this.cancelling.set(false);
           this.resetBooking();
-          close();
-          this.toastService.success('Booking cancelled successfully');
+          this.cancelVisible.set(false);
+          this.toastService.success('Booking canceled successfully');
         },
         error: () => this.cancelling.set(false),
       });
   }
 
   protected onTimerExpired(): void {
-    const dialogRef = this.dialogManager.open(this.expiredDialog() as never);
-    dialogRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetBooking());
+    this.expiredVisible.set(true);
+  }
+
+  protected onExpiredClosed(): void {
+    this.expiredVisible.set(false);
+    this.resetBooking();
   }
 
   protected resetBooking(): void {

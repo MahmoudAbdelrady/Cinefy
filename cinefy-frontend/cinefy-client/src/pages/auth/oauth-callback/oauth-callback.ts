@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { OAuthRegisterForm, OtpStep } from '../../../components';
 import { AuthService } from '../../../services';
 import { ApiError, OAuthRegistration } from '../../../shared/types';
@@ -16,7 +16,7 @@ const DEFAULT_ERROR_MESSAGE = "We couldn't complete your sign-in. Please try aga
 
 @Component({
   selector: 'oauth-callback-page',
-  imports: [RouterLink, LucideDynamicIcon, LoadingSpinnerComponent, OAuthRegisterForm, OtpStep],
+  imports: [RouterLink, LucideDynamicIcon, CinefyLoadingSpinner, OAuthRegisterForm, OtpStep],
   templateUrl: './oauth-callback.html',
   styleUrl: './oauth-callback.scss',
 })

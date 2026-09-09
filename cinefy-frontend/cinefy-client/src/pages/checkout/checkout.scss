@@ -479,8 +479,8 @@
     color 0.2s;
 
   &:hover:not(:disabled) {
-    background: rgba($color-destructive, 0.15);
-    color: $color-destructive-foreground;
+    background: $color-secondary;
+    color: $color-destructive;
   }
 
   &:disabled {

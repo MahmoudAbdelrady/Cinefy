@@ -1,8 +1,15 @@
-import { Component, DestroyRef, inject, OnInit, TemplateRef, viewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { PlusIcon, SettingsIcon } from '../../shared/icons';
 import { HeaderActionsService } from '../../services';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
   HallsListComponent,
   HallConfigModalComponent,
@@ -14,7 +21,6 @@ import {
   selector: 'halls-page',
   imports: [
     LucideDynamicIcon,
-    NgpDialogTrigger,
     HallsStatisticsComponent,
     HallsListComponent,
     HallConfigModalComponent,
@@ -33,6 +39,9 @@ export class HallsPage implements OnInit {
   private headerActionsTemplate = viewChild.required<TemplateRef<unknown>>('headerActionsTemplate');
   protected readonly hallsList = viewChild.required(HallsListComponent);
   protected readonly hallsStatistics = viewChild.required(HallsStatisticsComponent);
+
+  protected readonly addHallVisible = signal(false);
+  protected readonly manageTypesVisible = signal(false);
 
   ngOnInit() {
     this.headerActions.template.set(this.headerActionsTemplate());

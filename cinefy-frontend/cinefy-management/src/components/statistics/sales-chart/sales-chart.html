@@ -6,51 +6,44 @@
     </div>
 
     @if (!loading() && !failed() && !isEmpty()) {
-      <button type="button" class="sc-details-toggle" (click)="toggleTable()">
-        {{ showTable() ? 'Hide Details' : 'View Details' }}
+      <button type="button" class="btn-secondary sc-details-toggle" (click)="toggleTable()">
+        <svg
+          [lucideIcon]="showTable() ? icons.ChevronUpIcon : icons.ChevronDownIcon"
+          [size]="16"
+        ></svg>
+        <span>{{ showTable() ? 'Hide Details' : 'View Details' }}</span>
       </button>
     }
   </header>
 
   @if (loading()) {
     <div class="sc-loading">
-      <loading-spinner variant="xl" />
+      <cui-loading-spinner variant="xl" />
     </div>
   } @else if (failed()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.WarningIcon"
-      title="Couldn't load sales over time"
+      header="Couldn't load sales over time"
       description="Something went wrong. Please try again later."
     />
   } @else if (isEmpty()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.ChartColumnIcon"
-      title="No sales in this range"
+      header="No sales in this range"
       description="No captured payments landed between these dates."
     />
   } @else {
     <div class="sc-body">
       <ul class="sc-bars">
-        @for (bar of bars(); track bar.date; let index = $index) {
-          <li class="sc-bar-slot" (mouseenter)="onBarEnter(index)" (mouseleave)="onBarLeave()">
-            <span class="sc-bar-track">
-              <span
-                class="sc-bar"
-                [class.active]="hovered() === index"
-                [style.height.%]="bar.heightPct"
-              >
-                @if (hovered() === index) {
-                  <span class="sc-tooltip">
-                    <span class="sc-tooltip-day">{{ bar.date | date: 'EEE d MMM' }}</span>
-                    <span class="sc-tooltip-value">
-                      {{ bar.grossRevenue | number }} <span>{{ currency }}</span>
-                    </span>
-                  </span>
-                }
-              </span>
-            </span>
-            <span class="sc-bar-label" [class.active]="hovered() === index">
-              {{ bar.date | date: 'd MMM' }}
+        @for (bar of bars(); track bar.date) {
+          <li class="sc-bar-slot">
+            <span
+              class="sc-bar-hit"
+              [pTooltip]="(bar.grossRevenue | number) + ' ' + currency"
+              tooltipPosition="top"
+            >
+              <span class="sc-bar" [style.height.px]="bar.heightPx"></span>
+              <span class="sc-bar-label">{{ bar.date | date: 'd MMM' }}</span>
             </span>
           </li>
         }

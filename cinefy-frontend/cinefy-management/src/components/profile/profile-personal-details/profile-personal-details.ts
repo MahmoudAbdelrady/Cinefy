@@ -4,16 +4,16 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EditIcon, EmailIcon, PhoneIcon, LockIcon, UserIcon } from '../../../shared/icons';
 import {
-  InputField,
-  LoadingSpinnerComponent,
+  CinefyInput,
+  CinefyLoadingSpinner,
   DEFAULT_COUNTRY,
-  PhoneInput,
+  CinefyPhoneInput,
   phoneNumberValidator,
   toE164Digits,
   parsePhoneDigits,
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { PhoneFormatPipe } from 'cinefy-ui/pipes';
 import type { StaffMemberDetail } from '../../../shared/types';
 import { NAME_PATTERN } from '../../../shared/validation';
@@ -24,9 +24,9 @@ import { StaffService } from '../../../services';
   imports: [
     ReactiveFormsModule,
     LucideDynamicIcon,
-    InputField,
-    PhoneInput,
-    LoadingSpinnerComponent,
+    CinefyInput,
+    CinefyPhoneInput,
+    CinefyLoadingSpinner,
     PhoneFormatPipe,
   ],
   templateUrl: './profile-personal-details.html',
@@ -42,7 +42,7 @@ export class ProfilePersonalDetailsComponent {
   };
 
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly profile = input.required<StaffMemberDetail>();
@@ -112,6 +112,7 @@ export class ProfilePersonalDetailsComponent {
       phoneCountry: country,
       phoneNumber: nationalNumber,
     });
+    this.personalForm.markAllAsTouched();
     this.isEditing.set(true);
   }
 

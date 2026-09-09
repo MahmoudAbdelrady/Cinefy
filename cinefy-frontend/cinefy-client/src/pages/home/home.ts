@@ -3,9 +3,9 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
-  MediaImageComponent,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { FeaturedCarouselComponent } from '../../components';
 import { MoviesService } from '../../services';
@@ -17,11 +17,11 @@ const NOW_SHOWING_LIMIT = 5;
   selector: 'home-page',
   imports: [
     FeaturedCarouselComponent,
-    MediaImageComponent,
+    CinefyMediaImage,
     RouterLink,
     DatePipe,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',

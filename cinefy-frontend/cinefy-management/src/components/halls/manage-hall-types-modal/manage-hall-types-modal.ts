@@ -1,4 +1,4 @@
-import { afterNextRender, Component, inject, input, signal } from '@angular/core';
+import { afterNextRender, Component, inject, output, signal, viewChild } from '@angular/core';
 
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -12,14 +12,15 @@ import {
   WarningIcon,
   XIcon,
 } from '../../../shared/icons';
-import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { Popover } from 'primeng/popover';
+import { Tooltip } from 'primeng/tooltip';
 import {
-  ModalComponent,
-  LoadingSpinnerComponent,
-  InputField,
-  EmptyStateComponent,
+  CinefyDialog,
+  CinefyLoadingSpinner,
+  CinefyInput,
+  CinefyEmptyState,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { HallsService } from '../../../services';
 import { HallType } from '../../../shared/types';
 import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
@@ -29,12 +30,12 @@ import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
   imports: [
     ReactiveFormsModule,
     LucideDynamicIcon,
-    NgpPopover,
-    NgpPopoverTrigger,
-    ModalComponent,
-    LoadingSpinnerComponent,
-    InputField,
-    EmptyStateComponent,
+    Popover,
+    Tooltip,
+    CinefyDialog,
+    CinefyLoadingSpinner,
+    CinefyInput,
+    CinefyEmptyState,
   ],
   templateUrl: './manage-hall-types-modal.html',
   styleUrl: './manage-hall-types-modal.scss',
@@ -52,15 +53,19 @@ export class ManageHallTypesModalComponent {
   };
 
   private readonly hallsService = inject(HallsService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
 
-  readonly close = input.required<() => void>();
+  private readonly deleteConfirm = viewChild.required(Popover);
+
+  readonly closed = output<void>();
+
+  protected readonly typeToDelete = signal<HallType | null>(null);
 
   protected readonly hallTypes = signal<HallType[]>([]);
   protected readonly loadingTypes = signal(true);
   protected readonly editingTypeId = signal<string | null>(null);
   protected readonly savingTypeId = signal<string | null>(null);
-  protected readonly deletingTypeId = signal<string | null>(null);
+  protected readonly deletingTypeIds = signal<Set<string>>(new Set());
   protected readonly addingType = signal(false);
   protected readonly showNewTypeForm = signal(false);
 
@@ -134,15 +139,31 @@ export class ManageHallTypesModalComponent {
     this.editTypeForm.controls.name.reset();
   }
 
+  protected openDeleteConfirm(event: Event, type: HallType) {
+    this.typeToDelete.set(type);
+    this.deleteConfirm().toggle(event);
+  }
+
+  protected closeDeleteConfirm() {
+    this.deleteConfirm().hide();
+    this.typeToDelete.set(null);
+  }
+
+  protected isDeleting(id: string): boolean {
+    return this.deletingTypeIds().has(id);
+  }
+
   protected deleteType(type: HallType) {
-    this.deletingTypeId.set(type.id!);
+    if (this.isDeleting(type.id!)) return;
+    this.markDeleting(type.id!, true);
     this.hallsService.deleteHallType(type.id!).subscribe({
       next: () => {
         this.hallTypes.update((types) => types.filter((t) => t.id !== type.id));
-        this.deletingTypeId.set(null);
+        this.markDeleting(type.id!, false);
+        this.closeDeleteConfirm();
         this.toastService.success('Hall type deleted');
       },
-      error: () => this.deletingTypeId.set(null),
+      error: () => this.markDeleting(type.id!, false),
     });
   }
 
@@ -171,5 +192,17 @@ export class ManageHallTypesModalComponent {
         },
         error: () => this.addingType.set(false),
       });
+  }
+
+  private markDeleting(id: string, isDeleting: boolean): void {
+    this.deletingTypeIds.update((current) => {
+      const next = new Set(current);
+      if (isDeleting) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
   }
 }

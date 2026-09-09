@@ -31,7 +31,8 @@
       (click)="proceedToPayment()"
     >
       @if (submitting()) {
-        <loading-spinner variant="xs" />
+        <cui-loading-spinner variant="xs" />
+        <span>Processing…</span>
       } @else {
         Proceed to Payment
       }

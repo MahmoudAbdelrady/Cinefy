@@ -14,8 +14,6 @@ export {
   LucideChevronLeft as ChevronLeftIcon,
   LucideChevronRight as ChevronRightIcon,
   LucideChevronUp as ChevronUpIcon,
-  LucideChevronsLeft as ChevronsLeftIcon,
-  LucideChevronsRight as ChevronsRightIcon,
   LucideCircleAlert as AlertIcon,
   LucideCircleCheck as CircleCheckIcon,
   LucideCircleCheckBig as CircleCheckBigIcon,

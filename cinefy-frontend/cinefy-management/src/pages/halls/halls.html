@@ -1,6 +1,6 @@
 <ng-template #headerActionsTemplate>
   <div class="action-buttons-container">
-    <button [ngpDialogTrigger]="manageTypesDialog">
+    <button (click)="manageTypesVisible.set(true)">
       <svg
         [lucideIcon]="icons.SettingsIcon"
         [size]="16"
@@ -9,20 +9,23 @@
       ></svg>
       <span>Manage Hall Types</span>
     </button>
-    <button [ngpDialogTrigger]="addHallDialog">
+    <button (click)="addHallVisible.set(true)">
       <svg [lucideIcon]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></svg>
       <span>Add New Hall</span>
     </button>
-
-    <ng-template #manageTypesDialog let-close="close">
-      <manage-hall-types-modal [close]="close" />
-    </ng-template>
-
-    <ng-template #addHallDialog let-close="close">
-      <hall-config-modal [close]="close" (hallCreated)="hallsList().addHall($event)" />
-    </ng-template>
   </div>
 </ng-template>
+
+@if (manageTypesVisible()) {
+  <manage-hall-types-modal (closed)="manageTypesVisible.set(false)" />
+}
+
+@if (addHallVisible()) {
+  <hall-config-modal
+    (closed)="addHallVisible.set(false)"
+    (hallCreated)="hallsList().addHall($event)"
+  />
+}
 
 <div class="halls-container">
   <halls-statistics />

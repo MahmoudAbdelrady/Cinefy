@@ -1,14 +1,15 @@
 <dashboard-widget
   [icon]="icons.ContactRoundIcon"
-  title="On shift now"
+  header="On shift now"
   [subtitle]="subtitle()"
   iconColor="var(--oss-icon-color)"
   actionLabel="Manage staff"
+  [actionIcon]="icons.UsersIcon"
   actionLink="/staff"
 >
   @if (loading()) {
     <div class="oss-loading">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else {
     <ul class="oss-positions">

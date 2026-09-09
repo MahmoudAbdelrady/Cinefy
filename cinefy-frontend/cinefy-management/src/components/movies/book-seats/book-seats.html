@@ -1,11 +1,11 @@
 @if (initialLoading()) {
   <div class="bs-loading">
-    <loading-spinner variant="lg" />
+    <cui-loading-spinner variant="lg" />
   </div>
 } @else if (errorMessage(); as message) {
-  <empty-state
+  <cui-empty-state
     [icon]="icons.WarningIcon"
-    title="Couldn't load the seat layout"
+    header="Couldn't load the seat layout"
     [description]="message"
   />
 } @else if (stage() === 'done') {
@@ -20,17 +20,19 @@
       <booking-ticket [ticket]="ticket" />
     }
 
-    <button type="button" class="btn-primary bs-done-action" (click)="resetBooking()">
-      <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
-      <span>Book more seats</span>
-    </button>
+    @if (showBookMoreSeats()) {
+      <button type="button" class="btn-primary bs-done-action" (click)="resetBooking()">
+        <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
+        <span>Book more seats</span>
+      </button>
+    }
   </div>
 } @else if (seatSelection(); as selection) {
   @if (selection.fullyBooked) {
-    <empty-state
+    <cui-empty-state
       class="bs-sold-out"
       [icon]="icons.TicketXIcon"
-      title="Sold out"
+      header="Sold out"
       description="Every seat for this showtime is taken. Check another showtime or date."
     />
   } @else {
@@ -40,7 +42,7 @@
           <span>SCREEN</span>
         </div>
 
-        <seat-map
+        <cui-seat-map
           [rows]="hall()"
           [initialSelectedIds]="bookedSeatIds()"
           [allowOnSiteOnly]="true"
@@ -49,7 +51,7 @@
 
         @if (reloading()) {
           <div class="bs-seats-overlay">
-            <loading-spinner variant="lg" />
+            <cui-loading-spinner variant="lg" />
           </div>
         }
       </div>
@@ -59,7 +61,7 @@
           <h3 class="bs-summary-title">Booking Summary</h3>
 
           @if (activeBooking(); as booking) {
-            <hold-timer [expiresAt]="booking.expiresAt" (expired)="onTimerExpired()" />
+            <cui-hold-timer [expiresAt]="booking.expiresAt" (expired)="onTimerExpired()" />
           }
         </div>
 
@@ -94,7 +96,8 @@
               (click)="onBook()"
             >
               @if (booking()) {
-                <loading-spinner variant="xs" />
+                <cui-loading-spinner variant="xs" />
+                <span>Booking…</span>
               } @else {
                 <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
                 <span>Book</span>
@@ -110,27 +113,27 @@
                   (click)="onBook()"
                 >
                   @if (booking()) {
-                    <loading-spinner variant="xs" />
+                    <cui-loading-spinner variant="xs" />
+                    <span>Updating…</span>
                   } @else {
                     <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
                     <span>Update booking</span>
                   }
                 </button>
               } @else {
-                <custom-select
+                <cui-select
                   label="Payment type"
-                  [required]="true"
-                  [items]="paymentOptions"
-                  [control]="paymentForm.controls.isCash"
-                  [displayFn]="paymentTypeLabel"
-                  [container]="container()"
+                  labelField="label"
+                  valueField="value"
                   placeholder="Select payment type"
+                  [control]="paymentForm.controls.isCash"
+                  [items]="paymentTypeEntries"
+                  [container]="container()"
                   [errorMessages]="{ required: 'Payment type is required' }"
-                  (selectionChange)="onPaymentTypeChange($event)"
                 />
 
                 @if (paymentForm.controls.isCash.value === false) {
-                  <input-field
+                  <cui-input
                     placeholder="Enter reference number"
                     hint="Printed on the payment receipt."
                     [control]="paymentForm.controls.transactionId"
@@ -144,7 +147,8 @@
                   [disabled]="paymentForm.invalid || settling()"
                 >
                   @if (settling()) {
-                    <loading-spinner variant="xs" />
+                    <cui-loading-spinner variant="xs" />
+                    <span>Completing…</span>
                   } @else {
                     <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
                     <span>Complete payment</span>
@@ -155,7 +159,12 @@
           }
         }
         @if (activeBooking()) {
-          <button type="button" class="bs-cancel" [ngpDialogTrigger]="cancelDialog">
+          <button
+            type="button"
+            class="bs-cancel"
+            [disabled]="settling()"
+            (click)="cancelVisible.set(true)"
+          >
             <svg [lucideIcon]="icons.XIcon" [size]="15"></svg>
             <span>Cancel booking</span>
           </button>
@@ -163,8 +172,13 @@
       </aside>
     </div>
 
-    <ng-template #cancelDialog let-close="close">
-      <app-modal modalTitle="Cancel this booking?" width="448px" [close]="close">
+    @if (cancelVisible()) {
+      <cui-dialog
+        header="Cancel this booking?"
+        [canClose]="!cancelling()"
+        [style]="{ width: '448px' }"
+        (closed)="cancelVisible.set(false)"
+      >
         <div class="bs-cancel-modal-content">
           <div class="rcm-icon">
             <svg [lucideIcon]="icons.WarningIcon" [size]="24" [strokeWidth]="2"></svg>
@@ -175,28 +189,38 @@
           </p>
         </div>
 
-        <div modal-footer class="bs-dialog-footer">
-          <button type="button" class="btn-secondary" [disabled]="cancelling()" (click)="close()">
+        <div customFooter class="bs-dialog-footer">
+          <button
+            type="button"
+            class="btn-secondary"
+            [disabled]="cancelling()"
+            (click)="cancelVisible.set(false)"
+          >
             Keep booking
           </button>
           <button
             type="button"
             class="btn-danger"
             [disabled]="cancelling()"
-            (click)="cancelPayment(close)"
+            (click)="cancelPayment()"
           >
             @if (cancelling()) {
-              <loading-spinner variant="xs" />
+              <cui-loading-spinner variant="xs" />
+              <span>Canceling…</span>
             } @else {
               Cancel booking
             }
           </button>
         </div>
-      </app-modal>
-    </ng-template>
+      </cui-dialog>
+    }
 
-    <ng-template #expiredDialog let-close="close">
-      <app-modal modalTitle="Booking expired" width="448px" [close]="close">
+    @if (expiredVisible()) {
+      <cui-dialog
+        header="Booking expired"
+        [style]="{ width: '448px' }"
+        (closed)="onExpiredClosed()"
+      >
         <div class="bs-expired-modal-content">
           <div class="rem-icon">
             <svg [lucideIcon]="icons.ClockIcon" [size]="24" [strokeWidth]="2"></svg>
@@ -206,10 +230,12 @@
           </p>
         </div>
 
-        <div modal-footer class="bs-dialog-footer">
-          <button type="button" class="btn-primary" (click)="close()">Book again</button>
+        <div customFooter class="bs-dialog-footer">
+          <button type="button" class="btn-primary" (click)="expiredVisible.set(false)">
+            Book again
+          </button>
         </div>
-      </app-modal>
-    </ng-template>
+      </cui-dialog>
+    }
   }
 }

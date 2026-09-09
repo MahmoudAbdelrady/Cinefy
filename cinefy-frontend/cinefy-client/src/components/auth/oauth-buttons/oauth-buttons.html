@@ -9,7 +9,8 @@
       (click)="authenticateWith(provider.code)"
     >
       @if (pendingProvider() === provider.code) {
-        <loading-spinner variant="xs" />
+        <cui-loading-spinner variant="xs" />
+        <span>Connecting…</span>
       } @else {
         <img class="ob-icon" [src]="provider.iconSrc" [alt]="provider.label" />
         <span>{{ provider.label }}</span>

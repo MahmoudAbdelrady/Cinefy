@@ -32,7 +32,7 @@
         @if (done) {
           <svg [lucideIcon]="icons.CheckIcon" [size]="24" [strokeWidth]="2.5"></svg>
         } @else {
-          <loading-spinner variant="md" />
+          <cui-loading-spinner variant="md" />
         }
       </span>
       <h1>{{ done ? "You're signed in" : 'Signing you in' }}</h1>

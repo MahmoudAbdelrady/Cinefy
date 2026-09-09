@@ -9,7 +9,6 @@ import {
   linkedSignal,
   output,
   signal,
-  TemplateRef,
   viewChild,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
@@ -24,6 +23,7 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { Tooltip } from 'primeng/tooltip';
 import {
   DollarSignIcon,
   EditIcon,
@@ -33,17 +33,17 @@ import {
   StarIcon,
   WarningIcon,
 } from '../../../shared/icons';
-import { NgpDialogManager } from 'ng-primitives/dialog';
 import {
-  ModalComponent,
-  LoadingSpinnerComponent,
-  EmptyStateComponent,
-  InputField,
-  CustomSelectComponent,
-  AsyncSelectComponent,
-  Switch,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
+  CinefyInput,
+  CinefySelect,
+  CinefySwitch,
+  CinefyDialog,
+  CinefyDialogHeader,
+  CinefyDialogFooter,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import {
   HALL_STATUS_LABELS,
   SEAT_CATEGORY_LABELS,
@@ -108,13 +108,15 @@ const SELECTABLE_HALL_STATUS_ENTRIES = (
     NgClass,
     ReactiveFormsModule,
     LucideDynamicIcon,
-    Switch,
-    ModalComponent,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
-    InputField,
-    CustomSelectComponent,
-    AsyncSelectComponent,
+    Tooltip,
+    CinefySwitch,
+    CinefyDialog,
+    CinefyDialogHeader,
+    CinefyDialogFooter,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
+    CinefyInput,
+    CinefySelect,
     HallLayoutEditorComponent,
   ],
   templateUrl: './hall-config-modal.html',
@@ -132,11 +134,11 @@ export class HallConfigModalComponent {
   };
   protected readonly maxGridDimension = MAX_GRID_DIMENSION;
 
+  private readonly dialog = viewChild.required(CinefyDialog);
+
   private readonly hallsService = inject(HallsService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly dialogManager = inject(NgpDialogManager);
-  private readonly discardDialog = viewChild<TemplateRef<unknown>>('discardDialog');
 
   protected readonly hallStatusEntries = computed<HallStatusEntry[]>(() => {
     const current = this.selectedHallData()?.status;
@@ -159,13 +161,14 @@ export class HallConfigModalComponent {
     type: key as SeatCategory,
   }));
 
-  readonly close = input.required<() => void>();
   readonly selectedHallId = input<string | null>(null);
 
+  readonly closed = output<void>();
   readonly hallCreated = output<HallSummary>();
   readonly hallUpdated = output<HallSummary>();
 
   protected readonly isEditMode = signal(false);
+  protected readonly discardVisible = signal(false);
   private readonly selectedHallData = signal<HallDetail | null>(null);
 
   protected readonly saving = signal(false);
@@ -175,7 +178,8 @@ export class HallConfigModalComponent {
   protected readonly loadHallError = signal(false);
 
   private readonly initialSnapshot = signal<string | null>(null);
-  protected readonly selectedHallType = signal<HallType | null>(null);
+  private readonly hallTypes = signal<HallType[]>([]);
+  private readonly halls = signal<HallSummary[]>([]);
 
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems[0]);
   private readonly onSiteOnlyPreference = signal(false);
@@ -197,7 +201,6 @@ export class HallConfigModalComponent {
     }),
     status: new FormControl<HallStatus>('ACTIVE', {
       nonNullable: true,
-      validators: [Validators.required],
     }),
     typeId: new FormControl('', {
       nonNullable: true,
@@ -208,14 +211,17 @@ export class HallConfigModalComponent {
     vipPrice: new FormControl<number | null>(null),
   });
 
+  protected readonly copyLayoutControl = new FormControl<string | null>(null);
+
   protected readonly isViewMode = computed(
     () => this.selectedHallId() !== null && !this.isEditMode(),
   );
   protected readonly modalTitle = computed(() => {
     if (!this.selectedHallId()) return 'Add New Hall';
-    if (this.isEditMode()) return 'Edit Hall';
     if (this.loadingHall()) return 'Loading…';
-    return this.selectedHallData()?.name ?? '—';
+    const hall = this.selectedHallData();
+    if (!hall) return '—';
+    return this.isEditMode() ? `Editing ${hall.name}` : `Viewing ${hall.name} config`;
   });
 
   private readonly numRowsValue = toSignal(
@@ -235,22 +241,11 @@ export class HallConfigModalComponent {
     computation: ({ rows, cols }, previous) => resizeGrid(previous?.value ?? [], rows, cols),
   });
 
-  protected readonly supports3DValue = toSignal(this.hallForm.controls.supports3D.valueChanges, {
-    initialValue: false,
-  });
-  private readonly statusValue = toSignal(this.hallForm.controls.status.valueChanges, {
-    initialValue: this.hallForm.controls.status.value,
-  });
-
   private readonly seatStatsValue = computed(() => seatStats(this.seatLayout()));
   protected readonly hasNormalSeats = computed(() => this.seatStatsValue().normal > 0);
   protected readonly hasVipSeats = computed(() => this.seatStatsValue().vip > 0);
   protected readonly onSiteOnly = computed(() =>
     this.selectedSeatCategory().type === 'AISLE' ? false : this.onSiteOnlyPreference(),
-  );
-
-  protected readonly statusEntry = computed(
-    () => this.hallStatusEntries().find((e) => e.value === this.statusValue()) ?? null,
   );
 
   private readonly currentFormValue = toSignal(this.hallForm.valueChanges, {
@@ -264,18 +259,13 @@ export class HallConfigModalComponent {
     return this.serializeState() !== snapshot;
   });
 
-  protected readonly statusDisplayFn = (entry: HallStatusEntry) => entry.label;
-  protected readonly statusValueFn = (entry: HallStatusEntry) => entry.value;
+  protected readonly hallTypeEntries = computed(() =>
+    this.hallTypes().map((type) => ({ value: type.id!, label: type.name })),
+  );
 
-  protected readonly hallTypeDisplayFn = (type: HallType) => type.name;
-  protected readonly hallTypeValueFn = (type: HallType) => type.id ?? '';
-
-  protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
-  protected readonly hallValueFn = (hall: HallSummary) => hall.id;
-
-  protected readonly fetchHallTypes = () => this.hallsService.getHallTypes();
-  protected readonly fetchHalls = () =>
-    this.hallsService.getHalls(this.selectedHallId() ?? undefined);
+  protected readonly hallEntries = computed(() =>
+    this.halls().map((hall) => ({ value: hall.id, label: hall.name })),
+  );
 
   constructor() {
     effect(() => {
@@ -314,9 +304,34 @@ export class HallConfigModalComponent {
       } else {
         this.hallForm.enable({ emitEvent: false });
       }
+
+      const statusCtrl = this.hallForm.controls.status;
+      if (this.isViewMode() || this.isStatusLocked()) {
+        statusCtrl.removeValidators(Validators.required);
+        statusCtrl.disable({ emitEvent: false });
+      } else {
+        statusCtrl.addValidators(Validators.required);
+        statusCtrl.enable({ emitEvent: false });
+      }
+      statusCtrl.updateValueAndValidity();
     });
 
+    this.copyLayoutControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((hallId) => {
+        if (hallId) {
+          this.copyLayoutFrom(hallId);
+        } else {
+          this.restoreOriginalLayout();
+        }
+      });
+
     afterNextRender(() => {
+      this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
+      this.hallsService
+        .getHalls(this.selectedHallId() ?? undefined)
+        .subscribe((halls) => this.halls.set(halls));
+
       const hallId = this.selectedHallId();
       if (hallId) {
         this.loadHallData(hallId);
@@ -341,7 +356,6 @@ export class HallConfigModalComponent {
   }
 
   private applyHallDetail(detail: HallDetail) {
-    this.selectedHallType.set(detail.type);
     this.hallForm.patchValue({
       name: detail.name,
       status: detail.status,
@@ -350,15 +364,6 @@ export class HallConfigModalComponent {
     });
     this.applyLayoutData(detail);
     this.initialSnapshot.set(this.serializeState());
-  }
-
-  protected onStatusChange(entry: HallStatusEntry) {
-    this.hallForm.controls.status.setValue(entry.value);
-  }
-
-  protected onHallTypeChange(type: HallType) {
-    this.selectedHallType.set(type);
-    this.hallForm.controls.typeId.setValue(type.id ?? '');
   }
 
   protected selectSeatCategory(category: SeatCategoryItem) {
@@ -371,20 +376,19 @@ export class HallConfigModalComponent {
 
   protected toggleEditMode() {
     if (this.isEditMode() && this.hasChanges()) {
-      const discardDialog = this.discardDialog();
-      if (discardDialog) this.dialogManager.open(discardDialog as never);
+      this.discardVisible.set(true);
       return;
     }
     this.isEditMode.update((v) => !v);
   }
 
-  protected confirmDiscard(close: () => void) {
-    close();
+  protected confirmDiscard() {
+    this.discardVisible.set(false);
     this.isEditMode.set(false);
     this.applyHallDetail(this.selectedHallData()!);
   }
 
-  protected restoreOriginalLayout() {
+  private restoreOriginalLayout() {
     const detail = this.selectedHallData();
     if (detail) {
       this.applyLayoutData(detail);
@@ -416,8 +420,8 @@ export class HallConfigModalComponent {
     }
   }
 
-  protected copyLayoutFrom(hall: HallSummary) {
-    this.hallsService.getHallLayout(hall.id).subscribe({
+  private copyLayoutFrom(hallId: string) {
+    this.hallsService.getHallLayout(hallId).subscribe({
       next: (hallLayout) => this.applyLayoutData(hallLayout),
     });
   }
@@ -443,7 +447,7 @@ export class HallConfigModalComponent {
           this.hallCreated.emit(result);
           this.toastService.success('Hall created');
         }
-        this.close()();
+        this.dialog().close();
       },
       error: () => this.saving.set(false),
     });

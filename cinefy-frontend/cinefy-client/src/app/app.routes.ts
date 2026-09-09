@@ -15,6 +15,7 @@ import {
   ProfilePage,
   SeatSelectionPage,
   SignUpPage,
+  TestPage,
 } from '../pages';
 
 export const routes: Routes = [
@@ -76,6 +77,10 @@ export const routes: Routes = [
         path: 'profile',
         component: ProfilePage,
         canActivate: [authGuard],
+      },
+      {
+        path: 'test',
+        component: TestPage,
       },
       {
         path: '**',

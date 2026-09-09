@@ -1,12 +1,12 @@
 <div class="home-container">
   @if (highlightedMovies.isLoading()) {
     <div class="home-carousel-loading">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else if (highlightedMovies.error()) {
-    <empty-state
+    <cui-empty-state
       [icon]="icons.TriangleAlertIcon"
-      title="Failed to load movies"
+      header="Failed to load movies"
       description="Something went wrong. Please try again later."
     />
   } @else if (highlightedMovies.value()!.length) {
@@ -20,13 +20,13 @@
     <div class="ms-content">
       @if (nowShowingMovies.isLoading()) {
         <div class="ms-loading">
-          <loading-spinner variant="lg" />
+          <cui-loading-spinner variant="lg" />
         </div>
       } @else if (nowShowingMovies.error()) {
-        <empty-state
+        <cui-empty-state
           class="ms-empty"
           [icon]="icons.TriangleAlertIcon"
-          title="Failed to load movies"
+          header="Failed to load movies"
           description="Something went wrong. Please try again later."
         />
       } @else {
@@ -39,7 +39,7 @@
                 [style.animation-delay.ms]="$index * 70"
               >
                 <div class="mc-poster">
-                  <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
+                  <cui-media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
                   <div class="mc-poster-overlay">
                     <button class="mc-tickets-btn btn-primary">Get Tickets</button>
                   </div>
@@ -60,10 +60,10 @@
               </a>
             </li>
           } @empty {
-            <empty-state
+            <cui-empty-state
               class="ms-empty"
               [icon]="icons.ClapperboardIcon"
-              title="No movies showing"
+              header="No movies showing"
               description="Check back soon for what's playing in theaters."
             />
           }
@@ -78,13 +78,13 @@
     <div class="ms-content">
       @if (upcomingMovies.isLoading()) {
         <div class="ms-loading">
-          <loading-spinner variant="lg" />
+          <cui-loading-spinner variant="lg" />
         </div>
       } @else if (upcomingMovies.error()) {
-        <empty-state
+        <cui-empty-state
           class="ms-empty"
           [icon]="icons.TriangleAlertIcon"
-          title="Failed to load movies"
+          header="Failed to load movies"
           description="Something went wrong. Please try again later."
         />
       } @else {
@@ -97,7 +97,7 @@
                 [style.animation-delay.ms]="$index * 70"
               >
                 <div class="mc-poster">
-                  <media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
+                  <cui-media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
                 </div>
                 <div class="mc-meta">
                   <div class="mc-title">
@@ -110,10 +110,10 @@
               </a>
             </li>
           } @empty {
-            <empty-state
+            <cui-empty-state
               class="ms-empty"
               [icon]="icons.CalendarIcon"
-              title="No upcoming movies"
+              header="No upcoming movies"
               description="New releases will appear here as they're announced."
             />
           }

@@ -3,9 +3,10 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { merge, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { EditableShowtime, MovieWithShowtimes } from '../../../shared/types';
+import { EditableShowtime, MovieSummary, MovieWithShowtimes } from '../../../shared/types';
 import { canManage as canManagePosition } from '../../../shared/access';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { Tooltip } from 'primeng/tooltip';
 import {
   CalendarClockIcon,
   ClockIcon,
@@ -16,16 +17,16 @@ import {
   StarIcon,
   WarningIcon,
 } from '../../../shared/icons';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
-  ModalComponent,
-  LoadingSpinnerComponent,
-  EmptyStateComponent,
-  InputField,
-  MediaImageComponent,
-  Switch,
+  CinefyDialog,
+  CinefyDialogFooter,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
+  CinefyInput,
+  CinefyMediaImage,
+  CinefySwitch,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { DurationPipe } from 'cinefy-ui/pipes';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
@@ -39,16 +40,17 @@ import {
 @Component({
   selector: 'current-showtimes',
   imports: [
-    NgpDialogTrigger,
-    ModalComponent,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
-    InputField,
-    Switch,
+    CinefyDialog,
+    CinefyDialogFooter,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
+    CinefyInput,
+    CinefySwitch,
     ManageShowtimeModalComponent,
     MovieShowtimesModal,
-    MediaImageComponent,
+    CinefyMediaImage,
     LucideDynamicIcon,
+    Tooltip,
     DurationPipe,
   ],
   templateUrl: './current-showtimes.html',
@@ -70,7 +72,7 @@ export class CurrentShowtimesComponent {
   private readonly moviesService = inject(MoviesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
@@ -82,6 +84,10 @@ export class CurrentShowtimesComponent {
   protected readonly loading = signal(true);
   protected readonly editingShowtime = signal<EditableShowtime | null>(null);
   protected readonly deletingShowtimeIds = signal<Set<number>>(new Set());
+  protected readonly movieToDelete = signal<MovieWithShowtimes | null>(null);
+  protected readonly movieToView = signal<MovieSummary | null>(null);
+  protected readonly movieToAdd = signal<MovieSummary | null>(null);
+  protected readonly movieToEdit = signal<MovieSummary | null>(null);
   protected readonly togglingHighlightIds = signal<Set<number>>(new Set());
   protected readonly moviesWithShowtimes = signal<MovieWithShowtimes[]>([]);
 
@@ -162,12 +168,12 @@ export class CurrentShowtimesComponent {
     if (this.isHighlighting(movieId)) return;
 
     this.markHighlightToggling(movieId, true);
+    this.setHighlighted(movieId, highlighted);
     this.moviesService
       .setHighlight(movieId, highlighted)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.setHighlighted(movieId, highlighted);
           this.markHighlightToggling(movieId, false);
           this.showtimeEvents.notifyHighlightChanged(movieId, highlighted);
         },
@@ -179,7 +185,7 @@ export class CurrentShowtimesComponent {
       });
   }
 
-  protected deleteShowtime(id: number, close: () => void): void {
+  protected deleteShowtime(id: number): void {
     if (this.deletingShowtimeIds().has(id)) return;
     this.markDeleting(id, true);
     this.showtimesService
@@ -190,7 +196,7 @@ export class CurrentShowtimesComponent {
           this.markDeleting(id, false);
           this.toastService.success('Showtimes deleted');
           this.showtimeEvents.notifyDeleted(id);
-          close();
+          this.movieToDelete.set(null);
         },
         error: () => this.markDeleting(id, false),
       });

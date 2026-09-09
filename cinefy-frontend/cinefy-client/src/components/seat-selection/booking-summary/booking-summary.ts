@@ -2,7 +2,7 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { SEAT_CATEGORY_LABEL, type Seat } from 'cinefy-ui/types';
 import { InfoIcon } from '../../../shared/icons';
 import { BookingService } from '../../../services';
@@ -11,7 +11,7 @@ import type { BookedSeat, BookingRequest, SelectableSeatCategory } from '../../.
 
 @Component({
   selector: 'booking-summary',
-  imports: [LucideDynamicIcon, CurrencyPipe, LoadingSpinnerComponent],
+  imports: [LucideDynamicIcon, CurrencyPipe, CinefyLoadingSpinner],
   templateUrl: './booking-summary.html',
   styleUrl: './booking-summary.scss',
 })

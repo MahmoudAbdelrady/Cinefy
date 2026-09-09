@@ -108,7 +108,7 @@
   align-items: center;
   padding: 28px 20px 24px;
 
-  empty-state {
+  cui-empty-state {
     padding: 0;
   }
 
@@ -125,7 +125,7 @@
     font-size: 13px;
     font-weight: 500;
     color: #ffffff;
-    transition: background-color 150ms ease;
+    transition: background-color $transition-fast;
     text-decoration: none;
 
     &:hover {

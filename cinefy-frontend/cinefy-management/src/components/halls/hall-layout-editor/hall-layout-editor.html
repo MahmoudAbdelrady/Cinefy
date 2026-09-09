@@ -14,7 +14,8 @@
               @if (seat.type === 'AISLE') {
                 <div
                   class="seat aisle"
-                  [title]="seatTitle(rowIndex, seatIndex, seat)"
+                  [pTooltip]="seatTitle(rowIndex, seatIndex, seat)"
+                  tooltipPosition="top"
                   (click)="handleSeatClick(rowIndex, seatIndex)"
                 ></div>
               } @else {
@@ -22,7 +23,8 @@
                   class="seat"
                   [class.normal]="seat.type === 'NORMAL'"
                   [class.vip]="seat.type === 'VIP'"
-                  [title]="seatTitle(rowIndex, seatIndex, seat)"
+                  [pTooltip]="seatTitle(rowIndex, seatIndex, seat)"
+                  tooltipPosition="top"
                   (click)="handleSeatClick(rowIndex, seatIndex)"
                 >
                   @if (seat.onsiteOnly) {
@@ -34,9 +36,9 @@
           </div>
         }
       } @else {
-        <empty-state
+        <cui-empty-state
           [icon]="icons.LayoutTemplateIcon"
-          title="No layout yet"
+          header="No layout yet"
           description="Specify the number of rows and columns to render the seat layout."
         />
       }

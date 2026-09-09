@@ -1,0 +1,52 @@
+<div class="cui-select-wrapper">
+  @if (label(); as labelText) {
+  <label class="cui-select-label" [attr.data-required]="isRequired() ? '' : null">{{ labelText }}</label>
+  } @if (multi()) {
+  <p-multiselect
+    [formControl]="control()"
+    (onClear)="onMultiClear()"
+    [options]="items()"
+    [optionLabel]="labelField()"
+    [optionValue]="valueField()"
+    [placeholder]="placeholder()"
+    [showClear]="clearable()"
+    [filter]="searchable()"
+    [appendTo]="container()"
+    [showToggleAll]="false"
+    [invalid]="control().touched && control().invalid"
+    size="large"
+  >
+    <ng-template #header>
+      @if (items().length) {
+      <div class="cui-select-header">
+        <button type="button" class="cui-select-header-action" (click)="onSelectAll()">Select All</button>
+        <button type="button" class="cui-select-header-action" data-variant="clear" (click)="onMultiClear()">
+          Clear
+        </button>
+      </div>
+      }
+    </ng-template>
+  </p-multiselect>
+  } @else {
+  <p-select
+    [formControl]="control()"
+    [options]="items()"
+    [optionLabel]="labelField()"
+    [optionValue]="valueField()"
+    [placeholder]="placeholder()"
+    [showClear]="clearable()"
+    [filter]="searchable()"
+    [appendTo]="container()"
+    [invalid]="control().touched && control().invalid"
+    size="large"
+  >
+    @if (selectedItemLabel(); as selectedLabel) {
+    <ng-template #selectedItem let-item>{{ item[selectedLabel] }}</ng-template>
+    }
+  </p-select>
+  } @if (hint(); as hintText) {
+  <p class="cui-select-hint">{{ hintText }}</p>
+  } @if (control().touched && control().errors) {
+  <cui-field-error [control]="control()" [messages]="errorMessages()" />
+  }
+</div>

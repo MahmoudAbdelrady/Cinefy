@@ -5,7 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { LoadingSpinnerComponent, MediaImageComponent } from 'cinefy-ui/components';
+import { CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
 import { BookingService } from '../../services';
 import { skipErrorToast } from '../../app/core/interceptors';
 import { comparePositions } from '../../shared/seat-position';
@@ -68,8 +68,8 @@ const POLL_BACKOFF_AFTER_MS = 60_000;
   imports: [
     RouterLink,
     LucideDynamicIcon,
-    LoadingSpinnerComponent,
-    MediaImageComponent,
+    CinefyLoadingSpinner,
+    CinefyMediaImage,
     CurrencyPipe,
     DatePipe,
   ],

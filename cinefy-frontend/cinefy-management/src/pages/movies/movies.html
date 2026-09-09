@@ -1,7 +1,7 @@
 <ng-template #headerActionsTemplate>
   <div class="action-buttons-container">
     @if (canBook()) {
-      <button [ngpDialogTrigger]="scanTicketDialog">
+      <button (click)="scanTicketVisible.set(true)">
         <svg
           [lucideIcon]="icons.QrCodeIcon"
           [size]="16"
@@ -11,7 +11,7 @@
         <span>Scan Ticket</span>
       </button>
 
-      <button [ngpDialogTrigger]="activeBookingsDialog">
+      <button (click)="activeBookingsVisible.set(true)">
         <svg
           [lucideIcon]="icons.TicketIcon"
           [size]="16"
@@ -23,32 +23,32 @@
     }
 
     @if (canManage()) {
-      <button [ngpDialogTrigger]="scheduleMovieDialog">
+      <button (click)="scheduleMovieVisible.set(true)">
         <svg [lucideIcon]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></svg>
         <span>Schedule Movie</span>
       </button>
     }
-
-    <ng-template #scanTicketDialog let-close="close">
-      <app-modal
-        [modalTitle]="scanTicket.modalTitle()"
-        [description]="scanTicket.modalDescription()"
-        width="480px"
-        [close]="close"
-      >
-        <scan-ticket-modal #scanTicket [close]="close" />
-      </app-modal>
-    </ng-template>
-
-    <ng-template #activeBookingsDialog let-close="close">
-      <active-bookings-list [close]="close" />
-    </ng-template>
-
-    <ng-template #scheduleMovieDialog let-close="close">
-      <manage-showtime-modal [close]="close" />
-    </ng-template>
   </div>
 </ng-template>
+
+@if (scanTicketVisible()) {
+  <cui-dialog
+    [header]="scanTicket.modalTitle()"
+    [description]="scanTicket.modalDescription()"
+    [style]="{ width: '480px' }"
+    (closed)="scanTicketVisible.set(false)"
+  >
+    <scan-ticket-modal #scanTicket [close]="closeScanTicket" />
+  </cui-dialog>
+}
+
+@if (scheduleMovieVisible()) {
+  <manage-showtime-modal (closed)="scheduleMovieVisible.set(false)" />
+}
+
+@if (activeBookingsVisible()) {
+  <active-bookings-list (closed)="activeBookingsVisible.set(false)" />
+}
 
 <div class="movies-container">
   @if (canManage()) {

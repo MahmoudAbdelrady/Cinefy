@@ -5,7 +5,7 @@
   </div>
 
   <form class="fp-form" [formGroup]="requestForm" (ngSubmit)="onSubmit()">
-    <input-field
+    <cui-input
       label="Email"
       type="text"
       placeholder="Enter your email"
@@ -23,7 +23,8 @@
       [disabled]="requestForm.invalid || submitting()"
     >
       @if (submitting()) {
-        <loading-spinner variant="xs" />
+        <cui-loading-spinner variant="xs" />
+        <span>Sending code…</span>
       } @else {
         <span>Send reset code</span>
         <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

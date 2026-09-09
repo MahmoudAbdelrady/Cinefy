@@ -53,21 +53,16 @@
     }
 
     .pb-remove {
-      @include flex-center;
+      @include lucide-icon-fix;
+
       flex-shrink: 0;
-      gap: 8px;
-      padding: 8px 12px;
-      border: none;
-      border-radius: $radius-md;
-      background-color: transparent;
       color: $color-muted-foreground;
-      font-family: $font-sans;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: color 150ms ease;
+      transition:
+        color $transition-fast,
+        background-color $transition-fast;
 
       &:hover:not(:disabled) {
+        background: $color-secondary;
         color: $color-destructive;
       }
 

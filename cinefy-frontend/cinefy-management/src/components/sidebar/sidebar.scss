@@ -77,7 +77,7 @@ $sidebar-width: 256px;
     padding: 4px;
     color: $gray-400;
     border-radius: $radius-sm;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
 
     &:hover {
       color: $gray-600;
@@ -105,7 +105,7 @@ $sidebar-width: 256px;
   font-size: 14px;
   font-weight: 500;
   color: $gray-700;
-  transition: all 150ms ease;
+  transition: all $transition-fast;
   text-decoration: none;
 
   &:hover {

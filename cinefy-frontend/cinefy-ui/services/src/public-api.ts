@@ -1,1 +1,1 @@
-export { ToastService, provideCinefyToast } from "./toast/toast";
+export { CinefyToastService, provideCinefyToast } from "./toast/toast";

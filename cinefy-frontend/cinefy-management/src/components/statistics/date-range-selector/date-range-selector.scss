@@ -27,9 +27,9 @@
       border-radius: $radius-md;
       cursor: pointer;
       transition:
-        background-color 150ms ease,
-        color 150ms ease,
-        box-shadow 150ms ease;
+        background-color $transition-fast,
+        color $transition-fast,
+        box-shadow $transition-fast;
 
       &:hover:not(.selected) {
         color: $gray-900;
@@ -52,16 +52,20 @@
     @include flex-center;
     @include lucide-icon-fix;
 
-    padding: 8px;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
     color: $gray-600;
     background-color: $color-background;
     border: 1px solid $gray-300;
     border-radius: $radius-lg;
     cursor: pointer;
     transition:
-      background-color 150ms ease,
-      border-color 150ms ease,
-      color 150ms ease;
+      background-color $transition-fast,
+      border-color $transition-fast,
+      color $transition-fast;
 
     &:hover {
       background-color: $gray-100;
@@ -81,6 +85,7 @@
 
   @include below-mobile {
     width: 100%;
+    flex-wrap: wrap;
 
     .preset-pills {
       flex: 1;
@@ -89,27 +94,17 @@
         flex: 1;
       }
     }
+
+    .custom-trigger {
+      width: 100%;
+    }
   }
 }
 
 // ─── Custom range popover ────────────────────────────────────────────────────
 
 .custom-range-popover {
-  position: absolute;
   width: 288px;
-  padding: 16px;
-  background-color: $color-background;
-  border: 1px solid $gray-200;
-  border-radius: $radius-xl;
-  box-shadow: $shadow-lg;
-  z-index: 30;
-
-  .crp-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: $gray-900;
-    margin-bottom: 12px;
-  }
 
   .crp-fields {
     @include flex-column;

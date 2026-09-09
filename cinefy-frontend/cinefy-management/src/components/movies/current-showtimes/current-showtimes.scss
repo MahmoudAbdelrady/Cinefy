@@ -112,9 +112,9 @@
   border: 1px solid $gray-200;
   background-color: #ffffff;
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    box-shadow 150ms ease;
+    border-color $transition-fast,
+    background-color $transition-fast,
+    box-shadow $transition-fast;
 
   &:hover {
     border-color: $gray-300;
@@ -144,7 +144,7 @@
   position: relative;
   flex-shrink: 0;
 
-  media-image {
+  cui-media-image {
     width: 104px;
     height: 156px;
     border-radius: $radius-lg;
@@ -269,7 +269,7 @@
     margin-top: 1px;
     flex-shrink: 0;
     color: $gray-400;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
   }
 
   .mcfh-text {
@@ -282,7 +282,7 @@
     font-weight: 500;
     color: $gray-600;
     @include text-truncate;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
   }
 
   .mcfh-subtitle {
@@ -330,8 +330,8 @@
   button {
     border-radius: $radius-lg;
     transition:
-      background-color 150ms ease,
-      color 150ms ease;
+      background-color $transition-fast,
+      color $transition-fast;
     white-space: nowrap;
   }
 
@@ -428,38 +428,6 @@
   }
 }
 
-.dmc-warning {
-  @include flex-align;
-  gap: 8px;
-  text-align: left;
-  padding: 16px;
-  background-color: $red-50;
-  border: 1px solid rgba($red-400, 0.4);
-  border-radius: $radius-md;
-
-  > svg {
-    display: flex;
-    color: $red-600;
-    flex-shrink: 0;
-    align-self: flex-start;
-    margin-top: 2px;
-  }
-
-  p {
-    font-size: 14px;
-    color: $red-800;
-    margin-bottom: 4px;
-  }
-
-  ul {
-    font-size: 14px;
-    color: $red-800;
-    padding-left: 20px;
-    @include flex-column;
-    gap: 4px;
-  }
-}
-
 // ─── Responsive ──────────────────────────────────────────────────────────────
 
 @include below-mobile {
@@ -468,7 +436,7 @@
     gap: 12px;
   }
 
-  .mci-poster media-image {
+  .mci-poster cui-media-image {
     width: 72px;
     height: 108px;
   }

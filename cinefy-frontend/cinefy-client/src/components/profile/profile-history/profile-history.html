@@ -1,11 +1,7 @@
-@if (loading()) {
-  <div class="ph-loading">
-    <loading-spinner variant="lg" />
-  </div>
-} @else if (loadFailed()) {
-  <empty-state
+@if (loadFailed()) {
+  <cui-empty-state
     [icon]="icons.TriangleAlertIcon"
-    title="Couldn't load your bookings"
+    header="Couldn't load your bookings"
     description="Something went wrong. Please try again later."
   />
 } @else {
@@ -13,71 +9,75 @@
     <section class="ph-group">
       <h2>Past bookings</h2>
 
-      <ul class="ph-list">
-        @for (booking of bookings(); track booking.id) {
-          <li class="ph-row">
-            <div class="ph-poster">
-              <media-image
-                [src]="booking.movie.posterUrl"
-                [alt]="booking.movie.title + ' poster'"
-              />
-            </div>
-
-            <div class="ph-body">
-              <div class="ph-info">
-                <p class="ph-title">
-                  <span class="ph-title-text">{{ booking.movie.title }}</span>
-                  @if (booking.refunded) {
-                    <span class="ph-badge">REFUNDED</span>
-                  }
-                </p>
-                <div class="ph-meta">
-                  <span class="ph-meta-item">
-                    <svg [lucideIcon]="icons.ClockIcon" [size]="12"></svg>
-                    {{ booking.startDateTime | date: 'MMM d, y' }} ·
-                    {{ booking.startDateTime | date: 'shortTime' }}
-                  </span>
-                  <span class="ph-meta-item">
-                    <svg [lucideIcon]="icons.ClapperboardIcon" [size]="12"></svg>
-                    {{ booking.hallType }}
-                    @if (booking.is3D) {
-                      <span>(3D)</span>
-                    }
-                  </span>
-                </div>
+      @if (loading()) {
+        <div class="ph-loading">
+          <cui-loading-spinner variant="lg" />
+        </div>
+      } @else {
+        <ul class="ph-list">
+          @for (booking of bookings(); track booking.id) {
+            <li class="ph-row">
+              <div class="ph-poster">
+                <cui-media-image
+                  [src]="booking.movie.posterUrl"
+                  [alt]="booking.movie.title + ' poster'"
+                />
               </div>
 
-              <span class="ph-price" [class.ph-price-refunded]="booking.refunded">
-                {{ booking.totalPrice | currency: 'USD' }}
-              </span>
+              <div class="ph-body">
+                <div class="ph-info">
+                  <p class="ph-title">
+                    <span class="ph-title-text">{{ booking.movie.title }}</span>
+                    @if (booking.refunded) {
+                      <span class="ph-badge">REFUNDED</span>
+                    }
+                  </p>
+                  <div class="ph-meta">
+                    <span class="ph-meta-item">
+                      <svg [lucideIcon]="icons.ClockIcon" [size]="12"></svg>
+                      {{ booking.startDateTime | date: 'MMM d, y' }} ·
+                      {{ booking.startDateTime | date: 'shortTime' }}
+                    </span>
+                    <span class="ph-meta-item">
+                      <svg [lucideIcon]="icons.ClapperboardIcon" [size]="12"></svg>
+                      {{ booking.hallType }}
+                      @if (booking.is3D) {
+                        <span>(3D)</span>
+                      }
+                    </span>
+                  </div>
+                </div>
 
-              <button
-                type="button"
-                class="btn-secondary ph-view"
-                [ngpDialogTrigger]="detailsDialog"
-              >
-                View
-              </button>
+                <span class="ph-price" [class.ph-price-refunded]="booking.refunded">
+                  {{ booking.totalPrice | currency: 'USD' }}
+                </span>
 
-              <ng-template #detailsDialog let-close="close">
-                <past-booking-details-modal [booking]="booking" [close]="close" />
-              </ng-template>
-            </div>
-          </li>
-        } @empty {
-          <empty-state [icon]="icons.TicketIcon" title="No past bookings yet" />
-        }
-      </ul>
+                <button
+                  type="button"
+                  class="btn-primary ph-view"
+                  (click)="bookingToView.set(booking)"
+                >
+                  <svg [lucideIcon]="icons.EyeIcon" [size]="15" [strokeWidth]="2"></svg>
+                  <span>View</span>
+                </button>
+              </div>
+            </li>
+          } @empty {
+            <cui-empty-state [icon]="icons.TicketIcon" header="No past bookings yet" />
+          }
+        </ul>
+      }
     </section>
 
-    @if (pageCount() > 1) {
-      <pagination-component
-        [page]="page()"
-        (pageChange)="onPageChange($event)"
-        [pageCount]="pageCount()"
-        [totalItems]="totalItems()"
-        [pageSize]="pageSize"
-      />
-    }
+    <cui-paginator
+      [(page)]="page"
+      [pageCount]="pageCount()"
+      [totalItems]="totalItems()"
+      [pageSize]="pageSize"
+    />
   </div>
+}
+
+@if (bookingToView(); as booking) {
+  <past-booking-details-modal [booking]="booking" (closed)="bookingToView.set(null)" />
 }

@@ -4,18 +4,18 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
-  InputField,
-  LoadingSpinnerComponent,
+  CinefyInput,
+  CinefyLoadingSpinner,
   parsePhoneDigits,
-  PhoneInput,
+  CinefyPhoneInput,
   phoneNumberValidator,
   toE164Digits,
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
 import { PhoneFormatPipe } from 'cinefy-ui/pipes';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
-import { EmailIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
+import { EditIcon, EmailIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import { NAME_PATTERN } from '../../../shared/validation';
 import type { CurrentUser, UpdateProfilePayload } from '../../../shared/types';
 
@@ -24,9 +24,9 @@ import type { CurrentUser, UpdateProfilePayload } from '../../../shared/types';
   imports: [
     ReactiveFormsModule,
     LucideDynamicIcon,
-    InputField,
-    PhoneInput,
-    LoadingSpinnerComponent,
+    CinefyInput,
+    CinefyPhoneInput,
+    CinefyLoadingSpinner,
     PhoneFormatPipe,
   ],
   templateUrl: './personal-details.html',
@@ -37,10 +37,11 @@ export class PersonalDetailsComponent {
     UserIcon,
     EmailIcon,
     PhoneIcon,
+    EditIcon,
   };
 
   private readonly clientService = inject(ClientService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currentUser = signal<CurrentUser | null>(null);
@@ -122,6 +123,7 @@ export class PersonalDetailsComponent {
       phoneCountry: country,
       phoneNumber: nationalNumber,
     });
+    this.personalForm.markAllAsTouched();
     this.initialFormSnapshot.set(JSON.stringify(this.personalForm.getRawValue()));
     this.isEditing.set(true);
   }

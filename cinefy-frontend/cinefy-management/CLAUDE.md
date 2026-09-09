@@ -2,7 +2,7 @@
 
 ## Overview
 
-Angular 21 management dashboard for the Cinefy cinema platform. Standalone components, signal-based state, client-side rendered (no SSR — admin app behind auth), custom SCSS design system with ng-primitives for accessible headless UI.
+Angular 21 management dashboard for the Cinefy cinema platform. Standalone components, signal-based state, client-side rendered (no SSR — admin app behind auth), custom SCSS design system over PrimeNG-backed shared components from `cinefy-ui`.
 
 ## Workspace Layout
 
@@ -35,12 +35,12 @@ src/
 │   │   ├── auth-retry.ts               # On 401, refreshes the access token and retries once
 │   │   ├── error-toast.ts              # On HTTP error, shows a toast (skippable via SKIP_ERROR_TOAST context)
 │   │   └── error-toast-context.ts      # SKIP_ERROR_TOAST token + skipErrorToast() helper
-│   ├── app.ts                          # Root component
+│   ├── app.ts                          # Root component (<router-outlet> + the single <cui-toast>)
 │   ├── app.routes.ts                   # Route definitions (AppLayout + AuthLayout, guarded)
-│   └── app.config.ts                   # Providers (router, HTTP + interceptors, toast, menu)
+│   └── app.config.ts                   # Providers (router, HTTP + interceptors, toast, PrimeNG)
 ├── components/                         # Reusable UI components
 │   ├── auth/                           # forgot-password (progress-dots + steps: request/otp/reset/done)
-│   │                                   #   — the OTP input itself is cinefy-ui's <input-otp>, not local
+│   │                                   #   — the OTP input itself is cinefy-ui's <cui-input-otp>, not local
 │   ├── dashboard/                      # dashboard-widget (shared card shell: icon/title/subtitle/
 │   │                                   #   iconColor/actionLabel/actionLink + <ng-content> body),
 │   │                                   #   today-statistics, today-schedule, halls-summary,
@@ -57,7 +57,7 @@ src/
 │   │                                   #   booking-ticket (printable stub shown in book-seats' `done` stage),
 │   │                                   #   active-bookings-list (staff's own in-progress holds),
 │   │                                   #   scan-ticket-modal (ticket verification — despite the name it
-│   │                                   #     renders NO <app-modal>; see "Ticket scanning" below)
+│   │                                   #     renders NO <cui-dialog>; see "Ticket scanning" below)
 │   ├── payment/
 │   │   ├── gateway-list/               # Gateway list + active/inactive toggles
 │   │   ├── manage-gateway-modal/       # Create/edit payment gateway form
@@ -79,26 +79,38 @@ src/
 │   ├── help-hint/                      # Inline help tooltip
 │   ├── sidebar/                        # Navigation sidebar
 │   └── stats/                          # Generic stat-card component
-│                                       # Shared UI (input-field, field-error, loading-spinner,
-│                                       # custom-select, async-select, phone-input, toast,
-│                                       # modal, pagination, date-picker, time-picker, switch,
-│                                       # empty-state, seat-map, hold-timer, not-found,
-│                                       # input-otp, password-checklist, media-image) lives in cinefy-ui.
+│                                       # Shared UI lives in cinefy-ui. EVERY component's selector is
+│                                       # `cui-*` and its class is `Cinefy*` (no `Component` suffix):
+│                                       #   input, field-error, loading-spinner, select,
+│                                       #   paginated-select, phone-input, toast, dialog, menu,
+│                                       #   paginator, date-picker, time-picker, switch, empty-state,
+│                                       #   seat-map, hold-timer, not-found, input-otp,
+│                                       #   password-checklist, media-image
+│                                       #   (so <cui-empty-state> / CinefyEmptyState, and so on).
 │                                       #   empty-state: inputs [icon]/[title]/[description]; add class="fill" to stretch to full height.
+│                                       #   paginator (<cui-paginator>): PrimeNG p-paginator wrapper.
+│                                       #     [(page)] is 0-INDEXED (matches Spring Pageable — pass it straight
+│                                       #     through, no -1); inputs pageCount/totalItems/pageSize.
+│                                       #     :host owns the chrome (padding + top border) — don't style it.
+│                                       #   toast (<cui-toast>): mounted ONCE in app.ts, not per page.
+│                                       #     Toasts are raised through CinefyToastService, never by markup.
+│                                       #   dialog (<cui-dialog>): PrimeNG p-dialog wrapper. Inputs header/description/
+│                                       #     canClose/style/contentStyle; (closed) output; public close() method.
+│                                       #     Mounting opens it — always render behind an @if; (closed) unmounts.
+│                                       #     Slots: [customHeader]/[customFooter] (import CinefyDialogHeader/Footer).
 │                                       #   switch (<cui-switch>): size md|sm, color accent|highlight;
 │                                       #     [checked]/[disabled] inputs, (checkedChange) output.
-│                                       #   custom-select: static items[] + client-side search.
-│                                       #   async-select: lazy fetchFn (loads on first open, spinner);
-│                                       #     accepts a paged (PaginatedResponse) or flat (T[]) source.
-│                                       #   both selects: [multi] toggles multi-select (default false). Single
-│                                       #     mode emits (selectionChange)=T; multi mode emits
-│                                       #     (multiSelectionChange)=T[] and shows checkmarks + a "first +N"
-│                                       #     trigger. [value] is a controlled input (parent echoes changes back).
+│                                       #   cui-select: PrimeNG-backed; static items[] + client-side search.
+│                                       #   cui-paginated-select: fetchFn (page, size) => PaginatedResponse<T>,
+│                                       #     loads page 0 on open, "Load More" row while page < totalPages.
+│                                       #   both selects: write a [control] directly (no selectionChange output);
+│                                       #     labelField/valueField are field NAMES; [multi] toggles multi-select.
 │                                       # Imports are grouped by subpath:
 │                                       #   from 'cinefy-ui/components' — component classes
-│                                       #   from 'cinefy-ui/services'   — ToastService
+│                                       #   from 'cinefy-ui/services'   — CinefyToastService, provideCinefyToast
 │                                       #   from 'cinefy-ui/pipes'      — PhoneFormat/RelativeTime/Time12h
-│                                       #   from 'cinefy-ui/types'      — PaginatedResponse, PageFields, ToastContext
+│                                       #   from 'cinefy-ui/types'      — PaginatedResponse, PageFields
+│                                       #   from 'cinefy-ui/constants'  — shared runtime constants (CINEFY_TOAST_KEY/LIFE)
 ├── pages/                              # Route-level components
 │   ├── auth/                           # login (/login), forgot-password (/forgot-password)
 │   ├── dashboard/                      # Dashboard page (/)
@@ -131,7 +143,7 @@ src/
 │   ├── statistics.ts                   # Summary / daily sales / movie performance (HttpClient).
 │   ├── header-actions.ts               # Signal-based template injection for header
 │   └── sidebar.ts                      # Sidebar open/close state (signal)
-│                                       # (Toasts are NOT a local service — ToastService comes from cinefy-ui/services.)
+│                                       # (Toasts are NOT a local service — CinefyToastService comes from cinefy-ui/services.)
 ├── shared/
 │   ├── icons.ts                        # Re-exports of lucide icons used in the app — sole source of glyphs
 │   ├── access.ts                       # Position → allowed-route/action rules (canAccessRoute, canManage, ...)
@@ -149,7 +161,7 @@ src/
 ├── environments/
 │   ├── environment.ts                  # Dev: apiUrl = http://localhost:8080
 │   └── environment.prod.ts             # Prod: apiUrl = /api
-└── styles.scss                         # Global reset + ng-primitives overrides (tooltip, dialog overlay)
+└── styles.scss                         # Global reset + --cui-* token bridge
 ```
 
 Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, `shared/guards/index.ts`, `app/core/interceptors/index.ts`, and a nested `components/auth/forgot-password/index.ts` — always import through them.
@@ -297,12 +309,12 @@ Reference: [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-
 
 - **Reactive Forms** with `nonNullable: true` on FormGroup/FormControl.
 - Complex cross-field validation done in `effect()` blocks.
-- `FieldErrorComponent` displays validation messages.
+- `CinefyFieldError` (`<cui-field-error>`) displays validation messages.
 
 ### HTTP & API
 
 - Four functional interceptors run in order (registered in [`app.config.ts`](src/app/app.config.ts)): `baseUrlInterceptor` (prepends `environment.apiUrl` to relative URLs **and sets `withCredentials: true`**) → `csrfInterceptor` (attaches the CSRF token to mutating requests) → `authRetryInterceptor` (on a 401, calls the refresh endpoint once and retries; skips the login/refresh/session calls themselves, and redirects to `/login` if the retry also 401s) → `errorToastInterceptor` (on an error response, surfaces a toast unless the request carries the `SKIP_ERROR_TOAST` context; **401s are always silent** — `authRetryInterceptor` owns them).
-- **Suppressing the toast is the caller's call, not the endpoint's.** When a component renders the failure itself (an inline `<empty-state>`, a field error), it passes `skipErrorToast()` as the request's `HttpContext` — so the service method takes an optional `context?: HttpContext` parameter and forwards it, rather than hard-coding the skip. See `BookingService.getSeatSelection` / `book-seats.ts`. Otherwise you get the message twice, in a toast and in the panel.
+- **Suppressing the toast is the caller's call, not the endpoint's.** When a component renders the failure itself (an inline `<cui-empty-state>`, a field error), it passes `skipErrorToast()` as the request's `HttpContext` — so the service method takes an optional `context?: HttpContext` parameter and forwards it, rather than hard-coding the skip. See `BookingService.getSeatSelection` / `book-seats.ts`. Otherwise you get the message twice, in a toast and in the panel.
 - **Auth is JWT-in-cookie** — tokens are HTTP-only cookies set/cleared by the backend; the frontend never reads or stores them. `AuthService` exposes login/logout/refresh/forgot-verify-reset; the refresh call is de-duplicated (`refresh$ ??= …`).
 - Services return `Observable<T>` — components subscribe or convert with `toSignal()`.
 - API uses **zero-indexed pages**; UI displays **1-indexed**.
@@ -469,36 +481,83 @@ beside it.
 loaded), `computed`s deriving the view model from it, a `loading` signal, and a fetch fired from
 `afterNextRender`. The `error` handler only clears `loading` — the widget falls through to its
 empty state and `errorToastInterceptor` surfaces the message. Loading branches use a
-`<loading-spinner variant="lg" />` inside a block whose `min-height` matches that widget's loaded
+`<cui-loading-spinner variant="lg" />` inside a block whose `min-height` matches that widget's loaded
 height, so cards don't collapse and jump.
 
 ### Ticket scanning
 
-`scan-ticket-modal` is used in **two** places and therefore renders **no** `<app-modal>` of its
+`scan-ticket-modal` is used in **two** places and therefore renders **no** `<cui-dialog>` of its
 own, despite the name:
 
-- **`/movies`** — the page wraps it in `<app-modal>` inside the `#scanTicketDialog` template.
+- **`/movies`** — the page wraps it in a `<cui-dialog>` behind an `@if (scanTicketVisible())`.
 - **Dashboard (usher)** — rendered inline in a plain card.
 
-Both read the component's `modalTitle()` / `modalDescription()` computeds through a
-`#scanTicket` template reference, so the header text ("Scan Ticket" → "Ticket Info") stays in one
+The `/movies` wrapper reads the component's `modalTitle()` / `modalDescription()` computeds through
+a `#scanTicket` template reference, so the header text ("Scan Ticket" → "Ticket Info") stays in one
 place. Those two computeds are **public** for exactly that reason — a template ref can only reach
-public members.
+public members. This works because content is projected in the **parent's** template scope, so the
+ref is visible to the surrounding `cui-dialog`'s inputs.
 
 Its `close` input is `input<(() => void) | null>(null)`, not required: the dashboard has nothing to
 close, so the Cancel/Close button is wrapped in `@if (close(); as close)`. `.stm-actions` centers
-its single remaining button via `&:has(> :only-child)`. Because the footer no longer carries the
-`modal-footer` attribute, the buttons render in the modal **body** — the modal's own footer strip
-collapses via its `&:empty` rule.
+its single remaining button via `&:has(> :only-child)`. `/movies` passes a `closeScanTicket` arrow
+field that calls `dialog().close()` on a `viewChild(CinefyDialog)` — going through the dialog (not
+setting the parent flag) is what runs the leave animation and PrimeNG's scroll-lock cleanup. The
+buttons render in the dialog **body**, not a footer slot.
 
 ## Styling
 
 ### Approach
 
 - **Custom SCSS** — no Tailwind, no CSS framework.
-- **ng-primitives** provides unstyled, accessible component primitives (dialog, combobox, menu, toast, switch, popover, tooltip, pagination, button, input).
+- **PrimeNG** backs the shared cinefy-ui components (`cui-dialog`, `cui-select`, `cui-menu`, `cui-paginator`, `cui-toast`, the date/time pickers, inputs) — always consume them through cinefy-ui, not by importing `primeng/*` directly.
+- **ng-primitives is fully removed** — the migration to PrimeNG is complete and the dependency is gone from all three `package.json` files. Reach for a cinefy-ui component first; if none exists, wrap the PrimeNG one in cinefy-ui rather than importing `primeng/*` in app code.
 - **lucide-angular** for SVG icons.
 - Component styles are scoped via Angular encapsulation.
+
+### Button loading states
+
+**A button that shows `<cui-loading-spinner>` must also show a label** — never a bare spinner. The label is a **progressive form of the button's own action**, so the user can tell what is in flight:
+
+```html
+<button type="submit" class="btn-primary" [disabled]="saving()">
+  @if (saving()) {
+  <cui-loading-spinner variant="xs" />
+  <span>Saving…</span>
+  } @else {
+  <svg [lucideIcon]="icons.CheckIcon" [size]="16"></svg>
+  <span>Save changes</span>
+  }
+</button>
+```
+
+Rules:
+
+- Use the **progressive verb + `…`** (an ellipsis character, not three dots): `Saving…`, `Deleting…`, `Signing in…`, `Creating account…`, `Booking…`, `Cancelling…`. Where the idle label branches, the loading label branches with it (`{{ isEditMode() ? 'Saving…' : 'Creating…' }}`).
+- The spinner inside a button is **`variant="xs"`** (or `sm` on larger buttons) — `lg` is for page/section loading blocks, not buttons.
+- **Two exceptions, both already correct in the codebase:**
+  1. **Icon-only buttons** (a delete/edit icon with a `pTooltip` and no visible text) keep a bare spinner — there is no label to swap.
+  2. When the spinner replaces only a **leading icon** and the `<span>` label sits _outside_ the `@if`, the label is already permanently visible — that satisfies the rule, so don't add a second one.
+- Page-level and section-level loading (an `@if (loading())` block over a whole panel) is unaffected: those use a centered `<cui-loading-spinner variant="lg" />` with no label.
+
+### Toasts
+
+Toasts are PrimeNG-backed and live entirely in cinefy-ui. Two pieces, and both are already wired:
+
+- **`provideCinefyToast()`** in [`app.config.ts`](src/app/app.config.ts) — this provides PrimeNG's
+  `MessageService` in the root injector. Without it every toast silently no-ops, because
+  `CinefyToastService` is `providedIn: 'root'` and resolves `MessageService` from the root injector
+  (a component-level provider is **not** visible to it).
+- **`<cui-toast />`** rendered **once** in [`app.ts`](src/app/app.ts), beside `<router-outlet>`.
+  It is the container every message renders into — one per app, never per page or per layout shell.
+
+To raise a toast, inject `CinefyToastService` and call `success(message)` / `error(message)`. That
+two-method surface is the whole API — there is no `warn`/`info`, no options argument, and no
+`ToastService` any more (the ng-primitives implementation was deleted).
+
+The service and the container are coupled by `CINEFY_TOAST_KEY` from `cinefy-ui/constants`:
+PrimeNG matches a message to its container by exact key equality, so a message with a different key
+renders nowhere. Don't pass a key by hand — the service and component both read the constant.
 
 ### SCSS Conventions
 
@@ -515,7 +574,7 @@ collapses via its `&:empty` rule.
 - cinefy-ui's components consume runtime `var(--cui-*)` tokens (theming contract). Management's `src/styles.scss` maps its SCSS palette to those tokens once in a `:root { ... }` block — that's the single bridge. Component SCSS in management uses plain `$variables`, not `var()`.
 - Layout mixins: `flex-center`, `flex-align`, `flex-between`, `flex-column` (cinefy-ui).
 - Icon mixins: `icon-box($size)` (management), `lucide-icon-fix` (cinefy-ui, applied on the **parent** of `<lucide-icon>`, never inside a `lucide-icon { }` block).
-- Other mixins: `text-truncate` (cinefy-ui). The empty-state styling is baked into cinefy-ui's `<empty-state>` component (no mixin).
+- Other mixins: `text-truncate` (cinefy-ui). The empty-state styling is baked into cinefy-ui's `<cui-empty-state>` component (no mixin).
 - Responsive mixins: `below-phone/mobile/tablet/desktop` and `from-phone/mobile/tablet/desktop` (mobile-first by default).
 - **Flag new raw values before adding them** — if a color, shadow, gradient, or other "designed" value is not already in `src/shared/styles/`, surface it before writing: name the value, the closest existing token, and how they differ, then wait for the user to choose keep / replace with token / extract to shared. Doesn't apply to plain layout numbers (paddings, gaps, line-heights).
 
@@ -626,7 +685,7 @@ LSP coverage in this repo: TypeScript files (Angular components, services, types
 4. Use **barrel exports** — import from `../components`, `../services`, `../shared/types`.
 5. Keep types in `shared/types/` with barrel re-exports.
 6. Use the existing **color palette, shadows, and mixins** — don't introduce new color or shadow values.
-7. Use **ng-primitives** directives for interactive UI (buttons, dialogs, selects, etc.).
+7. Use **cinefy-ui** components for interactive UI (`<cui-dialog>`, `<cui-select>`, `<cui-menu>`, `<cui-input>`, …) — they wrap PrimeNG. Don't import `primeng/*` directly in app code. **Every cinefy-ui component is `cui-<name>` in templates and `Cinefy<Name>` in TypeScript** — no `Component` suffix on the class. A new library component follows the same pair.
 8. Use **lucide-angular** for all icons. Re-export new icons through `shared/icons.ts`. Size icons via `[size]="N"` — never via SCSS `svg { width/height }`.
 9. Filenames use kebab-case without `.component`/`.service` suffixes (e.g., `halls-list.ts`, not `halls-list.component.ts`).
 10. Tests are skipped by default in schematics (`skipTests: true` in angular.json).

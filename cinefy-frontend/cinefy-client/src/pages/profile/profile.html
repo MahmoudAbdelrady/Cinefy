@@ -1,40 +1,32 @@
 <div class="profile-container">
-  <div
-    class="profile-tabs reveal"
-    ngpTabset
-    ngpTabsetOrientation="vertical"
-    [ngpTabsetValue]="defaultTab"
-    (ngpTabsetValueChange)="onTabChange($event)"
-  >
-    <div class="pt-list" ngpTabList>
-      <button class="pt-tab" ngpTabButton ngpTabButtonValue="account">
-        <svg [lucideIcon]="icons.UserIcon" [size]="16"></svg>
-        Account
-      </button>
-      <button class="pt-tab" ngpTabButton ngpTabButtonValue="billing">
-        <svg [lucideIcon]="icons.CreditCardIcon" [size]="16"></svg>
-        Billing
-      </button>
-      <button class="pt-tab" ngpTabButton ngpTabButtonValue="history">
-        <svg [lucideIcon]="icons.TicketIcon" [size]="16"></svg>
-        Bookings
-      </button>
-    </div>
+  <div class="profile-tabs reveal">
+    <nav class="pt-list">
+      @for (tab of tabs; track tab.value) {
+        <button
+          class="pt-tab"
+          [class.active]="activeTab() === tab.value"
+          (click)="selectTab(tab.value)"
+        >
+          <svg [lucideIcon]="tab.icon" [size]="16"></svg>
+          {{ tab.label }}
+        </button>
+      }
+    </nav>
 
     <div class="pt-panels">
-      <div class="pt-account" ngpTabPanel ngpTabPanelValue="account">
+      <div class="pt-account" [hidden]="activeTab() !== 'account'">
         @if (hasVisited('account')) {
           <personal-details />
           <profile-password />
         }
       </div>
-      <div ngpTabPanel ngpTabPanelValue="billing">
+      <div [hidden]="activeTab() !== 'billing'">
         @if (hasVisited('billing')) {
           <profile-billing />
         }
       </div>
-      <div ngpTabPanel ngpTabPanelValue="history">
-        @if (hasVisited('history')) {
+      <div [hidden]="activeTab() !== 'bookings'">
+        @if (hasVisited('bookings')) {
           <profile-history />
         }
       </div>

@@ -6,7 +6,7 @@
 
   <form class="fp-form" [formGroup]="resetForm" (ngSubmit)="onSubmit()">
     <div class="input-group">
-      <input-field
+      <cui-input
         label="New password"
         type="password"
         placeholder="Enter your password"
@@ -18,10 +18,10 @@
           pattern: 'Password is too weak',
         }"
       />
-      <password-checklist [control]="resetForm.controls.newPassword" />
+      <cui-password-checklist [control]="resetForm.controls.newPassword" />
     </div>
 
-    <input-field
+    <cui-input
       label="Confirm new password"
       type="password"
       placeholder="Confirm your password"
@@ -40,7 +40,8 @@
       [disabled]="resetForm.invalid || submitting()"
     >
       @if (submitting()) {
-        <loading-spinner variant="xs" />
+        <cui-loading-spinner variant="xs" />
+        <span>Saving…</span>
       } @else {
         <span>Save new password</span>
         <svg class="fp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

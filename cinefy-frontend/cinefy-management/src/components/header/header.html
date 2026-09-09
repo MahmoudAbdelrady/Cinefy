@@ -13,33 +13,16 @@
         <div class="header-divider"></div>
       }
       <div class="user-info-container">
-        <button [ngpMenuTrigger]="userInfoMenu">
-          <div class="avatar-box">{{ initials() }}</div>
-          <div class="info-box">
-            <h5>{{ currentStaffMember()?.fullName }}</h5>
-            <p>{{ positionLabel() }}</p>
-          </div>
-          <svg [lucideIcon]="icons.ChevronDownIcon" [size]="14"></svg>
-        </button>
-        <ng-template #userInfoMenu>
-          <div class="user-info-menu-items" ngpMenu>
-            @for (item of userInfoMenuItems; track item.label) {
-              <button
-                class="uim-item"
-                ngpMenuItem
-                [ngpMenuItemDisabled]="item.loading?.() ?? false"
-                (click)="item.action()"
-              >
-                @if (item.loading?.()) {
-                  <loading-spinner variant="sm" />
-                } @else {
-                  <svg [lucideIcon]="item.icon" [size]="16"></svg>
-                }
-                <span>{{ item.label }}</span>
-              </button>
-            }
-          </div>
-        </ng-template>
+        <cui-menu [items]="userInfoMenuGroups">
+          <button class="user-info-trigger">
+            <div class="avatar-box">{{ initials() }}</div>
+            <div class="info-box">
+              <h5>{{ currentStaffMember()?.fullName }}</h5>
+              <p>{{ positionLabel() }}</p>
+            </div>
+            <svg [lucideIcon]="icons.ChevronDownIcon" [size]="14"></svg>
+          </button>
+        </cui-menu>
       </div>
     </div>
   </div>

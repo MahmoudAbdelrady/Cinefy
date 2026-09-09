@@ -1,18 +1,8 @@
-import {
-  afterNextRender,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  signal,
-  Signal,
-} from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
 import { RouterLink } from '@angular/router';
-import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
-import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
+import { LucideDynamicIcon } from '@lucide/angular';
 import {
   UserIcon,
   TicketIcon,
@@ -21,17 +11,11 @@ import {
   SignupIcon,
   ClapperboardIcon,
 } from '../../shared/icons';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyMenu, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import type { CinefyMenuGroup } from 'cinefy-ui/types';
 import { MyTicketsListComponent } from '../../components';
 import { AuthService, ClientService } from '../../services';
 import type { CurrentUser } from '../../shared/types';
-
-interface DropDownMenuItem {
-  icon: LucideIcon;
-  label: string;
-  action: () => void;
-  loading?: Signal<boolean>;
-}
 
 @Component({
   selector: 'app-layout',
@@ -39,12 +23,9 @@ interface DropDownMenuItem {
     RouterOutlet,
     RouterLink,
     LucideDynamicIcon,
-    NgpMenu,
-    NgpMenuItem,
-    NgpMenuTrigger,
-    NgpDialogTrigger,
-    LoadingSpinnerComponent,
+    CinefyLoadingSpinner,
     MyTicketsListComponent,
+    CinefyMenu,
   ],
   templateUrl: './app-layout.html',
   styleUrl: './app-layout.scss',
@@ -65,17 +46,27 @@ export class AppLayout {
 
   protected readonly currentYear = new Date().getFullYear();
 
+  protected readonly myTicketsVisible = signal(false);
+
   protected readonly isAuthenticatedLoading = signal(true);
   protected readonly currentUserLoading = signal(true);
   protected readonly logoutLoading = signal(false);
 
-  protected readonly userInfoMenuItems: DropDownMenuItem[] = [
-    { icon: UserIcon, label: 'Profile', action: () => this.router.navigateByUrl('/profile') },
+  protected readonly userInfoMenuGroups: CinefyMenuGroup[] = [
     {
-      icon: LogoutIcon,
-      label: 'Logout',
-      action: () => this.logout(),
-      loading: this.logoutLoading,
+      items: [
+        { icon: UserIcon, label: 'Profile', action: () => this.router.navigateByUrl('/profile') },
+      ],
+    },
+    {
+      items: [
+        {
+          icon: LogoutIcon,
+          label: 'Logout',
+          action: () => this.logout(),
+          loading: this.logoutLoading,
+        },
+      ],
     },
   ];
 

@@ -44,8 +44,13 @@
   &.disabled .seat {
     cursor: default;
 
-    &::after {
+    &:not(.aisle)::after {
       display: none;
+    }
+
+    &.aisle:hover::after {
+      transform: none;
+      outline-color: $gray-300;
     }
   }
 }
@@ -72,7 +77,7 @@
   overflow: auto;
   scrollbar-gutter: stable;
 
-  empty-state {
+  cui-empty-state {
     margin: auto;
   }
 
@@ -149,7 +154,7 @@
   width: 24px;
   height: 24px;
   border-radius: $radius-sm;
-  transition: background-color 150ms ease;
+  transition: background-color $transition-fast;
   cursor: pointer;
   flex-shrink: 0;
 
@@ -159,7 +164,7 @@
     inset: 0;
     border-radius: inherit;
     background: inherit;
-    transition: transform 150ms ease;
+    transition: transform $transition-fast;
     z-index: 0;
   }
 
@@ -299,7 +304,7 @@
   background-color: $blue-50;
   border: 1px solid $blue-300;
   border-radius: $radius-md;
-  transition: background-color 150ms ease;
+  transition: background-color $transition-fast;
 
   &:hover {
     background-color: $blue-100;

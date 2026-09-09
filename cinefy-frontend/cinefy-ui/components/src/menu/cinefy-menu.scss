@@ -1,0 +1,44 @@
+@use "../../../src/styles/mixins" as *;
+
+.cui-menu-trigger {
+  display: inline-flex;
+}
+
+::ng-deep .cui-menu-panel {
+  .p-menu-item-content {
+    .cui-menu-item {
+      @include flex-align;
+
+      gap: 12px;
+      width: 100%;
+      padding: 10px 16px;
+      font-size: 14px;
+      color: var(--cui-option-text);
+      cursor: pointer;
+
+      svg {
+        color: var(--cui-text-faint);
+      }
+    }
+  }
+
+  .p-menu-item.p-disabled .cui-menu-item {
+    cursor: default;
+  }
+
+  .p-menu-submenu-label {
+    padding: 0;
+
+    &:not(:has(.cui-menu-group)) {
+      display: none;
+    }
+
+    .cui-menu-group {
+      display: block;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--cui-text-muted);
+    }
+  }
+}

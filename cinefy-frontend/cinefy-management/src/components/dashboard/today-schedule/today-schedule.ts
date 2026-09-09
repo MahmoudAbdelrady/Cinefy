@@ -2,9 +2,9 @@ import { afterNextRender, Component, computed, DestroyRef, inject, signal } from
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInMinutes, format, parse, startOfMinute } from 'date-fns';
 import {
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
-  MediaImageComponent,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { ShowtimesService } from '../../../services';
@@ -30,9 +30,9 @@ const DATE_FORMAT = 'yyyy-MM-dd';
   imports: [
     DashboardWidgetComponent,
     LucideDynamicIcon,
-    MediaImageComponent,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
+    CinefyMediaImage,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
     Time12hPipe,
   ],
   templateUrl: './today-schedule.html',

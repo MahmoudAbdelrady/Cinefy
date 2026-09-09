@@ -31,7 +31,7 @@
     font-size: 14px;
     font-weight: 500;
     color: $color-primary;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
     text-decoration: none;
 
     &:hover {
@@ -81,7 +81,7 @@
   cursor: pointer;
 
   &:hover {
-    .mc-poster media-image {
+    .mc-poster cui-media-image {
       transform: scale(1.1);
     }
 
@@ -103,7 +103,7 @@
   border-radius: $radius-lg;
   background-color: $color-muted;
 
-  media-image {
+  cui-media-image {
     position: absolute;
     inset: 0;
     transition: transform 500ms ease-out;
@@ -135,7 +135,7 @@
     font-size: 16px;
     font-weight: 600;
     line-height: 1.25;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
     white-space: normal;
     overflow: visible;
   }

@@ -132,7 +132,7 @@ public class BookingController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")
     @PostMapping("/tickets/{bookingReference}/scan")
     public ResponseEntity<BookingConfirmationDTO> scanTicket(@PathVariable
-                                                             @Pattern(regexp = ValidationPatterns.NO_WHITESPACE, message = "Booking reference must not contain spaces")
+                                                             @Pattern(regexp = ValidationPatterns.ALPHANUMERIC, message = "Booking reference may only contain letters and numbers")
                                                              String bookingReference) {
         return ResponseEntity.ok(bookingService.scanTicket(bookingReference));
     }

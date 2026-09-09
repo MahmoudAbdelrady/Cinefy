@@ -1,20 +1,21 @@
-<app-modal
-  #modal
-  [modalTitle]="modalTitle()"
+<cui-dialog
+  #dialog
+  [header]="modalTitle()"
   [description]="modalDescription()"
-  [close]="close()"
-  width="700px"
+  [canClose]="!saving()"
+  [style]="{ width: '700px' }"
+  (closed)="closed.emit()"
 >
   @if (loading()) {
     <div class="manage-staff-modal-loading">
-      <loading-spinner variant="md" />
+      <cui-loading-spinner variant="md" />
     </div>
   } @else {
     <form [formGroup]="staffForm">
       <div class="input-groups">
         <div class="fields">
           <div class="input-group">
-            <input-field
+            <cui-input
               label="First name"
               placeholder="e.g. Mohamed"
               [leadingIcon]="icons.UserIcon"
@@ -28,7 +29,7 @@
             />
           </div>
           <div class="input-group">
-            <input-field
+            <cui-input
               label="Last name"
               placeholder="e.g. Ahmed"
               [leadingIcon]="icons.UserIcon"
@@ -44,7 +45,7 @@
         </div>
       </div>
       <div class="input-group">
-        <input-field
+        <cui-input
           label="Email"
           placeholder="e.g. mohamed.ahmed@gmail.com"
           [leadingIcon]="icons.EmailIcon"
@@ -56,14 +57,13 @@
         />
       </div>
       <div class="input-group">
-        <phone-input
+        <cui-phone-input
           [countryControl]="staffForm.controls.phoneCountry"
           [numberControl]="staffForm.controls.phoneNumber"
-          [container]="modal.panelEl()"
         />
       </div>
       <div class="input-group">
-        <input-field
+        <cui-input
           label="Password"
           placeholder="e.g. Strongpassword##123"
           type="password"
@@ -76,34 +76,30 @@
             pattern: 'Password is too weak',
           }"
         />
-        <password-checklist [control]="staffForm.controls.password" />
+        <cui-password-checklist [control]="staffForm.controls.password" />
       </div>
       <div class="input-group">
-        <custom-select
+        <cui-select
           label="Position"
-          [items]="staffPositions()"
-          [displayFn]="positionDisplayFn"
-          [control]="staffForm.controls.position"
-          [errorMessages]="{ required: 'Position is required' }"
-          [required]="true"
+          labelField="label"
+          valueField="value"
           placeholder="Select a position"
-          [container]="modal.panelEl()"
-          (selectionChange)="onPositionChange($event)"
-          (cleared)="onPositionCleared()"
+          [control]="staffForm.controls.position"
+          [items]="staffPositionEntries()"
+          [errorMessages]="{ required: 'Position is required' }"
         />
       </div>
       <div class="input-group">
         <label data-required>Employment Type</label>
-        <div
-          ngpRadioGroup
-          class="radio-group"
-          [ngpRadioGroupValue]="staffForm.controls.employmentType.value"
-          (ngpRadioGroupValueChange)="staffForm.controls.employmentType.setValue($event!)"
-        >
+        <div class="radio-group">
           @for (entry of employmentTypeEntries; track entry.value) {
-            <div ngpRadioItem [ngpRadioItemValue]="entry.value" class="radio-item">
+            <label
+              class="radio-item"
+              [class.selected]="staffForm.controls.employmentType.value === entry.value"
+            >
+              <p-radiobutton [value]="entry.value" formControlName="employmentType" />
               <span>{{ entry.label }}</span>
-            </div>
+            </label>
           }
         </div>
       </div>
@@ -111,29 +107,23 @@
         <label data-required>Working days</label>
         <div class="fields">
           <div class="input-group">
-            <custom-select
-              [items]="weekDays"
-              [displayFn]="weekDayDisplayFn"
-              [control]="staffForm.controls.workingDayStart"
-              [errorMessages]="{ required: 'Start day is required' }"
-              [required]="true"
+            <cui-select
+              labelField="label"
+              valueField="value"
               placeholder="Select start day"
-              [container]="modal.panelEl()"
-              (selectionChange)="onWorkingDayStartChange($event)"
-              (cleared)="onWorkingDayStartCleared()"
+              [control]="staffForm.controls.workingDayStart"
+              [items]="weekDayEntries"
+              [errorMessages]="{ required: 'Start day is required' }"
             />
           </div>
           <div class="input-group">
-            <custom-select
-              [items]="weekDays"
-              [displayFn]="weekDayDisplayFn"
-              [control]="staffForm.controls.workingDayEnd"
-              [errorMessages]="{ required: 'End day is required' }"
-              [required]="true"
+            <cui-select
+              labelField="label"
+              valueField="value"
               placeholder="Select end day"
-              [container]="modal.panelEl()"
-              (selectionChange)="onWorkingDayEndChange($event)"
-              (cleared)="onWorkingDayEndCleared()"
+              [control]="staffForm.controls.workingDayEnd"
+              [items]="weekDayEntries"
+              [errorMessages]="{ required: 'End day is required' }"
             />
           </div>
         </div>
@@ -142,25 +132,27 @@
         <label data-required>Working hours</label>
         <div class="fields">
           <div class="input-group">
-            <time-picker
+            <cui-time-picker
               [control]="staffForm.controls.workingHourStart"
-              [container]="modal.panelEl()"
+              [errorMessages]="{ required: 'Start time is required' }"
             />
           </div>
           <div class="input-group">
-            <time-picker
+            <cui-time-picker
               [control]="staffForm.controls.workingHourEnd"
-              [container]="modal.panelEl()"
-              [errorMessages]="{ sameAsStart: 'End time must be different from start time' }"
+              [errorMessages]="{
+                required: 'End time is required',
+                sameAsStart: 'End time must be different from start time',
+              }"
             />
           </div>
         </div>
       </div>
     </form>
   }
-  <div modal-footer class="manage-staff-modal-footer">
+  <div customFooter class="manage-staff-modal-footer">
     <div class="save-btns">
-      <button class="btn-secondary" (click)="close()()">Cancel</button>
+      <button class="btn-secondary" [disabled]="saving()" (click)="dialog.close()">Cancel</button>
       <button
         class="btn-primary"
         (click)="saveMember()"
@@ -170,4 +162,4 @@
       </button>
     </div>
   </div>
-</app-modal>
+</cui-dialog>

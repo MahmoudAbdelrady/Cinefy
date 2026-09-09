@@ -59,7 +59,7 @@
       font-weight: 500;
       color: $gray-700;
       white-space: nowrap;
-      transition: background-color 150ms ease;
+      transition: background-color $transition-fast;
       text-decoration: none;
 
       &:hover {

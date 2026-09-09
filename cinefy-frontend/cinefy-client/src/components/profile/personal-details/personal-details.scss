@@ -30,6 +30,8 @@
     }
 
     .pd-edit {
+      @include lucide-icon-fix;
+
       flex-shrink: 0;
     }
   }
@@ -80,7 +82,7 @@
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
-        transition: background-color 150ms ease;
+        transition: background-color $transition-fast;
 
         &:hover {
           background-color: $color-secondary;

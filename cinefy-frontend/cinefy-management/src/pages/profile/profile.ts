@@ -7,12 +7,12 @@ import {
 } from '../../components';
 import type { StaffMemberDetail } from '../../shared/types';
 import { StaffService } from '../../services';
-import { LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 
 @Component({
   selector: 'profile-page',
   imports: [
-    LoadingSpinnerComponent,
+    CinefyLoadingSpinner,
     ProfileIdentityComponent,
     ProfilePersonalDetailsComponent,
     ProfilePasswordComponent,

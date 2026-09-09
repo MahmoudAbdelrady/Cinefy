@@ -2,15 +2,37 @@
 
 @if (scan === null) {
   <form id="stm-form" class="stm-form" [formGroup]="scanForm" (ngSubmit)="submit()">
-    <input-field
-      label="Booking Reference"
-      [control]="scanForm.controls.reference"
-      [placeholder]="manualEntry() ? 'e.g. F2AC9WJKRV' : 'Waiting for scan...'"
-      [leadingIcon]="icons.ScanLineIcon"
-      [uppercase]="true"
-      [autoFocus]="true"
-      (blurred)="onInputBlur()"
-    />
+    <div class="stm-reference">
+      <div class="stm-reference-head">
+        <span class="stm-reference-label" data-required>Booking Reference</span>
+
+        <label class="stm-manual">
+          <input
+            type="checkbox"
+            [checked]="manualEntry()"
+            (change)="onManualEntryChange($event.target.checked)"
+          />
+          <span>Enter manually</span>
+        </label>
+      </div>
+
+      <cui-input
+        [control]="scanForm.controls.reference"
+        [placeholder]="manualEntry() ? 'e.g. F2AC9WJKRV' : 'Waiting for scan...'"
+        [leadingIcon]="icons.ScanLineIcon"
+        [uppercase]="true"
+        [preventWhitespace]="true"
+        [autoFocus]="true"
+        (blurred)="onInputBlur()"
+      />
+
+      @if (scanForm.controls.reference.hasError('pattern')) {
+        <cui-field-error
+          [control]="scanForm.controls.reference"
+          [messages]="{ pattern: 'Booking reference is invalid' }"
+        />
+      }
+    </div>
 
     @if (!manualEntry()) {
       <p class="stm-listening">
@@ -18,21 +40,12 @@
         <span>Listening for scanner input</span>
       </p>
     }
-
-    <label class="stm-manual">
-      <input
-        type="checkbox"
-        [checked]="manualEntry()"
-        (change)="onManualEntryChange($event.target.checked)"
-      />
-      <span>Enter the reference manually</span>
-    </label>
   </form>
 } @else {
   <article class="stm-ticket">
     <header class="stm-ticket-head">
       <div class="stm-poster">
-        <media-image
+        <cui-media-image
           [src]="scan.movie.posterUrl"
           [alt]="scan.movie.title + ' poster'"
           [iconSize]="20"
@@ -100,12 +113,7 @@
       </button>
     }
     @if (scan === null) {
-      <button
-        type="submit"
-        form="stm-form"
-        class="btn-primary"
-        [disabled]="scanForm.invalid || scanning()"
-      >
+      <button type="submit" form="stm-form" class="btn-primary" [disabled]="!canSubmit()">
         {{ scanning() ? 'Verifying...' : 'Verify Ticket' }}
       </button>
     } @else {

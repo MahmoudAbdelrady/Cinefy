@@ -1,6 +1,6 @@
 <dashboard-widget
   [icon]="icons.ClockIcon"
-  title="Today's schedule"
+  header="Today's schedule"
   subtitle="{{ screenings().length }} showtimes"
   iconColor="var(--tsch-icon-color)"
   actionLabel="Manage showtimes"
@@ -9,14 +9,14 @@
 >
   @if (loading()) {
     <div class="tsch-loading">
-      <loading-spinner variant="lg" />
+      <cui-loading-spinner variant="lg" />
     </div>
   } @else {
     <ul class="tsch-list">
       @for (screening of screenings(); track screening.id) {
         <li class="tsch-row">
           <div class="tsch-poster">
-            <media-image
+            <cui-media-image
               [src]="screening.movie.posterUrl"
               [alt]="screening.movie.title"
               [iconSize]="18"
@@ -45,10 +45,10 @@
           </div>
         </li>
       } @empty {
-        <empty-state
+        <cui-empty-state
           class="tsch-empty"
           [icon]="icons.CalendarClockIcon"
-          title="No showtimes today"
+          header="No showtimes today"
           description="Schedule a showtime to start selling tickets."
         />
       }

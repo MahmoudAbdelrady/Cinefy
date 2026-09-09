@@ -10,6 +10,7 @@ import {
   output,
   signal,
   untracked,
+  viewChild,
   viewChildren,
   WritableSignal,
 } from '@angular/core';
@@ -25,7 +26,7 @@ import {
   SHOWTIME_STATUS_LABELS,
   Showtime,
 } from '../../../shared/types';
-import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
+import { Tab, TabList, Tabs } from 'primeng/tabs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CalendarIcon,
@@ -39,28 +40,31 @@ import {
   TicketIcon,
   WarningIcon,
 } from '../../../shared/icons';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
-import { ModalComponent, LoadingSpinnerComponent, EmptyStateComponent } from 'cinefy-ui/components';
+import {
+  CinefyDialog,
+  CinefyDialogFooter,
+  CinefyLoadingSpinner,
+  CinefyEmptyState,
+} from 'cinefy-ui/components';
 import { BookSeatsComponent } from '../book-seats/book-seats';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { canManage as canManagePosition, canBook as canBookPosition } from '../../../shared/access';
 
 @Component({
   selector: 'movie-showtimes-modal',
   imports: [
-    ModalComponent,
-    NgpTabset,
-    NgpTabList,
-    NgpTabButton,
-    NgpTabPanel,
+    CinefyDialog,
+    CinefyDialogFooter,
+    Tabs,
+    TabList,
+    Tab,
     DatePipe,
     DecimalPipe,
     LucideDynamicIcon,
-    NgpDialogTrigger,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
+    CinefyLoadingSpinner,
+    CinefyEmptyState,
     Time12hPipe,
     BookSeatsComponent,
   ],
@@ -84,7 +88,7 @@ export class MovieShowtimesModal {
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
@@ -98,14 +102,18 @@ export class MovieShowtimesModal {
   });
 
   private readonly noteEls = viewChildren<ElementRef<HTMLElement>>('noteText');
+  private readonly dialog = viewChild.required(CinefyDialog);
 
   protected readonly statusLabels = SHOWTIME_STATUS_LABELS;
 
-  readonly close = input.required<() => void>();
   readonly selectedMovie = input.required<MovieSummary>();
 
+  readonly closed = output<void>();
   readonly addShowtimeRequested = output<void>();
   readonly editShowtimeRequested = output<EditableShowtime>();
+
+  protected readonly bookingShowtime = signal<MovieShowtimeListItem | null>(null);
+  protected readonly showtimeToDelete = signal<MovieShowtimeListItem | null>(null);
 
   protected readonly movieShowtimes = signal<MovieShowtimeDatesResponse | null>(null);
   protected readonly movieShowtimeDetails = signal<MovieShowtimeListItem[]>([]);
@@ -222,7 +230,7 @@ export class MovieShowtimesModal {
     });
   }
 
-  protected onDeleteShowtime(id: string, close: () => void) {
+  protected onDeleteShowtime(id: string) {
     if (this.deletingShowtimeIds().has(id)) return;
     this.markDeleting(id, true);
 
@@ -234,7 +242,7 @@ export class MovieShowtimesModal {
           this.markDeleting(id, false);
           const { wasDraft, movieClosed } = this.applyLocalDeletion(id);
           this.toastService.success('Showtime deleted');
-          close();
+          this.showtimeToDelete.set(null);
 
           if (movieClosed) return;
 
@@ -478,7 +486,7 @@ export class MovieShowtimesModal {
 
     if (remainingDates.length === 0) {
       this.showtimeEvents.notifyDeleted(this.selectedMovieId());
-      this.close()();
+      this.dialog().close();
       return true;
     }
 

@@ -2,14 +2,13 @@ import { afterNextRender, Component, computed, DestroyRef, inject, signal } from
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
-  ModalComponent,
-  Switch,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
+  CinefyDialog,
+  CinefyDialogFooter,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import {
   AlertIcon,
   CreditCardIcon,
@@ -32,11 +31,10 @@ import { PAYMENT_PROVIDERS } from '../provider-spec';
     LucideDynamicIcon,
     DatePipe,
     NgTemplateOutlet,
-    NgpDialogTrigger,
-    Switch,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
-    ModalComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
+    CinefyDialog,
+    CinefyDialogFooter,
     ManageGatewayModalComponent,
   ],
   templateUrl: './gateway-list.html',
@@ -56,18 +54,24 @@ export class GatewayListComponent {
   };
 
   private readonly paymentGatewaysService = inject(PaymentGatewaysService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly providerLabels = GATEWAY_PROVIDER_LABELS;
 
   protected readonly loading = signal(true);
 
-  protected readonly applyingAction = signal(false);
+  protected readonly togglingGateway = signal(false);
+  protected readonly deletingGatewayIds = signal<Set<string>>(new Set());
 
   protected readonly activeGateway = signal<PaymentGateway | null>(null);
 
   protected readonly standbyGateways = signal<PaymentGateway[]>([]);
+
+  protected readonly gatewayToToggle = signal<PaymentGateway | null>(null);
+  protected readonly gatewayToViewChannels = signal<PaymentGateway | null>(null);
+  protected readonly gatewayToEdit = signal<PaymentGateway | null>(null);
+  protected readonly gatewayToDelete = signal<PaymentGateway | null>(null);
 
   protected readonly activeGatewayHasNoLiveChannel = computed(() => {
     const gateway = this.activeGateway();
@@ -96,9 +100,13 @@ export class GatewayListComponent {
     this.standbyGateways.update((gateways) => this.addStandbyGateway(gateways, gateway));
   }
 
-  protected toggleGateway(id: string, active: boolean, close: () => void): void {
-    if (this.applyingAction()) return;
-    this.applyingAction.set(true);
+  protected isDeleting(id: string): boolean {
+    return this.deletingGatewayIds().has(id);
+  }
+
+  protected toggleGateway(id: string, active: boolean): void {
+    if (this.togglingGateway()) return;
+    this.togglingGateway.set(true);
 
     this.paymentGatewaysService
       .updatePaymentGatewayStatus(id, active)
@@ -106,19 +114,19 @@ export class GatewayListComponent {
       .subscribe({
         next: () => {
           this.applyStatusChange(id, active);
-          this.applyingAction.set(false);
+          this.togglingGateway.set(false);
           this.toastService.success(
             active ? 'Payment gateway activated' : 'Payment gateway deactivated',
           );
-          close();
+          this.gatewayToToggle.set(null);
         },
-        error: () => this.applyingAction.set(false),
+        error: () => this.togglingGateway.set(false),
       });
   }
 
-  protected deleteGateway(id: string, close: () => void): void {
-    if (this.applyingAction()) return;
-    this.applyingAction.set(true);
+  protected deleteGateway(id: string): void {
+    if (this.isDeleting(id)) return;
+    this.markDeleting(id, true);
 
     this.paymentGatewaysService
       .deletePaymentGateway(id)
@@ -128,11 +136,11 @@ export class GatewayListComponent {
           this.standbyGateways.update((gateways) =>
             gateways.filter((gateway) => gateway.id !== id),
           );
-          this.applyingAction.set(false);
+          this.markDeleting(id, false);
           this.toastService.success('Payment gateway deleted');
-          close();
+          this.gatewayToDelete.set(null);
         },
-        error: () => this.applyingAction.set(false),
+        error: () => this.markDeleting(id, false),
       });
   }
 
@@ -165,6 +173,18 @@ export class GatewayListComponent {
     this.standbyGateways.update((gateways) => {
       const remaining = gateways.filter((gateway) => gateway.id !== id);
       return demoted ? this.addStandbyGateway(remaining, demoted) : remaining;
+    });
+  }
+
+  private markDeleting(id: string, isDeleting: boolean): void {
+    this.deletingGatewayIds.update((current) => {
+      const next = new Set(current);
+      if (isDeleting) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
     });
   }
 

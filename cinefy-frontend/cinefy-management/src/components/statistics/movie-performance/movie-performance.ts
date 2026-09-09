@@ -1,9 +1,10 @@
 import { Component, computed, effect, inject, input, linkedSignal, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { Subscription } from 'rxjs';
 import {
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
-  PaginationComponent,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
+  CinefyPaginator,
 } from 'cinefy-ui/components';
 import { ClapperboardIcon, WarningIcon } from '../../../shared/icons';
 import { DEFAULT_PAGE_SIZE } from '../../../shared/constants';
@@ -24,7 +25,7 @@ interface MovieRow {
 
 @Component({
   selector: 'movie-performance',
-  imports: [LoadingSpinnerComponent, EmptyStateComponent, PaginationComponent, DecimalPipe],
+  imports: [CinefyLoadingSpinner, CinefyEmptyState, CinefyPaginator, DecimalPipe],
   templateUrl: './movie-performance.html',
   styleUrl: './movie-performance.scss',
 })
@@ -46,14 +47,14 @@ export class MoviePerformanceComponent {
   protected readonly pageCount = signal(1);
   protected readonly page = linkedSignal<DateRange, number>({
     source: this.range,
-    computation: () => 1,
+    computation: () => 0,
   });
   protected readonly loading = signal(true);
   protected readonly failed = signal(false);
 
   protected readonly rows = computed<MovieRow[]>(() =>
     this.movies().map((movie, index) => ({
-      rank: (this.page() - 1) * this.pageSize + index + 1,
+      rank: this.page() * this.pageSize + index + 1,
       movieTitle: movie.movieTitle,
       netRevenue: movie.netRevenue,
       refunded: movie.refunded,
@@ -65,13 +66,16 @@ export class MoviePerformanceComponent {
   );
 
   constructor() {
-    effect(() => this.load(this.range(), this.page()));
+    effect((onCleanup) => {
+      const sub = this.load(this.range(), this.page());
+      onCleanup(() => sub.unsubscribe());
+    });
   }
 
-  private load(range: DateRange, page: number): void {
+  private load(range: DateRange, page: number): Subscription {
     this.loading.set(true);
     this.failed.set(false);
-    this.statisticsService.getMoviePerformance(range, page - 1, this.pageSize).subscribe({
+    return this.statisticsService.getMoviePerformance(range, page, this.pageSize).subscribe({
       next: (response) => {
         this.movies.set(response.content);
         this.totalItems.set(response.page.totalElements);

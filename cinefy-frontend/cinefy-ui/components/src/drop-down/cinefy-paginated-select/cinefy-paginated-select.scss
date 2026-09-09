@@ -1,0 +1,98 @@
+@use "../../../../src/styles/mixins" as *;
+@use "../../../../src/styles/tokens" as *;
+
+:host {
+  display: inline-block;
+  width: 100%;
+}
+
+.cui-paginated-select-wrapper {
+  @include flex-column;
+  gap: 8px;
+
+  .cui-paginated-select-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cui-text-primary);
+
+    &[data-required]::after {
+      content: "*";
+      color: var(--cui-text-error);
+      margin-left: 3px;
+    }
+  }
+
+  .cui-paginated-select-hint {
+    font-size: 12px;
+    color: var(--cui-text-hint);
+    line-height: 1.5;
+  }
+}
+
+::ng-deep .cui-paginated-select-load-more {
+  @include flex-center;
+
+  width: 100%;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cui-accent);
+  text-align: center;
+  cursor: pointer;
+  pointer-events: auto;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &[data-loading] {
+    cursor: default;
+    pointer-events: none;
+  }
+}
+
+::ng-deep .cui-paginated-select-empty {
+  @include flex-center;
+
+  padding: 8px 0;
+}
+
+::ng-deep .cui-paginated-select-header {
+  @include flex-align;
+
+  gap: 4px;
+  padding: 8px 12px 0;
+
+  .cui-paginated-select-header-action {
+    padding: 4px 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--cui-accent-subtle);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cui-accent);
+    cursor: pointer;
+    transition:
+      background-color $transition-fast,
+      color $transition-fast;
+
+    &:hover {
+      background-color: var(--cui-accent);
+      color: var(--cui-text-on-accent);
+    }
+
+    &[data-variant="clear"] {
+      background-color: var(--cui-danger-subtle);
+      color: var(--cui-danger);
+
+      &:hover {
+        background-color: var(--cui-danger);
+        color: var(--cui-danger-text);
+      }
+    }
+  }
+}
+
+::ng-deep li:has(.cui-paginated-select-load-more) .p-checkbox {
+  display: none;
+}

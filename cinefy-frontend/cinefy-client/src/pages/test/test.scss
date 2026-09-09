@@ -1,0 +1,51 @@
+@use '../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+
+.test-container {
+  @include flex-column;
+
+  width: min(100%, 1152px);
+  margin: 0 auto;
+  padding: 40px 16px;
+  gap: 24px;
+
+  .test-header {
+    @include flex-column;
+
+    gap: 4px;
+
+    .test-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: $color-foreground;
+    }
+
+    .test-subtitle {
+      font-size: 14px;
+      color: $color-muted-foreground;
+    }
+  }
+
+  .test-sandbox {
+    @include flex-column;
+
+    gap: 16px;
+    padding: 24px;
+    border: 1px solid $color-border;
+    border-radius: $radius-lg;
+    background-color: $color-card;
+
+    .test-sandbox-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: $color-foreground;
+    }
+
+    .test-sandbox-body {
+      @include flex-column;
+
+      gap: 16px;
+      align-items: flex-start;
+    }
+  }
+}

@@ -4,19 +4,18 @@ import {
   computed,
   DestroyRef,
   inject,
-  input,
+  output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInSeconds, format } from 'date-fns';
-import { NgpDialogTrigger } from 'ng-primitives/dialog';
 import {
-  EmptyStateComponent,
-  LoadingSpinnerComponent,
-  MediaImageComponent,
-  ModalComponent,
+  CinefyDialog,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { BookSeatsComponent } from '../book-seats/book-seats';
 import { BookingService } from '../../../services';
@@ -35,11 +34,10 @@ import {
     CurrencyPipe,
     DatePipe,
     LucideDynamicIcon,
-    NgpDialogTrigger,
-    ModalComponent,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
-    MediaImageComponent,
+    CinefyDialog,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
+    CinefyMediaImage,
     BookSeatsComponent,
   ],
   templateUrl: './active-bookings-list.html',
@@ -56,12 +54,12 @@ export class ActiveBookingsListComponent {
 
   private readonly bookingService = inject(BookingService);
   private readonly destroyRef = inject(DestroyRef);
-
-  readonly close = input.required<() => void>();
+  readonly closed = output<void>();
 
   protected readonly bookings = signal<BookingSummary[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly hasError = signal(false);
+  protected readonly bookingToComplete = signal<BookingSummary | null>(null);
 
   protected readonly description = computed(() => {
     const count = this.bookings().length;
@@ -90,6 +88,11 @@ export class ActiveBookingsListComponent {
           this.isLoading.set(false);
         },
       });
+  }
+
+  protected onBookSeatsClosed(): void {
+    this.bookingToComplete.set(null);
+    this.loadActiveBookings();
   }
 
   protected isExpiringSoon(booking: BookingSummary): boolean {

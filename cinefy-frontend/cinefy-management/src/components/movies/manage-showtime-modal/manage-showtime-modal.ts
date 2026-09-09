@@ -1,4 +1,15 @@
-import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
 import {
   AbstractControl,
@@ -19,16 +30,17 @@ import {
   ShowtimeDraft,
 } from '../../../shared/types';
 import {
-  ModalComponent,
-  DatePicker,
-  TimePicker,
-  AsyncSelectComponent,
-  FieldErrorComponent,
-  LoadingSpinnerComponent,
-  MediaImageComponent,
-  Switch,
+  CinefyDialog,
+  CinefyDialogFooter,
+  CinefyDatePicker,
+  CinefyTimePicker,
+  CinefySelect,
+  CinefyFieldError,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
+  CinefySwitch,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import { DurationPipe } from 'cinefy-ui/pipes';
 import {
   HallsService,
@@ -36,7 +48,7 @@ import {
   ShowtimeEventsService,
   ShowtimesService,
 } from '../../../services';
-import { NgpTextarea } from 'ng-primitives/textarea';
+import { Textarea } from 'primeng/textarea';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
 
 function notInPastValidator(control: AbstractControl): ValidationErrors | null {
@@ -64,17 +76,18 @@ function combineDateAndTime(date: Date, time: string): string {
   selector: 'manage-showtime-modal',
   imports: [
     ReactiveFormsModule,
-    DatePicker,
-    TimePicker,
-    AsyncSelectComponent,
-    NgpTextarea,
-    ModalComponent,
+    CinefyDatePicker,
+    CinefyTimePicker,
+    CinefySelect,
+    Textarea,
+    CinefyDialog,
+    CinefyDialogFooter,
     MoviePickerComponent,
-    MediaImageComponent,
+    CinefyMediaImage,
     DatePipe,
-    Switch,
-    FieldErrorComponent,
-    LoadingSpinnerComponent,
+    CinefySwitch,
+    CinefyFieldError,
+    CinefyLoadingSpinner,
     DurationPipe,
   ],
   templateUrl: './manage-showtime-modal.html',
@@ -85,16 +98,19 @@ export class ManageShowtimeModalComponent {
   private readonly moviesService = inject(MoviesService);
   private readonly showtimesService = inject(ShowtimesService);
   private readonly showtimeEvents = inject(ShowtimeEventsService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly close = input.required<() => void>();
+  private readonly dialog = viewChild.required(CinefyDialog);
+
   readonly selectedMovie = input<MovieSearchResult | null>(null);
   readonly showSelectedMovie = input(true);
   readonly editingShowtime = input<EditableShowtime | null>(null);
 
+  readonly closed = output<void>();
+
   protected readonly submitting = signal(false);
-  protected readonly selectedHall = signal<HallSummary | null>(null);
+  private readonly halls = signal<HallSummary[]>([]);
   protected pickedMovie = signal<MovieSearchResult | null>(null);
   protected readonly activeMovieDetail = signal<MovieDetail | null>(null);
   private readonly initialFormSnapshot = signal<string | null>(null);
@@ -154,9 +170,9 @@ export class ManageShowtimeModalComponent {
     this.isEditMode() ? 'Save Changes' : 'Create Showtime',
   );
 
-  protected readonly hallDisplayFn = (hall: HallSummary) => hall.name;
-  protected readonly hallValueFn = (hall: HallSummary) => hall.id;
-  protected readonly fetchHalls = () => this.hallsService.getHalls(undefined, ACTIVE_HALL_STATUSES);
+  protected readonly hallEntries = computed(() =>
+    this.halls().map((hall) => ({ value: hall.id, label: hall.name })),
+  );
 
   constructor() {
     this.showtimeForm.controls.date.valueChanges
@@ -168,7 +184,6 @@ export class ManageShowtimeModalComponent {
     effect(() => {
       const editing = this.editingShowtime();
       if (!editing) return;
-      this.selectedHall.set(editing.hall as HallSummary);
       this.showtimeForm.patchValue({
         date: editing.date,
         time: editing.time,
@@ -190,7 +205,6 @@ export class ManageShowtimeModalComponent {
         is3D: false,
         specialNotes: '',
       });
-      this.selectedHall.set(null);
     });
 
     effect(() => {
@@ -209,13 +223,12 @@ export class ManageShowtimeModalComponent {
           },
         });
     });
-  }
 
-  protected onHallChange(hall: HallSummary | null) {
-    this.selectedHall.set(hall);
-    const hallIdCtrl = this.showtimeForm.controls.hallId;
-    hallIdCtrl.setValue(hall?.id ?? null);
-    hallIdCtrl.markAsTouched();
+    afterNextRender(() => {
+      this.hallsService
+        .getHalls(undefined, ACTIVE_HALL_STATUSES)
+        .subscribe((halls) => this.halls.set(halls));
+    });
   }
 
   protected onSubmit() {
@@ -238,7 +251,7 @@ export class ManageShowtimeModalComponent {
           this.showtimeEvents.notifyCreated(showtime);
           this.toastService.success('Showtime created');
         }
-        this.close()();
+        this.dialog().close();
       },
       error: () => this.submitting.set(false),
     });

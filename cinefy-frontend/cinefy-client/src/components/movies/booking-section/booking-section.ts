@@ -4,7 +4,7 @@ import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { format, isFuture, isToday, isTomorrow, parseISO } from 'date-fns';
-import { EmptyStateComponent, LoadingSpinnerComponent } from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { BookingService } from '../../../services';
 import type { HallTypeShowtimes } from '../../../shared/types';
@@ -24,8 +24,8 @@ interface DateOption {
     DatePipe,
     LucideDynamicIcon,
     Time12hPipe,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
   ],
   templateUrl: './booking-section.html',
   styleUrl: './booking-section.scss',

@@ -8,7 +8,7 @@
 
       <form class="sp-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
         <div class="sp-name-row">
-          <input-field
+          <cui-input
             label="First name"
             type="text"
             placeholder="Enter your first name"
@@ -21,7 +21,7 @@
               pattern: 'First name may only contain letters, spaces, hyphens, and apostrophes',
             }"
           />
-          <input-field
+          <cui-input
             label="Last name"
             type="text"
             placeholder="Enter your last name"
@@ -36,7 +36,7 @@
           />
         </div>
 
-        <input-field
+        <cui-input
           label="Email"
           type="text"
           placeholder="Enter your email"
@@ -48,13 +48,13 @@
           }"
         />
 
-        <phone-input
+        <cui-phone-input
           [countryControl]="signupForm.controls.phoneCountry"
           [numberControl]="signupForm.controls.phoneNumber"
         />
 
         <div class="input-group">
-          <input-field
+          <cui-input
             label="Password"
             type="password"
             placeholder="At least 8 characters"
@@ -66,10 +66,10 @@
               pattern: 'Password is too weak',
             }"
           />
-          <password-checklist [control]="signupForm.controls.password" />
+          <cui-password-checklist [control]="signupForm.controls.password" />
         </div>
 
-        <input-field
+        <cui-input
           label="Confirm password"
           type="password"
           placeholder="Re-enter the new password"
@@ -88,7 +88,8 @@
           [disabled]="signupForm.invalid || submitting()"
         >
           @if (submitting()) {
-            <loading-spinner variant="xs" />
+            <cui-loading-spinner variant="xs" />
+            <span>Creating account…</span>
           } @else {
             <span>Create account</span>
             <svg class="sp-submit-arrow" [lucideIcon]="icons.ArrowRightIcon" [size]="16"></svg>

@@ -7,7 +7,7 @@
   <div class="fp-card">
     <form [formGroup]="resetForm" (ngSubmit)="onSubmit()" class="fp-form">
       <div class="input-group">
-        <input-field
+        <cui-input
           label="New password"
           type="password"
           placeholder="Enter your password"
@@ -19,11 +19,11 @@
           }"
           [blockClipboard]="true"
         />
-        <password-checklist [control]="resetForm.controls.newPassword" />
+        <cui-password-checklist [control]="resetForm.controls.newPassword" />
       </div>
 
       <div class="input-group">
-        <input-field
+        <cui-input
           label="Confirm new password"
           type="password"
           placeholder="Confirm your password"
@@ -39,7 +39,7 @@
 
       <button type="submit" class="fp-submit" [disabled]="!canSubmit()">
         @if (submitting()) {
-          <loading-spinner variant="sm" />
+          <cui-loading-spinner variant="sm" />
           <span>Saving…</span>
         } @else {
           <span>Save new password</span>

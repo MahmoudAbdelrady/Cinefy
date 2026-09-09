@@ -7,26 +7,28 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CheckIcon, EmailIcon, KeyIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
-import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
+import { RadioButton } from 'primeng/radiobutton';
 import {
-  ModalComponent,
-  InputField,
-  PasswordChecklist,
-  CustomSelectComponent,
-  LoadingSpinnerComponent,
+  CinefyDialog,
+  CinefyDialogFooter,
+  CinefyInput,
+  CinefyPasswordChecklist,
+  CinefySelect,
+  CinefyLoadingSpinner,
   DEFAULT_COUNTRY,
-  PhoneInput,
+  CinefyPhoneInput,
   phoneNumberValidator,
   toE164Digits,
   parsePhoneDigits,
   type PhoneCountryCode,
-  TimePicker,
+  CinefyTimePicker,
 } from 'cinefy-ui/components';
-import { ToastService } from 'cinefy-ui/services';
+import { CinefyToastService } from 'cinefy-ui/services';
 import {
   EMPLOYMENT_TYPE_LABELS,
   USER_POSITION_LABELS,
@@ -45,16 +47,16 @@ import { assignableStaffPositions } from '../../../shared/access';
 @Component({
   selector: 'manage-staff-modal',
   imports: [
-    ModalComponent,
-    InputField,
-    PasswordChecklist,
-    PhoneInput,
-    CustomSelectComponent,
-    NgpRadioGroup,
-    NgpRadioItem,
+    CinefyDialog,
+    CinefyDialogFooter,
+    CinefyInput,
+    CinefyPasswordChecklist,
+    CinefyPhoneInput,
+    CinefySelect,
+    RadioButton,
     ReactiveFormsModule,
-    TimePicker,
-    LoadingSpinnerComponent,
+    CinefyTimePicker,
+    CinefyLoadingSpinner,
   ],
   templateUrl: './manage-staff-modal.html',
   styleUrl: './manage-staff-modal.scss',
@@ -69,19 +71,23 @@ export class ManageStaffModalComponent {
   };
 
   private readonly staffService = inject(StaffService);
-  private readonly toastService = inject(ToastService);
+  private readonly toastService = inject(CinefyToastService);
   private readonly destroyRef = inject(DestroyRef);
 
+  private readonly dialog = viewChild.required(CinefyDialog);
+
   protected readonly EMPLOYMENT_TYPE_LABELS = EMPLOYMENT_TYPE_LABELS;
-  protected readonly weekDays = Object.keys(WEEK_DAY_LABELS) as WeekDay[];
+  protected readonly weekDayEntries = (Object.entries(WEEK_DAY_LABELS) as [WeekDay, string][]).map(
+    ([value, label]) => ({ value, label }),
+  );
   protected readonly employmentTypeEntries = Object.entries(EMPLOYMENT_TYPE_LABELS).map(
     ([value, label]) => ({ value: value as EmploymentType, label }),
   );
 
-  readonly close = input.required<() => void>();
   readonly staffMemberId = input<string | null>(null);
   readonly selectedStaffMember = input<StaffMemberDetail | null>(null);
 
+  readonly closed = output<void>();
   readonly staffMemberCreated = output<StaffMemberSummary>();
   readonly staffMemberUpdated = output<StaffMemberSummary>();
 
@@ -91,10 +97,14 @@ export class ManageStaffModalComponent {
   private readonly initialFormSnapshot = signal<string | null>(null);
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
-  protected readonly staffPositions = computed<UserPosition[]>(() => {
+  private readonly staffPositions = computed<UserPosition[]>(() => {
     const user = this.currentUser();
     return user ? assignableStaffPositions(user.position) : [];
   });
+
+  protected readonly staffPositionEntries = computed(() =>
+    this.staffPositions().map((value) => ({ value, label: USER_POSITION_LABELS[value] })),
+  );
 
   protected readonly staffForm = new FormGroup({
     firstName: new FormControl('', {
@@ -180,15 +190,10 @@ export class ManageStaffModalComponent {
     return JSON.stringify(this.staffForm.getRawValue()) !== snapshot;
   });
 
-  protected readonly positionDisplayFn = (position: UserPosition): string =>
-    USER_POSITION_LABELS[position];
-
-  protected readonly weekDayDisplayFn = (day: WeekDay): string => WEEK_DAY_LABELS[day];
-
   constructor() {
     this.staffForm.controls.workingHourEnd.addValidators((control) => {
       const start = this.staffForm.controls.workingHourStart.value;
-      const end = control.value;
+      const end = control.value as string;
       if (!start || !end) return null;
       return start === end ? { sameAsStart: true } : null;
     });
@@ -245,32 +250,9 @@ export class ManageStaffModalComponent {
         workingHourStart: member.workingHourStart,
         workingHourEnd: member.workingHourEnd,
       });
+      this.staffForm.markAllAsTouched();
       this.initialFormSnapshot.set(JSON.stringify(this.staffForm.getRawValue()));
     });
-  }
-
-  protected onPositionChange(position: UserPosition): void {
-    this.staffForm.controls.position.setValue(position);
-  }
-
-  protected onPositionCleared(): void {
-    this.staffForm.controls.position.setValue(null);
-  }
-
-  protected onWorkingDayStartChange(day: WeekDay): void {
-    this.staffForm.controls.workingDayStart.setValue(day);
-  }
-
-  protected onWorkingDayStartCleared(): void {
-    this.staffForm.controls.workingDayStart.setValue(null);
-  }
-
-  protected onWorkingDayEndChange(day: WeekDay): void {
-    this.staffForm.controls.workingDayEnd.setValue(day);
-  }
-
-  protected onWorkingDayEndCleared(): void {
-    this.staffForm.controls.workingDayEnd.setValue(null);
   }
 
   protected saveMember() {
@@ -307,7 +289,7 @@ export class ManageStaffModalComponent {
           this.staffMemberCreated.emit(member);
           this.toastService.success('Staff member created');
         }
-        this.close()();
+        this.dialog().close();
       },
       error: () => this.saving.set(false),
     });

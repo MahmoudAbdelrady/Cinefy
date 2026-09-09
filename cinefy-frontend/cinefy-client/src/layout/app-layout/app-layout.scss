@@ -52,7 +52,7 @@ $max-width: 1152px;
   color: $color-foreground;
   text-decoration: none;
   cursor: pointer;
-  transition: opacity 150ms ease;
+  transition: opacity $transition-fast;
   user-select: none;
 
   &:hover {
@@ -85,7 +85,7 @@ $max-width: 1152px;
   color: rgba($color-foreground, 0.6);
   text-decoration: none;
   cursor: pointer;
-  transition: color 150ms ease;
+  transition: color $transition-fast;
 
   &:hover {
     color: rgba($color-foreground, 0.8);
@@ -166,8 +166,8 @@ $max-width: 1152px;
   color: rgba($color-foreground, 0.7);
   cursor: pointer;
   transition:
-    color 150ms ease,
-    background-color 150ms ease;
+    color $transition-fast,
+    background-color $transition-fast;
 
   &:hover {
     color: $color-foreground;
@@ -194,43 +194,6 @@ $max-width: 1152px;
 
   @include below-mobile {
     display: none;
-  }
-}
-
-// ─── Dropdown menu (ng-primitives) ───────────────────────────────────────────
-.user-info-menu-items {
-  position: absolute;
-  width: 176px;
-  margin-top: 8px;
-  padding: 6px;
-  right: 0;
-  background-color: $color-popover;
-  color: $color-popover-foreground;
-  border: 1px solid $color-border;
-  border-radius: $radius-md;
-  box-shadow: $shadow-overlay;
-  z-index: 50;
-}
-
-.uim-item {
-  @include flex-align;
-  @include lucide-icon-fix;
-  gap: 8px;
-  width: 100%;
-  padding: 6px 8px;
-  border-radius: $radius-sm;
-  font-size: 14px;
-  text-align: left;
-  color: $color-popover-foreground;
-  cursor: pointer;
-  transition: background-color 150ms ease;
-
-  &:hover {
-    background-color: $color-accent;
-  }
-
-  svg {
-    color: $color-muted-foreground;
   }
 }
 

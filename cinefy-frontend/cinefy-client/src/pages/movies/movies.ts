@@ -1,18 +1,16 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, computed, inject } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
-  AsyncSelectComponent,
-  CustomSelectComponent,
-  EmptyStateComponent,
-  InputField,
-  LoadingSpinnerComponent,
-  MediaImageComponent,
+  CinefySelect,
+  CinefyEmptyState,
+  CinefyInput,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { HallsService, MoviesService } from '../../services';
-import type { HallType } from '../../shared/types';
 import {
   ClapperboardIcon,
   SearchIcon,
@@ -26,12 +24,12 @@ import {
   imports: [
     RouterLink,
     LucideDynamicIcon,
-    InputField,
-    CustomSelectComponent,
-    AsyncSelectComponent,
-    MediaImageComponent,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
+    ReactiveFormsModule,
+    CinefyInput,
+    CinefySelect,
+    CinefyMediaImage,
+    CinefyEmptyState,
+    CinefyLoadingSpinner,
   ],
   templateUrl: './movies.html',
   styleUrl: './movies.scss',
@@ -48,18 +46,35 @@ export class MoviesPage {
   private readonly moviesService = inject(MoviesService);
   private readonly hallsService = inject(HallsService);
 
-  protected readonly searchControl = new FormControl<string>('', { nonNullable: true });
+  protected readonly filterForm = new FormGroup({
+    search: new FormControl<string>('', { nonNullable: true }),
+    hallTypes: new FormControl<string[]>([], { nonNullable: true }),
+    genres: new FormControl<string[]>([], { nonNullable: true }),
+    contentRatings: new FormControl<string[]>([], { nonNullable: true }),
+  });
 
   protected readonly movies = rxResource({
     stream: () => this.moviesService.getNowShowing(),
   });
 
-  private readonly search = toSignal(this.searchControl.valueChanges, {
-    initialValue: this.searchControl.value,
+  private readonly hallTypes = rxResource({
+    stream: () => this.hallsService.getHallTypes(),
   });
-  protected readonly selectedHallTypes = signal<HallType[]>([]);
-  protected readonly selectedGenres = signal<string[]>([]);
-  protected readonly selectedContentRatings = signal<string[]>([]);
+
+  private readonly search = toSignal(this.filterForm.controls.search.valueChanges, {
+    initialValue: this.filterForm.controls.search.value,
+  });
+  protected readonly selectedHallTypes = toSignal(this.filterForm.controls.hallTypes.valueChanges, {
+    initialValue: this.filterForm.controls.hallTypes.value,
+  });
+
+  protected readonly selectedGenres = toSignal(this.filterForm.controls.genres.valueChanges, {
+    initialValue: this.filterForm.controls.genres.value,
+  });
+  protected readonly selectedContentRatings = toSignal(
+    this.filterForm.controls.contentRatings.valueChanges,
+    { initialValue: this.filterForm.controls.contentRatings.value },
+  );
 
   protected readonly genres = [
     'Action',
@@ -85,6 +100,12 @@ export class MoviesPage {
 
   protected readonly contentRatings = ['G', 'PG', 'PG-13', 'R', 'NC-17'];
 
+  protected readonly genreEntries = this.genres.map((value) => ({ value, label: value }));
+  protected readonly contentRatingEntries = this.contentRatings.map((value) => ({
+    value,
+    label: value,
+  }));
+
   protected readonly filteredMovies = computed(() => {
     const searchedTitle = this.trimmedSearch().toLowerCase();
     const selectedHallTypes = this.selectedHallTypes();
@@ -96,7 +117,7 @@ export class MoviesPage {
 
       const matchesHallType =
         !selectedHallTypes.length ||
-        selectedHallTypes.some((t) => movie.hallTypes?.includes(t.name));
+        selectedHallTypes.some((id) => movie.hallTypes?.includes(this.hallTypeLabel(id)));
 
       const matchesGenre =
         !selectedGenres.length || selectedGenres.some((g) => movie.genres?.includes(g));
@@ -119,46 +140,37 @@ export class MoviesPage {
       this.selectedContentRatings().length > 0,
   );
 
-  protected readonly optionDisplayFn = (option: string): string => option;
+  protected readonly hallTypeEntries = computed(() =>
+    (this.hallTypes.hasValue() ? this.hallTypes.value() : []).map((type) => ({
+      value: type.id,
+      label: type.name,
+    })),
+  );
 
-  protected readonly fetchHallTypes = () => this.hallsService.getHallTypes();
-
-  protected readonly hallTypeDisplayFn = (type: HallType): string => type.name;
-
-  protected readonly hallTypeValueFn = (type: HallType): string => type.id;
+  protected hallTypeLabel(id: string): string {
+    return this.hallTypeEntries().find((entry) => entry.value === id)?.label ?? '';
+  }
 
   protected clearSearch(): void {
-    this.searchControl.setValue('');
+    this.filterForm.controls.search.setValue('');
   }
 
-  protected onHallTypeChange(values: HallType[]): void {
-    this.selectedHallTypes.set(values);
-  }
-
-  protected onGenreChange(values: string[]): void {
-    this.selectedGenres.set(values);
-  }
-
-  protected onContentRatingChange(values: string[]): void {
-    this.selectedContentRatings.set(values);
-  }
-
-  protected removeHallType(value: HallType): void {
-    this.selectedHallTypes.update((values) => values.filter((v) => v.id !== value.id));
+  protected removeHallType(value: string): void {
+    const control = this.filterForm.controls.hallTypes;
+    control.setValue(control.value.filter((v) => v !== value));
   }
 
   protected removeGenre(value: string): void {
-    this.selectedGenres.update((values) => values.filter((v) => v !== value));
+    const control = this.filterForm.controls.genres;
+    control.setValue(control.value.filter((v) => v !== value));
   }
 
   protected removeContentRating(value: string): void {
-    this.selectedContentRatings.update((values) => values.filter((v) => v !== value));
+    const control = this.filterForm.controls.contentRatings;
+    control.setValue(control.value.filter((v) => v !== value));
   }
 
   protected clearAll(): void {
-    this.clearSearch();
-    this.selectedHallTypes.set([]);
-    this.selectedGenres.set([]);
-    this.selectedContentRatings.set([]);
+    this.filterForm.reset();
   }
 }

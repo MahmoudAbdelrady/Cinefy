@@ -32,7 +32,7 @@
     font-weight: 500;
     color: $blue-600;
     text-decoration: none;
-    transition: color 150ms ease;
+    transition: color $transition-fast;
 
     &:hover {
       color: $blue-700;
