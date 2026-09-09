@@ -159,7 +159,12 @@
           }
         }
         @if (activeBooking()) {
-          <button type="button" class="bs-cancel" (click)="cancelVisible.set(true)">
+          <button
+            type="button"
+            class="bs-cancel"
+            [disabled]="settling()"
+            (click)="cancelVisible.set(true)"
+          >
             <svg [lucideIcon]="icons.XIcon" [size]="15"></svg>
             <span>Cancel booking</span>
           </button>

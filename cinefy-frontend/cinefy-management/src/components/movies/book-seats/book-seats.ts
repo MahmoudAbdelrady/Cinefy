@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   input,
   linkedSignal,
@@ -198,6 +199,14 @@ export class BookSeatsComponent {
       transactionId.reset('');
       transactionId.setValidators(isCash ? [] : [Validators.required]);
       transactionId.updateValueAndValidity();
+    });
+
+    effect(() => {
+      if (this.settling()) {
+        this.paymentForm.disable({ emitEvent: false });
+      } else {
+        this.paymentForm.enable({ emitEvent: false });
+      }
     });
 
     afterNextRender(() => this.loadSeatSelection());
