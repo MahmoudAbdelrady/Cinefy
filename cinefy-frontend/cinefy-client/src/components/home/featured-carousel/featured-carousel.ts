@@ -1,7 +1,16 @@
-import { Component, computed, input, signal, viewChild } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { Carousel } from 'primeng/carousel';
+import { Carousel, CarouselContent, CarouselItem } from 'primeng/carousel';
 import {
   ClockIcon,
   EyeIcon,
@@ -22,6 +31,8 @@ const AUTO_ADVANCE_INTERVAL = 5000; // 5 seconds
     RouterLink,
     LucideDynamicIcon,
     Carousel,
+    CarouselContent,
+    CarouselItem,
     TrailerModalComponent,
     CinefyMediaImage,
     DurationPipe,
@@ -38,9 +49,9 @@ export class FeaturedCarouselComponent {
     ChevronRightIcon,
   };
 
-  private readonly carousel = viewChild.required(Carousel);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly autoAdvanceInterval = AUTO_ADVANCE_INTERVAL;
+  private readonly carousel = viewChild.required(Carousel);
 
   readonly slides = input.required<HighlightedMovie[]>();
 
@@ -50,33 +61,49 @@ export class FeaturedCarouselComponent {
 
   protected readonly hasMultipleSlides = computed(() => this.slides().length > 1);
 
-  protected previous(event: MouseEvent): void {
-    this.carousel().navBackward(event);
-    this.restartAutoAdvance();
+  private autoAdvanceTimer: ReturnType<typeof setInterval> | null = null;
+
+  constructor() {
+    afterNextRender(() => this.startAutoAdvance());
+    this.destroyRef.onDestroy(() => this.stopAutoAdvance());
   }
 
-  protected next(event: MouseEvent): void {
-    this.carousel().navForward(event);
-    this.restartAutoAdvance();
+  protected previous(): void {
+    this.carousel().prev();
+    this.startAutoAdvance();
   }
 
-  protected goTo(event: MouseEvent, index: number): void {
-    this.carousel().onDotClick(event, index);
-    this.restartAutoAdvance();
+  protected next(): void {
+    this.carousel().next();
+    this.startAutoAdvance();
+  }
+
+  protected goTo(index: number): void {
+    this.carousel().scrollToPage(index);
+    this.startAutoAdvance();
   }
 
   protected openTrailer(slide: HighlightedMovie): void {
-    this.carousel().stopAutoplay();
+    this.stopAutoAdvance();
     this.trailerSlide.set(slide);
   }
 
   protected closeTrailer(): void {
     this.trailerSlide.set(null);
-    this.carousel().startAutoplay();
+    this.startAutoAdvance();
   }
 
-  private restartAutoAdvance(): void {
-    this.carousel().stopAutoplay();
-    this.carousel().startAutoplay();
+  private startAutoAdvance(): void {
+    if (!this.hasMultipleSlides()) return;
+
+    this.stopAutoAdvance();
+    this.autoAdvanceTimer = setInterval(() => this.carousel().next(), AUTO_ADVANCE_INTERVAL);
+  }
+
+  private stopAutoAdvance(): void {
+    if (!this.autoAdvanceTimer) return;
+
+    clearInterval(this.autoAdvanceTimer);
+    this.autoAdvanceTimer = null;
   }
 }

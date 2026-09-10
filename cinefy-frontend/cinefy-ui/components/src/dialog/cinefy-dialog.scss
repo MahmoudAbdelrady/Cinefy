@@ -1,4 +1,8 @@
 ::ng-deep .cui-dialog-panel {
+  &.cui-dialog-no-footer .p-dialog-footer {
+    display: none;
+  }
+
   .cui-dialog-heading {
     display: flex;
     flex-direction: column;

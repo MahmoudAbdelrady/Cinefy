@@ -9,16 +9,14 @@
   [contentStyle]="contentStyle() ?? {}"
   appendTo="body"
   (onHide)="closed.emit()"
-  [content]="headerTpl"
-  [footerTemplate]="hasCustomFooter() ? footerTpl : undefined"
-  styleClass="cui-dialog-panel"
+  [styleClass]="'cui-dialog-panel ' + (hasCustomFooter() ? '' : 'cui-dialog-no-footer')"
 >
-  <ng-template #headerTpl>
+  <ng-template #header>
     @if (hasCustomHeader()) {
     <ng-content select="[customHeader]" />
     } @else {
     <div class="cui-dialog-heading">
-      <span class="cui-dialog-title">{{ header() }}</span>
+      <span class="cui-dialog-title">{{ headerText() }}</span>
       @if (description(); as description) {
       <span class="cui-dialog-description">{{ description }}</span>
       }
@@ -28,7 +26,7 @@
 
   <ng-content />
 
-  <ng-template #footerTpl>
+  <ng-template #footer>
     <ng-content select="[customFooter]" />
   </ng-template>
 </p-dialog>

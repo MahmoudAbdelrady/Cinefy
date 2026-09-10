@@ -6,17 +6,6 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-
-  .fc-carousel ::ng-deep {
-    .p-carousel-content {
-      gap: 0;
-    }
-
-    .p-carousel-item {
-      width: 100%;
-      flex-shrink: 0;
-    }
-  }
 }
 
 .fc-slide {

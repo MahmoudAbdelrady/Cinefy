@@ -3,10 +3,10 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { startWith, switchMap, type Observable } from "rxjs";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Select } from "primeng/select";
-import { MultiSelect } from "primeng/multiselect";
 import { CinefyFieldError } from "../../field-error/cinefy-field-error";
 import { CinefyLoadingSpinner } from "../../loading-spinner/cinefy-loading-spinner";
 import type { PaginatedResponse } from "cinefy-ui/types";
+import type { AppendTo as PrimeAppendTo } from "primeng/types/shared";
 
 const LOAD_MORE_OPTION = {
   label: "Load More",
@@ -15,7 +15,7 @@ const LOAD_MORE_OPTION = {
 
 @Component({
   selector: "cui-paginated-select",
-  imports: [ReactiveFormsModule, Select, MultiSelect, CinefyFieldError, CinefyLoadingSpinner],
+  imports: [ReactiveFormsModule, Select, CinefyFieldError, CinefyLoadingSpinner],
   templateUrl: "./cinefy-paginated-select.html",
   styleUrl: "./cinefy-paginated-select.scss",
 })
@@ -33,7 +33,7 @@ export class CinefyPaginatedSelect<T> {
   readonly searchable = input(false);
   readonly required = input<boolean | undefined>(undefined);
   readonly errorMessages = input<Record<string, string>>({});
-  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>("body");
+  readonly container: InputSignal<PrimeAppendTo> = input<PrimeAppendTo>("body");
   readonly pageSize = input(20);
 
   protected readonly items = signal<T[]>([]);

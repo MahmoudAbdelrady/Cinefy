@@ -64,7 +64,7 @@ export {
   LucideTag as TagIcon,
   LucideTicket as TicketIcon,
   LucideTicketX as TicketXIcon,
-  LucideTrash2 as DeleteIcon,
+  LucideTrash as DeleteIcon,
   LucideTrendingUp as TrendingUpIcon,
   LucideTriangleAlert as WarningIcon,
   LucideUser as UserIcon,

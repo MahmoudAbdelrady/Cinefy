@@ -2,10 +2,11 @@
   @if (label(); as labelText) {
   <label class="cui-paginated-select-label" [attr.data-required]="isRequired() ? '' : null">{{ labelText }}</label>
   } @if (multi()) {
-  <p-multiselect
+  <p-select
     [formControl]="control()"
+    [multiple]="true"
     (onClear)="onMultiClear()"
-    (onPanelShow)="onPanelShow()"
+    (onShow)="onPanelShow()"
     [options]="options()"
     [optionLabel]="labelField()"
     [optionValue]="valueField()"
@@ -15,7 +16,6 @@
     [filter]="searchable()"
     [appendTo]="container()"
     [loading]="loading()"
-    [showToggleAll]="false"
     [invalid]="control().touched && control().invalid"
     size="large"
   >
@@ -47,7 +47,7 @@
       </span>
       } @else { {{ labelOf(option) }} }
     </ng-template>
-  </p-multiselect>
+  </p-select>
   } @else {
   <p-select
     [formControl]="control()"
@@ -64,9 +64,7 @@
     [invalid]="control().touched && control().invalid"
     size="large"
   >
-    @if (selectedItemLabel(); as selectedLabel) {
-    <ng-template #selectedItem let-item>{{ item[selectedLabel] }}</ng-template>
-    }
+    <ng-template #selectedItem let-item>{{ item[selectedItemLabel() ?? labelField()] }}</ng-template>
 
     <ng-template #empty>
       @if (loading()) {

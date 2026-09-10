@@ -14,6 +14,7 @@ import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
+import type { AppendTo as PrimeAppendTo } from 'primeng/types/shared';
 import {
   CinefySelect,
   CinefyEmptyState,
@@ -120,7 +121,7 @@ export class BookSeatsComponent {
   protected readonly paymentTypeEntries = PAYMENT_TYPE_ENTRIES;
 
   readonly showtimeId = input.required<string>();
-  readonly container = input<string | HTMLElement | null>(null);
+  readonly container = input<PrimeAppendTo>(null);
   readonly showBookMoreSeats = input(true);
 
   protected readonly booking = signal(false);

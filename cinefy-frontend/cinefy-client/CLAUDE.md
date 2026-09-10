@@ -2,7 +2,7 @@
 
 ## Overview
 
-Angular 21 **public-facing booking app** for the Cinefy cinema platform. Standalone components, signal-based state, **server-side rendered** (`@angular/ssr` with an Express host) — this is the customer-facing site where people browse movies and book seats, as opposed to the CSR-only `cinefy-management` admin dashboard. Custom SCSS design system; consumes the shared `cinefy-ui` library.
+Angular 22 **public-facing booking app** for the Cinefy cinema platform. Standalone components, signal-based state, **server-side rendered** (`@angular/ssr` with an Express host) — this is the customer-facing site where people browse movies and book seats, as opposed to the CSR-only `cinefy-management` admin dashboard. Custom SCSS design system; consumes the shared `cinefy-ui` library.
 
 > **Current state:** the browse, booking, and auth flows are all built and routed. The fully-designed product lives as a **React reference mock** in `mvp-version/` and is ported screen-by-screen into the Angular app via the `mvp-to-real` skill. Most "build a page" work means mapping from `mvp-version/`, not writing from scratch. Two layout shells: the public **`AppLayout`** (header — logo/nav, a "My Tickets" dialog, and an authenticated user-info menu **or** Login/Sign-up buttons for anonymous users — plus a footer) and the **`AuthLayout`** shell for the `/membership/*` auth pages. Pages built: **Home** (`/`) — a `featured-carousel` hero (auto-advancing highlighted-movie slides), a "Now Showing" rail, and a "Coming Soon"/upcoming rail; **Movies** (`/movies`) — a filterable grid (title search + experience/genre/rating selects); **Movie Detail** (`/movies/:movieId`) — backdrop, cast/crew, trailer dialog, and a `booking-section` (date strip + showtimes grouped by hall type); **Seat Selection** (`/movies/:movieId/seats/:showtimeId`, `authGuard`); **Checkout** (`/checkout/:bookingId`, `authGuard`) — pay via redirect or a saved card; **Booking Confirmation** (`/booking-confirmation/:bookingId`, `authGuard`) — the post-payment result page, which **polls** while the payment state is `PENDING` (flat 2.5s for the first minute, then ×1.5 backoff capped at 30s); and the auth pages under `/membership` — **Login**, **Sign-up**, **Forgot-password**. **Profile** (`/profile`, `authGuard`) — personal details, password, saved cards, and paged booking history; and a `**` wildcard route rendering `NotFoundPage`. Data comes from `MoviesService`, `HallsService`, `BookingService`, `AuthService`, and `ClientService` (`services/`); browse reads load with `rxResource`, while auth/current-user data loads via `afterNextRender` + `.subscribe()` (see the SSR note below).
 
@@ -28,7 +28,7 @@ pnpm test                      # Run tests (Vitest, jsdom)
 pnpm serve:ssr:cinefy-client   # Run the built SSR server (node dist/cinefy-client/server/server.mjs)
 ```
 
-> **pnpm only** (v11.4.0) — do not use npm or yarn. Both apps default to port 4200; pass `--port` to run them side by side.
+> **pnpm only** (v12.3.4) — do not use npm or yarn. Both apps default to port 4200; pass `--port` to run them side by side.
 
 ## SSR — this app is server-rendered
 
