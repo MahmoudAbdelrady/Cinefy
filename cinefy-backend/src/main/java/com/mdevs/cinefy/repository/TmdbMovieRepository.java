@@ -1,8 +1,8 @@
 package com.mdevs.cinefy.repository;
 
-import com.mdevs.cinefy.dto.movie.MovieWithCommittedShowtimeProjection;
-import com.mdevs.cinefy.dto.movie.NowShowingProjection;
-import com.mdevs.cinefy.dto.statistics.MovieRevenueProjection;
+import com.mdevs.cinefy.projection.movie.MovieWithCommittedShowtimeProjection;
+import com.mdevs.cinefy.projection.movie.NowShowingProjection;
+import com.mdevs.cinefy.projection.statistics.MovieRevenueProjection;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import org.springframework.data.domain.Page;
@@ -87,7 +87,7 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
     List<MovieWithCommittedShowtimeProjection> findMoviesWithCommittedShowtime(@Param("ids") List<Long> ids, @Param("statuses") Set<ShowtimeStatus> statuses);
 
     @Query(value = """
-            SELECT new com.mdevs.cinefy.dto.statistics.MovieRevenueProjection(
+            SELECT new com.mdevs.cinefy.projection.statistics.MovieRevenueProjection(
                 m.id,
                 m.title,
                 COALESCE(SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0),

@@ -1,9 +1,9 @@
 package com.mdevs.cinefy.repository;
 
-import com.mdevs.cinefy.dto.hall.HallStatusCountProjection;
-import com.mdevs.cinefy.dto.statistics.DailyHallProjection;
-import com.mdevs.cinefy.dto.statistics.MovieHallProjection;
-import com.mdevs.cinefy.dto.statistics.HallPeriodProjection;
+import com.mdevs.cinefy.projection.hall.HallStatusCountProjection;
+import com.mdevs.cinefy.projection.statistics.DailyHallProjection;
+import com.mdevs.cinefy.projection.statistics.MovieHallProjection;
+import com.mdevs.cinefy.projection.statistics.HallPeriodProjection;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.enums.HallStatus;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
@@ -30,7 +30,7 @@ public interface HallRepository extends BaseRepository<Hall> {
     List<Hall> findAllFiltered(@Param("excludeHallId") String excludeHallId, @Param("statuses") List<HallStatus> statuses);
 
     @Query("""
-            SELECT new com.mdevs.cinefy.dto.hall.HallStatusCountProjection(
+            SELECT new com.mdevs.cinefy.projection.hall.HallStatusCountProjection(
                 h.status,
                 COUNT(h))
             FROM Hall h
@@ -51,7 +51,7 @@ public interface HallRepository extends BaseRepository<Hall> {
     int flipIdleScheduledHallsToActive(@Param("showtimeStatuses") Set<ShowtimeStatus> showtimeStatuses);
 
     @Query("""
-            SELECT new com.mdevs.cinefy.dto.statistics.HallPeriodProjection(
+            SELECT new com.mdevs.cinefy.projection.statistics.HallPeriodProjection(
                 h,
                 s.startDateTime >= :from,
                 s.startDateTime < :from)
@@ -66,7 +66,7 @@ public interface HallRepository extends BaseRepository<Hall> {
                                                         @Param("to") LocalDateTime to);
 
     @Query("""
-            SELECT new com.mdevs.cinefy.dto.statistics.DailyHallProjection(
+            SELECT new com.mdevs.cinefy.projection.statistics.DailyHallProjection(
                 CAST(s.startDateTime AS LocalDate),
                 h)
             FROM Hall h
@@ -79,7 +79,7 @@ public interface HallRepository extends BaseRepository<Hall> {
                                                             @Param("to") LocalDateTime to);
 
     @Query("""
-            SELECT new com.mdevs.cinefy.dto.statistics.MovieHallProjection(
+            SELECT new com.mdevs.cinefy.projection.statistics.MovieHallProjection(
                 s.tmdbMovie.id,
                 h)
             FROM Hall h

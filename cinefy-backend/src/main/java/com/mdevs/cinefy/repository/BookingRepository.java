@@ -1,12 +1,12 @@
 package com.mdevs.cinefy.repository;
 
-import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
-import com.mdevs.cinefy.dto.showtime.ShowtimeBookingCountsProjection;
-import com.mdevs.cinefy.dto.statistics.DailyRevenueProjection;
-import com.mdevs.cinefy.dto.statistics.MovieTicketsSoldProjection;
-import com.mdevs.cinefy.dto.statistics.DailyTicketsSoldProjection;
-import com.mdevs.cinefy.dto.statistics.RevenueProjection;
-import com.mdevs.cinefy.dto.statistics.TicketsSoldProjection;
+import com.mdevs.cinefy.projection.showtime.ShowtimeBookedSeatsProjection;
+import com.mdevs.cinefy.projection.showtime.ShowtimeBookingCountsProjection;
+import com.mdevs.cinefy.projection.statistics.DailyRevenueProjection;
+import com.mdevs.cinefy.projection.statistics.MovieTicketsSoldProjection;
+import com.mdevs.cinefy.projection.statistics.DailyTicketsSoldProjection;
+import com.mdevs.cinefy.projection.statistics.RevenueProjection;
+import com.mdevs.cinefy.projection.statistics.TicketsSoldProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import com.mdevs.cinefy.entity.enums.BookingStatus;
@@ -189,7 +189,7 @@ public interface BookingRepository extends BaseRepository<Booking> {
                                       Pageable pageable);
 
     @Query("""
-            SELECT new com.mdevs.cinefy.dto.statistics.RevenueProjection(
+            SELECT new com.mdevs.cinefy.projection.statistics.RevenueProjection(
                 COALESCE(SUM(CASE WHEN s.startDateTime >= :from AND b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0),
                 COALESCE(SUM(CASE WHEN s.startDateTime >= :from AND b.status = 'REFUNDED' THEN b.totalAmount ELSE 0 END), 0),
                 COALESCE(SUM(CASE WHEN s.startDateTime < :from AND b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0),
@@ -205,7 +205,7 @@ public interface BookingRepository extends BaseRepository<Booking> {
                                         @Param("to") LocalDateTime to);
 
     @Query("""
-            SELECT new com.mdevs.cinefy.dto.statistics.TicketsSoldProjection(
+            SELECT new com.mdevs.cinefy.projection.statistics.TicketsSoldProjection(
                 COUNT(CASE WHEN s.startDateTime >= :from THEN 1 END),
                 COUNT(CASE WHEN s.startDateTime < :from THEN 1 END))
             FROM BookingSeat bs
@@ -221,7 +221,7 @@ public interface BookingRepository extends BaseRepository<Booking> {
                                                   @Param("to") LocalDateTime to);
 
     @Query("""
-            SELECT new com.mdevs.cinefy.dto.statistics.DailyRevenueProjection(
+            SELECT new com.mdevs.cinefy.projection.statistics.DailyRevenueProjection(
                 CAST(s.startDateTime AS LocalDate),
                 COALESCE(SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalAmount ELSE 0 END), 0),
                 COALESCE(SUM(CASE WHEN b.status = 'REFUNDED' THEN b.totalAmount ELSE 0 END), 0))
@@ -236,7 +236,7 @@ public interface BookingRepository extends BaseRepository<Booking> {
                                                         @Param("to") LocalDateTime to);
 
     @Query("""
-            SELECT new com.mdevs.cinefy.dto.statistics.DailyTicketsSoldProjection(
+            SELECT new com.mdevs.cinefy.projection.statistics.DailyTicketsSoldProjection(
                 CAST(s.startDateTime AS LocalDate),
                 COUNT(bs.id))
             FROM BookingSeat bs
@@ -252,7 +252,7 @@ public interface BookingRepository extends BaseRepository<Booking> {
                                                                   @Param("to") LocalDateTime to);
 
     @Query("""
-            SELECT new com.mdevs.cinefy.dto.statistics.MovieTicketsSoldProjection(
+            SELECT new com.mdevs.cinefy.projection.statistics.MovieTicketsSoldProjection(
                 s.tmdbMovie.id,
                 COUNT(bs.id))
             FROM BookingSeat bs

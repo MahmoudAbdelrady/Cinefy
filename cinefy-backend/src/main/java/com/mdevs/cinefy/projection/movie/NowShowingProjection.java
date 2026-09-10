@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.dto.movie;
+package com.mdevs.cinefy.projection.movie;
 
 import com.mdevs.cinefy.entity.TmdbMovie;
 

@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.dto.hall;
+package com.mdevs.cinefy.projection.hall;
 
 import com.mdevs.cinefy.entity.enums.HallStatus;
 

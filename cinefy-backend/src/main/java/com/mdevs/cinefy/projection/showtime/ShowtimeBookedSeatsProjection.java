@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.dto.showtime;
+package com.mdevs.cinefy.projection.showtime;
 
 public interface ShowtimeBookedSeatsProjection {
 

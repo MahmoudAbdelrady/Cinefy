@@ -8,7 +8,7 @@ import com.mdevs.cinefy.dto.staff.CurrentStaffMemberDTO;
 import com.mdevs.cinefy.dto.staff.OnShiftSummaryDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageDTO;
 import com.mdevs.cinefy.dto.staff.PositionCoverageItemDTO;
-import com.mdevs.cinefy.dto.staff.PositionCoverageProjection;
+import com.mdevs.cinefy.projection.staff.PositionCoverageProjection;
 import com.mdevs.cinefy.dto.staff.StaffMemberDTO;
 import com.mdevs.cinefy.dto.staff.UpdateProfileDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberDetailDTO;
