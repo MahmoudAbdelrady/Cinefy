@@ -17,6 +17,7 @@ export type PhoneCountryCode = CountryCode;
 import { PhoneIcon } from "../icons";
 import { CinefySelect } from "../drop-down/cinefy-select/cinefy-select";
 import { CinefyInput } from "../input-field/cinefy-input";
+import type { AppendTo as PrimeAppendTo } from "primeng/types/shared";
 
 interface CountryOption {
   code: CountryCode;
@@ -80,7 +81,7 @@ export class CinefyPhoneInput {
   readonly numberControl = input.required<FormControl<string>>();
   readonly label: InputSignal<string | null> = input<string | null>("Phone number");
   readonly required = input<boolean>(true);
-  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>("body");
+  readonly container: InputSignal<PrimeAppendTo> = input<PrimeAppendTo>("body");
   readonly errorMessages = input<Record<string, string>>({
     required: "Phone number is required",
     invalidPhone: "Phone number is invalid for the selected country",

@@ -2,8 +2,9 @@
   @if (label(); as labelText) {
   <label class="cui-select-label" [attr.data-required]="isRequired() ? '' : null">{{ labelText }}</label>
   } @if (multi()) {
-  <p-multiselect
+  <p-select
     [formControl]="control()"
+    [multiple]="true"
     (onClear)="onMultiClear()"
     [options]="items()"
     [optionLabel]="labelField()"
@@ -12,7 +13,6 @@
     [showClear]="clearable()"
     [filter]="searchable()"
     [appendTo]="container()"
-    [showToggleAll]="false"
     [invalid]="control().touched && control().invalid"
     size="large"
   >
@@ -26,7 +26,7 @@
       </div>
       }
     </ng-template>
-  </p-multiselect>
+  </p-select>
   } @else {
   <p-select
     [formControl]="control()"
@@ -40,9 +40,7 @@
     [invalid]="control().touched && control().invalid"
     size="large"
   >
-    @if (selectedItemLabel(); as selectedLabel) {
-    <ng-template #selectedItem let-item>{{ item[selectedLabel] }}</ng-template>
-    }
+    <ng-template #selectedItem let-item>{{ item[selectedItemLabel() ?? labelField()] }}</ng-template>
   </p-select>
   } @if (hint(); as hintText) {
   <p class="cui-select-hint">{{ hintText }}</p>

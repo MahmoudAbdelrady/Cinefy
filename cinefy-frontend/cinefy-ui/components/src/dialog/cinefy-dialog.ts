@@ -29,6 +29,8 @@ export class CinefyDialog {
 
   protected readonly visible = signal(true);
 
+  protected readonly headerText = this.header;
+
   protected readonly hasCustomHeader = computed(() => !!this.projectedHeader());
   protected readonly hasCustomFooter = computed(() => !!this.projectedFooter());
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Angular 21 management dashboard for the Cinefy cinema platform. Standalone components, signal-based state, client-side rendered (no SSR — admin app behind auth), custom SCSS design system over PrimeNG-backed shared components from `cinefy-ui`.
+Angular 22 management dashboard for the Cinefy cinema platform. Standalone components, signal-based state, client-side rendered (no SSR — admin app behind auth), custom SCSS design system over PrimeNG-backed shared components from `cinefy-ui`.
 
 ## Workspace Layout
 
@@ -22,7 +22,7 @@ pnpm build                                    # Production build (browser only)
 pnpm test                                     # Run tests (Karma)
 ```
 
-> **pnpm only** (v11.4.0) — do not use npm or yarn.
+> **pnpm only** (v12.3.4) — do not use npm or yarn.
 
 ## Project Structure
 

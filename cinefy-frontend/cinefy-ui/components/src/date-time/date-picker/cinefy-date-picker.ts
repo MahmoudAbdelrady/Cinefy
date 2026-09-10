@@ -4,6 +4,7 @@ import { DatePicker as PrimeDatePicker } from "primeng/datepicker";
 import { LucideDynamicIcon } from "@lucide/angular";
 import { CalendarIcon } from "../../icons";
 import { CinefyFieldError } from "../../field-error/cinefy-field-error";
+import type { AppendTo as PrimeAppendTo } from "primeng/types/shared";
 
 @Component({
   selector: "cui-date-picker",
@@ -22,7 +23,7 @@ export class CinefyDatePicker {
   readonly min = input<Date | undefined>(undefined);
   readonly max = input<Date | undefined>(undefined);
   readonly errorMessages = input<Record<string, string>>({});
-  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>("body");
+  readonly container: InputSignal<PrimeAppendTo> = input<PrimeAppendTo>("body");
 
   protected readonly suppressError = signal(false);
 

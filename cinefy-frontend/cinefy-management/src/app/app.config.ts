@@ -2,7 +2,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   baseUrlInterceptor,
   csrfInterceptor,
@@ -12,13 +12,13 @@ import {
 import { provideCinefyToast } from 'cinefy-ui/services';
 import { providePrimeNG } from 'primeng/config';
 import { CinefyPreset } from './cinefy-preset';
+import environment from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(
-      withFetch(),
       withInterceptors([
         baseUrlInterceptor,
         csrfInterceptor,
@@ -28,6 +28,7 @@ export const appConfig: ApplicationConfig = {
     ),
     provideCinefyToast(),
     providePrimeNG({
+      license: environment.primeuiLicenseKey,
       theme: {
         preset: CinefyPreset,
         options: {

@@ -7,6 +7,7 @@ import { DatePicker as PrimeDatePicker } from "primeng/datepicker";
 import { LucideDynamicIcon } from "@lucide/angular";
 import { ClockIcon } from "../../icons";
 import { CinefyFieldError } from "../../field-error/cinefy-field-error";
+import type { AppendTo as PrimeAppendTo } from "primeng/types/shared";
 
 const DISPLAY_FORMAT = "hh:mm a";
 const VALUE_FORMAT = "HH:mm";
@@ -38,7 +39,7 @@ export class CinefyTimePicker {
   readonly placeholder = input<string>("Select a time");
   readonly hint: InputSignal<string | null> = input<string | null>(null);
   readonly errorMessages = input<Record<string, string>>({});
-  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>("body");
+  readonly container: InputSignal<PrimeAppendTo> = input<PrimeAppendTo>("body");
 
   private readonly controlValue = toSignal(
     toObservable(this.control).pipe(switchMap((c) => c.valueChanges.pipe(startWith(c.value)))),

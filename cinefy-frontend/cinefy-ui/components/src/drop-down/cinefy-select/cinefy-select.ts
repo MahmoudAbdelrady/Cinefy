@@ -3,12 +3,12 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { startWith, switchMap } from "rxjs";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Select } from "primeng/select";
-import { MultiSelect } from "primeng/multiselect";
 import { CinefyFieldError } from "../../field-error/cinefy-field-error";
+import type { AppendTo as PrimeAppendTo } from "primeng/types/shared";
 
 @Component({
   selector: "cui-select",
-  imports: [ReactiveFormsModule, Select, MultiSelect, CinefyFieldError],
+  imports: [ReactiveFormsModule, Select, CinefyFieldError],
   templateUrl: "./cinefy-select.html",
   styleUrl: "./cinefy-select.scss",
 })
@@ -26,7 +26,7 @@ export class CinefySelect<T> {
   readonly searchable = input(false);
   readonly required = input<boolean | undefined>(undefined);
   readonly errorMessages = input<Record<string, string>>({});
-  readonly container: InputSignal<string | HTMLElement | null> = input<string | HTMLElement | null>("body");
+  readonly container: InputSignal<PrimeAppendTo> = input<PrimeAppendTo>("body");
 
   private readonly controlStatus = toSignal(
     toObservable(this.control).pipe(switchMap((c) => c.statusChanges.pipe(startWith(c.status)))),

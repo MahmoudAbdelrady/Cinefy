@@ -8,9 +8,9 @@ Cinefy is a cinema management & booking platform. The repository is split into t
 Cinefy/
 ├── cinefy-backend/      # Spring Boot 4 REST API (Java 25, Maven, PostgreSQL)
 └── cinefy-frontend/     # pnpm workspace (the frontend monorepo)
-    ├── cinefy-management/   # Angular 21 admin/staff dashboard (the app behind /login)
+    ├── cinefy-management/   # Angular 22 admin/staff dashboard (the app behind /login)
     ├── cinefy-ui/           # Shared Angular component library (ng-packagr)
-    └── cinefy-client/       # Angular 21 public-facing booking app (SSR)
+    └── cinefy-client/       # Angular 22 public-facing booking app (SSR)
 ```
 
 Each subtree has its own detailed `CLAUDE.md` — read the one for the area you're working in:
@@ -35,7 +35,7 @@ Each subtree has its own detailed `CLAUDE.md` — read the one for the area you'
   pnpm mgmt:dev       # management dev server on :4200
   pnpm client:dev     # client dev server (also defaults to :4200 — pass --port to run alongside mgmt)
   ```
-  Both `cinefy-management` and `cinefy-client` depend on `cinefy-ui` via `"cinefy-ui": "link:../cinefy-ui/dist"`, so build the library before running either app. **pnpm only** (v11.4.0).
+  Both `cinefy-management` and `cinefy-client` depend on `cinefy-ui` via `"cinefy-ui": "link:../cinefy-ui/dist"`, so build the library before running either app. **pnpm only** (v12.3.4).
 
 ## Conventions
 
