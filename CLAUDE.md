@@ -29,13 +29,17 @@ Each subtree has its own detailed `CLAUDE.md` — read the one for the area you'
   ./mvnw spring-boot:run
   ```
 - **Frontend** — pnpm, from the workspace root `cinefy-frontend/`:
+
   ```bash
   pnpm install        # restores all workspace packages
   pnpm ui:build       # build cinefy-ui (both apps link its built dist)
   pnpm mgmt:dev       # management dev server on :4200
   pnpm client:dev     # client dev server (also defaults to :4200 — pass --port to run alongside mgmt)
   ```
+
   Both `cinefy-management` and `cinefy-client` depend on `cinefy-ui` via `"cinefy-ui": "link:../cinefy-ui/dist"`, so build the library before running either app. **pnpm only** (v12.3.4).
+
+  **Every pnpm command runs from `cinefy-frontend/` — never from inside `cinefy-management/`, `cinefy-client/`, or `cinefy-ui/`.** Those packages have a `package.json` but no lockfile; running pnpm inside one makes it re-resolve all dependencies as a standalone project, leaving a stray lockfile and a private `node_modules` on a different Angular patch than the workspace pins. That breaks the build with hundreds of confusing `InputSignal` type errors. To run one package's script, use `pnpm --filter <package> <script>` from the root. See [`cinefy-management/CLAUDE.md`](cinefy-frontend/cinefy-management/CLAUDE.md#commands) for the details and recovery steps.
 
 ## Conventions
 

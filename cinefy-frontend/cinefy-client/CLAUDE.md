@@ -14,21 +14,25 @@ See also: [`../cinefy-management/CLAUDE.md`](../cinefy-management/CLAUDE.md) for
 
 ## Commands
 
+**Always run pnpm from `cinefy-frontend/` (the workspace root) — never from inside a package directory.**
+
 ```bash
-# from cinefy-frontend/ (workspace root):
+# ALWAYS from cinefy-frontend/ (workspace root):
+pnpm install                   # Restore all workspace packages
 pnpm ui:build                  # Build cinefy-ui (ng-packagr → cinefy-ui/dist) — required before running
 pnpm client:dev                # Dev server (defaults to :4200 — pass --port to run alongside mgmt)
 pnpm client:build              # Production SSR build
 pnpm app:build                 # Build ui, then management, then client
 
-# from cinefy-client/:
-pnpm start                     # Dev server (ng serve)
-pnpm build                     # Production build (SSR — browser + server bundles)
-pnpm test                      # Run tests (Vitest, jsdom)
-pnpm serve:ssr:cinefy-client   # Run the built SSR server (node dist/cinefy-client/server/server.mjs)
+# To run a single package's own script, use --filter (still from the root):
+pnpm --filter cinefy-client build                 # Production build (SSR — browser + server bundles)
+pnpm --filter cinefy-client test                  # Run tests (Vitest, jsdom)
+pnpm --filter cinefy-client serve:ssr:cinefy-client  # Run the built SSR server
 ```
 
 > **pnpm only** (v12.3.4) — do not use npm or yarn. Both apps default to port 4200; pass `--port` to run them side by side.
+
+Running pnpm from inside `cinefy-client/` makes pnpm treat it as a standalone project and re-resolve every dependency, producing a stray lockfile and a private `node_modules` that drifts off the workspace's pinned Angular version. See [the management CLAUDE.md](../cinefy-management/CLAUDE.md#commands) for the full explanation and the recovery steps.
 
 ## SSR — this app is server-rendered
 

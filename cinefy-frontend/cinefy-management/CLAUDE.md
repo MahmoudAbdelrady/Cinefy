@@ -10,19 +10,33 @@ This app lives in a pnpm workspace rooted at `cinefy-frontend/` (a sibling of `c
 
 ## Commands
 
+**Always run pnpm from `cinefy-frontend/` (the workspace root) — never from inside a package directory.**
+
 ```bash
-# from cinefy-frontend/ (workspace root):
+# ALWAYS from cinefy-frontend/ (workspace root):
+pnpm install                                  # Restore all workspace packages
 pnpm ui:build                                 # Build cinefy-ui (ng-packagr → cinefy-ui/dist)
 pnpm mgmt:dev                                 # Dev server on :4200
 pnpm app:build                                # Build library, then the app
 
-# from cinefy-management/:
-pnpm start                                    # Dev server on :4200
-pnpm build                                    # Production build (browser only)
-pnpm test                                     # Run tests (Karma)
+# To run a single package's own script, use --filter (still from the root):
+pnpm --filter cinefy-management build         # Production build (browser only)
+pnpm --filter cinefy-management start         # Dev server on :4200
+pnpm --filter cinefy-management test          # Run tests (Karma)
 ```
 
 > **pnpm only** (v12.3.4) — do not use npm or yarn.
+
+**Why the working directory matters.** `cinefy-management/` has a `package.json` but no lockfile of its own — the only lockfile is `cinefy-frontend/pnpm-lock.yaml`. Running `pnpm install` or `pnpm build` from inside the package makes pnpm treat it as a standalone project: it re-resolves every dependency from the registry, writes a stray `cinefy-management/pnpm-lock.yaml`, and creates a private `cinefy-management/node_modules/.pnpm` store. Because the app's deps are carets (`^22.1.5`), that fresh resolution picks up newer patch releases than the workspace pinned, so the app ends up on a different Angular than `cinefy-ui`. Angular version-stamps its `InputSignal` brand symbol, so every binding into a cinefy-ui component then fails to typecheck with hundreds of `__@ɵINPUT_SIGNAL_BRAND_WRITE_TYPE@<n>` errors — a broken build that looks like a code bug but is purely an install artifact.
+
+If that happens, recover with:
+
+```bash
+rm -rf cinefy-management/pnpm-lock.yaml cinefy-management/node_modules
+pnpm install --frozen-lockfile                # from cinefy-frontend/
+```
+
+`--frozen-lockfile` is the safe default for any install you didn't intend to change dependencies — it fails rather than silently rewriting the lockfile.
 
 ## Project Structure
 
