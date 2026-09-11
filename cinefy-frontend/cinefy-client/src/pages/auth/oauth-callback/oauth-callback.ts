@@ -6,8 +6,9 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { OAuthRegisterForm, OtpStep } from '../../../components';
 import { AuthService } from '../../../services';
-import { ApiError, OAuthRegistration } from '../../../shared/types';
+import { ApiError, OAuthCallbackResult, OAuthRegistration } from '../../../shared/types';
 import { skipErrorToast } from '../../../app/core/interceptors';
+import { toSafeRedirect } from '../../../shared/redirect';
 import { ArrowRightIcon, CheckIcon, TriangleAlertIcon } from '../../../shared/icons';
 
 type OAuthCallbackPhase = 'verifying' | 'register' | 'verify-account' | 'success' | 'failed';
@@ -36,6 +37,7 @@ export class OAuthCallbackPage {
   protected readonly registration = signal<OAuthRegistration | null>(null);
   protected readonly errorMessage = signal(DEFAULT_ERROR_MESSAGE);
   protected readonly unverifiedEmail = signal('');
+  private readonly redirectUrl = signal('/');
 
   protected readonly verifyAccount = (code: string) => this.authService.verifyAccount({ code });
 
@@ -57,12 +59,13 @@ export class OAuthCallbackPage {
       .handleOAuthCallback({ code, state }, skipErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (registration) => this.onExchanged(registration),
+        next: (result) => this.onExchanged(result),
         error: (error: HttpErrorResponse) => {
           const body = error.error as ApiError | null;
           if (body?.errorCode === 'ACCOUNT_NOT_VERIFIED') {
-            const data = body.data as { email?: string } | undefined;
+            const data = body.data as { email?: string; redirectUrl?: string } | undefined;
             this.unverifiedEmail.set(data?.email ?? '');
+            this.redirectUrl.set(toSafeRedirect(data?.redirectUrl));
             this.phase.set('verify-account');
             return;
           }
@@ -72,9 +75,11 @@ export class OAuthCallbackPage {
       });
   }
 
-  private onExchanged(registration: OAuthRegistration | null) {
-    if (registration) {
-      this.registration.set(registration);
+  private onExchanged(result: OAuthCallbackResult) {
+    this.redirectUrl.set(toSafeRedirect(result.redirectUrl));
+
+    if (result.registration) {
+      this.registration.set(result.registration);
       this.phase.set('register');
       return;
     }
@@ -85,9 +90,5 @@ export class OAuthCallbackPage {
 
   protected goToRedirect() {
     this.router.navigateByUrl(this.redirectUrl());
-  }
-
-  private redirectUrl(): string {
-    return this.route.snapshot.queryParamMap.get('redirectUrl') ?? '/';
   }
 }

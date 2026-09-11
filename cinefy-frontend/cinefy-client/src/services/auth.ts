@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient, HttpContext } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { catchError, finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
 import type {
   SignUpPayload,
@@ -10,7 +10,7 @@ import type {
   ResetPasswordPayload,
   Redirection,
   OAuthCallbackPayload,
-  OAuthRegistration,
+  OAuthCallbackResult,
   OAuthSignUpPayload,
 } from '../shared/types';
 import { ClientService } from './clients';
@@ -44,19 +44,24 @@ export class AuthService {
       .pipe(tap(() => this.authStatus.set(true)));
   }
 
-  getOAuthAuthorizationUrl(provider: string): Observable<string> {
+  getOAuthAuthorizationUrl(provider: string, redirectUrl?: string): Observable<string> {
+    const params = redirectUrl ? new HttpParams().set('redirectUrl', redirectUrl) : undefined;
+
     return this.http
-      .get<Redirection>(`/clients/auth/oauth/${provider}/authorization-url`)
+      .get<Redirection>(`/clients/auth/oauth/${provider}/authorization-url`, { params })
       .pipe(map((response) => response.url));
   }
 
   handleOAuthCallback(
     data: OAuthCallbackPayload,
     context?: HttpContext,
-  ): Observable<OAuthRegistration | null> {
+  ): Observable<OAuthCallbackResult> {
     return this.http
-      .post<OAuthRegistration | null>('/clients/auth/oauth/callback', data, { context })
-      .pipe(tap((registration) => this.authStatus.set(registration === null)));
+      .post<OAuthCallbackResult | null>('/clients/auth/oauth/callback', data, { context })
+      .pipe(
+        map((result) => result ?? {}),
+        tap((result) => this.authStatus.set(!result.registration)),
+      );
   }
 
   oAuthSignUp(data: OAuthSignUpPayload, context?: HttpContext): Observable<void> {

@@ -3,6 +3,7 @@ package com.mdevs.cinefy.controller;
 import com.mdevs.cinefy.dto.RedirectionDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OAuthCallbackDTO;
+import com.mdevs.cinefy.dto.auth.OAuthCallbackResponseDTO;
 import com.mdevs.cinefy.dto.auth.OAuthCallbackResultDTO;
 import com.mdevs.cinefy.dto.auth.OAuthSignUpDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -51,8 +53,9 @@ public class ClientAuthController {
 
     @PublicApi
     @GetMapping("/oauth/{provider}/authorization-url")
-    public ResponseEntity<RedirectionDTO> getOAuthAuthorizationUrl(@PathVariable String provider) {
-        OAuthAuthorizationDTO authorization = clientAuthService.getOAuthAuthorizationUrl(provider);
+    public ResponseEntity<RedirectionDTO> getOAuthAuthorizationUrl(@PathVariable String provider,
+                                                                   @RequestParam(required = false) String redirectUrl) {
+        OAuthAuthorizationDTO authorization = clientAuthService.getOAuthAuthorizationUrl(provider, redirectUrl);
         ResponseCookie stateCookie = cookieUtil.buildOAuthStateCookie(authorization.cookieStateToken(), OAuthProviderClient.OAUTH_STATE_COOKIE_MAX_AGE_MS);
 
         return ResponseEntity.ok()
@@ -66,14 +69,18 @@ public class ClientAuthController {
                                                  @CookieValue(value = OAuthProviderClient.OAUTH_STATE_COOKIE, required = false) String cookieStateToken) {
         OAuthCallbackResultDTO result = clientAuthService.handleOAuthCallback(dto, cookieStateToken);
         ResponseCookie clearedStateCookie = cookieUtil.buildOAuthStateCookie("", 0);
+        OAuthCallbackResponseDTO body = result.response();
 
         if (result.tokens() == null) {
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, clearedStateCookie.toString())
-                    .body(result.registration());
+                    .body(body);
         }
 
-        return authCookieResponseFactory.tokenResponse(result.tokens(), AUTH_PATH, List.of(clearedStateCookie));
+        ResponseEntity<Void> tokenResponse = authCookieResponseFactory.tokenResponse(result.tokens(), AUTH_PATH, List.of(clearedStateCookie));
+        return ResponseEntity.ok()
+                .headers(tokenResponse.getHeaders())
+                .body(body);
     }
 
     @PublicApi

@@ -11,6 +11,7 @@ import { CinefyToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
 import { skipErrorToast } from '../../../app/core/interceptors';
 import { EMAIL_PATTERN } from '../../../shared/validation';
+import { toSafeRedirect } from '../../../shared/redirect';
 import { ArrowRightIcon, EmailIcon, LockIcon } from '../../../shared/icons';
 
 @Component({
@@ -85,6 +86,6 @@ export class LoginPage {
   }
 
   private redirectUrl(): string {
-    return this.route.snapshot.queryParamMap.get('redirectUrl') ?? '/';
+    return toSafeRedirect(this.route.snapshot.queryParamMap.get('redirectUrl'));
   }
 }

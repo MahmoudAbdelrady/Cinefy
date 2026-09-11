@@ -18,6 +18,11 @@ export interface OAuthRegistration {
   lastName: string;
 }
 
+export interface OAuthCallbackResult {
+  registration?: OAuthRegistration;
+  redirectUrl?: string;
+}
+
 export interface OAuthSignUpPayload {
   registrationToken: string;
   phoneNumber: string;

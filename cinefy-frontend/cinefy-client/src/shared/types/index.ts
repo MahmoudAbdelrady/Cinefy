@@ -11,6 +11,7 @@ export type {
   OAuthProvider,
   AuthFormStage,
   OAuthCallbackPayload,
+  OAuthCallbackResult,
   OAuthRegistration,
   OAuthSignUpPayload,
   SignUpPayload,
