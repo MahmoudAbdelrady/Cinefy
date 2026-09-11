@@ -8,6 +8,7 @@ import { LucideDynamicIcon } from "@lucide/angular";
 import { ClockIcon } from "../../icons";
 import { CinefyFieldError } from "../../field-error/cinefy-field-error";
 import type { AppendTo as PrimeAppendTo } from "primeng/types/shared";
+import { isInvalidAndTouched } from "../../field-error/control-state";
 
 const DISPLAY_FORMAT = "hh:mm a";
 const VALUE_FORMAT = "HH:mm";
@@ -50,6 +51,10 @@ export class CinefyTimePicker {
   protected readonly suppressError = signal(false);
 
   protected readonly hasErrorMessages = computed(() => Object.keys(this.errorMessages()).length > 0);
+
+  private readonly isInvalid = isInvalidAndTouched(this.control);
+
+  protected readonly showsError = computed(() => !this.suppressError() && this.isInvalid());
 
   protected onOverlayShow(): void {
     this.suppressError.set(this.control().untouched);

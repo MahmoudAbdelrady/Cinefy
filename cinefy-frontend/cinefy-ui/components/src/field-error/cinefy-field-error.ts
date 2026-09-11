@@ -1,11 +1,13 @@
-import { Component, input } from "@angular/core";
+import { Component, computed, input } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { map, startWith, switchMap } from "rxjs";
 import { AbstractControl } from "@angular/forms";
 
 @Component({
   selector: "cui-field-error",
   template: `
-    @if (control().touched && control().errors; as errors) {
-      @for (key of messageKeys; track key) {
+    @if (errors(); as errors) {
+      @for (key of messageKeys(); track key) {
         @if (errors[key]) {
           <span>{{ messages()[key] }}</span>
         }
@@ -31,7 +33,17 @@ export class CinefyFieldError {
   readonly control = input.required<AbstractControl>();
   readonly messages = input.required<Record<string, string>>();
 
-  protected get messageKeys() {
-    return Object.keys(this.messages());
-  }
+  protected readonly errors = toSignal(
+    toObservable(this.control).pipe(
+      switchMap((control) =>
+        control.events.pipe(
+          startWith(null),
+          map(() => control.errors),
+        ),
+      ),
+    ),
+    { initialValue: null },
+  );
+
+  protected readonly messageKeys = computed(() => Object.keys(this.messages()));
 }

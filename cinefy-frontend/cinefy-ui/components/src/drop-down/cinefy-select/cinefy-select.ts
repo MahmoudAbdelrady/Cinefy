@@ -5,6 +5,7 @@ import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Select } from "primeng/select";
 import { CinefyFieldError } from "../../field-error/cinefy-field-error";
 import type { AppendTo as PrimeAppendTo } from "primeng/types/shared";
+import { isInvalidAndTouched } from "../../field-error/control-state";
 
 @Component({
   selector: "cui-select",
@@ -31,6 +32,8 @@ export class CinefySelect<T> {
   private readonly controlStatus = toSignal(
     toObservable(this.control).pipe(switchMap((c) => c.statusChanges.pipe(startWith(c.status)))),
   );
+
+  protected readonly isInvalid = isInvalidAndTouched(this.control);
 
   protected readonly isRequired = computed(() => {
     const required = this.required();

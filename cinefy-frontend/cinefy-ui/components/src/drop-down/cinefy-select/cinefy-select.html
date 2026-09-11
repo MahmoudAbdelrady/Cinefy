@@ -13,7 +13,7 @@
     [showClear]="clearable()"
     [filter]="searchable()"
     [appendTo]="container()"
-    [invalid]="control().touched && control().invalid"
+    [invalid]="isInvalid()"
     size="large"
   >
     <ng-template #header>
@@ -37,14 +37,14 @@
     [showClear]="clearable()"
     [filter]="searchable()"
     [appendTo]="container()"
-    [invalid]="control().touched && control().invalid"
+    [invalid]="isInvalid()"
     size="large"
   >
     <ng-template #selectedItem let-item>{{ item[selectedItemLabel() ?? labelField()] }}</ng-template>
   </p-select>
   } @if (hint(); as hintText) {
   <p class="cui-select-hint">{{ hintText }}</p>
-  } @if (control().touched && control().errors) {
+  } @if (isInvalid()) {
   <cui-field-error [control]="control()" [messages]="errorMessages()" />
   }
 </div>

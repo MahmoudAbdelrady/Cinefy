@@ -3,6 +3,7 @@ import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { distinctUntilChanged, startWith, switchMap } from "rxjs";
 import { InputOtp as PrimeInputOtp } from "primeng/inputotp";
+import { isInvalidAndTouched } from "../field-error/control-state";
 
 @Component({
   selector: "cui-input-otp",
@@ -25,6 +26,8 @@ export class CinefyInputOtp {
   private readonly value = signal("");
 
   private readonly complete = computed(() => this.value().length === this.length());
+
+  protected readonly isInvalid = isInvalidAndTouched(this.control);
 
   constructor() {
     toObservable(this.control)
