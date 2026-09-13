@@ -50,6 +50,7 @@ import {
 } from '../../../services';
 import { Textarea } from 'primeng/textarea';
 import { MoviePickerComponent } from '../movie-picker/movie-picker';
+import { DATE_FORMAT } from '../../../shared/constants';
 
 function notInPastValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value as Date | null;
@@ -69,7 +70,7 @@ function timeNotInPastValidator(control: AbstractControl): ValidationErrors | nu
 }
 
 function combineDateAndTime(date: Date, time: string): string {
-  return `${format(date, 'yyyy-MM-dd')}T${time}:00`;
+  return `${format(date, DATE_FORMAT)}T${time}:00`;
 }
 
 @Component({

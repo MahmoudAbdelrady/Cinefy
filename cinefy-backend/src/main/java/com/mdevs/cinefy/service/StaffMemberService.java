@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
@@ -53,6 +54,16 @@ public class StaffMemberService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
+
+    private static final int FULL_TIME_MIN_WORKING_DAYS = 5;
+
+    private static final int FULL_TIME_MAX_WORKING_DAYS = 6;
+
+    private static final int PART_TIME_MIN_WORKING_DAYS = 2;
+
+    private static final int PART_TIME_MAX_WORKING_DAYS = 4;
+
+    private static final int REQUIRED_WORKING_MINUTES = 8 * 60;
 
     // ========================= Public API =========================
 
@@ -252,12 +263,9 @@ public class StaffMemberService implements UserDetailsService {
         }
     }
 
-    private void validateStaffMember(StaffMemberDTO dto, String normalizedEmail, String normalizedPhoneNumber, StaffPosition position, Long excludeId) {
+    private void validateStaffMember(String normalizedEmail, String normalizedPhoneNumber, StaffPosition position, Long excludeId) {
         if (position.equals(StaffPosition.ADMIN)) {
             throw new BusinessException("Assigning the admin position is not allowed");
-        }
-        if (dto.getWorkingHourStart().equals(dto.getWorkingHourEnd())) {
-            throw new BusinessException("Working hour end must be different from working hour start");
         }
         boolean emailExists = excludeId == null
                 ? staffMemberRepository.existsByEmail(normalizedEmail)
@@ -273,6 +281,22 @@ public class StaffMemberService implements UserDetailsService {
         }
     }
 
+    private void validateWorkingWeek(EmploymentType employmentType, DayOfWeek workingDayStart, DayOfWeek workingDayEnd,
+                                     LocalTime workingHourStart, LocalTime workingHourEnd) {
+        int workingDays = countDaysInRange(workingDayStart, workingDayEnd);
+        int minimumDays = employmentType.equals(EmploymentType.FULL_TIME) ? FULL_TIME_MIN_WORKING_DAYS : PART_TIME_MIN_WORKING_DAYS;
+        int maximumDays = employmentType.equals(EmploymentType.FULL_TIME) ? FULL_TIME_MAX_WORKING_DAYS : PART_TIME_MAX_WORKING_DAYS;
+
+        if (workingDays < minimumDays || workingDays > maximumDays) {
+            throw new BusinessException("A %s staff member must work between %d and %d days per week"
+                    .formatted(employmentType.getDisplayName(), minimumDays, maximumDays));
+        }
+
+        if (countMinutesInRange(workingHourStart, workingHourEnd) != REQUIRED_WORKING_MINUTES) {
+            throw new BusinessException("Working hours must span exactly %d hours".formatted(REQUIRED_WORKING_MINUTES / 60));
+        }
+    }
+
     private void applyNewPassword(StaffMember staffMember, String rawPassword) {
         if (passwordEncoder.matches(rawPassword, staffMember.getPassword())) {
             throw new BusinessException("New password must be different from the current password", ErrorCode.PASSWORD_REUSED);
@@ -285,7 +309,14 @@ public class StaffMemberService implements UserDetailsService {
         String normalizedEmail = dto.getEmail().trim().toLowerCase();
         String normalizedPhoneNumber = normalizePhoneNumber(dto.getPhoneNumber());
         StaffPosition position = StaffPosition.fromString(dto.getPosition());
-        validateStaffMember(dto, normalizedEmail, normalizedPhoneNumber, position, excludeId);
+        EmploymentType employmentType = EmploymentType.fromString(dto.getEmploymentType());
+        DayOfWeek workingDayStart = parseDayOfWeek(dto.getWorkingDayStart(), "workingDayStart");
+        DayOfWeek workingDayEnd = parseDayOfWeek(dto.getWorkingDayEnd(), "workingDayEnd");
+        LocalTime workingHourStart = parseTime(dto.getWorkingHourStart(), "workingHourStart");
+        LocalTime workingHourEnd = parseTime(dto.getWorkingHourEnd(), "workingHourEnd");
+
+        validateStaffMember(normalizedEmail, normalizedPhoneNumber, position, excludeId);
+        validateWorkingWeek(employmentType, workingDayStart, workingDayEnd, workingHourStart, workingHourEnd);
 
         staffMember.setFirstName(dto.getFirstName());
         staffMember.setLastName(dto.getLastName());
@@ -293,11 +324,11 @@ public class StaffMemberService implements UserDetailsService {
         staffMember.setEmail(normalizedEmail);
         staffMember.setPhoneNumber(normalizedPhoneNumber);
         staffMember.setPosition(position);
-        staffMember.setEmploymentType(EmploymentType.fromString(dto.getEmploymentType()));
-        staffMember.setWorkingDayStart(parseDayOfWeek(dto.getWorkingDayStart(), "workingDayStart"));
-        staffMember.setWorkingDayEnd(parseDayOfWeek(dto.getWorkingDayEnd(), "workingDayEnd"));
-        staffMember.setWorkingHourStart(parseTime(dto.getWorkingHourStart(), "workingHourStart"));
-        staffMember.setWorkingHourEnd(parseTime(dto.getWorkingHourEnd(), "workingHourEnd"));
+        staffMember.setEmploymentType(employmentType);
+        staffMember.setWorkingDayStart(workingDayStart);
+        staffMember.setWorkingDayEnd(workingDayEnd);
+        staffMember.setWorkingHourStart(workingHourStart);
+        staffMember.setWorkingHourEnd(workingHourEnd);
     }
 
     private boolean isWorkingDay(StaffMember staffMember, LocalDateTime now) {
@@ -319,6 +350,14 @@ public class StaffMemberService implements UserDetailsService {
 
         // The working week wraps around the end of the week (e.g. Saturday -> Wednesday)
         return day.getValue() >= start.getValue() || day.getValue() <= end.getValue();
+    }
+
+    private int countDaysInRange(DayOfWeek start, DayOfWeek end) {
+        return Math.floorMod(end.getValue() - start.getValue(), DayOfWeek.values().length) + 1;
+    }
+
+    private long countMinutesInRange(LocalTime start, LocalTime end) {
+        return Math.floorMod(Duration.between(start, end).toMinutes(), Duration.ofDays(1).toMinutes());
     }
 
     private DayOfWeek parseDayOfWeek(String value, String fieldName) {

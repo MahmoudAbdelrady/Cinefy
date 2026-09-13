@@ -6,6 +6,7 @@ import { Popover } from 'primeng/popover';
 import { CinefyDatePicker } from 'cinefy-ui/components';
 import { addDays, addYears, format, isAfter, parseISO } from 'date-fns';
 import { CalendarIcon } from '../../../shared/icons';
+import { DATE_FORMAT } from '../../../shared/constants';
 import type { DateRange } from '../../../shared/types';
 
 interface PresetOption {
@@ -28,7 +29,7 @@ const PRESET_OPTIONS: PresetOption[] = [
 type ActiveSelection = number | 'custom';
 
 function toIsoDate(date: Date): string {
-  return format(date, 'yyyy-MM-dd');
+  return format(date, DATE_FORMAT);
 }
 
 function rangeForPreset(days: number): DateRange {
