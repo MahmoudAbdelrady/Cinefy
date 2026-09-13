@@ -1,6 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, filter, Observable, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  filter,
+  Observable,
+  shareReplay,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
 import type {
   ChangePasswordPayload,
   ClientPaymentMethod,
@@ -13,17 +22,19 @@ export class ClientService {
   private readonly http = inject(HttpClient);
 
   private readonly currentUser = new BehaviorSubject<CurrentUser | null>(null);
-  private currentUserRequested = false;
+  private currentUser$: Observable<CurrentUser> | null = null;
 
   getCurrentUser(): Observable<CurrentUser> {
-    if (!this.currentUserRequested) {
-      this.currentUserRequested = true;
-      this.http.get<CurrentUser>('/clients/me').subscribe({
-        next: (user) => this.currentUser.next(user),
-        error: () => (this.currentUserRequested = false),
-      });
-    }
-    return this.currentUser.pipe(filter((user) => user !== null));
+    this.currentUser$ ??= this.http.get<CurrentUser>('/clients/me').pipe(
+      tap((user) => this.currentUser.next(user)),
+      catchError((error) => {
+        this.currentUser$ = null;
+        return throwError(() => error);
+      }),
+      switchMap(() => this.currentUser.pipe(filter((user) => user !== null))),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+    return this.currentUser$;
   }
 
   updateCurrentUser(payload: UpdateProfilePayload): Observable<CurrentUser> {
@@ -49,7 +60,7 @@ export class ClientService {
 
   clearCurrentUser(): void {
     this.currentUser.next(null);
-    this.currentUserRequested = false;
+    this.currentUser$ = null;
   }
 
   getPaymentMethods(): Observable<ClientPaymentMethod[]> {
