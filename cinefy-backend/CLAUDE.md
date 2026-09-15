@@ -13,7 +13,7 @@ The app won't boot without these (typically set in `application-local.properties
 - `cinefy.encryption.key` — Base64-encoded 32-byte AES key for `CredentialCipher` (payment-gateway credential encryption). `CredentialCipher` throws at construction time if missing or wrong length.
 - `cinefy.mail.username` / `cinefy.mail.password` — Gmail SMTP creds for the `JavaMailSender` bean in `AppConfig`.
 - `cinefy.jwt.secret`, `cinefy.jwt.access-token-expiration`, `cinefy.jwt.refresh-token-expiration`, `cinefy.jwt.refresh-token-rotation-threshold` — JWT signing key + token lifetimes (read by `JwtUtil` / `AuthCookieResponseFactory` / `JwtSessionService`).
-- `cinefy.cookie.secure`, `cinefy.cookie.same-site` — auth-cookie flags (read by `CookieUtil`).
+- `cinefy.cookie.secure`, `cinefy.cookie.same-site` — auth-cookie flags (read by `CookieUtil`). Cookie **names** are not configurable — they come from `AuthContext` (see _Auth contexts_).
 - `cinefy.admin.email` (required), `cinefy.admin.password` (optional — the admin seed is skipped with a warning if empty) — bootstrap admin account (`CinefyApplication`).
 - `cinefy.otp.expiration-minutes` — OTP lifetime in **minutes**, read by `OtpService`. No default in `application.properties`, so the app won't boot without it. (Renamed from the older millisecond-valued `cinefy.otp.expiration`; a deployment still setting the old key fails to start.)
 - `cinefy.oauth.redirect-uri` — the OAuth callback **path** (e.g. `/membership/oauth/callback`), concatenated onto `AppConfig.getFrontendClientUrl()`. The provider redirects the browser to the **frontend**, not to a backend endpoint.
@@ -31,7 +31,7 @@ The app won't boot without these (typically set in `application-local.properties
 - **Hibernate Envers** for entity auditing (all entities via `BaseEntity`); configured with `store_data_at_delete=true` and `global_with_modified_flag=true`
 - **Jakarta Validation** for request DTOs
 - **commons-lang3** for string utilities (`StringUtils`)
-- **Spring Security** — wired in `SecurityConfig` (Spring's built-in CSRF off, replaced by a custom double-submit token; CORS allow-list of both `app.frontend.mgmt.url` and `app.frontend.client.url`; stateless sessions; `@EnableMethodSecurity`). Authentication is JWT-in-cookie: `JwtAuthenticationFilter` reads the access-token cookie (`accessToken`), validates it (with an `InvalidJwtService` blocklist check), and populates a `UserPrincipal`; a `CsrfValidationFilter` (after `UsernamePasswordAuthenticationFilter`) enforces a double-submit CSRF token (`XSRF-TOKEN` cookie / `X-XSRF-TOKEN` header) for authenticated non-safe, non-`@PublicApi` requests (`CsrfProtectionMatcher`). `CinefyApiAuthorizationManager` gates `anyRequest()` — every endpoint requires an authenticated user **unless** the controller/handler is annotated `@PublicApi` (e.g. login, forgot-password). Position/role authorization is enforced per-endpoint via `@PreAuthorize("hasAnyRole(...)")` on controllers (roles map to the `StaffPosition` enum — ADMIN/MANAGER/CASHIER/USHER — plus the `CLIENT` role for client users). There are **two** `DaoAuthenticationProvider`-backed managers (a `CinefyAuthManagers` bean): one over `StaffMemberService`, one over `ClientService`, both with `BCryptPasswordEncoder`.
+- **Spring Security** — wired in `SecurityConfig` (Spring's built-in CSRF off, replaced by a custom double-submit token; CORS allow-list of both `app.frontend.mgmt.url` and `app.frontend.client.url`; stateless sessions; `@EnableMethodSecurity`). Authentication is JWT-in-cookie, **partitioned per frontend by `AuthContext`** (see _Auth contexts_ below): `JwtAuthenticationFilter` resolves the caller's context from the `X-Auth-Context` header, reads that context's access-token cookie (`mgmt_accessToken` / `client_accessToken`), validates it (with an `InvalidJwtService` blocklist check), verifies the token's `userType` claim matches the context, and populates a `UserPrincipal`; a `CsrfValidationFilter` (after `UsernamePasswordAuthenticationFilter`) enforces a double-submit CSRF token (the context's `mgmt_XSRF-TOKEN` / `client_XSRF-TOKEN` cookie vs. the shared `X-XSRF-TOKEN` header) for authenticated non-safe, non-`@PublicApi` requests (`CsrfProtectionMatcher`). `CinefyApiAuthorizationManager` gates `anyRequest()` — every endpoint requires an authenticated user **unless** the controller/handler is annotated `@PublicApi` (e.g. login, forgot-password). Position/role authorization is enforced per-endpoint via `@PreAuthorize("hasAnyRole(...)")` on controllers (roles map to the `StaffPosition` enum — ADMIN/MANAGER/CASHIER/USHER — plus the `CLIENT` role for client users). There are **two** `DaoAuthenticationProvider`-backed managers (a `CinefyAuthManagers` bean): one over `StaffMemberService`, one over `ClientService`, both with `BCryptPasswordEncoder`.
 - **Spring Mail + Thymeleaf** — `EmailService` sends email-verification and password-reset OTP emails (`sendEmailVerificationOtp` / `sendPasswordResetOtp`); mail bean wired in `AppConfig`.
 - **Scheduling** — `@EnableScheduling` on `CinefyApplication`; jobs live under `job/`: `ShowtimeStatusJob` (cron `0 * * * * *`), `TmdbSyncJob` (cron `0 0 3 * * *`), `BookingCleanupJob` (cron `0 * * * * *`), `OtpCleanupJob` (cron `0 0 3 * * *`), `InvalidJwtCleanupJob` (cron `0 0 3 * * *`)
 - **AOP** — `RequestLoggingAspect` (around any `@RestController`) and `TransactionLoggingAspect` (around any `@Transactional`) under `aspect/`, both delegating to `LoggingUtil`
@@ -56,8 +56,8 @@ com.mdevs.cinefy
 ├── controller/     — REST controllers (@RestController)
 │                     Hall, Showtime, StaffMember, PaymentGateway, TmdbMovie,
 │                     ManagementAuth, Booking, Client, ClientAuth, Statistics
-├── filter/         — JwtAuthenticationFilter (cookie JWT → SecurityContext),
-│                     CsrfValidationFilter (double-submit CSRF token check)
+├── filter/         — JwtAuthenticationFilter (context-scoped cookie JWT → SecurityContext),
+│                     CsrfValidationFilter (context-scoped double-submit CSRF check)
 ├── dto/            — Request/response DTOs, grouped per domain.
 │                     `RedirectionDTO` (a bare `record RedirectionDTO(String url)`) sits at the
 │                     top level, not under a domain folder — it is shared by the Paymob checkout
@@ -128,7 +128,7 @@ com.mdevs.cinefy
 │   │                  OAuthState, OAuthAuthorizationDTO, OAuthUserProfile,
 │   │                  OAuthRegistrationToken
 │   ├── payment/    — PaymobClient (RestClient client for the Paymob Unified Checkout API)
-│   ├── security/   — JwtUtil, JwtClaims, TokenType, UserPrincipal, SecurityUtil,
+│   ├── security/   — JwtUtil, JwtClaims, TokenType, UserPrincipal, SecurityUtil, AuthContext,
 │   │                 CinefyApiAuthorizationManager, CinefyAuthenticationEntryPoint,
 │   │                 CinefyAuthManagers, AuthCookieResponseFactory, CsrfProtectionMatcher,
 │   │                 CredentialCipher (AES-256-GCM for payment secrets)
@@ -234,7 +234,31 @@ Both delegate to `LoggingUtil.proceedWithLogging(...)`. Don't add ad-hoc `log.in
 
 - `SecurityConfig` builds the `SecurityFilterChain`: Spring's built-in CSRF off (replaced by the `CsrfValidationFilter` double-submit check), CORS allow-list bound to `AppConfig.getFrontendManagementUrl()` + `getFrontendClientUrl()`, stateless sessions, `@EnableMethodSecurity`, a custom `JwtAuthenticationFilter` before `UsernamePasswordAuthenticationFilter` (and `CsrfValidationFilter` after it), and `anyRequest().access(apiAuthorizationManager)`.
 - `CinefyApiAuthorizationManager` (`AuthorizationManager<RequestAuthorizationContext>`) resolves the target handler and allows the request when it (or its controller) carries `@PublicApi`; otherwise it requires a non-anonymous authenticated principal. Mark new unauthenticated endpoints with `@PublicApi`.
-- `JwtAuthenticationFilter` extracts the access token from the access-token cookie (`accessToken`), parses it via `JwtUtil`, skips blocklisted tokens (`InvalidJwtService`), and sets a `UserPrincipal` authentication. Auth cookies also include `refreshToken` and a `XSRF-TOKEN` CSRF cookie (all built by `AuthCookieResponseFactory`). Auth is stateless — no server session.
+- `JwtAuthenticationFilter` resolves the `AuthContext` from the `X-Auth-Context` header, extracts the access token from **that context's** cookie, parses it via `JwtUtil`, skips blocklisted tokens (`InvalidJwtService`), checks the token's `userType` claim against the context, and sets a `UserPrincipal` authentication. **No header (or an unknown value) means no authentication** — the filter continues the chain unauthenticated, exactly as it does for a missing cookie, so `@PublicApi` endpoints still work and protected ones 401 at `CinefyApiAuthorizationManager`. Auth cookies also include the context's refresh and CSRF cookies (all built by `AuthCookieResponseFactory`). Auth is stateless — no server session.
+
+### Auth contexts (per-frontend cookie partitioning)
+
+Both frontends run on the same host, so a single set of cookie names at path `/` meant logging into one app silently overwrote the other's session (the second login's token replaced the first, and the original tab then got **403** — a valid token carrying the wrong role). `AuthContext` (`shared/security/`) fixes this by giving each frontend its own cookie names:
+
+| Context      | Prefix   | Access               | Refresh               | CSRF                | Expected `UserType` |
+| ------------ | -------- | -------------------- | --------------------- | ------------------- | ------------------- |
+| `MANAGEMENT` | `mgmt`   | `mgmt_accessToken`   | `mgmt_refreshToken`   | `mgmt_XSRF-TOKEN`   | `STAFF_MEMBER`      |
+| `CLIENT`     | `client` | `client_accessToken` | `client_refreshToken` | `client_XSRF-TOKEN` | `CLIENT`            |
+
+**`AuthContext` is the single source of truth for cookie names** — build them with `accessTokenCookie()` / `refreshTokenCookie()` / `csrfTokenCookie()`, never by writing a literal. `CookieUtil` stays a dumb builder taking a plain `String name`; callers that hold a context resolve the name and pass it.
+
+**The `X-Auth-Context` header is a selector, not a credential.** Each frontend's `baseUrlInterceptor` stamps it (`management` / `client`) on every request; `AuthContext.fromHeader` is case-insensitive and returns `null` for blank/unknown. It only chooses _which cookie to read_ — all authority still comes from the signed JWT, and the filter additionally rejects a token whose `userType` disagrees with the header. A client sending `X-Auth-Context: management` just causes a lookup for a cookie they don't have.
+
+**Why a header and not a URL prefix.** On endpoints shared by both apps (`POST /booking`, `GET /booking/active`, `DELETE /booking/{uuid}` — all `CLIENT`+staff), a user logged into both sends _both_ cookies, and nothing server-side can tell which UI the request came from. A precedence rule ("prefer staff") is wrong: a cashier buying their own ticket in the client tab would have the booking written as a counter sale (`bookedBy` instead of `client`). That fact lives only in the browser, so it must be transmitted.
+
+**No service-layer code branches on the context.** Every client-vs-staff decision already keys off the principal — `BookingService.buildBooking` (`instanceof Client` / `instanceof StaffMember`), `getActiveBookings`, `validateBookingOwnership` (`currentUser.getType()`), `CurrentUserService.loadCurrentUser`. Selecting the right cookie is therefore sufficient to make all of them correct.
+
+**`@CookieValue` cannot be used for these cookies.** Annotation values must be Java _compile-time constants_, and `AUTH_CONTEXT.accessTokenCookie()` is not one even as a `static final` field. The auth controllers therefore take `HttpServletRequest` and call `CookieUtil.readCookie(request, AUTH_CONTEXT.refreshTokenCookie())` inline. One consequence: `@CookieValue`'s implicit 400-when-missing is gone, so `JwtSessionService.logout` guards both tokens for emptiness — logout is now idempotent and still clears cookies when called without them.
+
+**The CSRF _header_ stays a single shared name** (`X-XSRF-TOKEN`). Cookies needed splitting because they are ambient — the browser stores them and sends them automatically. A request header is set per-request by the app making the call, so there is no shared store to collide in.
+
+**Renaming the cookies invalidates every existing session.** Anyone holding the old `accessToken`/`XSRF-TOKEN` is silently logged out, and the stale cookies linger until they expire.
+
 - Endpoint authorization uses `@PreAuthorize("hasAnyRole(...)")` on controllers, keyed to `StaffPosition` (`ADMIN`, `MANAGER`, `CASHIER`, `USHER`) plus the `CLIENT` role for client-facing endpoints. When adding an endpoint, put the role rule on the controller method/class (not the service) to match the existing pattern. `CinefyAuthenticationEntryPoint` returns the 401 body for unauthenticated requests.
 - `BCryptPasswordEncoder` bean (in `AppConfig`) — used by `StaffMemberService` when storing/updating `password`.
 - `CredentialCipher` (AES-256-GCM, `cinefy.encryption.key` required, Base64-encoded 32-byte key) — encrypts the whole `PaymentGateway.credentials` JSON blob at rest (for Paymob: `secretKey`, `publicKey`, `hmacKey`). The cipher output prepends a fresh IV per call and tags the value with the GCM authentication tag. Its `base64:base64` output is why `credentials` is a **TEXT** column, not JSONB.
@@ -406,7 +430,7 @@ Seat positions are strings matching `^([A-Z]+)([0-9]+)$` (e.g. `A1`, `AA15`). `H
 
 ### `/management/auth` — ManagementAuthController
 
-All endpoints `@PublicApi` (skip authentication) **except** `/logout`. Session/refresh/logout are delegated to `JwtSessionService`; cookies are built by `AuthCookieResponseFactory` — access (`accessToken`), refresh (`refreshToken`), and a CSRF (`XSRF-TOKEN`) cookie — all set/cleared together.
+All endpoints `@PublicApi` (skip authentication) **except** `/logout`. Session/refresh/logout are delegated to `JwtSessionService`; cookies are built by `AuthCookieResponseFactory` under `AuthContext.MANAGEMENT` — access (`mgmt_accessToken`), refresh (`mgmt_refreshToken`), and a CSRF (`mgmt_XSRF-TOKEN`) cookie — all set/cleared together. The cookie-reading endpoints take `HttpServletRequest` rather than `@CookieValue` (see _Auth contexts_).
 
 | Method | Path                                 | Input                  | Output / Effect                                  |
 | ------ | ------------------------------------ | ---------------------- | ------------------------------------------------ |
@@ -472,20 +496,22 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`; the three read en
 
 ### `/staff` — StaffMemberController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. The self-service `/staff/me` endpoints and `GET /staff/{uuid}` override it with `@PreAuthorize("isAuthenticated()")` so any logged-in staff member can reach them (the per-row view/edit rules are then enforced in the service — see _Admin Account Policy_).
+Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. The self-service `/staff/me` endpoints and `GET /staff/{uuid}` override it with `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")` so any logged-in **staff member** can reach them (the per-row view/edit rules are then enforced in the service — see _Admin Account Policy_).
 
-| Method | Path                       | Input                  | Output / Effect                                    |
-| ------ | -------------------------- | ---------------------- | -------------------------------------------------- |
-| GET    | `/staff`                   | ?name, ?position, page | Page<StaffMemberSummaryDTO> (ADMIN/MANAGER)        |
-| GET    | `/staff/me`                | —                      | CurrentStaffMemberDTO (any authenticated staff)    |
-| PUT    | `/staff/me`                | UpdateProfileDTO       | StaffMemberDetailDTO (own name/phone)              |
-| PUT    | `/staff/me/password`       | ChangePasswordDTO      | 204 (own password; `updatePassword`)               |
-| GET    | `/staff/position-coverage` |                        | PositionCoverageDTO (ADMIN/MANAGER)                |
-| GET    | `/staff/on-shift`          |                        | OnShiftSummaryDTO (ADMIN/MANAGER)                  |
-| GET    | `/staff/{uuid}`            |                        | StaffMemberDetailDTO (isAuthenticated + view rule) |
-| POST   | `/staff`                   | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
-| PUT    | `/staff/{uuid}`            | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
-| DELETE | `/staff/{uuid}`            |                        | 204 (ADMIN/MANAGER)                                |
+> These four were previously `isAuthenticated()`, which a logged-in **CLIENT** also satisfies — `ROLE_CLIENT` passed the authorization layer and reached the service. Do **not** use `isAuthenticated()` on a staff endpoint: spell out the four positions. It is load-bearing beyond access control, because `UserPrincipal.getPosition()` is `null` for clients and `validateCanViewStaffMember` dereferences it.
+
+| Method | Path                       | Input                  | Output / Effect                              |
+| ------ | -------------------------- | ---------------------- | -------------------------------------------- |
+| GET    | `/staff`                   | ?name, ?position, page | Page<StaffMemberSummaryDTO> (ADMIN/MANAGER)  |
+| GET    | `/staff/me`                | —                      | CurrentStaffMemberDTO (any staff position)   |
+| PUT    | `/staff/me`                | UpdateProfileDTO       | StaffMemberDetailDTO (own name/phone)        |
+| PUT    | `/staff/me/password`       | ChangePasswordDTO      | 204 (own password; `updatePassword`)         |
+| GET    | `/staff/position-coverage` |                        | PositionCoverageDTO (ADMIN/MANAGER)          |
+| GET    | `/staff/on-shift`          |                        | OnShiftSummaryDTO (ADMIN/MANAGER)            |
+| GET    | `/staff/{uuid}`            |                        | StaffMemberDetailDTO (any staff + view rule) |
+| POST   | `/staff`                   | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)        |
+| PUT    | `/staff/{uuid}`            | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)        |
+| DELETE | `/staff/{uuid}`            |                        | 204 (ADMIN/MANAGER)                          |
 
 Phone numbers in `StaffMemberDTO` / `UpdateProfileDTO` are validated/normalized with Google libphonenumber before persistence. The `/staff/me` mutations (`updateProfile`, `updatePassword`) still call `validateNotAdminAccount(...)` — the admin row is not self-editable even by the admin.
 
@@ -589,7 +615,7 @@ Phone numbers in `UpdateClientProfileDTO` are validated/normalized with libphone
 
 ### `/clients/auth` — ClientAuthController
 
-All endpoints `@PublicApi` **except** `/logout`. Cookies (access/refresh/`XSRF-TOKEN`) are set via `AuthCookieResponseFactory`; session/refresh/logout delegate to `JwtSessionService`. Sign-up requires email verification (OTP) before login.
+All endpoints `@PublicApi` **except** `/logout`. Cookies (`client_accessToken` / `client_refreshToken` / `client_XSRF-TOKEN`) are set via `AuthCookieResponseFactory` under `AuthContext.CLIENT`; session/refresh/logout delegate to `JwtSessionService`. Sign-up requires email verification (OTP) before login.
 
 | Method | Path                           | Input                  | Output / Effect                             |
 | ------ | ------------------------------ | ---------------------- | ------------------------------------------- |
