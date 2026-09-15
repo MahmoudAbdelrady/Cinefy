@@ -17,8 +17,9 @@ import com.mdevs.cinefy.shared.annotation.PublicApi;
 import com.mdevs.cinefy.shared.oauth.OAuthAuthorizationDTO;
 import com.mdevs.cinefy.shared.oauth.OAuthProviderClient;
 import com.mdevs.cinefy.shared.security.AuthCookieResponseFactory;
-import com.mdevs.cinefy.shared.security.JwtUtil;
+import com.mdevs.cinefy.shared.security.AuthContext;
 import com.mdevs.cinefy.utils.CookieUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -51,6 +52,8 @@ public class ClientAuthController {
 
     private static final String AUTH_PATH = "/clients/auth";
 
+    private static final AuthContext AUTH_CONTEXT = AuthContext.CLIENT;
+
     @PublicApi
     @GetMapping("/oauth/{provider}/authorization-url")
     public ResponseEntity<RedirectionDTO> getOAuthAuthorizationUrl(@PathVariable String provider,
@@ -77,7 +80,7 @@ public class ClientAuthController {
                     .body(body);
         }
 
-        ResponseEntity<Void> tokenResponse = authCookieResponseFactory.tokenResponse(result.tokens(), AUTH_PATH, List.of(clearedStateCookie));
+        ResponseEntity<Void> tokenResponse = authCookieResponseFactory.tokenResponse(AUTH_CONTEXT, result.tokens(), AUTH_PATH, List.of(clearedStateCookie));
         return ResponseEntity.ok()
                 .headers(tokenResponse.getHeaders())
                 .body(body);
@@ -87,7 +90,7 @@ public class ClientAuthController {
     @PostMapping("/oauth/sign-up")
     public ResponseEntity<Void> oAuthSignUp(@Valid @RequestBody OAuthSignUpDTO dto) {
         TokenPairDTO tokens = clientAuthService.oAuthSignUp(dto);
-        return authCookieResponseFactory.tokenResponse(tokens, AUTH_PATH);
+        return authCookieResponseFactory.tokenResponse(AUTH_CONTEXT, tokens, AUTH_PATH);
     }
 
     @PublicApi
@@ -122,7 +125,7 @@ public class ClientAuthController {
     @PostMapping("/verify-account")
     public ResponseEntity<Void> verifyAccount(@Valid @RequestBody OtpCodeDTO dto) {
         return clientAuthService.verifyAccount(dto)
-                .map(tokens -> authCookieResponseFactory.tokenResponse(tokens, AUTH_PATH))
+                .map(tokens -> authCookieResponseFactory.tokenResponse(AUTH_CONTEXT, tokens, AUTH_PATH))
                 .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
@@ -130,27 +133,30 @@ public class ClientAuthController {
     @PostMapping("/login")
     public ResponseEntity<Void> login(@Valid @RequestBody LoginDTO dto) {
         TokenPairDTO tokens = clientAuthService.login(dto);
-        return authCookieResponseFactory.tokenResponse(tokens, AUTH_PATH);
+        return authCookieResponseFactory.tokenResponse(AUTH_CONTEXT, tokens, AUTH_PATH);
     }
 
     @PublicApi
     @GetMapping("/session")
-    public ResponseEntity<Void> session(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
+    public ResponseEntity<Void> session(HttpServletRequest request) {
+        String refreshToken = CookieUtil.readCookie(request, AUTH_CONTEXT.refreshTokenCookie());
         boolean valid = jwtSessionService.isRefreshTokenValid(refreshToken);
         return valid ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @PublicApi
     @PostMapping("/refresh")
-    public ResponseEntity<Void> refresh(@CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
+    public ResponseEntity<Void> refresh(HttpServletRequest request) {
+        String refreshToken = CookieUtil.readCookie(request, AUTH_CONTEXT.refreshTokenCookie());
         TokenPairDTO tokens = jwtSessionService.refresh(refreshToken);
-        return authCookieResponseFactory.tokenResponse(tokens, AUTH_PATH);
+        return authCookieResponseFactory.tokenResponse(AUTH_CONTEXT, tokens, AUTH_PATH);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@CookieValue(value = JwtUtil.ACCESS_TOKEN_COOKIE) String accessToken,
-                                       @CookieValue(value = JwtUtil.REFRESH_TOKEN_COOKIE) String refreshToken) {
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        String accessToken = CookieUtil.readCookie(request, AUTH_CONTEXT.accessTokenCookie());
+        String refreshToken = CookieUtil.readCookie(request, AUTH_CONTEXT.refreshTokenCookie());
         jwtSessionService.logout(accessToken, refreshToken);
-        return authCookieResponseFactory.logoutResponse(AUTH_PATH);
+        return authCookieResponseFactory.logoutResponse(AUTH_CONTEXT, AUTH_PATH);
     }
 }

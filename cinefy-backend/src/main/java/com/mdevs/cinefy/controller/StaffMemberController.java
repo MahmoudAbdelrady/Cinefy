@@ -42,19 +42,19 @@ public class StaffMemberController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")
     public ResponseEntity<CurrentStaffMemberDTO> getCurrentStaffMember() {
         return ResponseEntity.ok(staffMemberService.getCurrentStaffMember());
     }
 
     @PutMapping("/me")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")
     public ResponseEntity<StaffMemberDetailDTO> updateCurrentStaffMember(@Valid @RequestBody UpdateProfileDTO dto) {
         return ResponseEntity.ok(staffMemberService.updateProfile(dto));
     }
 
     @PutMapping("/me/password")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")
     public ResponseEntity<Void> changeCurrentStaffMemberPassword(@Valid @RequestBody ChangePasswordDTO dto) {
         staffMemberService.changePassword(dto);
         return ResponseEntity.noContent().build();
@@ -71,7 +71,7 @@ public class StaffMemberController {
     }
 
     @GetMapping("/{uuid}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")
     public ResponseEntity<StaffMemberDetailDTO> getStaffMember(@PathVariable String uuid) {
         return ResponseEntity.ok(staffMemberService.getStaffMember(uuid));
     }

@@ -1,8 +1,6 @@
 package com.mdevs.cinefy.utils;
 
 import com.mdevs.cinefy.shared.oauth.OAuthProviderClient;
-import com.mdevs.cinefy.shared.security.CsrfProtectionMatcher;
-import com.mdevs.cinefy.shared.security.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,16 +30,16 @@ public class CookieUtil {
                 .findFirst().map(Cookie::getValue).orElse(null);
     }
 
-    public ResponseCookie buildAccessTokenCookie(String value, long expirationMs) {
-        return build(JwtUtil.ACCESS_TOKEN_COOKIE, value, expirationMs, true, ROOT_PATH);
+    public ResponseCookie buildAccessTokenCookie(String name, String value, long expirationMs) {
+        return build(name, value, expirationMs, true, ROOT_PATH);
     }
 
-    public ResponseCookie buildRefreshTokenCookie(String value, long expirationMs, String path) {
-        return build(JwtUtil.REFRESH_TOKEN_COOKIE, value, expirationMs, true, path);
+    public ResponseCookie buildRefreshTokenCookie(String name, String value, long expirationMs, String path) {
+        return build(name, value, expirationMs, true, path);
     }
 
-    public ResponseCookie buildCsrfTokenCookie(String value, long expirationMs) {
-        return build(CsrfProtectionMatcher.CSRF_TOKEN_COOKIE, value, expirationMs, false, ROOT_PATH);
+    public ResponseCookie buildCsrfTokenCookie(String name, String value, long expirationMs) {
+        return build(name, value, expirationMs, false, ROOT_PATH);
     }
 
     public ResponseCookie buildOAuthStateCookie(String value, long expirationMs) {

@@ -18,8 +18,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class CsrfProtectionMatcher implements RequestMatcher {
 
-    public static final String CSRF_TOKEN_COOKIE = "XSRF-TOKEN";
-
     public static final String CSRF_TOKEN_HEADER = "X-XSRF-TOKEN";
 
     private static final Set<String> SAFE_METHODS = Set.of("GET", "HEAD", "OPTIONS", "TRACE");

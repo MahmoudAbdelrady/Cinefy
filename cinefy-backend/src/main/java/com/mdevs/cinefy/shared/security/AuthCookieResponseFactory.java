@@ -25,18 +25,18 @@ public class AuthCookieResponseFactory {
     @Value("${cinefy.jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
-    public ResponseEntity<Void> tokenResponse(TokenPairDTO tokens, String refreshTokenPath) {
-        return tokenResponse(tokens, refreshTokenPath, List.of());
+    public ResponseEntity<Void> tokenResponse(AuthContext context, TokenPairDTO tokens, String refreshTokenPath) {
+        return tokenResponse(context, tokens, refreshTokenPath, List.of());
     }
 
-    public ResponseEntity<Void> tokenResponse(TokenPairDTO tokens, String refreshTokenPath, List<ResponseCookie> additionalCookies) {
-        ResponseCookie accessTokenCookie = cookieUtil.buildAccessTokenCookie(tokens.accessToken(), accessTokenExpiration);
+    public ResponseEntity<Void> tokenResponse(AuthContext context, TokenPairDTO tokens, String refreshTokenPath, List<ResponseCookie> additionalCookies) {
+        ResponseCookie accessTokenCookie = cookieUtil.buildAccessTokenCookie(context.accessTokenCookie(), tokens.accessToken(), accessTokenExpiration);
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
         if (StringUtils.isNotEmpty(tokens.refreshToken())) {
-            ResponseCookie refreshTokenCookie = cookieUtil.buildRefreshTokenCookie(tokens.refreshToken(), refreshTokenExpiration, refreshTokenPath);
-            ResponseCookie csrfTokenCookie = cookieUtil.buildCsrfTokenCookie(UUID.randomUUID().toString(), refreshTokenExpiration);
+            ResponseCookie refreshTokenCookie = cookieUtil.buildRefreshTokenCookie(context.refreshTokenCookie(), tokens.refreshToken(), refreshTokenExpiration, refreshTokenPath);
+            ResponseCookie csrfTokenCookie = cookieUtil.buildCsrfTokenCookie(context.csrfTokenCookie(), UUID.randomUUID().toString(), refreshTokenExpiration);
             responseBuilder.header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
             responseBuilder.header(HttpHeaders.SET_COOKIE, csrfTokenCookie.toString());
         }
@@ -48,10 +48,10 @@ public class AuthCookieResponseFactory {
         return responseBuilder.build();
     }
 
-    public ResponseEntity<Void> logoutResponse(String refreshTokenPath) {
-        ResponseCookie clearedAccessTokenCookie = cookieUtil.buildAccessTokenCookie("", 0);
-        ResponseCookie clearedRefreshTokenCookie = cookieUtil.buildRefreshTokenCookie("", 0, refreshTokenPath);
-        ResponseCookie clearedCsrfTokenCookie = cookieUtil.buildCsrfTokenCookie("", 0);
+    public ResponseEntity<Void> logoutResponse(AuthContext context, String refreshTokenPath) {
+        ResponseCookie clearedAccessTokenCookie = cookieUtil.buildAccessTokenCookie(context.accessTokenCookie(), "", 0);
+        ResponseCookie clearedRefreshTokenCookie = cookieUtil.buildRefreshTokenCookie(context.refreshTokenCookie(), "", 0, refreshTokenPath);
+        ResponseCookie clearedCsrfTokenCookie = cookieUtil.buildCsrfTokenCookie(context.csrfTokenCookie(), "", 0);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, clearedAccessTokenCookie.toString())
