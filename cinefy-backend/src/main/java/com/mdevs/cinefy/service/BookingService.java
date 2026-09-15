@@ -196,7 +196,10 @@ public class BookingService {
 
     public Page<PastBookingDTO> getPastBookings(Pageable pageable) {
         User user = currentUserService.loadCurrentUser();
-        return bookingRepository.findSettledByClient(user.getId(), BookingStatus.SETTLED_STATUSES, pageable)
+        if (!(user instanceof Client client)) {
+            throw new BusinessException("Only clients have a booking history");
+        }
+        return bookingRepository.findSettledByClient(client.getId(), BookingStatus.SETTLED_STATUSES, pageable)
                 .map(this::toPastBookingDTO);
     }
 

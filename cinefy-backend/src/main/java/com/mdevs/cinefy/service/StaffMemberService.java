@@ -240,7 +240,7 @@ public class StaffMemberService implements UserDetailsService {
             return;
         }
 
-        boolean privileged = currentUser.getPosition().equals(StaffPosition.ADMIN.name()) || currentUser.getPosition().equals(StaffPosition.MANAGER.name());
+        boolean privileged = StaffPosition.ADMIN.name().equals(currentUser.getPosition()) || StaffPosition.MANAGER.name().equals(currentUser.getPosition());
         if (!privileged && !isSelf) {
             throw new ForbiddenException("You are not allowed to view this staff member");
         }
@@ -257,7 +257,7 @@ public class StaffMemberService implements UserDetailsService {
         if (!touchesManager) {
             return;
         }
-        boolean isAdmin = SecurityUtil.getCurrentUser().getPosition().equals(StaffPosition.ADMIN.name());
+        boolean isAdmin = StaffPosition.ADMIN.name().equals(SecurityUtil.getCurrentUser().getPosition());
         if (!isAdmin) {
             throw new ForbiddenException("Only an administrator can manage manager accounts");
         }
