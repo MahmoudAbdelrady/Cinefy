@@ -21,7 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/halls")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
 public class HallController {
 
     private final HallService hallService;

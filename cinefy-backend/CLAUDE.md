@@ -31,7 +31,7 @@ The app won't boot without these (typically set in `application-local.properties
 - **Hibernate Envers** for entity auditing (all entities via `BaseEntity`); configured with `store_data_at_delete=true` and `global_with_modified_flag=true`
 - **Jakarta Validation** for request DTOs
 - **commons-lang3** for string utilities (`StringUtils`)
-- **Spring Security** — wired in `SecurityConfig` (Spring's built-in CSRF off, replaced by a custom double-submit token; CORS allow-list of both `app.frontend.mgmt.url` and `app.frontend.client.url`; stateless sessions; `@EnableMethodSecurity`). Authentication is JWT-in-cookie, **partitioned per frontend by `AuthContext`** (see _Auth contexts_ below): `JwtAuthenticationFilter` resolves the caller's context from the `X-Auth-Context` header, reads that context's access-token cookie (`mgmt_accessToken` / `client_accessToken`), validates it (with an `InvalidJwtService` blocklist check), verifies the token's `userType` claim matches the context, and populates a `UserPrincipal`; a `CsrfValidationFilter` (after `UsernamePasswordAuthenticationFilter`) enforces a double-submit CSRF token (the context's `mgmt_XSRF-TOKEN` / `client_XSRF-TOKEN` cookie vs. the shared `X-XSRF-TOKEN` header) for authenticated non-safe, non-`@PublicApi` requests (`CsrfProtectionMatcher`). `CinefyApiAuthorizationManager` gates `anyRequest()` — every endpoint requires an authenticated user **unless** the controller/handler is annotated `@PublicApi` (e.g. login, forgot-password). Position/role authorization is enforced per-endpoint via `@PreAuthorize("hasAnyRole(...)")` on controllers (roles map to the `StaffPosition` enum — ADMIN/MANAGER/CASHIER/USHER — plus the `CLIENT` role for client users). There are **two** `DaoAuthenticationProvider`-backed managers (a `CinefyAuthManagers` bean): one over `StaffMemberService`, one over `ClientService`, both with `BCryptPasswordEncoder`.
+- **Spring Security** — wired in `SecurityConfig` (Spring's built-in CSRF off, replaced by a custom double-submit token; CORS allow-list of both `app.frontend.mgmt.url` and `app.frontend.client.url`; stateless sessions; `@EnableMethodSecurity`). Authentication is JWT-in-cookie, **partitioned per frontend by `AuthContext`** (see _Auth contexts_ below): `JwtAuthenticationFilter` resolves the caller's context from the `X-Auth-Context` header, reads that context's access-token cookie (`mgmt_accessToken` / `client_accessToken`), validates it (with an `InvalidJwtService` blocklist check), verifies the token's `userType` claim matches the context, and populates a `UserPrincipal`; a `CsrfValidationFilter` (after `UsernamePasswordAuthenticationFilter`) enforces a double-submit CSRF token (the context's `mgmt_XSRF-TOKEN` / `client_XSRF-TOKEN` cookie vs. the shared `X-XSRF-TOKEN` header) for authenticated non-safe, non-`@PublicApi` requests (`CsrfProtectionMatcher`). `CinefyApiAuthorizationManager` gates `anyRequest()` — every endpoint requires an authenticated user **unless** the controller/handler is annotated `@PublicApi` (e.g. login, forgot-password). Position/role authorization is enforced per-endpoint via `@PreAuthorize("hasAnyAuthority(...)")` on controllers (roles map to the `StaffPosition` enum — ADMIN/MANAGER/CASHIER/USHER — plus the `CLIENT` role for client users). There are **two** `DaoAuthenticationProvider`-backed managers (a `CinefyAuthManagers` bean): one over `StaffMemberService`, one over `ClientService`, both with `BCryptPasswordEncoder`.
 - **Spring Mail + Thymeleaf** — `EmailService` sends email-verification and password-reset OTP emails (`sendEmailVerificationOtp` / `sendPasswordResetOtp`); mail bean wired in `AppConfig`.
 - **Scheduling** — `@EnableScheduling` on `CinefyApplication`; jobs live under `job/`: `ShowtimeStatusJob` (cron `0 * * * * *`), `TmdbSyncJob` (cron `0 0 3 * * *`), `BookingCleanupJob` (cron `0 * * * * *`), `OtpCleanupJob` (cron `0 0 3 * * *`), `InvalidJwtCleanupJob` (cron `0 0 3 * * *`)
 - **AOP** — `RequestLoggingAspect` (around any `@RestController`) and `TransactionLoggingAspect` (around any `@Transactional`) under `aspect/`, both delegating to `LoggingUtil`
@@ -272,7 +272,16 @@ Both frontends run on the same host, so a single set of cookie names at path `/`
 
 **Renaming the cookies invalidates every existing session.** Anyone holding the old `accessToken`/`XSRF-TOKEN` is silently logged out, and the stale cookies linger until they expire.
 
-- Endpoint authorization uses `@PreAuthorize("hasAnyRole(...)")` on controllers, keyed to `StaffPosition` (`ADMIN`, `MANAGER`, `CASHIER`, `USHER`) plus the `CLIENT` role for client-facing endpoints. When adding an endpoint, put the role rule on the controller method/class (not the service) to match the existing pattern. `CinefyAuthenticationEntryPoint` returns the 401 body for unauthenticated requests.
+- Endpoint authorization uses `@PreAuthorize("hasAnyAuthority(...)")` on controllers, keyed to `StaffPosition` (`ADMIN`, `MANAGER`, `CASHIER`, `USHER`) plus the `CLIENT` role for client-facing endpoints. When adding an endpoint, put the role rule on the controller method/class (not the service) to match the existing pattern. `CinefyAuthenticationEntryPoint` returns the 401 body for unauthenticated requests.
+
+  **Authorities are stored bare, with no `ROLE_` prefix** — `UserPrincipal.buildAuthorities` emits
+  `new SimpleGrantedAuthority("ADMIN")`, not `"ROLE_ADMIN"`. Always use
+  **`hasAuthority` / `hasAnyAuthority`**; **never `hasRole` / `hasAnyRole`**. Those two are sugar for
+  `hasAuthority("ROLE_" + x)`, so they silently look up an authority that does not exist here and
+  deny every request — a failure that looks like a permissions bug, not a typo. Nothing else in the
+  app depends on the prefix (the JWT's `position` claim has always stored the bare value), and there
+  is no `GrantedAuthorityDefaults` bean re-introducing one.
+
 - `BCryptPasswordEncoder` bean (in `AppConfig`) — used by `StaffMemberService` when storing/updating `password`.
 - `CredentialCipher` (AES-256-GCM, `cinefy.encryption.key` required, Base64-encoded 32-byte key) — encrypts the whole `PaymentGateway.credentials` JSON blob at rest (for Paymob: `secretKey`, `publicKey`, `hmacKey`). The cipher output prepends a fresh IV per call and tags the value with the GCM authentication tag. Its `base64:base64` output is why `credentials` is a **TEXT** column, not JSONB.
 
@@ -457,7 +466,7 @@ All endpoints `@PublicApi` (skip authentication) **except** `/logout`. Session/r
 
 ### `/halls` — HallController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`, **except** `GET /halls/types` which is `@PublicApi` + `permitAll()` (the client reads hall types unauthenticated).
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`, **except** `GET /halls/types` which is `@PublicApi` + `permitAll()` (the client reads hall types unauthenticated).
 
 | Method | Path                   | Input                     | Output                         |
 | ------ | ---------------------- | ------------------------- | ------------------------------ |
@@ -475,7 +484,7 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`, **except** `GET /
 
 ### `/movies` — TmdbMovieController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`; the three client-facing reads and `GET /movies/{id}` are `@PublicApi`.
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`; the three client-facing reads and `GET /movies/{id}` are `@PublicApi`.
 
 | Method | Path                         | Input                  | Output / Effect            | Access        |
 | ------ | ---------------------------- | ---------------------- | -------------------------- | ------------- |
@@ -492,7 +501,7 @@ Note: `{id}` is the raw TMDB id, **not** a uuid — `TmdbMovie` isn't a `BaseEnt
 
 ### `/showtimes` — ShowtimeController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`; the three read endpoints `GET /showtimes/movies`, `/movie-dates`, and `/movie-day` widen to also allow `CASHIER` (they back the booking flow).
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`; the three read endpoints `GET /showtimes/movies`, `/movie-dates`, and `/movie-day` widen to also allow `CASHIER` (they back the booking flow).
 
 | Method | Path                          | Input                       | Output                          |
 | ------ | ----------------------------- | --------------------------- | ------------------------------- |
@@ -509,9 +518,9 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`; the three read en
 
 ### `/staff` — StaffMemberController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. The self-service `/staff/me` endpoints and `GET /staff/{uuid}` override it with `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")` so any logged-in **staff member** can reach them (the per-row view/edit rules are then enforced in the service — see _Admin Account Policy_).
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`. The self-service `/staff/me` endpoints and `GET /staff/{uuid}` override it with `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")` so any logged-in **staff member** can reach them (the per-row view/edit rules are then enforced in the service — see _Admin Account Policy_).
 
-> These four were previously `isAuthenticated()`, which a logged-in **CLIENT** also satisfies — `ROLE_CLIENT` passed the authorization layer and reached the service. Do **not** use `isAuthenticated()` on a staff endpoint: spell out the four positions. It is load-bearing beyond access control, because `UserPrincipal.getPosition()` is `null` for clients and `validateCanViewStaffMember` dereferences it.
+> These four were previously `isAuthenticated()`, which a logged-in **CLIENT** also satisfies — the `CLIENT` authority passed the authorization layer and reached the service. Do **not** use `isAuthenticated()` on a staff endpoint: spell out the four positions. It is load-bearing beyond access control, because `UserPrincipal.getPosition()` is `null` for clients and `validateCanViewStaffMember` dereferences it.
 
 | Method | Path                       | Input                  | Output / Effect                              |
 | ------ | -------------------------- | ---------------------- | -------------------------------------------- |
@@ -530,7 +539,7 @@ Phone numbers in `StaffMemberDTO` / `UpdateProfileDTO` are validated/normalized 
 
 ### `/payment-gateways` — PaymentGatewayController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`.
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`.
 
 | Method | Path                              | Input              | Output                       |
 | ------ | --------------------------------- | ------------------ | ---------------------------- |
@@ -587,7 +596,7 @@ CREATE UNIQUE INDEX UK_PAYMENT_GATEWAYS_CODE
 
 ### `/booking` — BookingController
 
-Access is **not** uniform here — check the column. Five handlers are `@PublicApi` + `permitAll()` (the three browse reads **plus the two Paymob callbacks**, which arrive unauthenticated and are instead authenticated by HMAC); the booking lifecycle is `hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')`; the online-payment endpoints are **`hasRole('CLIENT')`** only; and on-site settle is **staff-only** (no CLIENT). Ticket scanning is the **only** endpoint in the app that grants `USHER` — it is `hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')`, since verifying tickets at the door is the usher's job. The class is `@Validated` (needed for the `@Pattern` on the `Idempotency-Key` header **and** on the `bookingReference` path variable).
+Access is **not** uniform here — check the column. Five handlers are `@PublicApi` + `permitAll()` (the three browse reads **plus the two Paymob callbacks**, which arrive unauthenticated and are instead authenticated by HMAC); the booking lifecycle is `hasAnyAuthority('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')`; the online-payment endpoints are **`hasAuthority('CLIENT')`** only; and on-site settle is **staff-only** (no CLIENT). Ticket scanning is the **only** endpoint in the app that grants `USHER` — it is `hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER', 'USHER')`, since verifying tickets at the door is the usher's job. The class is `@Validated` (needed for the `@Pattern` on the `Idempotency-Key` header **and** on the `bookingReference` path variable).
 
 | Method | Path                             | Input                                            | Output / Effect               | Access                                 |
 | ------ | -------------------------------- | ------------------------------------------------ | ----------------------------- | -------------------------------------- |
@@ -612,7 +621,7 @@ Access is **not** uniform here — check the column. Five handlers are `@PublicA
 
 ### `/client` — ClientController
 
-Class-level `@PreAuthorize("hasRole('CLIENT')")`.
+Class-level `@PreAuthorize("hasAuthority('CLIENT')")`.
 
 | Method | Path                                | Input                   | Output / Effect                   |
 | ------ | ----------------------------------- | ----------------------- | --------------------------------- |
@@ -690,7 +699,7 @@ UI can render "set" vs "change".
 
 ### `/statistics` — StatisticsController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. All three endpoints bind the same
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`. All three endpoints bind the same
 `DateRangeDTO` via `@Valid @ModelAttribute` (query params, not a body).
 
 | Method | Path                  | Input                | Output                      |

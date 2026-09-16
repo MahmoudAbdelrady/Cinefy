@@ -28,8 +28,6 @@ public class UserPrincipal implements UserDetails {
 
     private final List<SimpleGrantedAuthority> authorities;
 
-    private static final String ROLE_PREFIX = "ROLE_";
-
     @Override
     public String getUsername() {
         return email;
@@ -73,6 +71,6 @@ public class UserPrincipal implements UserDetails {
         String role = type.equals(UserType.CLIENT) ? UserType.CLIENT.name() : position;
         return role == null || role.isEmpty()
                 ? List.of()
-                : List.of(new SimpleGrantedAuthority(ROLE_PREFIX + role));
+                : List.of(new SimpleGrantedAuthority(role));
     }
 }

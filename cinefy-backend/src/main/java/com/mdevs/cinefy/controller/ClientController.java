@@ -23,7 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/client")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('CLIENT')")
+@PreAuthorize("hasAuthority('CLIENT')")
 public class ClientController {
 
     private final ClientService clientService;

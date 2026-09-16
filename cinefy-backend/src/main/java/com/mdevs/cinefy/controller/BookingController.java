@@ -76,37 +76,37 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getSeatSelection(uuid));
     }
 
-    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
     @GetMapping("/active")
     public ResponseEntity<List<BookingSummaryDTO>> getActiveBookings() {
         return ResponseEntity.ok(bookingService.getActiveBookings());
     }
 
-    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
     @GetMapping("/active/{uuid}")
     public ResponseEntity<BookingDetailDTO> getActiveBookingDetails(@PathVariable String uuid) {
         return ResponseEntity.ok(bookingService.getActiveBookingDetails(uuid));
     }
 
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAuthority('CLIENT')")
     @GetMapping("/past")
     public ResponseEntity<Page<PastBookingDTO>> getPastBookings(Pageable pageable) {
         return ResponseEntity.ok(bookingService.getPastBookings(pageable));
     }
 
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAuthority('CLIENT')")
     @GetMapping("/past/{uuid}")
     public ResponseEntity<BookingConfirmationDTO> getPastBookingDetails(@PathVariable String uuid) {
         return ResponseEntity.ok(bookingService.getPastBookingDetails(uuid));
     }
 
-    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
     @GetMapping("/{uuid}/confirmation")
     public ResponseEntity<BookingConfirmationDTO> getBookingConfirmation(@PathVariable String uuid) {
         return ResponseEntity.ok(bookingService.getBookingConfirmation(uuid));
     }
 
-    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
     @PostMapping
     public ResponseEntity<BookingDetailDTO> createBooking(@Valid @RequestBody BookingRequestDTO dto,
                                                           @RequestHeader("Idempotency-Key")
@@ -115,21 +115,21 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(dto, idempotencyKey));
     }
 
-    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')")
     @DeleteMapping("/{uuid}")
     public ResponseEntity<Void> cancelBooking(@PathVariable String uuid) {
         bookingService.cancelBooking(uuid);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER')")
     @PostMapping("/{uuid}/settle")
     public ResponseEntity<BookingConfirmationDTO> settleOnSitePayment(@PathVariable String uuid,
                                                                       @Valid @RequestBody OnSitePaymentDTO dto) {
         return ResponseEntity.ok(bookingService.settleOnSitePayment(uuid, dto));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")
     @PostMapping("/tickets/{bookingReference}/scan")
     public ResponseEntity<BookingConfirmationDTO> scanTicket(@PathVariable
                                                              @Pattern(regexp = ValidationPatterns.ALPHANUMERIC, message = "Booking reference may only contain letters and numbers")
@@ -137,13 +137,13 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.scanTicket(bookingReference));
     }
 
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAuthority('CLIENT')")
     @PostMapping("/{uuid}/pay")
     public ResponseEntity<RedirectionDTO> payBooking(@PathVariable String uuid) {
         return ResponseEntity.ok(bookingService.createPaymentCheckout(uuid));
     }
 
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAuthority('CLIENT')")
     @PostMapping("/{uuid}/pay-saved-card")
     public ResponseEntity<RedirectionDTO> paySavedCard(@PathVariable String uuid,
                                                               @Valid @RequestBody SavedCardPaymentDTO dto) {
