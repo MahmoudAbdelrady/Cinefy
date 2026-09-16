@@ -12,6 +12,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -30,7 +31,7 @@ public class CinefyExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<?> handleBusinessException(BusinessException ex) {
-        return ExceptionResponseMaker.makeResponse(ex.getMessage(), ex.getErrorCode(), HttpStatus.BAD_REQUEST);
+        return ExceptionResponseMaker.makeResponse(ex.getMessage(), ex.getErrorCode(), HttpStatus.UNPROCESSABLE_CONTENT);
     }
 
     @ExceptionHandler(NotFoundException.class)
@@ -73,7 +74,7 @@ public class CinefyExceptionHandler {
             errorMap.put("message", errorMessage);
             return errorMap;
         }).toList();
-        return ExceptionResponseMaker.makeResponse("Validation Error", errorsList, HttpStatus.BAD_REQUEST);
+        return ExceptionResponseMaker.makeResponse("Validation Error", errorsList, HttpStatus.UNPROCESSABLE_CONTENT);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -88,7 +89,12 @@ public class CinefyExceptionHandler {
             errorMap.put("message", violation.getMessage());
             return errorMap;
         }).toList();
-        return ExceptionResponseMaker.makeResponse("Validation Error", errorsList, HttpStatus.BAD_REQUEST);
+        return ExceptionResponseMaker.makeResponse("Validation Error", errorsList, HttpStatus.UNPROCESSABLE_CONTENT);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException exception) {
+        return ExceptionResponseMaker.makeResponse("Malformed request body", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConflictException.class)

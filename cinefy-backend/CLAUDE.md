@@ -198,16 +198,29 @@ Entities with user-facing names (Hall, HallType) derive a `code` field via a sta
 
 Global `@RestControllerAdvice` in `CinefyExceptionHandler`:
 
-- `BusinessException` → 400 (carries an optional `ErrorCode`: `OTP_INVALID`, `PASSWORD_REUSED`, `PASSWORD_INCORRECT`, `ACCOUNT_NOT_VERIFIED`, `PAYMENT_NOT_ATTEMPTED` — surfaced to the frontend as a JSON `errorCode`). Add an `ErrorCode` only when the frontend must branch on _which_ 400 it got; otherwise the message alone is enough.
+- `BusinessException` → **422** (carries an optional `ErrorCode`: `OTP_INVALID`, `PASSWORD_REUSED`, `PASSWORD_INCORRECT`, `ACCOUNT_NOT_VERIFIED`, `PAYMENT_NOT_ATTEMPTED` — surfaced to the frontend as a JSON `errorCode`). Add an `ErrorCode` only when the frontend must branch on _which_ 422 it got; otherwise the message alone is enough.
+
+  **Everything the server understood but refused is 422.** `BusinessException` (domain rules) and
+  `BindException` / `ConstraintViolationException` (field-level validation) all return
+  `UNPROCESSABLE_CONTENT` — in each case the request parsed fine and the server simply would not act
+  on it. **400 is reserved for requests the server could not parse at all**
+  (`HttpMessageNotReadableException`). A frontend distinguishing "rejected for a domain reason" from
+  "rejected for a bad field" cannot use the status — it must read the body: business errors carry
+  `errorCode`, validation errors carry `"Validation Error"` plus a field-level `errors` list.
+
 - `NotFoundException` → 404
-- `ConflictException` → 409 (same shape as `BusinessException`, optional `ErrorCode`). Thrown **only** from inside a `catch (DataIntegrityViolationException)` — i.e. a constraint the DB actually rejected, not a pre-check. An `existsBy*` pre-check that fails is ordinary validation and stays a `BusinessException` → 400.
+- `ConflictException` → 409 (same shape as `BusinessException`, optional `ErrorCode`). Thrown **only** from inside a `catch (DataIntegrityViolationException)` — i.e. a constraint the DB actually rejected, not a pre-check. An `existsBy*` pre-check that fails is ordinary validation and stays a `BusinessException` → 422.
 - `DataIntegrityViolationException` → 409 `"A record with the same unique value already exists"`
 - `UnauthorizedException` / `AuthenticationException` / `JwtException` → 401
 - `ForbiddenException` / `AuthorizationDeniedException` → 403. `ForbiddenException` carries an optional `ErrorCode` **and an optional `Object data`** payload (3-arg constructor), serialized as `data` on the response — the OAuth callback uses `Map.of("email", ...)` with `ACCOUNT_NOT_VERIFIED` so the frontend can prefill its OTP screen.
-- `BindException` / `ConstraintViolationException` → 400 with field-level errors.
+- `BindException` / `ConstraintViolationException` → **422** with field-level errors.
   The handler is registered on `BindException` (not its subclass `MethodArgumentNotValidException`)
   so it covers **both** `@Valid @RequestBody` and `@Valid @ModelAttribute` query-param binding —
   the latter throws the superclass, and would otherwise fall through to the generic 500.
+- `HttpMessageNotReadableException` → **400** `"Malformed request body"`. This is the one genuine
+  400 in the app: the request could not be parsed at all (invalid JSON, wrong content type), so the
+  server never got as far as validating it. Previously unhandled — it fell through to the generic
+  `Exception` handler and returned a misleading **500**.
 - Generic `Exception` → 500 (message hidden in production)
 
 Responses use the `CinefyExceptionResponse` record.
@@ -689,14 +702,14 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. All three endpoin
 `from`/`to` are ISO `yyyy-MM-dd` (`@DateTimeFormat(ISO.DATE)`), both `@NotNull`. `@ModelAttribute`
 binding failures raise **`BindException`**, not `MethodArgumentNotValidException` — the global
 handler is registered on `BindException` (the superclass) so both query-param and request-body
-validation produce the same field-level 400.
+validation produce the same field-level 422.
 
 ### Statistics conventions
 
 **One validator, four rules.** `StatisticsService.validateDateRange(DateRangeDTO)` is `public
 static` so every statistics endpoint calls the same rules: `from <= to`, span ≤ 1 year, `from` not
 before the start of last calendar year, and `to` not after today. The `@NotNull` checks stay on the
-DTO; these four are `BusinessException` → 400.
+DTO; these four are `BusinessException` → 422.
 
 **Every statistics query filters `s.status IN REPORTABLE_STATUSES`.** DRAFT showtimes are excluded
 from revenue, ticket counts, and capacity alike — an unpublished schedule with test bookings must
