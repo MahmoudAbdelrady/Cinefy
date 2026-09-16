@@ -16,7 +16,6 @@ import com.mdevs.cinefy.dto.staff.StaffMemberSummaryDTO;
 import com.mdevs.cinefy.entity.enums.EmploymentType;
 import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.entity.enums.StaffPosition;
-import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.StaffMemberRepository;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
@@ -150,7 +149,6 @@ public class StaffMemberService implements UserDetailsService {
         StaffMember admin = new StaffMember();
         admin.setFirstName("System");
         admin.setLastName("Administrator");
-        admin.setFullName(User.toFullName(admin.getFirstName(), admin.getLastName()));
         admin.setEmail(email);
         admin.setPhoneNumber("0000000000");
         admin.setPassword(passwordEncoder.encode(rawPassword));
@@ -189,7 +187,6 @@ public class StaffMemberService implements UserDetailsService {
 
         staffMember.setFirstName(dto.getFirstName());
         staffMember.setLastName(dto.getLastName());
-        staffMember.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
         staffMember.setPhoneNumber(normalizedPhoneNumber);
 
         staffMemberRepository.save(staffMember);
@@ -320,7 +317,6 @@ public class StaffMemberService implements UserDetailsService {
 
         staffMember.setFirstName(dto.getFirstName());
         staffMember.setLastName(dto.getLastName());
-        staffMember.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
         staffMember.setEmail(normalizedEmail);
         staffMember.setPhoneNumber(normalizedPhoneNumber);
         staffMember.setPosition(position);
