@@ -141,7 +141,7 @@ public class ClientAuthController {
     public ResponseEntity<Void> session(HttpServletRequest request) {
         String refreshToken = CookieUtil.readCookie(request, AUTH_CONTEXT.refreshTokenCookie());
         boolean valid = jwtSessionService.isRefreshTokenValid(refreshToken);
-        return valid ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return valid ? ResponseEntity.noContent().build() : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @PublicApi

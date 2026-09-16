@@ -221,6 +221,14 @@ Global `@RestControllerAdvice` in `CinefyExceptionHandler`:
   400 in the app: the request could not be parsed at all (invalid JSON, wrong content type), so the
   server never got as far as validating it. Previously unhandled — it fell through to the generic
   `Exception` handler and returned a misleading **500**.
+
+**An empty response body is always 204, never 200.** A handler returning `ResponseEntity<Void>` uses
+`ResponseEntity.noContent()`, including when it still sets headers — `AuthCookieResponseFactory`
+builds its `Set-Cookie` headers onto a 204, which RFC 9110 permits. 200 is reserved for responses
+that actually carry a body. Note this applies to the _body_, not to collections: a read returning an
+empty list still answers **200 `[]`**, since `[]` is a valid representation of "no matches" and both
+frontends drive their empty states off `length === 0`.
+
 - Generic `Exception` → 500 (message hidden in production)
 
 Responses use the `CinefyExceptionResponse` record.
@@ -456,10 +464,10 @@ All endpoints `@PublicApi` (skip authentication) **except** `/logout`. Session/r
 
 | Method | Path                                 | Input                  | Output / Effect                                  |
 | ------ | ------------------------------------ | ---------------------- | ------------------------------------------------ |
-| POST   | `/management/auth/login`             | LoginDTO               | 200 + sets access/refresh/CSRF cookies           |
-| POST   | `/management/auth/refresh`           | refresh cookie         | 200 + new access cookie (rotates refresh if any) |
-| GET    | `/management/auth/session`           | refresh cookie         | 200 if valid, else 401                           |
-| POST   | `/management/auth/logout`            | access/refresh cookies | 200 + clears cookies (blocklists tokens)         |
+| POST   | `/management/auth/login`             | LoginDTO               | 204 + sets access/refresh/CSRF cookies           |
+| POST   | `/management/auth/refresh`           | refresh cookie         | 204 + new access cookie (rotates refresh if any) |
+| GET    | `/management/auth/session`           | refresh cookie         | 204 if valid, else 401                           |
+| POST   | `/management/auth/logout`            | access/refresh cookies | 204 + clears cookies (blocklists tokens)         |
 | POST   | `/management/auth/forgot-password`   | ForgotPasswordDTO      | 204 (emails reset OTP)                           |
 | POST   | `/management/auth/verify-reset-code` | OtpCodeDTO             | 204 (validates OTP)                              |
 | POST   | `/management/auth/reset-password`    | ResetPasswordDTO       | 204 (consumes OTP, sets new password)            |
@@ -613,7 +621,7 @@ Access is **not** uniform here — check the column. Five handlers are `@PublicA
 | POST   | `/booking/{uuid}/pay`            |                                                  | RedirectionDTO                | **CLIENT only**                        |
 | POST   | `/booking/{uuid}/pay-saved-card` | SavedCardPaymentDTO                              | RedirectionDTO                | **CLIENT only**                        |
 | GET    | `/booking/payment-redirect`      | flat `Map<String,String>` query params           | 302 FOUND + `Location`        | @PublicApi (HMAC)                      |
-| POST   | `/booking/payment-callback`      | JsonNode body + ?hmac                            | 200 (Paymob webhook)          | @PublicApi (HMAC)                      |
+| POST   | `/booking/payment-callback`      | JsonNode body + ?hmac                            | 204 (Paymob webhook)          | @PublicApi (HMAC)                      |
 
 `handlePaymentCallback` pattern-matches the sealed `PaymentCallbackData` to route a `TransactionCallbackDTO` to `bookingService.applyPaymentResult(...)` and a `CardTokenCallbackDTO` to `clientPaymentMethodService.createMethod(...)`. Note the body is `tools.jackson.databind.JsonNode` — **Jackson 3**, not `com.fasterxml.jackson` (its annotations, however, still live under `com.fasterxml.jackson.annotation`).
 
@@ -645,19 +653,19 @@ All endpoints `@PublicApi` **except** `/logout`. Cookies (`client_accessToken` /
 | POST   | `/client/auth/send-otp`       | SendOtpDTO             | 204 (emails an OTP)                         |
 | POST   | `/client/auth/verify-otp`     | OtpCodeDTO             | 204 (validates OTP)                         |
 | POST   | `/client/auth/reset-password` | ResetPasswordDTO       | 204 (consumes OTP, sets new password)       |
-| POST   | `/client/auth/verify-account` | OtpCodeDTO             | 200 + cookies if verified, else 204         |
-| POST   | `/client/auth/login`          | LoginDTO               | 200 + sets access/refresh/CSRF cookies      |
-| GET    | `/client/auth/session`        | refresh cookie         | 200 if valid, else 401                      |
-| POST   | `/client/auth/refresh`        | refresh cookie         | 200 + new access cookie                     |
-| POST   | `/client/auth/logout`         | access/refresh cookies | 200 + clears cookies (requires auth)        |
+| POST   | `/client/auth/verify-account` | OtpCodeDTO             | 204 + cookies if verified, else 204         |
+| POST   | `/client/auth/login`          | LoginDTO               | 204 + sets access/refresh/CSRF cookies      |
+| GET    | `/client/auth/session`        | refresh cookie         | 204 if valid, else 401                      |
+| POST   | `/client/auth/refresh`        | refresh cookie         | 204 + new access cookie                     |
+| POST   | `/client/auth/logout`         | access/refresh cookies | 204 + clears cookies (requires auth)        |
 
 **OAuth2 social sign-in** — three additional `@PublicApi` endpoints:
 
-| Method | Path                                              | Input                                             | Output / Effect                                       |
-| ------ | ------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------- |
-| GET    | `/client/auth/oauth/{provider}/authorization-url` | provider = `GOOGLE` \| `MICROSOFT`                | 200 RedirectionDTO + sets `oauthState` cookie         |
-| POST   | `/client/auth/oauth/callback`                     | OAuthCallbackDTO + `oauthState` cookie            | 200 (auth cookies) or 200 OAuthRegistrationDTO or 403 |
-| POST   | `/client/auth/oauth/sign-up`                      | OAuthSignUpDTO `{registrationToken, phoneNumber}` | 200 + sets auth cookies                               |
+| Method | Path                                              | Input                                             | Output / Effect                                                     |
+| ------ | ------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------- |
+| GET    | `/client/auth/oauth/{provider}/authorization-url` | provider = `GOOGLE` \| `MICROSOFT`                | 200 RedirectionDTO + sets `oauthState` cookie                       |
+| POST   | `/client/auth/oauth/callback`                     | OAuthCallbackDTO + `oauthState` cookie            | 200 OAuthCallbackResponseDTO (+ auth cookies when signed in) or 403 |
+| POST   | `/client/auth/oauth/sign-up`                      | OAuthSignUpDTO `{registrationToken, phoneNumber}` | 204 + sets auth cookies                                             |
 
 **The redirect target is the frontend, not the backend.** `cinefy.oauth.redirect-uri` is a _path_
 appended to `AppConfig.getFrontendClientUrl()`, so the provider bounces the browser to an Angular

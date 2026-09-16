@@ -173,6 +173,6 @@ public class BookingController {
             case CardTokenCallbackDTO token -> clientPaymentMethodService.createMethod(token);
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

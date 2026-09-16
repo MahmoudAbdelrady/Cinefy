@@ -31,7 +31,7 @@ public class AuthCookieResponseFactory {
 
     public ResponseEntity<Void> tokenResponse(AuthContext context, TokenPairDTO tokens, String refreshTokenPath, List<ResponseCookie> additionalCookies) {
         ResponseCookie accessTokenCookie = cookieUtil.buildAccessTokenCookie(context.accessTokenCookie(), tokens.accessToken(), accessTokenExpiration);
-        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok()
+        ResponseEntity.HeadersBuilder<?> responseBuilder = ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
         if (StringUtils.isNotEmpty(tokens.refreshToken())) {
@@ -53,7 +53,7 @@ public class AuthCookieResponseFactory {
         ResponseCookie clearedRefreshTokenCookie = cookieUtil.buildRefreshTokenCookie(context.refreshTokenCookie(), "", 0, refreshTokenPath);
         ResponseCookie clearedCsrfTokenCookie = cookieUtil.buildCsrfTokenCookie(context.csrfTokenCookie(), "", 0);
 
-        return ResponseEntity.ok()
+        return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, clearedAccessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, clearedRefreshTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, clearedCsrfTokenCookie.toString())
