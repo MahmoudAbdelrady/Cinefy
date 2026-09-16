@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/clients/auth")
+@RequestMapping("/client/auth")
 @RequiredArgsConstructor
 public class ClientAuthController {
 
@@ -50,7 +50,7 @@ public class ClientAuthController {
 
     private final CookieUtil cookieUtil;
 
-    private static final String AUTH_PATH = "/clients/auth";
+    private static final String AUTH_PATH = "/client/auth";
 
     private static final AuthContext AUTH_CONTEXT = AuthContext.CLIENT;
 

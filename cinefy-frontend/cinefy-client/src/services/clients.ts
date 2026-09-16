@@ -25,7 +25,7 @@ export class ClientService {
   private currentUser$: Observable<CurrentUser> | null = null;
 
   getCurrentUser(): Observable<CurrentUser> {
-    this.currentUser$ ??= this.http.get<CurrentUser>('/clients/me').pipe(
+    this.currentUser$ ??= this.http.get<CurrentUser>('/client/me').pipe(
       tap((user) => this.currentUser.next(user)),
       catchError((error) => {
         this.currentUser$ = null;
@@ -39,12 +39,12 @@ export class ClientService {
 
   updateCurrentUser(payload: UpdateProfilePayload): Observable<CurrentUser> {
     return this.http
-      .put<CurrentUser>('/clients/me', payload)
+      .put<CurrentUser>('/client/me', payload)
       .pipe(tap((user) => this.currentUser.next(user)));
   }
 
   changeCurrentUserPassword(payload: ChangePasswordPayload): Observable<void> {
-    return this.http.put<void>('/clients/me/password', payload).pipe(
+    return this.http.put<void>('/client/me/password', payload).pipe(
       tap(() => {
         const user = this.currentUser.value;
         if (user && !user.hasPassword) {
@@ -55,7 +55,7 @@ export class ClientService {
   }
 
   deletePaymentMethod(id: string): Observable<void> {
-    return this.http.delete<void>(`/clients/me/payment-methods/${id}`);
+    return this.http.delete<void>(`/client/me/payment-methods/${id}`);
   }
 
   clearCurrentUser(): void {
@@ -64,6 +64,6 @@ export class ClientService {
   }
 
   getPaymentMethods(): Observable<ClientPaymentMethod[]> {
-    return this.http.get<ClientPaymentMethod[]>('/clients/me/payment-methods');
+    return this.http.get<ClientPaymentMethod[]>('/client/me/payment-methods');
   }
 }

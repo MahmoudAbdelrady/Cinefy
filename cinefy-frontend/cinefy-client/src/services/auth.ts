@@ -25,22 +25,22 @@ export class AuthService {
   private refresh$: Observable<void> | null = null;
 
   signUp(data: SignUpPayload): Observable<void> {
-    return this.http.post<void>('/clients/auth/sign-up', data);
+    return this.http.post<void>('/client/auth/sign-up', data);
   }
 
   verifyAccount(data: OtpCodePayload): Observable<void> {
     return this.http
-      .post<void>('/clients/auth/verify-account', data)
+      .post<void>('/client/auth/verify-account', data)
       .pipe(tap(() => this.authStatus.set(true)));
   }
 
   sendOtp(data: SendOtpPayload): Observable<void> {
-    return this.http.post<void>('/clients/auth/send-otp', data);
+    return this.http.post<void>('/client/auth/send-otp', data);
   }
 
   login(data: LoginPayload, context?: HttpContext): Observable<void> {
     return this.http
-      .post<void>('/clients/auth/login', data, { context })
+      .post<void>('/client/auth/login', data, { context })
       .pipe(tap(() => this.authStatus.set(true)));
   }
 
@@ -48,7 +48,7 @@ export class AuthService {
     const params = redirectUrl ? new HttpParams().set('redirectUrl', redirectUrl) : undefined;
 
     return this.http
-      .get<Redirection>(`/clients/auth/oauth/${provider}/authorization-url`, { params })
+      .get<Redirection>(`/client/auth/oauth/${provider}/authorization-url`, { params })
       .pipe(map((response) => response.url));
   }
 
@@ -57,7 +57,7 @@ export class AuthService {
     context?: HttpContext,
   ): Observable<OAuthCallbackResult> {
     return this.http
-      .post<OAuthCallbackResult | null>('/clients/auth/oauth/callback', data, { context })
+      .post<OAuthCallbackResult | null>('/client/auth/oauth/callback', data, { context })
       .pipe(
         map((result) => result ?? {}),
         tap((result) => this.authStatus.set(!result.registration)),
@@ -66,41 +66,36 @@ export class AuthService {
 
   oAuthSignUp(data: OAuthSignUpPayload, context?: HttpContext): Observable<void> {
     return this.http
-      .post<void>('/clients/auth/oauth/sign-up', data, { context })
+      .post<void>('/client/auth/oauth/sign-up', data, { context })
       .pipe(tap(() => this.authStatus.set(true)));
   }
 
   logout(): Observable<void> {
-    return this.http
-      .post<void>('/clients/auth/logout', null)
-      .pipe(tap(() => this.clearAuthState()));
+    return this.http.post<void>('/client/auth/logout', null).pipe(tap(() => this.clearAuthState()));
   }
 
   verifyOtp(data: VerifyOtpPayload): Observable<void> {
-    return this.http.post<void>('/clients/auth/verify-otp', data);
+    return this.http.post<void>('/client/auth/verify-otp', data);
   }
 
   resetPassword(data: ResetPasswordPayload): Observable<void> {
-    return this.http.post<void>('/clients/auth/reset-password', data);
+    return this.http.post<void>('/client/auth/reset-password', data);
   }
 
   isAuthenticated(): Observable<boolean> {
     const known = this.authStatus();
     if (known !== null) return of(known);
 
-    return this.http.get<void>('/clients/auth/session').pipe(
+    return this.http.get<void>('/client/auth/session').pipe(
       map(() => true),
       catchError(() => of(false)),
       tap((valid) => this.authStatus.set(valid)),
     );
   }
 
-  // Single-flight: concurrent 401s share ONE /refresh execution.
   refresh(): Observable<void> {
-    this.refresh$ ??= this.http.post<void>('/clients/auth/refresh', null).pipe(
-      // Clear the slot once it settles so the next expiry starts a fresh refresh.
+    this.refresh$ ??= this.http.post<void>('/client/auth/refresh', null).pipe(
       finalize(() => (this.refresh$ = null)),
-      // Default refCount (false) + finalize keeps the single execution alive across subscribers.
       shareReplay(1),
     );
     return this.refresh$;

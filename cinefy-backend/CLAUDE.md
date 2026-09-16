@@ -597,45 +597,45 @@ Access is **not** uniform here — check the column. Five handlers are `@PublicA
 
 **`payment-redirect` is the browser's return leg, not the source of truth.** Paymob's "cancel" button calls it with an _empty_ param map, so `handleRedirect` returns null on empty input and the booking service falls back to the client's home URL rather than failing HMAC verification. Settlement itself comes from the webhook.
 
-### `/clients` — ClientController
+### `/client` — ClientController
 
 Class-level `@PreAuthorize("hasRole('CLIENT')")`.
 
-| Method | Path                                 | Input                   | Output / Effect                   |
-| ------ | ------------------------------------ | ----------------------- | --------------------------------- |
-| GET    | `/clients/me`                        |                         | CurrentClientDTO                  |
-| PUT    | `/clients/me`                        | UpdateClientProfileDTO  | CurrentClientDTO (own name/phone) |
-| PUT    | `/clients/me/password`               | ChangeClientPasswordDTO | 204 (own password)                |
-| GET    | `/clients/me/payment-methods`        |                         | List<ClientPaymentMethodDTO>      |
-| DELETE | `/clients/me/payment-methods/{uuid}` |                         | 204 (removes a saved card)        |
+| Method | Path                                | Input                   | Output / Effect                   |
+| ------ | ----------------------------------- | ----------------------- | --------------------------------- |
+| GET    | `/client/me`                        |                         | CurrentClientDTO                  |
+| PUT    | `/client/me`                        | UpdateClientProfileDTO  | CurrentClientDTO (own name/phone) |
+| PUT    | `/client/me/password`               | ChangeClientPasswordDTO | 204 (own password)                |
+| GET    | `/client/me/payment-methods`        |                         | List<ClientPaymentMethodDTO>      |
+| DELETE | `/client/me/payment-methods/{uuid}` |                         | 204 (removes a saved card)        |
 
 Phone numbers in `UpdateClientProfileDTO` are validated/normalized with libphonenumber before persistence (`normalizePhoneNumber`), then checked for uniqueness with `existsByPhoneNumberAndIdNot` so the client's own row doesn't collide with itself. `changePassword` verifies `currentPassword` (`PASSWORD_INCORRECT` on mismatch) and shares `applyNewPassword` with the OTP-reset path `updatePassword` — that helper owns the `PASSWORD_REUSED` check and the encode/save.
 
 `deleteMethod` reuses `findOwnedByCurrentClient(uuid)` (the same guard `BookingService` uses before a saved-card charge): the lookup is scoped by uuid **and** the current client's id, so a card belonging to someone else raises `NotFoundException` → **404, not 403** — the response must not reveal that another client's card exists. Deletion is a **hard** delete, unlike `PaymentGateway`'s soft-delete: no entity holds an FK to `ClientPaymentMethod` (the token is only read live during a charge), so removing a row can't orphan a booking.
 
-### `/clients/auth` — ClientAuthController
+### `/client/auth` — ClientAuthController
 
 All endpoints `@PublicApi` **except** `/logout`. Cookies (`client_accessToken` / `client_refreshToken` / `client_XSRF-TOKEN`) are set via `AuthCookieResponseFactory` under `AuthContext.CLIENT`; session/refresh/logout delegate to `JwtSessionService`. Sign-up requires email verification (OTP) before login.
 
-| Method | Path                           | Input                  | Output / Effect                             |
-| ------ | ------------------------------ | ---------------------- | ------------------------------------------- |
-| POST   | `/clients/auth/sign-up`        | SignUpDTO              | 201 (creates unverified client, emails OTP) |
-| POST   | `/clients/auth/send-otp`       | SendOtpDTO             | 204 (emails an OTP)                         |
-| POST   | `/clients/auth/verify-otp`     | OtpCodeDTO             | 204 (validates OTP)                         |
-| POST   | `/clients/auth/reset-password` | ResetPasswordDTO       | 204 (consumes OTP, sets new password)       |
-| POST   | `/clients/auth/verify-account` | OtpCodeDTO             | 200 + cookies if verified, else 204         |
-| POST   | `/clients/auth/login`          | LoginDTO               | 200 + sets access/refresh/CSRF cookies      |
-| GET    | `/clients/auth/session`        | refresh cookie         | 200 if valid, else 401                      |
-| POST   | `/clients/auth/refresh`        | refresh cookie         | 200 + new access cookie                     |
-| POST   | `/clients/auth/logout`         | access/refresh cookies | 200 + clears cookies (requires auth)        |
+| Method | Path                          | Input                  | Output / Effect                             |
+| ------ | ----------------------------- | ---------------------- | ------------------------------------------- |
+| POST   | `/client/auth/sign-up`        | SignUpDTO              | 201 (creates unverified client, emails OTP) |
+| POST   | `/client/auth/send-otp`       | SendOtpDTO             | 204 (emails an OTP)                         |
+| POST   | `/client/auth/verify-otp`     | OtpCodeDTO             | 204 (validates OTP)                         |
+| POST   | `/client/auth/reset-password` | ResetPasswordDTO       | 204 (consumes OTP, sets new password)       |
+| POST   | `/client/auth/verify-account` | OtpCodeDTO             | 200 + cookies if verified, else 204         |
+| POST   | `/client/auth/login`          | LoginDTO               | 200 + sets access/refresh/CSRF cookies      |
+| GET    | `/client/auth/session`        | refresh cookie         | 200 if valid, else 401                      |
+| POST   | `/client/auth/refresh`        | refresh cookie         | 200 + new access cookie                     |
+| POST   | `/client/auth/logout`         | access/refresh cookies | 200 + clears cookies (requires auth)        |
 
 **OAuth2 social sign-in** — three additional `@PublicApi` endpoints:
 
-| Method | Path                                               | Input                                             | Output / Effect                                       |
-| ------ | -------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------- |
-| GET    | `/clients/auth/oauth/{provider}/authorization-url` | provider = `GOOGLE` \| `MICROSOFT`                | 200 RedirectionDTO + sets `oauthState` cookie         |
-| POST   | `/clients/auth/oauth/callback`                     | OAuthCallbackDTO + `oauthState` cookie            | 200 (auth cookies) or 200 OAuthRegistrationDTO or 403 |
-| POST   | `/clients/auth/oauth/sign-up`                      | OAuthSignUpDTO `{registrationToken, phoneNumber}` | 200 + sets auth cookies                               |
+| Method | Path                                              | Input                                             | Output / Effect                                       |
+| ------ | ------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------- |
+| GET    | `/client/auth/oauth/{provider}/authorization-url` | provider = `GOOGLE` \| `MICROSOFT`                | 200 RedirectionDTO + sets `oauthState` cookie         |
+| POST   | `/client/auth/oauth/callback`                     | OAuthCallbackDTO + `oauthState` cookie            | 200 (auth cookies) or 200 OAuthRegistrationDTO or 403 |
+| POST   | `/client/auth/oauth/sign-up`                      | OAuthSignUpDTO `{registrationToken, phoneNumber}` | 200 + sets auth cookies                               |
 
 **The redirect target is the frontend, not the backend.** `cinefy.oauth.redirect-uri` is a _path_
 appended to `AppConfig.getFrontendClientUrl()`, so the provider bounces the browser to an Angular
