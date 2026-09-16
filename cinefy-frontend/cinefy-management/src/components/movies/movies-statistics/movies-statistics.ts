@@ -49,7 +49,12 @@ export class MoviesStatisticsComponent {
 
     afterNextRender(() => this.refetch$.next());
 
-    merge(this.showtimeEvents.created$, this.showtimeEvents.deleted$)
+    merge(
+      this.showtimeEvents.created$,
+      this.showtimeEvents.updated$,
+      this.showtimeEvents.deleted$,
+      this.showtimeEvents.singleDeleted$,
+    )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.refetch$.next());
   }
