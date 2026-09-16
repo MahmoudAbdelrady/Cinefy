@@ -1,5 +1,11 @@
 const POSITION_PATTERN = /^([A-Z]+)(\d+)$/;
 
+export function rowLabel(index: number): string {
+  const letter = String.fromCharCode(65 + (index % 26));
+  const repeat = Math.floor(index / 26) + 1;
+  return letter.repeat(repeat);
+}
+
 function rowLabelToIndex(label: string): number {
   const repeat = label.length;
   const letterCode = label.charCodeAt(0) - 65;

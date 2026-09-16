@@ -30,7 +30,7 @@ import { CinefyToastService } from 'cinefy-ui/services';
 import { skipErrorToast } from '../../../app/core/interceptors';
 import { BookingService, ShowtimeEventsService } from '../../../services';
 import { BookingTicketComponent } from '../booking-ticket/booking-ticket';
-import { comparePositions } from '../../halls/seat-layout';
+import { comparePositions, rowLabel } from '../../halls/seat-layout';
 import {
   CheckIcon,
   ClockIcon,
@@ -66,7 +66,7 @@ function seatCategory(id: string, layout: ShowtimeSeatLayout): SeatCategory {
 function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Seat[][] {
   const { numberOfRows, seatsPerRow, layout } = hallLayout;
   return Array.from({ length: numberOfRows }, (_, rowIdx) => {
-    const row = String.fromCharCode(65 + rowIdx);
+    const row = rowLabel(rowIdx);
     return Array.from({ length: seatsPerRow }, (_, colIdx) => {
       const number = colIdx + 1;
       const id = `${row}${number}`;

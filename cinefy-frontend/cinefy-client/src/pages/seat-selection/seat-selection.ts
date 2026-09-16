@@ -17,6 +17,7 @@ import { BookingCancelledComponent, BookingSummaryComponent } from '../../compon
 import { BookingService } from '../../services';
 import { skipErrorToast } from '../../app/core/interceptors';
 import { ArrowLeftIcon, TicketXIcon, TriangleAlertIcon, XIcon } from '../../shared/icons';
+import { rowLabel } from '../../shared/seat-position';
 import type { Seat, SeatCategory } from 'cinefy-ui/types';
 import type {
   ApiError,
@@ -35,7 +36,7 @@ function seatCategory(id: string, layout: SeatLayout): SeatCategory {
 function buildHall(response: SeatLayoutResponse, bookedSeats: Set<string>): Seat[][] {
   const { numberOfRows, seatsPerRow, layout } = response;
   return Array.from({ length: numberOfRows }, (_, rowIdx) => {
-    const row = String.fromCharCode(65 + rowIdx);
+    const row = rowLabel(rowIdx);
     return Array.from({ length: seatsPerRow }, (_, c) => {
       const number = c + 1;
       const id = `${row}${number}`;
