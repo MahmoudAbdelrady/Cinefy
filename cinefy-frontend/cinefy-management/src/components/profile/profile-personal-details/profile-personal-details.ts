@@ -71,6 +71,7 @@ export class ProfilePersonalDetailsComponent {
         Validators.pattern(NAME_PATTERN),
       ],
     }),
+    email: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
     phoneCountry: new FormControl<PhoneCountryCode>(DEFAULT_COUNTRY, {
       nonNullable: true,
       validators: [Validators.required],
@@ -109,6 +110,7 @@ export class ProfilePersonalDetailsComponent {
     this.personalForm.reset({
       firstName: profile.firstName,
       lastName: profile.lastName,
+      email: profile.email,
       phoneCountry: country,
       phoneNumber: nationalNumber,
     });

@@ -15,29 +15,6 @@
   flex-shrink: 0;
 }
 
-.panel-note {
-  @include flex-align;
-  align-items: flex-start;
-  gap: 10px;
-  @include lucide-icon-fix;
-  padding: 12px 16px;
-  background-color: $gray-50;
-  border: 1px solid $gray-100;
-  border-radius: $radius-lg;
-
-  svg {
-    color: $gray-400;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  p {
-    font-size: 12px;
-    line-height: 1.5;
-    color: $gray-500;
-  }
-}
-
 // ─── Read-only info grid ───────────────────────────────────────────────────────
 
 .info-grid {
