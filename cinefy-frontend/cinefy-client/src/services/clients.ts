@@ -17,6 +17,8 @@ import type {
   UpdateProfilePayload,
 } from '../shared/types';
 
+const API_PREFIX = '/client';
+
 @Injectable({ providedIn: 'root' })
 export class ClientService {
   private readonly http = inject(HttpClient);
@@ -25,7 +27,7 @@ export class ClientService {
   private currentUser$: Observable<CurrentUser> | null = null;
 
   getCurrentUser(): Observable<CurrentUser> {
-    this.currentUser$ ??= this.http.get<CurrentUser>('/client/me').pipe(
+    this.currentUser$ ??= this.http.get<CurrentUser>(`${API_PREFIX}/me`).pipe(
       tap((user) => this.currentUser.next(user)),
       catchError((error) => {
         this.currentUser$ = null;
@@ -39,12 +41,12 @@ export class ClientService {
 
   updateCurrentUser(payload: UpdateProfilePayload): Observable<CurrentUser> {
     return this.http
-      .put<CurrentUser>('/client/me', payload)
+      .put<CurrentUser>(`${API_PREFIX}/me`, payload)
       .pipe(tap((user) => this.currentUser.next(user)));
   }
 
   changeCurrentUserPassword(payload: ChangePasswordPayload): Observable<void> {
-    return this.http.put<void>('/client/me/password', payload).pipe(
+    return this.http.put<void>(`${API_PREFIX}/me/password`, payload).pipe(
       tap(() => {
         const user = this.currentUser.value;
         if (user && !user.hasPassword) {
@@ -55,7 +57,7 @@ export class ClientService {
   }
 
   deletePaymentMethod(id: string): Observable<void> {
-    return this.http.delete<void>(`/client/me/payment-methods/${id}`);
+    return this.http.delete<void>(`${API_PREFIX}/me/payment-methods/${id}`);
   }
 
   clearCurrentUser(): void {
@@ -64,6 +66,6 @@ export class ClientService {
   }
 
   getPaymentMethods(): Observable<ClientPaymentMethod[]> {
-    return this.http.get<ClientPaymentMethod[]>('/client/me/payment-methods');
+    return this.http.get<ClientPaymentMethod[]>(`${API_PREFIX}/me/payment-methods`);
   }
 }

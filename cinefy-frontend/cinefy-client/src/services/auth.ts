@@ -15,6 +15,8 @@ import type {
 } from '../shared/types';
 import { ClientService } from './clients';
 
+const API_PREFIX = '/client/auth';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -25,22 +27,22 @@ export class AuthService {
   private refresh$: Observable<void> | null = null;
 
   signUp(data: SignUpPayload): Observable<void> {
-    return this.http.post<void>('/client/auth/sign-up', data);
+    return this.http.post<void>(`${API_PREFIX}/sign-up`, data);
   }
 
   verifyAccount(data: OtpCodePayload): Observable<void> {
     return this.http
-      .post<void>('/client/auth/verify-account', data)
+      .post<void>(`${API_PREFIX}/verify-account`, data)
       .pipe(tap(() => this.authStatus.set(true)));
   }
 
   sendOtp(data: SendOtpPayload): Observable<void> {
-    return this.http.post<void>('/client/auth/send-otp', data);
+    return this.http.post<void>(`${API_PREFIX}/send-otp`, data);
   }
 
   login(data: LoginPayload, context?: HttpContext): Observable<void> {
     return this.http
-      .post<void>('/client/auth/login', data, { context })
+      .post<void>(`${API_PREFIX}/login`, data, { context })
       .pipe(tap(() => this.authStatus.set(true)));
   }
 
@@ -48,7 +50,7 @@ export class AuthService {
     const params = redirectUrl ? new HttpParams().set('redirectUrl', redirectUrl) : undefined;
 
     return this.http
-      .get<Redirection>(`/client/auth/oauth/${provider}/authorization-url`, { params })
+      .get<Redirection>(`${API_PREFIX}/oauth/${provider}/authorization-url`, { params })
       .pipe(map((response) => response.url));
   }
 
@@ -57,7 +59,7 @@ export class AuthService {
     context?: HttpContext,
   ): Observable<OAuthCallbackResult> {
     return this.http
-      .post<OAuthCallbackResult | null>('/client/auth/oauth/callback', data, { context })
+      .post<OAuthCallbackResult | null>(`${API_PREFIX}/oauth/callback`, data, { context })
       .pipe(
         map((result) => result ?? {}),
         tap((result) => this.authStatus.set(!result.registration)),
@@ -66,27 +68,29 @@ export class AuthService {
 
   oAuthSignUp(data: OAuthSignUpPayload, context?: HttpContext): Observable<void> {
     return this.http
-      .post<void>('/client/auth/oauth/sign-up', data, { context })
+      .post<void>(`${API_PREFIX}/oauth/sign-up`, data, { context })
       .pipe(tap(() => this.authStatus.set(true)));
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>('/client/auth/logout', null).pipe(tap(() => this.clearAuthState()));
+    return this.http
+      .post<void>(`${API_PREFIX}/logout`, null)
+      .pipe(tap(() => this.clearAuthState()));
   }
 
   verifyOtp(data: VerifyOtpPayload): Observable<void> {
-    return this.http.post<void>('/client/auth/verify-otp', data);
+    return this.http.post<void>(`${API_PREFIX}/verify-otp`, data);
   }
 
   resetPassword(data: ResetPasswordPayload): Observable<void> {
-    return this.http.post<void>('/client/auth/reset-password', data);
+    return this.http.post<void>(`${API_PREFIX}/reset-password`, data);
   }
 
   isAuthenticated(): Observable<boolean> {
     const known = this.authStatus();
     if (known !== null) return of(known);
 
-    return this.http.get<void>('/client/auth/session').pipe(
+    return this.http.get<void>(`${API_PREFIX}/session`).pipe(
       map(() => true),
       catchError(() => of(false)),
       tap((valid) => this.authStatus.set(valid)),
@@ -94,7 +98,7 @@ export class AuthService {
   }
 
   refresh(): Observable<void> {
-    this.refresh$ ??= this.http.post<void>('/client/auth/refresh', null).pipe(
+    this.refresh$ ??= this.http.post<void>(`${API_PREFIX}/refresh`, null).pipe(
       finalize(() => (this.refresh$ = null)),
       shareReplay(1),
     );
