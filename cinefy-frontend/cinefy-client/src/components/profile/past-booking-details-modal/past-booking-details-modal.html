@@ -49,10 +49,10 @@
           </dd>
         </div>
         <div class="pbdm-row">
-          <dt>{{ detail.seats.length === 1 ? 'Seat' : 'Seats' }}</dt>
+          <dt>{{ sortedSeats().length === 1 ? 'Seat' : 'Seats' }}</dt>
           <dd>
             <ul class="pbdm-seats">
-              @for (seat of detail.seats; track seat.position) {
+              @for (seat of sortedSeats(); track seat.position) {
                 <li class="pbdm-seat">{{ seat.position }}</li>
               }
             </ul>

@@ -8,7 +8,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
 import { BookingService } from '../../services';
 import { skipErrorToast } from '../../app/core/interceptors';
-import { comparePositions } from '../../shared/seat-position';
+import { compareSeatPositions } from 'cinefy-ui/types';
 import type { ApiError, BookingConfirmation, PaymentState } from '../../shared/types';
 import {
   CalendarIcon,
@@ -115,7 +115,7 @@ export class BookingConfirmationPage {
   protected readonly isVoided = computed(() => VOIDED_STATES.has(this.paymentState()!));
 
   protected readonly seatPositions = computed(() =>
-    (this.booking()?.seats ?? []).map((seat) => seat.position).sort(comparePositions),
+    (this.booking()?.seats ?? []).map((seat) => seat.position).sort(compareSeatPositions),
   );
 
   private pollTimer: ReturnType<typeof setTimeout> | null = null;

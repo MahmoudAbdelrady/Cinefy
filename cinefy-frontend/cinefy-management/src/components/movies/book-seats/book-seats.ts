@@ -25,12 +25,17 @@ import {
   CinefyDialogFooter,
   CinefySeatMap,
 } from 'cinefy-ui/components';
-import { SEAT_CATEGORY_LABEL, type Seat, type SeatCategory } from 'cinefy-ui/types';
+import {
+  compareSeatPositions,
+  seatRowLabel,
+  SEAT_CATEGORY_LABEL,
+  type Seat,
+  type SeatCategory,
+} from 'cinefy-ui/types';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { skipErrorToast } from '../../../app/core/interceptors';
 import { BookingService, ShowtimeEventsService } from '../../../services';
 import { BookingTicketComponent } from '../booking-ticket/booking-ticket';
-import { comparePositions, rowLabel } from '../../halls/seat-layout';
 import {
   CheckIcon,
   ClockIcon,
@@ -66,7 +71,7 @@ function seatCategory(id: string, layout: ShowtimeSeatLayout): SeatCategory {
 function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Seat[][] {
   const { numberOfRows, seatsPerRow, layout } = hallLayout;
   return Array.from({ length: numberOfRows }, (_, rowIdx) => {
-    const row = rowLabel(rowIdx);
+    const row = seatRowLabel(rowIdx);
     return Array.from({ length: seatsPerRow }, (_, colIdx) => {
       const number = colIdx + 1;
       const id = `${row}${number}`;
@@ -179,7 +184,7 @@ export class BookSeatsComponent {
   });
 
   protected readonly pricedSeats = computed<BookedSeat[]>(() =>
-    [...this.selectedSeats()].sort((a, b) => comparePositions(a.position, b.position)),
+    [...this.selectedSeats()].sort((a, b) => compareSeatPositions(a.position, b.position)),
   );
 
   protected readonly selectionChanged = computed(() => {
