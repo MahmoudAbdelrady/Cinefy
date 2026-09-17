@@ -107,12 +107,11 @@
 
 .ahi-info-icon {
   @include icon-box(64px);
-  background: linear-gradient(135deg, #3b82f6, $purple-600);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background-color: $gray-100;
   flex-shrink: 0;
 
   svg {
-    color: #ffffff;
+    color: $gray-500;
   }
 
   @include below-mobile {

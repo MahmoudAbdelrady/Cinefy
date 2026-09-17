@@ -1,16 +1,24 @@
 import { Component, computed, effect, inject, input, linkedSignal, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
-import {
-  CinefyEmptyState,
-  CinefyLoadingSpinner,
-  CinefyPaginator,
-} from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyLoadingSpinner, CinefyPaginator } from 'cinefy-ui/components';
 import { ClapperboardIcon, WarningIcon } from '../../../shared/icons';
 import { DEFAULT_PAGE_SIZE } from '../../../shared/constants';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
 import type { DateRange, MoviePerformance } from '../../../shared/types';
+
+const OCCUPANCY_HIGH_THRESHOLD = 70;
+
+const OCCUPANCY_MEDIUM_THRESHOLD = 40;
+
+type OccupancyLevel = 'high' | 'medium' | 'low';
+
+function toOccupancyLevel(occupancy: number): OccupancyLevel {
+  if (occupancy >= OCCUPANCY_HIGH_THRESHOLD) return 'high';
+  if (occupancy >= OCCUPANCY_MEDIUM_THRESHOLD) return 'medium';
+  return 'low';
+}
 
 interface MovieRow {
   rank: number;
@@ -21,6 +29,7 @@ interface MovieRow {
   ticketsSold: number;
   totalSeats: number;
   occupancy: number;
+  occupancyLevel: OccupancyLevel;
 }
 
 @Component({
@@ -53,16 +62,21 @@ export class MoviePerformanceComponent {
   protected readonly failed = signal(false);
 
   protected readonly rows = computed<MovieRow[]>(() =>
-    this.movies().map((movie, index) => ({
-      rank: this.page() * this.pageSize + index + 1,
-      movieTitle: movie.movieTitle,
-      netRevenue: movie.netRevenue,
-      refunded: movie.refunded,
-      totalShowtimes: movie.totalShowtimes,
-      ticketsSold: movie.ticketsSold,
-      totalSeats: movie.totalSeats,
-      occupancy: movie.totalSeats === 0 ? 0 : (movie.ticketsSold / movie.totalSeats) * 100,
-    })),
+    this.movies().map((movie, index) => {
+      const occupancy = movie.totalSeats === 0 ? 0 : (movie.ticketsSold / movie.totalSeats) * 100;
+
+      return {
+        rank: this.page() * this.pageSize + index + 1,
+        movieTitle: movie.movieTitle,
+        netRevenue: movie.netRevenue,
+        refunded: movie.refunded,
+        totalShowtimes: movie.totalShowtimes,
+        ticketsSold: movie.ticketsSold,
+        totalSeats: movie.totalSeats,
+        occupancy,
+        occupancyLevel: toOccupancyLevel(occupancy),
+      };
+    }),
   );
 
   constructor() {

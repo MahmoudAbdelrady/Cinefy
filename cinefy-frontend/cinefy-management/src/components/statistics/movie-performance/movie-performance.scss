@@ -140,8 +140,19 @@
         .mp-occupancy-fill {
           display: block;
           height: 100%;
-          background-color: $blue-500;
           border-radius: $radius-full;
+
+          &[data-level='high'] {
+            background-color: $green-500;
+          }
+
+          &[data-level='medium'] {
+            background-color: $amber-500;
+          }
+
+          &[data-level='low'] {
+            background-color: $red-500;
+          }
         }
       }
 
