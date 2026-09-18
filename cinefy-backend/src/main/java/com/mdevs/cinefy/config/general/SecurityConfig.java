@@ -8,6 +8,8 @@ import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
 import com.mdevs.cinefy.shared.security.CinefyAuthenticationEntryPoint;
 import com.mdevs.cinefy.shared.security.CinefyApiAuthorizationManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -63,7 +65,9 @@ public class SecurityConfig {
                         return corsConfiguration;
                     }))
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                    .authorizeHttpRequests(auth -> auth.anyRequest().access(apiAuthorizationManager))
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
+                            .anyRequest().access(apiAuthorizationManager))
                     .exceptionHandling(handling -> handling.authenticationEntryPoint(authenticationEntryPoint))
                     .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .addFilterAfter(csrfValidationFilter, UsernamePasswordAuthenticationFilter.class);

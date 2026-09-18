@@ -2,14 +2,12 @@ spring:
   application:
     name: Cinefy
 
-  # Common JPA settings
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
       naming:
         physical-strategy: com.mdevs.cinefy.config.database.CinefyTableNamingStrategy
-    # Auditing Configuration
     properties:
       org.hibernate.envers:
         store_data_at_delete: true
@@ -19,10 +17,24 @@ spring:
         modified_flag_suffix: _MODIFIED
         audit_table_suffix: _REVISIONS
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+      group:
+        readiness:
+          include: readinessState, db
+
 # Variables
 app:
   tmdb:
-    api-base-url: https://api.themoviedb.org/3
-    image-base-url: https://image.tmdb.org/t/p
+    api-base-url: ${TMDB_API_BASE_URL:https://api.themoviedb.org/3}
+    image-base-url: ${TMDB_IMAGE_BASE_URL:https://image.tmdb.org/t/p}
   paymob:
-    api-base-url: https://accept.paymob.com
+    api-base-url: ${PAYMOB_API_BASE_URL:https://accept.paymob.com}

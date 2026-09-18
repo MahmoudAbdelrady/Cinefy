@@ -1,0 +1,64 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DATABASE_HOST}/${DATABASE_NAME}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+logging:
+  level:
+    root: error
+
+cinefy:
+  # Email Configuration
+  mail:
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+
+  # Encryption
+  encryption:
+    key: ${ENCRYPTION_KEY}
+
+  # Admin Account
+  admin:
+    email: ${ADMIN_EMAIL}
+    password: ${ADMIN_PASSWORD}
+
+  # JWT
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    access-token-expiration: ${ACCESS_TOKEN_EXPIRATION:900000}
+    refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION:604800000}
+    refresh-token-rotation-threshold: ${REFRESH_TOKEN_ROTATION_THRESHOLD:172800000}
+
+  # OTP
+  otp:
+    expiration-minutes: ${OTP_EXPIRATION_MINUTES:10}
+
+  # OAuth2
+  oauth:
+    registration-token-expiration-minutes: ${REGISTRATION_TOKEN_EXPIRATION_MINUTES:15}
+    google:
+      client-id: ${GOOGLE_CLIENT_ID}
+      client-secret: ${GOOGLE_CLIENT_SECRET}
+    microsoft:
+      client-id: ${MICROSOFT_CLIENT_ID}
+      client-secret: ${MICROSOFT_CLIENT_SECRET}
+    redirect-uri: ${OAUTH_REDIRECT_URI:/membership/oauth/callback}
+
+  # Cookies
+  cookie:
+    secure: true
+    same-site: Lax
+
+# Variables
+app:
+  frontend:
+    mgmt:
+      url: ${FRONTEND_MGMT_URL}
+    client:
+      url: ${FRONTEND_CLIENT_URL}
+  tmdb:
+    access-token: ${TMDB_ACCESS_TOKEN}
