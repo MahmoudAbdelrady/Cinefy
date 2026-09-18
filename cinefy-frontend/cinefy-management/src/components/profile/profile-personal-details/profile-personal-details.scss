@@ -5,10 +5,6 @@
 
 @include profile-panel;
 
-.ph-readonly {
-  @include profile-readonly-badge;
-}
-
 .ph-edit-btn {
   @include lucide-icon-fix;
 

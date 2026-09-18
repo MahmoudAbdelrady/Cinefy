@@ -8,20 +8,20 @@
 
 ## Required Configuration
 
-The app won't boot without these (typically set in `application-local.properties` for dev):
+The app won't boot without these (typically set in `application-local.yml` for dev):
 
 - `cinefy.encryption.key` — Base64-encoded 32-byte AES key for `CredentialCipher` (payment-gateway credential encryption). `CredentialCipher` throws at construction time if missing or wrong length.
 - `cinefy.mail.username` / `cinefy.mail.password` — Gmail SMTP creds for the `JavaMailSender` bean in `AppConfig`.
 - `cinefy.jwt.secret`, `cinefy.jwt.access-token-expiration`, `cinefy.jwt.refresh-token-expiration`, `cinefy.jwt.refresh-token-rotation-threshold` — JWT signing key + token lifetimes (read by `JwtUtil` / `AuthCookieResponseFactory` / `JwtSessionService`).
 - `cinefy.cookie.secure`, `cinefy.cookie.same-site` — auth-cookie flags (read by `CookieUtil`). Cookie **names** are not configurable — they come from `AuthContext` (see _Auth contexts_).
 - `cinefy.admin.email` (required), `cinefy.admin.password` (optional — the admin seed is skipped with a warning if empty) — bootstrap admin account (`CinefyApplication`).
-- `cinefy.otp.expiration-minutes` — OTP lifetime in **minutes**, read by `OtpService`. No default in `application.properties`, so the app won't boot without it. (Renamed from the older millisecond-valued `cinefy.otp.expiration`; a deployment still setting the old key fails to start.)
+- `cinefy.otp.expiration-minutes` — OTP lifetime in **minutes**, read by `OtpService`. No default in `application.yml`, so the app won't boot without it. (Renamed from the older millisecond-valued `cinefy.otp.expiration`; a deployment still setting the old key fails to start.)
 - `cinefy.oauth.redirect-uri` — the OAuth callback **path** (e.g. `/membership/oauth/callback`), concatenated onto `AppConfig.getFrontendClientUrl()`. The provider redirects the browser to the **frontend**, not to a backend endpoint.
 - `cinefy.oauth.google.client-id` / `cinefy.oauth.google.client-secret`, `cinefy.oauth.microsoft.client-id` / `cinefy.oauth.microsoft.client-secret` — per-provider OAuth credentials.
 - `cinefy.oauth.registration-token-expiration-minutes` — lifetime of the encrypted OAuth registration token issued to a first-time social sign-in.
 - `app.frontend.mgmt.url`, `app.frontend.client.url` — the two allowed CORS origins (management + client), read by `SecurityConfig` into a CORS allow-list of both.
-- `app.tmdb.api-base-url`, `app.tmdb.image-base-url` — defaulted in `application.properties` to TMDB v3; the TMDB bearer token `app.tmdb.access-token` is read by `TmdbMovieService`.
-- `app.paymob.api-base-url` — defaulted in `application.properties` to `https://accept.paymob.com`.
+- `app.tmdb.api-base-url`, `app.tmdb.image-base-url` — defaulted in `application.yml` to TMDB v3; the TMDB bearer token `app.tmdb.access-token` is read by `TmdbMovieService`.
+- `app.paymob.api-base-url` — defaulted in `application.yml` to `https://accept.paymob.com`.
 
 ## Stack
 

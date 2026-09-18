@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: Cinefy
+
+  # Common JPA settings
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: com.mdevs.cinefy.config.database.CinefyTableNamingStrategy
+    # Auditing Configuration
+    properties:
+      org.hibernate.envers:
+        store_data_at_delete: true
+        global_with_modified_flag: true
+        revision_field_name: REVISION_ID
+        revision_type_field_name: REVISION_TYPE
+        modified_flag_suffix: _MODIFIED
+        audit_table_suffix: _REVISIONS
+
+# Variables
+app:
+  tmdb:
+    api-base-url: https://api.themoviedb.org/3
+    image-base-url: https://image.tmdb.org/t/p
+  paymob:
+    api-base-url: https://accept.paymob.com
