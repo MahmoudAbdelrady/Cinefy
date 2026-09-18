@@ -16,12 +16,12 @@ RUN mvn -B clean package -DskipTests
 FROM eclipse-temurin:25-jre-alpine-3.24 AS run
 
 RUN addgroup -S -g 1001 cinefy \
-    && adduser -S -u 1001 -G cinefy -H -D cinefy-builder
+    && adduser -S -u 1001 -G cinefy -H -D cinefy-app
 
 WORKDIR /app
 
-COPY --from=build --chown=cinefy-builder:cinefy /build/target/cinefy-*.jar app.jar
+COPY --from=build --chown=cinefy-app:cinefy /build/target/cinefy-*.jar app.jar
 
-USER cinefy-builder:cinefy
+USER cinefy-app:cinefy
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

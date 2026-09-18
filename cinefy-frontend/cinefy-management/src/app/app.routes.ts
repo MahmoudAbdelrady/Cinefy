@@ -14,7 +14,6 @@ import {
   AccessDeniedPage,
   NotFoundPage,
   ProfilePage,
-  TestPage,
 } from '../pages';
 
 export const routes: Routes = [
@@ -81,10 +80,6 @@ export const routes: Routes = [
       {
         path: 'profile',
         component: AccessDeniedPage,
-      },
-      {
-        path: 'test',
-        component: TestPage,
       },
     ],
   },
