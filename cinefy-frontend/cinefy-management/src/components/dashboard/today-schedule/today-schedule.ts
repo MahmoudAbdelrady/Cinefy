@@ -1,13 +1,10 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInMinutes, format, parse, startOfMinute } from 'date-fns';
-import {
-  CinefyEmptyState,
-  CinefyLoadingSpinner,
-  CinefyMediaImage,
-} from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { ShowtimesService } from '../../../services';
+import { DATE_FORMAT, TIME_FORMAT } from '../../../shared/constants';
 import { CalendarClockIcon, CalendarIcon, ClockIcon, TicketIcon } from '../../../shared/icons';
 import type { ScheduledShowtime } from '../../../shared/types';
 import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
@@ -20,10 +17,6 @@ interface ScreeningState {
 const STARTS_SOON_MINUTES = 20;
 
 const TICK_INTERVAL_MS = 30_000;
-
-const TIME_FORMAT = 'HH:mm';
-
-const DATE_FORMAT = 'yyyy-MM-dd';
 
 @Component({
   selector: 'today-schedule',

@@ -55,7 +55,11 @@
                 <td class="mp-cell-occupancy">
                   <div class="mp-occupancy-row">
                     <span class="mp-occupancy-track">
-                      <span class="mp-occupancy-fill" [style.width.%]="row.occupancy"></span>
+                      <span
+                        class="mp-occupancy-fill"
+                        [attr.data-level]="row.occupancyLevel"
+                        [style.width.%]="row.occupancy"
+                      ></span>
                     </span>
                     <span class="mp-occupancy-value">{{ row.occupancy | number: '1.2-2' }}%</span>
                   </div>

@@ -8,7 +8,7 @@ import com.mdevs.cinefy.dto.movie.MovieCredits;
 import com.mdevs.cinefy.dto.movie.MovieDetailDTO;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 import com.mdevs.cinefy.dto.movie.MovieSummaryDTO;
-import com.mdevs.cinefy.dto.movie.MovieWithCommittedShowtimeProjection;
+import com.mdevs.cinefy.projection.movie.MovieWithCommittedShowtimeProjection;
 import com.mdevs.cinefy.dto.movie.NowShowingMovieDTO;
 import com.mdevs.cinefy.dto.movie.UpcomingMovieDTO;
 import com.mdevs.cinefy.entity.TmdbMovie;

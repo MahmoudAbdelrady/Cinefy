@@ -123,7 +123,10 @@
               placeholder="Select end day"
               [control]="staffForm.controls.workingDayEnd"
               [items]="weekDayEntries"
-              [errorMessages]="{ required: 'End day is required' }"
+              [errorMessages]="{
+                required: 'End day is required',
+                workingDays: workingDaysMessage(),
+              }"
             />
           </div>
         </div>
@@ -142,7 +145,7 @@
               [control]="staffForm.controls.workingHourEnd"
               [errorMessages]="{
                 required: 'End time is required',
-                sameAsStart: 'End time must be different from start time',
+                workingHours: 'Working hours must span exactly 8 hours',
               }"
             />
           </div>

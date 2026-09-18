@@ -125,52 +125,15 @@
   @include flex-center;
   flex-shrink: 0;
   overflow: hidden;
+  background-color: $gray-900;
   color: #ffffff;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.025em;
-  box-shadow: 0 8px 20px -10px rgba(30, 41, 59, 0.5);
-  background-image: linear-gradient(135deg, #6366f1, #6366f1 50%, #7c3aed);
-
-  // Default ring (overridden per position)
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    box-shadow: inset 0 0 0 1px rgba(199, 210, 254, 0.7);
-    pointer-events: none;
-  }
-
-  // Inner soft inset (mirrors `inset-[3px] rounded-[14px]`)
-  .si-img-ink {
-    position: absolute;
-    inset: 3px;
-    border-radius: 14px;
-    pointer-events: none;
-  }
-
-  // Top-right glow (mirrors `-top-3 -right-3 w-10 h-10 bg-white/15 blur-md`)
-  .si-img-glow {
-    position: absolute;
-    top: -12px;
-    right: -12px;
-    width: 40px;
-    height: 40px;
-    border-radius: $radius-pill;
-    background-color: rgba(255, 255, 255, 0.15);
-    filter: blur(12px);
-    pointer-events: none;
-  }
 
   .si-img-initials {
-    position: relative;
     user-select: none;
   }
-
-  // Position-specific gradients (shared mixin) + per-position rings
-  @include staff-position-gradients;
-  @include staff-position-ring-on-pseudo;
 }
 
 // ─── Name + position chip + contact ─────────────────────────────────────────────

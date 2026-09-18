@@ -1,6 +1,6 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 
-const CSRF_COOKIE = 'XSRF-TOKEN';
+const CSRF_COOKIE = 'mgmt_XSRF-TOKEN';
 const CSRF_HEADER = 'X-XSRF-TOKEN';
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS', 'TRACE']);
 

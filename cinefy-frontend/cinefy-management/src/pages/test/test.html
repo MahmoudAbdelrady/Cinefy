@@ -6,44 +6,66 @@
     </p>
   </header>
 
-  <section class="test-sandbox">
-    <h2 class="test-sandbox-title">OTP form</h2>
+  <!-- <section class="test-sandbox">
+    <h2 class="test-sandbox-title">Booking ticket — inline (works)</h2>
 
     <div class="test-sandbox-body">
-      <form class="test-form" (ngSubmit)="onSubmit()">
-        <div (keydown.enter)="pseudoEnter.update((n) => n + 1)" (keydown)="onRawKeydown($event)">
-          <cui-input-otp [control]="code" (onEnter)="onSubmit()" />
-        </div>
+      <booking-ticket [ticket]="mockTicket" />
+    </div>
+  </section> -->
 
-        <button type="submit" class="btn-primary">Verify code</button>
-      </form>
+  <section class="test-sandbox">
+    <h2 class="test-sandbox-title">Booking ticket — single dialog (works)</h2>
 
-      <dl class="test-readout">
-        <div class="test-readout-row">
-          <dt>Submits</dt>
-          <dd>{{ submitCount() }}</dd>
-        </div>
-        <div class="test-readout-row">
-          <dt>Raw enter keydowns</dt>
-          <dd>{{ rawEnter() }}</dd>
-        </div>
-        <div class="test-readout-row">
-          <dt>(keydown.enter) fired</dt>
-          <dd>{{ pseudoEnter() }}</dd>
-        </div>
-        <div class="test-readout-row">
-          <dt>(onEnter) fired</dt>
-          <dd>{{ outputFired() }}</dd>
-        </div>
-        <div class="test-readout-row">
-          <dt>Value</dt>
-          <dd>{{ code.value || '—' }}</dd>
-        </div>
-        <div class="test-readout-row">
-          <dt>Last submitted</dt>
-          <dd>{{ lastSubmitted() || '—' }}</dd>
-        </div>
-      </dl>
+    <div class="test-sandbox-body">
+      <button type="button" class="btn-primary" (click)="singleDialogVisible.set(true)">
+        Open in dialog
+      </button>
+    </div>
+  </section>
+
+  <section class="test-sandbox">
+    <h2 class="test-sandbox-title">Booking ticket — nested dialog (the real case)</h2>
+
+    <div class="test-sandbox-body">
+      <button type="button" class="btn-primary" (click)="outerDialogVisible.set(true)">
+        Open outer dialog
+      </button>
     </div>
   </section>
 </div>
+
+@if (singleDialogVisible()) {
+  <cui-dialog
+    header="Book Seats"
+    description="Ticket inside one portaled dialog"
+    [style]="{ width: '1200px' }"
+    (closed)="singleDialogVisible.set(false)"
+  >
+    <booking-ticket [ticket]="mockTicket" />
+  </cui-dialog>
+}
+
+@if (outerDialogVisible()) {
+  <cui-dialog
+    header="Movie Showtimes"
+    description="Outer dialog — open the inner one from here"
+    [style]="{ width: '900px' }"
+    (closed)="outerDialogVisible.set(false)"
+  >
+    <button type="button" class="btn-primary" (click)="innerDialogVisible.set(true)">
+      Open Book Seats
+    </button>
+  </cui-dialog>
+}
+
+@if (innerDialogVisible()) {
+  <cui-dialog
+    header="Book Seats"
+    description="Inner dialog — same nesting as movie-showtimes-modal → book-seats"
+    [style]="{ width: '1200px' }"
+    (closed)="innerDialogVisible.set(false)"
+  >
+    <booking-ticket [ticket]="mockTicket" />
+  </cui-dialog>
+}

@@ -11,6 +11,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { merge } from 'rxjs';
+import { addDays, differenceInMinutes, parse } from 'date-fns';
 import { CheckIcon, EmailIcon, KeyIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import { RadioButton } from 'primeng/radiobutton';
 import {
@@ -43,6 +45,29 @@ import {
 import { StaffService } from '../../../services';
 import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
 import { assignableStaffPositions } from '../../../shared/access';
+import { TIME_FORMAT } from '../../../shared/constants';
+
+const WEEK_DAYS = Object.keys(WEEK_DAY_LABELS) as WeekDay[];
+
+const WORKING_DAY_RANGES: Record<EmploymentType, { min: number; max: number }> = {
+  FULL_TIME: { min: 5, max: 6 },
+  PART_TIME: { min: 2, max: 4 },
+};
+
+const REQUIRED_WORKING_MINUTES = 8 * 60;
+
+function countDaysInRange(start: WeekDay, end: WeekDay): number {
+  const diff = WEEK_DAYS.indexOf(end) - WEEK_DAYS.indexOf(start);
+  // Wrap a negative diff into 0-6 so a week crossing Sunday still counts forward, +1 to include both days
+  return (((diff % WEEK_DAYS.length) + WEEK_DAYS.length) % WEEK_DAYS.length) + 1;
+}
+
+function countMinutesInRange(start: string, end: string): number {
+  const reference = new Date();
+  const startTime = parse(start, TIME_FORMAT, reference);
+  const endTime = parse(end, TIME_FORMAT, reference);
+  return differenceInMinutes(endTime <= startTime ? addDays(endTime, 1) : endTime, startTime);
+}
 
 @Component({
   selector: 'manage-staff-modal',
@@ -183,6 +208,15 @@ export class ManageStaffModalComponent {
     initialValue: this.staffForm.getRawValue(),
   });
 
+  protected readonly workingDaysMessage = computed(() => {
+    this.currentFormValue();
+    const employmentType = this.staffForm.controls.employmentType.value;
+    if (!employmentType) return '';
+    const { min, max } = WORKING_DAY_RANGES[employmentType];
+    const label = EMPLOYMENT_TYPE_LABELS[employmentType];
+    return `A ${label} member must work between ${min} and ${max} days a week`;
+  });
+
   protected readonly hasChanges = computed(() => {
     const snapshot = this.initialFormSnapshot();
     if (snapshot === null) return true;
@@ -195,11 +229,29 @@ export class ManageStaffModalComponent {
       const start = this.staffForm.controls.workingHourStart.value;
       const end = control.value as string;
       if (!start || !end) return null;
-      return start === end ? { sameAsStart: true } : null;
+      return countMinutesInRange(start, end) === REQUIRED_WORKING_MINUTES
+        ? null
+        : { workingHours: true };
     });
     this.staffForm.controls.workingHourStart.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.staffForm.controls.workingHourEnd.updateValueAndValidity());
+
+    this.staffForm.controls.workingDayEnd.addValidators((control) => {
+      const start = this.staffForm.controls.workingDayStart.value;
+      const end = control.value as WeekDay | null;
+      const employmentType = this.staffForm.controls.employmentType.value;
+      if (!start || !end || !employmentType) return null;
+      const { min, max } = WORKING_DAY_RANGES[employmentType];
+      const days = countDaysInRange(start, end);
+      return days < min || days > max ? { workingDays: true } : null;
+    });
+    merge(
+      this.staffForm.controls.workingDayStart.valueChanges,
+      this.staffForm.controls.employmentType.valueChanges,
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.staffForm.controls.workingDayEnd.updateValueAndValidity());
 
     this.staffForm.controls.phoneNumber.addValidators(
       phoneNumberValidator(this.staffForm.controls.phoneCountry),

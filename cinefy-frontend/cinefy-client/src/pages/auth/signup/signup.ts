@@ -18,6 +18,7 @@ import { OAuthButtonsComponent, OtpStep } from '../../../components';
 import { AuthFormStage } from '../../../shared/types';
 import { AuthService } from '../../../services';
 import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
+import { toSafeRedirect } from '../../../shared/redirect';
 import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/icons';
 
 @Component({
@@ -131,6 +132,6 @@ export class SignUpPage {
   }
 
   protected onVerified() {
-    this.router.navigateByUrl(this.route.snapshot.queryParamMap.get('redirectUrl') ?? '/');
+    this.router.navigateByUrl(toSafeRedirect(this.route.snapshot.queryParamMap.get('redirectUrl')));
   }
 }

@@ -7,6 +7,7 @@ import { CinefyFieldError } from "../../field-error/cinefy-field-error";
 import { CinefyLoadingSpinner } from "../../loading-spinner/cinefy-loading-spinner";
 import type { PaginatedResponse } from "cinefy-ui/types";
 import type { AppendTo as PrimeAppendTo } from "primeng/types/shared";
+import { isInvalidAndTouched } from "../../field-error/control-state";
 
 const LOAD_MORE_OPTION = {
   label: "Load More",
@@ -59,6 +60,8 @@ export class CinefyPaginatedSelect<T> {
   private readonly controlStatus = toSignal(
     toObservable(this.control).pipe(switchMap((c) => c.statusChanges.pipe(startWith(c.status)))),
   );
+
+  protected readonly isInvalid = isInvalidAndTouched(this.control);
 
   protected readonly isRequired = computed(() => {
     const required = this.required();

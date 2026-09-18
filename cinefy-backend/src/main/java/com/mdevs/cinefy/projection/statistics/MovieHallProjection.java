@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.dto.statistics;
+package com.mdevs.cinefy.projection.statistics;
 
 import com.mdevs.cinefy.entity.Hall;
 

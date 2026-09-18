@@ -1,7 +1,8 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { CinefyDialog, CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { compareSeatPositions } from 'cinefy-ui/types';
 import { BookingService } from '../../../services';
 import { TriangleAlertIcon } from '../../../shared/icons';
 import type { PastBooking } from '../../../shared/types';
@@ -27,4 +28,10 @@ export class PastBookingDetailsModalComponent {
     params: () => this.booking().id,
     stream: ({ params: bookingId }) => this.bookingService.getPastBookingDetails(bookingId),
   });
+
+  protected readonly sortedSeats = computed(() =>
+    [...(this.details.value()?.seats ?? [])].sort((a, b) =>
+      compareSeatPositions(a.position, b.position),
+    ),
+  );
 }

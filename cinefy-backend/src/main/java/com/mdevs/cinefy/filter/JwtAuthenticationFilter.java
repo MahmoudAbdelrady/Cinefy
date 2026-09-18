@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.filter;
 
 import com.mdevs.cinefy.service.InvalidJwtService;
+import com.mdevs.cinefy.shared.security.AuthContext;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
@@ -33,16 +34,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        String token = CookieUtil.readCookie(request, JwtUtil.ACCESS_TOKEN_COOKIE);
+        AuthContext context = AuthContext.fromHeader(request.getHeader(AuthContext.HEADER));
+
+        if (context == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = CookieUtil.readCookie(request, context.accessTokenCookie());
 
         if (StringUtils.isNotEmpty(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
-            authenticate(token);
+            authenticate(token, context);
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private void authenticate(String token) {
+    private void authenticate(String token, AuthContext context) {
         try {
             Claims claims = jwtUtil.parseToken(token).getPayload();
             if (invalidJwtService.isBlocklisted(claims.getId())) {
@@ -50,10 +58,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            UserPrincipal principal = UserPrincipal.fromJwtClaims(JwtClaims.from(claims));
+            JwtClaims jwtClaims = JwtClaims.from(claims);
+            if (!jwtClaims.userType().equals(context.getUserType())) {
+                SecurityContextHolder.clearContext();
+                return;
+            }
+
+            UserPrincipal principal = UserPrincipal.fromJwtClaims(jwtClaims);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (JwtException ex) {
+        } catch (JwtException | IllegalArgumentException ex) {
             SecurityContextHolder.clearContext();
         }
     }

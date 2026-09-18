@@ -14,7 +14,7 @@ import {
 } from '../../../shared/icons';
 import { ALPHANUMERIC_PATTERN } from '../../../shared/validation';
 import { BookingService } from '../../../services';
-import { comparePositions } from '../../halls/seat-layout';
+import { compareSeatPositions } from 'cinefy-ui/types';
 import type { BookingConfirmation } from '../../../shared/types';
 
 const AUTO_SUBMIT_DELAY_MS = 500;
@@ -83,7 +83,7 @@ export class ScanTicketModalComponent {
   });
 
   protected readonly seats = computed(() =>
-    [...(this.result()?.seats ?? [])].sort((a, b) => comparePositions(a.position, b.position)),
+    [...(this.result()?.seats ?? [])].sort((a, b) => compareSeatPositions(a.position, b.position)),
   );
 
   constructor() {

@@ -137,6 +137,15 @@ export class MovieShowtimesModal {
   protected readonly hasOtherDrafts = computed(() => this.otherDrafts() > 0);
   protected readonly hasAnyDrafts = computed(() => this.hasDayDrafts() || this.hasOtherDrafts());
 
+  private readonly noteContents = computed(
+    () =>
+      new Map(
+        this.movieShowtimeDetails()
+          .filter((showtime) => showtime.specialNotes)
+          .map((showtime) => [showtime.id, showtime.specialNotes] as const),
+      ),
+  );
+
   constructor() {
     effect((onCleanup) => {
       this.loadingDates.set(true);
@@ -199,11 +208,13 @@ export class MovieShowtimesModal {
 
     afterRenderEffect(() => {
       const els = this.noteEls();
+      const notes = this.noteContents();
       const next = new Set<string>();
       for (const ref of els) {
         const el = ref.nativeElement;
         const id = el.dataset['noteId'];
-        if (id && el.scrollWidth > el.clientWidth) {
+        if (!id || !notes.has(id)) continue;
+        if (el.scrollWidth > el.clientWidth) {
           next.add(id);
         }
       }

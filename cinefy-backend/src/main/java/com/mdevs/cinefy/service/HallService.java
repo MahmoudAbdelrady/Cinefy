@@ -4,7 +4,7 @@ import com.mdevs.cinefy.dto.hall.HallDTO;
 import com.mdevs.cinefy.dto.hall.HallDetailDTO;
 import com.mdevs.cinefy.dto.hall.HallLayout;
 import com.mdevs.cinefy.dto.hall.HallLayoutDTO;
-import com.mdevs.cinefy.dto.hall.HallStatusCountProjection;
+import com.mdevs.cinefy.projection.hall.HallStatusCountProjection;
 import com.mdevs.cinefy.dto.hall.HallSummaryDTO;
 import com.mdevs.cinefy.dto.hall.HallTypeDTO;
 import com.mdevs.cinefy.dto.hall.SeatLayoutDTO;
@@ -408,11 +408,7 @@ public class HallService {
     }
 
     private static int toRowIndex(String rowLabel) {
-        int index = 0;
-        for (int i = 0; i < rowLabel.length(); i++) {
-            index = index * 26 + (rowLabel.charAt(i) - 'A' + 1);
-        }
-        return index;
+        return (rowLabel.length() - 1) * 26 + (rowLabel.charAt(0) - 'A') + 1;
     }
 
     private static int positionRowIndex(String position) {

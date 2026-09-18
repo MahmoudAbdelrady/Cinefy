@@ -22,25 +22,25 @@ import java.util.List;
 @RestController
 @RequestMapping("/showtimes")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
 public class ShowtimeController {
 
     private final ShowtimeService showtimeService;
 
     @GetMapping("/movie-dates")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER')")
     public ResponseEntity<MovieShowtimeDatesDTO> getMovieShowtimeDates(@RequestParam Long movieId) {
         return ResponseEntity.ok(showtimeService.getMovieShowtimeDates(movieId));
     }
 
     @GetMapping("/movie-day")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER')")
     public ResponseEntity<MovieShowtimesDTO> getMovieShowtimesForDate(@RequestParam Long movieId, @RequestParam LocalDate date) {
         return ResponseEntity.ok(showtimeService.getMovieShowtimesForDate(movieId, date));
     }
 
     @GetMapping("/schedule")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER')")
     public ResponseEntity<List<ScheduledShowtimeDTO>> getScheduleForDate(@RequestParam LocalDate day) {
         return ResponseEntity.ok(showtimeService.getScheduleForDate(day));
     }
@@ -51,7 +51,7 @@ public class ShowtimeController {
     }
 
     @GetMapping("/movies")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER')")
     public ResponseEntity<List<MovieWithShowtimesDTO>> getMovies() {
         return ResponseEntity.ok(showtimeService.getMoviesWithShowtimes());
     }

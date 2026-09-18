@@ -3,6 +3,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { format } from 'date-fns';
 import { StatisticsService } from '../../../services';
+import { DATE_FORMAT } from '../../../shared/constants';
 import { CURRENCY } from '../../../shared/types';
 import type { StatisticsPeriodTotals } from '../../../shared/types';
 
@@ -45,7 +46,7 @@ export class TodayStatisticsComponent {
   }
 
   private load(): void {
-    const today = format(this.today, 'yyyy-MM-dd');
+    const today = format(this.today, DATE_FORMAT);
     this.statisticsService.getSales({ from: today, to: today }).subscribe({
       next: (points) => {
         this.totals.set(points[0]?.details ?? null);

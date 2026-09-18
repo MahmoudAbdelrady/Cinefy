@@ -1,6 +1,7 @@
 package com.mdevs.cinefy.filter;
 
 import com.mdevs.cinefy.shared.exception.CinefyExceptionResponse;
+import com.mdevs.cinefy.shared.security.AuthContext;
 import com.mdevs.cinefy.shared.security.CsrfProtectionMatcher;
 import com.mdevs.cinefy.shared.security.SecurityUtil;
 import com.mdevs.cinefy.utils.CookieUtil;
@@ -44,7 +45,12 @@ public class CsrfValidationFilter extends OncePerRequestFilter {
     }
 
     private boolean isCsrfTokenValid(HttpServletRequest request) {
-        String cookieToken = CookieUtil.readCookie(request, CsrfProtectionMatcher.CSRF_TOKEN_COOKIE);
+        AuthContext context = AuthContext.fromHeader(request.getHeader(AuthContext.HEADER));
+        if (context == null) {
+            return false;
+        }
+
+        String cookieToken = CookieUtil.readCookie(request, context.csrfTokenCookie());
         String headerToken = request.getHeader(CsrfProtectionMatcher.CSRF_TOKEN_HEADER);
 
         if (StringUtils.isEmpty(cookieToken) || StringUtils.isEmpty(headerToken)) {

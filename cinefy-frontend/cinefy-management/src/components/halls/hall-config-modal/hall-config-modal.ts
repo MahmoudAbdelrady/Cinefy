@@ -58,14 +58,36 @@ import {
   SeatLayout,
   TicketPricing,
 } from '../../../shared/types';
-import { HallLayoutEditorComponent } from '../hall-layout-editor/hall-layout-editor';
+import { seatRowIndex, seatRowLabel } from 'cinefy-ui/types';
+import { HallLayoutEditorComponent, seatStats } from '../hall-layout-editor/hall-layout-editor';
 import { HallsService } from '../../../services';
 import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
-import { createSeatGrid, resizeGrid, rowLabel, rowLabelToIndex, seatStats } from '../seat-layout';
 
 const MAX_GRID_DIMENSION = 50;
 const MAX_PRICE_DECIMALS = 2;
 const MAX_PRICE = 99_999_999.99;
+
+function createSeatGrid(rows: number, cols: number): Seat[][] {
+  return Array.from({ length: rows }, () =>
+    Array.from({ length: cols }, () => ({ type: 'NORMAL' as SeatCategory, onsiteOnly: false })),
+  );
+}
+
+function resizeGrid(prev: Seat[][], rows: number, cols: number): Seat[][] {
+  const layout: Seat[][] = [];
+  for (let i = 0; i < rows; i++) {
+    const row: Seat[] = [];
+    for (let j = 0; j < cols; j++) {
+      if (i < prev.length && j < prev[i].length) {
+        row.push(prev[i][j]);
+      } else {
+        row.push({ type: 'NORMAL', onsiteOnly: false });
+      }
+    }
+    layout.push(row);
+  }
+  return layout;
+}
 
 function maxDecimals(decimals: number): ValidatorFn {
   return (control): ValidationErrors | null => {
@@ -483,7 +505,7 @@ export class HallConfigModalComponent {
     const onSiteOnly: string[] = [];
 
     for (let rowIdx = 0; rowIdx < seatLayout.length; rowIdx++) {
-      const label = rowLabel(rowIdx);
+      const label = seatRowLabel(rowIdx);
       for (let colIdx = 0; colIdx < seatLayout[rowIdx].length; colIdx++) {
         const seat = seatLayout[rowIdx][colIdx];
         const seatId = `${label}${colIdx + 1}`;
@@ -577,7 +599,7 @@ export class HallConfigModalComponent {
   private parseSeatPosition(pos: string): { rowIdx: number; colIdx: number } {
     const match = pos.match(/^([A-Z]+)(\d+)$/);
     return {
-      rowIdx: rowLabelToIndex(match![1]),
+      rowIdx: seatRowIndex(match![1]),
       colIdx: parseInt(match![2]) - 1,
     };
   }

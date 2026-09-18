@@ -14,21 +14,25 @@ See also: [`../cinefy-management/CLAUDE.md`](../cinefy-management/CLAUDE.md) for
 
 ## Commands
 
+**Always run pnpm from `cinefy-frontend/` (the workspace root) — never from inside a package directory.**
+
 ```bash
-# from cinefy-frontend/ (workspace root):
+# ALWAYS from cinefy-frontend/ (workspace root):
+pnpm install                   # Restore all workspace packages
 pnpm ui:build                  # Build cinefy-ui (ng-packagr → cinefy-ui/dist) — required before running
 pnpm client:dev                # Dev server (defaults to :4200 — pass --port to run alongside mgmt)
 pnpm client:build              # Production SSR build
 pnpm app:build                 # Build ui, then management, then client
 
-# from cinefy-client/:
-pnpm start                     # Dev server (ng serve)
-pnpm build                     # Production build (SSR — browser + server bundles)
-pnpm test                      # Run tests (Vitest, jsdom)
-pnpm serve:ssr:cinefy-client   # Run the built SSR server (node dist/cinefy-client/server/server.mjs)
+# To run a single package's own script, use --filter (still from the root):
+pnpm --filter cinefy-client build                 # Production build (SSR — browser + server bundles)
+pnpm --filter cinefy-client test                  # Run tests (Vitest, jsdom)
+pnpm --filter cinefy-client serve:ssr:cinefy-client  # Run the built SSR server
 ```
 
 > **pnpm only** (v12.3.4) — do not use npm or yarn. Both apps default to port 4200; pass `--port` to run them side by side.
+
+Running pnpm from inside `cinefy-client/` makes pnpm treat it as a standalone project and re-resolve every dependency, producing a stray lockfile and a private `node_modules` that drifts off the workspace's pinned Angular version. See [the management CLAUDE.md](../cinefy-management/CLAUDE.md#commands) for the full explanation and the recovery steps.
 
 ## SSR — this app is server-rendered
 
@@ -91,7 +95,7 @@ src/
 │   │                          #   cancelBooking/payBooking/paySavedCard (authed). Several reads take an optional
 │   │                          #   HttpContext so the caller can pass skipErrorToast() when it renders the error itself.
 │   ├── auth.ts               # AuthService — sign-up/verify-account/send-otp/login/logout/verify-otp/reset-password/session/refresh (refresh single-flighted)
-│   └── clients.ts            # ClientService — getCurrentUser (/clients/me) + updateCurrentUser (PUT /clients/me) + changeCurrentUserPassword (PUT /clients/me/password) + getPaymentMethods (/clients/me/payment-methods) + clearCurrentUser
+│   └── clients.ts            # ClientService — getCurrentUser (/client/me) + updateCurrentUser (PUT /client/me) + changeCurrentUserPassword (PUT /client/me/password) + getPaymentMethods (/client/me/payment-methods) + clearCurrentUser
 ├── shared/
 │   ├── icons.ts               # Re-exports of lucide icons from @lucide/angular — sole source of glyphs (alias `X as XIcon`)
 │   ├── guards/                # auth-guard (authGuard), guest-guard (guestGuard) (barrel: index.ts)
@@ -171,9 +175,9 @@ The only contract with `cinefy-backend` is the HTTP API (documented in the backe
 This app is now **auth-bearing** (JWT-in-cookie), so it consumes both public and authenticated endpoints:
 
 - **Public** (`@PublicApi`, unauthenticated) reads: `/movies/highlighted`, `/movies/now-showing`, `/movies/announced-upcoming`, `/movies/{id}` (raw TMDB id, not a uuid), `/halls/types`, and `/booking/movies/{id}/dates` + `/booking/movies/{id}/showtimes?date=`.
-- **Auth** (`AuthService`, `clients/auth/*`): `sign-up`, `verify-account`, `send-otp`, `login`, `logout`, `verify-otp`, `reset-password`, `GET session`, `refresh` (the refresh call is single-flighted). Current user: `GET /clients/me` (`ClientService`).
+- **Auth** (`AuthService`, `client/auth/*`): `sign-up`, `verify-account`, `send-otp`, `login`, `logout`, `verify-otp`, `reset-password`, `GET session`, `refresh` (the refresh call is single-flighted). Current user: `GET /client/me` (`ClientService`).
 - **Authenticated booking** (`BookingService`): `GET /booking/showtimes/{id}` (seat selection), `GET /booking/active`, `GET /booking/active/{uuid}`, `GET /booking/{uuid}/confirmation`, `POST /booking` (sends an `Idempotency-Key` header), `DELETE /booking/{uuid}`.
-- **Payment** (`BookingService` + `ClientService`): `POST /booking/{uuid}/pay` and `POST /booking/{uuid}/pay-saved-card` both return a `PaymentRedirection` (`{ redirectionUrl }`) that the checkout page navigates to; `GET /clients/me/payment-methods` lists the client's saved cards (`ClientPaymentMethod`). A card is only tokenized as a side effect of paying, so the saved-card list is refetched on return to checkout.
+- **Payment** (`BookingService` + `ClientService`): `POST /booking/{uuid}/pay` and `POST /booking/{uuid}/pay-saved-card` both return a `PaymentRedirection` (`{ redirectionUrl }`) that the checkout page navigates to; `GET /client/me/payment-methods` lists the client's saved cards (`ClientPaymentMethod`). A card is only tokenized as a side effect of paying, so the saved-card list is refetched on return to checkout.
 
 **The payment result is asynchronous.** Paymob redirects back to `/booking-confirmation/:bookingId`, but the authoritative settlement arrives on a server-side webhook, so the confirmation page may first read `paymentState: 'PENDING'` and must poll until it resolves. The `PaymentState` union is `'CONFIRMED' | 'PENDING' | 'FAILED' | 'EXPIRED' | 'REFUNDED'`.
 

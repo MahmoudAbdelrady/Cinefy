@@ -2,6 +2,7 @@ package com.mdevs.cinefy.service;
 
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OAuthCallbackDTO;
+import com.mdevs.cinefy.dto.auth.OAuthCallbackResponseDTO;
 import com.mdevs.cinefy.dto.auth.OAuthCallbackResultDTO;
 import com.mdevs.cinefy.dto.auth.OAuthRegistrationDTO;
 import com.mdevs.cinefy.dto.auth.OAuthSignUpDTO;
@@ -42,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -72,8 +74,8 @@ public class ClientAuthService {
 
     // ========================= Public API =========================
 
-    public OAuthAuthorizationDTO getOAuthAuthorizationUrl(String provider) {
-        return resolveOAuthClient(provider).getAuthorizationUrl();
+    public OAuthAuthorizationDTO getOAuthAuthorizationUrl(String provider, String redirectUrl) {
+        return resolveOAuthClient(provider).getAuthorizationUrl(redirectUrl);
     }
 
     public void signUp(SignUpDTO dto) {
@@ -92,17 +94,27 @@ public class ClientAuthService {
                 .map(client -> {
                     if (!client.isVerified()) {
                         dispatchOtp(client, OtpType.EMAIL_VERIFICATION);
-                        throw new ForbiddenException("Account is not verified", ErrorCode.ACCOUNT_NOT_VERIFIED,
-                                Map.of("email", client.getEmail()));
+                        Map<String, String> data = new LinkedHashMap<>();
+                        data.put("email", client.getEmail());
+                        if (StringUtils.isNotEmpty(state.redirectUrl())) {
+                            data.put("redirectUrl", state.redirectUrl());
+                        }
+
+                        throw new ForbiddenException("Account is not verified", ErrorCode.ACCOUNT_NOT_VERIFIED, data);
                     }
-                    return OAuthCallbackResultDTO.signedIn(generateTokens(client));
+                    OAuthCallbackResponseDTO response = new OAuthCallbackResponseDTO(null, state.redirectUrl());
+                    return new OAuthCallbackResultDTO(generateTokens(client), response);
                 })
-                .orElseGet(() -> OAuthCallbackResultDTO.registrationRequired(new OAuthRegistrationDTO(
-                        issueRegistrationToken(profile),
-                        profile.email(),
-                        profile.firstName(),
-                        profile.lastName()
-                )));
+                .orElseGet(() -> {
+                    OAuthRegistrationDTO registration = new OAuthRegistrationDTO(
+                            issueRegistrationToken(profile),
+                            profile.email(),
+                            profile.firstName(),
+                            profile.lastName());
+                    OAuthCallbackResponseDTO response = new OAuthCallbackResponseDTO(registration, state.redirectUrl());
+
+                    return new OAuthCallbackResultDTO(null, response);
+                });
     }
 
     public TokenPairDTO oAuthSignUp(OAuthSignUpDTO dto) {

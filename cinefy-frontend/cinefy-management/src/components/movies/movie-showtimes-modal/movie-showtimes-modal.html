@@ -186,7 +186,7 @@
             } @else if (!hasDayDrafts()) {
               <svg [lucideIcon]="icons.SendIcon" [size]="16"></svg>
             }
-            <span>Publish all ({{ data.numberOfDrafts }})</span>
+            <span>Publish all dates ({{ data.numberOfDrafts }})</span>
           </button>
         }
         @if (hasDayDrafts()) {
@@ -200,7 +200,7 @@
             } @else {
               <svg [lucideIcon]="icons.SendIcon" [size]="16"></svg>
             }
-            <span>Publish Drafts ({{ dayDrafts() }})</span>
+            <span>Publish {{ selectedTab() | date: 'EEE d' }} ({{ dayDrafts() }})</span>
           </button>
         }
       </div>

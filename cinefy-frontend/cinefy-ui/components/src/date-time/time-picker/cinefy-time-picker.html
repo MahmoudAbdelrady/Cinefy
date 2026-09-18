@@ -7,7 +7,7 @@
     (onBlur)="control().markAsTouched()"
     [placeholder]="placeholder()"
     [appendTo]="container()"
-    [invalid]="!suppressError() && control().touched && control().invalid"
+    [invalid]="showsError()"
     dataType="string"
     hourFormat="12"
     [timeOnly]="true"
@@ -24,7 +24,7 @@
 
   @if (hint(); as hintText) {
   <p class="tp-hint">{{ hintText }}</p>
-  } @if (hasErrorMessages() && !suppressError() && control().touched && control().invalid) {
+  } @if (hasErrorMessages() && showsError()) {
   <cui-field-error [control]="control()" [messages]="errorMessages()" />
   }
 </div>

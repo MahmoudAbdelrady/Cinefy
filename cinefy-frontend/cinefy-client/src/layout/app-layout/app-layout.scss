@@ -47,13 +47,19 @@ $max-width: 1152px;
 
 .alh-main-tab {
   @include flex-align;
-  @include lucide-icon-fix;
   gap: 8px;
   color: $color-foreground;
   text-decoration: none;
   cursor: pointer;
   transition: opacity $transition-fast;
   user-select: none;
+
+  .alh-main-tab-logo {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
 
   &:hover {
     opacity: 0.8;

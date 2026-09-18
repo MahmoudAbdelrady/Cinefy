@@ -19,7 +19,7 @@ import com.mdevs.cinefy.dto.payment.SavedCardPaymentDTO;
 import com.mdevs.cinefy.dto.payment.TransactionCallbackDTO;
 import com.mdevs.cinefy.dto.showtime.BookingShowtimeDTO;
 import com.mdevs.cinefy.dto.showtime.HallTypeShowtimesDTO;
-import com.mdevs.cinefy.dto.showtime.ShowtimeBookedSeatsProjection;
+import com.mdevs.cinefy.projection.showtime.ShowtimeBookedSeatsProjection;
 import com.mdevs.cinefy.entity.Booking;
 import com.mdevs.cinefy.entity.BookingSeat;
 import com.mdevs.cinefy.entity.Client;
@@ -196,7 +196,10 @@ public class BookingService {
 
     public Page<PastBookingDTO> getPastBookings(Pageable pageable) {
         User user = currentUserService.loadCurrentUser();
-        return bookingRepository.findSettledByClient(user.getId(), BookingStatus.SETTLED_STATUSES, pageable)
+        if (!(user instanceof Client client)) {
+            throw new BusinessException("Only clients have a booking history");
+        }
+        return bookingRepository.findSettledByClient(client.getId(), BookingStatus.SETTLED_STATUSES, pageable)
                 .map(this::toPastBookingDTO);
     }
 

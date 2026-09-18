@@ -13,7 +13,7 @@ The app won't boot without these (typically set in `application-local.properties
 - `cinefy.encryption.key` — Base64-encoded 32-byte AES key for `CredentialCipher` (payment-gateway credential encryption). `CredentialCipher` throws at construction time if missing or wrong length.
 - `cinefy.mail.username` / `cinefy.mail.password` — Gmail SMTP creds for the `JavaMailSender` bean in `AppConfig`.
 - `cinefy.jwt.secret`, `cinefy.jwt.access-token-expiration`, `cinefy.jwt.refresh-token-expiration`, `cinefy.jwt.refresh-token-rotation-threshold` — JWT signing key + token lifetimes (read by `JwtUtil` / `AuthCookieResponseFactory` / `JwtSessionService`).
-- `cinefy.cookie.secure`, `cinefy.cookie.same-site` — auth-cookie flags (read by `CookieUtil`).
+- `cinefy.cookie.secure`, `cinefy.cookie.same-site` — auth-cookie flags (read by `CookieUtil`). Cookie **names** are not configurable — they come from `AuthContext` (see _Auth contexts_).
 - `cinefy.admin.email` (required), `cinefy.admin.password` (optional — the admin seed is skipped with a warning if empty) — bootstrap admin account (`CinefyApplication`).
 - `cinefy.otp.expiration-minutes` — OTP lifetime in **minutes**, read by `OtpService`. No default in `application.properties`, so the app won't boot without it. (Renamed from the older millisecond-valued `cinefy.otp.expiration`; a deployment still setting the old key fails to start.)
 - `cinefy.oauth.redirect-uri` — the OAuth callback **path** (e.g. `/membership/oauth/callback`), concatenated onto `AppConfig.getFrontendClientUrl()`. The provider redirects the browser to the **frontend**, not to a backend endpoint.
@@ -31,7 +31,7 @@ The app won't boot without these (typically set in `application-local.properties
 - **Hibernate Envers** for entity auditing (all entities via `BaseEntity`); configured with `store_data_at_delete=true` and `global_with_modified_flag=true`
 - **Jakarta Validation** for request DTOs
 - **commons-lang3** for string utilities (`StringUtils`)
-- **Spring Security** — wired in `SecurityConfig` (Spring's built-in CSRF off, replaced by a custom double-submit token; CORS allow-list of both `app.frontend.mgmt.url` and `app.frontend.client.url`; stateless sessions; `@EnableMethodSecurity`). Authentication is JWT-in-cookie: `JwtAuthenticationFilter` reads the access-token cookie (`accessToken`), validates it (with an `InvalidJwtService` blocklist check), and populates a `UserPrincipal`; a `CsrfValidationFilter` (after `UsernamePasswordAuthenticationFilter`) enforces a double-submit CSRF token (`XSRF-TOKEN` cookie / `X-XSRF-TOKEN` header) for authenticated non-safe, non-`@PublicApi` requests (`CsrfProtectionMatcher`). `CinefyApiAuthorizationManager` gates `anyRequest()` — every endpoint requires an authenticated user **unless** the controller/handler is annotated `@PublicApi` (e.g. login, forgot-password). Position/role authorization is enforced per-endpoint via `@PreAuthorize("hasAnyRole(...)")` on controllers (roles map to the `StaffPosition` enum — ADMIN/MANAGER/CASHIER/USHER — plus the `CLIENT` role for client users). There are **two** `DaoAuthenticationProvider`-backed managers (a `CinefyAuthManagers` bean): one over `StaffMemberService`, one over `ClientService`, both with `BCryptPasswordEncoder`.
+- **Spring Security** — wired in `SecurityConfig` (Spring's built-in CSRF off, replaced by a custom double-submit token; CORS allow-list of both `app.frontend.mgmt.url` and `app.frontend.client.url`; stateless sessions; `@EnableMethodSecurity`). Authentication is JWT-in-cookie, **partitioned per frontend by `AuthContext`** (see _Auth contexts_ below): `JwtAuthenticationFilter` resolves the caller's context from the `X-Auth-Context` header, reads that context's access-token cookie (`mgmt_accessToken` / `client_accessToken`), validates it (with an `InvalidJwtService` blocklist check), verifies the token's `userType` claim matches the context, and populates a `UserPrincipal`; a `CsrfValidationFilter` (after `UsernamePasswordAuthenticationFilter`) enforces a double-submit CSRF token (the context's `mgmt_XSRF-TOKEN` / `client_XSRF-TOKEN` cookie vs. the shared `X-XSRF-TOKEN` header) for authenticated non-safe, non-`@PublicApi` requests (`CsrfProtectionMatcher`). `CinefyApiAuthorizationManager` gates `anyRequest()` — every endpoint requires an authenticated user **unless** the controller/handler is annotated `@PublicApi` (e.g. login, forgot-password). Position/role authorization is enforced per-endpoint via `@PreAuthorize("hasAnyAuthority(...)")` on controllers (roles map to the `StaffPosition` enum — ADMIN/MANAGER/CASHIER/USHER — plus the `CLIENT` role for client users). There are **two** `DaoAuthenticationProvider`-backed managers (a `CinefyAuthManagers` bean): one over `StaffMemberService`, one over `ClientService`, both with `BCryptPasswordEncoder`.
 - **Spring Mail + Thymeleaf** — `EmailService` sends email-verification and password-reset OTP emails (`sendEmailVerificationOtp` / `sendPasswordResetOtp`); mail bean wired in `AppConfig`.
 - **Scheduling** — `@EnableScheduling` on `CinefyApplication`; jobs live under `job/`: `ShowtimeStatusJob` (cron `0 * * * * *`), `TmdbSyncJob` (cron `0 0 3 * * *`), `BookingCleanupJob` (cron `0 * * * * *`), `OtpCleanupJob` (cron `0 0 3 * * *`), `InvalidJwtCleanupJob` (cron `0 0 3 * * *`)
 - **AOP** — `RequestLoggingAspect` (around any `@RestController`) and `TransactionLoggingAspect` (around any `@Transactional`) under `aspect/`, both delegating to `LoggingUtil`
@@ -56,8 +56,8 @@ com.mdevs.cinefy
 ├── controller/     — REST controllers (@RestController)
 │                     Hall, Showtime, StaffMember, PaymentGateway, TmdbMovie,
 │                     ManagementAuth, Booking, Client, ClientAuth, Statistics
-├── filter/         — JwtAuthenticationFilter (cookie JWT → SecurityContext),
-│                     CsrfValidationFilter (double-submit CSRF token check)
+├── filter/         — JwtAuthenticationFilter (context-scoped cookie JWT → SecurityContext),
+│                     CsrfValidationFilter (context-scoped double-submit CSRF check)
 ├── dto/            — Request/response DTOs, grouped per domain.
 │                     `RedirectionDTO` (a bare `record RedirectionDTO(String url)`) sits at the
 │                     top level, not under a domain folder — it is shared by the Paymob checkout
@@ -128,7 +128,7 @@ com.mdevs.cinefy
 │   │                  OAuthState, OAuthAuthorizationDTO, OAuthUserProfile,
 │   │                  OAuthRegistrationToken
 │   ├── payment/    — PaymobClient (RestClient client for the Paymob Unified Checkout API)
-│   ├── security/   — JwtUtil, JwtClaims, TokenType, UserPrincipal, SecurityUtil,
+│   ├── security/   — JwtUtil, JwtClaims, TokenType, UserPrincipal, SecurityUtil, AuthContext,
 │   │                 CinefyApiAuthorizationManager, CinefyAuthenticationEntryPoint,
 │   │                 CinefyAuthManagers, AuthCookieResponseFactory, CsrfProtectionMatcher,
 │   │                 CredentialCipher (AES-256-GCM for payment secrets)
@@ -198,16 +198,37 @@ Entities with user-facing names (Hall, HallType) derive a `code` field via a sta
 
 Global `@RestControllerAdvice` in `CinefyExceptionHandler`:
 
-- `BusinessException` → 400 (carries an optional `ErrorCode`: `OTP_INVALID`, `PASSWORD_REUSED`, `PASSWORD_INCORRECT`, `ACCOUNT_NOT_VERIFIED`, `PAYMENT_NOT_ATTEMPTED` — surfaced to the frontend as a JSON `errorCode`). Add an `ErrorCode` only when the frontend must branch on _which_ 400 it got; otherwise the message alone is enough.
+- `BusinessException` → **422** (carries an optional `ErrorCode`: `OTP_INVALID`, `PASSWORD_REUSED`, `PASSWORD_INCORRECT`, `ACCOUNT_NOT_VERIFIED`, `PAYMENT_NOT_ATTEMPTED` — surfaced to the frontend as a JSON `errorCode`). Add an `ErrorCode` only when the frontend must branch on _which_ 422 it got; otherwise the message alone is enough.
+
+  **Everything the server understood but refused is 422.** `BusinessException` (domain rules) and
+  `BindException` / `ConstraintViolationException` (field-level validation) all return
+  `UNPROCESSABLE_CONTENT` — in each case the request parsed fine and the server simply would not act
+  on it. **400 is reserved for requests the server could not parse at all**
+  (`HttpMessageNotReadableException`). A frontend distinguishing "rejected for a domain reason" from
+  "rejected for a bad field" cannot use the status — it must read the body: business errors carry
+  `errorCode`, validation errors carry `"Validation Error"` plus a field-level `errors` list.
+
 - `NotFoundException` → 404
-- `ConflictException` → 409 (same shape as `BusinessException`, optional `ErrorCode`). Thrown **only** from inside a `catch (DataIntegrityViolationException)` — i.e. a constraint the DB actually rejected, not a pre-check. An `existsBy*` pre-check that fails is ordinary validation and stays a `BusinessException` → 400.
+- `ConflictException` → 409 (same shape as `BusinessException`, optional `ErrorCode`). Thrown **only** from inside a `catch (DataIntegrityViolationException)` — i.e. a constraint the DB actually rejected, not a pre-check. An `existsBy*` pre-check that fails is ordinary validation and stays a `BusinessException` → 422.
 - `DataIntegrityViolationException` → 409 `"A record with the same unique value already exists"`
 - `UnauthorizedException` / `AuthenticationException` / `JwtException` → 401
 - `ForbiddenException` / `AuthorizationDeniedException` → 403. `ForbiddenException` carries an optional `ErrorCode` **and an optional `Object data`** payload (3-arg constructor), serialized as `data` on the response — the OAuth callback uses `Map.of("email", ...)` with `ACCOUNT_NOT_VERIFIED` so the frontend can prefill its OTP screen.
-- `BindException` / `ConstraintViolationException` → 400 with field-level errors.
+- `BindException` / `ConstraintViolationException` → **422** with field-level errors.
   The handler is registered on `BindException` (not its subclass `MethodArgumentNotValidException`)
   so it covers **both** `@Valid @RequestBody` and `@Valid @ModelAttribute` query-param binding —
   the latter throws the superclass, and would otherwise fall through to the generic 500.
+- `HttpMessageNotReadableException` → **400** `"Malformed request body"`. This is the one genuine
+  400 in the app: the request could not be parsed at all (invalid JSON, wrong content type), so the
+  server never got as far as validating it. Previously unhandled — it fell through to the generic
+  `Exception` handler and returned a misleading **500**.
+
+**An empty response body is always 204, never 200.** A handler returning `ResponseEntity<Void>` uses
+`ResponseEntity.noContent()`, including when it still sets headers — `AuthCookieResponseFactory`
+builds its `Set-Cookie` headers onto a 204, which RFC 9110 permits. 200 is reserved for responses
+that actually carry a body. Note this applies to the _body_, not to collections: a read returning an
+empty list still answers **200 `[]`**, since `[]` is a valid representation of "no matches" and both
+frontends drive their empty states off `length === 0`.
+
 - Generic `Exception` → 500 (message hidden in production)
 
 Responses use the `CinefyExceptionResponse` record.
@@ -234,8 +255,41 @@ Both delegate to `LoggingUtil.proceedWithLogging(...)`. Don't add ad-hoc `log.in
 
 - `SecurityConfig` builds the `SecurityFilterChain`: Spring's built-in CSRF off (replaced by the `CsrfValidationFilter` double-submit check), CORS allow-list bound to `AppConfig.getFrontendManagementUrl()` + `getFrontendClientUrl()`, stateless sessions, `@EnableMethodSecurity`, a custom `JwtAuthenticationFilter` before `UsernamePasswordAuthenticationFilter` (and `CsrfValidationFilter` after it), and `anyRequest().access(apiAuthorizationManager)`.
 - `CinefyApiAuthorizationManager` (`AuthorizationManager<RequestAuthorizationContext>`) resolves the target handler and allows the request when it (or its controller) carries `@PublicApi`; otherwise it requires a non-anonymous authenticated principal. Mark new unauthenticated endpoints with `@PublicApi`.
-- `JwtAuthenticationFilter` extracts the access token from the access-token cookie (`accessToken`), parses it via `JwtUtil`, skips blocklisted tokens (`InvalidJwtService`), and sets a `UserPrincipal` authentication. Auth cookies also include `refreshToken` and a `XSRF-TOKEN` CSRF cookie (all built by `AuthCookieResponseFactory`). Auth is stateless — no server session.
-- Endpoint authorization uses `@PreAuthorize("hasAnyRole(...)")` on controllers, keyed to `StaffPosition` (`ADMIN`, `MANAGER`, `CASHIER`, `USHER`) plus the `CLIENT` role for client-facing endpoints. When adding an endpoint, put the role rule on the controller method/class (not the service) to match the existing pattern. `CinefyAuthenticationEntryPoint` returns the 401 body for unauthenticated requests.
+- `JwtAuthenticationFilter` resolves the `AuthContext` from the `X-Auth-Context` header, extracts the access token from **that context's** cookie, parses it via `JwtUtil`, skips blocklisted tokens (`InvalidJwtService`), checks the token's `userType` claim against the context, and sets a `UserPrincipal` authentication. **No header (or an unknown value) means no authentication** — the filter continues the chain unauthenticated, exactly as it does for a missing cookie, so `@PublicApi` endpoints still work and protected ones 401 at `CinefyApiAuthorizationManager`. Auth cookies also include the context's refresh and CSRF cookies (all built by `AuthCookieResponseFactory`). Auth is stateless — no server session.
+
+### Auth contexts (per-frontend cookie partitioning)
+
+Both frontends run on the same host, so a single set of cookie names at path `/` meant logging into one app silently overwrote the other's session (the second login's token replaced the first, and the original tab then got **403** — a valid token carrying the wrong role). `AuthContext` (`shared/security/`) fixes this by giving each frontend its own cookie names:
+
+| Context      | Prefix   | Access               | Refresh               | CSRF                | Expected `UserType` |
+| ------------ | -------- | -------------------- | --------------------- | ------------------- | ------------------- |
+| `MANAGEMENT` | `mgmt`   | `mgmt_accessToken`   | `mgmt_refreshToken`   | `mgmt_XSRF-TOKEN`   | `STAFF_MEMBER`      |
+| `CLIENT`     | `client` | `client_accessToken` | `client_refreshToken` | `client_XSRF-TOKEN` | `CLIENT`            |
+
+**`AuthContext` is the single source of truth for cookie names** — build them with `accessTokenCookie()` / `refreshTokenCookie()` / `csrfTokenCookie()`, never by writing a literal. `CookieUtil` stays a dumb builder taking a plain `String name`; callers that hold a context resolve the name and pass it.
+
+**The `X-Auth-Context` header is a selector, not a credential.** Each frontend's `baseUrlInterceptor` stamps it (`management` / `client`) on every request; `AuthContext.fromHeader` is case-insensitive and returns `null` for blank/unknown. It only chooses _which cookie to read_ — all authority still comes from the signed JWT, and the filter additionally rejects a token whose `userType` disagrees with the header. A client sending `X-Auth-Context: management` just causes a lookup for a cookie they don't have.
+
+**Why a header and not a URL prefix.** On endpoints shared by both apps (`POST /booking`, `GET /booking/active`, `DELETE /booking/{uuid}` — all `CLIENT`+staff), a user logged into both sends _both_ cookies, and nothing server-side can tell which UI the request came from. A precedence rule ("prefer staff") is wrong: a cashier buying their own ticket in the client tab would have the booking written as a counter sale (`bookedBy` instead of `client`). That fact lives only in the browser, so it must be transmitted.
+
+**No service-layer code branches on the context.** Every client-vs-staff decision already keys off the principal — `BookingService.buildBooking` (`instanceof Client` / `instanceof StaffMember`), `getActiveBookings`, `validateBookingOwnership` (`currentUser.getType()`), `CurrentUserService.loadCurrentUser`. Selecting the right cookie is therefore sufficient to make all of them correct.
+
+**`@CookieValue` cannot be used for these cookies.** Annotation values must be Java _compile-time constants_, and `AUTH_CONTEXT.accessTokenCookie()` is not one even as a `static final` field. The auth controllers therefore take `HttpServletRequest` and call `CookieUtil.readCookie(request, AUTH_CONTEXT.refreshTokenCookie())` inline. One consequence: `@CookieValue`'s implicit 400-when-missing is gone, so `JwtSessionService.logout` guards both tokens for emptiness — logout is now idempotent and still clears cookies when called without them.
+
+**The CSRF _header_ stays a single shared name** (`X-XSRF-TOKEN`). Cookies needed splitting because they are ambient — the browser stores them and sends them automatically. A request header is set per-request by the app making the call, so there is no shared store to collide in.
+
+**Renaming the cookies invalidates every existing session.** Anyone holding the old `accessToken`/`XSRF-TOKEN` is silently logged out, and the stale cookies linger until they expire.
+
+- Endpoint authorization uses `@PreAuthorize("hasAnyAuthority(...)")` on controllers, keyed to `StaffPosition` (`ADMIN`, `MANAGER`, `CASHIER`, `USHER`) plus the `CLIENT` role for client-facing endpoints. When adding an endpoint, put the role rule on the controller method/class (not the service) to match the existing pattern. `CinefyAuthenticationEntryPoint` returns the 401 body for unauthenticated requests.
+
+  **Authorities are stored bare, with no `ROLE_` prefix** — `UserPrincipal.buildAuthorities` emits
+  `new SimpleGrantedAuthority("ADMIN")`, not `"ROLE_ADMIN"`. Always use
+  **`hasAuthority` / `hasAnyAuthority`**; **never `hasRole` / `hasAnyRole`**. Those two are sugar for
+  `hasAuthority("ROLE_" + x)`, so they silently look up an authority that does not exist here and
+  deny every request — a failure that looks like a permissions bug, not a typo. Nothing else in the
+  app depends on the prefix (the JWT's `position` claim has always stored the bare value), and there
+  is no `GrantedAuthorityDefaults` bean re-introducing one.
+
 - `BCryptPasswordEncoder` bean (in `AppConfig`) — used by `StaffMemberService` when storing/updating `password`.
 - `CredentialCipher` (AES-256-GCM, `cinefy.encryption.key` required, Base64-encoded 32-byte key) — encrypts the whole `PaymentGateway.credentials` JSON blob at rest (for Paymob: `secretKey`, `publicKey`, `hmacKey`). The cipher output prepends a fresh IV per call and tags the value with the GCM authentication tag. Its `base64:base64` output is why `credentials` is a **TEXT** column, not JSONB.
 
@@ -406,21 +460,21 @@ Seat positions are strings matching `^([A-Z]+)([0-9]+)$` (e.g. `A1`, `AA15`). `H
 
 ### `/management/auth` — ManagementAuthController
 
-All endpoints `@PublicApi` (skip authentication) **except** `/logout`. Session/refresh/logout are delegated to `JwtSessionService`; cookies are built by `AuthCookieResponseFactory` — access (`accessToken`), refresh (`refreshToken`), and a CSRF (`XSRF-TOKEN`) cookie — all set/cleared together.
+All endpoints `@PublicApi` (skip authentication) **except** `/logout`. Session/refresh/logout are delegated to `JwtSessionService`; cookies are built by `AuthCookieResponseFactory` under `AuthContext.MANAGEMENT` — access (`mgmt_accessToken`), refresh (`mgmt_refreshToken`), and a CSRF (`mgmt_XSRF-TOKEN`) cookie — all set/cleared together. The cookie-reading endpoints take `HttpServletRequest` rather than `@CookieValue` (see _Auth contexts_).
 
 | Method | Path                                 | Input                  | Output / Effect                                  |
 | ------ | ------------------------------------ | ---------------------- | ------------------------------------------------ |
-| POST   | `/management/auth/login`             | LoginDTO               | 200 + sets access/refresh/CSRF cookies           |
-| POST   | `/management/auth/refresh`           | refresh cookie         | 200 + new access cookie (rotates refresh if any) |
-| GET    | `/management/auth/session`           | refresh cookie         | 200 if valid, else 401                           |
-| POST   | `/management/auth/logout`            | access/refresh cookies | 200 + clears cookies (blocklists tokens)         |
+| POST   | `/management/auth/login`             | LoginDTO               | 204 + sets access/refresh/CSRF cookies           |
+| POST   | `/management/auth/refresh`           | refresh cookie         | 204 + new access cookie (rotates refresh if any) |
+| GET    | `/management/auth/session`           | refresh cookie         | 204 if valid, else 401                           |
+| POST   | `/management/auth/logout`            | access/refresh cookies | 204 + clears cookies (blocklists tokens)         |
 | POST   | `/management/auth/forgot-password`   | ForgotPasswordDTO      | 204 (emails reset OTP)                           |
 | POST   | `/management/auth/verify-reset-code` | OtpCodeDTO             | 204 (validates OTP)                              |
 | POST   | `/management/auth/reset-password`    | ResetPasswordDTO       | 204 (consumes OTP, sets new password)            |
 
 ### `/halls` — HallController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`, **except** `GET /halls/types` which is `@PublicApi` + `permitAll()` (the client reads hall types unauthenticated).
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`, **except** `GET /halls/types` which is `@PublicApi` + `permitAll()` (the client reads hall types unauthenticated).
 
 | Method | Path                   | Input                     | Output                         |
 | ------ | ---------------------- | ------------------------- | ------------------------------ |
@@ -438,7 +492,7 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`, **except** `GET /
 
 ### `/movies` — TmdbMovieController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`; the three client-facing reads and `GET /movies/{id}` are `@PublicApi`.
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`; the three client-facing reads and `GET /movies/{id}` are `@PublicApi`.
 
 | Method | Path                         | Input                  | Output / Effect            | Access        |
 | ------ | ---------------------------- | ---------------------- | -------------------------- | ------------- |
@@ -455,7 +509,7 @@ Note: `{id}` is the raw TMDB id, **not** a uuid — `TmdbMovie` isn't a `BaseEnt
 
 ### `/showtimes` — ShowtimeController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`; the three read endpoints `GET /showtimes/movies`, `/movie-dates`, and `/movie-day` widen to also allow `CASHIER` (they back the booking flow).
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`; the three read endpoints `GET /showtimes/movies`, `/movie-dates`, and `/movie-day` widen to also allow `CASHIER` (they back the booking flow).
 
 | Method | Path                          | Input                       | Output                          |
 | ------ | ----------------------------- | --------------------------- | ------------------------------- |
@@ -472,26 +526,28 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`; the three read en
 
 ### `/staff` — StaffMemberController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. The self-service `/staff/me` endpoints and `GET /staff/{uuid}` override it with `@PreAuthorize("isAuthenticated()")` so any logged-in staff member can reach them (the per-row view/edit rules are then enforced in the service — see _Admin Account Policy_).
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`. The self-service `/staff/me` endpoints and `GET /staff/{uuid}` override it with `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")` so any logged-in **staff member** can reach them (the per-row view/edit rules are then enforced in the service — see _Admin Account Policy_).
 
-| Method | Path                       | Input                  | Output / Effect                                    |
-| ------ | -------------------------- | ---------------------- | -------------------------------------------------- |
-| GET    | `/staff`                   | ?name, ?position, page | Page<StaffMemberSummaryDTO> (ADMIN/MANAGER)        |
-| GET    | `/staff/me`                | —                      | CurrentStaffMemberDTO (any authenticated staff)    |
-| PUT    | `/staff/me`                | UpdateProfileDTO       | StaffMemberDetailDTO (own name/phone)              |
-| PUT    | `/staff/me/password`       | ChangePasswordDTO      | 204 (own password; `updatePassword`)               |
-| GET    | `/staff/position-coverage` |                        | PositionCoverageDTO (ADMIN/MANAGER)                |
-| GET    | `/staff/on-shift`          |                        | OnShiftSummaryDTO (ADMIN/MANAGER)                  |
-| GET    | `/staff/{uuid}`            |                        | StaffMemberDetailDTO (isAuthenticated + view rule) |
-| POST   | `/staff`                   | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
-| PUT    | `/staff/{uuid}`            | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)              |
-| DELETE | `/staff/{uuid}`            |                        | 204 (ADMIN/MANAGER)                                |
+> These four were previously `isAuthenticated()`, which a logged-in **CLIENT** also satisfies — the `CLIENT` authority passed the authorization layer and reached the service. Do **not** use `isAuthenticated()` on a staff endpoint: spell out the four positions. It is load-bearing beyond access control, because `UserPrincipal.getPosition()` is `null` for clients and `validateCanViewStaffMember` dereferences it.
+
+| Method | Path                       | Input                  | Output / Effect                              |
+| ------ | -------------------------- | ---------------------- | -------------------------------------------- |
+| GET    | `/staff`                   | ?name, ?position, page | Page<StaffMemberSummaryDTO> (ADMIN/MANAGER)  |
+| GET    | `/staff/me`                | —                      | CurrentStaffMemberDTO (any staff position)   |
+| PUT    | `/staff/me`                | UpdateProfileDTO       | StaffMemberDetailDTO (own name/phone)        |
+| PUT    | `/staff/me/password`       | ChangePasswordDTO      | 204 (own password; `updatePassword`)         |
+| GET    | `/staff/position-coverage` |                        | PositionCoverageDTO (ADMIN/MANAGER)          |
+| GET    | `/staff/on-shift`          |                        | OnShiftSummaryDTO (ADMIN/MANAGER)            |
+| GET    | `/staff/{uuid}`            |                        | StaffMemberDetailDTO (any staff + view rule) |
+| POST   | `/staff`                   | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)        |
+| PUT    | `/staff/{uuid}`            | StaffMemberDTO         | StaffMemberSummaryDTO (ADMIN/MANAGER)        |
+| DELETE | `/staff/{uuid}`            |                        | 204 (ADMIN/MANAGER)                          |
 
 Phone numbers in `StaffMemberDTO` / `UpdateProfileDTO` are validated/normalized with Google libphonenumber before persistence. The `/staff/me` mutations (`updateProfile`, `updatePassword`) still call `validateNotAdminAccount(...)` — the admin row is not self-editable even by the admin.
 
 ### `/payment-gateways` — PaymentGatewayController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`.
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`.
 
 | Method | Path                              | Input              | Output                       |
 | ------ | --------------------------------- | ------------------ | ---------------------------- |
@@ -548,7 +604,7 @@ CREATE UNIQUE INDEX UK_PAYMENT_GATEWAYS_CODE
 
 ### `/booking` — BookingController
 
-Access is **not** uniform here — check the column. Five handlers are `@PublicApi` + `permitAll()` (the three browse reads **plus the two Paymob callbacks**, which arrive unauthenticated and are instead authenticated by HMAC); the booking lifecycle is `hasAnyRole('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')`; the online-payment endpoints are **`hasRole('CLIENT')`** only; and on-site settle is **staff-only** (no CLIENT). Ticket scanning is the **only** endpoint in the app that grants `USHER` — it is `hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'USHER')`, since verifying tickets at the door is the usher's job. The class is `@Validated` (needed for the `@Pattern` on the `Idempotency-Key` header **and** on the `bookingReference` path variable).
+Access is **not** uniform here — check the column. Five handlers are `@PublicApi` + `permitAll()` (the three browse reads **plus the two Paymob callbacks**, which arrive unauthenticated and are instead authenticated by HMAC); the booking lifecycle is `hasAnyAuthority('CLIENT', 'ADMIN', 'MANAGER', 'CASHIER')`; the online-payment endpoints are **`hasAuthority('CLIENT')`** only; and on-site settle is **staff-only** (no CLIENT). Ticket scanning is the **only** endpoint in the app that grants `USHER` — it is `hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER', 'USHER')`, since verifying tickets at the door is the usher's job. The class is `@Validated` (needed for the `@Pattern` on the `Idempotency-Key` header **and** on the `bookingReference` path variable).
 
 | Method | Path                             | Input                                            | Output / Effect               | Access                                 |
 | ------ | -------------------------------- | ------------------------------------------------ | ----------------------------- | -------------------------------------- |
@@ -565,51 +621,51 @@ Access is **not** uniform here — check the column. Five handlers are `@PublicA
 | POST   | `/booking/{uuid}/pay`            |                                                  | RedirectionDTO                | **CLIENT only**                        |
 | POST   | `/booking/{uuid}/pay-saved-card` | SavedCardPaymentDTO                              | RedirectionDTO                | **CLIENT only**                        |
 | GET    | `/booking/payment-redirect`      | flat `Map<String,String>` query params           | 302 FOUND + `Location`        | @PublicApi (HMAC)                      |
-| POST   | `/booking/payment-callback`      | JsonNode body + ?hmac                            | 200 (Paymob webhook)          | @PublicApi (HMAC)                      |
+| POST   | `/booking/payment-callback`      | JsonNode body + ?hmac                            | 204 (Paymob webhook)          | @PublicApi (HMAC)                      |
 
 `handlePaymentCallback` pattern-matches the sealed `PaymentCallbackData` to route a `TransactionCallbackDTO` to `bookingService.applyPaymentResult(...)` and a `CardTokenCallbackDTO` to `clientPaymentMethodService.createMethod(...)`. Note the body is `tools.jackson.databind.JsonNode` — **Jackson 3**, not `com.fasterxml.jackson` (its annotations, however, still live under `com.fasterxml.jackson.annotation`).
 
 **`payment-redirect` is the browser's return leg, not the source of truth.** Paymob's "cancel" button calls it with an _empty_ param map, so `handleRedirect` returns null on empty input and the booking service falls back to the client's home URL rather than failing HMAC verification. Settlement itself comes from the webhook.
 
-### `/clients` — ClientController
+### `/client` — ClientController
 
-Class-level `@PreAuthorize("hasRole('CLIENT')")`.
+Class-level `@PreAuthorize("hasAuthority('CLIENT')")`.
 
-| Method | Path                                 | Input                   | Output / Effect                   |
-| ------ | ------------------------------------ | ----------------------- | --------------------------------- |
-| GET    | `/clients/me`                        |                         | CurrentClientDTO                  |
-| PUT    | `/clients/me`                        | UpdateClientProfileDTO  | CurrentClientDTO (own name/phone) |
-| PUT    | `/clients/me/password`               | ChangeClientPasswordDTO | 204 (own password)                |
-| GET    | `/clients/me/payment-methods`        |                         | List<ClientPaymentMethodDTO>      |
-| DELETE | `/clients/me/payment-methods/{uuid}` |                         | 204 (removes a saved card)        |
+| Method | Path                                | Input                   | Output / Effect                   |
+| ------ | ----------------------------------- | ----------------------- | --------------------------------- |
+| GET    | `/client/me`                        |                         | CurrentClientDTO                  |
+| PUT    | `/client/me`                        | UpdateClientProfileDTO  | CurrentClientDTO (own name/phone) |
+| PUT    | `/client/me/password`               | ChangeClientPasswordDTO | 204 (own password)                |
+| GET    | `/client/me/payment-methods`        |                         | List<ClientPaymentMethodDTO>      |
+| DELETE | `/client/me/payment-methods/{uuid}` |                         | 204 (removes a saved card)        |
 
 Phone numbers in `UpdateClientProfileDTO` are validated/normalized with libphonenumber before persistence (`normalizePhoneNumber`), then checked for uniqueness with `existsByPhoneNumberAndIdNot` so the client's own row doesn't collide with itself. `changePassword` verifies `currentPassword` (`PASSWORD_INCORRECT` on mismatch) and shares `applyNewPassword` with the OTP-reset path `updatePassword` — that helper owns the `PASSWORD_REUSED` check and the encode/save.
 
 `deleteMethod` reuses `findOwnedByCurrentClient(uuid)` (the same guard `BookingService` uses before a saved-card charge): the lookup is scoped by uuid **and** the current client's id, so a card belonging to someone else raises `NotFoundException` → **404, not 403** — the response must not reveal that another client's card exists. Deletion is a **hard** delete, unlike `PaymentGateway`'s soft-delete: no entity holds an FK to `ClientPaymentMethod` (the token is only read live during a charge), so removing a row can't orphan a booking.
 
-### `/clients/auth` — ClientAuthController
+### `/client/auth` — ClientAuthController
 
-All endpoints `@PublicApi` **except** `/logout`. Cookies (access/refresh/`XSRF-TOKEN`) are set via `AuthCookieResponseFactory`; session/refresh/logout delegate to `JwtSessionService`. Sign-up requires email verification (OTP) before login.
+All endpoints `@PublicApi` **except** `/logout`. Cookies (`client_accessToken` / `client_refreshToken` / `client_XSRF-TOKEN`) are set via `AuthCookieResponseFactory` under `AuthContext.CLIENT`; session/refresh/logout delegate to `JwtSessionService`. Sign-up requires email verification (OTP) before login.
 
-| Method | Path                           | Input                  | Output / Effect                             |
-| ------ | ------------------------------ | ---------------------- | ------------------------------------------- |
-| POST   | `/clients/auth/sign-up`        | SignUpDTO              | 201 (creates unverified client, emails OTP) |
-| POST   | `/clients/auth/send-otp`       | SendOtpDTO             | 204 (emails an OTP)                         |
-| POST   | `/clients/auth/verify-otp`     | OtpCodeDTO             | 204 (validates OTP)                         |
-| POST   | `/clients/auth/reset-password` | ResetPasswordDTO       | 204 (consumes OTP, sets new password)       |
-| POST   | `/clients/auth/verify-account` | OtpCodeDTO             | 200 + cookies if verified, else 204         |
-| POST   | `/clients/auth/login`          | LoginDTO               | 200 + sets access/refresh/CSRF cookies      |
-| GET    | `/clients/auth/session`        | refresh cookie         | 200 if valid, else 401                      |
-| POST   | `/clients/auth/refresh`        | refresh cookie         | 200 + new access cookie                     |
-| POST   | `/clients/auth/logout`         | access/refresh cookies | 200 + clears cookies (requires auth)        |
+| Method | Path                          | Input                  | Output / Effect                             |
+| ------ | ----------------------------- | ---------------------- | ------------------------------------------- |
+| POST   | `/client/auth/sign-up`        | SignUpDTO              | 201 (creates unverified client, emails OTP) |
+| POST   | `/client/auth/send-otp`       | SendOtpDTO             | 204 (emails an OTP)                         |
+| POST   | `/client/auth/verify-otp`     | OtpCodeDTO             | 204 (validates OTP)                         |
+| POST   | `/client/auth/reset-password` | ResetPasswordDTO       | 204 (consumes OTP, sets new password)       |
+| POST   | `/client/auth/verify-account` | OtpCodeDTO             | 204 + cookies if verified, else 204         |
+| POST   | `/client/auth/login`          | LoginDTO               | 204 + sets access/refresh/CSRF cookies      |
+| GET    | `/client/auth/session`        | refresh cookie         | 204 if valid, else 401                      |
+| POST   | `/client/auth/refresh`        | refresh cookie         | 204 + new access cookie                     |
+| POST   | `/client/auth/logout`         | access/refresh cookies | 204 + clears cookies (requires auth)        |
 
 **OAuth2 social sign-in** — three additional `@PublicApi` endpoints:
 
-| Method | Path                                               | Input                                             | Output / Effect                                       |
-| ------ | -------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------- |
-| GET    | `/clients/auth/oauth/{provider}/authorization-url` | provider = `GOOGLE` \| `MICROSOFT`                | 200 RedirectionDTO + sets `oauthState` cookie         |
-| POST   | `/clients/auth/oauth/callback`                     | OAuthCallbackDTO + `oauthState` cookie            | 200 (auth cookies) or 200 OAuthRegistrationDTO or 403 |
-| POST   | `/clients/auth/oauth/sign-up`                      | OAuthSignUpDTO `{registrationToken, phoneNumber}` | 200 + sets auth cookies                               |
+| Method | Path                                              | Input                                             | Output / Effect                                                     |
+| ------ | ------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------- |
+| GET    | `/client/auth/oauth/{provider}/authorization-url` | provider = `GOOGLE` \| `MICROSOFT`                | 200 RedirectionDTO + sets `oauthState` cookie                       |
+| POST   | `/client/auth/oauth/callback`                     | OAuthCallbackDTO + `oauthState` cookie            | 200 OAuthCallbackResponseDTO (+ auth cookies when signed in) or 403 |
+| POST   | `/client/auth/oauth/sign-up`                      | OAuthSignUpDTO `{registrationToken, phoneNumber}` | 204 + sets auth cookies                                             |
 
 **The redirect target is the frontend, not the backend.** `cinefy.oauth.redirect-uri` is a _path_
 appended to `AppConfig.getFrontendClientUrl()`, so the provider bounces the browser to an Angular
@@ -651,7 +707,7 @@ UI can render "set" vs "change".
 
 ### `/statistics` — StatisticsController
 
-Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. All three endpoints bind the same
+Class-level `@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")`. All three endpoints bind the same
 `DateRangeDTO` via `@Valid @ModelAttribute` (query params, not a body).
 
 | Method | Path                  | Input                | Output                      |
@@ -663,14 +719,14 @@ Class-level `@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")`. All three endpoin
 `from`/`to` are ISO `yyyy-MM-dd` (`@DateTimeFormat(ISO.DATE)`), both `@NotNull`. `@ModelAttribute`
 binding failures raise **`BindException`**, not `MethodArgumentNotValidException` — the global
 handler is registered on `BindException` (the superclass) so both query-param and request-body
-validation produce the same field-level 400.
+validation produce the same field-level 422.
 
 ### Statistics conventions
 
 **One validator, four rules.** `StatisticsService.validateDateRange(DateRangeDTO)` is `public
 static` so every statistics endpoint calls the same rules: `from <= to`, span ≤ 1 year, `from` not
 before the start of last calendar year, and `to` not after today. The `@NotNull` checks stay on the
-DTO; these four are `BusinessException` → 400.
+DTO; these four are `BusinessException` → 422.
 
 **Every statistics query filters `s.status IN REPORTABLE_STATUSES`.** DRAFT showtimes are excluded
 from revenue, ticket counts, and capacity alike — an unpublished schedule with test bookings must

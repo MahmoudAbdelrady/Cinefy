@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/movies")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
 public class TmdbMovieController {
 
     private final TmdbMovieService tmdbMovieService;

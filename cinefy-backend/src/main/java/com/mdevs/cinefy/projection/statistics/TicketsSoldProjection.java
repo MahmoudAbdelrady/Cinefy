@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.dto.statistics;
+package com.mdevs.cinefy.projection.statistics;
 
 public record TicketsSoldProjection(long current, long previous) {
 }

@@ -35,9 +35,7 @@
         @for (member of staffMembers(); track member.id) {
           <li class="staff-member">
             <div class="staff-info">
-              <div class="si-img" [attr.data-position]="member.position">
-                <span class="si-img-ink"></span>
-                <span class="si-img-glow"></span>
+              <div class="si-img">
                 <span class="si-img-initials">{{ getInitials(member.fullName) }}</span>
               </div>
               <div class="si-details">

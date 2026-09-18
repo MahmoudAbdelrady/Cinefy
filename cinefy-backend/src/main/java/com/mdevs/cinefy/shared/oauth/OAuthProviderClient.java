@@ -13,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.UUID;
 
 public abstract class OAuthProviderClient {
@@ -45,10 +46,16 @@ public abstract class OAuthProviderClient {
                 .build();
     }
 
-    public OAuthAuthorizationDTO getAuthorizationUrl() {
-        OAuthState state = new OAuthState(getProvider().name(), UUID.randomUUID().toString());
+    public OAuthAuthorizationDTO getAuthorizationUrl(String redirectUrl) {
+        OAuthState state = new OAuthState(getProvider().name(), UUID.randomUUID().toString(), toSafeRedirect(redirectUrl));
+        StringBuilder rawState = new StringBuilder()
+                .append(state.provider()).append(STATE_SEPARATOR).append(state.token());
+        if (StringUtils.isNotEmpty(state.redirectUrl())) {
+            rawState.append(STATE_SEPARATOR).append(state.redirectUrl());
+        }
+
         String authorizationUrl = buildAuthorizationRequest()
-                .queryParam("state", state.provider() + STATE_SEPARATOR + state.token())
+                .queryParam("state", encodeState(rawState.toString()))
                 .build()
                 .encode()
                 .toUriString();
@@ -66,12 +73,12 @@ public abstract class OAuthProviderClient {
             throw new BusinessException(INVALID_STATE_MESSAGE);
         }
 
-        String[] parts = state.split(STATE_SEPARATOR, 2);
-        if (parts.length != 2 || StringUtils.isEmpty(parts[0]) || StringUtils.isEmpty(parts[1])) {
+        String[] parts = decodeState(state).split(STATE_SEPARATOR, 3);
+        if (parts.length < 2 || StringUtils.isEmpty(parts[0]) || StringUtils.isEmpty(parts[1])) {
             throw new BusinessException(INVALID_STATE_MESSAGE);
         }
 
-        return new OAuthState(parts[0], parts[1]);
+        return new OAuthState(parts[0], parts[1], parts.length == 3 ? toSafeRedirect(parts[2]) : null);
     }
 
     // ====================== Provider Contract ======================
@@ -91,6 +98,29 @@ public abstract class OAuthProviderClient {
     protected void validateState(String state, String cookieStateToken) {
         if (StringUtils.isEmpty(state) || StringUtils.isEmpty(cookieStateToken) || !MessageDigest.isEqual(
                 state.getBytes(StandardCharsets.UTF_8), cookieStateToken.getBytes(StandardCharsets.UTF_8))) {
+            throw new BusinessException(INVALID_STATE_MESSAGE);
+        }
+    }
+
+    private static String toSafeRedirect(String redirectUrl) {
+        if (StringUtils.isEmpty(redirectUrl) || !redirectUrl.startsWith("/")
+                || redirectUrl.startsWith("//") || redirectUrl.startsWith("/\\")) {
+            return null;
+        }
+
+        return redirectUrl;
+    }
+
+    private static String encodeState(String state) {
+        return Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(state.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static String decodeState(String state) {
+        try {
+            return new String(Base64.getUrlDecoder().decode(state), StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
             throw new BusinessException(INVALID_STATE_MESSAGE);
         }
     }

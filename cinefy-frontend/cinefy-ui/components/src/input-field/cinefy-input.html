@@ -17,7 +17,7 @@
       [type]="resolvedType()"
       [placeholder]="placeholder()"
       [pSize]="size()"
-      [invalid]="control().touched && control().invalid"
+      [invalid]="isInvalid()"
       [class.uppercase]="uppercase()"
       (input)="onInput($event)"
       (blur)="blurred.emit()"
@@ -43,7 +43,7 @@
 
   @if (hint(); as hintText) {
   <p class="cui-field-hint">{{ hintText }}</p>
-  } @if (hasErrorMessages() && control().touched && control().errors) {
+  } @if (hasErrorMessages() && isInvalid()) {
   <cui-field-error [control]="control()" [messages]="errorMessages()" />
   }
 </div>

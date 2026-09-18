@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/payment-gateways")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+@PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
 public class PaymentGatewayController {
 
     private final PaymentGatewayService paymentGatewayService;

@@ -9,6 +9,8 @@ import type {
 } from '../shared/types';
 import { StaffService } from './staff';
 
+const API_PREFIX = '/management/auth';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -22,45 +24,42 @@ export class AuthService {
 
   login(data: LoginPayload): Observable<void> {
     return this.http
-      .post<void>('/management/auth/login', data)
+      .post<void>(`${API_PREFIX}/login`, data)
       .pipe(tap(() => this.authStatus.set(true)));
   }
 
   logout(): Observable<void> {
     return this.http
-      .post<void>('/management/auth/logout', null)
+      .post<void>(`${API_PREFIX}/logout`, null)
       .pipe(tap(() => this.clearAuthState()));
   }
 
   forgotPassword(data: ForgotPasswordPayload): Observable<void> {
-    return this.http.post<void>('/management/auth/forgot-password', data);
+    return this.http.post<void>(`${API_PREFIX}/forgot-password`, data);
   }
 
   verifyResetCode(data: VerifyResetCodePayload): Observable<void> {
-    return this.http.post<void>('/management/auth/verify-reset-code', data);
+    return this.http.post<void>(`${API_PREFIX}/verify-reset-code`, data);
   }
 
   resetPassword(data: ResetPasswordPayload): Observable<void> {
-    return this.http.post<void>('/management/auth/reset-password', data);
+    return this.http.post<void>(`${API_PREFIX}/reset-password`, data);
   }
 
   isAuthenticated(): Observable<boolean> {
     const known = this.authStatus();
     if (known !== null) return of(known);
 
-    return this.http.get<void>('/management/auth/session').pipe(
+    return this.http.get<void>(`${API_PREFIX}/session`).pipe(
       map(() => true),
       catchError(() => of(false)),
       tap((valid) => this.authStatus.set(valid)),
     );
   }
 
-  // Single-flight: concurrent 401s share ONE /refresh execution.
   refresh(): Observable<void> {
-    this.refresh$ ??= this.http.post<void>('/management/auth/refresh', null).pipe(
-      // Clear the slot once it settles so the next expiry starts a fresh refresh.
+    this.refresh$ ??= this.http.post<void>(`${API_PREFIX}/refresh`, null).pipe(
       finalize(() => (this.refresh$ = null)),
-      // Default refCount (false) + finalize keeps the single execution alive across subscribers.
       shareReplay(1),
     );
     return this.refresh$;

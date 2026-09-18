@@ -28,12 +28,8 @@
       .alch-icon {
         width: 36px;
         height: 36px;
-        border-radius: $radius-md;
-        background: linear-gradient(135deg, $blue-600 0%, #4338ca 100%);
-        @include flex-center;
-        color: #ffffff;
-        box-shadow: $shadow-xs;
-        @include lucide-icon-fix;
+        flex-shrink: 0;
+        object-fit: contain;
       }
 
       .alch-info {

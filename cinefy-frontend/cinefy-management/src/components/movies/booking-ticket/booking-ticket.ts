@@ -1,9 +1,8 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe, DOCUMENT } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
+import { compareSeatPositions, SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
 import { PrinterIcon } from '../../../shared/icons';
-import { comparePositions } from '../../halls/seat-layout';
 import type { BookedSeat, BookingConfirmation } from '../../../shared/types';
 
 type TicketLayout = 'combined' | 'split';
@@ -18,7 +17,7 @@ interface TicketStub {
 }
 
 function toStub(seats: BookedSeat[], total: number): TicketStub {
-  const ordered = [...seats].sort((a, b) => comparePositions(a.position, b.position));
+  const ordered = [...seats].sort((a, b) => compareSeatPositions(a.position, b.position));
   const positions = ordered.map((seat) => seat.position);
 
   return {
@@ -54,7 +53,7 @@ export class BookingTicketComponent {
     const { seats, totalPrice } = this.ticket();
     return this.isSplit()
       ? [...seats]
-          .sort((a, b) => comparePositions(a.position, b.position))
+          .sort((a, b) => compareSeatPositions(a.position, b.position))
           .map((seat) => toStub([seat], seat.price))
       : [toStub(seats, totalPrice)];
   });

@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import type { MovieSearchResult, UpcomingMovie, MovieDetail } from '../shared/types';
 import type { PaginatedResponse } from 'cinefy-ui/types';
 
+const API_PREFIX = '/movies';
+
 @Injectable({ providedIn: 'root' })
 export class MoviesService {
   private readonly http = inject(HttpClient);
@@ -16,23 +18,23 @@ export class MoviesService {
       query,
       ...pageable,
     };
-    return this.http.get<PaginatedResponse<MovieSearchResult>>('/movies/search', { params });
+    return this.http.get<PaginatedResponse<MovieSearchResult>>(`${API_PREFIX}/search`, { params });
   }
 
   getUpcomingMovies(limit?: number): Observable<UpcomingMovie[]> {
     const params = { ...(limit !== undefined && { limit }) };
-    return this.http.get<UpcomingMovie[]>('/movies/upcoming', { params });
+    return this.http.get<UpcomingMovie[]>(`${API_PREFIX}/upcoming`, { params });
   }
 
   getMovieDetails(id: number): Observable<MovieDetail> {
-    return this.http.get<MovieDetail>(`/movies/${id}`);
+    return this.http.get<MovieDetail>(`${API_PREFIX}/${id}`);
   }
 
   setAnnouncement(id: number, announced: boolean): Observable<void> {
-    return this.http.post<void>(`/movies/${id}/announcement`, { announced });
+    return this.http.post<void>(`${API_PREFIX}/${id}/announcement`, { announced });
   }
 
   setHighlight(id: number, highlighted: boolean): Observable<void> {
-    return this.http.post<void>(`/movies/${id}/highlight`, { highlighted });
+    return this.http.post<void>(`${API_PREFIX}/${id}/highlight`, { highlighted });
   }
 }

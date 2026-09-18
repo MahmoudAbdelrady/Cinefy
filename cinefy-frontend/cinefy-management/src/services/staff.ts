@@ -14,6 +14,8 @@ import type {
 } from '../shared/types';
 import type { PaginatedResponse } from 'cinefy-ui/types';
 
+const API_PREFIX = '/staff';
+
 @Injectable({ providedIn: 'root' })
 export class StaffService {
   private readonly http = inject(HttpClient);
@@ -24,7 +26,7 @@ export class StaffService {
   getCurrentStaffMember(): Observable<CurrentStaffMember> {
     if (!this.currentStaffMemberRequested) {
       this.currentStaffMemberRequested = true;
-      this.http.get<CurrentStaffMember>('/staff/me').subscribe({
+      this.http.get<CurrentStaffMember>(`${API_PREFIX}/me`).subscribe({
         next: (member) => this.currentStaffMember.next(member),
         error: () => (this.currentStaffMemberRequested = false),
       });
@@ -33,11 +35,11 @@ export class StaffService {
   }
 
   updateCurrentStaffMember(data: UpdateProfilePayload): Observable<StaffMemberDetail> {
-    return this.http.put<StaffMemberDetail>('/staff/me', data);
+    return this.http.put<StaffMemberDetail>(`${API_PREFIX}/me`, data);
   }
 
   changeCurrentStaffMemberPassword(data: ChangePasswordPayload): Observable<void> {
-    return this.http.put<void>('/staff/me/password', data);
+    return this.http.put<void>(`${API_PREFIX}/me/password`, data);
   }
 
   patchCurrentStaffMember(partial: Partial<CurrentStaffMember>): void {
@@ -61,30 +63,30 @@ export class StaffService {
       ...(position && { position }),
       ...pageable,
     };
-    return this.http.get<PaginatedResponse<StaffMemberSummary>>('/staff', { params });
+    return this.http.get<PaginatedResponse<StaffMemberSummary>>(API_PREFIX, { params });
   }
 
   getPositionCoverage(): Observable<PositionCoverage> {
-    return this.http.get<PositionCoverage>('/staff/position-coverage');
+    return this.http.get<PositionCoverage>(`${API_PREFIX}/position-coverage`);
   }
 
   getOnShiftSummary(): Observable<OnShiftSummary> {
-    return this.http.get<OnShiftSummary>('/staff/on-shift');
+    return this.http.get<OnShiftSummary>(`${API_PREFIX}/on-shift`);
   }
 
   getStaffMember(id: string): Observable<StaffMemberDetail> {
-    return this.http.get<StaffMemberDetail>(`/staff/${id}`);
+    return this.http.get<StaffMemberDetail>(`${API_PREFIX}/${id}`);
   }
 
   createStaffMember(data: StaffMemberPayload): Observable<StaffMemberSummary> {
-    return this.http.post<StaffMemberSummary>('/staff', data);
+    return this.http.post<StaffMemberSummary>(API_PREFIX, data);
   }
 
   updateStaffMember(id: string, data: StaffMemberPayload): Observable<StaffMemberSummary> {
-    return this.http.put<StaffMemberSummary>(`/staff/${id}`, data);
+    return this.http.put<StaffMemberSummary>(`${API_PREFIX}/${id}`, data);
   }
 
   deleteStaffMember(id: string): Observable<void> {
-    return this.http.delete<void>(`/staff/${id}`);
+    return this.http.delete<void>(`${API_PREFIX}/${id}`);
   }
 }

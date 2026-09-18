@@ -15,9 +15,8 @@ import {
 } from 'cinefy-ui/components';
 import { BookingCancelledComponent } from '../../components';
 import { BookingService, ClientService } from '../../services';
-import { comparePositions } from '../../shared/seat-position';
 import { skipErrorToast } from '../../app/core/interceptors';
-import { SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
+import { compareSeatPositions, SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
 import type { ApiError, ClientPaymentMethod } from '../../shared/types';
 import {
   ArrowLeftIcon,
@@ -124,7 +123,7 @@ export class CheckoutPage {
   );
 
   protected readonly seats = computed(() =>
-    [...(this.booking()?.seats ?? [])].sort((a, b) => comparePositions(a.position, b.position)),
+    [...(this.booking()?.seats ?? [])].sort((a, b) => compareSeatPositions(a.position, b.position)),
   );
 
   protected readonly totalPrice = computed(() => this.booking()?.totalPrice ?? 0);

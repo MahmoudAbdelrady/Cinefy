@@ -9,7 +9,7 @@
       <div>
         <h4>Personal details</h4>
         <p>
-          {{ isEditing() ? 'Editable — these are yours to change' : 'Your contact information' }}
+          {{ isEditing() ? 'Update your contact information' : 'Your contact information' }}
         </p>
       </div>
     </div>
@@ -55,15 +55,18 @@
         />
       </div>
 
+      <cui-input
+        [control]="personalForm.controls.email"
+        label="Email"
+        placeholder="Your email"
+        [leadingIcon]="icons.EmailIcon"
+        hint="Your email can only be changed by an administrator."
+      />
+
       <cui-phone-input
         [countryControl]="personalForm.controls.phoneCountry"
         [numberControl]="personalForm.controls.phoneNumber"
       />
-
-      <div class="panel-note">
-        <svg [lucideIcon]="icons.LockIcon" [size]="15"></svg>
-        <p>Email and employment information can only be changed by an administrator.</p>
-      </div>
 
       <div class="panel-footer">
         <button type="button" class="btn-secondary" (click)="cancelEditing()">Cancel</button>

@@ -219,14 +219,16 @@
 
 @media print {
   .bt-strip {
-    display: block;
-    overflow-x: visible;
+    display: block !important;
+    overflow: visible !important;
     padding-bottom: 0;
 
     .bt-ticket {
       flex: none;
       border: none;
       padding: 0;
+      max-width: 350px;
+      break-inside: avoid;
       break-after: page;
 
       &:last-child {

@@ -41,8 +41,12 @@ public class JwtSessionService {
 
     public void logout(String accessToken, String refreshToken) {
         // Losing the blocklist race here IS success
-        invalidJwtService.tryInvalidate(accessToken);
-        invalidJwtService.tryInvalidate(refreshToken);
+        if (StringUtils.isNotEmpty(accessToken)) {
+            invalidJwtService.tryInvalidate(accessToken);
+        }
+        if (StringUtils.isNotEmpty(refreshToken)) {
+            invalidJwtService.tryInvalidate(refreshToken);
+        }
     }
 
     @Transactional

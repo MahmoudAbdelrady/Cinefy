@@ -5,7 +5,7 @@
     [minDate]="min()"
     [maxDate]="max()"
     [appendTo]="container()"
-    [invalid]="!suppressError() && control().touched && control().invalid"
+    [invalid]="showsError()"
     [autofocus]="false"
     dateFormat="yy-mm-dd"
     [showIcon]="true"
@@ -22,7 +22,7 @@
 
   @if (hint(); as hintText) {
   <p class="dp-hint">{{ hintText }}</p>
-  } @if (hasErrorMessages() && !suppressError() && control().touched && control().invalid) {
+  } @if (hasErrorMessages() && showsError()) {
   <cui-field-error [control]="control()" [messages]="errorMessages()" />
   }
 </div>

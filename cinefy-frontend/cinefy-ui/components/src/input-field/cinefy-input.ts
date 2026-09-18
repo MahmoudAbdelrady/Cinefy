@@ -18,6 +18,7 @@ import { InputIcon } from "primeng/inputicon";
 import { InputText } from "primeng/inputtext";
 import { EyeIcon, EyeOffIcon, XIcon } from "../icons";
 import { CinefyFieldError } from "../field-error/cinefy-field-error";
+import { isInvalidAndTouched } from "../field-error/control-state";
 
 type CinefyInputSize = "small" | "large";
 
@@ -69,6 +70,8 @@ export class CinefyInput {
   protected readonly showClear = computed(() => this.clearable() && !this.isPassword() && !!this.controlValue());
 
   protected readonly hasErrorMessages = computed(() => Object.keys(this.errorMessages()).length > 0);
+
+  protected readonly isInvalid = isInvalidAndTouched(this.control);
 
   constructor() {
     afterNextRender(() => {

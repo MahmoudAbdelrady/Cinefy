@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
 import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { OAuthProvider } from '../../../shared/types';
 import { AuthService } from '../../../services';
@@ -12,6 +13,7 @@ import { AuthService } from '../../../services';
 })
 export class OAuthButtonsComponent {
   private readonly authService = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly pendingProvider = signal<string | null>(null);
@@ -34,11 +36,15 @@ export class OAuthButtonsComponent {
 
     this.pendingProvider.set(code);
     this.authService
-      .getOAuthAuthorizationUrl(code)
+      .getOAuthAuthorizationUrl(code, this.redirectUrl())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (authorizationUrl) => window.location.assign(authorizationUrl),
         error: () => this.pendingProvider.set(null),
       });
+  }
+
+  private redirectUrl(): string | undefined {
+    return this.route.snapshot.queryParamMap.get('redirectUrl') ?? undefined;
   }
 }

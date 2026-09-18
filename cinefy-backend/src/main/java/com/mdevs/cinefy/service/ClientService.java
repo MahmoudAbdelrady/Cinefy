@@ -8,7 +8,6 @@ import com.mdevs.cinefy.dto.client.CurrentClientDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.dto.client.UpdateClientProfileDTO;
 import com.mdevs.cinefy.entity.Client;
-import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.repository.ClientRepository;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
@@ -59,7 +58,6 @@ public class ClientService implements UserDetailsService {
         Client client = new Client();
         client.setFirstName(dto.getFirstName());
         client.setLastName(dto.getLastName());
-        client.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
         client.setEmail(normalizedEmail);
         client.setPhoneNumber(normalizedPhoneNumber);
         client.setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -76,7 +74,6 @@ public class ClientService implements UserDetailsService {
         Client client = new Client();
         client.setFirstName(token.firstName());
         client.setLastName(token.lastName());
-        client.setFullName(User.toFullName(token.firstName(), token.lastName()));
         client.setEmail(normalizedEmail);
         client.setPhoneNumber(normalizedPhoneNumber);
         client.setVerified(true);
@@ -94,7 +91,6 @@ public class ClientService implements UserDetailsService {
 
         client.setFirstName(dto.getFirstName());
         client.setLastName(dto.getLastName());
-        client.setFullName(User.toFullName(dto.getFirstName(), dto.getLastName()));
         client.setPhoneNumber(normalizedPhoneNumber);
 
         clientRepository.save(client);
