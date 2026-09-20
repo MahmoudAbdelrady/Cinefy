@@ -1,4 +1,26 @@
 services:
+  cinefy-nginx:
+    image: nginx:1.31.6-alpine3.24
+    restart: unless-stopped
+    depends_on:
+      cinefy-backend:
+        condition: service_healthy
+      cinefy-management:
+        condition: service_healthy
+      cinefy-client:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "4200:4200"
+    volumes:
+      - ./${NGINX_CONF}:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:80/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   cinefy-backend:
     build:
       context: ./cinefy-backend
@@ -53,8 +75,10 @@ services:
     depends_on:
       cinefy-backend:
         condition: service_healthy
+    environment:
+      PORT: ${MANAGEMENT_PORT}
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:80/ || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:$$PORT/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5

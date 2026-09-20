@@ -2,3 +2,7 @@
 .env
 *.env
 !.env.example
+
+# Nginx Config
+nginx.*.conf
+!nginx.local.conf
