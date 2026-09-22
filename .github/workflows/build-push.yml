@@ -1,44 +1,29 @@
-name: Image Scan
+name: Build and Push
 
 on:
   workflow_dispatch:
     inputs:
       backend:
-        description: Scan backend
+        description: Build and push backend
         type: boolean
         required: false
         default: true
       management:
-        description: Scan management
+        description: Build and push management
         type: boolean
         required: false
         default: true
       client:
-        description: Scan client
+        description: Build and push client
         type: boolean
         required: false
         default: true
-      severity:
-        description: Severities to report
-        type: choice
-        required: true
-        default: HIGH,CRITICAL
-        options:
-          - CRITICAL
-          - HIGH,CRITICAL
-          - MEDIUM,HIGH,CRITICAL
-          - UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
-      ignore-unfixed:
-        description: Ignore vulnerabilities with no available fix
-        type: boolean
-        required: false
-        default: false
 
-run-name: Image Scan — ${{ github.ref_name }}
+run-name: Build and Push — ${{ github.ref_name }}
 
 concurrency:
-  group: image-scan-${{ github.ref_name }}
-  cancel-in-progress: true
+  group: build-push-${{ github.ref_name }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -59,14 +44,15 @@ jobs:
           CLIENT: ${{ inputs.client }}
         run: |
           images=()
+
           if [[ "$BACKEND" == "true" ]]; then
-            images+=('{"name":"backend","context":"cinefy-backend","target":"run"}')
+            images+=('{"name":"backend","context":"cinefy-backend","target":"run","image":"cinefy-backend"}')
           fi
           if [[ "$MANAGEMENT" == "true" ]]; then
-            images+=('{"name":"management","context":"cinefy-frontend","target":"mgmt"}')
+            images+=('{"name":"management","context":"cinefy-frontend","target":"mgmt","image":"cinefy-frontend-management"}')
           fi
           if [[ "$CLIENT" == "true" ]]; then
-            images+=('{"name":"client","context":"cinefy-frontend","target":"client"}')
+            images+=('{"name":"client","context":"cinefy-frontend","target":"client","image":"cinefy-frontend-client"}')
           fi
 
           matrix="$(IFS=,; echo "[${images[*]}]")"
@@ -81,14 +67,16 @@ jobs:
           echo "::error::No images selected — tick at least one of backend / management / client."
           exit 1
 
-  scan:
-    name: Scan ${{ matrix.name }}
+  build-push:
+    name: Build ${{ matrix.name }}
     needs: setup
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include: ${{ fromJSON(needs.setup.outputs.matrix) }}
+    env:
+      IMAGE: ${{ vars.DOCKERHUB_NAMESPACE }}/${{ matrix.image }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -113,32 +101,35 @@ jobs:
           scan-type: image
           image-ref: cinefy-${{ matrix.name }}:scan
           scanners: vuln
-          severity: ${{ inputs.severity }}
-          ignore-unfixed: ${{ inputs.ignore-unfixed }}
-          exit-code: 0
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
           format: table
-          output: trivy-${{ matrix.name }}.txt
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
 
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push image
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.context }}
+          target: ${{ matrix.target }}
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          push: true
+          cache-from: type=gha,scope=${{ matrix.name }}
+
       - name: Summarise
-        if: always()
         env:
-          IMAGE: ${{ matrix.name }}
-          BRANCH: ${{ github.ref_name }}
-          SEVERITY: ${{ inputs.severity }}
+          SHA: ${{ github.sha }}
         run: |
-          report="trivy-${IMAGE}.txt"
           {
             echo "## ${IMAGE}"
             echo
-            echo "Branch \`${BRANCH}\` · severities \`${SEVERITY}\`"
-            echo
-            if [[ ! -s "$report" ]]; then
-              echo "No vulnerabilities found."
-            else
-              echo '```'
-              cat "$report"
-              echo '```'
-            fi
+            echo "Scan passed. Pushed \`latest\` and \`${SHA}\`."
           } >> "$GITHUB_STEP_SUMMARY"
