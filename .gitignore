@@ -6,3 +6,6 @@
 # Nginx Config
 nginx.*.conf
 !nginx.local.conf
+
+# Docker compose
+docker-compose.local.yml

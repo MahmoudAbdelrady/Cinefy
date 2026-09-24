@@ -22,10 +22,7 @@ services:
       start_period: 10s
 
   cinefy-backend:
-    build:
-      context: ./cinefy-backend
-      dockerfile: Dockerfile
-    image: mahmoudabdelrady/cinefy-backend:latest
+    image: mahmoudabdelrady/cinefy-backend:${CINEFY_BACKEND_VERSION}
     restart: unless-stopped
     depends_on:
       cinefy-db:
@@ -66,11 +63,7 @@ services:
       start_period: 60s
 
   cinefy-management:
-    build:
-      context: ./cinefy-frontend
-      dockerfile: Dockerfile
-      target: mgmt
-    image: mahmoudabdelrady/cinefy-frontend-management:latest
+    image: mahmoudabdelrady/cinefy-frontend-management:${CINEFY_MANAGEMENT_VERSION}
     restart: unless-stopped
     depends_on:
       cinefy-backend:
@@ -85,11 +78,7 @@ services:
       start_period: 10s
 
   cinefy-client:
-    build:
-      context: ./cinefy-frontend
-      dockerfile: Dockerfile
-      target: client
-    image: mahmoudabdelrady/cinefy-frontend-client:latest
+    image: mahmoudabdelrady/cinefy-frontend-client:${CINEFY_CLIENT_VERSION}
     restart: unless-stopped
     depends_on:
       cinefy-backend:
