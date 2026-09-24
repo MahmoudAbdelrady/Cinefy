@@ -2,7 +2,7 @@ import { Component, computed, DestroyRef, inject, input, output, signal } from '
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EditIcon, EmailIcon, PhoneIcon, LockIcon, UserIcon } from '../../../shared/icons';
+import { EditIcon, EmailIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import {
   CinefyInput,
   CinefyLoadingSpinner,
@@ -38,7 +38,6 @@ export class ProfilePersonalDetailsComponent {
     PhoneIcon,
     EditIcon,
     UserIcon,
-    LockIcon,
   };
 
   private readonly staffService = inject(StaffService);

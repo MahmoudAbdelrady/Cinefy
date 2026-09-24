@@ -1,0 +1,255 @@
+name: Build and Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      backend:
+        description: Build and push backend
+        type: boolean
+        required: false
+        default: true
+      management:
+        description: Build and push management
+        type: boolean
+        required: false
+        default: true
+      client:
+        description: Build and push client
+        type: boolean
+        required: false
+        default: true
+
+run-name: Build and Deploy — ${{ github.ref_name }}
+
+concurrency:
+  group: build-deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    name: Select images
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+      empty: ${{ steps.select.outputs.empty }}
+    steps:
+      - name: Build matrix
+        id: select
+        env:
+          BACKEND: ${{ inputs.backend }}
+          MANAGEMENT: ${{ inputs.management }}
+          CLIENT: ${{ inputs.client }}
+        run: |
+          images=()
+
+          if [[ "$BACKEND" == "true" ]]; then
+            images+=('{"name":"backend","context":"cinefy-backend","target":"run","image":"cinefy-backend"}')
+          fi
+          if [[ "$MANAGEMENT" == "true" ]]; then
+            images+=('{"name":"management","context":"cinefy-frontend","target":"mgmt","image":"cinefy-frontend-management"}')
+          fi
+          if [[ "$CLIENT" == "true" ]]; then
+            images+=('{"name":"client","context":"cinefy-frontend","target":"client","image":"cinefy-frontend-client"}')
+          fi
+
+          matrix="$(IFS=,; echo "[${images[*]}]")"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "empty=${#images[@]}" >> "$GITHUB_OUTPUT"
+
+          echo "Selected ${#images[@]} image(s): $matrix"
+
+      - name: Fail if nothing selected
+        if: steps.select.outputs.empty == '0'
+        run: |
+          echo "::error::No images selected — tick at least one of backend / management / client."
+          exit 1
+
+  build-push:
+    name: Build ${{ matrix.name }}
+    needs: setup
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.pushed.outputs.backend }}
+      management: ${{ steps.pushed.outputs.management }}
+      client: ${{ steps.pushed.outputs.client }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.setup.outputs.matrix) }}
+    env:
+      IMAGE: ${{ vars.DOCKERHUB_NAMESPACE }}/${{ matrix.image }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build image
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.context }}
+          target: ${{ matrix.target }}
+          tags: cinefy-${{ matrix.name }}:scan
+          load: true
+          push: false
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,scope=${{ matrix.name }},mode=max
+
+      - name: Scan image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          image-ref: cinefy-${{ matrix.name }}:scan
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+          format: table
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
+
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push image
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.context }}
+          target: ${{ matrix.target }}
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          push: true
+          cache-from: type=gha,scope=${{ matrix.name }}
+
+      - name: Mark as pushed
+        id: pushed
+        env:
+          NAME: ${{ matrix.name }}
+        run: echo "${NAME}=true" >> "$GITHUB_OUTPUT"
+
+      - name: Summarise
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          {
+            echo "## ${IMAGE}"
+            echo
+            echo "Scan passed. Pushed \`latest\` and \`${SHA}\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build-push
+    if: ${{ always() && (needs.build-push.outputs.backend == 'true' || needs.build-push.outputs.management == 'true' || needs.build-push.outputs.client == 'true') }}
+    env:
+      DEPLOY_BACKEND: ${{ needs.build-push.outputs.backend == 'true' }}
+      DEPLOY_MANAGEMENT: ${{ needs.build-push.outputs.management == 'true' }}
+      DEPLOY_CLIENT: ${{ needs.build-push.outputs.client == 'true' }}
+      DEPLOY_URL: ${{ vars.DEPLOY_URL }}
+      DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+      IMAGE_TAG: ${{ github.sha }}
+    steps:
+      - name: Resolve deploy targets
+        run: |
+          echo "Deploy backend:    $DEPLOY_BACKEND"
+          echo "Deploy management: $DEPLOY_MANAGEMENT"
+          echo "Deploy client:     $DEPLOY_CLIENT"
+          echo "Image tag:         $IMAGE_TAG"
+
+      - name: Update image version env vars
+        run: |
+          set -euo pipefail
+
+          payload=$(jq -nc \
+            --arg tag "$IMAGE_TAG" \
+            --argjson backend "$DEPLOY_BACKEND" \
+            --argjson management "$DEPLOY_MANAGEMENT" \
+            --argjson client "$DEPLOY_CLIENT" \
+            '{
+               data: [
+                 (if $backend then {key: "CINEFY_BACKEND_VERSION", value: $tag} else empty end),
+                 (if $management then {key: "CINEFY_MANAGEMENT_VERSION", value: $tag} else empty end),
+                 (if $client then {key: "CINEFY_CLIENT_VERSION", value: $tag} else empty end)
+               ]
+             }')
+
+          echo "Request body: $payload"
+
+          status=$(curl -sS -o response.txt -w '%{http_code}' \
+            -X PATCH "${DEPLOY_URL}/envs/bulk" \
+            -H "Authorization: Bearer ${DEPLOY_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "$payload")
+
+          echo "HTTP $status"
+          cat response.txt
+
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::error::Failed to update env vars (HTTP $status)"
+            exit 1
+          fi
+
+      - name: Start backend application
+        if: ${{ env.DEPLOY_BACKEND == 'true' }}
+        env:
+          APP_ID: ${{ vars.BACKEND_APP_ID }}
+        run: |
+          set -euo pipefail
+
+          status=$(curl -sS -o response.txt -w '%{http_code}' \
+            -X POST "${DEPLOY_URL}/applications/${APP_ID}/start?latest=true" \
+            -H "Authorization: Bearer ${DEPLOY_TOKEN}")
+
+          echo "HTTP $status"
+          cat response.txt
+
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::error::Failed to start backend application (HTTP $status)"
+            exit 1
+          fi
+
+      - name: Start management application
+        if: ${{ env.DEPLOY_MANAGEMENT == 'true' }}
+        env:
+          APP_ID: ${{ vars.MANAGEMENT_APP_ID }}
+        run: |
+          set -euo pipefail
+
+          status=$(curl -sS -o response.txt -w '%{http_code}' \
+            -X POST "${DEPLOY_URL}/applications/${APP_ID}/start?latest=true" \
+            -H "Authorization: Bearer ${DEPLOY_TOKEN}")
+
+          echo "HTTP $status"
+          cat response.txt
+
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::error::Failed to start management application (HTTP $status)"
+            exit 1
+          fi
+
+      - name: Start client application
+        if: ${{ env.DEPLOY_CLIENT == 'true' }}
+        env:
+          APP_ID: ${{ vars.CLIENT_APP_ID }}
+        run: |
+          set -euo pipefail
+
+          status=$(curl -sS -o response.txt -w '%{http_code}' \
+            -X POST "${DEPLOY_URL}/applications/${APP_ID}/start?latest=true" \
+            -H "Authorization: Bearer ${DEPLOY_TOKEN}")
+
+          echo "HTTP $status"
+          cat response.txt
+
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::error::Failed to start client application (HTTP $status)"
+            exit 1
+          fi

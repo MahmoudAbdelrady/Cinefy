@@ -13,12 +13,7 @@
         </p>
       </div>
     </div>
-    @if (profile.position === 'ADMIN') {
-      <span class="ph-readonly">
-        <svg [lucideIcon]="icons.LockIcon" [size]="11"></svg>
-        Read-only
-      </span>
-    } @else if (!isEditing()) {
+    @if (profile.position !== 'ADMIN' && !isEditing()) {
       <button type="button" class="btn-primary ph-edit-btn" (click)="startEditing()">
         <svg [lucideIcon]="icons.EditIcon" [size]="15" [strokeWidth]="2"></svg>
         <span>Edit</span>

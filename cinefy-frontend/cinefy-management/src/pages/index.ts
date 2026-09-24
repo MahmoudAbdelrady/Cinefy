@@ -9,4 +9,3 @@ export { NotFoundPage } from './not-found/not-found';
 export { LoginPage } from './auth/login/login';
 export { ForgotPasswordPage } from './auth/forgot-password/forgot-password';
 export { ProfilePage } from './profile/profile';
-export { TestPage } from './test/test';

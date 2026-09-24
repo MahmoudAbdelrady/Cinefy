@@ -1,0 +1,144 @@
+name: PR Build
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: pr-build-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      management: ${{ steps.filter.outputs.management }}
+      client: ${{ steps.filter.outputs.client }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'cinefy-backend/**'
+              - '.github/workflows/pr-build.yml'
+            ui: &ui
+              - 'cinefy-frontend/cinefy-ui/**'
+              - 'cinefy-frontend/package.json'
+              - 'cinefy-frontend/pnpm-lock.yaml'
+              - 'cinefy-frontend/pnpm-workspace.yaml'
+              - '.github/workflows/pr-build.yml'
+            management:
+              - *ui
+              - 'cinefy-frontend/cinefy-management/**'
+            client:
+              - *ui
+              - 'cinefy-frontend/cinefy-client/**'
+
+  backend:
+    name: Build backend
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cinefy-backend
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+
+      - name: Package
+        run: mvn -B clean package -DskipTests
+
+  management:
+    name: Build management
+    needs: changes
+    if: needs.changes.outputs.management == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cinefy-frontend
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.21.0"
+          cache: pnpm
+          cache-dependency-path: cinefy-frontend/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build cinefy-ui
+        run: pnpm ui:build
+
+      - name: Build management
+        run: pnpm mgmt:build
+
+  client:
+    name: Build client
+    needs: changes
+    if: needs.changes.outputs.client == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cinefy-frontend
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.21.0"
+          cache: pnpm
+          cache-dependency-path: cinefy-frontend/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build cinefy-ui
+        run: pnpm ui:build
+
+      - name: Build client
+        run: pnpm client:build
+
+  pr-build:
+    name: PR build
+    needs: [backend, management, client]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results
+        run: |
+          [[ "${{ needs.backend.result }}"    =~ ^(success|skipped)$ ]] || exit 1
+          [[ "${{ needs.management.result }}" =~ ^(success|skipped)$ ]] || exit 1
+          [[ "${{ needs.client.result }}"     =~ ^(success|skipped)$ ]] || exit 1

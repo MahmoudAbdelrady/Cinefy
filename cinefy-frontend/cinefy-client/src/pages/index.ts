@@ -10,4 +10,3 @@ export { SignUpPage } from './auth/signup/signup';
 export { ForgotPasswordPage } from './auth/forgot-password/forgot-password';
 export { OAuthCallbackPage } from './auth/oauth-callback/oauth-callback';
 export { NotFoundPage } from './not-found/not-found';
-export { TestPage } from './test/test';
