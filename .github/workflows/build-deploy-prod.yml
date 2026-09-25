@@ -235,7 +235,7 @@ jobs:
       - name: Start management application
         if: ${{ env.DEPLOY_MANAGEMENT == 'true' }}
         env:
-          APP_ID: ${{ vars.MANAGEMENT_APP_ID }}
+          APP_ID: ${{ vars.MANAGEMENT_FRONTEND_APP_ID }}
         run: |
           set -euo pipefail
 
@@ -254,7 +254,7 @@ jobs:
       - name: Start client application
         if: ${{ env.DEPLOY_CLIENT == 'true' }}
         env:
-          APP_ID: ${{ vars.CLIENT_APP_ID }}
+          APP_ID: ${{ vars.CLIENT_FRONTEND_APP_ID }}
         run: |
           set -euo pipefail
 
