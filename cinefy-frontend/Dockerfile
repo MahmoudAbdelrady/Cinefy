@@ -34,7 +34,7 @@ COPY cinefy-client ./cinefy-client
 RUN pnpm client:build
 
 # ============================ Management run =========================
-FROM nginx:1.31.6-alpine3.24 AS mgmt
+FROM nginx:1.31.6-alpine3.24-slim AS mgmt
 
 RUN apk upgrade --no-cache
 

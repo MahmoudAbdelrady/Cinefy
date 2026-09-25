@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: true
+      nginx:
+        description: Scan nginx
+        type: boolean
+        required: false
+        default: true
       severity:
         description: Severities to report
         type: choice
@@ -57,6 +62,7 @@ jobs:
           BACKEND: ${{ inputs.backend }}
           MANAGEMENT: ${{ inputs.management }}
           CLIENT: ${{ inputs.client }}
+          NGINX: ${{ inputs.nginx }}
         run: |
           images=()
           if [[ "$BACKEND" == "true" ]]; then
@@ -68,6 +74,9 @@ jobs:
           if [[ "$CLIENT" == "true" ]]; then
             images+=('{"name":"client","context":"cinefy-frontend","target":"client"}')
           fi
+          if [[ "$NGINX" == "true" ]]; then
+            images+=('{"name":"nginx","context":".","file":"nginx.Dockerfile"}')
+          fi
 
           matrix="$(IFS=,; echo "[${images[*]}]")"
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
@@ -78,7 +87,7 @@ jobs:
       - name: Fail if nothing selected
         if: steps.select.outputs.empty == '0'
         run: |
-          echo "::error::No images selected — tick at least one of backend / management / client."
+          echo "::error::No images selected — tick at least one of backend / management / client / nginx."
           exit 1
 
   scan:
@@ -100,6 +109,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
           target: ${{ matrix.target }}
           tags: cinefy-${{ matrix.name }}:scan
           load: true
