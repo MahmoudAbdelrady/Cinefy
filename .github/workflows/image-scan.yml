@@ -37,7 +37,7 @@ on:
         description: Ignore vulnerabilities with no available fix
         type: boolean
         required: false
-        default: false
+        default: true
 
 run-name: Image Scan - ${{ github.ref_name }}
 
