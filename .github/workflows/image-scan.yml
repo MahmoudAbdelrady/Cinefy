@@ -39,7 +39,7 @@ on:
         required: false
         default: false
 
-run-name: Image Scan — ${{ github.ref_name }}
+run-name: Image Scan - ${{ github.ref_name }}
 
 concurrency:
   group: image-scan-${{ github.ref_name }}
@@ -87,7 +87,7 @@ jobs:
       - name: Fail if nothing selected
         if: steps.select.outputs.empty == '0'
         run: |
-          echo "::error::No images selected — tick at least one of backend / management / client / nginx."
+          echo "::error::No images selected. Tick at least one of backend / management / client / nginx."
           exit 1
 
   scan:
