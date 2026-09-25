@@ -7,22 +7,22 @@ on:
         description: Build and push backend
         type: boolean
         required: false
-        default: true
+        default: false
       management:
         description: Build and push management
         type: boolean
         required: false
-        default: true
+        default: false
       client:
         description: Build and push client
         type: boolean
         required: false
-        default: true
+        default: false
       nginx:
         description: Build and push nginx
         type: boolean
         required: false
-        default: true
+        default: false
 
 run-name: Build and Deploy (prod) - ${{ github.ref_name }}
 
