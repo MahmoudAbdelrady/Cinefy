@@ -55,6 +55,7 @@ cinefy:
 
 # Variables
 app:
+  base-url: /api
   frontend:
     mgmt:
       url: ${FRONTEND_MGMT_URL}

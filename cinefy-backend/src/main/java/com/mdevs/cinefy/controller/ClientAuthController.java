@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.config.general.AppConfig;
 import com.mdevs.cinefy.dto.RedirectionDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OAuthCallbackDTO;
@@ -50,7 +51,7 @@ public class ClientAuthController {
 
     private final CookieUtil cookieUtil;
 
-    private static final String AUTH_PATH = "/client/auth";
+    private static final String AUTH_PATH = AppConfig.getBaseUrl() + "/client/auth";
 
     private static final AuthContext AUTH_CONTEXT = AuthContext.CLIENT;
 

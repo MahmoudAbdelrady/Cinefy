@@ -59,6 +59,10 @@ public class AppConfig {
         return applicationContext.getEnvironment().getProperty("app.frontend.client.url");
     }
 
+    public static String getBaseUrl() {
+        return applicationContext.getEnvironment().getProperty("app.base-url");
+    }
+
     public static boolean isProductionEnv() {
         return Arrays.stream(applicationContext.getEnvironment().getActiveProfiles()).anyMatch(profile -> profile.equalsIgnoreCase("prod"));
     }
