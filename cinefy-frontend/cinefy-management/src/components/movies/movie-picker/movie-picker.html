@@ -6,6 +6,10 @@
       [clearable]="true"
       placeholder="Search for a movie…"
     />
+    <div class="tmdb-attribution">
+      <span>Powered by</span>
+      <img src="tmdb-logo.png" alt="TMDB" />
+    </div>
   </div>
   @if (movieSearchQuery().length === 0) {
     <div class="search-placeholder">
@@ -26,7 +30,11 @@
         <li class="movie-item" (click)="onPick(movie)">
           <div class="mi-info">
             <div class="mi-img">
-              <cui-media-image [src]="movie.posterUrl" alt="{{ movie.title }} Poster" [iconSize]="20" />
+              <cui-media-image
+                [src]="movie.posterUrl"
+                alt="{{ movie.title }} Poster"
+                [iconSize]="20"
+              />
             </div>
             <div class="mi-details">
               <h4>{{ movie.title }}</h4>
