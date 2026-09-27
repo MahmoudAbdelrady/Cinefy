@@ -76,11 +76,12 @@ services:
   cinefy-client:
     image: mahmoudabdelrady/cinefy-frontend-client:${CINEFY_CLIENT_VERSION}
     restart: unless-stopped
+    environment:
+      NG_ALLOWED_HOSTS: ${FRONTEND_CLIENT_ALLOWED_HOSTS}
+      PORT: ${CLIENT_PORT}
     depends_on:
       cinefy-backend:
         condition: service_healthy
-    environment:
-      PORT: ${CLIENT_PORT}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:$$PORT/ || exit 1"]
       interval: 10s
