@@ -4,7 +4,7 @@
 .btn-base {
   @include flex-center;
   gap: 8px;
-  padding: 10px 24px;
+  padding: 8px 24px;
   font-size: 14px;
   font-weight: 500;
   border-radius: $radius-md;
@@ -34,6 +34,22 @@
 }
 
 .btn-secondary {
+  @extend .btn-base;
+  color: var(--cui-accent);
+  background-color: var(--cui-surface-base);
+  border: 1px solid var(--cui-button-secondary-border);
+
+  &:hover:not(:disabled) {
+    background-color: var(--cui-button-secondary-hover);
+  }
+
+  &:disabled {
+    color: var(--cui-text-muted);
+    cursor: not-allowed;
+  }
+}
+
+.btn-neutral {
   @extend .btn-base;
   color: var(--cui-option-text);
   background-color: var(--cui-surface-base);

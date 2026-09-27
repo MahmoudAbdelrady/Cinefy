@@ -109,7 +109,7 @@
 
   @if (activeMovie()) {
     <div customFooter class="manage-footer">
-      <button class="btn-secondary" (click)="dialog.close()">Cancel</button>
+      <button class="btn-neutral" (click)="dialog.close()">Cancel</button>
       <button
         class="btn-primary"
         [disabled]="showtimeForm.invalid || submitDisabled()"

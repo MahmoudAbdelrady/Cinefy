@@ -71,23 +71,6 @@
       @include below-mobile {
         flex-direction: column-reverse;
       }
-
-      .pd-cancel {
-        padding: 10px 24px;
-        border: none;
-        border-radius: $radius-md;
-        background-color: transparent;
-        color: $color-foreground;
-        font-family: $font-sans;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color $transition-fast;
-
-        &:hover {
-          background-color: $color-secondary;
-        }
-      }
     }
   }
 

@@ -1,23 +1,13 @@
 <ng-template #headerActionsTemplate>
   <div class="action-buttons-container">
     @if (canBook()) {
-      <button class="btn-base" (click)="scanTicketVisible.set(true)">
-        <svg
-          [lucideIcon]="icons.QrCodeIcon"
-          [size]="16"
-          [strokeWidth]="2.5"
-          class="secondary-btn"
-        ></svg>
+      <button class="btn-secondary" (click)="scanTicketVisible.set(true)">
+        <svg [lucideIcon]="icons.QrCodeIcon" [size]="16" [strokeWidth]="2.5"></svg>
         <span>Scan Ticket</span>
       </button>
 
-      <button class="btn-base" (click)="activeBookingsVisible.set(true)">
-        <svg
-          [lucideIcon]="icons.TicketIcon"
-          [size]="16"
-          [strokeWidth]="2.5"
-          class="secondary-btn"
-        ></svg>
+      <button class="btn-secondary" (click)="activeBookingsVisible.set(true)">
+        <svg [lucideIcon]="icons.TicketIcon" [size]="16" [strokeWidth]="2.5"></svg>
         <span>Active Bookings</span>
       </button>
     }

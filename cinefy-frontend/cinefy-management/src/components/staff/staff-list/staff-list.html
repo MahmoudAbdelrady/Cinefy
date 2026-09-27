@@ -148,7 +148,7 @@
     </div>
 
     <div customFooter class="delete-modal-footer">
-      <button class="btn-secondary" [disabled]="deleting" (click)="memberToDelete.set(null)">
+      <button class="btn-neutral" [disabled]="deleting" (click)="memberToDelete.set(null)">
         Cancel
       </button>
       <button class="btn-danger" [disabled]="deleting" (click)="deleteStaffMember(member.id)">

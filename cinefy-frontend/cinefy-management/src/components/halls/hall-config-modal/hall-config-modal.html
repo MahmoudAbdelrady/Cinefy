@@ -249,7 +249,7 @@
   @if (!isViewMode()) {
     <div customFooter class="hall-config-modal-footer">
       <div class="save-btns">
-        <button class="btn-secondary" (click)="dialog.close()">Cancel</button>
+        <button class="btn-neutral" (click)="dialog.close()">Cancel</button>
         <button
           class="btn-primary"
           (click)="saveHall()"
@@ -278,7 +278,7 @@
     </p>
 
     <div customFooter class="discard-footer">
-      <button class="btn-secondary" (click)="discardVisible.set(false)">Cancel</button>
+      <button class="btn-neutral" (click)="discardVisible.set(false)">Cancel</button>
       <button class="btn-danger" (click)="confirmDiscard()">Discard</button>
     </div>
   </cui-dialog>

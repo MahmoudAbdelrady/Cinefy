@@ -108,7 +108,7 @@
 @if (scan !== null || manualEntry()) {
   <div class="stm-actions">
     @if (close(); as close) {
-      <button type="button" class="btn-secondary" (click)="close()">
+      <button type="button" class="btn-neutral" (click)="close()">
         {{ scan === null ? 'Cancel' : 'Close' }}
       </button>
     }

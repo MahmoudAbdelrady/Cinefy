@@ -85,6 +85,10 @@
   --cui-button-shadow: #{$shadow-xs};
   --cui-button-shadow-strong: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
+  // Secondary button
+  --cui-button-secondary-border: #{$blue-300};
+  --cui-button-secondary-hover: #{$blue-50};
+
   // Option rows (selects)
   --cui-option-text: #{$gray-700};
   --cui-option-selected-surface: #{$blue-50};

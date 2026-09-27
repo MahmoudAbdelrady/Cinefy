@@ -223,7 +223,7 @@
 
     <div customFooter class="gl-confirm-footer">
       <button
-        class="btn-secondary"
+        class="btn-neutral"
         [disabled]="togglingGateway()"
         (click)="gatewayToToggle.set(null)"
       >
@@ -316,7 +316,7 @@
     </div>
 
     <div customFooter class="gl-confirm-footer">
-      <button class="btn-secondary" [disabled]="deleting" (click)="gatewayToDelete.set(null)">
+      <button class="btn-neutral" [disabled]="deleting" (click)="gatewayToDelete.set(null)">
         Cancel
       </button>
       <button class="btn-danger" [disabled]="deleting" (click)="deleteGateway(gateway.id)">

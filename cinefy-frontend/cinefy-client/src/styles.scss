@@ -81,6 +81,10 @@
   --cui-hold-timer-expiring-border: #{rgba($color-destructive, 0.6)};
   --cui-hold-timer-expiring-text: #{$color-destructive};
 
+  // Secondary button
+  --cui-button-secondary-border: #{$color-primary};
+  --cui-button-secondary-hover: #{$color-secondary};
+
   // Misc
   --cui-scrollbar-thumb: #{$color-secondary};
 }
