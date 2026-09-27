@@ -30,26 +30,26 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-}
 
-.ob-btn {
-  height: 44px;
-  border: 1px solid $color-input;
-  background-color: rgba($color-input, 0.2);
-  color: $color-foreground;
+  .ob-btn {
+    height: 44px;
+    border: 1px solid $color-input;
+    background-color: rgba($color-input, 0.2);
+    color: $color-foreground;
 
-  &:hover:not(:disabled) {
-    background-color: rgba($color-input, 0.4);
+    &:hover:not(:disabled) {
+      background-color: rgba($color-input, 0.4);
+    }
+
+    &:disabled {
+      color: $color-muted-foreground;
+      cursor: not-allowed;
+    }
+
+    .ob-icon {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+    }
   }
-
-  &:disabled {
-    color: $color-muted-foreground;
-    cursor: not-allowed;
-  }
-}
-
-.ob-icon {
-  width: 16px;
-  height: 16px;
-  object-fit: contain;
 }

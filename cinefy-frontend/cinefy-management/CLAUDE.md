@@ -629,7 +629,7 @@ Nest by the **element's place in the template**, not by the class-name prefix. A
 
 **Nest as deep as the template does.** There is no depth limit — if the markup is five elements deep, the stylesheet is five blocks deep. Component styles are scoped by Angular's view encapsulation, so the long selector never competes with anything outside the component and the specificity is inert. Flattening a rule out to the top level just to save a level of indentation breaks the mirror between template and stylesheet, which is the whole point.
 
-One limit: **don't use `&-` name concatenation** (`&-icon { }` to build `.rs-done-icon`). It saves a few characters but makes the full class name ungreppable — searching `rs-done-icon` finds nothing. Write the selector out in full inside the parent.
+One limit: **don't use `&-` name concatenation** (`&-icon { }` to build `.rs-done-icon`). It saves a few characters but makes the full class name ungreppable — searching `rs-done-icon` finds nothing. Write the selector out in full inside the parent. This is about building **child element** names; a BEM modifier written as `&--active` directly inside its own block (`.fp-dot { &--active {} }`) is already correctly nested — leave it as is, don't rewrite it to `&.fp-dot--active`.
 
 **Top-level siblings are only for genuinely sibling regions** — elements that really are siblings in the template, like the stage-level blocks in `book-seats` (`.bs-loading`, `.bs-layout`, `.bs-done`), or `:host`. A component whose template has a single root element therefore has a single top-level block, with everything else nested inside it.
 

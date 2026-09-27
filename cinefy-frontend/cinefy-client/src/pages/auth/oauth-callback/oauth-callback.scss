@@ -4,80 +4,103 @@
 .oauth-callback-page {
   @include flex-column;
   gap: 24px;
-}
 
-// ─── Heading ─────────────────────────────────────────────────────────────────
-.ocp-heading {
-  h1 {
-    margin: 0;
-    font-size: 30px;
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    color: $color-foreground;
+  // ─── Heading ─────────────────────────────────────────────────────────────────
+  .ocp-heading {
+    .ocp-badge {
+      @include flex-center;
+      @include lucide-icon-fix;
+      width: 56px;
+      height: 56px;
+      margin-bottom: 16px;
+      border-radius: $radius-xl;
+      background-color: rgba($color-secondary, 0.6);
+      box-shadow: inset 0 0 0 1px $color-border;
+      color: $color-primary;
+      transition:
+        background-color 300ms ease,
+        box-shadow 300ms ease;
+
+      &.ocp-badge-done {
+        background-color: rgba($color-primary, 0.15);
+        box-shadow: inset 0 0 0 1px rgba($color-primary, 0.3);
+      }
+
+      &.ocp-badge-failed {
+        background-color: rgba($color-destructive, 0.1);
+        box-shadow: inset 0 0 0 1px rgba($color-destructive, 0.25);
+        color: $color-destructive;
+      }
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: $color-foreground;
+    }
+
+    p {
+      margin: 8px 0 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: $color-muted-foreground;
+      text-wrap: pretty;
+    }
+
+    &.ocp-heading-centered {
+      @include flex-column;
+      align-items: center;
+      text-align: center;
+    }
   }
 
-  p {
-    margin: 8px 0 0;
-    font-size: 14px;
-    line-height: 1.6;
-    color: $color-muted-foreground;
-    text-wrap: pretty;
+  // ─── Wait bar ────────────────────────────────────────────────────────────────
+  .ocp-track {
+    width: 100%;
+    height: 4px;
+    overflow: hidden;
+    border-radius: $radius-full;
+    background-color: $color-secondary;
+
+    .ocp-track-fill {
+      width: 40%;
+      height: 100%;
+      border-radius: $radius-full;
+      background-color: $color-primary;
+      animation: oauth-sweep 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+
+      &.ocp-track-fill-done {
+        width: 100%;
+        animation: none;
+        transition: width 500ms ease-out;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        width: 100%;
+        opacity: 0.5;
+        animation: none;
+      }
+    }
   }
-}
 
-.ocp-heading-centered {
-  @include flex-column;
-  align-items: center;
-  text-align: center;
-}
+  // ─── Failed actions ──────────────────────────────────────────────────────────
+  .ocp-retry {
+    @include lucide-icon-fix;
+    width: 100%;
+    height: 44px;
+    font-weight: 600;
+    text-decoration: none;
 
-.ocp-badge {
-  @include flex-center;
-  @include lucide-icon-fix;
-  width: 56px;
-  height: 56px;
-  margin-bottom: 16px;
-  border-radius: $radius-xl;
-  background-color: rgba($color-secondary, 0.6);
-  box-shadow: inset 0 0 0 1px $color-border;
-  color: $color-primary;
-  transition:
-    background-color 300ms ease,
-    box-shadow 300ms ease;
-}
+    .ocp-retry-arrow {
+      transition: transform $transition-fast;
+    }
 
-.ocp-badge-done {
-  background-color: rgba($color-primary, 0.15);
-  box-shadow: inset 0 0 0 1px rgba($color-primary, 0.3);
-}
-
-.ocp-badge-failed {
-  background-color: rgba($color-destructive, 0.1);
-  box-shadow: inset 0 0 0 1px rgba($color-destructive, 0.25);
-  color: $color-destructive;
-}
-
-// ─── Wait bar ────────────────────────────────────────────────────────────────
-.ocp-track {
-  width: 100%;
-  height: 4px;
-  overflow: hidden;
-  border-radius: $radius-full;
-  background-color: $color-secondary;
-}
-
-.ocp-track-fill {
-  width: 40%;
-  height: 100%;
-  border-radius: $radius-full;
-  background-color: $color-primary;
-  animation: oauth-sweep 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-}
-
-.ocp-track-fill-done {
-  width: 100%;
-  animation: none;
-  transition: width 500ms ease-out;
+    &:hover .ocp-retry-arrow {
+      transform: translateX(2px);
+    }
+  }
 }
 
 @keyframes oauth-sweep {
@@ -87,31 +110,4 @@
   100% {
     transform: translateX(250%);
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ocp-track-fill {
-    width: 100%;
-    opacity: 0.5;
-    animation: none;
-  }
-}
-
-// ─── Failed actions ──────────────────────────────────────────────────────────
-.ocp-retry {
-  @include flex-center;
-  @include lucide-icon-fix;
-  gap: 8px;
-  width: 100%;
-  height: 44px;
-  font-weight: 600;
-  text-decoration: none;
-
-  &:hover .ocp-retry-arrow {
-    transform: translateX(2px);
-  }
-}
-
-.ocp-retry-arrow {
-  transition: transform $transition-fast;
 }

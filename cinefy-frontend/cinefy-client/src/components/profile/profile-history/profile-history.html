@@ -63,7 +63,9 @@
               </div>
             </li>
           } @empty {
-            <cui-empty-state [icon]="icons.TicketIcon" header="No past bookings yet" />
+            <li>
+              <cui-empty-state [icon]="icons.TicketIcon" header="No past bookings yet" />
+            </li>
           }
         </ul>
       }

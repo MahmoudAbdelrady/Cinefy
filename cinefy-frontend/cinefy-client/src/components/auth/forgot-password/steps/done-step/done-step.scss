@@ -5,6 +5,18 @@
 .fp-done {
   text-align: center;
 
+  .fp-done-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: $radius-full;
+    background-color: rgba($color-primary, 0.15);
+    box-shadow: inset 0 0 0 1px rgba($color-primary, 0.3);
+    color: $color-primary;
+    margin: 0 auto 20px;
+    @include flex-center;
+    @include lucide-icon-fix;
+  }
+
   h1 {
     font-size: 30px;
     font-weight: 700;
@@ -19,22 +31,10 @@
     color: $color-muted-foreground;
     line-height: 1.6;
   }
-}
 
-.fp-done-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: $radius-full;
-  background-color: rgba($color-primary, 0.15);
-  box-shadow: inset 0 0 0 1px rgba($color-primary, 0.3);
-  color: $color-primary;
-  margin: 0 auto 20px;
-  @include flex-center;
-  @include lucide-icon-fix;
-}
-
-.fp-done-cta {
-  @include fp-submit;
-  margin-top: 24px;
-  text-decoration: none;
+  .fp-done-cta {
+    @include fp-submit;
+    margin-top: 24px;
+    text-decoration: none;
+  }
 }

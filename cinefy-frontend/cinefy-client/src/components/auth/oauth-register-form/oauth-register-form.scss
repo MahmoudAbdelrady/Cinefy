@@ -29,20 +29,19 @@
 .orf-form {
   @include flex-column;
   gap: 20px;
-}
 
-.orf-submit {
-  @include lucide-icon-fix;
-  width: 100%;
-  height: 44px;
-  gap: 8px;
-  font-weight: 600;
+  .orf-submit {
+    @include lucide-icon-fix;
+    width: 100%;
+    height: 44px;
+    font-weight: 600;
 
-  &:hover:not(:disabled) .orf-submit-arrow {
-    transform: translateX(2px);
+    .orf-submit-arrow {
+      transition: transform $transition-fast;
+    }
+
+    &:hover:not(:disabled) .orf-submit-arrow {
+      transform: translateX(2px);
+    }
   }
-}
-
-.orf-submit-arrow {
-  transition: transform $transition-fast;
 }

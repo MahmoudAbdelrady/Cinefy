@@ -1,15 +1,7 @@
-import {
-  afterNextRender,
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   UserIcon,
@@ -30,6 +22,7 @@ import type { CurrentUser } from '../../shared/types';
   imports: [
     RouterOutlet,
     RouterLink,
+    RouterLinkActive,
     LucideDynamicIcon,
     CinefyLoadingSpinner,
     MyTicketsListComponent,

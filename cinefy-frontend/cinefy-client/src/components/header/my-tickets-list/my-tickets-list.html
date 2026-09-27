@@ -76,10 +76,12 @@
           </div>
         </li>
       } @empty {
-        <cui-empty-state
-          [icon]="icons.TicketIcon"
-          header="Bookings you start will wait here until you complete them."
-        />
+        <li>
+          <cui-empty-state
+            [icon]="icons.TicketIcon"
+            header="Bookings you start will wait here until you complete them."
+          />
+        </li>
       }
     </ul>
   }

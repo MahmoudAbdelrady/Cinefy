@@ -22,11 +22,13 @@
         </button>
       </li>
     } @empty {
-      <cui-empty-state
-        [icon]="icons.CreditCardIcon"
-        header="No saved cards"
-        description="Cards are saved automatically when you choose to store them while paying."
-      />
+      <li>
+        <cui-empty-state
+          [icon]="icons.CreditCardIcon"
+          header="No saved cards"
+          description="Cards are saved automatically when you choose to store them while paying."
+        />
+      </li>
     }
   </ul>
 }

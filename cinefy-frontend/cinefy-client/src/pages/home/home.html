@@ -60,12 +60,13 @@
               </a>
             </li>
           } @empty {
-            <cui-empty-state
-              class="ms-empty"
-              [icon]="icons.ClapperboardIcon"
-              header="No movies showing"
-              description="Check back soon for what's playing in theaters."
-            />
+            <li class="ms-empty">
+              <cui-empty-state
+                [icon]="icons.ClapperboardIcon"
+                header="No movies showing"
+                description="Check back soon for what's playing in theaters."
+              />
+            </li>
           }
         </ul>
       }
@@ -110,12 +111,13 @@
               </a>
             </li>
           } @empty {
-            <cui-empty-state
-              class="ms-empty"
-              [icon]="icons.CalendarIcon"
-              header="No upcoming movies"
-              description="New releases will appear here as they're announced."
-            />
+            <li class="ms-empty">
+              <cui-empty-state
+                [icon]="icons.CalendarIcon"
+                header="No upcoming movies"
+                description="New releases will appear here as they're announced."
+              />
+            </li>
           }
         </ul>
       }

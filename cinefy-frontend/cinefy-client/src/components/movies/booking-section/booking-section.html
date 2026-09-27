@@ -79,11 +79,13 @@
             </ul>
           </li>
         } @empty {
-          <cui-empty-state
-            [icon]="icons.CalendarIcon"
-            header="No showtimes for this date"
-            description="Try another date above."
-          />
+          <li>
+            <cui-empty-state
+              [icon]="icons.CalendarIcon"
+              header="No showtimes for this date"
+              description="Try another date above."
+            />
+          </li>
         }
       </ul>
     }

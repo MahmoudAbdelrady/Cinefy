@@ -16,469 +16,469 @@
   max-width: 576px;
   margin: 0 auto;
   padding: 32px 16px;
-}
 
-.co-back {
-  @include flex-align;
-
-  gap: 8px;
-  width: fit-content;
-  margin-bottom: 24px;
-  padding: 6px 12px;
-  border-radius: $radius-md;
-  font-size: 14px;
-  font-weight: 500;
-  color: $color-foreground;
-  text-decoration: none;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background: $color-accent;
-  }
-}
-
-.co-head {
-  @include flex-between;
-
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.co-title {
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-}
-
-// ─── Ticket stub ─────────────────────────────────────────────────────────────
-
-.co-stub {
-  overflow: hidden;
-  border: 1px solid rgba($color-border, 0.5);
-  border-radius: $radius-xl;
-  background: $color-card;
-
-  .co-tear {
-    position: relative;
-    height: 22px;
-
-    &::before,
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      width: 22px;
-      height: 22px;
-      border-radius: $radius-full;
-      background: $color-background;
-    }
-
-    &::before {
-      left: -11px;
-    }
-
-    &::after {
-      right: -11px;
-    }
-
-    .co-tear-rule {
-      position: absolute;
-      top: 50%;
-      right: 16px;
-      left: 16px;
-      border-top: 1px dashed rgba($color-border, 0.9);
-    }
-  }
-}
-
-// ─── Order summary ───────────────────────────────────────────────────────────
-.co-summary-movie {
-  display: flex;
-  gap: 16px;
-  padding: 20px;
-}
-
-.co-summary-poster {
-  flex-shrink: 0;
-  width: 80px;
-  aspect-ratio: 2 / 3;
-  overflow: hidden;
-  border-radius: $radius-lg;
-}
-
-.co-summary-meta {
-  min-width: 0;
-
-  > * + * {
-    margin-top: 4px;
-  }
-}
-
-.co-summary-movie-title {
-  @include text-truncate;
-
-  font-weight: 600;
-  line-height: 1.25;
-}
-
-.co-summary-facts {
-  @include flex-column;
-  gap: 6px;
-  font-size: 12px;
-}
-
-.co-fact {
-  @include flex-align;
-  gap: 8px;
-}
-
-.co-fact-label {
-  @include flex-align;
-  @include lucide-icon-fix;
-  flex-shrink: 0;
-  gap: 6px;
-  font-size: 13px;
-  color: $color-muted-foreground;
-}
-
-.co-fact-label-text {
-  @include below-mobile {
-    display: none;
-  }
-}
-
-.co-fact-value {
-  @include text-truncate;
-
-  font-family: $font-mono;
-  color: $color-foreground;
-}
-
-.co-divider {
-  border-top: 1px solid rgba($color-border, 0.5);
-}
-
-.co-divider-tight {
-  margin: 4px 0;
-}
-
-.co-summary-rows {
-  @include flex-column;
-
-  gap: 8px;
-  padding: 20px;
-  font-size: 14px;
-}
-
-.co-seats-header {
-  dt {
-    font-weight: 600;
-    color: #fff;
-  }
-
-  .co-seats-count {
-    font-weight: 400;
-    color: $color-muted-foreground;
-  }
-}
-
-.co-seats {
-  @include flex-column;
-  @include scrollbar-thin;
-
-  gap: 8px;
-  max-height: 160px;
-  overflow-y: auto;
-}
-
-.co-seat {
-  @include flex-between;
-
-  gap: 12px;
-}
-
-.co-seat-label {
-  @include flex-align;
-  gap: 8px;
-}
-
-.co-seat-position {
-  font-family: $font-mono;
-  font-weight: 500;
-  color: $color-primary;
-}
-
-.co-seat-category {
-  color: $color-muted-foreground;
-}
-
-.co-seat-price {
-  font-family: $font-mono;
-  color: $color-foreground;
-}
-
-.co-total {
-  @include flex-between;
-
-  align-items: center;
-  padding-top: 4px;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.co-total-value {
-  font-family: $font-mono;
-  color: $color-primary;
-}
-
-// ─── Payment fork ────────────────────────────────────────────────────────────
-.co-payment {
-  display: block;
-  padding: 20px;
-
-  .co-methods-loading {
-    @include flex-center;
-
-    padding: 32px 16px;
-  }
-
-  .co-payment-title {
-    margin-bottom: 12px;
-    font-family: $font-mono;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: $color-muted-foreground;
-  }
-
-  .co-cards {
-    @include flex-column;
-    @include scrollbar-thin;
-
-    gap: 8px;
-    margin-bottom: 16px;
-    max-height: 350px;
-    overflow-y: auto;
-  }
-
-  .co-or {
+  .co-back {
     @include flex-align;
 
-    gap: 12px;
-    margin: 16px 0;
-
-    &::before,
-    &::after {
-      content: '';
-      flex: 1;
-      border-top: 1px solid rgba($color-border, 0.6);
-    }
-
-    span {
-      font-family: $font-mono;
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: $color-muted-foreground;
-    }
-  }
-
-  .co-pay {
-    width: 100%;
-    height: 44px;
-    font-weight: 600;
-  }
-
-  .co-pay-new {
-    @include lucide-icon-fix;
-
-    justify-content: space-between;
-    width: 100%;
-    height: 44px;
-    border: 1px solid rgba($color-primary, 0.3);
+    gap: 8px;
+    width: fit-content;
+    margin-bottom: 24px;
+    padding: 6px 12px;
+    border-radius: $radius-md;
+    font-size: 14px;
+    font-weight: 500;
     color: $color-foreground;
-    transition:
-      border-color 0.2s,
-      background-color 0.2s;
+    text-decoration: none;
+    transition: background-color 0.2s;
 
-    &:hover:not(:disabled) {
-      border-color: rgba($color-primary, 0.5);
-      background: rgba($color-primary, 0.05);
+    &:hover {
+      background: $color-accent;
+    }
+  }
+
+  .co-head {
+    @include flex-between;
+
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 32px;
+
+    .co-title {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+  }
+
+  // ─── Ticket stub ─────────────────────────────────────────────────────────────
+
+  .co-stub {
+    overflow: hidden;
+    border: 1px solid rgba($color-border, 0.5);
+    border-radius: $radius-xl;
+    background: $color-card;
+
+    .co-tear {
+      position: relative;
+      height: 22px;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        width: 22px;
+        height: 22px;
+        border-radius: $radius-full;
+        background: $color-background;
+      }
+
+      &::before {
+        left: -11px;
+      }
+
+      &::after {
+        right: -11px;
+      }
+
+      .co-tear-rule {
+        position: absolute;
+        top: 50%;
+        right: 16px;
+        left: 16px;
+        border-top: 1px dashed rgba($color-border, 0.9);
+      }
     }
 
-    svg {
-      color: $color-primary;
+    // ─── Order summary ───────────────────────────────────────────────────────────
+    .co-summary-movie {
+      display: flex;
+      gap: 16px;
+      padding: 20px;
+
+      .co-summary-poster {
+        flex-shrink: 0;
+        width: 80px;
+        aspect-ratio: 2 / 3;
+        overflow: hidden;
+        border-radius: $radius-lg;
+      }
+
+      .co-summary-meta {
+        min-width: 0;
+
+        > * + * {
+          margin-top: 4px;
+        }
+
+        .co-summary-movie-title {
+          @include text-truncate;
+
+          font-weight: 600;
+          line-height: 1.25;
+        }
+
+        .co-summary-facts {
+          @include flex-column;
+          gap: 6px;
+          font-size: 12px;
+
+          .co-fact {
+            @include flex-align;
+            gap: 8px;
+
+            .co-fact-label {
+              @include flex-align;
+              @include lucide-icon-fix;
+              flex-shrink: 0;
+              gap: 6px;
+              font-size: 13px;
+              color: $color-muted-foreground;
+
+              .co-fact-label-text {
+                @include below-mobile {
+                  display: none;
+                }
+              }
+            }
+
+            .co-fact-value {
+              @include text-truncate;
+
+              font-family: $font-mono;
+              color: $color-foreground;
+            }
+          }
+        }
+      }
     }
 
-    &:disabled {
-      border-color: rgba($color-border, 0.5);
-      color: $color-muted-foreground;
-      cursor: not-allowed;
+    .co-divider {
+      border-top: 1px solid rgba($color-border, 0.5);
 
-      svg {
+      &.co-divider-tight {
+        margin: 4px 0;
+      }
+    }
+
+    .co-summary-rows {
+      @include flex-column;
+
+      gap: 8px;
+      padding: 20px;
+      font-size: 14px;
+
+      .co-seats-header {
+        dt {
+          font-weight: 600;
+          color: #fff;
+        }
+
+        .co-seats-count {
+          font-weight: 400;
+          color: $color-muted-foreground;
+        }
+      }
+
+      .co-seats {
+        @include flex-column;
+        @include scrollbar-thin;
+
+        gap: 8px;
+        max-height: 160px;
+        overflow-y: auto;
+
+        .co-seat {
+          @include flex-between;
+
+          gap: 12px;
+
+          .co-seat-label {
+            @include flex-align;
+            gap: 8px;
+
+            .co-seat-position {
+              font-family: $font-mono;
+              font-weight: 500;
+              color: $color-primary;
+            }
+
+            .co-seat-category {
+              color: $color-muted-foreground;
+            }
+          }
+
+          .co-seat-price {
+            font-family: $font-mono;
+            color: $color-foreground;
+          }
+        }
+      }
+
+      .co-total {
+        @include flex-between;
+
+        align-items: center;
+        padding-top: 4px;
+        font-size: 16px;
+        font-weight: 700;
+
+        .co-total-value {
+          font-family: $font-mono;
+          color: $color-primary;
+        }
+      }
+    }
+
+    // ─── Payment fork ────────────────────────────────────────────────────────────
+    .co-payment {
+      display: block;
+      padding: 20px;
+
+      .co-methods-loading {
+        @include flex-center;
+
+        padding: 32px 16px;
+      }
+
+      .co-payment-title {
+        margin-bottom: 12px;
+        font-family: $font-mono;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: $color-muted-foreground;
+      }
+
+      .co-cards {
+        @include flex-column;
+        @include scrollbar-thin;
+
+        gap: 8px;
+        margin-bottom: 16px;
+        max-height: 350px;
+        overflow-y: auto;
+
+        .co-card-option {
+          @include flex-align;
+
+          position: relative;
+          gap: 12px;
+          padding: 12px;
+          border: 1px solid rgba($color-border, 0.5);
+          border-radius: $radius-lg;
+          cursor: pointer;
+          transition:
+            border-color 0.2s,
+            background-color 0.2s;
+
+          &:hover {
+            border-color: $color-border;
+            background: rgba($color-secondary, 0.3);
+          }
+
+          &:has(.co-card-radio:focus-visible) {
+            outline: 2px solid $color-primary;
+            outline-offset: 2px;
+          }
+
+          .co-card-radio {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip-path: inset(50%);
+            white-space: nowrap;
+          }
+
+          .co-card-chip {
+            @include flex-center;
+
+            flex-shrink: 0;
+            width: 48px;
+            height: 36px;
+            border-radius: $radius-md;
+            background: $color-secondary;
+            font-family: $font-mono;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+          }
+
+          .co-card-detail {
+            min-width: 0;
+            flex: 1;
+          }
+
+          .co-card-pan {
+            display: block;
+            font-family: $font-mono;
+            font-size: 14px;
+            letter-spacing: 0.12em;
+            color: $color-foreground;
+          }
+
+          .co-card-subtype {
+            display: block;
+            margin-top: 2px;
+            font-size: 12px;
+            color: $color-muted-foreground;
+          }
+
+          .co-card-tick {
+            @include flex-center;
+            @include lucide-icon-fix;
+
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            border: 1px solid $color-border;
+            border-radius: $radius-full;
+            transition:
+              border-color 0.2s,
+              background-color 0.2s;
+          }
+
+          &.co-card-option-selected {
+            border-color: rgba($color-primary, 0.6);
+            background: rgba($color-primary, 0.05);
+
+            &:hover {
+              border-color: rgba($color-primary, 0.6);
+              background: rgba($color-primary, 0.05);
+            }
+
+            .co-card-tick {
+              border-color: $color-primary;
+              background: $color-primary;
+              color: $color-primary-foreground;
+            }
+          }
+
+          &.co-card-option-disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+
+            &:hover {
+              border-color: rgba($color-border, 0.5);
+              background: none;
+            }
+
+            &.co-card-option-selected:hover {
+              border-color: rgba($color-primary, 0.6);
+              background: rgba($color-primary, 0.05);
+            }
+          }
+        }
+      }
+
+      .co-or {
+        @include flex-align;
+
+        gap: 12px;
+        margin: 16px 0;
+
+        &::before,
+        &::after {
+          content: '';
+          flex: 1;
+          border-top: 1px solid rgba($color-border, 0.6);
+        }
+
+        span {
+          font-family: $font-mono;
+          font-size: 11px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: $color-muted-foreground;
+        }
+      }
+
+      .co-pay {
+        width: 100%;
+        height: 44px;
+        font-weight: 600;
+      }
+
+      .co-pay-new {
+        @include lucide-icon-fix;
+
+        justify-content: space-between;
+        width: 100%;
+        height: 44px;
+        border: 1px solid rgba($color-primary, 0.3);
+        color: $color-foreground;
+        transition:
+          border-color 0.2s,
+          background-color 0.2s;
+
+        &:hover:not(:disabled) {
+          border-color: rgba($color-primary, 0.5);
+          background: rgba($color-primary, 0.05);
+        }
+
+        svg {
+          color: $color-primary;
+        }
+
+        &:disabled {
+          border-color: rgba($color-border, 0.5);
+          color: $color-muted-foreground;
+          cursor: not-allowed;
+
+          svg {
+            color: $color-muted-foreground;
+          }
+        }
+      }
+
+      .co-pay-only {
+        @include lucide-icon-fix;
+
+        justify-content: space-between;
+
+        &:disabled svg {
+          opacity: 0.5;
+        }
+      }
+
+      .co-pay-label {
+        @include flex-align;
+        gap: 8px;
+      }
+
+      .co-payment-note {
+        margin-top: 8px;
+        font-size: 12px;
+        line-height: 1.5;
         color: $color-muted-foreground;
       }
     }
   }
 
-  .co-pay-only {
+  .co-cancel {
     @include lucide-icon-fix;
 
-    justify-content: space-between;
-
-    &:disabled svg {
-      opacity: 0.5;
-    }
-  }
-
-  .co-pay-label {
-    @include flex-align;
-    gap: 8px;
-  }
-
-  .co-payment-note {
-    margin-top: 8px;
-    font-size: 12px;
-    line-height: 1.5;
+    width: 100%;
+    height: 44px;
+    margin-top: 16px;
+    padding-block: 0;
     color: $color-muted-foreground;
-  }
-}
-
-.co-card-option {
-  @include flex-align;
-
-  position: relative;
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid rgba($color-border, 0.5);
-  border-radius: $radius-lg;
-  cursor: pointer;
-  transition:
-    border-color 0.2s,
-    background-color 0.2s;
-
-  &:hover {
-    border-color: $color-border;
-    background: rgba($color-secondary, 0.3);
-  }
-
-  &:has(.co-card-radio:focus-visible) {
-    outline: 2px solid $color-primary;
-    outline-offset: 2px;
-  }
-
-  .co-card-radio {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  .co-card-chip {
-    @include flex-center;
-
-    flex-shrink: 0;
-    width: 48px;
-    height: 36px;
-    border-radius: $radius-md;
-    background: $color-secondary;
-    font-family: $font-mono;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-  }
-
-  .co-card-detail {
-    min-width: 0;
-    flex: 1;
-  }
-
-  .co-card-pan {
-    display: block;
-    font-family: $font-mono;
-    font-size: 14px;
-    letter-spacing: 0.12em;
-    color: $color-foreground;
-  }
-
-  .co-card-subtype {
-    display: block;
-    margin-top: 2px;
-    font-size: 12px;
-    color: $color-muted-foreground;
-  }
-
-  .co-card-tick {
-    @include flex-center;
-    @include lucide-icon-fix;
-
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-    border: 1px solid $color-border;
-    border-radius: $radius-full;
     transition:
-      border-color 0.2s,
-      background-color 0.2s;
-  }
-}
+      background-color 0.2s,
+      color 0.2s;
 
-.co-card-option-selected {
-  border-color: rgba($color-primary, 0.6);
-  background: rgba($color-primary, 0.05);
+    &:hover:not(:disabled) {
+      background: $color-secondary;
+      color: $color-destructive;
+    }
 
-  &:hover {
-    border-color: rgba($color-primary, 0.6);
-    background: rgba($color-primary, 0.05);
-  }
-
-  .co-card-tick {
-    border-color: $color-primary;
-    background: $color-primary;
-    color: $color-primary-foreground;
-  }
-}
-
-.co-card-option-disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-
-  &:hover {
-    border-color: rgba($color-border, 0.5);
-    background: none;
-  }
-
-  &.co-card-option-selected:hover {
-    border-color: rgba($color-primary, 0.6);
-    background: rgba($color-primary, 0.05);
-  }
-}
-
-.co-cancel {
-  @include lucide-icon-fix;
-
-  width: 100%;
-  height: 44px;
-  margin-top: 16px;
-  padding-block: 0;
-  color: $color-muted-foreground;
-  transition:
-    background-color 0.2s,
-    color 0.2s;
-
-  &:hover:not(:disabled) {
-    background: $color-secondary;
-    color: $color-destructive;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
+    &:disabled {
+      cursor: not-allowed;
+    }
   }
 }
 
@@ -486,31 +486,27 @@
 .co-cancel-modal-content,
 .co-expired-modal-content {
   text-align: center;
-}
 
-.ccm-icon {
-  @include flex-center;
+  .ccm-icon {
+    @include flex-center;
 
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 16px;
-  border-radius: $radius-full;
-  background: rgba($color-destructive, 0.15);
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border-radius: $radius-full;
+    background: rgba($color-destructive, 0.15);
 
-  svg {
-    display: flex;
-    color: $color-destructive;
+    svg {
+      display: flex;
+      color: $color-destructive;
+    }
   }
-}
 
-.ccm-message {
-  margin-bottom: 24px;
-  font-size: 14px;
-  line-height: 1.6;
-  color: $color-muted-foreground;
-
-  strong {
-    color: $color-foreground;
+  .ccm-message {
+    margin-bottom: 24px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: $color-muted-foreground;
   }
 }
 

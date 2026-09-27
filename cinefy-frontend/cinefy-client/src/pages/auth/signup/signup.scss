@@ -2,82 +2,84 @@
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
-// ─── Heading ─────────────────────────────────────────────────────────────────
-.sp-heading {
-  margin-bottom: 32px;
+.signup-page {
+  // ─── Heading ─────────────────────────────────────────────────────────────────
+  .sp-heading {
+    margin-bottom: 32px;
 
-  h1 {
-    margin: 0;
-    font-size: 30px;
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    color: $color-foreground;
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: $color-foreground;
+    }
+
+    p {
+      margin: 8px 0 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: $color-muted-foreground;
+    }
   }
 
-  p {
-    margin: 8px 0 0;
+  // ─── Form ────────────────────────────────────────────────────────────────────
+  .sp-form {
+    @include flex-column;
+    gap: 20px;
+
+    // First & last name share a row, stacking on narrow screens.
+    .sp-name-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+
+      @include below-mobile {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .input-group {
+      @include flex-column;
+      gap: 8px;
+    }
+
+    .sp-submit {
+      @include lucide-icon-fix;
+      width: 100%;
+      height: 44px;
+      margin-top: 4px;
+      font-weight: 600;
+
+      &:disabled {
+        transition: none;
+      }
+
+      .sp-submit-arrow {
+        transition: transform $transition-fast;
+      }
+
+      &:hover:not(:disabled) .sp-submit-arrow {
+        transform: translateX(2px);
+      }
+    }
+  }
+
+  // ─── Footer ──────────────────────────────────────────────────────────────────
+  .sp-footer {
+    margin: 32px 0 0;
+    text-align: center;
     font-size: 14px;
-    line-height: 1.6;
     color: $color-muted-foreground;
-  }
-}
 
-// ─── Form ────────────────────────────────────────────────────────────────────
-.sp-form {
-  @include flex-column;
-  gap: 20px;
-}
+    a {
+      font-weight: 500;
+      color: $color-primary;
+      text-decoration: none;
 
-// First & last name share a row, stacking on narrow screens.
-.sp-name-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-
-  @include below-mobile {
-    grid-template-columns: 1fr;
-  }
-}
-
-.input-group {
-  @include flex-column;
-  gap: 8px;
-}
-
-.sp-submit {
-  @include lucide-icon-fix;
-  width: 100%;
-  height: 44px;
-  margin-top: 4px;
-  font-weight: 600;
-
-  &:disabled {
-    transition: none;
-  }
-}
-
-.sp-submit-arrow {
-  transition: transform $transition-fast;
-
-  .sp-submit:hover:not(:disabled) & {
-    transform: translateX(2px);
-  }
-}
-
-// ─── Footer ──────────────────────────────────────────────────────────────────
-.sp-footer {
-  margin: 32px 0 0;
-  text-align: center;
-  font-size: 14px;
-  color: $color-muted-foreground;
-
-  a {
-    font-weight: 500;
-    color: $color-primary;
-    text-decoration: none;
-
-    &:hover {
-      color: rgba($color-primary, 0.8);
+      &:hover {
+        color: rgba($color-primary, 0.8);
+      }
     }
   }
 }

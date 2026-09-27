@@ -130,7 +130,7 @@ Token conventions:
 - A raw `rgba(...)` that equals an existing token's color should reference the token — e.g. `rgba($color-border, 0.4)`, not `rgba(38, 38, 38, 0.4)`. `$color-black` (`#000000`) is its own primitive (scrims/shadows) distinct from `$color-background` (`#0a0a0a`); `$shadow-overlay` is the shared dropdown/modal shadow.
 - **`src/styles.scss` is the single bridge** that maps the SCSS palette to cinefy-ui's runtime `var(--cui-*)` contract in one `:root { ... }` block. Component SCSS uses plain `$variables`, not `var()`.
 - The **`scss-dedup`** skill (`.claude/skills/scss-dedup/`) audits the SCSS for repeated raw values and extracts them into `_colors.scss` — invoke it when asked to dedupe/audit styles.
-- **Write SCSS nested, not flat** — a child element's rule goes **inside** its parent's block, not as a top-level sibling. Nest by the element's place in the template (not by class-name prefix); no `&-` name concatenation (it makes class names ungreppable); don't nest past ~3 levels. Full rules and examples in [`../cinefy-management/CLAUDE.md`](../cinefy-management/CLAUDE.md#nested-scss).
+- **Write SCSS nested, not flat** — a child element's rule goes **inside** its parent's block, not as a top-level sibling. Nest by the element's place in the template (not by class-name prefix); no `&-` name concatenation for child elements (it makes class names ungreppable) — a BEM modifier written as `&--active` inside its own block is fine; no depth limit — nest as deep as the template. Full rules and examples in [`../cinefy-management/CLAUDE.md`](../cinefy-management/CLAUDE.md#nested-scss).
 
 ## Porting from `mvp-version/` (the `mvp-to-real` skill)
 

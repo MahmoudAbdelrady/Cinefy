@@ -9,244 +9,240 @@ $max-width: 1152px;
   min-height: 100vh;
   background-color: $color-background;
   color: $color-foreground;
-}
 
-// ─── Header ──────────────────────────────────────────────────────────────────
-.app-layout-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  width: 100%;
-  border-bottom: 1px solid rgba($color-border, 0.4);
-  background-color: rgba($color-background, 0.6);
-  backdrop-filter: blur(8px);
-}
+  // ─── Header ──────────────────────────────────────────────────────────────────
+  .app-layout-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    width: 100%;
+    border-bottom: 1px solid rgba($color-border, 0.4);
+    background-color: rgba($color-background, 0.6);
+    backdrop-filter: blur(8px);
 
-.alh-inner {
-  @include flex-between;
-  gap: 16px;
-  height: 64px;
-  width: min(100%, #{$max-width});
-  margin: 0 auto;
-  padding: 0 16px;
+    .alh-inner {
+      @include flex-between;
+      gap: 16px;
+      height: 64px;
+      width: min(100%, #{$max-width});
+      margin: 0 auto;
+      padding: 0 16px;
 
-  @include below-phone {
-    gap: 12px;
-    padding: 0 12px;
-  }
-}
+      @include below-phone {
+        gap: 12px;
+        padding: 0 12px;
+      }
 
-.alh-tabs {
-  @include flex-align;
-  gap: 24px;
+      .alh-tabs {
+        @include flex-align;
+        gap: 24px;
 
-  @include below-phone {
-    gap: 16px;
-  }
-}
+        @include below-phone {
+          gap: 16px;
+        }
 
-.alh-main-tab {
-  @include flex-align;
-  gap: 8px;
-  color: $color-foreground;
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity $transition-fast;
-  user-select: none;
+        .alh-main-tab {
+          @include flex-align;
+          gap: 8px;
+          color: $color-foreground;
+          text-decoration: none;
+          cursor: pointer;
+          transition: opacity $transition-fast;
+          user-select: none;
 
-  .alh-main-tab-logo {
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
-    object-fit: contain;
-  }
+          .alh-main-tab-logo {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            object-fit: contain;
+          }
 
-  &:hover {
-    opacity: 0.8;
-  }
+          &:hover {
+            opacity: 0.8;
+          }
 
-  svg {
-    color: $color-primary;
-  }
-}
+          .alh-main-tab-text {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.025em;
 
-.alh-main-tab-text {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+            @include below-phone {
+              display: none;
+            }
+          }
+        }
 
-  @include below-phone {
-    display: none;
-  }
-}
+        .alh-sub-tabs {
+          @include flex-align;
+          gap: 24px;
+          font-size: 14px;
+          font-weight: 500;
 
-.alh-sub-tabs {
-  @include flex-align;
-  gap: 24px;
-  font-size: 14px;
-  font-weight: 500;
-}
+          .sub-tab {
+            color: rgba($color-foreground, 0.6);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color $transition-fast;
 
-.sub-tab {
-  color: rgba($color-foreground, 0.6);
-  text-decoration: none;
-  cursor: pointer;
-  transition: color $transition-fast;
+            &:hover {
+              color: rgba($color-foreground, 0.8);
+            }
 
-  &:hover {
-    color: rgba($color-foreground, 0.8);
-  }
+            &.active {
+              color: $color-foreground;
+            }
+          }
+        }
+      }
 
-  &.active {
-    color: $color-foreground;
-  }
-}
+      .alh-info {
+        @include flex-align;
+        gap: 14px;
 
-.alh-info {
-  @include flex-align;
-  gap: 14px;
-}
+        .alh-tickets-btn {
+          @include flex-align;
+          @include lucide-icon-fix;
+          gap: 8px;
+          height: 36px;
+          padding: 0 16px;
 
-.alh-tickets-btn {
-  @include flex-align;
-  @include lucide-icon-fix;
-  gap: 8px;
-  height: 36px;
-  padding: 0 16px;
+          @include below-mobile {
+            justify-content: center;
+            width: 36px;
+            padding: 0;
 
-  @include below-mobile {
-    justify-content: center;
-    width: 36px;
-    padding: 0;
+            span {
+              display: none;
+            }
+          }
+        }
 
-    span {
-      display: none;
+        .alh-divider {
+          width: 1px;
+          height: 24px;
+          background-color: $color-border;
+        }
+
+        .alh-auth {
+          @include flex-align;
+          gap: 8px;
+
+          .alh-auth-btn {
+            @include flex-align;
+            @include lucide-icon-fix;
+            gap: 8px;
+            height: 36px;
+            padding: 0 16px;
+            text-decoration: none;
+
+            @include below-mobile {
+              justify-content: center;
+              width: 36px;
+              padding: 0;
+            }
+
+            .ab-text {
+              @include below-mobile {
+                display: none;
+              }
+            }
+          }
+        }
+
+        .alh-auth-loading {
+          @include flex-center;
+          width: 36px;
+          height: 36px;
+          color: rgba($color-foreground, 0.7);
+        }
+
+        .alh-user {
+          @include flex-align;
+          height: 36px;
+          padding: 0 8px 0 0;
+          border-radius: $radius-full;
+          color: rgba($color-foreground, 0.7);
+          cursor: pointer;
+          transition:
+            color $transition-fast,
+            background-color $transition-fast;
+
+          &:hover {
+            color: $color-foreground;
+            background-color: $color-accent;
+          }
+
+          @include below-mobile {
+            padding: 0;
+          }
+
+          .alh-user-icon {
+            @include flex-center;
+            @include lucide-icon-fix;
+            width: 36px;
+            height: 36px;
+          }
+
+          .alh-user-name {
+            @include text-truncate;
+            max-width: 160px;
+            font-size: 14px;
+            font-weight: 500;
+
+            @include below-mobile {
+              display: none;
+            }
+          }
+        }
+      }
     }
   }
-}
 
-.alh-divider {
-  width: 1px;
-  height: 24px;
-  background-color: $color-border;
-}
-
-.alh-auth {
-  @include flex-align;
-  gap: 8px;
-}
-
-.alh-auth-btn {
-  @include flex-align;
-  @include lucide-icon-fix;
-  gap: 8px;
-  height: 36px;
-  padding: 0 16px;
-  text-decoration: none;
-
-  @include below-mobile {
-    justify-content: center;
-    width: 36px;
-    padding: 0;
-  }
-}
-
-.ab-text {
-  @include below-mobile {
-    display: none;
-  }
-}
-
-.alh-auth-loading {
-  @include flex-center;
-  width: 36px;
-  height: 36px;
-  color: rgba($color-foreground, 0.7);
-}
-
-.alh-user {
-  @include flex-align;
-  height: 36px;
-  padding: 0 8px 0 0;
-  border-radius: $radius-full;
-  color: rgba($color-foreground, 0.7);
-  cursor: pointer;
-  transition:
-    color $transition-fast,
-    background-color $transition-fast;
-
-  &:hover {
-    color: $color-foreground;
-    background-color: $color-accent;
+  // ─── Content ─────────────────────────────────────────────────────────────────
+  .app-layout-content {
+    flex: 1;
+    width: 100%;
   }
 
-  @include below-mobile {
-    padding: 0;
+  // ─── Footer ──────────────────────────────────────────────────────────────────
+  .app-layout-footer {
+    margin-top: 64px;
+    border-top: 1px solid rgba($color-border, 0.4);
+
+    .alf-inner {
+      @include flex-between;
+      gap: 12px;
+      width: min(100%, #{$max-width});
+      margin: 0 auto;
+      padding: 32px 16px;
+      font-size: 14px;
+      color: $color-muted-foreground;
+
+      @include below-mobile {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .alf-site-name {
+        @include flex-align;
+        @include lucide-icon-fix;
+        gap: 8px;
+        user-select: none;
+
+        svg {
+          color: $color-primary;
+        }
+
+        .alf-site-name-text {
+          font-weight: 700;
+          letter-spacing: -0.025em;
+          color: $color-foreground;
+        }
+      }
+
+      .alf-site-info {
+        font-size: 12px;
+      }
+    }
   }
-}
-
-.alh-user-icon {
-  @include flex-center;
-  @include lucide-icon-fix;
-  width: 36px;
-  height: 36px;
-}
-
-.alh-user-name {
-  @include text-truncate;
-  max-width: 160px;
-  font-size: 14px;
-  font-weight: 500;
-
-  @include below-mobile {
-    display: none;
-  }
-}
-
-// ─── Content ─────────────────────────────────────────────────────────────────
-.app-layout-content {
-  flex: 1;
-  width: 100%;
-}
-
-// ─── Footer ──────────────────────────────────────────────────────────────────
-.app-layout-footer {
-  margin-top: 64px;
-  border-top: 1px solid rgba($color-border, 0.4);
-}
-
-.alf-inner {
-  @include flex-between;
-  gap: 12px;
-  width: min(100%, #{$max-width});
-  margin: 0 auto;
-  padding: 32px 16px;
-  font-size: 14px;
-  color: $color-muted-foreground;
-
-  @include below-mobile {
-    flex-direction: column;
-    align-items: center;
-  }
-}
-
-.alf-site-name {
-  @include flex-align;
-  @include lucide-icon-fix;
-  gap: 8px;
-  user-select: none;
-
-  svg {
-    color: $color-primary;
-  }
-}
-
-.alf-site-name-text {
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: $color-foreground;
-}
-
-.alf-site-info {
-  font-size: 12px;
 }
