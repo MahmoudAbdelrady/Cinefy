@@ -184,12 +184,13 @@ export class HallConfigModalComponent {
   }));
 
   readonly selectedHallId = input<string | null>(null);
+  readonly openInEditMode = input(false);
 
   readonly closed = output<void>();
   readonly hallCreated = output<HallSummary>();
   readonly hallUpdated = output<HallSummary>();
 
-  protected readonly isEditMode = signal(false);
+  protected readonly isEditing = linkedSignal(() => this.openInEditMode());
   protected readonly discardVisible = signal(false);
   private readonly selectedHallData = signal<HallDetail | null>(null);
 
@@ -236,14 +237,14 @@ export class HallConfigModalComponent {
   protected readonly copyLayoutControl = new FormControl<string | null>(null);
 
   protected readonly isViewMode = computed(
-    () => this.selectedHallId() !== null && !this.isEditMode(),
+    () => this.selectedHallId() !== null && !this.isEditing(),
   );
   protected readonly modalTitle = computed(() => {
     if (!this.selectedHallId()) return 'Add New Hall';
     if (this.loadingHall()) return 'Loading…';
     const hall = this.selectedHallData();
     if (!hall) return '-';
-    return this.isEditMode() ? `Editing ${hall.name}` : `Viewing ${hall.name} config`;
+    return this.isEditing() ? `Editing ${hall.name}` : `Viewing ${hall.name} config`;
   });
 
   private readonly numRowsValue = toSignal(
@@ -397,16 +398,16 @@ export class HallConfigModalComponent {
   }
 
   protected toggleEditMode() {
-    if (this.isEditMode() && this.hasChanges()) {
+    if (this.isEditing() && this.hasChanges()) {
       this.discardVisible.set(true);
       return;
     }
-    this.isEditMode.update((v) => !v);
+    this.isEditing.update((v) => !v);
   }
 
   protected confirmDiscard() {
     this.discardVisible.set(false);
-    this.isEditMode.set(false);
+    this.isEditing.set(false);
     this.applyHallDetail(this.selectedHallData()!);
   }
 

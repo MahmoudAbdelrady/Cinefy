@@ -62,11 +62,21 @@
               </div>
             </div>
             <div class="ahi-actions">
-              <button (click)="viewHallId.set(hall.id)">
+              <button
+                class="view-btn"
+                (click)="configuredHall.set({ id: hall.id, editMode: false })"
+              >
                 <svg [lucideIcon]="icons.EyeIcon" [size]="16" [strokeWidth]="2.5"></svg>
                 <span>View</span>
               </button>
-              <button (click)="hallToDelete.set(hall)">
+              <button
+                class="edit-btn"
+                (click)="configuredHall.set({ id: hall.id, editMode: true })"
+              >
+                <svg [lucideIcon]="icons.EditIcon" [size]="16" [strokeWidth]="2.5"></svg>
+                <span>Edit</span>
+              </button>
+              <button class="delete-btn" (click)="hallToDelete.set(hall)">
                 <svg [lucideIcon]="icons.DeleteIcon" [size]="16" [strokeWidth]="2.5"></svg>
                 <span>Delete</span>
               </button>
@@ -84,10 +94,11 @@
   </div>
 </div>
 
-@if (viewHallId(); as hallId) {
+@if (configuredHall(); as hall) {
   <hall-config-modal
-    (closed)="viewHallId.set(null)"
-    [selectedHallId]="hallId"
+    (closed)="configuredHall.set(null)"
+    [selectedHallId]="hall.id"
+    [openInEditMode]="hall.editMode"
     (hallUpdated)="updateHall($event)"
   />
 }

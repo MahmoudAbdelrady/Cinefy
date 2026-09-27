@@ -4,6 +4,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
   DeleteIcon,
+  EditIcon,
   EyeIcon,
   LayoutIcon,
   SearchIcon,
@@ -52,6 +53,7 @@ export class HallsListComponent {
     LayoutIcon,
     UsersIcon,
     EyeIcon,
+    EditIcon,
     DeleteIcon,
     AlertIcon,
     TagIcon,
@@ -65,7 +67,7 @@ export class HallsListComponent {
 
   protected readonly loading = signal(true);
   protected readonly deleting = signal(false);
-  protected readonly viewHallId = signal<string | null>(null);
+  protected readonly configuredHall = signal<{ id: string; editMode: boolean } | null>(null);
   protected readonly hallToDelete = signal<HallSummary | null>(null);
   protected readonly halls = signal<HallSummary[]>([]);
 

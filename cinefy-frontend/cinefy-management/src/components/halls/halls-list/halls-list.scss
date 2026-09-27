@@ -235,7 +235,16 @@
     transition: all $transition-fast;
     white-space: nowrap;
 
-    &:first-child {
+    &.view-btn {
+      color: $gray-700;
+      border: 1px solid $gray-300;
+
+      &:hover {
+        background-color: $gray-100;
+      }
+    }
+
+    &.edit-btn {
       color: $blue-600;
       border: 1px solid $blue-200;
 
@@ -244,9 +253,9 @@
       }
     }
 
-    &:last-child {
+    &.delete-btn {
       color: $red-600;
-      border: 1px solid rgba($red-400, 0.4);
+      border: 1px solid $red-200;
 
       &:hover {
         background-color: $red-50;

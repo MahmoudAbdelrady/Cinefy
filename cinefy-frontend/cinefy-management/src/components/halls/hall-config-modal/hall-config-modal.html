@@ -1,16 +1,16 @@
 <cui-dialog #dialog (closed)="closed.emit()" [style]="{ width: '1300px' }">
   <div customHeader class="hall-config-modal-header">
     <span class="hcmh-title">{{ modalTitle() }}</span>
-    @if (selectedHallId() && !loadingHall() && !loadHallError()) {
+    @if (selectedHallId() && !openInEditMode() && !loadingHall() && !loadHallError()) {
       <button
         class="mode-toggle-btn"
-        [class.edit]="!isEditMode()"
-        [class.view]="isEditMode()"
+        [class.edit]="!isEditing()"
+        [class.view]="isEditing()"
         (click)="toggleEditMode()"
-        [pTooltip]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
+        [pTooltip]="isEditing() ? 'Switch to View mode' : 'Switch to Edit mode'"
       >
         <svg
-          [lucideIcon]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
+          [lucideIcon]="isEditing() ? icons.EyeIcon : icons.EditIcon"
           [size]="20"
           [strokeWidth]="2"
         ></svg>
