@@ -219,22 +219,11 @@
 }
 
 .sa-btn {
-  @include flex-align;
-  gap: 8px;
   padding: 8px 12px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: $radius-md;
   border: 1px solid transparent;
   background-color: transparent;
-  transition: all $transition-fast;
   white-space: nowrap;
-  cursor: pointer;
   @include lucide-icon-fix;
-
-  &:active {
-    transform: scale(0.97);
-  }
 }
 
 .sa-btn-view {

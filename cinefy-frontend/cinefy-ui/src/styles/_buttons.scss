@@ -10,6 +10,10 @@
   border-radius: $radius-md;
   transition: all $transition-fast;
   cursor: pointer;
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
 }
 
 .btn-primary {

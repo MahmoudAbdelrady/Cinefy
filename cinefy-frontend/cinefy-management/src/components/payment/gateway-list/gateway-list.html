@@ -124,7 +124,7 @@
 <ng-template #gatewayActions let-gateway>
   <button
     type="button"
-    class="gl-action"
+    class="btn-base gl-action"
     [class.deactivate]="gateway.active"
     [class.activate]="!gateway.active"
     (click)="gatewayToToggle.set(gateway)"
@@ -137,12 +137,12 @@
     <span>{{ gateway.active ? 'Deactivate' : 'Activate' }}</span>
   </button>
 
-  <button type="button" class="gl-action" (click)="gatewayToViewChannels.set(gateway)">
+  <button type="button" class="btn-base gl-action" (click)="gatewayToViewChannels.set(gateway)">
     <svg [lucideIcon]="icons.EyeIcon" [size]="16" [strokeWidth]="2"></svg>
     <span>Channels</span>
   </button>
 
-  <button type="button" class="gl-action edit" (click)="gatewayToEdit.set(gateway)">
+  <button type="button" class="btn-base gl-action edit" (click)="gatewayToEdit.set(gateway)">
     <svg [lucideIcon]="icons.EditIcon" [size]="16" [strokeWidth]="2"></svg>
     <span>Edit</span>
   </button>
@@ -150,7 +150,7 @@
   @if (!gateway.active) {
     <button
       type="button"
-      class="gl-action delete"
+      class="btn-base gl-action delete"
       [disabled]="isDeleting(gateway.id)"
       (click)="gatewayToDelete.set(gateway)"
     >

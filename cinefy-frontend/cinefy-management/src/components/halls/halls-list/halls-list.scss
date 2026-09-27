@@ -225,14 +225,8 @@
   }
 
   button {
-    @include flex-align;
     @include lucide-icon-fix;
-    gap: 8px;
     padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: $radius-md;
-    transition: all $transition-fast;
     white-space: nowrap;
 
     &.view-btn {
@@ -260,10 +254,6 @@
       &:hover {
         background-color: $red-50;
       }
-    }
-
-    &:active {
-      transform: scale(0.97);
     }
   }
 }

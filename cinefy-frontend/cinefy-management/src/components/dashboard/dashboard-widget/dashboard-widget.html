@@ -10,7 +10,7 @@
       }
     </div>
     @if (actionLabel(); as actionLabel) {
-      <a class="dw-header-action" [routerLink]="actionLink()">
+      <a class="btn-base dw-header-action" [routerLink]="actionLink()">
         @if (actionIcon(); as actionIcon) {
           <svg [lucideIcon]="actionIcon" [size]="15"></svg>
         }
