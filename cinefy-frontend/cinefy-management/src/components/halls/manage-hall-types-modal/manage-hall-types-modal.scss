@@ -2,10 +2,6 @@
 @use '../../../shared/styles/mixins' as *;
 @use 'cinefy-ui/styles/mixins' as *;
 
-.spin {
-  animation: spin 700ms linear infinite;
-}
-
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -18,151 +14,193 @@
 .manage-types-modal-content {
   @include flex-column;
   gap: 16px;
-}
 
-.section-head {
-  @include flex-align;
-  gap: 12px;
-  margin-bottom: 12px;
+  .existing-types-container {
+    .section-head {
+      @include flex-align;
+      gap: 12px;
+      margin-bottom: 12px;
 
-  h3 {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: $gray-500;
-    white-space: nowrap;
-  }
+      h3 {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: $gray-500;
+        white-space: nowrap;
+      }
 
-  .sh-rule {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, $gray-200, transparent);
-  }
+      .sh-rule {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, $gray-200, transparent);
+      }
 
-  .sh-count {
-    font-size: 11px;
-    font-weight: 600;
-    color: $gray-400;
-    font-variant-numeric: tabular-nums;
-  }
-}
+      .sh-count {
+        font-size: 11px;
+        font-weight: 600;
+        color: $gray-400;
+        font-variant-numeric: tabular-nums;
+      }
+    }
 
-.existing-types-list {
-  @include flex-column;
-  gap: 8px;
-  max-height: 500px;
-  overflow-y: auto;
-  padding-right: 8px;
-}
+    .loading-types {
+      @include flex-center;
+      padding: 24px 16px;
+      color: $blue-600;
+    }
 
-.loading-types {
-  @include flex-center;
-  padding: 24px 16px;
-  color: $blue-600;
-}
+    .existing-types-list {
+      @include flex-column;
+      gap: 8px;
+      max-height: 500px;
+      overflow-y: auto;
+      padding-right: 8px;
 
-.existing-type-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px;
-  background-color: $gray-50;
-  border-radius: $radius-md;
-  border: 1px solid $gray-200;
-  transition:
-    border-color $transition-fast,
-    background-color $transition-fast;
+      .existing-type-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px;
+        background-color: $gray-50;
+        border-radius: $radius-md;
+        border: 1px solid $gray-200;
+        transition:
+          border-color $transition-fast,
+          background-color $transition-fast;
 
-  &:has(.inline-edit-field) {
-    align-items: flex-start;
-  }
+        &:has(.inline-edit-field) {
+          align-items: flex-start;
+        }
 
-  &:hover {
-    border-color: $gray-300;
-    background-color: #ffffff;
-  }
+        &:hover {
+          border-color: $gray-300;
+          background-color: #ffffff;
+        }
 
-  .type-name {
-    flex: 1;
-    min-width: 0;
-    font-size: 14px;
-    font-weight: 500;
-    color: $gray-800;
-    @include text-truncate;
-  }
-}
+        &:hover,
+        &:focus-within {
+          .action-buttons:not(.editing) {
+            opacity: 1;
+          }
+        }
 
-.edit-type-form {
-  display: contents;
-}
+        .edit-type-form {
+          display: contents;
+        }
 
-.type-tile {
-  @include icon-box(38px);
-  background-color: $blue-50;
-  color: $blue-600;
-}
-
-.inline-edit-field {
-  flex: 1;
-  min-width: 0;
-}
-
-.action-buttons {
-  @include flex-align;
-  gap: 4px;
-
-  &:not(.editing) {
-    opacity: 0;
-    transition: opacity $transition-fast;
-
-    .existing-type-item:hover &,
-    .existing-type-item:focus-within & {
-      opacity: 1;
+        .type-name {
+          flex: 1;
+          min-width: 0;
+          font-size: 14px;
+          font-weight: 500;
+          color: $gray-800;
+          @include text-truncate;
+        }
+      }
     }
   }
 
-  button {
-    @include flex-center;
-    @include lucide-icon-fix;
-    padding: 6px;
-    border-radius: $radius-sm;
-    transition: all $transition-fast;
+  .new-type-container {
+    margin-top: 4px;
 
-    &:first-child {
+    .new-type-form {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px;
+      background-color: $gray-50;
+      border-radius: $radius-md;
+      border: 1px solid $gray-200;
+    }
+
+    .btn-add-new-type {
+      @include flex-center;
+      @include lucide-icon-fix;
+      gap: 6px;
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 500;
       color: $blue-600;
+      background-color: $gray-50;
+      border: 1px dashed $gray-300;
+      border-radius: $radius-md;
+      transition: all $transition-fast;
 
       &:hover {
         background-color: $blue-50;
-      }
-    }
-
-    &:last-child {
-      color: $red-500;
-
-      &:hover {
-        background-color: $red-50;
-      }
-    }
-
-    &:disabled {
-      color: $gray-300;
-      cursor: not-allowed;
-
-      &:hover {
-        background-color: transparent;
+        border-color: $blue-300;
       }
     }
   }
 
-  &.editing {
-    min-height: 38px;
+  .type-tile {
+    @include icon-box(38px);
+    background-color: $blue-50;
+    color: $blue-600;
+  }
 
-    button:first-child:not(:disabled) {
-      color: $green-600;
+  .inline-edit-field {
+    flex: 1;
+    min-width: 0;
+  }
 
-      &:hover {
-        background-color: $green-50;
+  .action-buttons {
+    @include flex-align;
+    gap: 4px;
+
+    &:not(.editing) {
+      opacity: 0;
+      transition: opacity $transition-fast;
+    }
+
+    button {
+      @include flex-center;
+      @include lucide-icon-fix;
+      padding: 6px;
+      border-radius: $radius-sm;
+      transition: all $transition-fast;
+
+      &:first-child {
+        color: $blue-600;
+
+        &:hover {
+          background-color: $blue-50;
+        }
+      }
+
+      &:last-child {
+        color: $red-500;
+
+        &:hover {
+          background-color: $red-50;
+        }
+      }
+
+      &:disabled {
+        color: $gray-300;
+        cursor: not-allowed;
+
+        &:hover {
+          background-color: transparent;
+        }
+      }
+
+      .spin {
+        animation: spin 700ms linear infinite;
+      }
+    }
+
+    &.editing {
+      min-height: 38px;
+
+      button:first-child:not(:disabled) {
+        color: $green-600;
+
+        &:hover {
+          background-color: $green-50;
+        }
       }
     }
   }
@@ -243,39 +281,5 @@
         }
       }
     }
-  }
-}
-
-.new-type-container {
-  margin-top: 4px;
-}
-
-.new-type-form {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 10px;
-  background-color: $gray-50;
-  border-radius: $radius-md;
-  border: 1px solid $gray-200;
-}
-
-.btn-add-new-type {
-  @include flex-center;
-  @include lucide-icon-fix;
-  gap: 6px;
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  color: $blue-600;
-  background-color: $gray-50;
-  border: 1px dashed $gray-300;
-  border-radius: $radius-md;
-  transition: all $transition-fast;
-
-  &:hover {
-    background-color: $blue-50;
-    border-color: $blue-300;
   }
 }

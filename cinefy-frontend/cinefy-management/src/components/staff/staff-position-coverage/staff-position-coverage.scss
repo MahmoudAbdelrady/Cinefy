@@ -8,114 +8,112 @@
   border: 1px solid $gray-200;
   border-radius: $radius-lg;
   padding: 24px;
-}
 
-.spcc-header {
-  margin-bottom: 16px;
-}
-
-.spcc-eyebrow {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  color: $gray-500;
-  text-transform: uppercase;
-}
-
-.spcc-subtitle {
-  font-size: 14px;
-  color: $gray-600;
-  margin-top: 4px;
-}
-
-.spcc-empty {
-  padding: 24px 0;
-  font-size: 14px;
-  color: $gray-500;
-  text-align: center;
-}
-
-.spcc-loading {
-  @include flex-center;
-  min-height: 100px;
-}
-
-.spcc-bars {
-  display: flex;
-  width: 100%;
-  height: 12px;
-  background-color: $gray-100;
-  border-radius: $radius-full;
-  overflow: hidden;
-}
-
-.spcc-bar {
-  height: 100%;
-  transition: all $transition-fast;
-
-  @include staff-position-solid-bg;
-}
-
-.spcc-position-items {
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: 24px;
-  row-gap: 8px;
-  margin-top: 16px;
-}
-
-.spcc-item {
-  @include flex-align;
-  gap: 8px;
-  font-size: 14px;
-
-  .spcc-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: $radius-pill;
-    flex-shrink: 0;
-  }
-
-  .pos-name {
-    color: $gray-700;
-  }
-
-  .pos-count {
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .pos-percentage {
-    color: $gray-400;
-    font-size: 12px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  @include staff-position-dot-and-text('.spcc-dot', '.pos-count');
-}
-
-.spcc-note {
-  @include flex-align;
-  @include lucide-icon-fix;
-  gap: 6px;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid $gray-100;
-  font-size: 12px;
-  color: $gray-500;
-
-  > svg {
-    flex-shrink: 0;
-    color: $gray-400;
-  }
-}
-
-@include below-mobile {
-  .staff-position-coverage-container {
+  @include below-mobile {
     padding: 16px;
   }
 
+  .spcc-header {
+    margin-bottom: 16px;
+
+    .spcc-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: $gray-500;
+      text-transform: uppercase;
+    }
+
+    .spcc-subtitle {
+      font-size: 14px;
+      color: $gray-600;
+      margin-top: 4px;
+    }
+  }
+
+  .spcc-empty {
+    padding: 24px 0;
+    font-size: 14px;
+    color: $gray-500;
+    text-align: center;
+  }
+
+  .spcc-loading {
+    @include flex-center;
+    min-height: 100px;
+  }
+
+  .spcc-bars {
+    display: flex;
+    width: 100%;
+    height: 12px;
+    background-color: $gray-100;
+    border-radius: $radius-full;
+    overflow: hidden;
+
+    .spcc-bar {
+      height: 100%;
+      transition: all $transition-fast;
+
+      @include staff-position-solid-bg;
+    }
+  }
+
   .spcc-position-items {
-    column-gap: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 24px;
+    row-gap: 8px;
+    margin-top: 16px;
+
+    @include below-mobile {
+      column-gap: 16px;
+    }
+
+    .spcc-item {
+      @include flex-align;
+      gap: 8px;
+      font-size: 14px;
+
+      .spcc-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: $radius-pill;
+        flex-shrink: 0;
+      }
+
+      .pos-name {
+        color: $gray-700;
+      }
+
+      .pos-count {
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .pos-percentage {
+        color: $gray-400;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      @include staff-position-dot-and-text('.spcc-dot', '.pos-count');
+    }
+  }
+
+  .spcc-note {
+    @include flex-align;
+    @include lucide-icon-fix;
+    gap: 6px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid $gray-100;
+    font-size: 12px;
+    color: $gray-500;
+
+    > svg {
+      flex-shrink: 0;
+      color: $gray-400;
+    }
   }
 }

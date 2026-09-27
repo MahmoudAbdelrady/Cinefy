@@ -12,6 +12,10 @@
   gap: 12px;
   margin-bottom: 16px;
 
+  @media print {
+    display: none;
+  }
+
   .bt-tabs {
     display: inline-flex;
     padding: 3px;
@@ -52,178 +56,24 @@
   overflow-x: auto;
   padding-bottom: 10px;
 
-  .bt-ticket {
-    flex: 0 0 350px;
-    max-width: none;
-  }
-
-  &.bt-strip-single {
-    display: block;
-    overflow-x: visible;
-    padding-bottom: 0;
-
-    .bt-ticket {
-      max-width: 350px;
-    }
-  }
-}
-
-.bt-ticket {
-  max-width: 350px;
-  padding: 20px;
-  border: 1px solid $gray-300;
-  border-radius: $radius-md;
-  background-color: #ffffff;
-  font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
-  text-align: left;
-
-  .bt-head {
-    padding-bottom: 12px;
-    border-bottom: 1px solid $gray-200;
-
-    .bt-brand {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: $gray-900;
-    }
-  }
-
-  .bt-movie {
-    margin-top: 16px;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.3;
-    color: $gray-900;
-  }
-
-  .bt-facts {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 16px;
-
-    .bt-fact {
-      min-width: 0;
-
-      dt {
-        font-size: 10px;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: $gray-500;
-      }
-
-      dd {
-        margin-top: 3px;
-        font-size: 13px;
-        font-weight: 600;
-        color: $gray-900;
-        overflow-wrap: anywhere;
-      }
-    }
-  }
-
-  .bt-seats {
-    margin-top: 18px;
-    padding: 12px 0;
-    border-top: 1px dashed $gray-300;
-    border-bottom: 1px dashed $gray-300;
-
-    .bt-seats-label {
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: $gray-500;
-    }
-
-    .bt-seats-value {
-      margin-top: 4px;
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      line-height: 1.2;
-      color: $gray-900;
-      overflow-wrap: anywhere;
-    }
-  }
-
-  .bt-breakdown {
-    margin-top: 16px;
-
-    .bt-breakdown-label {
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: $gray-500;
-    }
-
-    .bt-lines {
-      width: 100%;
-      margin-top: 8px;
-      border-collapse: collapse;
-      font-size: 12px;
-
-      th,
-      td {
-        padding: 3px 0;
-        text-align: left;
-        font-weight: 400;
-        color: $gray-600;
-      }
-
-      .bt-line-price {
-        text-align: right;
-        font-variant-numeric: tabular-nums;
-        color: $gray-900;
-      }
-
-      tfoot {
-        th,
-        td {
-          padding-top: 8px;
-          border-top: 1px solid $gray-200;
-          font-size: 13px;
-          font-weight: 700;
-          color: $gray-900;
-        }
-      }
-    }
-  }
-
-  .bt-foot {
-    @include flex-between;
-
-    align-items: flex-start;
-    gap: 12px;
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid $gray-200;
-
-    .bt-facts {
-      flex: 1;
-      margin-top: 0;
-    }
-
-    .bt-qr {
-      flex-shrink: 0;
-
-      img {
-        display: block;
-        width: 76px;
-        height: 76px;
-      }
-    }
-  }
-}
-
-@media print {
-  .bt-strip {
+  @media print {
     display: block !important;
     overflow: visible !important;
     padding-bottom: 0;
+  }
 
-    .bt-ticket {
+  .bt-ticket {
+    flex: 0 0 350px;
+    max-width: none;
+    padding: 20px;
+    border: 1px solid $gray-300;
+    border-radius: $radius-md;
+    background-color: #ffffff;
+    font-family:
+      ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+    text-align: left;
+
+    @media print {
       flex: none;
       border: none;
       padding: 0;
@@ -236,12 +86,157 @@
       }
     }
 
-    .bt-qr img {
-      print-color-adjust: exact;
+    .bt-head {
+      padding-bottom: 12px;
+      border-bottom: 1px solid $gray-200;
+
+      .bt-brand {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: $gray-900;
+      }
+    }
+
+    .bt-movie {
+      margin-top: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: $gray-900;
+    }
+
+    .bt-facts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+
+      .bt-fact {
+        min-width: 0;
+
+        dt {
+          font-size: 10px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: $gray-500;
+        }
+
+        dd {
+          margin-top: 3px;
+          font-size: 13px;
+          font-weight: 600;
+          color: $gray-900;
+          overflow-wrap: anywhere;
+        }
+      }
+    }
+
+    .bt-seats {
+      margin-top: 18px;
+      padding: 12px 0;
+      border-top: 1px dashed $gray-300;
+      border-bottom: 1px dashed $gray-300;
+
+      .bt-seats-label {
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: $gray-500;
+      }
+
+      .bt-seats-value {
+        margin-top: 4px;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        line-height: 1.2;
+        color: $gray-900;
+        overflow-wrap: anywhere;
+      }
+    }
+
+    .bt-breakdown {
+      margin-top: 16px;
+
+      .bt-breakdown-label {
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: $gray-500;
+      }
+
+      .bt-lines {
+        width: 100%;
+        margin-top: 8px;
+        border-collapse: collapse;
+        font-size: 12px;
+
+        th,
+        td {
+          padding: 3px 0;
+          text-align: left;
+          font-weight: 400;
+          color: $gray-600;
+        }
+
+        .bt-line-price {
+          text-align: right;
+          font-variant-numeric: tabular-nums;
+          color: $gray-900;
+        }
+
+        tfoot {
+          th,
+          td {
+            padding-top: 8px;
+            border-top: 1px solid $gray-200;
+            font-size: 13px;
+            font-weight: 700;
+            color: $gray-900;
+          }
+        }
+      }
+    }
+
+    .bt-foot {
+      @include flex-between;
+
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid $gray-200;
+
+      .bt-facts {
+        flex: 1;
+        margin-top: 0;
+      }
+
+      .bt-qr {
+        flex-shrink: 0;
+
+        img {
+          display: block;
+          width: 76px;
+          height: 76px;
+
+          @media print {
+            print-color-adjust: exact;
+          }
+        }
+      }
     }
   }
 
-  .bt-toolbar {
-    display: none;
+  &.bt-strip-single {
+    display: block;
+    overflow-x: visible;
+    padding-bottom: 0;
+
+    .bt-ticket {
+      max-width: 350px;
+    }
   }
 }

@@ -5,60 +5,66 @@
 
 @include profile-panel;
 
-.ph-edit-btn {
-  @include lucide-icon-fix;
+.profile-panel {
+  .panel-header {
+    .ph-edit-btn {
+      @include lucide-icon-fix;
 
-  flex-shrink: 0;
-}
-
-// ─── Read-only info grid ───────────────────────────────────────────────────────
-
-.info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-
-  @include below-mobile {
-    grid-template-columns: 1fr;
-  }
-}
-
-.info-item {
-  @include flex-align;
-  gap: 12px;
-  padding: 12px 16px;
-  background-color: $gray-50;
-  border: 1px solid $gray-100;
-  border-radius: $radius-md;
-  min-width: 0;
-}
-
-.ii-icon {
-  @include flex-center;
-  @include lucide-icon-fix;
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  background-color: #ffffff;
-  border: 1px solid $gray-200;
-  border-radius: $radius-md;
-  color: $gray-500;
-}
-
-.ii-info {
-  @include flex-column;
-  gap: 2px;
-  min-width: 0;
-
-  .ii-title {
-    font-size: 12px;
-    color: $gray-500;
+      flex-shrink: 0;
+    }
   }
 
-  .ii-value {
-    font-size: 14px;
-    font-weight: 500;
-    color: $gray-900;
-    @include text-truncate;
+  .panel-body {
+    // ─── Read-only info grid ───────────────────────────────────────────────────────
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+
+      @include below-mobile {
+        grid-template-columns: 1fr;
+      }
+
+      .info-item {
+        @include flex-align;
+        gap: 12px;
+        padding: 12px 16px;
+        background-color: $gray-50;
+        border: 1px solid $gray-100;
+        border-radius: $radius-md;
+        min-width: 0;
+
+        .ii-icon {
+          @include flex-center;
+          @include lucide-icon-fix;
+          width: 36px;
+          height: 36px;
+          flex-shrink: 0;
+          background-color: #ffffff;
+          border: 1px solid $gray-200;
+          border-radius: $radius-md;
+          color: $gray-500;
+        }
+
+        .ii-info {
+          @include flex-column;
+          gap: 2px;
+          min-width: 0;
+
+          .ii-title {
+            font-size: 12px;
+            color: $gray-500;
+          }
+
+          .ii-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: $gray-900;
+            @include text-truncate;
+          }
+        }
+      }
+    }
   }
 }

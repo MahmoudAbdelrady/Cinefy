@@ -8,129 +8,129 @@
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid $card-border-subtle;
-}
 
-.header-inner {
-  @include flex-between;
-  gap: 24px;
-  padding: 12px 32px;
+  .header-inner {
+    @include flex-between;
+    gap: 24px;
+    padding: 12px 32px;
 
-  @include below-desktop {
-    padding: 12px 24px;
-  }
+    @include below-desktop {
+      padding: 12px 24px;
+    }
 
-  @include below-mobile {
-    padding: 12px 16px;
-    gap: 12px;
-  }
-}
-
-.header-left {
-  @include flex-align;
-}
-
-.header-right {
-  @include flex-align;
-  gap: 8px;
-}
-
-.header-divider {
-  width: 1px;
-  height: 32px;
-  background-color: $gray-200;
-  margin: 0 4px;
-}
-
-.header-actions {
-  position: relative;
-
-  ::ng-deep {
-    .action-buttons-container {
-      @include flex-align;
+    @include below-mobile {
+      padding: 12px 16px;
       gap: 12px;
     }
 
-    button {
-      padding: 10px 16px;
-      border-radius: $radius-lg;
-      white-space: nowrap;
+    .header-left {
+      @include flex-align;
+    }
 
-      svg {
-        display: flex;
-      }
+    .header-right {
+      @include flex-align;
+      gap: 8px;
 
-      span {
-        @include below-mobile {
-          display: none;
+      .header-actions {
+        position: relative;
+
+        ::ng-deep {
+          .action-buttons-container {
+            @include flex-align;
+            gap: 12px;
+          }
+
+          button {
+            padding: 10px 16px;
+            border-radius: $radius-lg;
+            white-space: nowrap;
+
+            svg {
+              display: flex;
+            }
+
+            span {
+              @include below-mobile {
+                display: none;
+              }
+            }
+
+            svg:last-child {
+              transition: transform 200ms ease;
+
+              @include below-mobile {
+                display: none;
+              }
+            }
+          }
         }
       }
 
-      svg:last-child {
-        transition: transform 200ms ease;
+      .header-divider {
+        width: 1px;
+        height: 32px;
+        background-color: $gray-200;
+        margin: 0 4px;
+      }
 
-        @include below-mobile {
-          display: none;
+      .user-info-container {
+        .user-info-trigger {
+          @include flex-align;
+          gap: 12px;
+          padding: 6px 12px 6px 6px;
+          border-radius: $radius-lg;
+          transition: background-color $transition-fast;
+
+          &:hover {
+            background-color: $gray-100;
+          }
+
+          .avatar-box {
+            @include icon-box(36px);
+            background-color: $gray-900;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+            user-select: none;
+          }
+
+          .info-box {
+            text-align: left;
+
+            @include below-desktop {
+              display: none;
+            }
+
+            h5 {
+              font-size: 14px;
+              font-weight: 600;
+              color: $gray-900;
+              line-height: 1.3;
+            }
+
+            p {
+              font-size: 11px;
+              color: $gray-400;
+              line-height: 1.3;
+            }
+          }
+
+          > svg:last-child {
+            color: $gray-400;
+            transition: all $transition-fast;
+            display: flex;
+
+            @include below-desktop {
+              display: none;
+            }
+          }
+
+          &:hover > svg:last-child {
+            color: $gray-600;
+          }
         }
       }
-    }
-  }
-}
-
-.user-info-container {
-  .user-info-trigger {
-    @include flex-align;
-    gap: 12px;
-    padding: 6px 12px 6px 6px;
-    border-radius: $radius-lg;
-    transition: background-color $transition-fast;
-
-    &:hover {
-      background-color: $gray-100;
-    }
-
-    .avatar-box {
-      @include icon-box(36px);
-      background-color: $gray-900;
-      color: #ffffff;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.025em;
-      user-select: none;
-    }
-
-    .info-box {
-      text-align: left;
-
-      @include below-desktop {
-        display: none;
-      }
-
-      h5 {
-        font-size: 14px;
-        font-weight: 600;
-        color: $gray-900;
-        line-height: 1.3;
-      }
-
-      p {
-        font-size: 11px;
-        color: $gray-400;
-        line-height: 1.3;
-      }
-    }
-
-    > svg:last-child {
-      color: $gray-400;
-      transition: all $transition-fast;
-      display: flex;
-
-      @include below-desktop {
-        display: none;
-      }
-    }
-
-    &:hover > svg:last-child {
-      color: $gray-600;
     }
   }
 }

@@ -9,71 +9,71 @@
 
 .otp-step-container {
   @include auth-stage;
-}
 
-.fp-heading {
-  @include auth-heading;
-}
+  .fp-heading {
+    @include auth-heading;
+  }
 
-.fp-card {
-  @include auth-card;
-}
+  .fp-card {
+    @include auth-card;
 
-.fp-otp-label {
-  display: block;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: $gray-800;
-  margin-bottom: 12px;
-}
-
-.fp-otp-meta {
-  @include flex-align;
-  gap: 6px;
-  margin-top: 16px;
-  font-size: 12.5px;
-  color: $gray-500;
-
-  .fp-otp-resend {
-    background: none;
-    border: none;
-    padding: 0;
-    font: inherit;
-    font-weight: 600;
-    color: $blue-600;
-    cursor: pointer;
-    transition: color $transition-fast;
-
-    &:hover {
-      color: $blue-700;
+    .fp-otp-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: $gray-800;
+      margin-bottom: 12px;
     }
 
-    &:disabled {
-      color: $gray-400;
-      cursor: default;
+    .fp-otp-meta {
+      @include flex-align;
+      gap: 6px;
+      margin-top: 16px;
+      font-size: 12.5px;
+      color: $gray-500;
+
+      .fp-otp-resend {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        font-weight: 600;
+        color: $blue-600;
+        cursor: pointer;
+        transition: color $transition-fast;
+
+        &:hover {
+          color: $blue-700;
+        }
+
+        &:disabled {
+          color: $gray-400;
+          cursor: default;
+        }
+      }
+
+      .fp-otp-cooldown {
+        font-weight: 500;
+        color: $gray-400;
+        font-variant-numeric: tabular-nums;
+      }
+    }
+
+    .fp-submit {
+      @include auth-submit-btn;
+      margin-top: 24px;
+
+      .fp-submit-arrow {
+        @include auth-submit-arrow;
+      }
+
+      &:not(:disabled):hover .fp-submit-arrow {
+        @include auth-submit-arrow-hover;
+      }
     }
   }
 
-  .fp-otp-cooldown {
-    font-weight: 500;
-    color: $gray-400;
-    font-variant-numeric: tabular-nums;
+  .fp-back-link {
+    @include auth-back-link;
   }
-}
-
-.fp-submit {
-  @include auth-submit-btn;
-  margin-top: 24px;
-
-  .fp-submit-arrow {
-    @include auth-submit-arrow;
-  }
-
-  &:not(:disabled):hover .fp-submit-arrow {
-    @include auth-submit-arrow-hover;
-  }
-}
-
-.fp-back-link {
-  @include auth-back-link;
 }

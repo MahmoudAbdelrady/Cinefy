@@ -14,15 +14,33 @@
   .hcmh-title {
     font-size: 22px;
   }
-}
 
-.hall-config-modal-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  .mode-toggle-btn {
+    @include flex-center;
+    @include lucide-icon-fix;
+    padding: 8px;
+    margin-right: 5px;
+    border-radius: $radius-lg;
+    transition: all $transition-fast;
+    cursor: pointer;
 
-  @include below-desktop {
-    grid-template-columns: 1fr;
+    &.edit {
+      color: $blue-600;
+      border: 1px solid $blue-200;
+
+      &:hover {
+        background-color: $blue-100;
+      }
+    }
+
+    &.view {
+      color: $gray-500;
+      border: 1px solid $gray-200;
+
+      &:hover {
+        background-color: $gray-100;
+      }
+    }
   }
 }
 
@@ -37,393 +55,403 @@
   min-height: 65vh;
 }
 
-// ─── Hall Information ───────────────────────────────────────────────────────────
-
-.hall-information {
-  @include flex-column;
-  gap: 24px;
-  max-height: 65vh;
-  overflow-y: auto;
-  padding: 4px 8px 24px 4px;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: $gray-300;
-    border-radius: $radius-full;
-  }
-}
-
-.hi-header {
-  @include flex-align;
-  @include lucide-icon-fix;
-  gap: 8px;
-  color: $blue-600;
-
-  span {
-    font-size: 18px;
-    font-weight: 600;
-    color: $gray-900;
-  }
-}
-
-.hi-form {
-  @include flex-column;
-  gap: 16px;
-}
-
-.input-group {
-  @include flex-column;
-}
-
-.number-input-group {
+.hall-config-modal-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 32px;
 
-  @include below-phone {
+  @include below-desktop {
     grid-template-columns: 1fr;
   }
-}
 
-.type-group {
-  .switch-group {
-    @include flex-between;
-    padding: 12px;
-    border-radius: $radius-md;
-    border: 2px solid $gray-200;
-    background-color: $gray-50;
-    margin-top: 16px;
-    cursor: pointer;
-    transition: all $transition-fast;
+  // ─── Hall Information ───────────────────────────────────────────────────────────
 
-    &:hover {
-      border-color: $gray-300;
+  .hall-information {
+    @include flex-column;
+    gap: 24px;
+    max-height: 65vh;
+    overflow-y: auto;
+    padding: 4px 8px 24px 4px;
+
+    &::-webkit-scrollbar {
+      width: 4px;
     }
 
-    &.disabled {
-      cursor: not-allowed;
-
-      &:hover {
-        border-color: $gray-200;
-      }
+    &::-webkit-scrollbar-track {
+      background: transparent;
     }
 
-    .sg-label-text {
-      font-size: 14px;
-      font-weight: 500;
-      color: $gray-900;
-    }
-  }
-}
-
-// ─── Seat Categories ────────────────────────────────────────────────────────────
-
-.seats-configuration {
-  @include flex-column;
-  gap: 24px;
-}
-
-.seat-categories {
-  @include flex-column;
-}
-
-.sc-header {
-  @include flex-align;
-  @include lucide-icon-fix;
-  gap: 8px;
-  color: $purple-600;
-  margin-bottom: 16px;
-
-  span {
-    font-size: 18px;
-    font-weight: 600;
-    color: $gray-900;
-  }
-}
-
-.sc-content {
-  @include flex-column;
-  gap: 12px;
-}
-
-.sc-type-items {
-  @include flex-column;
-  gap: 12px;
-}
-
-.sti-item {
-  @include flex-align;
-  gap: 12px;
-  padding: 12px;
-  border-radius: $radius-md;
-  border: 2px solid;
-  transition: all $transition-fast;
-  cursor: pointer;
-
-  &:hover {
-    box-shadow: $shadow-sm;
-  }
-
-  .sti-item-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: $radius-sm;
-
-    &.normal {
-      background-color: $blue-500;
-    }
-
-    &.vip {
-      background-color: $purple-500;
-    }
-
-    &.aisle {
+    &::-webkit-scrollbar-thumb {
       background-color: $gray-300;
-    }
-  }
-
-  .sti-item-info {
-    flex: 1;
-    font-size: 14px;
-    font-weight: 500;
-    color: $gray-900;
-  }
-
-  .sti-item-selected {
-    font-size: 12px;
-    font-weight: 500;
-    color: #ffffff;
-    padding: 4px 8px;
-    border-radius: $radius-sm;
-    background-color: $blue-600;
-  }
-
-  border-color: $blue-200;
-  background-color: $blue-50;
-
-  &:hover {
-    border-color: $blue-300;
-  }
-
-  &.selected {
-    background-color: $blue-100;
-    border-color: $blue-500;
-    box-shadow: $shadow-sm;
-  }
-
-  &:nth-child(2) {
-    border-color: $purple-200;
-    background-color: $purple-50;
-
-    &:hover {
-      border-color: #d8b4fe;
+      border-radius: $radius-full;
     }
 
-    &.selected {
-      background-color: $purple-100;
-      border-color: $purple-500;
-      box-shadow: $shadow-sm;
-    }
+    .hi-header {
+      @include flex-align;
+      @include lucide-icon-fix;
+      gap: 8px;
+      color: $blue-600;
 
-    .sti-item-selected {
-      background-color: $purple-600;
-    }
-  }
-
-  &:nth-child(3) {
-    border-color: $gray-200;
-    background-color: $gray-50;
-
-    &:hover {
-      border-color: $gray-300;
-    }
-
-    &.selected {
-      background-color: $gray-200;
-      border-color: $gray-500;
-      box-shadow: $shadow-sm;
-    }
-
-    .sti-item-selected {
-      background-color: $gray-600;
-    }
-  }
-}
-
-.reservation-toggle {
-  > span {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: $gray-400;
-    margin-top: 12px;
-    margin-bottom: 4px;
-  }
-
-  .switch-group {
-    @include flex-between;
-    padding: 12px;
-    border-radius: $radius-md;
-    border: 2px solid $gray-200;
-    background-color: $gray-50;
-    cursor: pointer;
-    transition: all $transition-fast;
-
-    &:hover {
-      border-color: $gray-300;
-    }
-
-    &.active {
-      background-color: $orange-100;
-      border-color: $orange-400;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-
-      .sg-label-icon {
-        background-color: $orange-500;
-        color: #ffffff;
+      span {
+        font-size: 18px;
+        font-weight: 600;
+        color: $gray-900;
       }
     }
 
-    &.disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .hi-form {
+      @include flex-column;
+      gap: 16px;
 
-      &:hover {
-        border-color: $gray-200;
+      .input-group {
+        @include flex-column;
+      }
+
+      .number-input-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+
+        @include below-phone {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .type-group {
+        .switch-group {
+          @include flex-between;
+          padding: 12px;
+          border-radius: $radius-md;
+          border: 2px solid $gray-200;
+          background-color: $gray-50;
+          margin-top: 16px;
+          cursor: pointer;
+          transition: all $transition-fast;
+
+          &:hover {
+            border-color: $gray-300;
+          }
+
+          &.disabled {
+            cursor: not-allowed;
+
+            &:hover {
+              border-color: $gray-200;
+            }
+          }
+
+          .sg-label-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: $gray-900;
+          }
+        }
+      }
+
+      // ─── Seat Categories ────────────────────────────────────────────────────────────
+
+      .seats-configuration {
+        @include flex-column;
+        gap: 24px;
+
+        .seat-categories {
+          @include flex-column;
+
+          .sc-header {
+            @include flex-align;
+            @include lucide-icon-fix;
+            gap: 8px;
+            color: $purple-600;
+            margin-bottom: 16px;
+
+            span {
+              font-size: 18px;
+              font-weight: 600;
+              color: $gray-900;
+            }
+          }
+
+          .sc-content {
+            @include flex-column;
+            gap: 12px;
+
+            .sc-type-items {
+              @include flex-column;
+              gap: 12px;
+
+              .sti-item {
+                @include flex-align;
+                gap: 12px;
+                padding: 12px;
+                border-radius: $radius-md;
+                border: 2px solid;
+                transition: all $transition-fast;
+                cursor: pointer;
+
+                &:hover {
+                  box-shadow: $shadow-sm;
+                }
+
+                .sti-item-icon {
+                  width: 24px;
+                  height: 24px;
+                  border-radius: $radius-sm;
+
+                  &.normal {
+                    background-color: $blue-500;
+                  }
+
+                  &.vip {
+                    background-color: $purple-500;
+                  }
+
+                  &.aisle {
+                    background-color: $gray-300;
+                  }
+                }
+
+                .sti-item-info {
+                  flex: 1;
+                  font-size: 14px;
+                  font-weight: 500;
+                  color: $gray-900;
+                }
+
+                .sti-item-selected {
+                  font-size: 12px;
+                  font-weight: 500;
+                  color: #ffffff;
+                  padding: 4px 8px;
+                  border-radius: $radius-sm;
+                  background-color: $blue-600;
+                }
+
+                border-color: $blue-200;
+                background-color: $blue-50;
+
+                &:hover {
+                  border-color: $blue-300;
+                }
+
+                &.selected {
+                  background-color: $blue-100;
+                  border-color: $blue-500;
+                  box-shadow: $shadow-sm;
+                }
+
+                &:nth-child(2) {
+                  border-color: $purple-200;
+                  background-color: $purple-50;
+
+                  &:hover {
+                    border-color: #d8b4fe;
+                  }
+
+                  &.selected {
+                    background-color: $purple-100;
+                    border-color: $purple-500;
+                    box-shadow: $shadow-sm;
+                  }
+
+                  .sti-item-selected {
+                    background-color: $purple-600;
+                  }
+                }
+
+                &:nth-child(3) {
+                  border-color: $gray-200;
+                  background-color: $gray-50;
+
+                  &:hover {
+                    border-color: $gray-300;
+                  }
+
+                  &.selected {
+                    background-color: $gray-200;
+                    border-color: $gray-500;
+                    box-shadow: $shadow-sm;
+                  }
+
+                  .sti-item-selected {
+                    background-color: $gray-600;
+                  }
+                }
+              }
+            }
+
+            .reservation-toggle {
+              > span {
+                display: block;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: $gray-400;
+                margin-top: 12px;
+                margin-bottom: 4px;
+              }
+
+              .switch-group {
+                @include flex-between;
+                padding: 12px;
+                border-radius: $radius-md;
+                border: 2px solid $gray-200;
+                background-color: $gray-50;
+                cursor: pointer;
+                transition: all $transition-fast;
+
+                &:hover {
+                  border-color: $gray-300;
+                }
+
+                &.active {
+                  background-color: $orange-100;
+                  border-color: $orange-400;
+                  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+                  .sg-label .sg-label-icon {
+                    background-color: $orange-500;
+                    color: #ffffff;
+                  }
+                }
+
+                &.disabled {
+                  opacity: 0.5;
+                  cursor: not-allowed;
+
+                  &:hover {
+                    border-color: $gray-200;
+                  }
+                }
+
+                .sg-label {
+                  @include flex-align;
+                  gap: 12px;
+
+                  .sg-label-icon {
+                    @include flex-center;
+                    width: 24px;
+                    height: 24px;
+                    border-radius: $radius-sm;
+                    background-color: $gray-300;
+                    color: $gray-500;
+                    font-size: 12px;
+                    font-weight: 700;
+                    transition: all $transition-fast;
+                  }
+
+                  .sg-label-text {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: $gray-900;
+                  }
+                }
+              }
+            }
+
+            .tip-container {
+              margin-top: 4px;
+              padding: 12px;
+              background-color: $blue-50;
+              border-radius: $radius-md;
+              border: 1px solid $blue-200;
+
+              p {
+                font-size: 12px;
+                color: $gray-700;
+                text-align: center;
+
+                span {
+                  font-weight: 700;
+                }
+              }
+            }
+          }
+        }
+
+        // ─── Ticket Pricing ─────────────────────────────────────────────────────────────
+
+        .ticket-pricing {
+          @include flex-column;
+
+          .tp-header {
+            @include flex-align;
+            @include lucide-icon-fix;
+            gap: 8px;
+            color: $green-600;
+            margin-bottom: 16px;
+
+            .tp-title {
+              font-size: 18px;
+              font-weight: 600;
+              color: $gray-900;
+            }
+          }
+
+          .tp-content {
+            @include flex-column;
+            gap: 12px;
+
+            .tp-input-group {
+              @include flex-column;
+
+              .tpi-label {
+                @include flex-align;
+                gap: 8px;
+                margin-bottom: 6px;
+
+                .tpi-label-icon {
+                  width: 12px;
+                  height: 12px;
+                  border-radius: $radius-sm;
+
+                  &.normal {
+                    background-color: $blue-500;
+                  }
+
+                  &.vip {
+                    background-color: $purple-500;
+                  }
+                }
+
+                .tpi-label-text {
+                  font-size: 14px;
+                  color: $gray-700;
+
+                  &[data-required]::after {
+                    content: '*';
+                    color: $red-500;
+                    margin-left: 3px;
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
 
-  .sg-label {
-    @include flex-align;
-    gap: 12px;
-  }
+  .hall-layout-editor {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    min-width: 0;
+    overflow: hidden;
 
-  .sg-label-icon {
-    @include flex-center;
-    width: 24px;
-    height: 24px;
-    border-radius: $radius-sm;
-    background-color: $gray-300;
-    color: $gray-500;
-    font-size: 12px;
-    font-weight: 700;
-    transition: all $transition-fast;
-  }
+    .hle-header {
+      @include flex-align;
+      @include lucide-icon-fix;
+      gap: 8px;
+      color: $blue-600;
+      margin-bottom: 16px;
 
-  .sg-label-text {
-    font-size: 14px;
-    font-weight: 500;
-    color: $gray-900;
-  }
-}
-
-.tip-container {
-  margin-top: 4px;
-  padding: 12px;
-  background-color: $blue-50;
-  border-radius: $radius-md;
-  border: 1px solid $blue-200;
-
-  p {
-    font-size: 12px;
-    color: $gray-700;
-    text-align: center;
-
-    span {
-      font-weight: 700;
+      span {
+        font-size: 18px;
+        font-weight: 600;
+        color: $gray-900;
+      }
     }
-  }
-}
-
-// ─── Ticket Pricing ─────────────────────────────────────────────────────────────
-
-.ticket-pricing {
-  @include flex-column;
-}
-
-.tp-header {
-  @include flex-align;
-  @include lucide-icon-fix;
-  gap: 8px;
-  color: $green-600;
-  margin-bottom: 16px;
-
-  .tp-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: $gray-900;
-  }
-}
-
-.tp-content {
-  @include flex-column;
-  gap: 12px;
-}
-
-.tp-input-group {
-  @include flex-column;
-
-  .tpi-label {
-    @include flex-align;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
-  .tpi-label-icon {
-    width: 12px;
-    height: 12px;
-    border-radius: $radius-sm;
-
-    &.normal {
-      background-color: $blue-500;
-    }
-
-    &.vip {
-      background-color: $purple-500;
-    }
-  }
-
-  .tpi-label-text {
-    font-size: 14px;
-    color: $gray-700;
-
-    &[data-required]::after {
-      content: '*';
-      color: $red-500;
-      margin-left: 3px;
-    }
-  }
-}
-
-.hall-layout-editor {
-  position: sticky;
-  top: 0;
-  align-self: start;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.hle-header {
-  @include flex-align;
-  @include lucide-icon-fix;
-  gap: 8px;
-  color: $blue-600;
-  margin-bottom: 16px;
-
-  span {
-    font-size: 18px;
-    font-weight: 600;
-    color: $gray-900;
   }
 }
 
@@ -437,18 +465,18 @@
   .save-btns {
     @include flex-align;
     gap: 12px;
-  }
 
-  @include below-phone {
-    .btn-secondary,
-    .btn-primary {
-      width: 100%;
-    }
-
-    .save-btns {
+    @include below-phone {
       flex-direction: column-reverse;
       width: 100%;
       gap: 8px;
+    }
+
+    .btn-neutral,
+    .btn-primary {
+      @include below-phone {
+        width: 100%;
+      }
     }
   }
 }
@@ -466,33 +494,5 @@
 
   button {
     flex: 1;
-  }
-}
-
-.mode-toggle-btn {
-  @include flex-center;
-  @include lucide-icon-fix;
-  padding: 8px;
-  margin-right: 5px;
-  border-radius: $radius-lg;
-  transition: all $transition-fast;
-  cursor: pointer;
-
-  &.edit {
-    color: $blue-600;
-    border: 1px solid $blue-200;
-
-    &:hover {
-      background-color: $blue-100;
-    }
-  }
-
-  &.view {
-    color: $gray-500;
-    border: 1px solid $gray-200;
-
-    &:hover {
-      background-color: $gray-100;
-    }
   }
 }
