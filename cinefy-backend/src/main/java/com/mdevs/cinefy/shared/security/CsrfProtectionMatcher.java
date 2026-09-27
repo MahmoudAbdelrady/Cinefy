@@ -40,7 +40,7 @@ public class CsrfProtectionMatcher implements RequestMatcher {
                 return handlerMethod.hasMethodAnnotation(PublicApi.class) || handlerMethod.getBeanType().isAnnotationPresent(PublicApi.class);
             }
         } catch (Exception ex) {
-            log.warn("Could not resolve handler for {} — requiring CSRF protection", request.getRequestURI(), ex);
+            log.warn("Could not resolve handler for {}, requiring CSRF protection", request.getRequestURI(), ex);
         }
         return false;
     }

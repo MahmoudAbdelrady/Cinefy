@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({ name: "relativeTime" })
 export class RelativeTimePipe implements PipeTransform {
-  transform(value: string | Date | null | undefined, fallback = "—"): string {
+  transform(value: string | Date | null | undefined, fallback = "-"): string {
     if (!value) return fallback;
 
     const time = value instanceof Date ? value.getTime() : new Date(value).getTime();

@@ -27,9 +27,9 @@ export class MoviesStatisticsComponent {
   protected readonly cards = computed<StatsCard[]>(() => {
     const s = this.statistics();
     return [
-      { label: 'Total Movies', value: s?.totalMovies?.toString() ?? '—', icon: ClapperboardIcon },
-      { label: 'Total Showtimes', value: s?.totalShowtimes?.toString() ?? '—', icon: CalendarIcon },
-      { label: "Today's Showtimes", value: s?.todayShowtimes?.toString() ?? '—', icon: ClockIcon },
+      { label: 'Total Movies', value: s?.totalMovies?.toString() ?? '-', icon: ClapperboardIcon },
+      { label: 'Total Showtimes', value: s?.totalShowtimes?.toString() ?? '-', icon: CalendarIcon },
+      { label: "Today's Showtimes", value: s?.todayShowtimes?.toString() ?? '-', icon: ClockIcon },
     ];
   });
 

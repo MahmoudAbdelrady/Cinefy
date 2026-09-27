@@ -18,7 +18,7 @@
   >
     <div
       style="display: none; max-height: 0; overflow: hidden; opacity: 0"
-      th:text="|${booking.showtime.tmdbMovie.title} · ${#temporals.format(booking.showtime.startDateTime, 'MMM d, yyyy')} at ${#temporals.format(booking.showtime.startDateTime, 'h:mm a')} · ${booking.hallName} — show this QR at the gate.|"
+      th:text="|${booking.showtime.tmdbMovie.title} · ${#temporals.format(booking.showtime.startDateTime, 'MMM d, yyyy')} at ${#temporals.format(booking.showtime.startDateTime, 'h:mm a')} · ${booking.hallName}. Show this QR at the gate.|"
     ></div>
 
     <table

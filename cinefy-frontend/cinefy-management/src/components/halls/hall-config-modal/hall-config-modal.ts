@@ -242,7 +242,7 @@ export class HallConfigModalComponent {
     if (!this.selectedHallId()) return 'Add New Hall';
     if (this.loadingHall()) return 'Loading…';
     const hall = this.selectedHallData();
-    if (!hall) return '—';
+    if (!hall) return '-';
     return this.isEditMode() ? `Editing ${hall.name}` : `Viewing ${hall.name} config`;
   });
 

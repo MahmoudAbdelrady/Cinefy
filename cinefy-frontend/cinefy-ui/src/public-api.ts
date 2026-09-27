@@ -1,4 +1,4 @@
-// cinefy-ui — primary entry point.
+// cinefy-ui: primary entry point.
 // Code exports live in secondary entry points:
 //   - cinefy-ui/components
 //   - cinefy-ui/services
