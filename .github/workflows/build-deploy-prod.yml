@@ -4,22 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       backend:
-        description: Build and push backend
+        description: Deploy backend
         type: boolean
         required: false
         default: false
       management:
-        description: Build and push management
+        description: Deploy management
         type: boolean
         required: false
         default: false
       client:
-        description: Build and push client
+        description: Deploy client
         type: boolean
         required: false
         default: false
       nginx:
-        description: Build and push nginx
+        description: Deploy nginx
         type: boolean
         required: false
         default: false
