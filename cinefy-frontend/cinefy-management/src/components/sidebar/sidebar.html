@@ -1,31 +1,8 @@
-@if (sidebarService.isOpen()) {
-  <div class="sidebar-backdrop" (click)="sidebarService.close()"></div>
-}
-<aside class="sidebar-container" [class.is-open]="sidebarService.isOpen()">
-  <div class="header">
-    <div class="header-left">
-      <img class="site-icon" src="app-logo.svg" alt="Cinefy" />
-      <div class="site-info">
-        <h3>Cinefy</h3>
-        <p>Management Portal</p>
-      </div>
-    </div>
-    <button class="close-btn" (click)="sidebarService.close()">
-      <svg [lucideIcon]="icons.XIcon" [size]="20"></svg>
-    </button>
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <site-brand />
   </div>
-  <nav class="pages">
-    @for (tab of tabs(); track tab.path) {
-      <a
-        class="page-item"
-        [routerLink]="tab.path"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        (click)="sidebarService.close()"
-      >
-        <svg [lucideIcon]="tab.icon" [size]="20"></svg>
-        <span>{{ tab.label }}</span>
-      </a>
-    }
-  </nav>
+  <div class="sidebar-content">
+    <nav-links />
+  </div>
 </aside>

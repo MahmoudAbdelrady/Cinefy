@@ -29,28 +29,6 @@
   @include flex-align;
 }
 
-.hamburger-btn {
-  display: none;
-  padding: 8px;
-  margin-left: -8px;
-  color: $gray-500;
-  border-radius: $radius-md;
-  transition: all $transition-fast;
-
-  &:hover {
-    color: $gray-700;
-    background-color: $gray-100;
-  }
-
-  svg {
-    display: flex;
-  }
-
-  @include below-desktop {
-    @include flex-center;
-  }
-}
-
 .header-right {
   @include flex-align;
   gap: 8px;

@@ -1,0 +1,11 @@
+<button class="menu-btn" (click)="isOpen.set(true)">
+  <svg [lucideIcon]="icons.MenuIcon" [size]="22"></svg>
+</button>
+
+<p-drawer [(visible)]="isOpen" appendTo="body" [style]="{ width: '256px' }">
+  <ng-template #header>
+    <site-brand />
+  </ng-template>
+
+  <nav-links (navigated)="isOpen.set(false)" />
+</p-drawer>

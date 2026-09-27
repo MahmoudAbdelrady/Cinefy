@@ -11,16 +11,10 @@
 
 .sidebar-container {
   flex-shrink: 0;
-  width: 256px;
   height: 100%;
-  position: relative;
-  z-index: 50;
 
   @include below-desktop {
-    position: fixed;
-    inset: 0;
-    width: 256px;
-    pointer-events: none;
+    display: none;
   }
 }
 

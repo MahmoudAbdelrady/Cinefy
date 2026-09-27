@@ -1,5 +1,8 @@
 export { HeaderComponent } from './header/header';
+export { DrawerComponent } from './drawer/drawer';
 export { SidebarComponent } from './sidebar/sidebar';
+export { NavLinksComponent } from './nav-links/nav-links';
+export { SiteBrandComponent } from './site-brand/site-brand';
 export { TodayStatisticsComponent } from './dashboard/today-statistics/today-statistics';
 export { TodayScheduleComponent } from './dashboard/today-schedule/today-schedule';
 export { HallsSummaryComponent } from './dashboard/halls-summary/halls-summary';
