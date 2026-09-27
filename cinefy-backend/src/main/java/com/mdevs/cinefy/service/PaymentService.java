@@ -133,6 +133,6 @@ public class PaymentService {
                 client.getFirstName(),
                 client.getLastName(),
                 "+" + client.getPhoneNumber(),
-                client.getEmail());
+                "customer_email@mail.com"); // placeholder because paymob auto-sends a receipt after payment, which can't be toggled-off
     }
 }
