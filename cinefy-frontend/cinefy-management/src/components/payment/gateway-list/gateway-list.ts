@@ -85,14 +85,17 @@ export class GatewayListComponent {
 
   constructor() {
     afterNextRender(() => {
-      this.paymentGatewaysService.getPaymentGateways().subscribe({
-        next: ({ active, standBy }) => {
-          this.activeGateway.set(active ?? null);
-          this.standbyGateways.set(standBy);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
+      this.paymentGatewaysService
+        .getPaymentGateways()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: ({ active, standBy }) => {
+            this.activeGateway.set(active ?? null);
+            this.standbyGateways.set(standBy);
+            this.loading.set(false);
+          },
+          error: () => this.loading.set(false),
+        });
     });
   }
 

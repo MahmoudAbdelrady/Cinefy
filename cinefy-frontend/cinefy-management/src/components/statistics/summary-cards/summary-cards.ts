@@ -1,4 +1,5 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -49,6 +50,7 @@ export class SummaryCardsComponent {
   };
 
   private readonly statisticsService = inject(StatisticsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly range = input.required<DateRange>();
 
@@ -124,15 +126,18 @@ export class SummaryCardsComponent {
   private load(range: DateRange): Subscription {
     this.loading.set(true);
     this.failed.set(false);
-    return this.statisticsService.getSummary(range).subscribe({
-      next: (summary) => {
-        this.summary.set(summary);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.failed.set(true);
-        this.loading.set(false);
-      },
-    });
+    return this.statisticsService
+      .getSummary(range)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (summary) => {
+          this.summary.set(summary);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.failed.set(true);
+          this.loading.set(false);
+        },
+      });
   }
 }

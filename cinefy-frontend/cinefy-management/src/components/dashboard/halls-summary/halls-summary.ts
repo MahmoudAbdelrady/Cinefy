@@ -1,4 +1,5 @@
-import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { HallsService } from '../../../services';
 import { LayoutIcon, SettingsIcon } from '../../../shared/icons';
@@ -22,6 +23,7 @@ export class HallsSummaryComponent {
   protected readonly icons = { LayoutIcon, SettingsIcon };
 
   private readonly hallsService = inject(HallsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly hallCounts = signal<HallStatusCounts | null>(null);
   protected readonly loading = signal(true);
@@ -50,12 +52,15 @@ export class HallsSummaryComponent {
   }
 
   private load(): void {
-    this.hallsService.getHallStatusCounts().subscribe({
-      next: (counts) => {
-        this.hallCounts.set(counts);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+    this.hallsService
+      .getHallStatusCounts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (counts) => {
+          this.hallCounts.set(counts);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
   }
 }

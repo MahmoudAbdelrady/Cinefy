@@ -228,6 +228,7 @@ export class ManageShowtimeModalComponent {
     afterNextRender(() => {
       this.hallsService
         .getHalls(undefined, ACTIVE_HALL_STATUSES)
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((halls) => this.halls.set(halls));
     });
   }

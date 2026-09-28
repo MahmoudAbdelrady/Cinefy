@@ -1,4 +1,14 @@
-import { Component, computed, effect, inject, input, linkedSignal, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { CinefyEmptyState, CinefyLoadingSpinner, CinefyPaginator } from 'cinefy-ui/components';
@@ -45,6 +55,7 @@ export class MoviePerformanceComponent {
   };
 
   private readonly statisticsService = inject(StatisticsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currency = CURRENCY;
   protected readonly pageSize = DEFAULT_PAGE_SIZE;
@@ -89,17 +100,20 @@ export class MoviePerformanceComponent {
   private load(range: DateRange, page: number): Subscription {
     this.loading.set(true);
     this.failed.set(false);
-    return this.statisticsService.getMoviePerformance(range, page, this.pageSize).subscribe({
-      next: (response) => {
-        this.movies.set(response.content);
-        this.totalItems.set(response.page.totalElements);
-        this.pageCount.set(Math.max(1, response.page.totalPages));
-        this.loading.set(false);
-      },
-      error: () => {
-        this.failed.set(true);
-        this.loading.set(false);
-      },
-    });
+    return this.statisticsService
+      .getMoviePerformance(range, page, this.pageSize)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.movies.set(response.content);
+          this.totalItems.set(response.page.totalElements);
+          this.pageCount.set(Math.max(1, response.page.totalPages));
+          this.loading.set(false);
+        },
+        error: () => {
+          this.failed.set(true);
+          this.loading.set(false);
+        },
+      });
   }
 }

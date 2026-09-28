@@ -1,4 +1,13 @@
-import { afterNextRender, Component, inject, output, signal, viewChild } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  DestroyRef,
+  inject,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -54,6 +63,7 @@ export class ManageHallTypesModalComponent {
 
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(CinefyToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly deleteConfirm = viewChild.required(Popover);
 
@@ -104,13 +114,16 @@ export class ManageHallTypesModalComponent {
 
   private loadHallTypes() {
     this.loadingTypes.set(true);
-    this.hallsService.getHallTypes().subscribe({
-      next: (types) => {
-        this.hallTypes.set(types);
-        this.loadingTypes.set(false);
-      },
-      error: () => this.loadingTypes.set(false),
-    });
+    this.hallsService
+      .getHallTypes()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (types) => {
+          this.hallTypes.set(types);
+          this.loadingTypes.set(false);
+        },
+        error: () => this.loadingTypes.set(false),
+      });
   }
 
   protected startEditingType(type: HallType) {
@@ -123,6 +136,7 @@ export class ManageHallTypesModalComponent {
     this.savingTypeId.set(type.id!);
     this.hallsService
       .updateHallType(type.id!, { name: this.editTypeForm.controls.name.value.trim() })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => {
           this.hallTypes.update((types) => types.map((t) => (t.id === updated.id ? updated : t)));
@@ -156,15 +170,18 @@ export class ManageHallTypesModalComponent {
   protected deleteType(type: HallType) {
     if (this.isDeleting(type.id!)) return;
     this.markDeleting(type.id!, true);
-    this.hallsService.deleteHallType(type.id!).subscribe({
-      next: () => {
-        this.hallTypes.update((types) => types.filter((t) => t.id !== type.id));
-        this.markDeleting(type.id!, false);
-        this.closeDeleteConfirm();
-        this.toastService.success('Hall type deleted');
-      },
-      error: () => this.markDeleting(type.id!, false),
-    });
+    this.hallsService
+      .deleteHallType(type.id!)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.hallTypes.update((types) => types.filter((t) => t.id !== type.id));
+          this.markDeleting(type.id!, false);
+          this.closeDeleteConfirm();
+          this.toastService.success('Hall type deleted');
+        },
+        error: () => this.markDeleting(type.id!, false),
+      });
   }
 
   protected startAddingType() {
@@ -182,6 +199,7 @@ export class ManageHallTypesModalComponent {
     this.addingType.set(true);
     this.hallsService
       .createHallType({ name: this.newTypeForm.controls.name.value.trim() })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (created) => {
           this.hallTypes.update((types) => [...types, created]);

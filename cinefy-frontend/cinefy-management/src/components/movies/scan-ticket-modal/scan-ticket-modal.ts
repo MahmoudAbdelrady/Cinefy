@@ -88,7 +88,7 @@ export class ScanTicketModalComponent {
 
   constructor() {
     this.referenceControl.valueChanges
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.scheduleAutoSubmit());
 
     this.destroyRef.onDestroy(() => this.clearAutoSubmit());

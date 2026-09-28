@@ -154,7 +154,7 @@ export class StaffListComponent {
 
   constructor() {
     this.filterForm.controls.position.valueChanges
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((position) => {
         this.positionFilter.set(position ?? undefined);
         this.page.set(0);
@@ -235,40 +235,43 @@ export class StaffListComponent {
   protected deleteStaffMember(id: string): void {
     if (this.deletingStaffIds().has(id)) return;
     this.deletingStaffIds.update((current) => new Set(current).add(id));
-    this.staffService.deleteStaffMember(id).subscribe({
-      next: () => {
-        const staffPage = this.staffPage();
-        if (staffPage) {
-          const deletedPosition = staffPage.content.find((m) => m.id === id)?.position;
-          const content = staffPage.content.filter((m) => m.id !== id);
-          if (content.length === 0 && this.page() > 0) {
-            this.page.update((p) => p - 1);
-          } else {
-            this.staffPage.set({
-              ...staffPage,
-              content,
-              page: { ...staffPage.page, totalElements: staffPage.page.totalElements - 1 },
-            });
+    this.staffService
+      .deleteStaffMember(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          const staffPage = this.staffPage();
+          if (staffPage) {
+            const deletedPosition = staffPage.content.find((m) => m.id === id)?.position;
+            const content = staffPage.content.filter((m) => m.id !== id);
+            if (content.length === 0 && this.page() > 0) {
+              this.page.update((p) => p - 1);
+            } else {
+              this.staffPage.set({
+                ...staffPage,
+                content,
+                page: { ...staffPage.page, totalElements: staffPage.page.totalElements - 1 },
+              });
+            }
+            if (deletedPosition) {
+              this.coverageChanged.emit({ action: 'delete', position: deletedPosition });
+            }
           }
-          if (deletedPosition) {
-            this.coverageChanged.emit({ action: 'delete', position: deletedPosition });
-          }
-        }
-        this.deletingStaffIds.update((current) => {
-          const next = new Set(current);
-          next.delete(id);
-          return next;
-        });
-        this.toastService.success('Staff member deleted');
-        this.memberToDelete.set(null);
-      },
-      error: () => {
-        this.deletingStaffIds.update((current) => {
-          const next = new Set(current);
-          next.delete(id);
-          return next;
-        });
-      },
-    });
+          this.deletingStaffIds.update((current) => {
+            const next = new Set(current);
+            next.delete(id);
+            return next;
+          });
+          this.toastService.success('Staff member deleted');
+          this.memberToDelete.set(null);
+        },
+        error: () => {
+          this.deletingStaffIds.update((current) => {
+            const next = new Set(current);
+            next.delete(id);
+            return next;
+          });
+        },
+      });
   }
 }

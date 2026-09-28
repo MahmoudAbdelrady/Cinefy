@@ -154,16 +154,19 @@ export class MovieShowtimesModal {
       this.dayDrafts.set(0);
       this.selectedTab.set(undefined);
 
-      const sub = this.showtimesService.getMovieShowtimeDates(this.selectedMovieId()).subscribe({
-        next: (data) => {
-          this.movieShowtimes.set(data);
-          this.loadingDates.set(false);
-          if (data.dates.length > 0) {
-            this.selectedTab.set(data.dates[0]);
-          }
-        },
-        error: () => this.loadingDates.set(false),
-      });
+      const sub = this.showtimesService
+        .getMovieShowtimeDates(this.selectedMovieId())
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (data) => {
+            this.movieShowtimes.set(data);
+            this.loadingDates.set(false);
+            if (data.dates.length > 0) {
+              this.selectedTab.set(data.dates[0]);
+            }
+          },
+          error: () => this.loadingDates.set(false),
+        });
       onCleanup(() => sub.unsubscribe());
     });
 
@@ -177,6 +180,7 @@ export class MovieShowtimesModal {
       this.loadingDay.set(true);
       const sub = this.showtimesService
         .getMovieShowtimesForDate(this.selectedMovieId(), targetDate)
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (data) => {
             if (this.selectedTab() !== targetDate) return;

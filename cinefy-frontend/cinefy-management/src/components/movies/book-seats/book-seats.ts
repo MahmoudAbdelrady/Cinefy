@@ -200,12 +200,14 @@ export class BookSeatsComponent {
   );
 
   constructor() {
-    this.paymentForm.controls.isCash.valueChanges.pipe(takeUntilDestroyed()).subscribe((isCash) => {
-      const transactionId = this.paymentForm.controls.transactionId;
-      transactionId.reset('');
-      transactionId.setValidators(isCash ? [] : [Validators.required]);
-      transactionId.updateValueAndValidity();
-    });
+    this.paymentForm.controls.isCash.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((isCash) => {
+        const transactionId = this.paymentForm.controls.transactionId;
+        transactionId.reset('');
+        transactionId.setValidators(isCash ? [] : [Validators.required]);
+        transactionId.updateValueAndValidity();
+      });
 
     effect(() => {
       if (this.settling()) {

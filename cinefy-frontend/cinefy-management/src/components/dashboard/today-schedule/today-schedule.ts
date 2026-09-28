@@ -1,4 +1,5 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInMinutes, format, parse, startOfMinute } from 'date-fns';
 import { CinefyEmptyState, CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
@@ -39,8 +40,8 @@ export class TodayScheduleComponent {
     TicketIcon,
   };
 
-  private readonly destroyRef = inject(DestroyRef);
   private readonly showtimesService = inject(ShowtimesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly screenings = signal<ScheduledShowtime[]>([]);
   protected readonly loading = signal(true);
@@ -78,12 +79,15 @@ export class TodayScheduleComponent {
   }
 
   private load(): void {
-    this.showtimesService.getScheduleForDate(format(new Date(), DATE_FORMAT)).subscribe({
-      next: (screenings) => {
-        this.screenings.set(screenings);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+    this.showtimesService
+      .getScheduleForDate(format(new Date(), DATE_FORMAT))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (screenings) => {
+          this.screenings.set(screenings);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
   }
 }

@@ -1,4 +1,5 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -50,6 +51,7 @@ export class SalesChartComponent {
   };
 
   private readonly statisticsService = inject(StatisticsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currency = CURRENCY;
 
@@ -94,16 +96,19 @@ export class SalesChartComponent {
   private load(range: DateRange): Subscription {
     this.loading.set(true);
     this.failed.set(false);
-    return this.statisticsService.getSales(range).subscribe({
-      next: (points) => {
-        this.points.set(points);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.failed.set(true);
-        this.loading.set(false);
-      },
-    });
+    return this.statisticsService
+      .getSales(range)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (points) => {
+          this.points.set(points);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.failed.set(true);
+          this.loading.set(false);
+        },
+      });
   }
 
   protected toggleTable(): void {

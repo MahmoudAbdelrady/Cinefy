@@ -1,4 +1,5 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -46,6 +47,7 @@ export class ProfileHistoryComponent {
   };
 
   private readonly bookingService = inject(BookingService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly pageSize = PAGE_SIZE;
 
@@ -68,17 +70,20 @@ export class ProfileHistoryComponent {
   private loadPage(page: number): Subscription {
     this.loading.set(true);
     this.loadFailed.set(false);
-    return this.bookingService.getPastBookings({ page, size: PAGE_SIZE }).subscribe({
-      next: (response) => {
-        this.bookings.set(response.content);
-        this.totalItems.set(response.page.totalElements);
-        this.pageCount.set(Math.max(1, response.page.totalPages));
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.loadFailed.set(true);
-      },
-    });
+    return this.bookingService
+      .getPastBookings({ page, size: PAGE_SIZE })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.bookings.set(response.content);
+          this.totalItems.set(response.page.totalElements);
+          this.pageCount.set(Math.max(1, response.page.totalPages));
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.loadFailed.set(true);
+        },
+      });
   }
 }

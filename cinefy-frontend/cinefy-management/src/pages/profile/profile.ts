@@ -1,4 +1,5 @@
-import { afterNextRender, Component, inject, signal } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, take } from 'rxjs';
 import {
   ProfileIdentityComponent,
@@ -22,6 +23,7 @@ import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 })
 export class ProfilePage {
   private readonly staffService = inject(StaffService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly profile = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
@@ -39,6 +41,7 @@ export class ProfilePage {
       .pipe(
         take(1),
         switchMap((current) => this.staffService.getStaffMember(current.id)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (profile) => {

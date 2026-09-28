@@ -349,9 +349,13 @@ export class HallConfigModalComponent {
       });
 
     afterNextRender(() => {
-      this.hallsService.getHallTypes().subscribe((types) => this.hallTypes.set(types));
+      this.hallsService
+        .getHallTypes()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((types) => this.hallTypes.set(types));
       this.hallsService
         .getHalls(this.selectedHallId() ?? undefined)
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((halls) => this.halls.set(halls));
 
       const hallId = this.selectedHallId();
@@ -364,17 +368,20 @@ export class HallConfigModalComponent {
   private loadHallData(id: string) {
     this.loadingHall.set(true);
     this.loadHallError.set(false);
-    this.hallsService.getHall(id).subscribe({
-      next: (detail: HallDetail) => {
-        this.selectedHallData.set(detail);
-        this.applyHallDetail(detail);
-        this.loadingHall.set(false);
-      },
-      error: () => {
-        this.loadHallError.set(true);
-        this.loadingHall.set(false);
-      },
-    });
+    this.hallsService
+      .getHall(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (detail: HallDetail) => {
+          this.selectedHallData.set(detail);
+          this.applyHallDetail(detail);
+          this.loadingHall.set(false);
+        },
+        error: () => {
+          this.loadHallError.set(true);
+          this.loadingHall.set(false);
+        },
+      });
   }
 
   private applyHallDetail(detail: HallDetail) {
@@ -443,9 +450,12 @@ export class HallConfigModalComponent {
   }
 
   private copyLayoutFrom(hallId: string) {
-    this.hallsService.getHallLayout(hallId).subscribe({
-      next: (hallLayout) => this.applyLayoutData(hallLayout),
-    });
+    this.hallsService
+      .getHallLayout(hallId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (hallLayout) => this.applyLayoutData(hallLayout),
+      });
   }
 
   protected saveHall() {

@@ -1,4 +1,5 @@
-import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { StaffService } from '../../../services';
 import { ContactRoundIcon, UsersIcon } from '../../../shared/icons';
@@ -22,6 +23,7 @@ export class OnShiftSummaryComponent {
   protected readonly icons = { ContactRoundIcon, UsersIcon };
 
   private readonly staffService = inject(StaffService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly onShift = signal<OnShiftSummary | null>(null);
   protected readonly loading = signal(true);
@@ -47,12 +49,15 @@ export class OnShiftSummaryComponent {
   }
 
   private load(): void {
-    this.staffService.getOnShiftSummary().subscribe({
-      next: (summary) => {
-        this.onShift.set(summary);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+    this.staffService
+      .getOnShiftSummary()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (summary) => {
+          this.onShift.set(summary);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
   }
 }

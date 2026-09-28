@@ -1,4 +1,5 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -22,6 +23,7 @@ export class BookingSummaryComponent {
 
   private readonly router = inject(Router);
   private readonly bookingService = inject(BookingService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly showtimeId = input.required<string>();
   readonly selectedSeats = input.required<Seat[]>();
@@ -52,9 +54,12 @@ export class BookingSummaryComponent {
     };
     const idempotencyKey = crypto.randomUUID();
     this.submitting.set(true);
-    this.bookingService.createBooking(request, idempotencyKey).subscribe({
-      next: (booking) => this.router.navigateByUrl(`/checkout/${booking.id}`),
-      error: () => this.submitting.set(false),
-    });
+    this.bookingService
+      .createBooking(request, idempotencyKey)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (booking) => this.router.navigateByUrl(`/checkout/${booking.id}`),
+        error: () => this.submitting.set(false),
+      });
   }
 }

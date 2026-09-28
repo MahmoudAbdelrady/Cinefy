@@ -80,13 +80,16 @@ export class UpcomingMoviesComponent {
 
   constructor() {
     afterNextRender(() => {
-      this.moviesService.getUpcomingMovies().subscribe({
-        next: (list) => {
-          this.movies.set(list);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
+      this.moviesService
+        .getUpcomingMovies()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (list) => {
+            this.movies.set(list);
+            this.loading.set(false);
+          },
+          error: () => this.loading.set(false),
+        });
     });
 
     this.showtimeEvents.published$

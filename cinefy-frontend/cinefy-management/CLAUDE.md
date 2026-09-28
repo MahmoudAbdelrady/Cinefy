@@ -299,25 +299,20 @@ Use the `{ source, computation }` form when the computation needs the **previous
 
 ### When to use `takeUntilDestroyed`
 
-`takeUntilDestroyed(this.destroyRef)` is **only** needed when the source observable doesn't complete on its own. Adding it everywhere is cargo-cult — `HttpClient` observables emit once and complete, so they cannot leak.
-
-**Required** for:
-
-- `FormControl.valueChanges` / `FormGroup.valueChanges` (never completes).
-- `toObservable(signal)` derived streams.
-- Custom `Subject` / `BehaviorSubject` (e.g., the current-user cache in `StaffService`).
-- Combinators (`merge`, `combineLatest`, `switchMap`, ...) over any of the above.
-- `fromEvent`, `interval`, `timer`, websockets — anything continuous.
-
-**Allowed (but as a cancellation guard, not a leak fix)** for one-shot HTTP when a late response after destroy would cause observable side effects — emitting an `output()`, firing a toast, calling `close()`, mutating shared state. Typical cases: modal **save / delete / publish** flows and detail loads inside an `effect()` keyed by id (so a stale id's response can't clobber the new one). Setting a signal on a destroyed component is a no-op, so a read-only fetch that only `.set()`s local state does **not** need it.
-
-**Not needed** for one-shot HTTP that only writes local state (`getStatistics()`, `getDetail()` in `afterNextRender`, an initial list load). Subscribe directly:
+**Always** pipe `takeUntilDestroyed(this.destroyRef)` before `.subscribe()` in a component — including one-shot `HttpClient` calls. Its job for HTTP is **cancellation**: unsubscribing aborts the in-flight request, so closing a modal or leaving a page before a response lands cancels the pending call instead of letting it finish against a destroyed component. There is no "it only sets local state, so skip it" exception — initial loads, detail fetches, list loads, and save/delete/publish flows all get it.
 
 ```typescript
-this.service.getThing().subscribe({ next: ..., error: ... });
+this.service
+  .getThing()
+  .pipe(takeUntilDestroyed(this.destroyRef))
+  .subscribe({ next: ..., error: ... });
 ```
 
-Reference: [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-config-modal.ts) uses it only on the create/update path (which fires `hallCreated` / `hallUpdated` outputs and calls `close()`), not on the initial loads.
+For streams that never complete it is also the leak fix — `FormControl`/`FormGroup.valueChanges`, `toObservable(signal)`, custom `Subject`/`BehaviorSubject` (e.g. the current-user cache in `StaffService`), `fromEvent`/`interval`/`timer`/websockets, and any combinator (`merge`, `combineLatest`, `switchMap`, …) over them.
+
+Put it **last** in the pipe (after `switchMap`, `debounceTime`, etc.) so it tears down the whole chain, and pass the injected `private readonly destroyRef = inject(DestroyRef)`.
+
+Reference: [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-config-modal.ts) — the initial loads (`getHallTypes`, `getHalls`, `getHall`), the `copyLayoutControl.valueChanges` stream, and the create/update request all use it.
 
 ### Forms
 
@@ -533,14 +528,14 @@ buttons render in the dialog **body**, not a footer slot.
 
 **All UI text is sentence case** — only the first word and proper nouns/acronyms are capitalized. This applies to every short label, not just sentences: dialog and page titles, section headings, buttons, links, field labels, placeholders, tooltips, badges, table headers, stat-card labels, and label maps (e.g. `HALL_STATUS_LABELS`). It holds across all three frontend packages (`cinefy-management`, `cinefy-client`, `cinefy-ui`).
 
-| ✅ Sentence case             | ❌ Title Case                 |
-| ---------------------------- | ----------------------------- |
-| `Add staff member`           | `Add Staff Member`            |
-| `Save changes`               | `Save Changes`                |
-| `Delete payment gateway`     | `Delete Payment Gateway`      |
-| `Edit ${name} info`          | `Edit ${name} Info`           |
-| `On-site only`               | `On-Site Only`                |
-| `Special notes (optional)`   | `Special Notes (Optional)`    |
+| ✅ Sentence case           | ❌ Title Case              |
+| -------------------------- | -------------------------- |
+| `Add staff member`         | `Add Staff Member`         |
+| `Save changes`             | `Save Changes`             |
+| `Delete payment gateway`   | `Delete Payment Gateway`   |
+| `Edit ${name} info`        | `Edit ${name} Info`        |
+| `On-site only`             | `On-Site Only`             |
+| `Special notes (optional)` | `Special Notes (Optional)` |
 
 Keep the original capitalization for:
 

@@ -2,13 +2,14 @@ import {
   afterNextRender,
   Component,
   computed,
+  DestroyRef,
   inject,
   input,
   output,
   signal,
   viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Tooltip } from 'primeng/tooltip';
 import {
@@ -57,6 +58,7 @@ export class StaffDetailsComponent {
   };
 
   private readonly staffService = inject(StaffService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly dialog = viewChild.required(CinefyDialog);
 
@@ -83,13 +85,16 @@ export class StaffDetailsComponent {
   constructor() {
     afterNextRender(() => {
       this.loading.set(true);
-      this.staffService.getStaffMember(this.staffMemberId()).subscribe({
-        next: (member) => {
-          this.staffMember.set(member);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
+      this.staffService
+        .getStaffMember(this.staffMemberId())
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (member) => {
+            this.staffMember.set(member);
+            this.loading.set(false);
+          },
+          error: () => this.loading.set(false),
+        });
     });
   }
 
