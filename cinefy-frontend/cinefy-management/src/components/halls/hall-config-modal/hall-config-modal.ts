@@ -202,7 +202,9 @@ export class HallConfigModalComponent {
 
   private readonly initialSnapshot = signal<string | null>(null);
   private readonly hallTypes = signal<HallType[]>([]);
+  protected readonly loadingHallTypes = signal(true);
   private readonly halls = signal<HallSummary[]>([]);
+  protected readonly loadingHalls = signal(true);
 
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems[0]);
   private readonly onSiteOnlyPreference = signal(false);
@@ -352,11 +354,23 @@ export class HallConfigModalComponent {
       this.hallsService
         .getHallTypes()
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((types) => this.hallTypes.set(types));
+        .subscribe({
+          next: (types) => {
+            this.hallTypes.set(types);
+            this.loadingHallTypes.set(false);
+          },
+          error: () => this.loadingHallTypes.set(false),
+        });
       this.hallsService
         .getHalls(this.selectedHallId() ?? undefined)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((halls) => this.halls.set(halls));
+        .subscribe({
+          next: (halls) => {
+            this.halls.set(halls);
+            this.loadingHalls.set(false);
+          },
+          error: () => this.loadingHalls.set(false),
+        });
 
       const hallId = this.selectedHallId();
       if (hallId) {

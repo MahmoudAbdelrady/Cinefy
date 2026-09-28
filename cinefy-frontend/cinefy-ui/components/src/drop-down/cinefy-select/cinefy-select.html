@@ -9,13 +9,15 @@
     [options]="items()"
     [optionLabel]="labelField()"
     [optionValue]="valueField()"
-    [placeholder]="placeholder()"
+    [placeholder]="loading() ? 'Loading…' : placeholder()"
     [showClear]="clearable()"
     [filter]="searchable()"
     [appendTo]="container()"
     [invalid]="isInvalid()"
+    [loading]="loading()"
     size="large"
   >
+    <ng-template #loadingicon><cui-loading-spinner variant="sm" /></ng-template>
     <ng-template #header>
       @if (items().length) {
       <div class="cui-select-header">
@@ -33,13 +35,15 @@
     [options]="items()"
     [optionLabel]="labelField()"
     [optionValue]="valueField()"
-    [placeholder]="placeholder()"
+    [placeholder]="loading() ? 'Loading…' : placeholder()"
     [showClear]="clearable()"
     [filter]="searchable()"
     [appendTo]="container()"
     [invalid]="isInvalid()"
+    [loading]="loading()"
     size="large"
   >
+    <ng-template #loadingicon><cui-loading-spinner variant="sm" /></ng-template>
     <ng-template #selectedItem let-item>{{ item[selectedItemLabel() ?? labelField()] }}</ng-template>
   </p-select>
   } @if (hint(); as hintText) {

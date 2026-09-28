@@ -99,6 +99,7 @@
               placeholder="Select a type"
               [control]="hallForm.controls.typeId"
               [items]="hallTypeEntries()"
+              [loading]="!isViewMode() && loadingHallTypes()"
               [searchable]="true"
               [required]="!isViewMode()"
               [errorMessages]="{ required: 'Hall type is required' }"
@@ -117,6 +118,7 @@
                 valueField="value"
                 [control]="copyLayoutControl"
                 [items]="hallEntries()"
+                [loading]="loadingHalls()"
                 [clearable]="true"
                 [searchable]="true"
               />

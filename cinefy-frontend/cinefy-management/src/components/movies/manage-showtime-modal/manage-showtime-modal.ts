@@ -112,6 +112,7 @@ export class ManageShowtimeModalComponent {
 
   protected readonly submitting = signal(false);
   private readonly halls = signal<HallSummary[]>([]);
+  protected readonly loadingHalls = signal(true);
   protected pickedMovie = signal<MovieSearchResult | null>(null);
   protected readonly activeMovieDetail = signal<MovieDetail | null>(null);
   private readonly initialFormSnapshot = signal<string | null>(null);
@@ -229,7 +230,13 @@ export class ManageShowtimeModalComponent {
       this.hallsService
         .getHalls(undefined, ACTIVE_HALL_STATUSES)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((halls) => this.halls.set(halls));
+        .subscribe({
+          next: (halls) => {
+            this.halls.set(halls);
+            this.loadingHalls.set(false);
+          },
+          error: () => this.loadingHalls.set(false),
+        });
     });
   }
 

@@ -75,6 +75,7 @@
             valueField="value"
             [control]="showtimeForm.controls.hallId"
             [items]="hallEntries()"
+            [loading]="loadingHalls()"
             [searchable]="true"
             [errorMessages]="{ required: 'Hall is required' }"
           />

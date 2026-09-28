@@ -4,12 +4,13 @@ import { startWith, switchMap } from "rxjs";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Select } from "primeng/select";
 import { CinefyFieldError } from "../../field-error/cinefy-field-error";
+import { CinefyLoadingSpinner } from "../../loading-spinner/cinefy-loading-spinner";
 import type { AppendTo as PrimeAppendTo } from "primeng/types/shared";
 import { isInvalidAndTouched } from "../../field-error/control-state";
 
 @Component({
   selector: "cui-select",
-  imports: [ReactiveFormsModule, Select, CinefyFieldError],
+  imports: [ReactiveFormsModule, Select, CinefyFieldError, CinefyLoadingSpinner],
   templateUrl: "./cinefy-select.html",
   styleUrl: "./cinefy-select.scss",
 })
@@ -25,6 +26,7 @@ export class CinefySelect<T> {
   readonly placeholder = input("Select an option");
   readonly clearable = input(false);
   readonly searchable = input(false);
+  readonly loading = input(false);
   readonly required = input<boolean | undefined>(undefined);
   readonly errorMessages = input<Record<string, string>>({});
   readonly container: InputSignal<PrimeAppendTo> = input<PrimeAppendTo>("body");
