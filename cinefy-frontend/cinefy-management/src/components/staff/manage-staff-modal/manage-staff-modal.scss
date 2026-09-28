@@ -10,6 +10,7 @@
 .manage-staff-modal-loading {
   @include flex-center;
   min-height: 320px;
+  color: $gray-500;
 }
 
 form {

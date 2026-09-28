@@ -37,6 +37,7 @@
 .staff-details-loading {
   @include flex-center;
   min-height: 240px;
+  color: $gray-500;
 }
 
 .staff-details-container {

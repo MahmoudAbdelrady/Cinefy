@@ -5,6 +5,7 @@
 .profile-loading {
   @include flex-center;
   min-height: 320px;
+  color: $gray-500;
 }
 
 .profile-page {

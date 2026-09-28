@@ -5,6 +5,7 @@
 .abl-status {
   @include flex-center;
   padding: 32px 0;
+  color: $gray-500;
 }
 
 .abl-list {

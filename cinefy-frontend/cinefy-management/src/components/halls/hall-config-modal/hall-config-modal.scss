@@ -47,7 +47,7 @@
 .hall-config-loading {
   @include flex-center;
   min-height: 65vh;
-  color: $blue-600;
+  color: $gray-500;
 }
 
 .hall-config-error {
