@@ -1,8 +1,8 @@
-<cui-dialog header="Manage Hall Types" (closed)="closed.emit()" [style]="{ width: '480px' }">
+<cui-dialog header="Manage hall types" (closed)="closed.emit()" [style]="{ width: '480px' }">
   <div class="manage-types-modal-content">
     <div class="existing-types-container">
       <div class="section-head">
-        <h3>Existing Types</h3>
+        <h3>Existing types</h3>
         <span class="sh-rule"></span>
         @if (!loadingTypes() && hallTypes().length) {
           <span class="sh-count">{{ hallTypes().length }}</span>

@@ -240,11 +240,10 @@ export class HallConfigModalComponent {
     () => this.selectedHallId() !== null && !this.isEditing(),
   );
   protected readonly modalTitle = computed(() => {
-    if (!this.selectedHallId()) return 'Add New Hall';
-    if (this.loadingHall()) return 'Loading…';
+    if (!this.selectedHallId()) return 'Add new hall';
     const hall = this.selectedHallData();
-    if (!hall) return '-';
-    return this.isEditing() ? `Editing ${hall.name}` : `Viewing ${hall.name} config`;
+    const mode = this.isEditing() ? 'Edit' : 'View';
+    return hall ? `${mode} ${hall.name} config` : `${mode} hall`;
   });
 
   private readonly numRowsValue = toSignal(

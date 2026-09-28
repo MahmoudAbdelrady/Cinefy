@@ -67,7 +67,7 @@ export class ScanTicketModalComponent {
 
   private autoSubmitTimer: ReturnType<typeof setTimeout> | null = null;
 
-  readonly modalTitle = computed(() => (this.result() ? 'Ticket Info' : 'Scan Ticket'));
+  readonly modalTitle = computed(() => (this.result() ? 'Ticket info' : 'Scan ticket'));
 
   readonly modalDescription = computed(() => {
     if (this.result()) return 'Ticket verified and marked as used';

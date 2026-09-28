@@ -116,7 +116,7 @@ src/
 │                                       #     [checked]/[disabled] inputs, (checkedChange) output.
 │                                       #   cui-select: PrimeNG-backed; static items[] + client-side search.
 │                                       #   cui-paginated-select: fetchFn (page, size) => PaginatedResponse<T>,
-│                                       #     loads page 0 on open, "Load More" row while page < totalPages.
+│                                       #     loads page 0 on open, "Load more" row while page < totalPages.
 │                                       #   both selects: write a [control] directly (no selectionChange output);
 │                                       #     labelField/valueField are field NAMES; [multi] toggles multi-select.
 │                                       # Imports are grouped by subpath:
@@ -529,6 +529,27 @@ buttons render in the dialog **body**, not a footer slot.
 - **lucide-angular** for SVG icons.
 - Component styles are scoped via Angular encapsulation.
 
+### UI copy
+
+**All UI text is sentence case** — only the first word and proper nouns/acronyms are capitalized. This applies to every short label, not just sentences: dialog and page titles, section headings, buttons, links, field labels, placeholders, tooltips, badges, table headers, stat-card labels, and label maps (e.g. `HALL_STATUS_LABELS`). It holds across all three frontend packages (`cinefy-management`, `cinefy-client`, `cinefy-ui`).
+
+| ✅ Sentence case             | ❌ Title Case                 |
+| ---------------------------- | ----------------------------- |
+| `Add staff member`           | `Add Staff Member`            |
+| `Save changes`               | `Save Changes`                |
+| `Delete payment gateway`     | `Delete Payment Gateway`      |
+| `Edit ${name} info`          | `Edit ${name} Info`           |
+| `On-site only`               | `On-Site Only`                |
+| `Special notes (optional)`   | `Special Notes (Optional)`    |
+
+Keep the original capitalization for:
+
+- **Acronyms and proper nouns** — `VIP`, `ID`, `HMAC`, `3D`, `QR`, `Paymob`, `Cinefy`.
+- **External names quoted verbatim** — a third party's menu path the user must find (the Paymob `Settings → Developers → API Keys` hints in [`provider-spec.ts`](src/components/payment/provider-spec.ts)) and TMDB genre names (`Science Fiction`, `TV Movie`), which are data, not copy.
+- **Brand lockups** — `Management Portal`, `Management Console`.
+
+When one app names a UI element of the other (management's upcoming-movies toggle refers to the client's “Coming soon” rail), quote it exactly as the other app renders it.
+
 ### Button loading states
 
 **A button that shows `<cui-loading-spinner>` must also show a label** — never a bare spinner. The label is a **progressive form of the button's own action**, so the user can tell what is in flight:
@@ -705,3 +726,4 @@ LSP coverage in this repo: TypeScript files (Angular components, services, types
 10. Tests are skipped by default in schematics (`skipTests: true` in angular.json).
 11. **LSP-first for code navigation** — see _Code Navigation_ above; grep is the fallback, not the default.
 12. **Class member order** — follow the canonical order in [_Class Member Order_](#class-member-order) above (modeled on `hall-config-modal.ts`).
+13. **Sentence-case UI copy** — `Add staff member`, not `Add Staff Member`. See [_UI copy_](#ui-copy) above for the exceptions.

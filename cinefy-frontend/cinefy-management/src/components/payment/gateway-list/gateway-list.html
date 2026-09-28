@@ -26,8 +26,8 @@
   @if (!activeGateway() && !standbyGateways().length) {
     <section class="gateway-list">
       <header class="gl-header">
-        <h3>All Payment Gateways</h3>
-        <p>Only one gateway is allowed to receives new payments.</p>
+        <h3>All payment gateways</h3>
+        <p>Only one gateway is allowed to receive new payments.</p>
       </header>
 
       <cui-empty-state
@@ -42,7 +42,7 @@
       <section class="gl-active">
         <p class="gl-group-label active">
           <span class="gl-group-dot"></span>
-          Active Gateway
+          Active gateway
         </p>
 
         <article class="gl-active-card">
@@ -85,7 +85,7 @@
           <table class="gl-table">
             <thead>
               <tr>
-                <th class="gl-col-name">Gateway Name</th>
+                <th class="gl-col-name">Gateway name</th>
                 <th>Provider</th>
                 <th>Added</th>
                 <th>Channels</th>
@@ -307,11 +307,12 @@
         <svg [lucideIcon]="icons.AlertIcon" [size]="24" [strokeWidth]="2"></svg>
       </div>
 
-      <h3 class="gl-confirm-title">Delete {{ gateway.name }}?</h3>
+      <h3 class="gl-confirm-title">Delete payment gateway</h3>
       @let deletedChannelCount = gateway.paymentChannels?.length ?? 0;
       <p class="gl-confirm-text">
-        This removes the gateway, its credentials, and its {{ deletedChannelCount }}
-        {{ deletedChannelCount === 1 ? 'channel' : 'channels' }}. This can't be undone.
+        Are you sure you want to delete <strong>{{ gateway.name }}</strong
+        >? This action cannot be undone and will remove its credentials and its
+        {{ deletedChannelCount }} {{ deletedChannelCount === 1 ? 'channel' : 'channels' }}.
       </p>
     </div>
 

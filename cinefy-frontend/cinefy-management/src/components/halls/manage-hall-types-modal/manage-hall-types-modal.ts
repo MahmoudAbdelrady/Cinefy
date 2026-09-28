@@ -92,8 +92,8 @@ export class ManageHallTypesModalComponent {
   });
 
   protected readonly nameErrorMessages: Record<string, string> = {
-    required: 'Hall Type name is required',
-    maxlength: 'Hall Type name must not exceed 30 characters',
+    required: 'Hall type name is required',
+    maxlength: 'Hall type name must not exceed 30 characters',
     pattern:
       'Name may only contain letters, numbers, single spaces, and hyphens, with no leading or trailing spaces',
   };

@@ -3,7 +3,7 @@
     <div class="h-info">
       <div class="hi-details">
         <svg [lucideIcon]="icons.CalendarIcon" [size]="20"></svg>
-        <h3>Upcoming Movies</h3>
+        <h3>Upcoming movies</h3>
       </div>
       <p>Movies releasing soon that you can schedule</p>
     </div>
@@ -56,7 +56,7 @@
                   <div class="mci-title">
                     <h4>{{ upcomingMovie.title }}</h4>
                     @if (isComingSoon(upcomingMovie.releaseDate)) {
-                      <span class="mci-badge">Coming Soon</span>
+                      <span class="mci-badge">Coming soon</span>
                     }
                   </div>
                   <div class="mci-items">
@@ -72,7 +72,7 @@
                   </div>
                 }
                 <div class="mc-actions">
-                  <button (click)="movieToSchedule.set(upcomingMovie)">Schedule Showtimes</button>
+                  <button (click)="movieToSchedule.set(upcomingMovie)">Schedule showtimes</button>
                 </div>
               </div>
             </div>
@@ -92,7 +92,7 @@
                       @if (upcomingMovie.hasCommittedShowtimes) {
                         Already scheduled
                       } @else {
-                        Show in the “Coming Soon” rail
+                        Show in the “Coming soon” rail
                       }
                     </p>
                   </div>

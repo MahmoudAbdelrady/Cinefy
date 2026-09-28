@@ -1,7 +1,7 @@
 const HALL_STATUS_LABELS = {
   ACTIVE: 'Active',
   SCHEDULED: 'Scheduled',
-  UNDER_MAINTENANCE: 'Under Maintenance',
+  UNDER_MAINTENANCE: 'Under maintenance',
   INACTIVE: 'Inactive',
 } as const;
 

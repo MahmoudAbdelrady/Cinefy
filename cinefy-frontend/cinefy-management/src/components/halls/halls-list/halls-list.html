@@ -1,7 +1,7 @@
 <div class="all-halls">
   <div class="ah-header">
     <div class="ah-header-left">
-      <h3>All Halls</h3>
+      <h3>All halls</h3>
       <p>Manage your cinema halls and seating arrangements</p>
     </div>
     <form class="ah-header-right" [formGroup]="filterForm">
@@ -105,7 +105,7 @@
 
 @if (hallToDelete(); as hall) {
   <cui-dialog
-    header="Delete Hall"
+    header="Delete hall"
     [canClose]="!deleting()"
     [style]="{ width: '448px' }"
     (closed)="hallToDelete.set(null)"
@@ -129,7 +129,7 @@
           <cui-loading-spinner variant="sm" />
           <span>Deleting…</span>
         } @else {
-          <span>Delete Hall</span>
+          <span>Delete hall</span>
         }
       </button>
     </div>

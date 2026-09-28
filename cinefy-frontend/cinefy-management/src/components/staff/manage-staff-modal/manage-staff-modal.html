@@ -90,7 +90,7 @@
         />
       </div>
       <div class="input-group">
-        <label data-required>Employment Type</label>
+        <label data-required>Employment type</label>
         <div class="radio-group">
           @for (entry of employmentTypeEntries; track entry.value) {
             <label
@@ -161,7 +161,7 @@
         (click)="saveMember()"
         [disabled]="staffForm.invalid || saving() || (isEdit() && !hasChanges())"
       >
-        {{ isEdit() ? 'Save Changes' : 'Add staff member' }}
+        {{ isEdit() ? 'Save changes' : 'Add staff member' }}
       </button>
     </div>
   </div>

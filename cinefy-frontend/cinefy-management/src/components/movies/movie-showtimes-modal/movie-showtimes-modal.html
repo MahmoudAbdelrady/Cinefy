@@ -116,7 +116,7 @@
                           @if (unavailable) {
                             <span class="action-badge action-badge-muted">Closed</span>
                           } @else if (hasSoldOut) {
-                            <span class="action-badge action-badge-danger">Sold Out</span>
+                            <span class="action-badge action-badge-danger">Sold out</span>
                           }
                         </button>
                       }
@@ -171,7 +171,7 @@
         (click)="onAddShowtime()"
       >
         <svg [lucideIcon]="icons.PlusIcon" [size]="16"></svg>
-        <span>Add Showtime</span>
+        <span>Add showtime</span>
       </button>
 
       <div class="publish-cluster">
@@ -210,7 +210,7 @@
 
 @if (bookingShowtime(); as showtimeDetail) {
   <cui-dialog
-    header="Book Seats"
+    header="Book seats"
     [description]="getShowtimeSummary(showtimeDetail)"
     [style]="{ width: '1200px' }"
     (closed)="bookingShowtime.set(null)"
@@ -222,7 +222,7 @@
 @if (showtimeToDelete(); as showtimeDetail) {
   @let deleting = deletingShowtimeIds().has(showtimeDetail.id);
   <cui-dialog
-    header="Delete Showtime"
+    header="Delete showtime"
     [canClose]="!deleting"
     [style]="{ width: '448px' }"
     (closed)="showtimeToDelete.set(null)"
@@ -253,7 +253,7 @@
           <cui-loading-spinner variant="sm" />
           <span>Deleting…</span>
         } @else {
-          <span>Delete Showtime</span>
+          <span>Delete showtime</span>
         }
       </button>
     </div>

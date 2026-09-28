@@ -10,7 +10,7 @@ import type { AppendTo as PrimeAppendTo } from "primeng/types/shared";
 import { isInvalidAndTouched } from "../../field-error/control-state";
 
 const LOAD_MORE_OPTION = {
-  label: "Load More",
+  label: "Load more",
   value: "__cui-load-more__",
 };
 

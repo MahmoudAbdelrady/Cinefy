@@ -14,8 +14,8 @@
   }
   <section class="now-showing-movies">
     <div class="ms-header">
-      <h3>Now Showing</h3>
-      <a routerLink="/movies">View All</a>
+      <h3>Now showing</h3>
+      <a routerLink="/movies">View all</a>
     </div>
     <div class="ms-content">
       @if (nowShowingMovies.isLoading()) {
@@ -41,7 +41,7 @@
                 <div class="mc-poster">
                   <cui-media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
                   <div class="mc-poster-overlay">
-                    <button class="mc-tickets-btn btn-primary">Get Tickets</button>
+                    <button class="mc-tickets-btn btn-primary">Get tickets</button>
                   </div>
                 </div>
                 <div class="mc-meta">
@@ -74,7 +74,7 @@
   </section>
   <section class="upcoming-movies">
     <div class="ms-header">
-      <h3>Coming Soon</h3>
+      <h3>Coming soon</h3>
     </div>
     <div class="ms-content">
       @if (upcomingMovies.isLoading()) {

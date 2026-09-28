@@ -58,7 +58,7 @@
 
       <aside class="bs-summary">
         <div class="bs-summary-header">
-          <h3 class="bs-summary-title">Booking Summary</h3>
+          <h3 class="bs-summary-title">Booking summary</h3>
 
           @if (activeBooking(); as booking) {
             <cui-hold-timer [expiresAt]="booking.expiresAt" (expired)="onTimerExpired()" />
@@ -226,7 +226,7 @@
             <svg [lucideIcon]="icons.ClockIcon" [size]="24" [strokeWidth]="2"></svg>
           </div>
           <p class="rem-message">
-            The hold timer ran out and the seats were released. Start a new Booking to try again.
+            The hold timer ran out and the seats were released. Start a new booking to try again.
           </p>
         </div>
 

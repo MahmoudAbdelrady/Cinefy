@@ -46,7 +46,7 @@
             <div class="md-actions">
               <button class="md-trailer-btn btn-base" (click)="trailerVisible.set(true)">
                 <svg [lucideIcon]="icons.PlayIcon" [size]="16"></svg>
-                <span>Watch Trailer</span>
+                <span>Watch trailer</span>
               </button>
             </div>
           }
@@ -60,7 +60,7 @@
 
           @if (directors().length && cast().length) {
             <section class="md-section">
-              <h3>Cast & Crew</h3>
+              <h3>Cast & crew</h3>
               <div class="md-crew">
                 @for (member of directors(); track $index) {
                   <div class="md-crew-member">

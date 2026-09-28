@@ -1,5 +1,5 @@
 <cui-dialog
-  header="Active Bookings"
+  header="Active bookings"
   [description]="description()"
   (closed)="closed.emit()"
   [style]="{ width: '560px' }"
@@ -80,7 +80,7 @@
 
 @if (bookingToComplete(); as booking) {
   <cui-dialog
-    header="Book Seats"
+    header="Book seats"
     [description]="bookingSummary(booking)"
     (closed)="onBookSeatsClosed()"
     [style]="{ width: '1200px' }"

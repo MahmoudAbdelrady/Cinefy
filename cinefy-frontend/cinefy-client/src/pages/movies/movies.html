@@ -42,7 +42,7 @@
 
     <div class="mf-select">
       <cui-select
-        placeholder="Content Rating"
+        placeholder="Content rating"
         labelField="label"
         valueField="value"
         [control]="filterForm.controls.contentRatings"
@@ -107,7 +107,7 @@
       }
       @for (contentRating of selectedContentRatings(); track $index) {
         <span class="filter-chip">
-          <span>Content Rating: {{ contentRating }}</span>
+          <span>Content rating: {{ contentRating }}</span>
           <button class="fc-clear" (click)="removeContentRating(contentRating)">
             <svg [lucideIcon]="icons.XIcon" [size]="12"></svg>
           </button>
@@ -127,7 +127,7 @@
               <div class="mc-poster">
                 <cui-media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
                 <div class="mc-poster-overlay">
-                  <button class="mc-tickets-btn btn-primary">Get Tickets</button>
+                  <button class="mc-tickets-btn btn-primary">Get tickets</button>
                 </div>
               </div>
               <div class="mc-meta">

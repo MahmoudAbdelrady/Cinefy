@@ -7,7 +7,7 @@
         [class.edit]="!isEditing()"
         [class.view]="isEditing()"
         (click)="toggleEditMode()"
-        [pTooltip]="isEditing() ? 'Switch to View mode' : 'Switch to Edit mode'"
+        [pTooltip]="isEditing() ? 'Switch to view mode' : 'Switch to edit mode'"
       >
         <svg
           [lucideIcon]="isEditing() ? icons.EyeIcon : icons.EditIcon"
@@ -35,12 +35,12 @@
       <div class="hall-information">
         <div class="hi-header">
           <svg [lucideIcon]="icons.SettingsIcon" [size]="16" [strokeWidth]="2.5"></svg>
-          <span>Hall Information</span>
+          <span>Hall information</span>
         </div>
         <form class="hi-form" [formGroup]="hallForm">
           <div class="input-group">
             <cui-input
-              label="Hall Name"
+              label="Hall name"
               placeholder="e.g. Hall 1, VIP Hall, IMAX"
               [control]="hallForm.controls.name"
               [errorMessages]="{
@@ -54,7 +54,7 @@
           <div class="number-input-group">
             <div class="input-group">
               <cui-input
-                label="Number of Rows"
+                label="Number of rows"
                 type="number"
                 placeholder="e.g. 10"
                 [control]="hallForm.controls.numberOfRows"
@@ -67,7 +67,7 @@
             </div>
             <div class="input-group">
               <cui-input
-                label="Seats per Row"
+                label="Seats per row"
                 type="number"
                 placeholder="e.g. 12"
                 [control]="hallForm.controls.seatsPerRow"
@@ -111,7 +111,7 @@
           @if (!isViewMode()) {
             <div class="input-group">
               <cui-select
-                label="Copy Layout From Existing Hall"
+                label="Copy layout from existing hall"
                 placeholder="None"
                 labelField="label"
                 valueField="value"
@@ -127,7 +127,7 @@
               <div class="seat-categories">
                 <div class="sc-header">
                   <svg [lucideIcon]="icons.StarIcon" [size]="16" [strokeWidth]="2.5"></svg>
-                  <span>Seat Categories</span>
+                  <span>Seat categories</span>
                 </div>
                 <div class="sc-content">
                   <div class="sc-type-items">
@@ -154,7 +154,7 @@
                     >
                       <div class="sg-label">
                         <span class="sg-label-icon">S</span>
-                        <span class="sg-label-text">On-Site Only</span>
+                        <span class="sg-label-text">On-site only</span>
                       </div>
                       <cui-switch
                         color="highlight"
@@ -176,7 +176,7 @@
             <div class="ticket-pricing">
               <div class="tp-header">
                 <svg [lucideIcon]="icons.DollarSignIcon" [size]="16" [strokeWidth]="2.5"></svg>
-                <span class="tp-title">Ticket Pricing</span>
+                <span class="tp-title">Ticket pricing</span>
               </div>
               <div class="tp-content">
                 @if (hasNormalSeats()) {
@@ -231,7 +231,7 @@
       <div class="hall-layout-editor">
         <div class="hle-header">
           <svg [lucideIcon]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></svg>
-          <span>Seat Layout Editor</span>
+          <span>Seat layout editor</span>
         </div>
         <div class="hle-content">
           <hall-layout-editor
@@ -259,7 +259,7 @@
             <cui-loading-spinner variant="sm" />
             <span>{{ selectedHallId() ? 'Saving…' : 'Creating…' }}</span>
           } @else {
-            {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}
+            {{ selectedHallId() ? 'Save changes' : 'Create hall' }}
           }
         </button>
       </div>
@@ -269,7 +269,7 @@
 
 @if (discardVisible()) {
   <cui-dialog
-    header="Discard Changes"
+    header="Discard changes"
     [style]="{ width: '448px' }"
     (closed)="discardVisible.set(false)"
   >

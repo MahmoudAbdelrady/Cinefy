@@ -468,6 +468,10 @@
     font-size: 14px;
     line-height: 1.6;
     color: $gray-600;
+
+    strong {
+      color: $gray-900;
+    }
   }
 
   .gl-confirm-notes {

@@ -1,7 +1,7 @@
 <div class="staff-list-container">
   <div class="sl-header">
     <div class="sl-header-left">
-      <h3>All Staff Members</h3>
+      <h3>All staff members</h3>
       <p>Manage your cinema team and their shift schedules</p>
     </div>
     <form class="sl-header-right" [formGroup]="filterForm">
@@ -132,7 +132,7 @@
 @if (memberToDelete(); as member) {
   @let deleting = deletingStaffIds().has(member.id);
   <cui-dialog
-    header="Delete Staff Member"
+    header="Delete staff member"
     [canClose]="!deleting"
     [style]="{ width: '448px' }"
     (closed)="memberToDelete.set(null)"
@@ -155,7 +155,7 @@
         @if (deleting) {
           <span>Deleting…</span>
         } @else {
-          <span>Delete Member</span>
+          <span>Delete member</span>
         }
       </button>
     </div>

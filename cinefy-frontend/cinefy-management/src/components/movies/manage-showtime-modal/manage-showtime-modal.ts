@@ -154,8 +154,8 @@ export class ManageShowtimeModalComponent {
   );
 
   protected readonly modalTitle = computed(() => {
-    if (this.isEditMode()) return 'Edit Showtime';
-    return this.activeMovie() ? 'Schedule Showtime' : 'Schedule a Movie';
+    if (this.isEditMode()) return 'Edit showtime';
+    return this.activeMovie() ? 'Schedule showtime' : 'Schedule a movie';
   });
 
   protected readonly modalDescription = computed(() => {
@@ -168,7 +168,7 @@ export class ManageShowtimeModalComponent {
   });
 
   protected readonly submitLabel = computed(() =>
-    this.isEditMode() ? 'Save Changes' : 'Create Showtime',
+    this.isEditMode() ? 'Save changes' : 'Create showtime',
   );
 
   protected readonly hallEntries = computed(() =>
