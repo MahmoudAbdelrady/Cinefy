@@ -73,6 +73,7 @@ export class ManageHallTypesModalComponent {
 
   protected readonly hallTypes = signal<HallType[]>([]);
   protected readonly loadingTypes = signal(true);
+  protected readonly loadTypesError = signal(false);
   protected readonly editingTypeId = signal<string | null>(null);
   protected readonly savingTypeId = signal<string | null>(null);
   protected readonly deletingTypeIds = signal<Set<string>>(new Set());
@@ -114,6 +115,7 @@ export class ManageHallTypesModalComponent {
 
   private loadHallTypes() {
     this.loadingTypes.set(true);
+    this.loadTypesError.set(false);
     this.hallsService
       .getHallTypes()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -122,7 +124,10 @@ export class ManageHallTypesModalComponent {
           this.hallTypes.set(types);
           this.loadingTypes.set(false);
         },
-        error: () => this.loadingTypes.set(false),
+        error: () => {
+          this.loadTypesError.set(true);
+          this.loadingTypes.set(false);
+        },
       });
   }
 

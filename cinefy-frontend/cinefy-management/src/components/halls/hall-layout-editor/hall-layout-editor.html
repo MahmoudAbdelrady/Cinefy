@@ -43,6 +43,12 @@
         />
       }
     </div>
+
+    @if (loading()) {
+      <div class="seats-grid-overlay">
+        <cui-loading-spinner variant="lg" />
+      </div>
+    }
   </div>
 
   @if (hasLayout()) {

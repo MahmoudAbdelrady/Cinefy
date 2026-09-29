@@ -2,7 +2,7 @@
   <div customHeader class="sd-modal-header">
     <span class="sdmh-title">Staff member details</span>
     @if (canManage()) {
-      <button class="sd-action-btn" pTooltip="Edit info" (click)="requestEdit()">
+      <button class="btn-secondary sd-action-btn" pTooltip="Edit info" (click)="requestEdit()">
         <svg [lucideIcon]="icons.EditIcon" [size]="20" [strokeWidth]="2"></svg>
       </button>
     }

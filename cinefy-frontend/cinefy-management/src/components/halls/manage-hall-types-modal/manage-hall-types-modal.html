@@ -12,6 +12,14 @@
         <div class="loading-types">
           <cui-loading-spinner variant="lg" />
         </div>
+      } @else if (loadTypesError()) {
+        <div class="load-types-error">
+          <cui-empty-state
+            [icon]="icons.WarningIcon"
+            header="Failed to load hall types"
+            description="Something went wrong. Please try again later."
+          />
+        </div>
       } @else {
         <ul class="existing-types-list">
           @for (type of hallTypes(); track type.id) {

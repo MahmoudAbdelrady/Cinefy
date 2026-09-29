@@ -15,20 +15,11 @@
   }
 
   .sd-action-btn {
-    @include flex-center;
     @include lucide-icon-fix;
 
     padding: 8px;
     margin-right: 5px;
     border-radius: $radius-lg;
-    border: 1px solid $blue-200;
-    color: $blue-600;
-    cursor: pointer;
-    transition: all $transition-fast;
-
-    &:hover {
-      background-color: $blue-100;
-    }
   }
 }
 

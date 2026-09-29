@@ -21,13 +21,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { catchError, EMPTY, map, switchMap, tap } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Tooltip } from 'primeng/tooltip';
 import {
   DollarSignIcon,
   EditIcon,
-  EyeIcon,
   LayoutIcon,
   SettingsIcon,
   StarIcon,
@@ -148,7 +147,6 @@ export class HallConfigModalComponent {
   protected readonly icons = {
     DollarSignIcon,
     EditIcon,
-    EyeIcon,
     LayoutIcon,
     SettingsIcon,
     StarIcon,
@@ -191,7 +189,6 @@ export class HallConfigModalComponent {
   readonly hallUpdated = output<HallSummary>();
 
   protected readonly isEditing = linkedSignal(() => this.openInEditMode());
-  protected readonly discardVisible = signal(false);
   private readonly selectedHallData = signal<HallDetail | null>(null);
 
   protected readonly saving = signal(false);
@@ -205,6 +202,7 @@ export class HallConfigModalComponent {
   protected readonly loadingHallTypes = signal(true);
   private readonly halls = signal<HallSummary[]>([]);
   protected readonly loadingHalls = signal(true);
+  protected readonly loadingCopiedLayout = signal(false);
 
   protected selectedSeatCategory = signal<SeatCategoryItem>(this.seatCategoryItems[0]);
   private readonly onSiteOnlyPreference = signal(false);
@@ -341,14 +339,11 @@ export class HallConfigModalComponent {
     });
 
     this.copyLayoutControl.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((hallId) => {
-        if (hallId) {
-          this.copyLayoutFrom(hallId);
-        } else {
-          this.restoreOriginalLayout();
-        }
-      });
+      .pipe(
+        switchMap((hallId) => this.copyLayoutFrom(hallId)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
 
     afterNextRender(() => {
       this.hallsService
@@ -417,20 +412,6 @@ export class HallConfigModalComponent {
     this.onSiteOnlyPreference.set(value);
   }
 
-  protected toggleEditMode() {
-    if (this.isEditing() && this.hasChanges()) {
-      this.discardVisible.set(true);
-      return;
-    }
-    this.isEditing.update((v) => !v);
-  }
-
-  protected confirmDiscard() {
-    this.discardVisible.set(false);
-    this.isEditing.set(false);
-    this.applyHallDetail(this.selectedHallData()!);
-  }
-
   private restoreOriginalLayout() {
     const detail = this.selectedHallData();
     if (detail) {
@@ -463,13 +444,24 @@ export class HallConfigModalComponent {
     }
   }
 
-  private copyLayoutFrom(hallId: string) {
-    this.hallsService
-      .getHallLayout(hallId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (hallLayout) => this.applyLayoutData(hallLayout),
-      });
+  private copyLayoutFrom(hallId: string | null) {
+    if (!hallId) {
+      this.loadingCopiedLayout.set(false);
+      this.restoreOriginalLayout();
+      return EMPTY;
+    }
+
+    this.loadingCopiedLayout.set(true);
+    return this.hallsService.getHallLayout(hallId).pipe(
+      tap((hallLayout) => {
+        this.applyLayoutData(hallLayout);
+        this.loadingCopiedLayout.set(false);
+      }),
+      catchError(() => {
+        this.loadingCopiedLayout.set(false);
+        return EMPTY;
+      }),
+    );
   }
 
   protected saveHall() {

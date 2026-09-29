@@ -50,6 +50,11 @@
       color: $gray-500;
     }
 
+    .load-types-error {
+      @include flex-center;
+      padding: 24px 16px;
+    }
+
     .existing-types-list {
       @include flex-column;
       gap: 8px;

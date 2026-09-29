@@ -1,19 +1,9 @@
 <cui-dialog #dialog (closed)="closed.emit()" [style]="{ width: '1300px' }">
   <div customHeader class="hall-config-modal-header">
     <span class="hcmh-title">{{ modalTitle() }}</span>
-    @if (selectedHallId() && !openInEditMode() && !loadingHall() && !loadHallError()) {
-      <button
-        class="mode-toggle-btn"
-        [class.edit]="!isEditing()"
-        [class.view]="isEditing()"
-        (click)="toggleEditMode()"
-        [pTooltip]="isEditing() ? 'Switch to view mode' : 'Switch to edit mode'"
-      >
-        <svg
-          [lucideIcon]="isEditing() ? icons.EyeIcon : icons.EditIcon"
-          [size]="20"
-          [strokeWidth]="2"
-        ></svg>
+    @if (selectedHallId() && !isEditing() && !loadingHall() && !loadHallError()) {
+      <button class="btn-secondary edit-btn" (click)="isEditing.set(true)" pTooltip="Edit hall">
+        <svg [lucideIcon]="icons.EditIcon" [size]="20" [strokeWidth]="2"></svg>
       </button>
     }
   </div>
@@ -58,6 +48,7 @@
                 type="number"
                 placeholder="e.g. 10"
                 [control]="hallForm.controls.numberOfRows"
+                [loading]="!isViewMode() && loadingCopiedLayout()"
                 [errorMessages]="{
                   required: 'Number of rows is required',
                   min: 'Must be at least 1',
@@ -71,6 +62,7 @@
                 type="number"
                 placeholder="e.g. 12"
                 [control]="hallForm.controls.seatsPerRow"
+                [loading]="!isViewMode() && loadingCopiedLayout()"
                 [errorMessages]="{
                   required: 'Seats per row is required',
                   min: 'Must be at least 1',
@@ -181,49 +173,59 @@
                 <span class="tp-title">Ticket pricing</span>
               </div>
               <div class="tp-content">
-                @if (hasNormalSeats()) {
-                  <div class="tp-input-group">
-                    <div class="tpi-label">
-                      <span class="tpi-label-icon normal"></span>
-                      <span class="tpi-label-text" [attr.data-required]="!isViewMode() ? '' : null"
-                        >Normal</span
-                      >
-                    </div>
-                    <cui-input
-                      type="number"
-                      placeholder="e.g. 10"
-                      [leadingIcon]="icons.DollarSignIcon"
-                      [control]="hallForm.controls.normalPrice"
-                      [errorMessages]="{
-                        required: 'Normal price is required',
-                        min: 'Price must be at least 1',
-                        max: 'Price is too large',
-                        maxDecimals: 'Price can have at most 2 decimal places',
-                      }"
-                    />
+                @if (!isViewMode() && loadingCopiedLayout()) {
+                  <div class="tp-loading">
+                    <cui-loading-spinner variant="lg" />
                   </div>
-                }
-                @if (hasVipSeats()) {
-                  <div class="tp-input-group">
-                    <div class="tpi-label">
-                      <span class="tpi-label-icon vip"></span>
-                      <span class="tpi-label-text" [attr.data-required]="!isViewMode() ? '' : null"
-                        >VIP</span
-                      >
+                } @else {
+                  @if (hasNormalSeats()) {
+                    <div class="tp-input-group">
+                      <div class="tpi-label">
+                        <span class="tpi-label-icon normal"></span>
+                        <span
+                          class="tpi-label-text"
+                          [attr.data-required]="!isViewMode() ? '' : null"
+                          >Normal</span
+                        >
+                      </div>
+                      <cui-input
+                        type="number"
+                        placeholder="e.g. 10"
+                        [leadingIcon]="icons.DollarSignIcon"
+                        [control]="hallForm.controls.normalPrice"
+                        [errorMessages]="{
+                          required: 'Normal price is required',
+                          min: 'Price must be at least 1',
+                          max: 'Price is too large',
+                          maxDecimals: 'Price can have at most 2 decimal places',
+                        }"
+                      />
                     </div>
-                    <cui-input
-                      type="number"
-                      placeholder="e.g. 10"
-                      [leadingIcon]="icons.DollarSignIcon"
-                      [control]="hallForm.controls.vipPrice"
-                      [errorMessages]="{
-                        required: 'VIP price is required',
-                        min: 'Price must be at least 1',
-                        max: 'Price is too large',
-                        maxDecimals: 'Price can have at most 2 decimal places',
-                      }"
-                    />
-                  </div>
+                  }
+                  @if (hasVipSeats()) {
+                    <div class="tp-input-group">
+                      <div class="tpi-label">
+                        <span class="tpi-label-icon vip"></span>
+                        <span
+                          class="tpi-label-text"
+                          [attr.data-required]="!isViewMode() ? '' : null"
+                          >VIP</span
+                        >
+                      </div>
+                      <cui-input
+                        type="number"
+                        placeholder="e.g. 10"
+                        [leadingIcon]="icons.DollarSignIcon"
+                        [control]="hallForm.controls.vipPrice"
+                        [errorMessages]="{
+                          required: 'VIP price is required',
+                          min: 'Price must be at least 1',
+                          max: 'Price is too large',
+                          maxDecimals: 'Price can have at most 2 decimal places',
+                        }"
+                      />
+                    </div>
+                  }
                 }
               </div>
             </div>
@@ -241,6 +243,7 @@
             [selectedSeatType]="selectedSeatCategory().type"
             [selectedOnsiteOnly]="onSiteOnly()"
             [disabled]="isViewMode()"
+            [loading]="loadingCopiedLayout()"
             (layoutReset)="onResetLayout()"
           />
         </div>
@@ -268,20 +271,3 @@
     </div>
   }
 </cui-dialog>
-
-@if (discardVisible()) {
-  <cui-dialog
-    header="Discard changes"
-    [style]="{ width: '448px' }"
-    (closed)="discardVisible.set(false)"
-  >
-    <p class="discard-message">
-      You have unsaved changes. Switching to view mode will discard them.
-    </p>
-
-    <div customFooter class="discard-footer">
-      <button class="btn-neutral" (click)="discardVisible.set(false)">Cancel</button>
-      <button class="btn-danger" (click)="confirmDiscard()">Discard</button>
-    </div>
-  </cui-dialog>
-}

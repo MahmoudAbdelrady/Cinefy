@@ -15,32 +15,11 @@
     font-size: 22px;
   }
 
-  .mode-toggle-btn {
-    @include flex-center;
+  .edit-btn {
     @include lucide-icon-fix;
     padding: 8px;
     margin-right: 5px;
     border-radius: $radius-lg;
-    transition: all $transition-fast;
-    cursor: pointer;
-
-    &.edit {
-      color: $blue-600;
-      border: 1px solid $blue-200;
-
-      &:hover {
-        background-color: $blue-100;
-      }
-    }
-
-    &.view {
-      color: $gray-500;
-      border: 1px solid $gray-200;
-
-      &:hover {
-        background-color: $gray-100;
-      }
-    }
   }
 }
 
@@ -392,6 +371,12 @@
             @include flex-column;
             gap: 12px;
 
+            .tp-loading {
+              @include flex-center;
+              padding: 24px 0;
+              color: $gray-500;
+            }
+
             .tp-input-group {
               @include flex-column;
 
@@ -478,21 +463,5 @@
         width: 100%;
       }
     }
-  }
-}
-
-.discard-message {
-  font-size: 14px;
-  color: $gray-700;
-  line-height: 1.6;
-}
-
-.discard-footer {
-  @include flex-align;
-  gap: 12px;
-  width: 100%;
-
-  button {
-    flex: 1;
   }
 }
