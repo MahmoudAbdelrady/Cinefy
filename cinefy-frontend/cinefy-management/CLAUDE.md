@@ -563,7 +563,7 @@ When one app names a UI element of the other (management's upcoming-movies toggl
 
 Rules:
 
-- Use the **progressive verb + `…`** (an ellipsis character, not three dots): `Saving…`, `Deleting…`, `Signing in…`, `Creating account…`, `Booking…`, `Cancelling…`. Where the idle label branches, the loading label branches with it (`{{ isEditMode() ? 'Saving…' : 'Creating…' }}`).
+- Use the **progressive verb + `…`** (an ellipsis character, not three dots): `Saving…`, `Deleting…`, `Signing in…`, `Creating account…`, `Booking…`, `Canceling…`. Where the idle label branches, the loading label branches with it (`{{ isEditMode() ? 'Saving…' : 'Creating…' }}`).
 - The spinner inside a button is **`variant="xs"`** (or `sm` on larger buttons) — `lg` is for page/section loading blocks, not buttons.
 - **Two exceptions, both already correct in the codebase:**
   1. **Icon-only buttons** (a delete/edit icon with a `pTooltip` and no visible text) keep a bare spinner — there is no label to swap.

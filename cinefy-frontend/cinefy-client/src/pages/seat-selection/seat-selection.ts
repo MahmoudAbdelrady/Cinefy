@@ -138,7 +138,7 @@ export class SeatSelectionPage {
   private readonly perShowtime = <T>(initial: T) =>
     linkedSignal({ source: this.showtimeId, computation: () => initial });
 
-  protected readonly cancelling = this.perShowtime(false);
+  protected readonly canceling = this.perShowtime(false);
   protected readonly cancelled = this.perShowtime(false);
   protected readonly bookingExpired = this.perShowtime(false);
   protected readonly cancelVisible = this.perShowtime(false);
@@ -161,9 +161,9 @@ export class SeatSelectionPage {
 
   protected confirmCancel(): void {
     const activeBooking = this.activeBooking();
-    if (!activeBooking || this.cancelling()) return;
+    if (!activeBooking || this.canceling()) return;
 
-    this.cancelling.set(true);
+    this.canceling.set(true);
     this.bookingService
       .cancelBooking(activeBooking.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -173,7 +173,7 @@ export class SeatSelectionPage {
           this.cancelled.set(true);
         },
         error: () => {
-          this.cancelling.set(false);
+          this.canceling.set(false);
         },
       });
   }

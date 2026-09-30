@@ -132,7 +132,7 @@ export class BookSeatsComponent {
   protected readonly booking = signal(false);
   protected readonly cancelVisible = signal(false);
   protected readonly expiredVisible = signal(false);
-  protected readonly cancelling = signal(false);
+  protected readonly canceling = signal(false);
   protected readonly settling = signal(false);
   protected readonly issuedTicket = signal<BookingConfirmation | null>(null);
 
@@ -334,20 +334,20 @@ export class BookSeatsComponent {
 
   protected cancelPayment(): void {
     const booking = this.activeBooking();
-    if (!booking || this.cancelling()) return;
+    if (!booking || this.canceling()) return;
 
-    this.cancelling.set(true);
+    this.canceling.set(true);
     this.bookingService
       .cancelBooking(booking.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.cancelling.set(false);
+          this.canceling.set(false);
           this.resetBooking();
           this.cancelVisible.set(false);
           this.toastService.success('Booking canceled successfully');
         },
-        error: () => this.cancelling.set(false),
+        error: () => this.canceling.set(false),
       });
   }
 

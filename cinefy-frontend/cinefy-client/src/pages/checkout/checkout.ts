@@ -95,7 +95,7 @@ export class CheckoutPage {
 
   protected readonly processing = this.perBooking(false);
   protected readonly redirecting = this.perBooking(false);
-  protected readonly cancelling = this.perBooking(false);
+  protected readonly canceling = this.perBooking(false);
   protected readonly cancelled = this.perBooking(false);
   protected readonly bookingExpired = this.perBooking(false);
   protected readonly cancelVisible = this.perBooking(false);
@@ -194,9 +194,9 @@ export class CheckoutPage {
 
   protected confirmCancel(): void {
     const booking = this.booking();
-    if (!booking || this.cancelling()) return;
+    if (!booking || this.canceling()) return;
 
-    this.cancelling.set(true);
+    this.canceling.set(true);
     this.bookingService
       .cancelBooking(booking.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -206,7 +206,7 @@ export class CheckoutPage {
           this.cancelled.set(true);
         },
         error: () => {
-          this.cancelling.set(false);
+          this.canceling.set(false);
         },
       });
   }

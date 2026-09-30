@@ -175,7 +175,7 @@
     @if (cancelVisible()) {
       <cui-dialog
         header="Cancel this booking?"
-        [canClose]="!cancelling()"
+        [canClose]="!canceling()"
         [style]="{ width: '448px' }"
         (closed)="cancelVisible.set(false)"
       >
@@ -193,7 +193,7 @@
           <button
             type="button"
             class="btn-neutral"
-            [disabled]="cancelling()"
+            [disabled]="canceling()"
             (click)="cancelVisible.set(false)"
           >
             Keep booking
@@ -201,10 +201,10 @@
           <button
             type="button"
             class="btn-danger"
-            [disabled]="cancelling()"
+            [disabled]="canceling()"
             (click)="cancelPayment()"
           >
-            @if (cancelling()) {
+            @if (canceling()) {
               <cui-loading-spinner variant="xs" />
               <span>Canceling…</span>
             } @else {

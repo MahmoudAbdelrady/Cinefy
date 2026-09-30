@@ -219,7 +219,7 @@
     #cancelDialog
     header="Cancel this booking?"
     [style]="{ width: '448px' }"
-    [canClose]="!cancelling()"
+    [canClose]="!canceling()"
     (closed)="cancelVisible.set(false)"
   >
     <div class="co-cancel-modal-content">
@@ -235,13 +235,13 @@
       <button
         type="button"
         class="btn-neutral"
-        [disabled]="cancelling()"
+        [disabled]="canceling()"
         (click)="closeCancelDialog()"
       >
         Keep booking
       </button>
-      <button type="button" class="btn-danger" [disabled]="cancelling()" (click)="confirmCancel()">
-        @if (cancelling()) {
+      <button type="button" class="btn-danger" [disabled]="canceling()" (click)="confirmCancel()">
+        @if (canceling()) {
           <cui-loading-spinner variant="xs" />
           <span>Canceling…</span>
         } @else {
