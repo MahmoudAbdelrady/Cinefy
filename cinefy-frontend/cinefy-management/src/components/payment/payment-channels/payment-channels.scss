@@ -72,30 +72,18 @@
         flex-shrink: 0;
 
         button {
-          @include flex-center;
-
           width: 32px;
           height: 32px;
-          border: 1px solid $gray-200;
-          border-radius: $radius-md;
-          background-color: transparent;
-          color: $gray-500;
-          cursor: pointer;
-          transition:
-            border-color $transition-fast,
-            background-color $transition-fast,
-            color $transition-fast;
+          padding: 0;
 
-          &:hover {
-            border-color: $gray-300;
-            background-color: $gray-50;
-            color: $gray-900;
-          }
-
-          &.danger:hover {
-            border-color: $red-200;
-            background-color: $red-50;
+          &.danger {
+            border: 1px solid $red-200;
+            background-color: transparent;
             color: $red-600;
+
+            &:hover:not(:disabled) {
+              background-color: $red-50;
+            }
           }
         }
 
@@ -133,8 +121,13 @@
       cursor: pointer;
       transition: color $transition-fast;
 
-      &:hover {
+      &:hover:not(:disabled) {
         color: $blue-700;
+      }
+
+      &:disabled {
+        color: $gray-400;
+        cursor: not-allowed;
       }
     }
   }

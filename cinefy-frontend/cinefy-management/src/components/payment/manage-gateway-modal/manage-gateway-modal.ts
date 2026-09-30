@@ -199,6 +199,15 @@ export class ManageGatewayModalComponent {
       ),
     );
 
+    effect(() => {
+      if (this.saving()) {
+        this.form.disable({ emitEvent: false });
+      } else {
+        this.form.enable({ emitEvent: false });
+        this.form.controls.provider.disable({ emitEvent: false });
+      }
+    });
+
     afterNextRender(() => {
       if (this.isEditMode()) this.initialFormSnapshot.set(this.snapshotValue());
     });

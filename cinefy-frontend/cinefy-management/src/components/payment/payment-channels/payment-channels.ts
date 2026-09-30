@@ -64,6 +64,8 @@ export class PaymentChannelsComponent {
 
   readonly providerConfig = input<ProviderConfigField[]>([]);
 
+  readonly canEdit = input(true);
+
   readonly channels = model<PaymentChannel[]>([]);
 
   readonly openChange = output<boolean>();

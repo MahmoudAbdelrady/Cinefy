@@ -74,6 +74,7 @@
             <cui-switch
               size="sm"
               [checked]="channelsEnabled()"
+              [disabled]="saving()"
               (checkedChange)="onChannelsToggle($event)"
             />
           }
@@ -83,6 +84,7 @@
           <p class="section-help">{{ providerSpec().channelHelp }}</p>
           <payment-channels
             [providerConfig]="providerSpec().providerConfig ?? []"
+            [canEdit]="!saving()"
             [(channels)]="channels"
             (openChange)="channelFormOpen.set($event)"
           />
