@@ -68,7 +68,7 @@ form {
           color $transition-fast,
           box-shadow $transition-fast;
 
-        &:hover:not(.selected) {
+        &:hover:not(.selected, :has(input:disabled)) {
           border-color: $gray-300;
         }
 
@@ -82,6 +82,11 @@ form {
         &:has(:focus-visible) {
           outline: none;
           box-shadow: $shadow-focus-ring;
+        }
+
+        &:has(input:disabled) {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
       }
     }

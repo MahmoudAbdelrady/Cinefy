@@ -153,6 +153,7 @@
       </button>
       <button class="btn-danger" [disabled]="deleting" (click)="deleteStaffMember(member.id)">
         @if (deleting) {
+          <cui-loading-spinner variant="sm" />
           <span>Deleting…</span>
         } @else {
           <span>Delete member</span>

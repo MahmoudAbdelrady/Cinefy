@@ -305,6 +305,14 @@ export class ManageStaffModalComponent {
       this.staffForm.markAllAsTouched();
       this.initialFormSnapshot.set(JSON.stringify(this.staffForm.getRawValue()));
     });
+
+    effect(() => {
+      if (this.saving()) {
+        this.staffForm.disable({ emitEvent: false });
+      } else {
+        this.staffForm.enable({ emitEvent: false });
+      }
+    });
   }
 
   protected saveMember() {

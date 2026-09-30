@@ -65,7 +65,7 @@
       <div class="input-group">
         <cui-input
           label="Password"
-          placeholder="e.g. Strongpassword##123"
+          [placeholder]="isEdit() ? '' : 'e.g. Strongpassword##123'"
           type="password"
           [hint]="isEdit() ? 'Leave empty to keep the current password' : ''"
           [leadingIcon]="icons.KeyIcon"
