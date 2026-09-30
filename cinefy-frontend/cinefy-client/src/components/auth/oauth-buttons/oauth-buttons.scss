@@ -41,11 +41,6 @@
       background-color: rgba($color-input, 0.4);
     }
 
-    &:disabled {
-      color: $color-muted-foreground;
-      cursor: not-allowed;
-    }
-
     .ob-icon {
       width: 16px;
       height: 16px;

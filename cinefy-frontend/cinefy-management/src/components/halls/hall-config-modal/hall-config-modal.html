@@ -1,4 +1,4 @@
-<cui-dialog #dialog (closed)="closed.emit()" [style]="{ width: '1300px' }">
+<cui-dialog #dialog [canClose]="!saving()" [style]="{ width: '1300px' }" (closed)="closed.emit()">
   <div customHeader class="hall-config-modal-header">
     <span class="hcmh-title">{{ modalTitle() }}</span>
     @if (selectedHallId() && !isEditing() && !loadingHall() && !loadHallError()) {
@@ -254,7 +254,7 @@
   @if (!isViewMode()) {
     <div customFooter class="hall-config-modal-footer">
       <div class="save-btns">
-        <button class="btn-neutral" (click)="dialog.close()">Cancel</button>
+        <button class="btn-neutral" (click)="dialog.close()" [disabled]="saving()">Cancel</button>
         <button
           class="btn-primary"
           (click)="saveHall()"

@@ -14,6 +14,11 @@
   &:active:not(:disabled) {
     transform: scale(0.97);
   }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .btn-primary {
@@ -24,12 +29,6 @@
 
   &:hover:not(:disabled) {
     background-color: var(--cui-accent-hover);
-  }
-
-  &:disabled {
-    background-color: var(--cui-surface-disabled-strong);
-    box-shadow: none;
-    cursor: not-allowed;
   }
 }
 
@@ -42,11 +41,6 @@
   &:hover:not(:disabled) {
     background-color: var(--cui-button-secondary-hover);
   }
-
-  &:disabled {
-    color: var(--cui-text-muted);
-    cursor: not-allowed;
-  }
 }
 
 .btn-neutral {
@@ -57,11 +51,6 @@
 
   &:hover:not(:disabled) {
     background-color: var(--cui-surface-hover);
-  }
-
-  &:disabled {
-    color: var(--cui-text-muted);
-    cursor: not-allowed;
   }
 }
 
@@ -74,11 +63,6 @@
   &:hover:not(:disabled) {
     background-color: var(--cui-danger-hover);
   }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
 }
 
 .btn-success {
@@ -89,11 +73,5 @@
 
   &:hover:not(:disabled) {
     background-color: var(--cui-success-hover);
-  }
-
-  &:disabled {
-    background-color: var(--cui-surface-disabled-strong);
-    box-shadow: none;
-    cursor: not-allowed;
   }
 }

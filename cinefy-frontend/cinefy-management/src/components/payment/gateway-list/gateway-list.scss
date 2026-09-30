@@ -349,12 +349,6 @@
         background-color: $red-50;
       }
     }
-
-    &:disabled {
-      border-color: $gray-200;
-      color: $gray-400;
-      cursor: not-allowed;
-    }
   }
 }
 

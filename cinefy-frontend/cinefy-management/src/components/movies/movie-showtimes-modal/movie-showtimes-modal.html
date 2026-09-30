@@ -121,13 +121,14 @@
                         </button>
                       }
                       @if (canManage()) {
+                        @let publishing = publishingShowtimeIds().has(showtimeDetail.id);
                         @if (showtimeDetail.status === 'DRAFT') {
                           <button
                             class="dsi-action dsi-action-publish"
-                            [disabled]="publishingShowtimeIds().has(showtimeDetail.id)"
+                            [disabled]="publishing"
                             (click)="onPublishShowtime(showtimeDetail.id)"
                           >
-                            @if (publishingShowtimeIds().has(showtimeDetail.id)) {
+                            @if (publishing) {
                               <cui-loading-spinner variant="xs" />
                             } @else {
                               <svg [lucideIcon]="icons.SendIcon" [size]="15"></svg>
@@ -140,6 +141,7 @@
                         ) {
                           <button
                             class="dsi-action dsi-action-edit"
+                            [disabled]="publishing"
                             (click)="onEditShowtime(showtimeDetail)"
                           >
                             <svg [lucideIcon]="icons.EditIcon" [size]="15"></svg>
@@ -147,6 +149,7 @@
                           </button>
                           <button
                             class="dsi-action dsi-action-delete"
+                            [disabled]="publishing"
                             (click)="showtimeToDelete.set(showtimeDetail)"
                           >
                             <svg [lucideIcon]="icons.DeleteIcon" [size]="15"></svg>
@@ -166,8 +169,10 @@
   }
   @if (canManage() && !loadingDates() && movieShowtimes(); as data) {
     <div customFooter class="movie-showtimes-footer" [class.has-drafts]="hasAnyDrafts()">
+      @let publishing = publishingAll() || publishingDay();
       <button
-        [class]="hasAnyDrafts() ? 'btn-add-outlined' : 'btn-add-solid'"
+        [class]="hasAnyDrafts() ? 'btn-secondary' : 'btn-primary'"
+        [disabled]="publishing"
         (click)="onAddShowtime()"
       >
         <svg [lucideIcon]="icons.PlusIcon" [size]="16"></svg>
@@ -177,8 +182,8 @@
       <div class="publish-cluster">
         @if (hasOtherDrafts()) {
           <button
-            [class]="hasDayDrafts() ? 'btn-publish-outlined' : 'btn-publish-solid'"
-            [disabled]="publishingAll()"
+            class="btn-base {{ hasDayDrafts() ? 'btn-publish-outlined' : 'btn-publish-solid' }}"
+            [disabled]="publishing"
             (click)="onPublishAllDrafts()"
           >
             @if (publishingAll()) {
@@ -191,8 +196,8 @@
         }
         @if (hasDayDrafts()) {
           <button
-            class="btn-publish-solid"
-            [disabled]="publishingDay()"
+            class="btn-base btn-publish-solid"
+            [disabled]="publishing"
             (click)="onPublishDayDrafts()"
           >
             @if (publishingDay()) {

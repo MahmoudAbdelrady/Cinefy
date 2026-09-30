@@ -3,7 +3,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CinefyFieldError, CinefyInput, CinefyMediaImage } from 'cinefy-ui/components';
+import {
+  CinefyFieldError,
+  CinefyInput,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
+} from 'cinefy-ui/components';
 import {
   CalendarIcon,
   ClockIcon,
@@ -27,6 +32,7 @@ const AUTO_SUBMIT_DELAY_MS = 500;
     LucideDynamicIcon,
     CinefyInput,
     CinefyFieldError,
+    CinefyLoadingSpinner,
     CinefyMediaImage,
   ],
   templateUrl: './scan-ticket-modal.html',
@@ -116,6 +122,7 @@ export class ScanTicketModalComponent {
 
     const reference = this.referenceControl.value;
     this.scanning.set(true);
+    this.scanForm.disable({ emitEvent: false });
 
     this.bookingService
       .scanTicket(reference)
@@ -123,11 +130,13 @@ export class ScanTicketModalComponent {
       .subscribe({
         next: (confirmation) => {
           this.scanning.set(false);
+          this.scanForm.enable({ emitEvent: false });
           this.result.set(confirmation);
           this.clearReference();
         },
         error: () => {
           this.scanning.set(false);
+          this.scanForm.enable({ emitEvent: false });
           this.clearReference();
           this.focusInput();
         },

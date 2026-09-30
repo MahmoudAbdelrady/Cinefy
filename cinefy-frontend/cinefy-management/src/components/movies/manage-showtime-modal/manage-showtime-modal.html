@@ -2,6 +2,7 @@
   #dialog
   [header]="modalTitle()"
   [description]="modalDescription()"
+  [canClose]="!submitting()"
   [style]="{ width: '640px' }"
   (closed)="closed.emit()"
 >
@@ -37,7 +38,7 @@
               </div>
             </div>
           </div>
-          @if (!selectedMovie()) {
+          @if (!selectedMovie() && !submitting()) {
             <div class="sm-actions">
               <button type="button" (click)="pickedMovie.set(null)">Change</button>
             </div>
@@ -110,7 +111,7 @@
 
   @if (activeMovie()) {
     <div customFooter class="manage-footer">
-      <button class="btn-neutral" (click)="dialog.close()">Cancel</button>
+      <button class="btn-neutral" (click)="dialog.close()" [disabled]="submitting()">Cancel</button>
       <button
         class="btn-primary"
         [disabled]="showtimeForm.invalid || submitDisabled()"

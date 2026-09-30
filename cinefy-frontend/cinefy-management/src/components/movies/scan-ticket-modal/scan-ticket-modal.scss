@@ -45,6 +45,15 @@
           height: 16px;
           accent-color: $blue-600;
           cursor: pointer;
+
+          &:disabled {
+            cursor: not-allowed;
+          }
+        }
+
+        &:has(input:disabled) {
+          color: $gray-400;
+          cursor: not-allowed;
         }
       }
     }

@@ -250,9 +250,11 @@ export class ManageShowtimeModalComponent {
       : this.showtimesService.createShowtime(draft);
 
     this.submitting.set(true);
+    this.showtimeForm.disable({ emitEvent: false });
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (showtime) => {
         this.submitting.set(false);
+        this.showtimeForm.enable({ emitEvent: false });
         if (editing) {
           this.showtimeEvents.notifyUpdated(showtime);
           this.toastService.success('Showtime updated');
@@ -262,7 +264,10 @@ export class ManageShowtimeModalComponent {
         }
         this.dialog().close();
       },
-      error: () => this.submitting.set(false),
+      error: () => {
+        this.submitting.set(false);
+        this.showtimeForm.enable({ emitEvent: false });
+      },
     });
   }
 

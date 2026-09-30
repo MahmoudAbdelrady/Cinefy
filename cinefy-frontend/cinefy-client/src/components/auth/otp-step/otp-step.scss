@@ -22,6 +22,8 @@
   color: $color-muted-foreground;
 
   .fp-otp-resend {
+    @include flex-align;
+    gap: 6px;
     background: none;
     border: none;
     padding: 0;

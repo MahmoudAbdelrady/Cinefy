@@ -19,7 +19,12 @@
         <span class="fp-otp-cooldown">{{ resendLabel() }}</span>
       } @else {
         <button type="button" class="fp-otp-resend" [disabled]="resending()" (click)="onResend()">
-          {{ resending() ? 'Sending…' : 'Resend code' }}
+          @if (resending()) {
+            <cui-loading-spinner variant="xs" />
+            <span>Sending…</span>
+          } @else {
+            <span>Resend code</span>
+          }
         </button>
       }
     </p>

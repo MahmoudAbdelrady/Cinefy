@@ -334,40 +334,7 @@
   }
 
   button {
-    @include flex-align;
-    justify-content: center;
     @include lucide-icon-fix;
-    gap: 8px;
-    border-radius: $radius-md;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition:
-      background-color $transition-fast,
-      color $transition-fast,
-      border-color $transition-fast;
-  }
-
-  .btn-add-solid {
-    padding: 10px 20px;
-    background: $blue-600;
-    color: #ffffff;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-
-    &:hover {
-      background: $blue-700;
-    }
-  }
-
-  .btn-add-outlined {
-    padding: 10px 20px;
-    color: $blue-600;
-    background: transparent;
-    border: 1px solid $blue-200;
-
-    &:hover {
-      background: $blue-50;
-    }
   }
 
   .publish-cluster {
@@ -381,23 +348,21 @@
     }
 
     .btn-publish-solid {
-      padding: 10px 20px;
       background: $green-600;
       color: #ffffff;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
-      &:hover {
+      &:hover:not(:disabled) {
         background: $green-700;
       }
     }
 
     .btn-publish-outlined {
-      padding: 10px 20px;
       color: $green-600;
       background: transparent;
       border: 1px solid $green-300;
 
-      &:hover {
+      &:hover:not(:disabled) {
         background: $green-50;
       }
     }

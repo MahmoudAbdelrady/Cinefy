@@ -423,26 +423,12 @@
         svg {
           color: $color-primary;
         }
-
-        &:disabled {
-          border-color: rgba($color-border, 0.5);
-          color: $color-muted-foreground;
-          cursor: not-allowed;
-
-          svg {
-            color: $color-muted-foreground;
-          }
-        }
       }
 
       .co-pay-only {
         @include lucide-icon-fix;
 
         justify-content: space-between;
-
-        &:disabled svg {
-          opacity: 0.5;
-        }
       }
 
       .co-pay-label {
@@ -474,10 +460,6 @@
     &:hover:not(:disabled) {
       background: $color-secondary;
       color: $color-destructive;
-    }
-
-    &:disabled {
-      cursor: not-allowed;
     }
   }
 }

@@ -10,6 +10,7 @@
           <input
             type="checkbox"
             [checked]="manualEntry()"
+            [disabled]="scanning()"
             (change)="onManualEntryChange($event.target.checked)"
           />
           <span>Enter manually</span>
@@ -23,6 +24,7 @@
         [uppercase]="true"
         [preventWhitespace]="true"
         [autoFocus]="true"
+        [loading]="!manualEntry() && scanning()"
         (blurred)="onInputBlur()"
       />
 
@@ -108,13 +110,18 @@
 @if (scan !== null || manualEntry()) {
   <div class="stm-actions">
     @if (close(); as close) {
-      <button type="button" class="btn-neutral" (click)="close()">
+      <button type="button" class="btn-neutral" (click)="close()" [disabled]="scanning()">
         {{ scan === null ? 'Cancel' : 'Close' }}
       </button>
     }
     @if (scan === null) {
       <button type="submit" form="stm-form" class="btn-primary" [disabled]="!canSubmit()">
-        {{ scanning() ? 'Verifying…' : 'Verify ticket' }}
+        @if (scanning()) {
+          <cui-loading-spinner variant="sm" />
+          <span>Verifying…</span>
+        } @else {
+          <span>Verify ticket</span>
+        }
       </button>
     } @else {
       <button type="button" class="btn-primary" (click)="scanAgain()">

@@ -60,6 +60,7 @@ export class CinefyInput {
   readonly uppercase = input<boolean>(false);
   readonly preventWhitespace = input<boolean>(false);
   readonly loading = input<boolean>(false);
+  readonly readonly = input<boolean>(false);
 
   readonly blurred = output<void>();
 
@@ -77,7 +78,9 @@ export class CinefyInput {
     return this.showPassword() ? "text" : "password";
   });
 
-  protected readonly showClear = computed(() => this.clearable() && !this.isPassword() && !!this.controlValue());
+  protected readonly showClear = computed(
+    () => this.clearable() && !this.readonly() && !this.isPassword() && !!this.controlValue(),
+  );
 
   protected readonly hasErrorMessages = computed(() => Object.keys(this.errorMessages()).length > 0);
 

@@ -6,15 +6,14 @@ This document is the source of truth for which tokens the bridge must define. ci
 
 ## Surfaces
 
-| Token                           | Purpose                                                  |
-| ------------------------------- | -------------------------------------------------------- |
-| `--cui-surface-base`            | Base page-level surface (modal panel, plain backgrounds) |
-| `--cui-surface-input`           | Input/select field background                            |
-| `--cui-surface-overlay`         | Popover/dropdown panel background                        |
-| `--cui-surface-hover`           | Hover background for interactive rows/toggles            |
-| `--cui-surface-disabled`        | Disabled field background (light gray)                   |
-| `--cui-surface-disabled-strong` | Disabled filled-button background (stronger gray)        |
-| `--cui-surface-active`          | Pressed/active state background                          |
+| Token                    | Purpose                                                  |
+| ------------------------ | -------------------------------------------------------- |
+| `--cui-surface-base`     | Base page-level surface (modal panel, plain backgrounds) |
+| `--cui-surface-input`    | Input/select field background                            |
+| `--cui-surface-overlay`  | Popover/dropdown panel background                        |
+| `--cui-surface-hover`    | Hover background for interactive rows/toggles            |
+| `--cui-surface-disabled` | Disabled field background (light gray)                   |
+| `--cui-surface-active`   | Pressed/active state background                          |
 
 ## Text
 
