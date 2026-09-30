@@ -3,14 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import {
-  UserIcon,
-  TicketIcon,
-  LogoutIcon,
-  LoginIcon,
-  SignupIcon,
-  ClapperboardIcon,
-} from '../../shared/icons';
+import { UserIcon, TicketIcon, LogoutIcon, LoginIcon, SignupIcon } from '../../shared/icons';
 import { CinefyMenu, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import type { CinefyMenuGroup } from 'cinefy-ui/types';
 import { MyTicketsListComponent } from '../../components';
@@ -37,7 +30,6 @@ export class AppLayout {
     TicketIcon,
     LoginIcon,
     SignupIcon,
-    ClapperboardIcon,
   };
 
   private readonly router = inject(Router);

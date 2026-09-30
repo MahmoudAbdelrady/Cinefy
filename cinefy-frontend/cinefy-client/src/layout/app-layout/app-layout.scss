@@ -225,12 +225,14 @@ $max-width: 1152px;
 
       .alf-site-name {
         @include flex-align;
-        @include lucide-icon-fix;
         gap: 8px;
         user-select: none;
 
-        svg {
-          color: $color-primary;
+        .alf-site-name-logo {
+          width: 20px;
+          height: 20px;
+          flex-shrink: 0;
+          object-fit: contain;
         }
 
         .alf-site-name-text {
