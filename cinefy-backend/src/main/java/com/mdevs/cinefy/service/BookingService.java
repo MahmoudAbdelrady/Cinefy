@@ -584,14 +584,17 @@ public class BookingService {
             bookingRepository.delete(existing);
             return null;
         }
-        if (BookingStatus.PENDING_PAYMENT.equals(existing.getStatus())) {
-            throw new BusinessException("A payment is already in progress for this booking. Complete or cancel it before changing seats");
-        }
-
         Set<String> currentPositions = existing.getSeats().stream()
                 .map(BookingSeat::getPosition)
                 .collect(Collectors.toSet());
         Set<String> requested = new LinkedHashSet<>(requestedPositions);
+
+        if (requested.equals(currentPositions)) {
+            return existing;
+        }
+        if (BookingStatus.PENDING_PAYMENT.equals(existing.getStatus())) {
+            throw new BusinessException("A payment is already in progress for this booking. Complete or cancel it before changing seats");
+        }
 
         boolean overlaps = requested.stream().anyMatch(currentPositions::contains);
         if (!overlaps) {
