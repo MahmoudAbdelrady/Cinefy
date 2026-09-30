@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -55,6 +55,14 @@ export class ProfilePasswordComponent {
       this.passwordForm.controls.confirmPassword,
       this.destroyRef,
     );
+
+    effect(() => {
+      if (this.saving()) {
+        this.passwordForm.disable({ emitEvent: false });
+      } else {
+        this.passwordForm.enable({ emitEvent: false });
+      }
+    });
   }
 
   protected save(): void {
