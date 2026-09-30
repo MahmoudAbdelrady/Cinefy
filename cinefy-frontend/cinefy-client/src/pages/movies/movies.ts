@@ -57,7 +57,7 @@ export class MoviesPage {
     stream: () => this.moviesService.getNowShowing(),
   });
 
-  private readonly hallTypes = rxResource({
+  protected readonly hallTypes = rxResource({
     stream: () => this.hallsService.getHallTypes(),
   });
 

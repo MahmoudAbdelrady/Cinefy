@@ -21,6 +21,7 @@
         valueField="value"
         [control]="filterForm.controls.hallTypes"
         [items]="hallTypeEntries()"
+        [loading]="hallTypes.isLoading()"
         [multi]="true"
         [clearable]="true"
         [searchable]="true"
