@@ -42,6 +42,7 @@ export class ProfileBillingComponent {
 
   protected readonly paymentMethods = signal<ClientPaymentMethod[]>([]);
   protected readonly loading = signal(true);
+  protected readonly loadFailed = signal(false);
   protected readonly removing = signal(false);
 
   protected readonly brandChip = brandChip;
@@ -59,7 +60,10 @@ export class ProfileBillingComponent {
           this.paymentMethods.set(methods);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: () => {
+          this.loadFailed.set(true);
+          this.loading.set(false);
+        },
       });
   }
 
