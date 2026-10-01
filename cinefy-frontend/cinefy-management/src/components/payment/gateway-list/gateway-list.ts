@@ -18,6 +18,7 @@ import {
   InfoIcon,
   PowerIcon,
   PowerOffIcon,
+  WarningIcon,
   WebhookIcon,
 } from '../../../shared/icons';
 import { GATEWAY_PROVIDER_LABELS, type PaymentGateway } from '../../../shared/types';
@@ -50,6 +51,7 @@ export class GatewayListComponent {
     InfoIcon,
     PowerIcon,
     PowerOffIcon,
+    WarningIcon,
     WebhookIcon,
   };
 
@@ -60,6 +62,7 @@ export class GatewayListComponent {
   protected readonly providerLabels = GATEWAY_PROVIDER_LABELS;
 
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
 
   protected readonly togglingGateway = signal(false);
   protected readonly deletingGatewayIds = signal<Set<string>>(new Set());
@@ -94,7 +97,10 @@ export class GatewayListComponent {
             this.standbyGateways.set(standBy);
             this.loading.set(false);
           },
-          error: () => this.loading.set(false),
+          error: () => {
+            this.failed.set(true);
+            this.loading.set(false);
+          },
         });
     });
   }

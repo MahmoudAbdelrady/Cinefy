@@ -118,7 +118,9 @@ export class MovieShowtimesModal {
   protected readonly movieShowtimes = signal<MovieShowtimeDatesResponse | null>(null);
   protected readonly movieShowtimeDetails = signal<MovieShowtimeListItem[]>([]);
   protected readonly loadingDates = signal(true);
+  protected readonly datesFailed = signal(false);
   protected readonly loadingDay = signal(false);
+  protected readonly dayFailed = signal(false);
   protected readonly dayDrafts = signal(0);
   protected readonly selectedTab = signal<string | undefined>(undefined);
   protected readonly deletingShowtimeIds = signal<Set<string>>(new Set());
@@ -149,6 +151,7 @@ export class MovieShowtimesModal {
   constructor() {
     effect((onCleanup) => {
       this.loadingDates.set(true);
+      this.datesFailed.set(false);
       this.movieShowtimes.set(null);
       this.movieShowtimeDetails.set([]);
       this.dayDrafts.set(0);
@@ -165,13 +168,19 @@ export class MovieShowtimesModal {
               this.selectedTab.set(data.dates[0]);
             }
           },
-          error: () => this.loadingDates.set(false),
+          error: () => {
+            this.datesFailed.set(true);
+            this.loadingDates.set(false);
+          },
         });
       onCleanup(() => sub.unsubscribe());
     });
 
     effect((onCleanup) => {
       const targetDate = this.selectedTab();
+      this.dayFailed.set(false);
+      this.movieShowtimeDetails.set([]);
+      this.dayDrafts.set(0);
       if (!targetDate) {
         this.loadingDay.set(false);
         return;
@@ -190,6 +199,7 @@ export class MovieShowtimesModal {
           },
           error: () => {
             if (this.selectedTab() !== targetDate) return;
+            this.dayFailed.set(true);
             this.loadingDay.set(false);
           },
         });

@@ -2,6 +2,13 @@
   <div class="gl-loading">
     <cui-loading-spinner variant="md" />
   </div>
+} @else if (failed()) {
+  <cui-empty-state
+    class="gl-empty"
+    [icon]="icons.WarningIcon"
+    header="Couldn't load payment gateways"
+    description="Something went wrong. Please try again later."
+  />
 } @else {
   @if (standbyGateways().length && !activeGateway()) {
     <div class="gl-notice">
@@ -24,19 +31,12 @@
   }
 
   @if (!activeGateway() && !standbyGateways().length) {
-    <section class="gateway-list">
-      <header class="gl-header">
-        <h3>All payment gateways</h3>
-        <p>Only one gateway is allowed to receive new payments.</p>
-      </header>
-
-      <cui-empty-state
-        class="gl-empty"
-        [icon]="icons.CreditCardIcon"
-        header="No payment gateways yet"
-        description="Add a gateway to start taking online payments."
-      />
-    </section>
+    <cui-empty-state
+      class="gl-empty"
+      [icon]="icons.CreditCardIcon"
+      header="No payment gateways yet"
+      description="Add a gateway to start taking online payments."
+    />
   } @else {
     @if (activeGateway(); as gateway) {
       <section class="gl-active">

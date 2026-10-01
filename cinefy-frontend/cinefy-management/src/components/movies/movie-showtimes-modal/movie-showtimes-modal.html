@@ -7,6 +7,13 @@
     <div class="msm-loading">
       <cui-loading-spinner variant="md" />
     </div>
+  } @else if (datesFailed()) {
+    <cui-empty-state
+      class="fill"
+      [icon]="icons.WarningIcon"
+      header="Couldn't load showtimes"
+      description="Something went wrong. Please try again later."
+    />
   }
   @if (!loadingDates() && movieShowtimes(); as data) {
     @if (data.dates.length === 0) {
@@ -18,7 +25,7 @@
       />
     } @else {
       <div class="movie-showtimes-container">
-        <p-tabs class="date-tabs" [(value)]="selectedTab" scrollable>
+        <p-tabs class="date-tabs" [(value)]="selectedTab">
           <p-tablist>
             @for (date of data.dates; track date) {
               <p-tab class="date-tab" [value]="date">
@@ -35,6 +42,13 @@
             <div class="msm-loading">
               <cui-loading-spinner variant="md" />
             </div>
+          } @else if (dayFailed()) {
+            <cui-empty-state
+              class="fill"
+              [icon]="icons.WarningIcon"
+              header="Couldn't load this day's showtimes"
+              description="Something went wrong. Please try again later."
+            />
           } @else {
             <div class="ds-total">
               {{ movieShowtimeDetails().length }} showtime{{

@@ -16,6 +16,14 @@
   color: $gray-500;
 }
 
+.gl-empty {
+  padding: 40px 24px;
+  border: 1px solid $gray-200;
+  border-radius: $radius-xl;
+  background-color: #ffffff;
+  box-shadow: $shadow-sm;
+}
+
 .gl-notice {
   @include lucide-icon-fix;
 
@@ -180,34 +188,6 @@
 .gateway-list {
   width: 100%;
   min-width: 0;
-
-  .gl-header {
-    margin-bottom: 12px;
-
-    h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: $gray-900;
-    }
-
-    p {
-      margin-top: 4px;
-      font-size: 14px;
-      color: $gray-600;
-    }
-
-    @include below-tablet {
-      padding: 16px;
-    }
-  }
-
-  .gl-empty {
-    padding: 40px 24px;
-    border: 1px solid $gray-200;
-    border-radius: $radius-xl;
-    background-color: #ffffff;
-    box-shadow: $shadow-sm;
-  }
 
   .gl-scroll {
     overflow-x: auto;
