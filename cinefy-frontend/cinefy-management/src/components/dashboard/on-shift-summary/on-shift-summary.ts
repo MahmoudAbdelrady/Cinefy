@@ -1,8 +1,8 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { StaffService } from '../../../services';
-import { ContactRoundIcon, UsersIcon } from '../../../shared/icons';
+import { ContactRoundIcon, UsersIcon, WarningIcon } from '../../../shared/icons';
 import { USER_POSITION_LABELS } from '../../../shared/types';
 import type { OnShiftSummary, UserPosition } from '../../../shared/types';
 import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
@@ -15,18 +15,19 @@ interface ShiftCount {
 
 @Component({
   selector: 'on-shift-summary',
-  imports: [DashboardWidgetComponent, CinefyLoadingSpinner],
+  imports: [DashboardWidgetComponent, CinefyLoadingSpinner, CinefyEmptyState],
   templateUrl: './on-shift-summary.html',
   styleUrl: './on-shift-summary.scss',
 })
 export class OnShiftSummaryComponent {
-  protected readonly icons = { ContactRoundIcon, UsersIcon };
+  protected readonly icons = { ContactRoundIcon, UsersIcon, WarningIcon };
 
   private readonly staffService = inject(StaffService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly onShift = signal<OnShiftSummary | null>(null);
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
 
   protected readonly positionCounts = computed<ShiftCount[]>(() => {
     const details = this.onShift()?.details;
@@ -57,7 +58,10 @@ export class OnShiftSummaryComponent {
           this.onShift.set(summary);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: () => {
+          this.failed.set(true);
+          this.loading.set(false);
+        },
       });
   }
 }

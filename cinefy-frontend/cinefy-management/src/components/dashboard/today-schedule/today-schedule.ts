@@ -6,7 +6,13 @@ import { CinefyEmptyState, CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { ShowtimesService } from '../../../services';
 import { DATE_FORMAT, TIME_FORMAT } from '../../../shared/constants';
-import { CalendarClockIcon, CalendarIcon, ClockIcon, TicketIcon } from '../../../shared/icons';
+import {
+  CalendarClockIcon,
+  CalendarIcon,
+  ClockIcon,
+  TicketIcon,
+  WarningIcon,
+} from '../../../shared/icons';
 import type { ScheduledShowtime } from '../../../shared/types';
 import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
 
@@ -38,6 +44,7 @@ export class TodayScheduleComponent {
     CalendarClockIcon,
     ClockIcon,
     TicketIcon,
+    WarningIcon,
   };
 
   private readonly showtimesService = inject(ShowtimesService);
@@ -45,6 +52,7 @@ export class TodayScheduleComponent {
 
   protected readonly screenings = signal<ScheduledShowtime[]>([]);
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
 
   private readonly now = signal(new Date());
 
@@ -87,7 +95,10 @@ export class TodayScheduleComponent {
           this.screenings.set(screenings);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: () => {
+          this.failed.set(true);
+          this.loading.set(false);
+        },
       });
   }
 }

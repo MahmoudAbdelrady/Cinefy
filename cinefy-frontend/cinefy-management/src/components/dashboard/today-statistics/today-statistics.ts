@@ -11,7 +11,7 @@ import type { StatisticsPeriodTotals } from '../../../shared/types';
 interface TodayFigure {
   key: string;
   label: string;
-  value: number;
+  value: number | null;
   unit?: string;
   isPercentage?: boolean;
 }
@@ -33,13 +33,17 @@ export class TodayStatisticsComponent {
 
   protected readonly figures = computed<TodayFigure[]>(() => {
     const totals = this.totals();
-    if (!totals) return [];
 
     return [
-      { key: 'net', label: 'Net revenue', value: totals.netRevenue, unit: CURRENCY },
-      { key: 'refunded', label: 'Refunded', value: totals.refunded, unit: CURRENCY },
-      { key: 'tickets', label: 'Tickets sold', value: totals.ticketsSold },
-      { key: 'occupancy', label: 'Occupancy', value: totals.occupancy, isPercentage: true },
+      { key: 'net', label: 'Net revenue', value: totals?.netRevenue ?? null, unit: CURRENCY },
+      { key: 'refunded', label: 'Refunded', value: totals?.refunded ?? null, unit: CURRENCY },
+      { key: 'tickets', label: 'Tickets sold', value: totals?.ticketsSold ?? null },
+      {
+        key: 'occupancy',
+        label: 'Occupancy',
+        value: totals?.occupancy ?? null,
+        isPercentage: true,
+      },
     ];
   });
 

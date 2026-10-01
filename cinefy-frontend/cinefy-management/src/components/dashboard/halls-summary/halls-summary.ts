@@ -2,7 +2,7 @@ import { afterNextRender, Component, computed, DestroyRef, inject, signal } from
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { HallsService } from '../../../services';
-import { LayoutIcon, SettingsIcon } from '../../../shared/icons';
+import { LayoutIcon, SettingsIcon, WarningIcon } from '../../../shared/icons';
 import { HALL_STATUS_LABELS } from '../../../shared/types';
 import type { HallStatus, HallStatusCounts } from '../../../shared/types';
 import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
@@ -20,13 +20,14 @@ interface HallStatusCount {
   styleUrl: './halls-summary.scss',
 })
 export class HallsSummaryComponent {
-  protected readonly icons = { LayoutIcon, SettingsIcon };
+  protected readonly icons = { LayoutIcon, SettingsIcon, WarningIcon };
 
   private readonly hallsService = inject(HallsService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly hallCounts = signal<HallStatusCounts | null>(null);
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
 
   protected readonly statusCounts = computed<HallStatusCount[]>(() => {
     const counts = this.hallCounts();
@@ -60,7 +61,10 @@ export class HallsSummaryComponent {
           this.hallCounts.set(counts);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: () => {
+          this.failed.set(true);
+          this.loading.set(false);
+        },
       });
   }
 }

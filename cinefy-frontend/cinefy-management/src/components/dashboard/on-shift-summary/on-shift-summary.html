@@ -11,6 +11,13 @@
     <div class="oss-loading">
       <cui-loading-spinner variant="lg" />
     </div>
+  } @else if (failed()) {
+    <cui-empty-state
+      class="oss-error"
+      [icon]="icons.WarningIcon"
+      header="Couldn't load on-shift staff"
+      description="Something went wrong. Please try again later."
+    />
   } @else {
     <ul class="oss-positions">
       @for (entry of positionCounts(); track entry.position) {
