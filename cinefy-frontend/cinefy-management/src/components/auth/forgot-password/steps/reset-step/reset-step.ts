@@ -1,4 +1,13 @@
-import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -64,6 +73,14 @@ export class ResetStep {
       this.resetForm.controls.confirmPassword,
       this.destroyRef,
     );
+
+    effect(() => {
+      if (this.submitting()) {
+        this.resetForm.disable({ emitEvent: false });
+      } else {
+        this.resetForm.enable({ emitEvent: false });
+      }
+    });
   }
 
   protected onSubmit() {

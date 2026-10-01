@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, output, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -10,13 +10,7 @@ import { ArrowLeftIcon, ArrowRightIcon, EmailIcon } from '../../../../../shared/
 
 @Component({
   selector: 'fp-request-step',
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    LucideDynamicIcon,
-    CinefyInput,
-    CinefyLoadingSpinner,
-  ],
+  imports: [ReactiveFormsModule, RouterLink, LucideDynamicIcon, CinefyInput, CinefyLoadingSpinner],
   templateUrl: './request-step.html',
   styleUrl: './request-step.scss',
 })
@@ -40,6 +34,16 @@ export class RequestStep {
       validators: [Validators.required, Validators.pattern(EMAIL_PATTERN)],
     }),
   });
+
+  constructor() {
+    effect(() => {
+      if (this.submitting()) {
+        this.requestForm.disable({ emitEvent: false });
+      } else {
+        this.requestForm.enable({ emitEvent: false });
+      }
+    });
+  }
 
   protected onSubmit() {
     if (this.requestForm.invalid || this.submitting()) return;

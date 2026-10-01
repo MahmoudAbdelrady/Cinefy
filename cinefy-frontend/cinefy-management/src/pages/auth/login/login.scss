@@ -30,8 +30,13 @@
             text-decoration: none;
             transition: color $transition-fast;
 
-            &:hover {
+            &[href]:hover {
               color: $blue-700;
+            }
+
+            &:not([href]) {
+              opacity: 0.6;
+              cursor: not-allowed;
             }
           }
         }

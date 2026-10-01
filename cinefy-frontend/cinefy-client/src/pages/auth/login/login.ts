@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -43,6 +43,7 @@ export class LoginPage {
 
   protected readonly stage = signal<AuthFormStage>('form');
   protected readonly submitting = signal(false);
+  protected readonly connecting = signal(false);
 
   protected readonly loginForm = new FormGroup({
     email: new FormControl('', {
@@ -55,10 +56,22 @@ export class LoginPage {
     }),
   });
 
+  protected readonly authenticating = computed(() => this.submitting() || this.connecting());
+
   protected readonly verifyAccount = (code: string) => this.authService.verifyAccount({ code });
 
+  constructor() {
+    effect(() => {
+      if (this.authenticating()) {
+        this.loginForm.disable({ emitEvent: false });
+      } else {
+        this.loginForm.enable({ emitEvent: false });
+      }
+    });
+  }
+
   protected onSubmit() {
-    if (this.loginForm.invalid || this.submitting()) return;
+    if (this.loginForm.invalid || this.authenticating()) return;
 
     const value = this.loginForm.getRawValue();
     this.submitting.set(true);

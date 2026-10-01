@@ -60,7 +60,7 @@
   text-decoration: none;
   transition: color $transition-fast;
 
-  &:hover {
+  &:is(button:not(:disabled), a[href]):hover {
     color: $color-foreground;
   }
 }

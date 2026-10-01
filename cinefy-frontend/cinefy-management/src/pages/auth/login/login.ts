@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -11,13 +11,7 @@ import { ArrowRightIcon, EmailIcon, PasswordIcon } from '../../../shared/icons';
 
 @Component({
   selector: 'login-page',
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    LucideDynamicIcon,
-    CinefyInput,
-    CinefyLoadingSpinner,
-  ],
+  imports: [ReactiveFormsModule, RouterLink, LucideDynamicIcon, CinefyInput, CinefyLoadingSpinner],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -45,6 +39,16 @@ export class LoginPage {
       validators: [Validators.required],
     }),
   });
+
+  constructor() {
+    effect(() => {
+      if (this.submitting()) {
+        this.loginForm.disable({ emitEvent: false });
+      } else {
+        this.loginForm.enable({ emitEvent: false });
+      }
+    });
+  }
 
   protected onSubmit() {
     if (this.loginForm.invalid || this.submitting()) return;

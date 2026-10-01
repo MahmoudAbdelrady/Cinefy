@@ -75,5 +75,10 @@
 
   .fp-back-link {
     @include auth-back-link;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -49,6 +49,14 @@ export class OAuthRegisterForm {
     this.registerForm.controls.phoneNumber.addValidators(
       phoneNumberValidator(this.registerForm.controls.phoneCountry),
     );
+
+    effect(() => {
+      if (this.submitting()) {
+        this.registerForm.disable({ emitEvent: false });
+      } else {
+        this.registerForm.enable({ emitEvent: false });
+      }
+    });
   }
 
   protected onSubmit() {

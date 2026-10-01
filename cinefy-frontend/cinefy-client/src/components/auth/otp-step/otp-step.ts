@@ -1,4 +1,13 @@
-import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule } from '@angular/forms';
 import { Observable, interval, takeWhile } from 'rxjs';
@@ -51,6 +60,16 @@ export class OtpStep {
     return `You can resend in ${minutes}:${String(remainder).padStart(2, '0')}`;
   });
 
+  constructor() {
+    effect(() => {
+      if (this.verifying() || this.resending()) {
+        this.code.disable({ emitEvent: false });
+      } else {
+        this.code.enable({ emitEvent: false });
+      }
+    });
+  }
+
   protected onSubmit() {
     if (!this.complete() || this.verifying()) return;
     this.verifying.set(true);
@@ -70,7 +89,6 @@ export class OtpStep {
   protected onResend() {
     if (this.resendCountdown() > 0 || this.resending()) return;
     this.resending.set(true);
-    this.code.setValue('');
 
     this.authService
       .sendOtp({ email: this.email(), otpType: this.otpType() })
@@ -78,6 +96,7 @@ export class OtpStep {
       .subscribe({
         next: () => {
           this.resending.set(false);
+          this.code.setValue('');
           this.startResendCooldown();
           this.toastService.success('A new code has been sent to your email.');
         },

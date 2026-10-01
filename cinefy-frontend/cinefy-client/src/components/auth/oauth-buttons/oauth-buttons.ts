@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { CinefyLoadingSpinner } from 'cinefy-ui/components';
@@ -16,6 +16,10 @@ export class OAuthButtonsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
+  readonly canConnect = input(true);
+
+  readonly connectingChange = output<boolean>();
+
   protected readonly pendingProvider = signal<string | null>(null);
 
   protected readonly providers: OAuthProvider[] = [
@@ -30,6 +34,10 @@ export class OAuthButtonsComponent {
       iconSrc: '/Assets/microsoft-icon-logo.svg',
     },
   ];
+
+  constructor() {
+    effect(() => this.connectingChange.emit(this.pendingProvider() !== null));
+  }
 
   protected authenticateWith(code: string) {
     if (this.pendingProvider()) return;

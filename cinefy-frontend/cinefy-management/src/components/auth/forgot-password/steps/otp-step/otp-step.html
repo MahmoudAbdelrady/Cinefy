@@ -19,7 +19,12 @@
         @if (resendCountdown() > 0) {
           <span class="fp-otp-cooldown">{{ resendLabel() }}</span>
         } @else {
-          <button type="button" class="fp-otp-resend" [disabled]="resending()" (click)="onResend()">
+          <button
+            type="button"
+            class="fp-otp-resend"
+            [disabled]="resending() || verifying()"
+            (click)="onResend()"
+          >
             @if (resending()) {
               Sending…
             } @else {
@@ -29,7 +34,11 @@
         }
       </p>
 
-      <button type="submit" class="fp-submit" [disabled]="!complete() || verifying()">
+      <button
+        type="submit"
+        class="fp-submit"
+        [disabled]="!complete() || verifying() || resending()"
+      >
         @if (verifying()) {
           <cui-loading-spinner variant="sm" />
           <span>Verifying…</span>
@@ -41,7 +50,12 @@
     </form>
   </div>
 
-  <button type="button" class="fp-back-link" (click)="onBack()">
+  <button
+    type="button"
+    class="fp-back-link"
+    [disabled]="verifying() || resending()"
+    (click)="onBack()"
+  >
     <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="14" [strokeWidth]="2"></svg>
     Use a different email
   </button>

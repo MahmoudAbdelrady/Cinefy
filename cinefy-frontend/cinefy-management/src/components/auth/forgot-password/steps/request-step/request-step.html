@@ -29,7 +29,7 @@
     </form>
   </div>
 
-  <a routerLink="/login" class="fp-back-link">
+  <a [routerLink]="submitting() ? null : '/login'" class="fp-back-link">
     <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="14" [strokeWidth]="2"></svg>
     Back to sign in
   </a>

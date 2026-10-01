@@ -85,7 +85,7 @@
         <button
           type="submit"
           class="btn-primary sp-submit"
-          [disabled]="signupForm.invalid || submitting()"
+          [disabled]="signupForm.invalid || authenticating()"
         >
           @if (submitting()) {
             <cui-loading-spinner variant="xs" />
@@ -97,11 +97,13 @@
         </button>
       </form>
 
-      <oauth-buttons />
+      <oauth-buttons [canConnect]="!submitting()" (connectingChange)="connecting.set($event)" />
 
       <p class="sp-footer">
         Already have an account?
-        <a routerLink="../login" queryParamsHandling="preserve">Sign in</a>
+        <a [routerLink]="authenticating() ? null : '../login'" queryParamsHandling="preserve">
+          Sign in
+        </a>
       </p>
     }
     @case ('verify') {

@@ -34,5 +34,10 @@
 
   .fp-back-link {
     @include auth-back-link;
+
+    &:not([href]) {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   }
 }

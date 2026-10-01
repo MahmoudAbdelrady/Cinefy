@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -52,6 +52,7 @@ export class SignUpPage {
 
   protected readonly stage = signal<AuthFormStage>('form');
   protected readonly submitting = signal(false);
+  protected readonly connecting = signal(false);
 
   protected readonly signupForm = new FormGroup({
     firstName: new FormControl('', {
@@ -94,6 +95,8 @@ export class SignUpPage {
     }),
   });
 
+  protected readonly authenticating = computed(() => this.submitting() || this.connecting());
+
   protected readonly verifyAccount = (code: string) => this.authService.verifyAccount({ code });
 
   constructor() {
@@ -105,10 +108,18 @@ export class SignUpPage {
       this.signupForm.controls.confirmPassword,
       this.destroyRef,
     );
+
+    effect(() => {
+      if (this.authenticating()) {
+        this.signupForm.disable({ emitEvent: false });
+      } else {
+        this.signupForm.enable({ emitEvent: false });
+      }
+    });
   }
 
   protected onSubmit() {
-    if (this.signupForm.invalid || this.submitting()) return;
+    if (this.signupForm.invalid || this.authenticating()) return;
 
     const value = this.signupForm.getRawValue();
     this.submitting.set(true);

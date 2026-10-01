@@ -33,8 +33,13 @@
     cursor: pointer;
     transition: color $transition-fast;
 
-    &:hover {
+    &:hover:not(:disabled) {
       color: rgba($color-primary, 0.8);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
   }
 
@@ -52,4 +57,9 @@
 
 .fp-back-link {
   @include fp-back-link;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }

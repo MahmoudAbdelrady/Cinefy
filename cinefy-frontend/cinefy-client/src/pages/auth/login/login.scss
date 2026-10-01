@@ -38,8 +38,13 @@
         color: $color-primary;
         text-decoration: none;
 
-        &:hover {
+        &[href]:hover {
           color: rgba($color-primary, 0.8);
+        }
+
+        &:not([href]) {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
       }
     }
@@ -77,8 +82,13 @@
       color: $color-primary;
       text-decoration: none;
 
-      &:hover {
+      &[href]:hover {
         color: rgba($color-primary, 0.8);
+      }
+
+      &:not([href]) {
+        opacity: 0.6;
+        cursor: not-allowed;
       }
     }
   }
