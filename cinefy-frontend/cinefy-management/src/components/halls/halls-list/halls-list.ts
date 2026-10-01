@@ -19,6 +19,7 @@ import {
   SlidersHorizontalIcon,
   TagIcon,
   UsersIcon,
+  WarningIcon,
 } from '../../../shared/icons';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -66,6 +67,7 @@ export class HallsListComponent {
     AlertIcon,
     TagIcon,
     SlidersHorizontalIcon,
+    WarningIcon,
   };
 
   private readonly hallsService = inject(HallsService);
@@ -75,6 +77,7 @@ export class HallsListComponent {
   protected readonly statusLabels = HALL_STATUS_LABELS;
 
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
   protected readonly deleting = signal(false);
   protected readonly configuredHall = signal<{ id: string; editMode: boolean } | null>(null);
   protected readonly hallToDelete = signal<HallSummary | null>(null);
@@ -133,6 +136,7 @@ export class HallsListComponent {
             this.loading.set(false);
           },
           error: () => {
+            this.failed.set(true);
             this.loading.set(false);
             this.statisticsChanged.emit({ action: 'reset' });
           },
