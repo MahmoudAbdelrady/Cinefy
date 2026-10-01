@@ -5,7 +5,7 @@
         <button
           class="pt-tab"
           [class.active]="activeTab() === tab.value"
-          (click)="selectTab(tab.value)"
+          (click)="activeTab.set(tab.value)"
         >
           <svg [lucideIcon]="tab.icon" [size]="16"></svg>
           {{ tab.label }}
@@ -13,23 +13,21 @@
       }
     </nav>
 
-    <div class="pt-panels">
-      <div class="pt-account" [hidden]="activeTab() !== 'account'">
-        @if (hasVisited('account')) {
-          <personal-details />
-          <profile-password />
+    <div class="pt-panel">
+      @switch (activeTab()) {
+        @case ('account') {
+          <div class="pt-account">
+            <personal-details />
+            <profile-password />
+          </div>
         }
-      </div>
-      <div [hidden]="activeTab() !== 'billing'">
-        @if (hasVisited('billing')) {
+        @case ('billing') {
           <profile-billing />
         }
-      </div>
-      <div [hidden]="activeTab() !== 'bookings'">
-        @if (hasVisited('bookings')) {
+        @case ('bookings') {
           <profile-history />
         }
-      </div>
+      }
     </div>
   </div>
 </div>

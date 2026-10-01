@@ -42,21 +42,7 @@ export class ProfilePage {
 
   private readonly route = inject(ActivatedRoute);
 
-  private readonly initialTab = this.resolveInitialTab();
-
-  protected readonly activeTab = signal<ProfileTab>(this.initialTab);
-
-  private readonly visitedTabs = signal<ReadonlySet<ProfileTab>>(new Set([this.initialTab]));
-
-  protected hasVisited(tab: ProfileTab): boolean {
-    return this.visitedTabs().has(tab);
-  }
-
-  protected selectTab(tab: ProfileTab): void {
-    this.activeTab.set(tab);
-    if (this.visitedTabs().has(tab)) return;
-    this.visitedTabs.update((visited) => new Set(visited).add(tab));
-  }
+  protected readonly activeTab = signal<ProfileTab>(this.resolveInitialTab());
 
   private resolveInitialTab(): ProfileTab {
     const tab = this.route.snapshot.queryParamMap.get('tab');
