@@ -19,9 +19,15 @@ import {
   EmailIcon,
   PhoneIcon,
   UserIcon,
+  WarningIcon,
 } from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
-import { CinefyDialog, CinefyDialogHeader, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import {
+  CinefyDialog,
+  CinefyDialogHeader,
+  CinefyEmptyState,
+  CinefyLoadingSpinner,
+} from 'cinefy-ui/components';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
 import {
   EMPLOYMENT_TYPE_LABELS,
@@ -40,6 +46,7 @@ import { canManageStaffMember } from '../../../shared/access';
     LucideDynamicIcon,
     Tooltip,
     CinefyLoadingSpinner,
+    CinefyEmptyState,
     DatePipe,
     Time12hPipe,
     PhoneFormatPipe,
@@ -55,6 +62,7 @@ export class StaffDetailsComponent {
     PhoneIcon,
     BriefCaseIcon,
     UserIcon,
+    WarningIcon,
   };
 
   private readonly staffService = inject(StaffService);
@@ -73,6 +81,7 @@ export class StaffDetailsComponent {
 
   protected readonly staffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
+  protected readonly failed = signal(false);
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
 
@@ -93,7 +102,10 @@ export class StaffDetailsComponent {
             this.staffMember.set(member);
             this.loading.set(false);
           },
-          error: () => this.loading.set(false),
+          error: () => {
+            this.failed.set(true);
+            this.loading.set(false);
+          },
         });
     });
   }

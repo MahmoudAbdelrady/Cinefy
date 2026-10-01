@@ -10,6 +10,12 @@
     <div class="manage-staff-modal-loading">
       <cui-loading-spinner variant="md" />
     </div>
+  } @else if (failed()) {
+    <cui-empty-state
+      [icon]="icons.WarningIcon"
+      header="Couldn't load staff member"
+      description="Something went wrong. Please try again later."
+    />
   } @else {
     <form [formGroup]="staffForm">
       <div class="input-groups">
@@ -153,16 +159,18 @@
       </div>
     </form>
   }
-  <div customFooter class="manage-staff-modal-footer">
-    <div class="save-btns">
-      <button class="btn-neutral" [disabled]="saving()" (click)="dialog.close()">Cancel</button>
-      <button
-        class="btn-primary"
-        (click)="saveMember()"
-        [disabled]="staffForm.invalid || saving() || (isEdit() && !hasChanges())"
-      >
-        {{ isEdit() ? 'Save changes' : 'Add staff member' }}
-      </button>
+  @if (!loading() && !failed()) {
+    <div customFooter class="manage-staff-modal-footer">
+      <div class="save-btns">
+        <button class="btn-neutral" [disabled]="saving()" (click)="dialog.close()">Cancel</button>
+        <button
+          class="btn-primary"
+          (click)="saveMember()"
+          [disabled]="staffForm.invalid || saving() || (isEdit() && !hasChanges())"
+        >
+          {{ isEdit() ? 'Save changes' : 'Add staff member' }}
+        </button>
+      </div>
     </div>
-  </div>
+  }
 </cui-dialog>

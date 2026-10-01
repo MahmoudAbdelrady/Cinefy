@@ -23,6 +23,7 @@ import {
   SearchIcon,
   SlidersHorizontalIcon,
   UsersIcon,
+  WarningIcon,
 } from '../../../shared/icons';
 import {
   CinefyDialog,
@@ -83,6 +84,7 @@ export class StaffListComponent {
     DeleteIcon,
     AlertIcon,
     SlidersHorizontalIcon,
+    WarningIcon,
   };
 
   private readonly staffService = inject(StaffService);
@@ -106,6 +108,7 @@ export class StaffListComponent {
   protected readonly page = signal(0);
 
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
   protected readonly staffPage = signal<PaginatedResponse<StaffMemberSummary> | null>(null);
 
   protected readonly filterForm = new FormGroup({
@@ -163,7 +166,10 @@ export class StaffListComponent {
     afterNextRender(() => {
       this.staff$
         .pipe(
-          tap(() => this.loading.set(true)),
+          tap(() => {
+            this.loading.set(true);
+            this.failed.set(false);
+          }),
           switchMap(([search, position, page]) =>
             this.staffService.getStaffMembers(search || undefined, position, {
               page,
@@ -177,7 +183,10 @@ export class StaffListComponent {
             this.staffPage.set(staffPage);
             this.loading.set(false);
           },
-          error: () => this.loading.set(false),
+          error: () => {
+            this.failed.set(true);
+            this.loading.set(false);
+          },
         });
     });
   }

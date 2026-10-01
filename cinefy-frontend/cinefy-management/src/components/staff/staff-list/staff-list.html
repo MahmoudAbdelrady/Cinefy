@@ -30,6 +30,12 @@
       <div class="sl-loading">
         <cui-loading-spinner variant="md" />
       </div>
+    } @else if (failed()) {
+      <cui-empty-state
+        [icon]="icons.WarningIcon"
+        header="Couldn't load staff members"
+        description="Something went wrong. Please try again later."
+      />
     } @else {
       <ul class="staff-members">
         @for (member of staffMembers(); track member.id) {

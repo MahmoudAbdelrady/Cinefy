@@ -9,17 +9,17 @@ import {
   type UserPosition,
 } from '../../../shared/types';
 import { StaffService } from '../../../services';
-import { InfoIcon } from '../../../shared/icons';
-import { CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { InfoIcon, WarningIcon } from '../../../shared/icons';
+import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 
 @Component({
   selector: 'staff-position-coverage',
-  imports: [CinefyLoadingSpinner, LucideDynamicIcon],
+  imports: [CinefyLoadingSpinner, CinefyEmptyState, LucideDynamicIcon],
   templateUrl: './staff-position-coverage.html',
   styleUrl: './staff-position-coverage.scss',
 })
 export class StaffPositionCoverageComponent {
-  protected readonly icons = { info: InfoIcon };
+  protected readonly icons = { info: InfoIcon, warning: WarningIcon };
 
   private readonly staffService = inject(StaffService);
   private readonly destroyRef = inject(DestroyRef);
@@ -27,6 +27,7 @@ export class StaffPositionCoverageComponent {
   protected readonly positionLabels = USER_POSITION_LABELS;
 
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
   protected readonly positionCoverageItems = signal<PositionCoverage | null>(null);
 
   constructor() {
@@ -39,7 +40,10 @@ export class StaffPositionCoverageComponent {
             this.positionCoverageItems.set(coverage);
             this.loading.set(false);
           },
-          error: () => this.loading.set(false),
+          error: () => {
+            this.failed.set(true);
+            this.loading.set(false);
+          },
         });
     });
   }

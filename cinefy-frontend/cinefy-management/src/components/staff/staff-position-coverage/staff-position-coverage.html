@@ -1,15 +1,18 @@
 <div class="staff-position-coverage-container">
   <div class="spcc-header">
     <p class="spcc-eyebrow">Position coverage</p>
-    <p class="spcc-subtitle">
-      How the {{ positionCoverageItems()?.total ?? 0 }}-person roster splits across roles
-    </p>
   </div>
 
   @if (loading()) {
     <div class="spcc-loading">
       <cui-loading-spinner variant="md" />
     </div>
+  } @else if (failed()) {
+    <cui-empty-state
+      [icon]="icons.warning"
+      header="Couldn't load position coverage"
+      description="Something went wrong. Please try again later."
+    />
   } @else if (positionCoverageItems(); as coverage) {
     @if (coverage.total === 0) {
       <div class="spcc-empty">No staff members yet.</div>

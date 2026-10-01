@@ -13,7 +13,14 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { merge } from 'rxjs';
 import { addDays, differenceInMinutes, parse } from 'date-fns';
-import { CheckIcon, EmailIcon, KeyIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
+import {
+  CheckIcon,
+  EmailIcon,
+  KeyIcon,
+  PhoneIcon,
+  UserIcon,
+  WarningIcon,
+} from '../../../shared/icons';
 import { RadioButton } from 'primeng/radiobutton';
 import {
   CinefyDialog,
@@ -22,6 +29,7 @@ import {
   CinefyPasswordChecklist,
   CinefySelect,
   CinefyLoadingSpinner,
+  CinefyEmptyState,
   DEFAULT_COUNTRY,
   CinefyPhoneInput,
   phoneNumberValidator,
@@ -82,6 +90,7 @@ function countMinutesInRange(start: string, end: string): number {
     ReactiveFormsModule,
     CinefyTimePicker,
     CinefyLoadingSpinner,
+    CinefyEmptyState,
   ],
   templateUrl: './manage-staff-modal.html',
   styleUrl: './manage-staff-modal.scss',
@@ -93,6 +102,7 @@ export class ManageStaffModalComponent {
     PhoneIcon,
     UserIcon,
     KeyIcon,
+    WarningIcon,
   };
 
   private readonly staffService = inject(StaffService);
@@ -118,6 +128,7 @@ export class ManageStaffModalComponent {
 
   protected readonly resolvedStaffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
+  protected readonly failed = signal(false);
   protected readonly saving = signal(false);
   private readonly initialFormSnapshot = signal<string | null>(null);
 
@@ -273,6 +284,7 @@ export class ManageStaffModalComponent {
       const id = this.staffMemberId();
       if (id === null) return;
       this.loading.set(true);
+      this.failed.set(false);
       this.staffService
         .getStaffMember(id)
         .pipe(takeUntilDestroyed(this.destroyRef))
@@ -281,7 +293,10 @@ export class ManageStaffModalComponent {
             this.resolvedStaffMember.set(detail);
             this.loading.set(false);
           },
-          error: () => this.loading.set(false),
+          error: () => {
+            this.failed.set(true);
+            this.loading.set(false);
+          },
         });
     });
 
