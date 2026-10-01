@@ -8,12 +8,14 @@ import {
 } from '../../components';
 import type { StaffMemberDetail } from '../../shared/types';
 import { StaffService } from '../../services';
-import { CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { WarningIcon } from '../../shared/icons';
+import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 
 @Component({
   selector: 'profile-page',
   imports: [
     CinefyLoadingSpinner,
+    CinefyEmptyState,
     ProfileIdentityComponent,
     ProfilePersonalDetailsComponent,
     ProfilePasswordComponent,
@@ -22,11 +24,14 @@ import { CinefyLoadingSpinner } from 'cinefy-ui/components';
   styleUrl: './profile.scss',
 })
 export class ProfilePage {
+  protected readonly icons = { WarningIcon };
+
   private readonly staffService = inject(StaffService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly profile = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
+  protected readonly failed = signal(false);
 
   constructor() {
     afterNextRender(() => {
@@ -48,7 +53,10 @@ export class ProfilePage {
           this.profile.set(profile);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: () => {
+          this.failed.set(true);
+          this.loading.set(false);
+        },
       });
   }
 }
