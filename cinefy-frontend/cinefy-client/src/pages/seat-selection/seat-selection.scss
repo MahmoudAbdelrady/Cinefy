@@ -125,7 +125,7 @@
             background-color $transition-fast,
             color $transition-fast;
 
-          &:hover {
+          &:hover:not(:disabled) {
             background: $color-secondary;
             color: $color-destructive;
           }

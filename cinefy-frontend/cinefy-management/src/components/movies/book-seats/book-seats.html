@@ -46,6 +46,7 @@
           [rows]="hall()"
           [initialSelectedIds]="bookedSeatIds()"
           [allowOnSiteOnly]="true"
+          [canSelect]="!booking()"
           (selectionChange)="onSelectionChange($event)"
         />
 

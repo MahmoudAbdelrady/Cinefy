@@ -12,6 +12,7 @@
           class="sm-seat"
           [attr.data-category]="seat.category"
           [class.selected]="isSelected(seat)"
+          [class.can-select]="canSelect()"
           [disabled]="isTaken(seat)"
           [pTooltip]="seat.id"
           tooltipPosition="top"

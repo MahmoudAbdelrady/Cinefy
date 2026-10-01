@@ -1,4 +1,13 @@
-import { Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { Router } from '@angular/router';
@@ -29,6 +38,8 @@ export class BookingSummaryComponent {
   readonly selectedSeats = input.required<Seat[]>();
   readonly prices = input.required<Record<SelectableSeatCategory, number>>();
 
+  readonly submittingChange = output<boolean>();
+
   protected readonly submitting = signal(false);
 
   protected readonly seats = computed<BookedSeat[]>(() => {
@@ -44,6 +55,10 @@ export class BookingSummaryComponent {
   protected readonly total = computed(() =>
     this.seats().reduce((sum, seat) => sum + seat.price, 0),
   );
+
+  constructor() {
+    effect(() => this.submittingChange.emit(this.submitting()));
+  }
 
   protected proceedToPayment() {
     if (this.submitting()) return;

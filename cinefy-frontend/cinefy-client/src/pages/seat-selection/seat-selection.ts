@@ -1,4 +1,12 @@
-import { Component, computed, DestroyRef, inject, linkedSignal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  linkedSignal,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -134,6 +142,8 @@ export class SeatSelectionPage {
       .flat()
       .filter((seat) => booked.has(seat.id));
   });
+
+  protected readonly submitting = signal(false);
 
   private readonly perShowtime = <T>(initial: T) =>
     linkedSignal({ source: this.showtimeId, computation: () => initial });

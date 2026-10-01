@@ -14,7 +14,12 @@
     <booking-cancelled [movieId]="summary.movie.id" />
   } @else {
     <main class="co-page">
-      <a class="co-back" routerLink="/movies/{{ summary.movie.id }}/seats/{{ summary.showtimeId }}">
+      <a
+        class="co-back"
+        [routerLink]="
+          processing() ? null : ['/movies', summary.movie.id, 'seats', summary.showtimeId]
+        "
+      >
         <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="16"></svg>
         Change seats
       </a>

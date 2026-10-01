@@ -48,7 +48,12 @@
             <cui-hold-timer [expiresAt]="booking.expiresAt" (expired)="onExpired()" />
 
             @if (!expired) {
-              <button type="button" class="btn-base ss-cancel" (click)="cancelVisible.set(true)">
+              <button
+                type="button"
+                class="btn-base ss-cancel"
+                [disabled]="submitting()"
+                (click)="cancelVisible.set(true)"
+              >
                 <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
                 <span class="ss-cancel-label">Cancel booking</span>
               </button>
@@ -77,6 +82,7 @@
           <cui-seat-map
             [rows]="hall()"
             [initialSelectedIds]="bookedSeats()"
+            [canSelect]="!submitting()"
             (selectionChange)="selectedSeats.set($event)"
           />
         </div>
@@ -86,6 +92,7 @@
             [showtimeId]="showtimeId()!"
             [selectedSeats]="selectedSeats()"
             [prices]="prices()"
+            (submittingChange)="submitting.set($event)"
           />
         </div>
       </div>

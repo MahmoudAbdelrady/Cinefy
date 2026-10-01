@@ -24,6 +24,7 @@ export class CinefySeatMap {
   readonly rows = input.required<Seat[][]>();
   readonly initialSelectedIds = input<string[]>([]);
   readonly allowOnSiteOnly = input(false);
+  readonly canSelect = input(true);
 
   readonly selectionChange = output<Seat[]>();
 
@@ -60,7 +61,7 @@ export class CinefySeatMap {
   }
 
   protected toggle(seat: Seat): void {
-    if (seat.category === "AISLE" || this.isTaken(seat)) return;
+    if (!this.canSelect() || seat.category === "AISLE" || this.isTaken(seat)) return;
     this.selectedIds.update((prev) => {
       const next = new Set(prev);
       if (next.has(seat.id)) {
