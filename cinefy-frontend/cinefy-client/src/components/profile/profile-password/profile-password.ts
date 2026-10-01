@@ -58,6 +58,14 @@ export class ProfilePasswordComponent {
       currentPassword.setValidators(this.hasPassword() ? [Validators.required] : []);
       currentPassword.updateValueAndValidity();
     });
+
+    effect(() => {
+      if (this.saving()) {
+        this.passwordForm.disable({ emitEvent: false });
+      } else {
+        this.passwordForm.enable({ emitEvent: false });
+      }
+    });
   }
 
   protected save(): void {

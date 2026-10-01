@@ -1,4 +1,12 @@
-import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -95,6 +103,16 @@ export class PersonalDetailsComponent {
     this.personalForm.controls.phoneNumber.addValidators(
       phoneNumberValidator(this.personalForm.controls.phoneCountry),
     );
+
+    effect(() => {
+      if (this.saving()) {
+        this.personalForm.disable({ emitEvent: false });
+      } else {
+        this.personalForm.enable({ emitEvent: false });
+        this.personalForm.controls.email.disable({ emitEvent: false });
+      }
+    });
+
     afterNextRender(() => this.loadCurrentUser());
   }
 
