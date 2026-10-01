@@ -8,6 +8,7 @@ import {
   SearchIcon,
   SlidersHorizontalIcon,
   StarIcon,
+  WarningIcon,
 } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
 import { differenceInCalendarDays } from 'date-fns';
@@ -44,6 +45,7 @@ export class UpcomingMoviesComponent {
     MegaphoneIcon,
     StarIcon,
     SlidersHorizontalIcon,
+    WarningIcon,
   };
 
   private readonly moviesService = inject(MoviesService);
@@ -51,6 +53,7 @@ export class UpcomingMoviesComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
   protected readonly movies = signal<UpcomingMovie[]>([]);
   protected readonly movieToSchedule = signal<UpcomingMovie | null>(null);
 
@@ -88,7 +91,10 @@ export class UpcomingMoviesComponent {
             this.movies.set(list);
             this.loading.set(false);
           },
-          error: () => this.loading.set(false),
+          error: () => {
+            this.failed.set(true);
+            this.loading.set(false);
+          },
         });
     });
 

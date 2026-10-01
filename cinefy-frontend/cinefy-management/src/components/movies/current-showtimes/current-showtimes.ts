@@ -82,6 +82,7 @@ export class CurrentShowtimesComponent {
   });
 
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
   protected readonly editingShowtime = signal<EditableShowtime | null>(null);
   protected readonly deletingShowtimeIds = signal<Set<number>>(new Set());
   protected readonly movieToDelete = signal<MovieWithShowtimes | null>(null);
@@ -126,7 +127,10 @@ export class CurrentShowtimesComponent {
           this.moviesWithShowtimes.set(list);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: () => {
+          this.failed.set(true);
+          this.loading.set(false);
+        },
       });
 
     afterNextRender(() => this.refetch$.next());

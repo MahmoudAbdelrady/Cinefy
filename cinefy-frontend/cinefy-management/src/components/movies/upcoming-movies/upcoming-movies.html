@@ -34,6 +34,12 @@
       <div class="um-loading">
         <cui-loading-spinner variant="md" />
       </div>
+    } @else if (failed()) {
+      <cui-empty-state
+        [icon]="icons.WarningIcon"
+        header="Couldn't load upcoming movies"
+        description="Something went wrong. Please try again later."
+      />
     } @else {
       <ul class="um-list">
         @for (upcomingMovie of filteredMovies(); track upcomingMovie.id) {
