@@ -2,7 +2,6 @@ export {
   LucideEye as EyeIcon,
   LucideEyeOff as EyeOffIcon,
   LucidePhone as PhoneIcon,
-  LucideLoader as LoaderIcon,
   LucideChevronUp as ChevronUpIcon,
   LucideChevronDown as ChevronDownIcon,
   LucideChevronLeft as ChevronLeftIcon,
