@@ -21,6 +21,7 @@ import {
   UsersIcon,
 } from '../../../shared/icons';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import {
   CinefyInput,
   CinefyLoadingSpinner,
@@ -121,7 +122,10 @@ export class HallsListComponent {
     afterNextRender(() => {
       this.hallsService
         .getHalls(undefined, undefined, skipServerErrorToast())
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
           next: (halls) => {
             this.halls.set(halls);
@@ -134,11 +138,9 @@ export class HallsListComponent {
                 0,
               ),
             });
-            this.loading.set(false);
           },
           error: () => {
             this.failed.set(true);
-            this.loading.set(false);
             this.statisticsChanged.emit({ action: 'reset' });
           },
         });
@@ -169,7 +171,10 @@ export class HallsListComponent {
     this.deleting.set(true);
     this.hallsService
       .deleteHall(hall.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.deleting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
           this.halls.update((halls) => halls.filter((h) => h.id !== hall.id));
@@ -178,11 +183,10 @@ export class HallsListComponent {
             status: hall.status,
             capacity: hall.totalRows * hall.totalColumns,
           });
-          this.deleting.set(false);
           this.toastService.success('Hall deleted');
           this.hallToDelete.set(null);
         },
-        error: () => this.deleting.set(false),
+        error: () => {},
       });
   }
 }

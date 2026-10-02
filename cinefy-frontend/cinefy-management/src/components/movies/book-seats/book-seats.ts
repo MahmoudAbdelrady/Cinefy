@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -226,12 +227,14 @@ export class BookSeatsComponent {
     this.loading.set(true);
     this.bookingService
       .getSeatSelection(this.showtimeId(), skipErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (seatSelection) => {
           this.seatSelection.set(seatSelection);
           this.errorMessage.set(null);
-          this.loading.set(false);
           this.seedBookedSeats(seatSelection);
           this.showtimeEvents.notifyShowtimeOccupancyChanged(
             this.showtimeId(),
@@ -246,7 +249,6 @@ export class BookSeatsComponent {
             message ??
               "Something went wrong while loading this showtime's seats. Please try again.",
           );
-          this.loading.set(false);
         },
       });
   }
@@ -284,11 +286,13 @@ export class BookSeatsComponent {
     this.booking.set(true);
     this.bookingService
       .createBooking(request, idempotencyKey)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.booking.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (detail) => {
           const updated = this.stage() === 'payment';
-          this.booking.set(false);
           this.bookedSeats.set(detail.seats);
           this.activeBooking.set({
             id: detail.id,
@@ -301,7 +305,7 @@ export class BookSeatsComponent {
             updated ? 'Booking updated successfully' : 'Seats booked successfully',
           );
         },
-        error: () => this.booking.set(false),
+        error: () => {},
       });
   }
 
@@ -318,10 +322,12 @@ export class BookSeatsComponent {
     this.settling.set(true);
     this.bookingService
       .settlePayment(booking.id, request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.settling.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (confirmation) => {
-          this.settling.set(false);
           this.issuedTicket.set(confirmation);
           this.stage.set('done');
           this.showtimeEvents.notifyShowtimeOccupancyChanged(
@@ -330,7 +336,7 @@ export class BookSeatsComponent {
             0,
           );
         },
-        error: () => this.settling.set(false),
+        error: () => {},
       });
   }
 
@@ -341,15 +347,17 @@ export class BookSeatsComponent {
     this.canceling.set(true);
     this.bookingService
       .cancelBooking(booking.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.canceling.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.canceling.set(false);
           this.resetBooking();
           this.cancelVisible.set(false);
           this.toastService.success('Booking canceled successfully');
         },
-        error: () => this.canceling.set(false),
+        error: () => {},
       });
   }
 

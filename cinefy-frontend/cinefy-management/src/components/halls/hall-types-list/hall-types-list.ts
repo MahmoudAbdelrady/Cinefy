@@ -8,6 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
@@ -94,16 +95,13 @@ export class HallTypesListComponent {
     this.loadTypesError.set(false);
     this.hallsService
       .getHallTypes(skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loadingTypes.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (types) => {
-          this.hallTypes.set(types);
-          this.loadingTypes.set(false);
-        },
-        error: () => {
-          this.loadTypesError.set(true);
-          this.loadingTypes.set(false);
-        },
+        next: (types) => this.hallTypes.set(types),
+        error: () => this.loadTypesError.set(true),
       });
   }
 
@@ -121,15 +119,17 @@ export class HallTypesListComponent {
     this.savingTypeId.set(type.id!);
     this.hallsService
       .updateHallType(type.id!, { name: this.editTypeForm.controls.name.value.trim() })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.savingTypeId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (updated) => {
           this.hallTypes.update((types) => types.map((t) => (t.id === updated.id ? updated : t)));
           this.editingTypeId.set(null);
-          this.savingTypeId.set(null);
           this.toastService.success('Hall type updated');
         },
-        error: () => this.savingTypeId.set(null),
+        error: () => {},
       });
   }
 

@@ -1,5 +1,6 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
@@ -86,16 +87,13 @@ export class UpcomingMoviesComponent {
     afterNextRender(() => {
       this.moviesService
         .getUpcomingMovies(undefined, skipServerErrorToast())
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
-          next: (list) => {
-            this.movies.set(list);
-            this.loading.set(false);
-          },
-          error: () => {
-            this.failed.set(true);
-            this.loading.set(false);
-          },
+          next: (list) => this.movies.set(list),
+          error: () => this.failed.set(true),
         });
     });
 

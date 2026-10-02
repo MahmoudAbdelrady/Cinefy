@@ -1,5 +1,6 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { CinefyEmptyState, CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService } from '../../../services';
@@ -56,16 +57,13 @@ export class HallsSummaryComponent {
   private load(): void {
     this.hallsService
       .getHallStatusCounts(skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (counts) => {
-          this.hallCounts.set(counts);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.failed.set(true);
-          this.loading.set(false);
-        },
+        next: (counts) => this.hallCounts.set(counts),
+        error: () => this.failed.set(true),
       });
   }
 }

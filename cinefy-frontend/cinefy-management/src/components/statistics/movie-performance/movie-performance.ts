@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import {
   CinefyEmptyState,
   CinefyErrorState,
@@ -107,18 +107,17 @@ export class MoviePerformanceComponent {
     this.failed.set(false);
     return this.statisticsService
       .getMoviePerformance(range, page, this.pageSize, skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (response) => {
           this.movies.set(response.content);
           this.totalItems.set(response.page.totalElements);
           this.pageCount.set(Math.max(1, response.page.totalPages));
-          this.loading.set(false);
         },
-        error: () => {
-          this.failed.set(true);
-          this.loading.set(false);
-        },
+        error: () => this.failed.set(true),
       });
   }
 }

@@ -21,7 +21,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, EMPTY, map, switchMap, tap } from 'rxjs';
+import { catchError, EMPTY, finalize, map, switchMap, tap } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Tooltip } from 'primeng/tooltip';
 import {
@@ -347,23 +347,23 @@ export class HallConfigModalComponent {
     afterNextRender(() => {
       this.hallsService
         .getHallTypes()
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          finalize(() => this.loadingHallTypes.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
-          next: (types) => {
-            this.hallTypes.set(types);
-            this.loadingHallTypes.set(false);
-          },
-          error: () => this.loadingHallTypes.set(false),
+          next: (types) => this.hallTypes.set(types),
+          error: () => {},
         });
       this.hallsService
         .getHalls(this.selectedHallId() ?? undefined)
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          finalize(() => this.loadingHalls.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
-          next: (halls) => {
-            this.halls.set(halls);
-            this.loadingHalls.set(false);
-          },
-          error: () => this.loadingHalls.set(false),
+          next: (halls) => this.halls.set(halls),
+          error: () => {},
         });
 
       const hallId = this.selectedHallId();
@@ -378,17 +378,16 @@ export class HallConfigModalComponent {
     this.loadHallError.set(false);
     this.hallsService
       .getHall(id, skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loadingHall.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (detail: HallDetail) => {
           this.selectedHallData.set(detail);
           this.applyHallDetail(detail);
-          this.loadingHall.set(false);
         },
-        error: () => {
-          this.loadHallError.set(true);
-          this.loadingHall.set(false);
-        },
+        error: () => this.loadHallError.set(true),
       });
   }
 
@@ -474,20 +473,24 @@ export class HallConfigModalComponent {
       ? this.hallsService.updateHall(existing, hall)
       : this.hallsService.createHall(hall);
 
-    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (result) => {
-        this.saving.set(false);
-        if (existing) {
-          this.hallUpdated.emit(result);
-          this.toastService.success('Hall updated');
-        } else {
-          this.hallCreated.emit(result);
-          this.toastService.success('Hall created');
-        }
-        this.dialog().close();
-      },
-      error: () => this.saving.set(false),
-    });
+    request$
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (result) => {
+          if (existing) {
+            this.hallUpdated.emit(result);
+            this.toastService.success('Hall updated');
+          } else {
+            this.hallCreated.emit(result);
+            this.toastService.success('Hall created');
+          }
+          this.dialog().close();
+        },
+        error: () => {},
+      });
   }
 
   private serializeState(): string {

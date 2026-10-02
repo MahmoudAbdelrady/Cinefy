@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
@@ -163,15 +164,17 @@ export class PersonalDetailsComponent {
     this.saving.set(true);
     this.clientService
       .updateCurrentUser(payload)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (user) => {
           this.currentUser.set(user);
-          this.saving.set(false);
           this.isEditing.set(false);
           this.toastService.success('Profile updated');
         },
-        error: () => this.saving.set(false),
+        error: () => {},
       });
   }
 }

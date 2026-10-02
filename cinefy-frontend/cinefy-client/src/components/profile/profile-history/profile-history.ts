@@ -1,7 +1,7 @@
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { Subscription, finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefyEmptyState,
@@ -68,18 +68,17 @@ export class ProfileHistoryComponent {
     this.loadFailed.set(false);
     return this.bookingService
       .getPastBookings({ page, size: PAGE_SIZE }, skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (response) => {
           this.bookings.set(response.content);
           this.totalItems.set(response.page.totalElements);
           this.pageCount.set(Math.max(1, response.page.totalPages));
-          this.loading.set(false);
         },
-        error: () => {
-          this.loading.set(false);
-          this.loadFailed.set(true);
-        },
+        error: () => this.loadFailed.set(true),
       });
   }
 }

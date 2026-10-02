@@ -10,7 +10,15 @@ import {
 import { DatePipe } from '@angular/common';
 import { FormControl } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, EMPTY, startWith, switchMap, tap } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  EMPTY,
+  finalize,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { ChevronRightIcon, ClapperboardIcon, SearchIcon } from '../../../shared/icons';
 import {
@@ -117,15 +125,17 @@ export class MoviePickerComponent {
         page: nextPage,
         size: DEFAULT_PAGE_SIZE,
       })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loadingMore.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (response) => {
           this.movies.update((prev) => [...prev, ...response.content]);
           this.currentPage.set(response.page.number);
           this.totalPages.set(response.page.totalPages);
-          this.loadingMore.set(false);
         },
-        error: () => this.loadingMore.set(false),
+        error: () => {},
       });
   }
 

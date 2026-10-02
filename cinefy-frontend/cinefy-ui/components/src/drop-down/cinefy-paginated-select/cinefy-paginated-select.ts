@@ -1,6 +1,6 @@
-import { Component, computed, input, signal, type InputSignal } from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { startWith, switchMap, type Observable } from "rxjs";
+import { Component, computed, DestroyRef, inject, input, signal, type InputSignal } from "@angular/core";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { finalize, startWith, switchMap, type Observable } from "rxjs";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Select } from "primeng/select";
 import { CinefyFieldError } from "../../field-error/cinefy-field-error";
@@ -21,6 +21,8 @@ const LOAD_MORE_OPTION = {
   styleUrl: "./cinefy-paginated-select.scss",
 })
 export class CinefyPaginatedSelect<T> {
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly control: InputSignal<FormControl> = input.required<FormControl>();
   readonly fetchFn = input.required<(page: number, size: number) => Observable<PaginatedResponse<T>>>();
   readonly multi = input(false);
@@ -101,14 +103,18 @@ export class CinefyPaginatedSelect<T> {
     const nextPage = this.page();
     this.loading.set(true);
 
-    this.fetchFn()(nextPage, this.pageSize()).subscribe({
-      next: (response) => {
-        this.items.update((items) => [...items, ...response.content]);
-        this.page.set(response.page.number + 1);
-        this.totalPages.set(response.page.totalPages);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+    this.fetchFn()(nextPage, this.pageSize())
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (response) => {
+          this.items.update((items) => [...items, ...response.content]);
+          this.page.set(response.page.number + 1);
+          this.totalPages.set(response.page.totalPages);
+        },
+        error: () => {},
+      });
   }
 }

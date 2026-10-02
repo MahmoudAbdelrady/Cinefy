@@ -1,5 +1,6 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInMinutes, format, parse, startOfMinute } from 'date-fns';
 import {
@@ -89,16 +90,13 @@ export class TodayScheduleComponent {
   private load(): void {
     this.showtimesService
       .getScheduleForDate(format(new Date(), DATE_FORMAT), skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (screenings) => {
-          this.screenings.set(screenings);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.failed.set(true);
-          this.loading.set(false);
-        },
+        next: (screenings) => this.screenings.set(screenings),
+        error: () => this.failed.set(true),
       });
   }
 }

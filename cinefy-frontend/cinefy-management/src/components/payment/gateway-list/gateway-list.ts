@@ -1,5 +1,6 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
@@ -91,17 +92,16 @@ export class GatewayListComponent {
     afterNextRender(() => {
       this.paymentGatewaysService
         .getPaymentGateways(skipServerErrorToast())
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
           next: ({ active, standBy }) => {
             this.activeGateway.set(active ?? null);
             this.standbyGateways.set(standBy);
-            this.loading.set(false);
           },
-          error: () => {
-            this.failed.set(true);
-            this.loading.set(false);
-          },
+          error: () => this.failed.set(true),
         });
     });
   }
@@ -120,17 +120,19 @@ export class GatewayListComponent {
 
     this.paymentGatewaysService
       .updatePaymentGatewayStatus(id, active)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.togglingGateway.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
           this.applyStatusChange(id, active);
-          this.togglingGateway.set(false);
           this.toastService.success(
             active ? 'Payment gateway activated' : 'Payment gateway deactivated',
           );
           this.gatewayToToggle.set(null);
         },
-        error: () => this.togglingGateway.set(false),
+        error: () => {},
       });
   }
 

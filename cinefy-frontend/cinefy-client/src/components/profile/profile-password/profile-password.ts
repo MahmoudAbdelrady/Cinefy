@@ -2,6 +2,7 @@ import { Component, computed, DestroyRef, effect, inject, signal } from '@angula
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { CinefyInput, CinefyLoadingSpinner, CinefyPasswordChecklist } from 'cinefy-ui/components';
 import { linkConfirmPassword } from 'cinefy-ui/forms';
 import { CinefyToastService } from 'cinefy-ui/services';
@@ -80,15 +81,16 @@ export class ProfilePasswordComponent {
     this.saving.set(true);
     this.clientService
       .changeCurrentUserPassword(payload)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.saving.set(false);
           this.passwordForm.reset();
           this.toastService.success(hadPassword ? 'Password changed' : 'Password set');
         },
         error: (err: HttpErrorResponse) => {
-          this.saving.set(false);
           const body = err.error as ApiError | null;
           if (body?.errorCode === 'PASSWORD_INCORRECT') {
             this.passwordForm.controls.currentPassword.reset();

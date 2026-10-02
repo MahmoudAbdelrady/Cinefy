@@ -2,6 +2,7 @@ import { Component, computed, DestroyRef, effect, inject, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
@@ -132,13 +133,13 @@ export class SignUpPage {
         phoneNumber: toE164Digits(this.signupForm.controls.phoneCountry, value.phoneNumber),
         password: value.password,
       })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.submitting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.submitting.set(false);
-          this.stage.set('verify');
-        },
-        error: () => this.submitting.set(false),
+        next: () => this.stage.set('verify'),
+        error: () => {},
       });
   }
 

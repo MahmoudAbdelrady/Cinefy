@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule } from '@angular/forms';
-import { Observable, interval, takeWhile } from 'rxjs';
+import { Observable, finalize, interval, takeWhile } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyInputOtp, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
@@ -92,15 +92,17 @@ export class OtpStep {
 
     this.authService
       .sendOtp({ email: this.email(), otpType: this.otpType() })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.resending.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.resending.set(false);
           this.code.setValue('');
           this.startResendCooldown();
           this.toastService.success('A new code has been sent to your email.');
         },
-        error: () => this.resending.set(false),
+        error: () => {},
       });
   }
 

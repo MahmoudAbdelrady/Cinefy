@@ -15,6 +15,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { format } from 'date-fns';
 import {
@@ -162,19 +163,18 @@ export class MovieShowtimesModal {
 
       const sub = this.showtimesService
         .getMovieShowtimeDates(this.selectedMovieId(), skipServerErrorToast())
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          finalize(() => this.loadingDates.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
           next: (data) => {
             this.movieShowtimes.set(data);
-            this.loadingDates.set(false);
             if (data.dates.length > 0) {
               this.selectedTab.set(data.dates[0]);
             }
           },
-          error: () => {
-            this.datesFailed.set(true);
-            this.loadingDates.set(false);
-          },
+          error: () => this.datesFailed.set(true),
         });
       onCleanup(() => sub.unsubscribe());
     });

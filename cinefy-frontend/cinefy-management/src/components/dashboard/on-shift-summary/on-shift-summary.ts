@@ -1,5 +1,6 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
@@ -53,16 +54,13 @@ export class OnShiftSummaryComponent {
   private load(): void {
     this.staffService
       .getOnShiftSummary(skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (summary) => {
-          this.onShift.set(summary);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.failed.set(true);
-          this.loading.set(false);
-        },
+        next: (summary) => this.onShift.set(summary),
+        error: () => this.failed.set(true),
       });
   }
 }

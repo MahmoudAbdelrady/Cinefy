@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInSeconds, format } from 'date-fns';
@@ -72,17 +73,16 @@ export class ActiveBookingsListComponent {
     this.isLoading.set(true);
     this.bookingService
       .getActiveBookings(skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (bookings) => {
           this.bookings.set(bookings);
           this.hasError.set(false);
-          this.isLoading.set(false);
         },
-        error: () => {
-          this.hasError.set(true);
-          this.isLoading.set(false);
-        },
+        error: () => this.hasError.set(true),
       });
   }
 

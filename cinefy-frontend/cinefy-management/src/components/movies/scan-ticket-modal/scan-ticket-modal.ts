@@ -1,5 +1,6 @@
 import { Component, computed, DestroyRef, inject, input, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -126,16 +127,17 @@ export class ScanTicketModalComponent {
 
     this.bookingService
       .scanTicket(reference)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.scanning.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (confirmation) => {
-          this.scanning.set(false);
           this.scanForm.enable({ emitEvent: false });
           this.result.set(confirmation);
           this.clearReference();
         },
         error: () => {
-          this.scanning.set(false);
           this.scanForm.enable({ emitEvent: false });
           this.clearReference();
           this.focusInput();

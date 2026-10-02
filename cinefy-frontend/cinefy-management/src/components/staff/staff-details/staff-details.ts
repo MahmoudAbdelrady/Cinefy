@@ -10,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Tooltip } from 'primeng/tooltip';
 import {
@@ -95,16 +96,13 @@ export class StaffDetailsComponent {
       this.loading.set(true);
       this.staffService
         .getStaffMember(this.staffMemberId(), skipServerErrorToast())
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
-          next: (member) => {
-            this.staffMember.set(member);
-            this.loading.set(false);
-          },
-          error: () => {
-            this.failed.set(true);
-            this.loading.set(false);
-          },
+          next: (member) => this.staffMember.set(member),
+          error: () => this.failed.set(true),
         });
     });
   }

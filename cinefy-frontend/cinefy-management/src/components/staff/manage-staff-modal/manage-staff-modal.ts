@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { merge } from 'rxjs';
+import { finalize, merge } from 'rxjs';
 import { addDays, differenceInMinutes, parse } from 'date-fns';
 import { CheckIcon, EmailIcon, KeyIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import { RadioButton } from 'primeng/radiobutton';
@@ -268,7 +268,7 @@ export class ManageStaffModalComponent {
       passwordControl.updateValueAndValidity({ emitEvent: false });
     });
 
-    effect(() => {
+    effect((onCleanup) => {
       const member = this.selectedStaffMember();
       if (member) {
         this.resolvedStaffMember.set(member);
@@ -278,19 +278,17 @@ export class ManageStaffModalComponent {
       if (id === null) return;
       this.loading.set(true);
       this.failed.set(false);
-      this.staffService
+      const sub = this.staffService
         .getStaffMember(id, skipServerErrorToast())
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
-          next: (detail) => {
-            this.resolvedStaffMember.set(detail);
-            this.loading.set(false);
-          },
-          error: () => {
-            this.failed.set(true);
-            this.loading.set(false);
-          },
+          next: (detail) => this.resolvedStaffMember.set(detail),
+          error: () => this.failed.set(true),
         });
+      onCleanup(() => sub.unsubscribe());
     });
 
     effect(() => {
@@ -347,19 +345,23 @@ export class ManageStaffModalComponent {
 
     this.saving.set(true);
     const isEdit = this.isEdit();
-    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (member) => {
-        this.saving.set(false);
-        if (isEdit) {
-          this.staffMemberUpdated.emit(member);
-          this.toastService.success('Staff member updated');
-        } else {
-          this.staffMemberCreated.emit(member);
-          this.toastService.success('Staff member created');
-        }
-        this.dialog().close();
-      },
-      error: () => this.saving.set(false),
-    });
+    request$
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (member) => {
+          if (isEdit) {
+            this.staffMemberUpdated.emit(member);
+            this.toastService.success('Staff member updated');
+          } else {
+            this.staffMemberCreated.emit(member);
+            this.toastService.success('Staff member created');
+          }
+          this.dialog().close();
+        },
+        error: () => {},
+      });
   }
 }

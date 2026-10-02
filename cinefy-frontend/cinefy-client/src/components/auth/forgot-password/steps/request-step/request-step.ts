@@ -2,6 +2,7 @@ import { Component, DestroyRef, effect, inject, output, signal } from '@angular/
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyInput, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { EMAIL_PATTERN } from '../../../../../shared/validation';
@@ -52,13 +53,13 @@ export class RequestStep {
     const email = this.requestForm.controls.email.value;
     this.authService
       .sendOtp({ email, otpType: 'RESET_PASSWORD' })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.submitting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.submitting.set(false);
-          this.requested.emit(email);
-        },
-        error: () => this.submitting.set(false),
+        next: () => this.requested.emit(email),
+        error: () => {},
       });
   }
 }

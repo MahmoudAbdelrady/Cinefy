@@ -1,5 +1,6 @@
 import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   USER_POSITION_LABELS,
@@ -35,16 +36,13 @@ export class StaffPositionCoverageComponent {
     afterNextRender(() => {
       this.staffService
         .getPositionCoverage(skipServerErrorToast())
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
-          next: (coverage) => {
-            this.positionCoverageItems.set(coverage);
-            this.loading.set(false);
-          },
-          error: () => {
-            this.failed.set(true);
-            this.loading.set(false);
-          },
+          next: (coverage) => this.positionCoverageItems.set(coverage),
+          error: () => this.failed.set(true),
         });
     });
   }

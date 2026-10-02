@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Tooltip } from 'primeng/tooltip';
 import { CinefyEmptyState, CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
@@ -94,16 +94,13 @@ export class SalesChartComponent {
     this.failed.set(false);
     return this.statisticsService
       .getSales(range, skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (points) => {
-          this.points.set(points);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.failed.set(true);
-          this.loading.set(false);
-        },
+        next: (points) => this.points.set(points),
+        error: () => this.failed.set(true),
       });
   }
 

@@ -1,5 +1,6 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { format } from 'date-fns';
@@ -56,13 +57,13 @@ export class TodayStatisticsComponent {
     const today = format(this.today, DATE_FORMAT);
     this.statisticsService
       .getSales({ from: today, to: today }, skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (points) => {
-          this.totals.set(points[0]?.details ?? null);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
+        next: (points) => this.totals.set(points[0]?.details ?? null),
+        error: () => {},
       });
   }
 }

@@ -1,5 +1,6 @@
 import { afterNextRender, Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefyDialog,
@@ -57,16 +58,13 @@ export class ProfileBillingComponent {
   private loadPaymentMethods(): void {
     this.clientService
       .getPaymentMethods(skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (methods) => {
-          this.paymentMethods.set(methods);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loadFailed.set(true);
-          this.loading.set(false);
-        },
+        next: (methods) => this.paymentMethods.set(methods),
+        error: () => this.loadFailed.set(true),
       });
   }
 
@@ -80,15 +78,17 @@ export class ProfileBillingComponent {
     this.removing.set(true);
     this.clientService
       .deletePaymentMethod(method.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.removing.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
           this.paymentMethods.update((methods) => methods.filter((m) => m.id !== method.id));
-          this.removing.set(false);
           this.closeDialog();
           this.toastService.success('Card removed');
         },
-        error: () => this.removing.set(false),
+        error: () => {},
       });
   }
 }

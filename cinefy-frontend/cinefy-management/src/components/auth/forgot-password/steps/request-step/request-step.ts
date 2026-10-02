@@ -1,5 +1,6 @@
 import { Component, DestroyRef, effect, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -51,13 +52,13 @@ export class RequestStep {
     const email = this.requestForm.controls.email.value;
     this.authService
       .forgotPassword({ email })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.submitting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.submitting.set(false);
-          this.requested.emit(email);
-        },
-        error: () => this.submitting.set(false),
+        next: () => this.requested.emit(email),
+        error: () => {},
       });
   }
 }

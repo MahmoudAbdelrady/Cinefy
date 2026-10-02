@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { startWith } from 'rxjs';
+import { finalize, startWith } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefySelect,
@@ -244,19 +244,23 @@ export class ManageGatewayModalComponent {
       ? this.paymentGatewaysService.updatePaymentGateway(editing.id, request)
       : this.paymentGatewaysService.createPaymentGateway(request);
 
-    save$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (gateway) => {
-        this.saving.set(false);
-        if (editing) {
-          this.gatewayUpdated.emit(gateway);
-        } else {
-          this.gatewayCreated.emit(gateway);
-        }
-        this.toastService.success(editing ? 'Payment gateway updated' : 'Payment gateway added');
-        this.dialog().close();
-      },
-      error: () => this.saving.set(false),
-    });
+    save$
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (gateway) => {
+          if (editing) {
+            this.gatewayUpdated.emit(gateway);
+          } else {
+            this.gatewayCreated.emit(gateway);
+          }
+          this.toastService.success(editing ? 'Payment gateway updated' : 'Payment gateway added');
+          this.dialog().close();
+        },
+        error: () => {},
+      });
   }
 
   private snapshotValue(): string {

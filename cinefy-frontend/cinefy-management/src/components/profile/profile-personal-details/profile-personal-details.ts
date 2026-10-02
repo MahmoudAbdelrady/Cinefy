@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EditIcon, EmailIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import {
@@ -150,7 +151,10 @@ export class ProfilePersonalDetailsComponent {
         lastName: value.lastName,
         phoneNumber: toE164Digits(this.personalForm.controls.phoneCountry, value.phoneNumber),
       })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (profile) => {
           this.staffService.patchCurrentStaffMember({
@@ -159,11 +163,10 @@ export class ProfilePersonalDetailsComponent {
             fullName: `${profile.firstName} ${profile.lastName}`,
           });
           this.updated.emit(profile);
-          this.saving.set(false);
           this.isEditing.set(false);
           this.toastService.success('Profile updated');
         },
-        error: () => this.saving.set(false),
+        error: () => {},
       });
   }
 }

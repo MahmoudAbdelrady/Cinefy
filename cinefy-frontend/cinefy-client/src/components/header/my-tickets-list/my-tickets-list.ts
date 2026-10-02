@@ -13,6 +13,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInSeconds } from 'date-fns';
+import { finalize } from 'rxjs';
 import {
   CinefyDialog,
   CinefyEmptyState,
@@ -81,16 +82,13 @@ export class MyTicketsListComponent {
   private loadActiveBookings(): void {
     this.bookingService
       .getActiveBookings(skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (bookings) => {
-          this.bookings.set(bookings);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.hasError.set(true);
-          this.isLoading.set(false);
-        },
+        next: (bookings) => this.bookings.set(bookings),
+        error: () => this.hasError.set(true),
       });
   }
 

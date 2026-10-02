@@ -20,6 +20,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { differenceInCalendarDays, format, isPast } from 'date-fns';
 import {
   ACTIVE_HALL_STATUSES,
@@ -229,13 +230,13 @@ export class ManageShowtimeModalComponent {
     afterNextRender(() => {
       this.hallsService
         .getHalls(undefined, ACTIVE_HALL_STATUSES)
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          finalize(() => this.loadingHalls.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
-          next: (halls) => {
-            this.halls.set(halls);
-            this.loadingHalls.set(false);
-          },
-          error: () => this.loadingHalls.set(false),
+          next: (halls) => this.halls.set(halls),
+          error: () => {},
         });
     });
   }
@@ -251,24 +252,25 @@ export class ManageShowtimeModalComponent {
 
     this.submitting.set(true);
     this.showtimeForm.disable({ emitEvent: false });
-    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (showtime) => {
-        this.submitting.set(false);
-        this.showtimeForm.enable({ emitEvent: false });
-        if (editing) {
-          this.showtimeEvents.notifyUpdated(showtime);
-          this.toastService.success('Showtime updated');
-        } else {
-          this.showtimeEvents.notifyCreated(showtime);
-          this.toastService.success('Showtime created');
-        }
-        this.dialog().close();
-      },
-      error: () => {
-        this.submitting.set(false);
-        this.showtimeForm.enable({ emitEvent: false });
-      },
-    });
+    request$
+      .pipe(
+        finalize(() => this.submitting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (showtime) => {
+          this.showtimeForm.enable({ emitEvent: false });
+          if (editing) {
+            this.showtimeEvents.notifyUpdated(showtime);
+            this.toastService.success('Showtime updated');
+          } else {
+            this.showtimeEvents.notifyCreated(showtime);
+            this.toastService.success('Showtime created');
+          }
+          this.dialog().close();
+        },
+        error: () => this.showtimeForm.enable({ emitEvent: false }),
+      });
   }
 
   private submit(): ShowtimeDraft | null {

@@ -1,6 +1,7 @@
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { KeyIcon } from '../../../shared/icons';
@@ -75,15 +76,16 @@ export class ProfilePasswordComponent {
         currentPassword: value.currentPassword,
         newPassword: value.newPassword,
       })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.saving.set(false);
           this.passwordForm.reset();
           this.toastService.success('Password changed');
         },
         error: (err: HttpErrorResponse) => {
-          this.saving.set(false);
           const body = err.error as ApiError | null;
           if (body?.errorCode === 'PASSWORD_INCORRECT') {
             this.passwordForm.controls.currentPassword.reset();

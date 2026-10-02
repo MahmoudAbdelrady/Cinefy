@@ -1,6 +1,6 @@
 import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { switchMap, take } from 'rxjs';
+import { finalize, switchMap, take } from 'rxjs';
 import {
   ProfileIdentityComponent,
   ProfilePasswordComponent,
@@ -46,17 +46,12 @@ export class ProfilePage {
         switchMap((current) =>
           this.staffService.getStaffMember(current.id, skipServerErrorToast()),
         ),
+        finalize(() => this.loading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (profile) => {
-          this.profile.set(profile);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.failed.set(true);
-          this.loading.set(false);
-        },
+        next: (profile) => this.profile.set(profile),
+        error: () => this.failed.set(true),
       });
   }
 }

@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule } from '@angular/forms';
-import { interval, takeWhile } from 'rxjs';
+import { finalize, interval, takeWhile } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertIcon, ArrowLeftIcon, ArrowRightIcon } from '../../../../../shared/icons';
 import { CinefyLoadingSpinner, CinefyInputOtp } from 'cinefy-ui/components';
@@ -71,15 +71,17 @@ export class OtpStep {
     this.resending.set(true);
     this.authService
       .forgotPassword({ email: this.email() })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.resending.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.resending.set(false);
           this.code.setValue('');
           this.startResendCooldown();
           this.toast.success('A new code has been sent to your email.');
         },
-        error: () => this.resending.set(false),
+        error: () => {},
       });
   }
 
@@ -89,16 +91,13 @@ export class OtpStep {
     const code = this.code.value;
     this.authService
       .verifyResetCode({ code })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.verifying.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.verifying.set(false);
-          this.verified.emit(code);
-        },
-        error: () => {
-          this.verifying.set(false);
-          this.code.setValue('');
-        },
+        next: () => this.verified.emit(code),
+        error: () => this.code.setValue(''),
       });
   }
 

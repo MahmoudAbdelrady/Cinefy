@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { ArrowDownRightIcon, ArrowUpRightIcon, MinusIcon } from '../../../shared/icons';
@@ -122,16 +122,13 @@ export class SummaryCardsComponent {
     this.failed.set(false);
     return this.statisticsService
       .getSummary(range, skipServerErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (summary) => {
-          this.summary.set(summary);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.failed.set(true);
-          this.loading.set(false);
-        },
+        next: (summary) => this.summary.set(summary),
+        error: () => this.failed.set(true),
       });
   }
 }

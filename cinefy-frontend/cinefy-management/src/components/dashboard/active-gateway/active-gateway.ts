@@ -1,6 +1,7 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyEmptyState, CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
@@ -63,16 +64,14 @@ export class ActiveGatewayComponent {
   private load(): void {
     this.paymentGatewaysService
       .getActivePaymentGateway(skipErrorToast())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (gateway) => {
-          this.gateway.set(gateway);
-          this.loading.set(false);
-        },
-        error: (error: HttpErrorResponse) => {
-          this.failed.set(error.status !== HttpStatusCode.NotFound);
-          this.loading.set(false);
-        },
+        next: (gateway) => this.gateway.set(gateway),
+        error: (error: HttpErrorResponse) =>
+          this.failed.set(error.status !== HttpStatusCode.NotFound),
       });
   }
 }

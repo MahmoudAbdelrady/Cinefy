@@ -1,6 +1,6 @@
 import { Component, DestroyRef, effect, inject, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
+import { finalize } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CheckIcon, PlusIcon, TagIcon, XIcon } from '../../../shared/icons';
@@ -74,16 +74,18 @@ export class ManageHallTypesModalComponent {
     this.addingType.set(true);
     this.hallsService
       .createHallType({ name: this.newTypeForm.controls.name.value.trim() })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.addingType.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (created) => {
           this.typesList().add(created);
           this.newTypeForm.controls.name.reset();
-          this.addingType.set(false);
           this.showNewTypeForm.set(false);
           this.toastService.success('Hall type created');
         },
-        error: () => this.addingType.set(false),
+        error: () => {},
       });
   }
 }

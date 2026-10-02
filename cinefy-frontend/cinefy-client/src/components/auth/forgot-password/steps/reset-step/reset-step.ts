@@ -2,6 +2,7 @@ import { Component, DestroyRef, effect, inject, input, output, signal } from '@a
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyInput, CinefyPasswordChecklist, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { linkConfirmPassword } from 'cinefy-ui/forms';
@@ -72,14 +73,13 @@ export class ResetStep {
 
     this.authService
       .resetPassword({ code: this.code(), newPassword: this.resetForm.controls.newPassword.value })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.submitting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.submitting.set(false);
-          this.reset.emit();
-        },
+        next: () => this.reset.emit(),
         error: (err: HttpErrorResponse) => {
-          this.submitting.set(false);
           const errorResponse = err.error as ApiError | null;
           if (errorResponse?.errorCode === 'OTP_INVALID') this.codeRejected.set(true);
           if (
