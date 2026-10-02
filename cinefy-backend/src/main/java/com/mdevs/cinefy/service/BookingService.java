@@ -434,7 +434,7 @@ public class BookingService {
 
     private Showtime findBookableShowtime(String uuid) {
         Showtime showtime = showtimeRepository.findByUuidWithHall(uuid)
-                .orElseThrow(() -> new NotFoundException("Showtime not found"));
+                .orElseThrow(() -> new NotFoundException("Showtime not found or it may no longer be available"));
         if (!isBookable(showtime)) {
             throw new BusinessException("This showtime is not available for booking");
         }

@@ -83,6 +83,10 @@
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       }
 
+      .ds-empty {
+        grid-column: 1 / -1;
+      }
+
       .ds-item {
         @include flex-column;
         gap: 12px;

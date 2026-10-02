@@ -40,12 +40,14 @@
           } @else if (dayFailed()) {
             <cui-error-state class="fill" header="Couldn't load this day's showtimes" />
           } @else {
-            <div class="ds-total">
-              {{ movieShowtimeDetails().length }} showtime{{
-                movieShowtimeDetails().length > 1 ? 's' : ''
-              }}
-              scheduled
-            </div>
+            @if (movieShowtimeDetails().length) {
+              <div class="ds-total">
+                {{ movieShowtimeDetails().length }} showtime{{
+                  movieShowtimeDetails().length > 1 ? 's' : ''
+                }}
+                scheduled
+              </div>
+            }
             <ul class="ds-items">
               @for (showtimeDetail of movieShowtimeDetails(); track showtimeDetail.id) {
                 <li class="ds-item">
@@ -164,6 +166,13 @@
                     </div>
                   }
                 </li>
+              } @empty {
+                <cui-empty-state
+                  class="ds-empty"
+                  [icon]="icons.CalendarIcon"
+                  header="No showtimes on this day"
+                  description="Showtimes scheduled for this date will appear here."
+                />
               }
             </ul>
           }

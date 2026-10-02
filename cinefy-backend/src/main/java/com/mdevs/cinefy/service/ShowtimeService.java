@@ -238,7 +238,7 @@ public class ShowtimeService {
     // =========================== Helpers ===========================
 
     private Showtime findShowtime(String uuid) {
-        return showtimeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Showtime not found: " + uuid));
+        return showtimeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Showtime not found"));
     }
 
     private void validateShowtime(Hall hall, TmdbMovie movie, ShowtimeDTO dto, Long showtimeId) {

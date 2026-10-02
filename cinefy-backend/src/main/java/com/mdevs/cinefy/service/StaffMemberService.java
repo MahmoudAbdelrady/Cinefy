@@ -223,7 +223,7 @@ public class StaffMemberService implements UserDetailsService {
 
     public StaffMember findStaffMember(String uuid) {
         return staffMemberRepository.findByUuid(uuid)
-                .orElseThrow(() -> new NotFoundException("Staff member not found with id: " + uuid));
+                .orElseThrow(() -> new NotFoundException("Staff member not found"));
     }
 
     private void validateCanViewStaffMember(StaffMember staffMember) {
