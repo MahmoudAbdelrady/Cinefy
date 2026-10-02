@@ -8,13 +8,13 @@ import {
   SearchIcon,
   SlidersHorizontalIcon,
   StarIcon,
-  WarningIcon,
 } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
 import { differenceInCalendarDays } from 'date-fns';
 import {
   CinefyLoadingSpinner,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyInput,
   CinefyMediaImage,
   CinefySwitch,
@@ -32,6 +32,7 @@ const COMING_SOON_WINDOW_DAYS = 10;
     CinefySwitch,
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyInput,
     ManageShowtimeModalComponent,
     CinefyMediaImage,
@@ -46,7 +47,6 @@ export class UpcomingMoviesComponent {
     MegaphoneIcon,
     StarIcon,
     SlidersHorizontalIcon,
-    WarningIcon,
   };
 
   private readonly moviesService = inject(MoviesService);

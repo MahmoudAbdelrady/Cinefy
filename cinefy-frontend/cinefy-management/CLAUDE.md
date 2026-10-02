@@ -98,10 +98,16 @@ src/
 │                                       #   input, field-error, loading-spinner, select,
 │                                       #   paginated-select, phone-input, toast, dialog, menu,
 │                                       #   paginator, date-picker, time-picker, switch, empty-state,
-│                                       #   seat-map, hold-timer, not-found, input-otp,
+│                                       #   error-state, seat-map, hold-timer, not-found, input-otp,
 │                                       #   password-checklist, media-image
 │                                       #   (so <cui-empty-state> / CinefyEmptyState, and so on).
 │                                       #   empty-state: inputs [icon]/header (required)/[description]; add class="fill" to stretch to full height.
+│                                       #   error-state (<cui-error-state>): THE way to render a failed load — never hand-roll
+│                                       #     <cui-empty-state> with a warning icon. Fixed triangle-alert icon; inputs
+│                                       #     header (required) + [description] (defaults to "Something went wrong. Please
+│                                       #     try again later." — pass it only for a backend message, e.g. book-seats).
+│                                       #     Shares empty-state's stylesheet, so the host IS the box: class="fill" and
+│                                       #     parent padding classes work exactly as on <cui-empty-state>.
 │                                       #   paginator (<cui-paginator>): PrimeNG p-paginator wrapper.
 │                                       #     [(page)] is 0-INDEXED (matches Spring Pageable — pass it straight
 │                                       #     through, no -1); inputs pageCount/totalItems/pageSize.
@@ -328,7 +334,7 @@ Reference: [`hall-config-modal.ts`](src/components/halls/hall-config-modal/hall-
   `baseUrlInterceptor` (prepends `environment.apiUrl` to relative URLs **and sets `withCredentials: true`**) → `csrfInterceptor` (attaches the CSRF token to mutating requests) → `authRetryInterceptor` (on a 401, calls the refresh endpoint once and retries; skips the login/refresh/session calls themselves, and redirects to `/login` if the retry also 401s) → `errorToastInterceptor` (on an error response, surfaces a toast unless the request's context skips it; **401s are always silent** — `authRetryInterceptor` owns them) → `networkErrorInterceptor` (replaces the error body with `{ message: 'Could not reach the server. Please try again later.' }` when the server is unreachable — status `0` (dev: connection refused, where the browser's message is just "Failed to fetch") or `502`/`503`/`504` (prod: the proxy answering for a down backend). A genuine `500`/`501` keeps the backend's own message).
 - **`networkErrorInterceptor` must stay last.** Errors travel back through the chain in reverse, so the interceptor nearest the backend sees them first — it has to rewrite the message before `errorToastInterceptor` reads it.
 - **Suppressing the toast is the caller's call, not the endpoint's.** The service method takes an optional `context?: HttpContext` parameter and forwards it, rather than hard-coding the skip. Two helpers, both from `cinefy-ui/http`:
-  - **`skipServerErrorToast()`** — the default for any load that renders an inline error state (`<cui-empty-state>` with "Couldn't load …", a stats panel falling back to `-`). It silences the toast only for server errors (status `0` or `>= 500`), where the inline state is the whole message; a 4xx still toasts, since its message is usually specific. Nearly every list/detail load uses it.
+  - **`skipServerErrorToast()`** — the default for any load that renders an inline error state (a `<cui-error-state>`, a stats panel falling back to `-`). It silences the toast only for server errors (status `0` or `>= 500`), where the inline state is the whole message; a 4xx still toasts, since its message is usually specific. Nearly every list/detail load uses it.
   - **`skipErrorToast()`** — silences **every** status. Use it only when the component handles all failures itself: `book-seats.ts` shows the backend's message inline for any status, and `active-gateway.ts` treats `404` as "no gateway active" rather than an error. Passing `skipServerErrorToast()` there instead would add a toast for those 4xx cases.
   - Loads with **no** inline error state (e.g. `hall-config-modal`'s dropdown sources, `movie-picker`'s "Load more") pass nothing — the toast is their only feedback.
 - **Forms that stay on screen after a failed submit** branch on the same server-error check in their `error` handler — e.g. the password forms (`profile-password`, the forgot-password `reset-step`) reset the whole form on `status === 0 || status >= 500`, and `login.ts` only raises its "Invalid email or password" toast when the status is **not** a server error (the interceptor's toast already covers that case).
@@ -498,7 +504,7 @@ beside it.
 loaded), `computed`s deriving the view model from it, `loading` and `failed` signals, and a fetch
 fired from `afterNextRender` with `skipServerErrorToast()`. The `error` handler sets `failed` and
 clears `loading`, and the template renders `loading → failed → data` — the failed branch is a
-`<cui-empty-state [icon]="icons.WarningIcon" header="Couldn't load …">`. Two exceptions:
+`<cui-error-state header="Couldn't load …" />`. Two exceptions:
 `active-gateway` fetches with `skipErrorToast()` and only sets `failed` for non-404 errors (404
 means "no gateway active" and falls through to its own empty state), and `today-statistics` has no
 failed branch — it renders its four

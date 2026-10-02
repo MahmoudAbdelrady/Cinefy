@@ -14,6 +14,7 @@ import { differenceInSeconds, format } from 'date-fns';
 import {
   CinefyDialog,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyLoadingSpinner,
   CinefyMediaImage,
 } from 'cinefy-ui/components';
@@ -21,13 +22,7 @@ import { BookSeatsComponent } from '../book-seats/book-seats';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { BookingService } from '../../../services';
 import type { BookingSummary } from '../../../shared/types';
-import {
-  CalendarIcon,
-  ClapperboardIcon,
-  ClockIcon,
-  TicketIcon,
-  WarningIcon,
-} from '../../../shared/icons';
+import { CalendarIcon, ClapperboardIcon, ClockIcon, TicketIcon } from '../../../shared/icons';
 
 @Component({
   selector: 'active-bookings-list',
@@ -37,6 +32,7 @@ import {
     LucideDynamicIcon,
     CinefyDialog,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
     CinefyMediaImage,
     BookSeatsComponent,
@@ -50,7 +46,6 @@ export class ActiveBookingsListComponent {
     ClapperboardIcon,
     ClockIcon,
     TicketIcon,
-    WarningIcon,
   };
 
   private readonly bookingService = inject(BookingService);

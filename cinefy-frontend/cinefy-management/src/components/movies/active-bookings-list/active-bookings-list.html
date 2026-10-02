@@ -9,10 +9,7 @@
       <cui-loading-spinner variant="lg" />
     </div>
   } @else if (hasError()) {
-    <cui-empty-state
-      [icon]="icons.WarningIcon"
-      header="We couldn't load the active bookings. Please try again."
-    />
+    <cui-error-state header="Couldn't load active bookings" />
   } @else {
     <ul class="abl-list">
       @for (booking of bookings(); track booking.id) {

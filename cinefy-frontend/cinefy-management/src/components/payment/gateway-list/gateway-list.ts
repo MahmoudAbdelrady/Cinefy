@@ -4,6 +4,7 @@ import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyLoadingSpinner,
   CinefyDialog,
   CinefyDialogFooter,
@@ -18,7 +19,6 @@ import {
   InfoIcon,
   PowerIcon,
   PowerOffIcon,
-  WarningIcon,
   WebhookIcon,
 } from '../../../shared/icons';
 import { GATEWAY_PROVIDER_LABELS, type PaymentGateway } from '../../../shared/types';
@@ -34,6 +34,7 @@ import { PAYMENT_PROVIDERS } from '../provider-spec';
     DatePipe,
     NgTemplateOutlet,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
     CinefyDialog,
     CinefyDialogFooter,
@@ -52,7 +53,6 @@ export class GatewayListComponent {
     InfoIcon,
     PowerIcon,
     PowerOffIcon,
-    WarningIcon,
     WebhookIcon,
   };
 

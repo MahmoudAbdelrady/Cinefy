@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyLoadingSpinner,
   CinefyMediaImage,
   CinefyPaginator,
@@ -12,13 +13,7 @@ import {
 import { PastBookingDetailsModalComponent } from '../past-booking-details-modal/past-booking-details-modal';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { BookingService } from '../../../services';
-import {
-  ClapperboardIcon,
-  ClockIcon,
-  EyeIcon,
-  TicketIcon,
-  TriangleAlertIcon,
-} from '../../../shared/icons';
+import { ClapperboardIcon, ClockIcon, EyeIcon, TicketIcon } from '../../../shared/icons';
 import type { PastBooking } from '../../../shared/types';
 
 const PAGE_SIZE = 5;
@@ -32,6 +27,7 @@ const PAGE_SIZE = 5;
     CinefyMediaImage,
     PastBookingDetailsModalComponent,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
     CinefyPaginator,
   ],
@@ -44,7 +40,6 @@ export class ProfileHistoryComponent {
     ClapperboardIcon,
     EyeIcon,
     TicketIcon,
-    TriangleAlertIcon,
   };
 
   private readonly bookingService = inject(BookingService);

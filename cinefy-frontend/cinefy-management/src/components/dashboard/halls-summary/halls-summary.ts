@@ -1,9 +1,9 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService } from '../../../services';
-import { LayoutIcon, SettingsIcon, WarningIcon } from '../../../shared/icons';
+import { LayoutIcon, SettingsIcon } from '../../../shared/icons';
 import { HALL_STATUS_LABELS } from '../../../shared/types';
 import type { HallStatus, HallStatusCounts } from '../../../shared/types';
 import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
@@ -16,12 +16,12 @@ interface HallStatusCount {
 
 @Component({
   selector: 'halls-summary',
-  imports: [DashboardWidgetComponent, CinefyLoadingSpinner, CinefyEmptyState],
+  imports: [DashboardWidgetComponent, CinefyLoadingSpinner, CinefyEmptyState, CinefyErrorState],
   templateUrl: './halls-summary.html',
   styleUrl: './halls-summary.scss',
 })
 export class HallsSummaryComponent {
-  protected readonly icons = { LayoutIcon, SettingsIcon, WarningIcon };
+  protected readonly icons = { LayoutIcon, SettingsIcon };
 
   private readonly hallsService = inject(HallsService);
   private readonly destroyRef = inject(DestroyRef);

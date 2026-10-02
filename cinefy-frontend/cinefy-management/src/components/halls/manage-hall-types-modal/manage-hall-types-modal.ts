@@ -28,6 +28,7 @@ import {
   CinefyLoadingSpinner,
   CinefyInput,
   CinefyEmptyState,
+  CinefyErrorState,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { skipServerErrorToast } from 'cinefy-ui/http';
@@ -46,6 +47,7 @@ import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
     CinefyLoadingSpinner,
     CinefyInput,
     CinefyEmptyState,
+    CinefyErrorState,
   ],
   templateUrl: './manage-hall-types-modal.html',
   styleUrl: './manage-hall-types-modal.scss',

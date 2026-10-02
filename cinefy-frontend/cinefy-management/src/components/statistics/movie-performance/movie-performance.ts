@@ -11,8 +11,13 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { CinefyEmptyState, CinefyLoadingSpinner, CinefyPaginator } from 'cinefy-ui/components';
-import { ClapperboardIcon, WarningIcon } from '../../../shared/icons';
+import {
+  CinefyEmptyState,
+  CinefyErrorState,
+  CinefyLoadingSpinner,
+  CinefyPaginator,
+} from 'cinefy-ui/components';
+import { ClapperboardIcon } from '../../../shared/icons';
 import { DEFAULT_PAGE_SIZE } from '../../../shared/constants';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StatisticsService } from '../../../services';
@@ -45,14 +50,13 @@ interface MovieRow {
 
 @Component({
   selector: 'movie-performance',
-  imports: [CinefyLoadingSpinner, CinefyEmptyState, CinefyPaginator, DecimalPipe],
+  imports: [CinefyLoadingSpinner, CinefyEmptyState, CinefyErrorState, CinefyPaginator, DecimalPipe],
   templateUrl: './movie-performance.html',
   styleUrl: './movie-performance.scss',
 })
 export class MoviePerformanceComponent {
   protected readonly icons = {
     ClapperboardIcon,
-    WarningIcon,
   };
 
   private readonly statisticsService = inject(StatisticsService);

@@ -3,11 +3,7 @@
     <cui-loading-spinner variant="lg" />
   </div>
 } @else if (errorMessage(); as message) {
-  <cui-empty-state
-    [icon]="icons.WarningIcon"
-    header="Couldn't load the seat layout"
-    [description]="message"
-  />
+  <cui-error-state header="Couldn't load the seat layout" [description]="message" />
 } @else if (stage() === 'done') {
   <div class="bs-done">
     <div class="bs-done-icon">

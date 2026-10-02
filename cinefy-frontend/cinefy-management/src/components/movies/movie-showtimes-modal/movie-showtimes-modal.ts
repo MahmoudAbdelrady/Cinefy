@@ -47,6 +47,7 @@ import {
   CinefyDialogFooter,
   CinefyLoadingSpinner,
   CinefyEmptyState,
+  CinefyErrorState,
 } from 'cinefy-ui/components';
 import { BookSeatsComponent } from '../book-seats/book-seats';
 import { CinefyToastService } from 'cinefy-ui/services';
@@ -66,6 +67,7 @@ import { canManage as canManagePosition, canBook as canBookPosition } from '../.
     LucideDynamicIcon,
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
     Time12hPipe,
     BookSeatsComponent,
   ],

@@ -6,19 +6,14 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefySelect,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyInput,
   CinefyLoadingSpinner,
   CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService, MoviesService } from '../../services';
-import {
-  ClapperboardIcon,
-  SearchIcon,
-  SlidersHorizontalIcon,
-  XIcon,
-  TriangleAlertIcon,
-} from '../../shared/icons';
+import { ClapperboardIcon, SearchIcon, SlidersHorizontalIcon, XIcon } from '../../shared/icons';
 
 @Component({
   selector: 'movies-page',
@@ -30,6 +25,7 @@ import {
     CinefySelect,
     CinefyMediaImage,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
   ],
   templateUrl: './movies.html',
@@ -41,7 +37,6 @@ export class MoviesPage {
     SlidersHorizontalIcon,
     XIcon,
     ClapperboardIcon,
-    TriangleAlertIcon,
   };
 
   private readonly moviesService = inject(MoviesService);

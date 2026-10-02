@@ -3,10 +3,10 @@ import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { skipErrorToast } from 'cinefy-ui/http';
 import { PaymentGatewaysService } from '../../../services';
-import { AlertIcon, CreditCardIcon, SettingsIcon, WarningIcon } from '../../../shared/icons';
+import { AlertIcon, CreditCardIcon, SettingsIcon } from '../../../shared/icons';
 import { GATEWAY_PROVIDER_LABELS } from '../../../shared/types';
 import type { PaymentGateway } from '../../../shared/types';
 import { PAYMENT_PROVIDERS } from '../../payment/provider-spec';
@@ -19,13 +19,14 @@ import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
     RouterLink,
     LucideDynamicIcon,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
   ],
   templateUrl: './active-gateway.html',
   styleUrl: './active-gateway.scss',
 })
 export class ActiveGatewayComponent {
-  protected readonly icons = { AlertIcon, CreditCardIcon, SettingsIcon, WarningIcon };
+  protected readonly icons = { AlertIcon, CreditCardIcon, SettingsIcon };
 
   private readonly paymentGatewaysService = inject(PaymentGatewaysService);
   private readonly destroyRef = inject(DestroyRef);

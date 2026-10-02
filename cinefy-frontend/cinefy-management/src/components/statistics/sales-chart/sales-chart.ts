@@ -4,13 +4,8 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Tooltip } from 'primeng/tooltip';
-import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
-import {
-  ChartColumnIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  WarningIcon,
-} from '../../../shared/icons';
+import { CinefyEmptyState, CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { ChartColumnIcon, ChevronDownIcon, ChevronUpIcon } from '../../../shared/icons';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
@@ -35,6 +30,7 @@ function grossRevenueOf(details: StatisticsPeriodTotals): number {
   imports: [
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
     DecimalPipe,
     DatePipe,
     Tooltip,
@@ -48,7 +44,6 @@ export class SalesChartComponent {
     ChartColumnIcon,
     ChevronDownIcon,
     ChevronUpIcon,
-    WarningIcon,
   };
 
   private readonly statisticsService = inject(StatisticsService);

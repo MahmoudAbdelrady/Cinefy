@@ -8,12 +8,7 @@
       <cui-loading-spinner variant="md" />
     </div>
   } @else if (datesFailed()) {
-    <cui-empty-state
-      class="fill"
-      [icon]="icons.WarningIcon"
-      header="Couldn't load showtimes"
-      description="Something went wrong. Please try again later."
-    />
+    <cui-error-state class="fill" header="Couldn't load showtimes" />
   }
   @if (!loadingDates() && movieShowtimes(); as data) {
     @if (data.dates.length === 0) {
@@ -43,12 +38,7 @@
               <cui-loading-spinner variant="md" />
             </div>
           } @else if (dayFailed()) {
-            <cui-empty-state
-              class="fill"
-              [icon]="icons.WarningIcon"
-              header="Couldn't load this day's showtimes"
-              description="Something went wrong. Please try again later."
-            />
+            <cui-error-state class="fill" header="Couldn't load this day's showtimes" />
           } @else {
             <div class="ds-total">
               {{ movieShowtimeDetails().length }} showtime{{

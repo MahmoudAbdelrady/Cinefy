@@ -9,14 +9,13 @@ import {
 import type { StaffMemberDetail } from '../../shared/types';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../services';
-import { WarningIcon } from '../../shared/icons';
-import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 
 @Component({
   selector: 'profile-page',
   imports: [
     CinefyLoadingSpinner,
-    CinefyEmptyState,
+    CinefyErrorState,
     ProfileIdentityComponent,
     ProfilePersonalDetailsComponent,
     ProfilePasswordComponent,
@@ -25,8 +24,6 @@ import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
   styleUrl: './profile.scss',
 })
 export class ProfilePage {
-  protected readonly icons = { WarningIcon };
-
   private readonly staffService = inject(StaffService);
   private readonly destroyRef = inject(DestroyRef);
 

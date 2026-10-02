@@ -18,6 +18,7 @@ import type { AppendTo as PrimeAppendTo } from 'primeng/types/shared';
 import {
   CinefySelect,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyHoldTimer,
   CinefyInput,
   CinefyLoadingSpinner,
@@ -96,6 +97,7 @@ function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Se
     CinefySeatMap,
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefySelect,
     CinefyInput,
     CinefyDialog,

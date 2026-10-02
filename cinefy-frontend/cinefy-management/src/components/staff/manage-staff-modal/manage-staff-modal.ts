@@ -13,14 +13,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { merge } from 'rxjs';
 import { addDays, differenceInMinutes, parse } from 'date-fns';
-import {
-  CheckIcon,
-  EmailIcon,
-  KeyIcon,
-  PhoneIcon,
-  UserIcon,
-  WarningIcon,
-} from '../../../shared/icons';
+import { CheckIcon, EmailIcon, KeyIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import { RadioButton } from 'primeng/radiobutton';
 import {
   CinefyDialog,
@@ -29,7 +22,7 @@ import {
   CinefyPasswordChecklist,
   CinefySelect,
   CinefyLoadingSpinner,
-  CinefyEmptyState,
+  CinefyErrorState,
   DEFAULT_COUNTRY,
   CinefyPhoneInput,
   phoneNumberValidator,
@@ -91,7 +84,7 @@ function countMinutesInRange(start: string, end: string): number {
     ReactiveFormsModule,
     CinefyTimePicker,
     CinefyLoadingSpinner,
-    CinefyEmptyState,
+    CinefyErrorState,
   ],
   templateUrl: './manage-staff-modal.html',
   styleUrl: './manage-staff-modal.scss',
@@ -103,7 +96,6 @@ export class ManageStaffModalComponent {
     PhoneIcon,
     UserIcon,
     KeyIcon,
-    WarningIcon,
   };
 
   private readonly staffService = inject(StaffService);

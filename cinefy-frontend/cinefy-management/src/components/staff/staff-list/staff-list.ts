@@ -23,7 +23,6 @@ import {
   SearchIcon,
   SlidersHorizontalIcon,
   UsersIcon,
-  WarningIcon,
 } from '../../../shared/icons';
 import {
   CinefyDialog,
@@ -33,6 +32,7 @@ import {
   CinefyInput,
   CinefyLoadingSpinner,
   CinefyEmptyState,
+  CinefyErrorState,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
@@ -62,6 +62,7 @@ import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
     CinefyPaginator,
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyDialog,
     CinefyDialogFooter,
     StaffDetailsComponent,
@@ -85,7 +86,6 @@ export class StaffListComponent {
     DeleteIcon,
     AlertIcon,
     SlidersHorizontalIcon,
-    WarningIcon,
   };
 
   private readonly staffService = inject(StaffService);

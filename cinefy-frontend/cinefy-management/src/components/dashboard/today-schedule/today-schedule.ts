@@ -2,18 +2,17 @@ import { afterNextRender, Component, computed, DestroyRef, inject, signal } from
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInMinutes, format, parse, startOfMinute } from 'date-fns';
-import { CinefyEmptyState, CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
+import {
+  CinefyEmptyState,
+  CinefyErrorState,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
+} from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { ShowtimesService } from '../../../services';
 import { DATE_FORMAT, TIME_FORMAT } from '../../../shared/constants';
-import {
-  CalendarClockIcon,
-  CalendarIcon,
-  ClockIcon,
-  TicketIcon,
-  WarningIcon,
-} from '../../../shared/icons';
+import { CalendarClockIcon, CalendarIcon, ClockIcon, TicketIcon } from '../../../shared/icons';
 import type { ScheduledShowtime } from '../../../shared/types';
 import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
 
@@ -34,6 +33,7 @@ const TICK_INTERVAL_MS = 30_000;
     CinefyMediaImage,
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
     Time12hPipe,
   ],
   templateUrl: './today-schedule.html',
@@ -45,7 +45,6 @@ export class TodayScheduleComponent {
     CalendarClockIcon,
     ClockIcon,
     TicketIcon,
-    WarningIcon,
   };
 
   private readonly showtimesService = inject(ShowtimesService);

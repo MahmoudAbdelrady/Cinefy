@@ -3,9 +3,8 @@
     <cui-loading-spinner variant="lg" />
   </div>
 } @else if (bookingResource.error()) {
-  <cui-empty-state
+  <cui-error-state
     class="co-error"
-    [icon]="icons.TriangleAlertIcon"
     header="Couldn't load this booking"
     [description]="errorMessage()"
   />

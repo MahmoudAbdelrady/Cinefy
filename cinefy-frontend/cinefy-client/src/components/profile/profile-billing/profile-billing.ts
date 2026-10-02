@@ -5,6 +5,7 @@ import {
   CinefyDialog,
   CinefyDialogFooter,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyLoadingSpinner,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
@@ -21,6 +22,7 @@ import type { ClientPaymentMethod } from '../../../shared/types';
     CinefyDialog,
     CinefyDialogFooter,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
   ],
   templateUrl: './profile-billing.html',

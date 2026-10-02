@@ -8,11 +8,7 @@
       <cui-loading-spinner variant="md" />
     </div>
   } @else if (failed()) {
-    <cui-empty-state
-      [icon]="icons.warning"
-      header="Couldn't load position coverage"
-      description="Something went wrong. Please try again later."
-    />
+    <cui-error-state header="Couldn't load position coverage" />
   } @else if (positionCoverageItems(); as coverage) {
     @if (coverage.total === 0) {
       <div class="spcc-empty">No staff members yet.</div>

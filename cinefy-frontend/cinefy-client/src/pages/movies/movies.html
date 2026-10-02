@@ -67,11 +67,7 @@
     </div>
   } @else if (movies.error()) {
     <div class="movies-empty">
-      <cui-empty-state
-        [icon]="icons.TriangleAlertIcon"
-        header="Failed to load movies"
-        description="Something went wrong. Please try again later."
-      />
+      <cui-error-state header="Failed to load movies" />
     </div>
   } @else {
     <div class="movies-summary">

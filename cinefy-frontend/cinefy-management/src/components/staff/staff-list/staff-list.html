@@ -31,11 +31,7 @@
         <cui-loading-spinner variant="md" />
       </div>
     } @else if (failed()) {
-      <cui-empty-state
-        [icon]="icons.WarningIcon"
-        header="Couldn't load staff members"
-        description="Something went wrong. Please try again later."
-      />
+      <cui-error-state header="Couldn't load staff members" />
     } @else {
       <ul class="staff-members">
         @for (member of staffMembers(); track member.id) {
@@ -109,12 +105,14 @@
       </ul>
     }
   </div>
-  <cui-paginator
-    [(page)]="page"
-    [pageCount]="pageCount()"
-    [totalItems]="totalItems()"
-    [pageSize]="pageSize"
-  />
+  @if (!failed()) {
+    <cui-paginator
+      [(page)]="page"
+      [pageCount]="pageCount()"
+      [totalItems]="totalItems()"
+      [pageSize]="pageSize"
+    />
+  }
 </div>
 
 @if (memberToView(); as memberId) {

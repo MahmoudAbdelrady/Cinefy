@@ -14,11 +14,7 @@
     </div>
   } @else if (loadHallError()) {
     <div class="hall-config-error">
-      <cui-empty-state
-        [icon]="icons.WarningIcon"
-        header="Failed to load hall"
-        description="Something went wrong. Please try again later."
-      />
+      <cui-error-state header="Failed to load hall" />
     </div>
   } @else {
     <div class="hall-config-modal-content">

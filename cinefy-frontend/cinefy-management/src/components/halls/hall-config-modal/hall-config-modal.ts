@@ -30,11 +30,10 @@ import {
   LayoutIcon,
   SettingsIcon,
   StarIcon,
-  WarningIcon,
 } from '../../../shared/icons';
 import {
   CinefyLoadingSpinner,
-  CinefyEmptyState,
+  CinefyErrorState,
   CinefyInput,
   CinefySelect,
   CinefySwitch,
@@ -136,7 +135,7 @@ const SELECTABLE_HALL_STATUS_ENTRIES = (
     CinefyDialogHeader,
     CinefyDialogFooter,
     CinefyLoadingSpinner,
-    CinefyEmptyState,
+    CinefyErrorState,
     CinefyInput,
     CinefySelect,
     HallLayoutEditorComponent,
@@ -151,7 +150,6 @@ export class HallConfigModalComponent {
     LayoutIcon,
     SettingsIcon,
     StarIcon,
-    WarningIcon,
   };
   protected readonly maxGridDimension = MAX_GRID_DIMENSION;
 

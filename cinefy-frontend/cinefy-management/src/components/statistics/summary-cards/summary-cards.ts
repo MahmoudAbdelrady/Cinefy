@@ -3,13 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
-import {
-  ArrowDownRightIcon,
-  ArrowUpRightIcon,
-  MinusIcon,
-  WarningIcon,
-} from '../../../shared/icons';
+import { CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { ArrowDownRightIcon, ArrowUpRightIcon, MinusIcon } from '../../../shared/icons';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StatisticsService } from '../../../services';
@@ -38,7 +33,7 @@ function computeDelta(current: number, previous: number): MetricDelta {
 
 @Component({
   selector: 'summary-cards',
-  imports: [LucideDynamicIcon, CinefyLoadingSpinner, CinefyEmptyState, DecimalPipe],
+  imports: [LucideDynamicIcon, CinefyLoadingSpinner, CinefyErrorState, DecimalPipe],
   templateUrl: './summary-cards.html',
   styleUrl: './summary-cards.scss',
 })
@@ -47,7 +42,6 @@ export class SummaryCardsComponent {
     ArrowUpRightIcon,
     ArrowDownRightIcon,
     MinusIcon,
-    WarningIcon,
   };
 
   private readonly statisticsService = inject(StatisticsService);

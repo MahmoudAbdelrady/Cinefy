@@ -3,11 +3,7 @@
     <cui-loading-spinner variant="lg" />
   </div>
 } @else if (loadFailed()) {
-  <cui-empty-state
-    [icon]="icons.TriangleAlertIcon"
-    header="Couldn't load your saved cards"
-    description="Something went wrong. Please try again later."
-  />
+  <cui-error-state header="Couldn't load your saved cards" />
 } @else {
   <ul class="pb-cards">
     @for (method of paymentMethods(); track method.id) {

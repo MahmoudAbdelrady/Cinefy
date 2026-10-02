@@ -3,11 +3,7 @@
     <cui-loading-spinner variant="md" />
   </div>
 } @else if (failed()) {
-  <cui-empty-state
-    [icon]="icons.WarningIcon"
-    header="Couldn't load your profile"
-    description="Something went wrong. Please try again later."
-  />
+  <cui-error-state header="Couldn't load your profile" />
 } @else if (profile(); as currentProfile) {
   <div class="profile-page">
     <div class="profile-intro">

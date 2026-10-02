@@ -2,11 +2,16 @@ import { Component, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { CinefyEmptyState, CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
+import {
+  CinefyEmptyState,
+  CinefyErrorState,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
+} from 'cinefy-ui/components';
 import { FeaturedCarouselComponent } from '../../components';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { MoviesService } from '../../services';
-import { ClapperboardIcon, CalendarIcon, TriangleAlertIcon } from '../../shared/icons';
+import { ClapperboardIcon, CalendarIcon } from '../../shared/icons';
 
 const NOW_SHOWING_LIMIT = 5;
 
@@ -18,6 +23,7 @@ const NOW_SHOWING_LIMIT = 5;
     RouterLink,
     DatePipe,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
   ],
   templateUrl: './home.html',
@@ -27,7 +33,6 @@ export class HomePage {
   protected readonly icons = {
     ClapperboardIcon,
     CalendarIcon,
-    TriangleAlertIcon,
   };
 
   private readonly moviesService = inject(MoviesService);

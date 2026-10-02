@@ -19,13 +19,13 @@ import {
   SlidersHorizontalIcon,
   TagIcon,
   UsersIcon,
-  WarningIcon,
 } from '../../../shared/icons';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   CinefyInput,
   CinefyLoadingSpinner,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefySelect,
   CinefyDialog,
   CinefyDialogFooter,
@@ -53,6 +53,7 @@ import { HallsService } from '../../../services';
     HallConfigModalComponent,
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
   ],
   templateUrl: './halls-list.html',
   styleUrl: './halls-list.scss',
@@ -68,7 +69,6 @@ export class HallsListComponent {
     AlertIcon,
     TagIcon,
     SlidersHorizontalIcon,
-    WarningIcon,
   };
 
   private readonly hallsService = inject(HallsService);

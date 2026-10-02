@@ -1,9 +1,5 @@
 @if (loadFailed()) {
-  <cui-empty-state
-    [icon]="icons.TriangleAlertIcon"
-    header="Couldn't load your bookings"
-    description="Something went wrong. Please try again later."
-  />
+  <cui-error-state header="Couldn't load your bookings" />
 } @else {
   <div class="profile-history">
     <section class="ph-group">

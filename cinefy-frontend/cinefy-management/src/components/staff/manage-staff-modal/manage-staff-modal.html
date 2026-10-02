@@ -11,11 +11,7 @@
       <cui-loading-spinner variant="md" />
     </div>
   } @else if (failed()) {
-    <cui-empty-state
-      [icon]="icons.WarningIcon"
-      header="Couldn't load staff member"
-      description="Something went wrong. Please try again later."
-    />
+    <cui-error-state header="Couldn't load staff member" />
   } @else {
     <form [formGroup]="staffForm">
       <div class="input-groups">

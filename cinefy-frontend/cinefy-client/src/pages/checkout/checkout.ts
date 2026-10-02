@@ -8,7 +8,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefyDialog,
   CinefyDialogFooter,
-  CinefyEmptyState,
+  CinefyErrorState,
   CinefyHoldTimer,
   CinefyLoadingSpinner,
   CinefyMediaImage,
@@ -41,7 +41,7 @@ import { brandChip } from '../../shared/payments';
     CinefyDialogFooter,
     CinefyHoldTimer,
     BookingCancelledComponent,
-    CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
     CurrencyPipe,
     DatePipe,

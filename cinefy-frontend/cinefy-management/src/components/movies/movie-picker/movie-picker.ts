@@ -12,9 +12,9 @@ import { FormControl } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, EMPTY, startWith, switchMap, tap } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { ChevronRightIcon, ClapperboardIcon, SearchIcon, WarningIcon } from '../../../shared/icons';
+import { ChevronRightIcon, ClapperboardIcon, SearchIcon } from '../../../shared/icons';
 import {
-  CinefyEmptyState,
+  CinefyErrorState,
   CinefyInput,
   CinefyLoadingSpinner,
   CinefyMediaImage,
@@ -30,7 +30,7 @@ import { MoviesService } from '../../../services';
     CinefyInput,
     LucideDynamicIcon,
     CinefyLoadingSpinner,
-    CinefyEmptyState,
+    CinefyErrorState,
     CinefyMediaImage,
     DatePipe,
   ],
@@ -42,7 +42,6 @@ export class MoviePickerComponent {
     ChevronRightIcon,
     ClapperboardIcon,
     SearchIcon,
-    WarningIcon,
   };
 
   private readonly moviesService = inject(MoviesService);

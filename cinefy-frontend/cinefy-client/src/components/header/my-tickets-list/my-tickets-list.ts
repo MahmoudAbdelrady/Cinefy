@@ -16,6 +16,7 @@ import { differenceInSeconds } from 'date-fns';
 import {
   CinefyDialog,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyLoadingSpinner,
   CinefyMediaImage,
 } from 'cinefy-ui/components';
@@ -28,7 +29,6 @@ import {
   ClockIcon,
   TicketIcon,
   ArrowRightIcon,
-  TriangleAlertIcon,
 } from '../../../shared/icons';
 
 @Component({
@@ -38,6 +38,7 @@ import {
     LucideDynamicIcon,
     CinefyDialog,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
     CinefyMediaImage,
     CurrencyPipe,
@@ -53,7 +54,6 @@ export class MyTicketsListComponent {
     ClockIcon,
     TicketIcon,
     ArrowRightIcon,
-    TriangleAlertIcon,
   };
 
   private readonly bookingService = inject(BookingService);

@@ -19,13 +19,12 @@ import {
   EmailIcon,
   PhoneIcon,
   UserIcon,
-  WarningIcon,
 } from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
 import {
   CinefyDialog,
   CinefyDialogHeader,
-  CinefyEmptyState,
+  CinefyErrorState,
   CinefyLoadingSpinner,
 } from 'cinefy-ui/components';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
@@ -47,7 +46,7 @@ import { canManageStaffMember } from '../../../shared/access';
     LucideDynamicIcon,
     Tooltip,
     CinefyLoadingSpinner,
-    CinefyEmptyState,
+    CinefyErrorState,
     DatePipe,
     Time12hPipe,
     PhoneFormatPipe,
@@ -63,7 +62,6 @@ export class StaffDetailsComponent {
     PhoneIcon,
     BriefCaseIcon,
     UserIcon,
-    WarningIcon,
   };
 
   private readonly staffService = inject(StaffService);

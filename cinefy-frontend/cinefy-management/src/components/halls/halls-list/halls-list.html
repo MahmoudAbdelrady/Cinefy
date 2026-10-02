@@ -31,11 +31,7 @@
         <cui-loading-spinner variant="xl" />
       </div>
     } @else if (failed()) {
-      <cui-empty-state
-        [icon]="icons.WarningIcon"
-        header="Couldn't load halls"
-        description="Something went wrong. Please try again later."
-      />
+      <cui-error-state header="Couldn't load halls" />
     } @else {
       <ul class="ah-items-container">
         @for (hall of filteredHalls(); track hall.id) {

@@ -14,11 +14,7 @@
         </div>
       } @else if (loadTypesError()) {
         <div class="load-types-error">
-          <cui-empty-state
-            [icon]="icons.WarningIcon"
-            header="Failed to load hall types"
-            description="Something went wrong. Please try again later."
-          />
+          <cui-error-state header="Failed to load hall types" />
         </div>
       } @else {
         <ul class="existing-types-list">

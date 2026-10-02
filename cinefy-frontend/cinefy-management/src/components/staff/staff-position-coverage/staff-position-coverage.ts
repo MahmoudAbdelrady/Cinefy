@@ -10,17 +10,17 @@ import {
 } from '../../../shared/types';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
-import { InfoIcon, WarningIcon } from '../../../shared/icons';
-import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { InfoIcon } from '../../../shared/icons';
+import { CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 
 @Component({
   selector: 'staff-position-coverage',
-  imports: [CinefyLoadingSpinner, CinefyEmptyState, LucideDynamicIcon],
+  imports: [CinefyLoadingSpinner, CinefyErrorState, LucideDynamicIcon],
   templateUrl: './staff-position-coverage.html',
   styleUrl: './staff-position-coverage.scss',
 })
 export class StaffPositionCoverageComponent {
-  protected readonly icons = { info: InfoIcon, warning: WarningIcon };
+  protected readonly icons = { info: InfoIcon };
 
   private readonly staffService = inject(StaffService);
   private readonly destroyRef = inject(DestroyRef);

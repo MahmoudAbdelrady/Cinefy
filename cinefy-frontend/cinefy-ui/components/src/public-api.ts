@@ -1,5 +1,6 @@
 export * from "./loading-spinner/cinefy-loading-spinner";
 export * from "./empty-state/cinefy-empty-state";
+export * from "./error-state/cinefy-error-state";
 export * from "./media-image/cinefy-media-image";
 export * from "./not-found/cinefy-not-found";
 export * from "./field-error/cinefy-field-error";

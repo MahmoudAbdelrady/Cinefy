@@ -15,4 +15,5 @@ export {
   LucideCircleCheck as CircleCheckIcon,
   LucideCircleX as CircleXIcon,
   LucideClapperboard as ClapperboardIcon,
+  LucideTriangleAlert as TriangleAlertIcon,
 } from "@lucide/angular";
