@@ -6,6 +6,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { format, isFuture, isToday, isTomorrow, parseISO } from 'date-fns';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { BookingService } from '../../../services';
 import type { HallTypeShowtimes } from '../../../shared/types';
 import { CalendarIcon, TriangleAlertIcon } from '../../../shared/icons';
@@ -49,7 +50,8 @@ export class BookingSectionComponent {
 
   protected readonly datesResource = rxResource({
     params: () => this.movieId(),
-    stream: ({ params: movieId }) => this.bookingService.getBookableDates(movieId),
+    stream: ({ params: movieId }) =>
+      this.bookingService.getBookableDates(movieId, skipServerErrorToast()),
   });
 
   protected readonly dates = computed<DateOption[]>(() =>
@@ -63,7 +65,8 @@ export class BookingSectionComponent {
       const date = this.activeDate();
       return date ? { movieId: this.movieId(), date } : undefined;
     },
-    stream: ({ params }) => this.bookingService.getBookableShowtimes(params.movieId, params.date),
+    stream: ({ params }) =>
+      this.bookingService.getBookableShowtimes(params.movieId, params.date, skipServerErrorToast()),
   });
 
   protected readonly dayShowtimes = computed<HallTypeShowtimes[]>(

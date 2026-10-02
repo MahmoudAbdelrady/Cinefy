@@ -10,6 +10,7 @@ import {
   CinefyPaginator,
 } from 'cinefy-ui/components';
 import { PastBookingDetailsModalComponent } from '../past-booking-details-modal/past-booking-details-modal';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { BookingService } from '../../../services';
 import {
   ClapperboardIcon,
@@ -71,7 +72,7 @@ export class ProfileHistoryComponent {
     this.loading.set(true);
     this.loadFailed.set(false);
     return this.bookingService
-      .getPastBookings({ page, size: PAGE_SIZE })
+      .getPastBookings({ page, size: PAGE_SIZE }, skipServerErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

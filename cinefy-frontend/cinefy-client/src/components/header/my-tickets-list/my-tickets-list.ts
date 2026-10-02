@@ -19,6 +19,7 @@ import {
   CinefyLoadingSpinner,
   CinefyMediaImage,
 } from 'cinefy-ui/components';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { BookingService } from '../../../services';
 import type { BookingSummary } from '../../../shared/types';
 import {
@@ -79,7 +80,7 @@ export class MyTicketsListComponent {
 
   private loadActiveBookings(): void {
     this.bookingService
-      .getActiveBookings()
+      .getActiveBookings(skipServerErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (bookings) => {

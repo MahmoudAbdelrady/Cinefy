@@ -9,6 +9,7 @@ import {
   csrfInterceptor,
   authRetryInterceptor,
   errorToastInterceptor,
+  networkErrorInterceptor,
 } from './core/interceptors';
 import { provideCinefyToast } from 'cinefy-ui/services';
 import { providePrimeNG } from 'primeng/config';
@@ -26,6 +27,7 @@ export const appConfig: ApplicationConfig = {
         csrfInterceptor,
         authRetryInterceptor,
         errorToastInterceptor,
+        networkErrorInterceptor,
       ]),
     ),
     provideCinefyToast(),

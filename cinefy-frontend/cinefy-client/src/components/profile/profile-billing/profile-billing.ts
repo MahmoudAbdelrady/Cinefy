@@ -8,6 +8,7 @@ import {
   CinefyLoadingSpinner,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { ClientService } from '../../../services';
 import { CreditCardIcon, TrashIcon, TriangleAlertIcon } from '../../../shared/icons';
 import { brandChip } from '../../../shared/payments';
@@ -53,7 +54,7 @@ export class ProfileBillingComponent {
 
   private loadPaymentMethods(): void {
     this.clientService
-      .getPaymentMethods()
+      .getPaymentMethods(skipServerErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (methods) => {

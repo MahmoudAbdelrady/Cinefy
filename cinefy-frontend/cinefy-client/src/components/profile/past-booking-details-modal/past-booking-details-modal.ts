@@ -3,6 +3,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { CinefyDialog, CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { compareSeatPositions } from 'cinefy-ui/types';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { BookingService } from '../../../services';
 import { TriangleAlertIcon } from '../../../shared/icons';
 import type { PastBooking } from '../../../shared/types';
@@ -26,7 +27,8 @@ export class PastBookingDetailsModalComponent {
 
   protected readonly details = rxResource({
     params: () => this.booking().id,
-    stream: ({ params: bookingId }) => this.bookingService.getPastBookingDetails(bookingId),
+    stream: ({ params: bookingId }) =>
+      this.bookingService.getPastBookingDetails(bookingId, skipServerErrorToast()),
   });
 
   protected readonly sortedSeats = computed(() =>

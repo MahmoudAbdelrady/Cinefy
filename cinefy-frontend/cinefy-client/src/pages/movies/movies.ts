@@ -10,6 +10,7 @@ import {
   CinefyLoadingSpinner,
   CinefyMediaImage,
 } from 'cinefy-ui/components';
+import { skipServerErrorToast } from '../../app/core/interceptors';
 import { HallsService, MoviesService } from '../../services';
 import {
   ClapperboardIcon,
@@ -54,11 +55,11 @@ export class MoviesPage {
   });
 
   protected readonly movies = rxResource({
-    stream: () => this.moviesService.getNowShowing(),
+    stream: () => this.moviesService.getNowShowing(undefined, skipServerErrorToast()),
   });
 
   protected readonly hallTypes = rxResource({
-    stream: () => this.hallsService.getHallTypes(),
+    stream: () => this.hallsService.getHallTypes(skipServerErrorToast()),
   });
 
   private readonly search = toSignal(this.filterForm.controls.search.valueChanges, {

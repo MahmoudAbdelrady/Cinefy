@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import {
   BehaviorSubject,
   catchError,
@@ -65,7 +65,7 @@ export class ClientService {
     this.currentUser$ = null;
   }
 
-  getPaymentMethods(): Observable<ClientPaymentMethod[]> {
-    return this.http.get<ClientPaymentMethod[]>(`${API_PREFIX}/me/payment-methods`);
+  getPaymentMethods(context?: HttpContext): Observable<ClientPaymentMethod[]> {
+    return this.http.get<ClientPaymentMethod[]>(`${API_PREFIX}/me/payment-methods`, { context });
   }
 }

@@ -20,13 +20,18 @@ const API_PREFIX = '/booking';
 export class BookingService {
   private readonly http = inject(HttpClient);
 
-  getBookableDates(movieId: number): Observable<string[]> {
-    return this.http.get<string[]>(`${API_PREFIX}/movies/${movieId}/dates`);
+  getBookableDates(movieId: number, context?: HttpContext): Observable<string[]> {
+    return this.http.get<string[]>(`${API_PREFIX}/movies/${movieId}/dates`, { context });
   }
 
-  getBookableShowtimes(movieId: number, date: string): Observable<HallTypeShowtimes[]> {
+  getBookableShowtimes(
+    movieId: number,
+    date: string,
+    context?: HttpContext,
+  ): Observable<HallTypeShowtimes[]> {
     return this.http.get<HallTypeShowtimes[]>(`${API_PREFIX}/movies/${movieId}/showtimes`, {
       params: { date },
+      context,
     });
   }
 
@@ -34,8 +39,8 @@ export class BookingService {
     return this.http.get<SeatSelection>(`${API_PREFIX}/showtimes/${showtimeId}`, { context });
   }
 
-  getActiveBookings(): Observable<BookingSummary[]> {
-    return this.http.get<BookingSummary[]>(`${API_PREFIX}/active`);
+  getActiveBookings(context?: HttpContext): Observable<BookingSummary[]> {
+    return this.http.get<BookingSummary[]>(`${API_PREFIX}/active`, { context });
   }
 
   getActiveBookingDetails(uuid: string, context?: HttpContext): Observable<BookingDetail> {
@@ -46,17 +51,18 @@ export class BookingService {
     return this.http.get<BookingConfirmation>(`${API_PREFIX}/${uuid}/confirmation`, { context });
   }
 
-  getPastBookings(pageable?: {
-    page?: number;
-    size?: number;
-  }): Observable<PaginatedResponse<PastBooking>> {
+  getPastBookings(
+    pageable?: { page?: number; size?: number },
+    context?: HttpContext,
+  ): Observable<PaginatedResponse<PastBooking>> {
     return this.http.get<PaginatedResponse<PastBooking>>(`${API_PREFIX}/past`, {
       params: { ...pageable },
+      context,
     });
   }
 
-  getPastBookingDetails(uuid: string): Observable<BookingConfirmation> {
-    return this.http.get<BookingConfirmation>(`${API_PREFIX}/past/${uuid}`);
+  getPastBookingDetails(uuid: string, context?: HttpContext): Observable<BookingConfirmation> {
+    return this.http.get<BookingConfirmation>(`${API_PREFIX}/past/${uuid}`, { context });
   }
 
   createBooking(request: BookingRequest, idempotencyKey: string): Observable<BookingDetail> {

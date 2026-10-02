@@ -82,7 +82,13 @@ export class ResetStep {
           this.submitting.set(false);
           const errorResponse = err.error as ApiError | null;
           if (errorResponse?.errorCode === 'OTP_INVALID') this.codeRejected.set(true);
-          if (errorResponse?.errorCode === 'PASSWORD_REUSED') this.resetForm.reset();
+          if (
+            errorResponse?.errorCode === 'PASSWORD_REUSED' ||
+            err.status === 0 ||
+            err.status >= 500
+          ) {
+            this.resetForm.reset();
+          }
         },
       });
   }

@@ -15,7 +15,7 @@ import {
 } from 'cinefy-ui/components';
 import { BookingCancelledComponent } from '../../components';
 import { BookingService, ClientService } from '../../services';
-import { skipErrorToast } from '../../app/core/interceptors';
+import { skipErrorToast, skipServerErrorToast } from '../../app/core/interceptors';
 import { compareSeatPositions, SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
 import type { ApiError, ClientPaymentMethod } from '../../shared/types';
 import {
@@ -103,7 +103,7 @@ export class CheckoutPage {
 
   private readonly paymentMethodsResource = rxResource({
     params: () => this.bookingId() ?? undefined,
-    stream: () => this.clientService.getPaymentMethods(),
+    stream: () => this.clientService.getPaymentMethods(skipServerErrorToast()),
   });
 
   protected readonly savedMethods = computed(() => this.paymentMethodsResource.value() ?? []);

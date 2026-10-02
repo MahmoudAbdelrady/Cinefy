@@ -97,6 +97,9 @@ export class ProfilePasswordComponent {
             this.passwordForm.controls.newPassword.reset();
             this.passwordForm.controls.confirmPassword.reset();
           }
+          if (err.status === 0 || err.status >= 500) {
+            this.passwordForm.reset();
+          }
         },
       });
   }
