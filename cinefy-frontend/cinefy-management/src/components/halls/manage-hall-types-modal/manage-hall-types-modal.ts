@@ -30,6 +30,7 @@ import {
   CinefyEmptyState,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { HallsService } from '../../../services';
 import { HallType } from '../../../shared/types';
 import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
@@ -117,7 +118,7 @@ export class ManageHallTypesModalComponent {
     this.loadingTypes.set(true);
     this.loadTypesError.set(false);
     this.hallsService
-      .getHallTypes()
+      .getHallTypes(skipServerErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (types) => {

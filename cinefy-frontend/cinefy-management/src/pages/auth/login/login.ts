@@ -1,4 +1,5 @@
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -59,10 +60,12 @@ export class LoginPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.router.navigateByUrl('/'),
-        error: () => {
+        error: (error: HttpErrorResponse) => {
           this.submitting.set(false);
           this.loginForm.controls.password.reset();
-          this.toastService.error('Invalid email or password');
+          if (error.status !== 0 && error.status < 500) {
+            this.toastService.error('Invalid email or password');
+          }
         },
       });
   }

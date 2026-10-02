@@ -18,6 +18,7 @@ import {
   CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { BookSeatsComponent } from '../book-seats/book-seats';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { BookingService } from '../../../services';
 import type { BookingSummary } from '../../../shared/types';
 import {
@@ -75,7 +76,7 @@ export class ActiveBookingsListComponent {
   protected loadActiveBookings(): void {
     this.isLoading.set(true);
     this.bookingService
-      .getActiveBookings()
+      .getActiveBookings(skipServerErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (bookings) => {

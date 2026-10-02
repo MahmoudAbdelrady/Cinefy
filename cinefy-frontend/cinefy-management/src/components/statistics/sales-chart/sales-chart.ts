@@ -11,6 +11,7 @@ import {
   ChevronUpIcon,
   WarningIcon,
 } from '../../../shared/icons';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
 import type { DateRange, SalesPoint, StatisticsPeriodTotals } from '../../../shared/types';
@@ -97,7 +98,7 @@ export class SalesChartComponent {
     this.loading.set(true);
     this.failed.set(false);
     return this.statisticsService
-      .getSales(range)
+      .getSales(range, skipServerErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (points) => {

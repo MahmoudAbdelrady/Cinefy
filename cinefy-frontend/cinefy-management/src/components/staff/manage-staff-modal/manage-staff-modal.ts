@@ -50,6 +50,7 @@ import {
   type UserPosition,
   type WeekDay,
 } from '../../../shared/types';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { StaffService } from '../../../services';
 import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
 import { assignableStaffPositions } from '../../../shared/access';
@@ -286,7 +287,7 @@ export class ManageStaffModalComponent {
       this.loading.set(true);
       this.failed.set(false);
       this.staffService
-        .getStaffMember(id)
+        .getStaffMember(id, skipServerErrorToast())
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (detail) => {

@@ -47,6 +47,7 @@ import {
   type StaffMemberSummary,
   type UserPosition,
 } from '../../../shared/types';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
 import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
@@ -171,10 +172,12 @@ export class StaffListComponent {
             this.failed.set(false);
           }),
           switchMap(([search, position, page]) =>
-            this.staffService.getStaffMembers(search || undefined, position, {
-              page,
-              size: this.pageSize,
-            }),
+            this.staffService.getStaffMembers(
+              search || undefined,
+              position,
+              { page, size: this.pageSize },
+              skipServerErrorToast(),
+            ),
           ),
           takeUntilDestroyed(this.destroyRef),
         )

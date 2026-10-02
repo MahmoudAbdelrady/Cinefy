@@ -7,6 +7,7 @@ import {
   ProfilePersonalDetailsComponent,
 } from '../../components';
 import type { StaffMemberDetail } from '../../shared/types';
+import { skipServerErrorToast } from '../../app/core/interceptors';
 import { StaffService } from '../../services';
 import { WarningIcon } from '../../shared/icons';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
@@ -45,7 +46,9 @@ export class ProfilePage {
       .getCurrentStaffMember()
       .pipe(
         take(1),
-        switchMap((current) => this.staffService.getStaffMember(current.id)),
+        switchMap((current) =>
+          this.staffService.getStaffMember(current.id, skipServerErrorToast()),
+        ),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({

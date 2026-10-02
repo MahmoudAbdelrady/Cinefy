@@ -8,6 +8,7 @@ import {
   type PositionCoverageItem,
   type UserPosition,
 } from '../../../shared/types';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { StaffService } from '../../../services';
 import { InfoIcon, WarningIcon } from '../../../shared/icons';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
@@ -33,7 +34,7 @@ export class StaffPositionCoverageComponent {
   constructor() {
     afterNextRender(() => {
       this.staffService
-        .getPositionCoverage()
+        .getPositionCoverage(skipServerErrorToast())
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (coverage) => {

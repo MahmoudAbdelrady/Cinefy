@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { format } from 'date-fns';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { StatisticsService } from '../../../services';
 import { DATE_FORMAT } from '../../../shared/constants';
 import { CURRENCY } from '../../../shared/types';
@@ -54,7 +55,7 @@ export class TodayStatisticsComponent {
   private load(): void {
     const today = format(this.today, DATE_FORMAT);
     this.statisticsService
-      .getSales({ from: today, to: today })
+      .getSales({ from: today, to: today }, skipServerErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (points) => {

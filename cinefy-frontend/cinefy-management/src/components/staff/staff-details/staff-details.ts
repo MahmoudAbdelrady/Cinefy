@@ -35,6 +35,7 @@ import {
   WEEK_DAY_LABELS,
   type StaffMemberDetail,
 } from '../../../shared/types';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
 
@@ -95,7 +96,7 @@ export class StaffDetailsComponent {
     afterNextRender(() => {
       this.loading.set(true);
       this.staffService
-        .getStaffMember(this.staffMemberId())
+        .getStaffMember(this.staffMemberId(), skipServerErrorToast())
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (member) => {

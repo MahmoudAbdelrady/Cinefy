@@ -22,6 +22,7 @@ import {
   WebhookIcon,
 } from '../../../shared/icons';
 import { GATEWAY_PROVIDER_LABELS, type PaymentGateway } from '../../../shared/types';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { PaymentGatewaysService } from '../../../services';
 import { ManageGatewayModalComponent } from '../manage-gateway-modal/manage-gateway-modal';
 import { PAYMENT_PROVIDERS } from '../provider-spec';
@@ -89,7 +90,7 @@ export class GatewayListComponent {
   constructor() {
     afterNextRender(() => {
       this.paymentGatewaysService
-        .getPaymentGateways()
+        .getPaymentGateways(skipServerErrorToast())
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: ({ active, standBy }) => {

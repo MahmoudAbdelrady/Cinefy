@@ -59,6 +59,7 @@ import {
 } from '../../../shared/types';
 import { seatRowIndex, seatRowLabel } from 'cinefy-ui/types';
 import { HallLayoutEditorComponent, seatStats } from '../hall-layout-editor/hall-layout-editor';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { HallsService } from '../../../services';
 import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
 
@@ -378,7 +379,7 @@ export class HallConfigModalComponent {
     this.loadingHall.set(true);
     this.loadHallError.set(false);
     this.hallsService
-      .getHall(id)
+      .getHall(id, skipServerErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (detail: HallDetail) => {

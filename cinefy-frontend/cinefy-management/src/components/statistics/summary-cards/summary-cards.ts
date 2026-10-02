@@ -11,6 +11,7 @@ import {
   WarningIcon,
 } from '../../../shared/icons';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
 import type { DateRange, StatisticsSummary } from '../../../shared/types';
@@ -71,7 +72,6 @@ export class SummaryCardsComponent {
     const { current, previous } = summary;
     const grossCurrent = current.netRevenue + current.refunded;
     const grossPrevious = previous.netRevenue + previous.refunded;
-    const refundShare = grossCurrent === 0 ? 0 : current.refunded / grossCurrent;
 
     return [
       {
@@ -127,7 +127,7 @@ export class SummaryCardsComponent {
     this.loading.set(true);
     this.failed.set(false);
     return this.statisticsService
-      .getSummary(range)
+      .getSummary(range, skipServerErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (summary) => {

@@ -4,6 +4,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInMinutes, format, parse, startOfMinute } from 'date-fns';
 import { CinefyEmptyState, CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { ShowtimesService } from '../../../services';
 import { DATE_FORMAT, TIME_FORMAT } from '../../../shared/constants';
 import {
@@ -88,7 +89,7 @@ export class TodayScheduleComponent {
 
   private load(): void {
     this.showtimesService
-      .getScheduleForDate(format(new Date(), DATE_FORMAT))
+      .getScheduleForDate(format(new Date(), DATE_FORMAT), skipServerErrorToast())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (screenings) => {

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { BehaviorSubject, filter, Observable } from 'rxjs';
 import type {
   ChangePasswordPayload,
@@ -57,25 +57,26 @@ export class StaffService {
     name?: string,
     position?: UserPosition,
     pageable?: { page?: number; size?: number },
+    context?: HttpContext,
   ): Observable<PaginatedResponse<StaffMemberSummary>> {
     const params = {
       ...(name && { name }),
       ...(position && { position }),
       ...pageable,
     };
-    return this.http.get<PaginatedResponse<StaffMemberSummary>>(API_PREFIX, { params });
+    return this.http.get<PaginatedResponse<StaffMemberSummary>>(API_PREFIX, { params, context });
   }
 
-  getPositionCoverage(): Observable<PositionCoverage> {
-    return this.http.get<PositionCoverage>(`${API_PREFIX}/position-coverage`);
+  getPositionCoverage(context?: HttpContext): Observable<PositionCoverage> {
+    return this.http.get<PositionCoverage>(`${API_PREFIX}/position-coverage`, { context });
   }
 
-  getOnShiftSummary(): Observable<OnShiftSummary> {
-    return this.http.get<OnShiftSummary>(`${API_PREFIX}/on-shift`);
+  getOnShiftSummary(context?: HttpContext): Observable<OnShiftSummary> {
+    return this.http.get<OnShiftSummary>(`${API_PREFIX}/on-shift`, { context });
   }
 
-  getStaffMember(id: string): Observable<StaffMemberDetail> {
-    return this.http.get<StaffMemberDetail>(`${API_PREFIX}/${id}`);
+  getStaffMember(id: string, context?: HttpContext): Observable<StaffMemberDetail> {
+    return this.http.get<StaffMemberDetail>(`${API_PREFIX}/${id}`, { context });
   }
 
   createStaffMember(data: StaffMemberPayload): Observable<StaffMemberSummary> {

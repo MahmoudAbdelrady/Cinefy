@@ -21,6 +21,7 @@ import {
 } from 'cinefy-ui/components';
 import { MovieSearchResult } from '../../../shared/types';
 import { SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE } from '../../../shared/constants';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { MoviesService } from '../../../services';
 
 @Component({
@@ -85,10 +86,11 @@ export class MoviePickerComponent {
           }),
           switchMap((query) => {
             if (query.length === 0) return EMPTY;
-            return this.moviesService.searchMovies(query, {
-              page: 0,
-              size: DEFAULT_PAGE_SIZE,
-            });
+            return this.moviesService.searchMovies(
+              query,
+              { page: 0, size: DEFAULT_PAGE_SIZE },
+              skipServerErrorToast(),
+            );
           }),
           takeUntilDestroyed(this.destroyRef),
         )

@@ -30,6 +30,7 @@ import { CinefyToastService } from 'cinefy-ui/services';
 import { DurationPipe } from 'cinefy-ui/pipes';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import {
   MoviesService,
   ShowtimeEventsService,
@@ -119,7 +120,7 @@ export class CurrentShowtimesComponent {
   constructor() {
     this.refetch$
       .pipe(
-        switchMap(() => this.showtimesService.getMoviesWithShowtimes()),
+        switchMap(() => this.showtimesService.getMoviesWithShowtimes(skipServerErrorToast())),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({

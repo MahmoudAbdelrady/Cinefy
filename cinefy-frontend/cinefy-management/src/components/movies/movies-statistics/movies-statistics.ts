@@ -5,6 +5,7 @@ import { switchMap } from 'rxjs/operators';
 import { CalendarIcon, ClockIcon, ClapperboardIcon } from '../../../shared/icons';
 import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { StatsComponent } from '../../stats/stats';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { ShowtimeEventsService, ShowtimesService } from '../../../services';
 import type { ShowtimesStatistics, StatsCard } from '../../../shared/types';
 
@@ -36,7 +37,7 @@ export class MoviesStatisticsComponent {
   constructor() {
     this.refetch$
       .pipe(
-        switchMap(() => this.showtimesService.getShowtimesStatistics()),
+        switchMap(() => this.showtimesService.getShowtimesStatistics(skipServerErrorToast())),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({

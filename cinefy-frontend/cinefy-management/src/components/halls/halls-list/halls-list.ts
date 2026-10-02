@@ -38,6 +38,7 @@ import {
   HallSummary,
   StatisticsChange,
 } from '../../../shared/types';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { HallsService } from '../../../services';
 
 @Component({
@@ -119,7 +120,7 @@ export class HallsListComponent {
   constructor() {
     afterNextRender(() => {
       this.hallsService
-        .getHalls()
+        .getHalls(undefined, undefined, skipServerErrorToast())
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (halls) => {

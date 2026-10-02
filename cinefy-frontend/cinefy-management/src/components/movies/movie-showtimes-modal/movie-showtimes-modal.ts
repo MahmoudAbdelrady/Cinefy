@@ -40,6 +40,7 @@ import {
   TicketIcon,
   WarningIcon,
 } from '../../../shared/icons';
+import { skipServerErrorToast } from '../../../app/core/interceptors';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
 import {
   CinefyDialog,
@@ -158,7 +159,7 @@ export class MovieShowtimesModal {
       this.selectedTab.set(undefined);
 
       const sub = this.showtimesService
-        .getMovieShowtimeDates(this.selectedMovieId())
+        .getMovieShowtimeDates(this.selectedMovieId(), skipServerErrorToast())
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (data) => {
@@ -188,7 +189,7 @@ export class MovieShowtimesModal {
 
       this.loadingDay.set(true);
       const sub = this.showtimesService
-        .getMovieShowtimesForDate(this.selectedMovieId(), targetDate)
+        .getMovieShowtimesForDate(this.selectedMovieId(), targetDate, skipServerErrorToast())
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (data) => {
