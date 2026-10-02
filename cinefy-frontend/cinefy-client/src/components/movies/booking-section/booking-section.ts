@@ -6,7 +6,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { format, isFuture, isToday, isTomorrow, parseISO } from 'date-fns';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { BookingService } from '../../../services';
 import type { HallTypeShowtimes } from '../../../shared/types';
 import { CalendarIcon, TriangleAlertIcon } from '../../../shared/icons';

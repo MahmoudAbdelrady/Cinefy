@@ -3,7 +3,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { CinefyDialog, CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { compareSeatPositions } from 'cinefy-ui/types';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { BookingService } from '../../../services';
 import { TriangleAlertIcon } from '../../../shared/icons';
 import type { PastBooking } from '../../../shared/types';

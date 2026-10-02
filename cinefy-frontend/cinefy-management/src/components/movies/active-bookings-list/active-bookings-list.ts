@@ -18,7 +18,7 @@ import {
   CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { BookSeatsComponent } from '../book-seats/book-seats';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { BookingService } from '../../../services';
 import type { BookingSummary } from '../../../shared/types';
 import {

@@ -8,7 +8,7 @@ import {
   CinefyLoadingSpinner,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { ClientService } from '../../../services';
 import { CreditCardIcon, TrashIcon, TriangleAlertIcon } from '../../../shared/icons';
 import { brandChip } from '../../../shared/payments';

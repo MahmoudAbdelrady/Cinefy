@@ -4,7 +4,7 @@ import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CinefyEmptyState, CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
 import { FeaturedCarouselComponent } from '../../components';
-import { skipServerErrorToast } from '../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { MoviesService } from '../../services';
 import { ClapperboardIcon, CalendarIcon, TriangleAlertIcon } from '../../shared/icons';
 

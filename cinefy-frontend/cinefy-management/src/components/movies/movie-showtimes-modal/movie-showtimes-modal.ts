@@ -40,7 +40,7 @@ import {
   TicketIcon,
   WarningIcon,
 } from '../../../shared/icons';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
 import {
   CinefyDialog,

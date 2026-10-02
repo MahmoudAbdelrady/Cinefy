@@ -52,15 +52,15 @@ When writing or porting components, **be SSR-safe**:
 ```
 src/
 ├── app/
-│   ├── core/interceptors/     # HTTP interceptors (registered in app.config.ts, in order; barrel: index.ts)
+│   ├── core/interceptors/     # App-specific HTTP interceptors (registered in app.config.ts, in order; barrel: index.ts)
 │   │   ├── base-url.ts        # Prepends environment apiUrl (browser) / API_ORIGIN (SSR) to relative requests
 │   │   ├── csrf.ts            # Attaches CSRF token to mutating requests
-│   │   ├── auth-retry.ts      # On 401, refreshes the access token once (single-flight) and retries
-│   │   ├── error-toast.ts     # On HTTP error, shows a toast — skippable via the SKIP_ERROR_TOAST context
-│   │   └── error-toast-context.ts # SKIP_ERROR_TOAST token + skipErrorToast() helper
+│   │   └── auth-retry.ts      # On 401, refreshes the access token once (single-flight) and retries
+│   │                          # (errorToastInterceptor, networkErrorInterceptor and the skip-toast helpers are
+│   │                          #  shared with management — they live in cinefy-ui/http; see "Error toasts" below)
 │   ├── app.ts                  # Root component (hosts <router-outlet> + the single <cui-toast>)
 │   ├── app.routes.ts          # Route definitions (AuthLayout /membership shell + AppLayout shell + ** NotFound)
-│   ├── app.config.ts          # Browser providers: router, hydration, HttpClient + 4 interceptors, toast, PrimeNG
+│   ├── app.config.ts          # Browser providers: router, hydration, HttpClient + 5 interceptors, toast, PrimeNG
 │   ├── app.config.server.ts   # Server providers merged onto appConfig
 │   └── app.routes.server.ts   # Per-route SSR render modes (auth-gated routes → Client; ** → Server)
 ├── layout/
@@ -92,8 +92,9 @@ src/
 │   ├── halls.ts              # HallsService — getHallTypes
 │   ├── booking.ts            # BookingService — getBookableDates/getBookableShowtimes (public) + getSeatSelection/
 │   │                          #   getActiveBookings/getActiveBookingDetails/getBookingConfirmation/createBooking/
-│   │                          #   cancelBooking/payBooking/paySavedCard (authed). Several reads take an optional
-│   │                          #   HttpContext so the caller can pass skipErrorToast() when it renders the error itself.
+│   │                          #   cancelBooking/payBooking/paySavedCard (authed). The reads take an optional
+│   │                          #   HttpContext so the caller can pass skipServerErrorToast()/skipErrorToast()
+│   │                          #   (cinefy-ui/http) when it renders the error itself.
 │   ├── auth.ts               # AuthService — sign-up/verify-account/send-otp/login/logout/verify-otp/reset-password/session/refresh (refresh single-flighted)
 │   └── clients.ts            # ClientService — getCurrentUser (/client/me) + updateCurrentUser (PUT /client/me) + changeCurrentUserPassword (PUT /client/me/password) + getPaymentMethods (/client/me/payment-methods) + clearCurrentUser
 ├── shared/
@@ -157,6 +158,10 @@ These hold across the Cinefy frontend — see `cinefy-management/CLAUDE.md` for 
 - **UI copy is sentence case** — titles, headings, buttons, links, labels, placeholders, tooltips and badges capitalize only the first word plus proper nouns/acronyms: `Now showing`, `Book tickets`, `Proceed to payment`, `Cancel booking` — never `Now Showing`. TMDB genre names (`Science Fiction`, `TV Movie`) are data and keep their casing. Full rules and exceptions in [`../cinefy-management/CLAUDE.md`](../cinefy-management/CLAUDE.md#ui-copy).
 - **A button's loading spinner always carries a label** — never a bare `<cui-loading-spinner>` inside a button. Show the **progressive form of the button's own action** so the user can tell what is in flight: `@if (submitting()) { <cui-loading-spinner variant="xs" /> <span>Signing in…</span> } @else { <span>Sign in</span> … }`. Use the progressive verb plus an ellipsis character (`Saving…`, `Canceling…`, `Creating account…`, `Connecting…`), and `variant="xs"` for the in-button spinner. Two exceptions, both already correct here: **icon-only buttons** (icon + `pTooltip`, no visible text) keep a bare spinner, and buttons where the spinner replaces only a leading **icon** while the `<span>` label sits outside the `@if` already satisfy the rule. Page- and section-level loading blocks are unaffected — those stay a centered `<cui-loading-spinner variant="lg" />` with no label. Full treatment in [`../cinefy-management/CLAUDE.md`](../cinefy-management/CLAUDE.md#button-loading-states).
 - **Toasts are `CinefyToastService`** (cinefy-ui, wrapping PrimeNG's `p-toast`). Inject it and call `success(message)` / `error(message)` — that two-method surface is the whole API. The container is a single `<cui-toast />` in [`app.ts`](src/app/app.ts) (one per app, never per page or layout shell), and `provideCinefyToast()` in [`app.config.ts`](src/app/app.config.ts) supplies PrimeNG's `MessageService` in the **root** injector — without it every toast silently no-ops. Both sides agree on `CINEFY_TOAST_KEY` from `cinefy-ui/constants`; never pass a key by hand. ng-primitives (and the old `ToastService`) are fully removed.
+- **Error toasts** come from two interceptors shared with management in **`cinefy-ui/http`**, registered last in [`app.config.ts`](src/app/app.config.ts): `errorToastInterceptor` (toasts `error.error.message`; silent during SSR, for 401s, and when the request's context says so) then `networkErrorInterceptor`, which **must stay last** so it rewrites the message before the toast reads it — on status `0` (dev: connection refused, "Failed to fetch") or `502`/`503`/`504` (prod: the proxy answering for a down backend) it replaces the body with "Could not reach the server. Please try again later.". Skipping is the caller's call, passed as the request's `HttpContext` (import the helpers from `cinefy-ui/http`):
+  - **`skipServerErrorToast()`** — the default for any load that renders an inline error state (an `rxResource` `error()` branch, a `loadFailed` signal) — pass it inside the resource's `stream:`. It silences only server errors (status `0` or `>= 500`); a 4xx still toasts. Used by the home/movies rails, `booking-section`, the profile tabs, `my-tickets-list`, and checkout's saved-cards load.
+  - **`skipErrorToast()`** — silences every status; only for components that render **all** failures themselves, usually with the backend's own message (`checkout`'s booking load, `movie-detail`, `seat-selection`, `booking-confirmation`, `login`, `oauth-callback`).
+  - Password forms reset the whole form on a server error (`status === 0 || status >= 500`) — see `profile-password` and the forgot-password `reset-step`. Full treatment in [`../cinefy-management/CLAUDE.md`](../cinefy-management/CLAUDE.md#http--api).
 - **cinefy-ui components are `cui-<name>` / `Cinefy<Name>`** — the selector always carries the `cui-` prefix and the class the `Cinefy` prefix, with no `Component` suffix (`<cui-empty-state>` / `CinefyEmptyState`, `<cui-loading-spinner>` / `CinefyLoadingSpinner`). A new library component follows the same pair.
 - **Dialogs are `<cui-dialog>`** (cinefy-ui, wrapping PrimeNG's `p-dialog`). Mounting opens it, so **every dialog renders behind an `@if`** and its `(closed)` output unmounts it — a component whose root is a `cui-dialog` satisfies this via the parent's `@if`. Inputs: `header` / `description` / `canClose` / `style` / `contentStyle`; slots `[customHeader]` / `[customFooter]` (import `CinefyDialogHeader` / `CinefyDialogFooter` or they silently vanish). To close from inside, call `close()` on a `viewChild(CinefyDialog)` — **never** clear the parent flag directly, which skips the leave animation and PrimeNG's `<body>` scroll-lock cleanup. A dialog inside an `@for` moves **out** of the loop, keyed on a signal holding the row's object (`bookingToView`, `methodToRemove`). Gate `canClose` on any in-flight request so the dialog can't be dismissed mid-save.
 - New components default to **SCSS styles** and **skip tests** (per `angular.json` schematics). Inline `selector`, external `templateUrl` + `styleUrl`; files named `name.ts`/`name.html`/`name.scss` (no `.component` suffix).

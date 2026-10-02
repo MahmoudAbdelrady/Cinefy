@@ -8,7 +8,7 @@ import {
   type PositionCoverageItem,
   type UserPosition,
 } from '../../../shared/types';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
 import { InfoIcon, WarningIcon } from '../../../shared/icons';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';

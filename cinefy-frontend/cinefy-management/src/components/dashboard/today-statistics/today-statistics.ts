@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { format } from 'date-fns';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StatisticsService } from '../../../services';
 import { DATE_FORMAT } from '../../../shared/constants';
 import { CURRENCY } from '../../../shared/types';

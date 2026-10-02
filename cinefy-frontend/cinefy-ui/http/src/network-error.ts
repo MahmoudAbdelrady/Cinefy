@@ -1,7 +1,7 @@
-import { HttpErrorResponse, HttpInterceptorFn, HttpStatusCode } from '@angular/common/http';
-import { catchError, throwError } from 'rxjs';
+import { HttpErrorResponse, HttpInterceptorFn, HttpStatusCode } from "@angular/common/http";
+import { catchError, throwError } from "rxjs";
 
-const SERVER_UNREACHABLE_MESSAGE = 'Could not reach the server. Please try again later.';
+const SERVER_UNREACHABLE_MESSAGE = "Could not reach the server. Please try again later.";
 
 const UNREACHABLE_STATUSES = new Set<number>([
   0,

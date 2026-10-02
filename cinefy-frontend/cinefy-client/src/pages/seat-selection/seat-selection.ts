@@ -23,7 +23,7 @@ import {
 } from 'cinefy-ui/components';
 import { BookingCancelledComponent, BookingSummaryComponent } from '../../components';
 import { BookingService } from '../../services';
-import { skipErrorToast } from '../../app/core/interceptors';
+import { skipErrorToast } from 'cinefy-ui/http';
 import { ArrowLeftIcon, TicketXIcon, TriangleAlertIcon, XIcon } from '../../shared/icons';
 import { seatRowLabel, type Seat, type SeatCategory } from 'cinefy-ui/types';
 import type {

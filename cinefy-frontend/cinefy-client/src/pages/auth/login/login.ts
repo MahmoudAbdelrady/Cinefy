@@ -9,7 +9,7 @@ import { OAuthButtonsComponent, OtpStep } from '../../../components';
 import { AuthFormStage, ApiError } from '../../../shared/types';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
-import { skipErrorToast } from '../../../app/core/interceptors';
+import { skipErrorToast } from 'cinefy-ui/http';
 import { EMAIL_PATTERN } from '../../../shared/validation';
 import { toSafeRedirect } from '../../../shared/redirect';
 import { ArrowRightIcon, EmailIcon, LockIcon } from '../../../shared/icons';

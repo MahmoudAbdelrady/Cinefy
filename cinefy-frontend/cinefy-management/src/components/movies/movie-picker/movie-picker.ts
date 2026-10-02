@@ -21,7 +21,7 @@ import {
 } from 'cinefy-ui/components';
 import { MovieSearchResult } from '../../../shared/types';
 import { SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE } from '../../../shared/constants';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { MoviesService } from '../../../services';
 
 @Component({

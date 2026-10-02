@@ -11,7 +11,7 @@ import {
   WarningIcon,
 } from '../../../shared/icons';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
 import type { DateRange, StatisticsSummary } from '../../../shared/types';

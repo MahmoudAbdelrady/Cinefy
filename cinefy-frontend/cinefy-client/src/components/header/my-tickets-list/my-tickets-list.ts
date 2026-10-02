@@ -19,7 +19,7 @@ import {
   CinefyLoadingSpinner,
   CinefyMediaImage,
 } from 'cinefy-ui/components';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { BookingService } from '../../../services';
 import type { BookingSummary } from '../../../shared/types';
 import {

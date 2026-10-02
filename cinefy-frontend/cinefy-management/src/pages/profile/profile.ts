@@ -7,7 +7,7 @@ import {
   ProfilePersonalDetailsComponent,
 } from '../../components';
 import type { StaffMemberDetail } from '../../shared/types';
-import { skipServerErrorToast } from '../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../services';
 import { WarningIcon } from '../../shared/icons';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';

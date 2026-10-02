@@ -47,7 +47,7 @@ import {
   type StaffMemberSummary,
   type UserPosition,
 } from '../../../shared/types';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
 import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';

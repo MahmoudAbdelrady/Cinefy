@@ -59,7 +59,7 @@ import {
 } from '../../../shared/types';
 import { seatRowIndex, seatRowLabel } from 'cinefy-ui/types';
 import { HallLayoutEditorComponent, seatStats } from '../hall-layout-editor/hall-layout-editor';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService } from '../../../services';
 import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
 

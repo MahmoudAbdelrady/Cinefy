@@ -15,6 +15,7 @@
     "services/**/*.ts",
     "pipes/**/*.ts",
     "types/**/*.ts",
-    "forms/**/*.ts"
+    "forms/**/*.ts",
+    "http/**/*.ts"
   ]
 }

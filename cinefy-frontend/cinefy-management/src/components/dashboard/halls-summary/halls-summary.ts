@@ -1,7 +1,7 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService } from '../../../services';
 import { LayoutIcon, SettingsIcon, WarningIcon } from '../../../shared/icons';
 import { HALL_STATUS_LABELS } from '../../../shared/types';

@@ -4,7 +4,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInMinutes, format, parse, startOfMinute } from 'date-fns';
 import { CinefyEmptyState, CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { ShowtimesService } from '../../../services';
 import { DATE_FORMAT, TIME_FORMAT } from '../../../shared/constants';
 import {

@@ -30,7 +30,7 @@ import { CinefyToastService } from 'cinefy-ui/services';
 import { DurationPipe } from 'cinefy-ui/pipes';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
 import { MovieShowtimesModal } from '../movie-showtimes-modal/movie-showtimes-modal';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import {
   MoviesService,
   ShowtimeEventsService,

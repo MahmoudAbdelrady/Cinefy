@@ -4,15 +4,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import {
-  CinefyEmptyState,
-  CinefyLoadingSpinner,
-  CinefyMediaImage,
-} from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
 import { DurationPipe } from 'cinefy-ui/pipes';
 import { BookingSectionComponent, TrailerModalComponent } from '../../components';
 import { MoviesService } from '../../services';
-import { skipErrorToast } from '../../app/core/interceptors';
+import { skipErrorToast } from 'cinefy-ui/http';
 import { ClockIcon, EyeIcon, PlayIcon, TriangleAlertIcon, UserIcon } from '../../shared/icons';
 import type { ApiError } from '../../shared/types';
 

@@ -4,13 +4,8 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import {
-  baseUrlInterceptor,
-  csrfInterceptor,
-  authRetryInterceptor,
-  errorToastInterceptor,
-  networkErrorInterceptor,
-} from './core/interceptors';
+import { baseUrlInterceptor, csrfInterceptor, authRetryInterceptor } from './core/interceptors';
+import { errorToastInterceptor, networkErrorInterceptor } from 'cinefy-ui/http';
 import { provideCinefyToast } from 'cinefy-ui/services';
 import { providePrimeNG } from 'primeng/config';
 import { CinefyClientPreset } from './cinefy-client-preset';

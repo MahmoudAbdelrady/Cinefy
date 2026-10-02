@@ -1,7 +1,7 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
 import { ContactRoundIcon, UsersIcon, WarningIcon } from '../../../shared/icons';
 import { USER_POSITION_LABELS } from '../../../shared/types';

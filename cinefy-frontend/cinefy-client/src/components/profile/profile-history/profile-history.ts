@@ -10,7 +10,7 @@ import {
   CinefyPaginator,
 } from 'cinefy-ui/components';
 import { PastBookingDetailsModalComponent } from '../past-booking-details-modal/past-booking-details-modal';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { BookingService } from '../../../services';
 import {
   ClapperboardIcon,

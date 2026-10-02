@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
-import { skipErrorToast } from '../../../app/core/interceptors';
+import { skipErrorToast } from 'cinefy-ui/http';
 import { PaymentGatewaysService } from '../../../services';
 import { AlertIcon, CreditCardIcon, SettingsIcon, WarningIcon } from '../../../shared/icons';
 import { GATEWAY_PROVIDER_LABELS } from '../../../shared/types';

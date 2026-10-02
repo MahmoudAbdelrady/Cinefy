@@ -50,7 +50,7 @@ import {
   type UserPosition,
   type WeekDay,
 } from '../../../shared/types';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
 import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
 import { assignableStaffPositions } from '../../../shared/access';

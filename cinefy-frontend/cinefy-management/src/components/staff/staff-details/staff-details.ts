@@ -35,7 +35,7 @@ import {
   WEEK_DAY_LABELS,
   type StaffMemberDetail,
 } from '../../../shared/types';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
 

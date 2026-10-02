@@ -5,7 +5,7 @@ import { switchMap } from 'rxjs/operators';
 import { CalendarIcon, ClockIcon, ClapperboardIcon } from '../../../shared/icons';
 import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { StatsComponent } from '../../stats/stats';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { ShowtimeEventsService, ShowtimesService } from '../../../services';
 import type { ShowtimesStatistics, StatsCard } from '../../../shared/types';
 

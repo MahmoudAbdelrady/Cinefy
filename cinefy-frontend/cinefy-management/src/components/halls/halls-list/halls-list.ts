@@ -38,7 +38,7 @@ import {
   HallSummary,
   StatisticsChange,
 } from '../../../shared/types';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService } from '../../../services';
 
 @Component({

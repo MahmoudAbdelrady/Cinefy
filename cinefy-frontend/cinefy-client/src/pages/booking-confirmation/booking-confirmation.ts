@@ -7,7 +7,7 @@ import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
 import { BookingService } from '../../services';
-import { skipErrorToast } from '../../app/core/interceptors';
+import { skipErrorToast } from 'cinefy-ui/http';
 import { compareSeatPositions } from 'cinefy-ui/types';
 import type { ApiError, BookingConfirmation, PaymentState } from '../../shared/types';
 import {

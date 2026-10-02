@@ -10,7 +10,7 @@ import {
   CinefyLoadingSpinner,
   CinefyMediaImage,
 } from 'cinefy-ui/components';
-import { skipServerErrorToast } from '../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService, MoviesService } from '../../services';
 import {
   ClapperboardIcon,

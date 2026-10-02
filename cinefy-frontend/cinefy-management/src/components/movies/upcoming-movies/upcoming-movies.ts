@@ -20,7 +20,7 @@ import {
   CinefySwitch,
 } from 'cinefy-ui/components';
 import { ManageShowtimeModalComponent } from '../manage-showtime-modal/manage-showtime-modal';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { MoviesService, ShowtimeEventsService } from '../../../services';
 
 const COMING_SOON_WINDOW_DAYS = 10;

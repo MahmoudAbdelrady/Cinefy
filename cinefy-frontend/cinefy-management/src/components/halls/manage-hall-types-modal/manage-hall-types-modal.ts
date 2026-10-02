@@ -30,7 +30,7 @@ import {
   CinefyEmptyState,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService } from '../../../services';
 import { HallType } from '../../../shared/types';
 import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';

@@ -33,7 +33,7 @@ import {
   type SeatCategory,
 } from 'cinefy-ui/types';
 import { CinefyToastService } from 'cinefy-ui/services';
-import { skipErrorToast } from '../../../app/core/interceptors';
+import { skipErrorToast } from 'cinefy-ui/http';
 import { BookingService, ShowtimeEventsService } from '../../../services';
 import { BookingTicketComponent } from '../booking-ticket/booking-ticket';
 import {

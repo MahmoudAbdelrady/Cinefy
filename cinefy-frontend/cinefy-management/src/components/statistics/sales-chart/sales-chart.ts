@@ -11,7 +11,7 @@ import {
   ChevronUpIcon,
   WarningIcon,
 } from '../../../shared/icons';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
 import type { DateRange, SalesPoint, StatisticsPeriodTotals } from '../../../shared/types';

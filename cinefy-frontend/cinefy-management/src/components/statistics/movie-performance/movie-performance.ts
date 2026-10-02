@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
 import { CinefyEmptyState, CinefyLoadingSpinner, CinefyPaginator } from 'cinefy-ui/components';
 import { ClapperboardIcon, WarningIcon } from '../../../shared/icons';
 import { DEFAULT_PAGE_SIZE } from '../../../shared/constants';
-import { skipServerErrorToast } from '../../../app/core/interceptors';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
 import type { DateRange, MoviePerformance } from '../../../shared/types';

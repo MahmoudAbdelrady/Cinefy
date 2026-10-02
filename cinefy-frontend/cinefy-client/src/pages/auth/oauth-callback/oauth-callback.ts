@@ -7,7 +7,7 @@ import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { OAuthRegisterForm, OtpStep } from '../../../components';
 import { AuthService } from '../../../services';
 import { ApiError, OAuthCallbackResult, OAuthRegistration } from '../../../shared/types';
-import { skipErrorToast } from '../../../app/core/interceptors';
+import { skipErrorToast } from 'cinefy-ui/http';
 import { toSafeRedirect } from '../../../shared/redirect';
 import { ArrowRightIcon, CheckIcon, TriangleAlertIcon } from '../../../shared/icons';
 

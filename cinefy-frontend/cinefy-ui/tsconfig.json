@@ -18,7 +18,8 @@
       "cinefy-ui/pipes": ["./pipes/src/public-api.ts"],
       "cinefy-ui/types": ["./types/src/public-api.ts"],
       "cinefy-ui/forms": ["./forms/src/public-api.ts"],
-      "cinefy-ui/constants": ["./constants/src/public-api.ts"]
+      "cinefy-ui/constants": ["./constants/src/public-api.ts"],
+      "cinefy-ui/http": ["./http/src/public-api.ts"]
     }
   },
   "angularCompilerOptions": {
