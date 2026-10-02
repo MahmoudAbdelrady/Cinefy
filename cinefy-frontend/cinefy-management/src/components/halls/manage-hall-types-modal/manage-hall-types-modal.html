@@ -1,106 +1,6 @@
 <cui-dialog header="Manage hall types" (closed)="closed.emit()" [style]="{ width: '480px' }">
   <div class="manage-types-modal-content">
-    <div class="existing-types-container">
-      <div class="section-head">
-        <h3>Existing types</h3>
-        <span class="sh-rule"></span>
-        @if (!loadingTypes() && hallTypes().length) {
-          <span class="sh-count">{{ hallTypes().length }}</span>
-        }
-      </div>
-      @if (loadingTypes()) {
-        <div class="loading-types">
-          <cui-loading-spinner variant="lg" />
-        </div>
-      } @else if (loadTypesError()) {
-        <div class="load-types-error">
-          <cui-error-state header="Failed to load hall types" />
-        </div>
-      } @else {
-        <ul class="existing-types-list">
-          @for (type of hallTypes(); track type.id) {
-            <li class="existing-type-item">
-              @if (editingTypeId() === type.id) {
-                <form
-                  class="edit-type-form"
-                  [formGroup]="editTypeForm"
-                  (ngSubmit)="confirmEditType(type)"
-                  (keydown.escape)="cancelEditType()"
-                >
-                  <div class="type-tile">
-                    <svg [lucideIcon]="icons.TagIcon" [size]="17" [strokeWidth]="2"></svg>
-                  </div>
-                  <div class="inline-edit-field">
-                    <cui-input
-                      [control]="editTypeForm.controls.name"
-                      [errorMessages]="nameErrorMessages"
-                      [autoFocus]="true"
-                    />
-                  </div>
-                  <div class="action-buttons editing">
-                    <button
-                      type="submit"
-                      pTooltip="Save"
-                      [disabled]="editTypeForm.invalid || savingTypeId() === type.id"
-                    >
-                      <svg
-                        [lucideIcon]="
-                          savingTypeId() === type.id ? icons.LoaderIcon : icons.CheckIcon
-                        "
-                        [size]="14"
-                        [strokeWidth]="2.5"
-                        [class.spin]="savingTypeId() === type.id"
-                      ></svg>
-                    </button>
-                    <button
-                      type="button"
-                      (click)="cancelEditType()"
-                      [disabled]="savingTypeId() === type.id"
-                      pTooltip="Cancel"
-                    >
-                      <svg [lucideIcon]="icons.XIcon" [size]="14" [strokeWidth]="2.5"></svg>
-                    </button>
-                  </div>
-                </form>
-              } @else {
-                <div class="type-tile">
-                  <svg [lucideIcon]="icons.TagIcon" [size]="17" [strokeWidth]="2"></svg>
-                </div>
-                <span class="type-name">{{ type.name }}</span>
-                <div class="action-buttons">
-                  <button
-                    [disabled]="isDeleting(type.id!)"
-                    (click)="startEditingType(type)"
-                    pTooltip="Edit"
-                    tooltipPosition="top"
-                  >
-                    <svg [lucideIcon]="icons.EditIcon" [size]="14" [strokeWidth]="2.5"></svg>
-                  </button>
-                  <button
-                    [disabled]="isDeleting(type.id!)"
-                    (click)="openDeleteConfirm($event, type)"
-                    pTooltip="Delete"
-                    tooltipPosition="top"
-                  >
-                    @if (isDeleting(type.id!)) {
-                      <cui-loading-spinner variant="xs" />
-                    } @else {
-                      <svg [lucideIcon]="icons.DeleteIcon" [size]="14" [strokeWidth]="2.5"></svg>
-                    }
-                  </button>
-                </div>
-              }
-            </li>
-          } @empty {
-            <cui-empty-state
-              [icon]="icons.TagIcon"
-              header="No hall types yet"
-              description="Add your first type below to get started"
-            />
-          }
-        </ul>
-      }
-    </div>
+    <hall-types-list #typesList />
     <div class="new-type-container">
       @if (showNewTypeForm()) {
         <form
@@ -127,12 +27,11 @@
               tooltipPosition="top"
               [disabled]="newTypeForm.invalid || addingType()"
             >
-              <svg
-                [lucideIcon]="addingType() ? icons.LoaderIcon : icons.CheckIcon"
-                [size]="14"
-                [strokeWidth]="2.5"
-                [class.spin]="addingType()"
-              ></svg>
+              @if (addingType()) {
+                <cui-loading-spinner variant="xs" />
+              } @else {
+                <svg [lucideIcon]="icons.CheckIcon" [size]="14" [strokeWidth]="2.5"></svg>
+              }
             </button>
             <button
               type="button"
@@ -145,7 +44,7 @@
             </button>
           </div>
         </form>
-      } @else {
+      } @else if (!typesList.loadTypesError()) {
         <button class="btn-add-new-type" (click)="startAddingType()">
           <svg [lucideIcon]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></svg>
           Add new type
@@ -153,33 +52,4 @@
       }
     </div>
   </div>
-
-  <p-popover>
-    @if (typeToDelete(); as type) {
-      <div class="delete-confirm-popover">
-        <div class="delete-confirm-header">
-          <svg [lucideIcon]="icons.WarningIcon" [size]="16" [strokeWidth]="2.5"></svg>
-          <span>Delete "{{ type.name }}"?</span>
-        </div>
-        <p>This action cannot be undone.</p>
-        <div class="delete-confirm-actions">
-          <button
-            class="btn-cancel"
-            [disabled]="isDeleting(type.id!)"
-            (click)="closeDeleteConfirm()"
-          >
-            Cancel
-          </button>
-          <button class="btn-delete" [disabled]="isDeleting(type.id!)" (click)="deleteType(type)">
-            @if (isDeleting(type.id!)) {
-              <cui-loading-spinner variant="xs" />
-              <span>Deleting…</span>
-            } @else {
-              Delete
-            }
-          </button>
-        </div>
-      </div>
-    }
-  </p-popover>
 </cui-dialog>

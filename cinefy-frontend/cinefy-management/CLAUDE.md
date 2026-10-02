@@ -64,7 +64,9 @@ src/
 │   │   ├── hall-layout-editor/         # Interactive seat grid editor
 │   │   ├── halls-list/                 # Unpaged hall list (client-side search + status filter)
 │   │   ├── halls-statistics/           # Stats cards (derived from halls-list, not a separate fetch)
-│   │   └── manage-hall-types-modal/    # Hall type CRUD
+│   │   ├── hall-types-list/            # Hall type list: owns the load + inline edit + delete popover.
+│   │   │                               #   Public loadTypesError signal + add(type) for the modal.
+│   │   └── manage-hall-types-modal/    # Dialog shell: <hall-types-list> + the add-type form
 │   ├── movies/                         # movie-picker, current-showtimes, upcoming-movies,
 │   │                                   #   movie-showtimes-modal, manage-showtime-modal,
 │   │                                   #   movies-statistics, book-seats (seat selection + on-site payment),
@@ -188,7 +190,7 @@ src/
 
 Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, `shared/guards/index.ts`, `app/core/interceptors/index.ts`, and a nested `components/auth/forgot-password/index.ts` — always import through them.
 
-Not every shared file is a folder: `components/halls/seat-layout.ts` (seat-grid + `comparePositions` helpers), `components/profile/_panel.scss`, and `components/staff/_position-colors.scss` sit beside their component folders.
+Not every shared file is a folder: `components/halls/seat-layout.ts` (seat-grid + `comparePositions` helpers), `components/halls/hall-type-form.ts` + `components/halls/_hall-type-row.scss` (`createHallTypeForm()` + name error messages, and row styles shared by `hall-types-list` and `manage-hall-types-modal`), `components/profile/_panel.scss`, and `components/staff/_position-colors.scss` sit beside their component folders.
 
 ## Routes
 

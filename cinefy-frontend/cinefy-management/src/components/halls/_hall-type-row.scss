@@ -1,0 +1,71 @@
+@use '../../shared/styles/colors' as *;
+@use '../../shared/styles/mixins' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+
+@mixin hall-type-row {
+  .type-tile {
+    @include icon-box(38px);
+    background-color: $blue-50;
+    color: $blue-600;
+  }
+
+  .inline-edit-field {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .action-buttons {
+    @include flex-align;
+    gap: 4px;
+
+    &:not(.editing) {
+      opacity: 0;
+      transition: opacity $transition-fast;
+    }
+
+    button {
+      @include flex-center;
+      @include lucide-icon-fix;
+      padding: 6px;
+      border-radius: $radius-sm;
+      transition: all $transition-fast;
+
+      &:first-child {
+        color: $blue-600;
+
+        &:hover {
+          background-color: $blue-50;
+        }
+      }
+
+      &:last-child {
+        color: $red-500;
+
+        &:hover {
+          background-color: $red-50;
+        }
+      }
+
+      &:disabled {
+        color: $gray-300;
+        cursor: not-allowed;
+
+        &:hover {
+          background-color: transparent;
+        }
+      }
+    }
+
+    &.editing {
+      min-height: 38px;
+
+      button:first-child:not(:disabled) {
+        color: $green-600;
+
+        &:hover {
+          background-color: $green-50;
+        }
+      }
+    }
+  }
+}
