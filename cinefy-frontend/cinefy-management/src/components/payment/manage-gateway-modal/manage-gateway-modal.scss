@@ -73,23 +73,25 @@
 }
 
 .gateway-footer {
-  @include flex-between;
+  @include dialog-footer;
 
-  flex-wrap: wrap;
-  gap: 16px;
   width: 100%;
-
-  .encrypted-note {
-    @include flex-align;
-    @include lucide-icon-fix;
-
-    gap: 6px;
-    font-size: 12px;
-    color: $gray-500;
-  }
 
   .footer-actions {
     @include flex-align;
-    gap: 8px;
+    gap: 12px;
+
+    @include below-phone {
+      flex-direction: column-reverse;
+      width: 100%;
+      gap: 8px;
+    }
+
+    .btn-neutral,
+    .btn-primary {
+      @include below-phone {
+        width: 100%;
+      }
+    }
   }
 }

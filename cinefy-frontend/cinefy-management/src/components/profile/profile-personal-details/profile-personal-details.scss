@@ -11,6 +11,14 @@
       @include lucide-icon-fix;
 
       flex-shrink: 0;
+
+      @include below-phone {
+        padding: 8px;
+
+        span {
+          display: none;
+        }
+      }
     }
   }
 

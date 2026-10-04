@@ -8,9 +8,6 @@
       </div>
       <div>
         <h4>Personal details</h4>
-        <p>
-          {{ isEditing() ? 'Update your contact information' : 'Your contact information' }}
-        </p>
       </div>
     </div>
     @if (profile.position !== 'ADMIN' && !isEditing()) {
