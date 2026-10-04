@@ -62,23 +62,14 @@
   }
 
   .custom-trigger {
-    @include flex-center;
     @include lucide-icon-fix;
 
-    gap: 8px;
     padding: 8px 12px;
-    font-size: 14px;
-    font-weight: 500;
     white-space: nowrap;
     color: $gray-600;
     background-color: $color-background;
     border: 1px solid $gray-300;
     border-radius: $radius-lg;
-    cursor: pointer;
-    transition:
-      background-color $transition-fast,
-      border-color $transition-fast,
-      color $transition-fast;
 
     &:hover {
       background-color: $gray-100;
