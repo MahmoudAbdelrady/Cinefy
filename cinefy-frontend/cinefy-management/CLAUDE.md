@@ -180,7 +180,7 @@ src/
 │   │                                   #   stats, statistics, auth, api
 │   └── styles/
 │       ├── _colors.scss                # Full color palette ($gray-*, $blue-*, etc.) — project-owned
-│       ├── _shadows.scss                # $shadow-xs/sm/md/lg + focus-ring tokens — project-owned
+│       ├── _shadows.scss                # $shadow-xs/sm/md/card + focus-ring tokens — project-owned
 │       └── _mixins.scss                # Management-only mixins: icon-box. Shared flex-*/lucide-icon-fix/text-truncate come from cinefy-ui.
 │                                       # Breakpoints, shared mixins, and button styles come from cinefy-ui via @use.
 │                                       # src/styles.scss bridges $colors/$shadows → var(--cui-*) for the lib's components.
@@ -626,7 +626,7 @@ renders nowhere. Don't pass a key by hand — the service and component both rea
 - A file may `@use` both `shared/styles/mixins` and `cinefy-ui/styles/mixins` when it needs both project-specific and shared mixins.
 - Use `$color-*` and `$gray/blue/red/etc-*` from `_colors.scss` — never hardcode colors.
 - Use `$radius-sm/md/lg/xl/full` for border-radius.
-- Use `$shadow-xs/sm/md/lg` and `$shadow-focus-ring[-error]` from `_shadows.scss` — never hardcode `box-shadow` values.
+- Use `$shadow-xs/sm/md/card` and `$shadow-focus-ring[-error]` from `_shadows.scss` — never hardcode `box-shadow` values.
 - cinefy-ui's components consume runtime `var(--cui-*)` tokens (theming contract). Management's `src/styles.scss` maps its SCSS palette to those tokens once in a `:root { ... }` block — that's the single bridge. Component SCSS in management uses plain `$variables`, not `var()`.
 - Layout mixins: `flex-center`, `flex-align`, `flex-between`, `flex-column` (cinefy-ui).
 - Icon mixins: `icon-box($size)` (management), `lucide-icon-fix` (cinefy-ui, applied on the **parent** of `<lucide-icon>`, never inside a `lucide-icon { }` block).

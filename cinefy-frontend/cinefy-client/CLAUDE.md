@@ -110,7 +110,7 @@ src/
 ├── main.ts                     # Browser bootstrap
 ├── main.server.ts             # Server bootstrap
 ├── server.ts                  # Express SSR host
-├── styles.scss                 # Global reset + the cinefy-ui --cui-* token bridge + global helpers (.reveal, .scrollbar-hide)
+├── styles.scss                 # Global reset + the cinefy-ui --cui-* token bridge + global helpers (.reveal)
 └── index.html
 
 mvp-version/                    # React 19 + Vite + Tailwind v4 + shadcn/ui design mock (the reference)

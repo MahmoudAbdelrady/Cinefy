@@ -25,7 +25,6 @@
   @extend .btn-base;
   color: var(--cui-text-on-accent);
   background-color: var(--cui-accent);
-  box-shadow: var(--cui-button-shadow);
 
   &:hover:not(:disabled) {
     background-color: var(--cui-accent-hover);
@@ -58,7 +57,6 @@
   @extend .btn-base;
   color: var(--cui-danger-text);
   background-color: var(--cui-danger);
-  box-shadow: var(--cui-button-shadow-strong);
 
   &:hover:not(:disabled) {
     background-color: var(--cui-danger-hover);
@@ -69,7 +67,6 @@
   @extend .btn-base;
   color: var(--cui-text-on-accent);
   background-color: var(--cui-success);
-  box-shadow: var(--cui-button-shadow);
 
   &:hover:not(:disabled) {
     background-color: var(--cui-success-hover);

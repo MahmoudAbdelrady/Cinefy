@@ -6,15 +6,10 @@
 :root {
   // Surfaces
   --cui-surface-base: #{$color-background};
-  --cui-surface-input: #{$color-input};
-  --cui-surface-overlay: #{$color-popover};
   --cui-surface-hover: #{$color-secondary};
-  --cui-surface-disabled: #{$color-muted};
-  --cui-surface-active: #{$color-accent};
 
   // Text
   --cui-text-primary: #{$color-foreground};
-  --cui-text-emphasis: #{$color-foreground};
   --cui-text-muted: #{$color-muted-foreground};
   --cui-text-faint: #{rgba($color-foreground, 0.4)};
   --cui-text-hint: #{$color-muted-foreground};
@@ -26,10 +21,8 @@
   // Borders & focus
   --cui-border-default: #{$color-border};
   --cui-border-subtle: #{$color-border};
-  --cui-border-strong: #{$color-muted-foreground};
   --cui-icon-disabled: #{$color-muted};
   --cui-ring: #{$color-primary};
-  --cui-ring-error: #{$color-destructive};
 
   // Accent / status
   --cui-accent: #{$color-primary};
@@ -45,18 +38,9 @@
   --cui-success: #{$color-primary};
   --cui-success-hover: #{$color-primary};
 
-  // Switch
-  --cui-switch-track: #{$color-secondary};
-  --cui-switch-thumb: #{$color-foreground};
-  --cui-switch-thumb-shadow: #{$shadow-overlay};
-
   // Media image (poster/backdrop/profile placeholder)
   --cui-media-placeholder-bg: #{$color-muted};
   --cui-media-placeholder-icon: #{$color-muted-foreground};
-
-  // Modal (MVP dialog uses the lighter `popover` surface, a black scrim, and a soft shadow)
-  --cui-modal-backdrop: #{rgba($color-black, 0.5)};
-  --cui-modal-shadow: #{$shadow-overlay};
 
   // Seat map
   --cui-seat-normal-surface: #{rgba($color-seat-premium, 0.5)};
@@ -123,16 +107,6 @@ button {
 
 ::selection {
   background: rgba($color-primary, 0.3);
-}
-
-// ─── Hide scrollbars on horizontal rails (date picker, seat grid) ─────────────
-.scrollbar-hide {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 }
 
 // ─── Lightweight page-load reveal ────────────────────────────────────────────
