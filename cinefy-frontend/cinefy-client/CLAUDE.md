@@ -100,11 +100,10 @@ src/
 ├── shared/
 │   ├── icons.ts               # Re-exports of lucide icons from @lucide/angular — sole source of glyphs (alias `X as XIcon`)
 │   ├── guards/                # auth-guard (authGuard), guest-guard (guestGuard) (barrel: index.ts)
-│   ├── seat-position.ts       # comparePositions() seat-sorting helper
-│   ├── validation.ts          # Shared form regexes: EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN
 │   ├── types/                 # Client-facing data shapes (barrel: types/index.ts) — movies, halls, booking, auth, clients, api (ApiError/ApiErrorCode), seats
 │   └── styles/
 │       └── _colors.scss       # Color palette + typography vars; @forwards cinefy-ui tokens — the single shared partial under shared/styles (see also the forgot-password _fp-shared.scss)
+├── utils/                      # Pure helpers (barrel: index.ts) — redirect.ts (toSafeRedirect), payments.ts (brandChip)
 ├── environments/
 │   ├── environment.ts         # Dev: apiUrl = http://localhost:8080
 │   └── environment.prod.ts    # Prod: apiUrl = /api
@@ -117,7 +116,7 @@ src/
 mvp-version/                    # React 19 + Vite + Tailwind v4 + shadcn/ui design mock (the reference)
 ```
 
-Barrel exports exist at `components/index.ts` (+ a nested `components/auth/forgot-password/index.ts`), `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, and `shared/guards/index.ts` — import through them, not by deep path.
+Barrel exports exist at `components/index.ts` (+ a nested `components/auth/forgot-password/index.ts`), `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, `shared/guards/index.ts`, and `utils/index.ts` — import through them, not by deep path.
 
 ### Shared styles & the design system
 
@@ -170,7 +169,7 @@ These hold across the Cinefy frontend — see `cinefy-management/CLAUDE.md` for 
 - **Reactive forms** (`FormGroup` + `[formGroup]`) for any `<form (ngSubmit)>`; signal/template forms must import `FormsModule` so `<form>` has a directive.
 - **No accessibility attributes** (`aria-*`, `role`, `title`) and **no explanatory comments** unless explicitly requested. Write self-documenting code.
 - **No `-webkit-` prefixes / legacy fallbacks** — target modern browsers, write the standard property directly. The one exception is multi-line truncation: `display: -webkit-box` + `-webkit-box-orient: vertical` + `-webkit-line-clamp` are the only implemented mechanism, so they're load-bearing (pair `-webkit-line-clamp` with the standard `line-clamp` for the linter and future-proofing).
-- Shared form regexes live in a flat `src/shared/validation.ts` (`EMAIL_PATTERN`, `NAME_PATTERN`, `PASSWORD_PATTERN`).
+- Form regexes (`EMAIL_PATTERN`, `NAME_PATTERN`, `PASSWORD_PATTERN`) come from `cinefy-ui/forms`, shared with management — don't redeclare them locally.
 - Prettier: `printWidth: 100`, `singleQuote: true`; HTML uses the angular parser.
 - TypeScript is **strict** (`strict`, `noImplicitOverride`, `noPropertyAccessFromIndexSignature`, `strictTemplates`).
 - After adding cinefy-ui exports, clear `.angular/cache` — Vite caches the lib pre-bundle and throws "does not provide an export named" until cleared (dev only).

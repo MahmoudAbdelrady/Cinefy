@@ -25,7 +25,7 @@ import { PhoneFormatPipe } from 'cinefy-ui/pipes';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
 import { EditIcon, EmailIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
-import { NAME_PATTERN } from '../../../shared/validation';
+import { NAME_PATTERN } from 'cinefy-ui/forms';
 import type { CurrentUser, UpdateProfilePayload } from '../../../shared/types';
 
 @Component({

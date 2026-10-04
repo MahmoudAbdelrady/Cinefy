@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyInput, CinefyLoadingSpinner } from 'cinefy-ui/components';
-import { EMAIL_PATTERN } from '../../../../../shared/validation';
+import { EMAIL_PATTERN } from 'cinefy-ui/forms';
 import { AuthService } from '../../../../../services';
 import { ArrowLeftIcon, ArrowRightIcon, EmailIcon } from '../../../../../shared/icons';
 

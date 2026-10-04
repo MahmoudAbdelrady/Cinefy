@@ -24,7 +24,7 @@ import {
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { ExternalLinkIcon, KeyIcon, LockIcon, WebhookIcon } from '../../../shared/icons';
-import { NO_WHITESPACE_PATTERN, RESOURCE_NAME_PATTERN } from '../../../shared/validation';
+import { NO_WHITESPACE_PATTERN, RESOURCE_NAME_PATTERN } from '../../../shared/constants';
 import type {
   GatewayProvider,
   PaymentChannel,

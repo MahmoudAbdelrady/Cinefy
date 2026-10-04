@@ -31,7 +31,7 @@ import { CinefyToastService } from 'cinefy-ui/services';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService } from '../../../services';
 import { HallType } from '../../../shared/types';
-import { toggleInSet } from '../../../shared/sets';
+import { toggleInSet } from '../../../utils';
 import { createHallTypeForm, HALL_TYPE_NAME_ERROR_MESSAGES } from '../hall-type-form';
 
 @Component({

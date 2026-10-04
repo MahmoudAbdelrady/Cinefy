@@ -7,8 +7,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { KeyIcon } from '../../../shared/icons';
 import { CinefyInput, CinefyLoadingSpinner, CinefyPasswordChecklist } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
-import { linkConfirmPassword } from 'cinefy-ui/forms';
-import { PASSWORD_PATTERN } from '../../../shared/validation';
+import { linkConfirmPassword, PASSWORD_PATTERN } from 'cinefy-ui/forms';
 import { StaffService } from '../../../services';
 import type { ApiError } from '../../../shared/types';
 

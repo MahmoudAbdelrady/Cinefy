@@ -18,7 +18,7 @@ import {
   ScanLineIcon,
   TicketIcon,
 } from '../../../shared/icons';
-import { ALPHANUMERIC_PATTERN } from '../../../shared/validation';
+import { ALPHANUMERIC_PATTERN } from '../../../shared/constants';
 import { BookingService } from '../../../services';
 import { compareSeatPositions } from 'cinefy-ui/types';
 import type { BookingConfirmation } from '../../../shared/types';

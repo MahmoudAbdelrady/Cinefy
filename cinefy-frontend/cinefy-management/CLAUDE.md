@@ -133,6 +133,7 @@ src/
 │                                       #   from 'cinefy-ui/pipes'      — PhoneFormat/RelativeTime/Time12h
 │                                       #   from 'cinefy-ui/types'      — PaginatedResponse, PageFields
 │                                       #   from 'cinefy-ui/constants'  — shared runtime constants (CINEFY_TOAST_KEY/LIFE)
+│                                       #   from 'cinefy-ui/forms'      — linkConfirmPassword, EMAIL/NAME/PASSWORD_PATTERN
 │                                       #   from 'cinefy-ui/http'       — errorToastInterceptor, networkErrorInterceptor,
 │                                       #                                 skipErrorToast(), skipServerErrorToast()
 ├── pages/                              # Route-level components
@@ -171,9 +172,9 @@ src/
 ├── shared/
 │   ├── icons.ts                        # Re-exports of lucide icons used in the app — sole source of glyphs
 │   ├── access.ts                       # Position → allowed-route/action rules (canAccessRoute, canManage, ...)
-│   ├── validation.ts                   # Shared form regexes (password/email/name/username patterns)
-│   ├── sets.ts                         # toggleInSet(set, value, include?) — immutable add/delete/flip for Set signals
-│   ├── constants/                      # UI constants (SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE)
+│   ├── constants/                      # ui.ts (SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE), formats.ts (TIME/DATE_FORMAT),
+│   │                                   #   validation.ts — management-only regexes (RESOURCE_NAME/NO_WHITESPACE/
+│   │                                   #   ALPHANUMERIC_PATTERN). EMAIL/NAME/PASSWORD_PATTERN live in cinefy-ui/forms.
 │   ├── guards/                         # auth-guard, guest-guard, position-guard (route CanActivate/CanMatch)
 │   ├── types/                          # halls, movies, showtimes, booking, staff, payment-gateway,
 │   │                                   #   stats, statistics, auth, api
@@ -183,13 +184,16 @@ src/
 │       └── _mixins.scss                # Management-only mixins: icon-box. Shared flex-*/lucide-icon-fix/text-truncate come from cinefy-ui.
 │                                       # Breakpoints, shared mixins, and button styles come from cinefy-ui via @use.
 │                                       # src/styles.scss bridges $colors/$shadows → var(--cui-*) for the lib's components.
+├── utils/                              # Pure helpers (barrel: index.ts)
+│   └── sets.ts                         #   toggleInSet(set, value, include?) — immutable add/delete/flip for Set signals;
+│                                       #   setsEqual(a, b)
 ├── environments/
 │   ├── environment.ts                  # Dev: apiUrl = http://localhost:8080
 │   └── environment.prod.ts             # Prod: apiUrl = /api
 └── styles.scss                         # Global reset + --cui-* token bridge
 ```
 
-Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, `shared/guards/index.ts`, `app/core/interceptors/index.ts`, and a nested `components/auth/forgot-password/index.ts` — always import through them.
+Barrel exports exist at `components/index.ts`, `pages/index.ts`, `services/index.ts`, `shared/types/index.ts`, `shared/guards/index.ts`, `shared/constants/index.ts`, `utils/index.ts`, `app/core/interceptors/index.ts`, and a nested `components/auth/forgot-password/index.ts` — always import through them.
 
 Not every shared file is a folder: `components/halls/seat-layout.ts` (seat-grid + `comparePositions` helpers), `components/halls/hall-type-form.ts` + `components/halls/_hall-type-row.scss` (`createHallTypeForm()` + name error messages, and row styles shared by `hall-types-list` and `manage-hall-types-modal`), `components/profile/_panel.scss`, and `components/staff/_position-colors.scss` sit beside their component folders.
 

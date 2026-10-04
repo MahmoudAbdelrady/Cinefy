@@ -45,7 +45,7 @@ import {
 } from '../../../shared/types';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
-import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
+import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from 'cinefy-ui/forms';
 import { assignableStaffPositions } from '../../../shared/access';
 import { TIME_FORMAT } from '../../../shared/constants';
 

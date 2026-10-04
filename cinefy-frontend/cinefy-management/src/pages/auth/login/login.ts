@@ -7,7 +7,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyInput, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
-import { EMAIL_PATTERN } from '../../../shared/validation';
+import { EMAIL_PATTERN } from 'cinefy-ui/forms';
 import { ArrowRightIcon, EmailIcon, PasswordIcon } from '../../../shared/icons';
 
 @Component({

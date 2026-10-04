@@ -1,5 +1,5 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { RESOURCE_NAME_PATTERN } from '../../shared/validation';
+import { RESOURCE_NAME_PATTERN } from '../../shared/constants';
 
 export const HALL_TYPE_NAME_ERROR_MESSAGES: Record<string, string> = {
   required: 'Hall type name is required',

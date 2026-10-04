@@ -60,7 +60,7 @@ import { seatRowIndex, seatRowLabel } from 'cinefy-ui/types';
 import { HallLayoutEditorComponent, seatStats } from '../hall-layout-editor/hall-layout-editor';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService } from '../../../services';
-import { RESOURCE_NAME_PATTERN } from '../../../shared/validation';
+import { RESOURCE_NAME_PATTERN } from '../../../shared/constants';
 
 const MAX_GRID_DIMENSION = 50;
 const MAX_PRICE_DECIMALS = 2;

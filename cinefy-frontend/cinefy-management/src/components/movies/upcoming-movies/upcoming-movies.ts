@@ -11,7 +11,7 @@ import {
   StarIcon,
 } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
-import { toggleInSet } from '../../../shared/sets';
+import { toggleInSet } from '../../../utils';
 import { differenceInCalendarDays } from 'date-fns';
 import {
   CinefyLoadingSpinner,

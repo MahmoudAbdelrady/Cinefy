@@ -14,12 +14,16 @@ import {
   toE164Digits,
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
-import { linkConfirmPassword } from 'cinefy-ui/forms';
+import {
+  EMAIL_PATTERN,
+  linkConfirmPassword,
+  NAME_PATTERN,
+  PASSWORD_PATTERN,
+} from 'cinefy-ui/forms';
 import { OAuthButtonsComponent, OtpStep } from '../../../components';
 import { AuthFormStage } from '../../../shared/types';
 import { AuthService } from '../../../services';
-import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
-import { toSafeRedirect } from '../../../shared/redirect';
+import { toSafeRedirect } from '../../../utils';
 import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/icons';
 
 @Component({

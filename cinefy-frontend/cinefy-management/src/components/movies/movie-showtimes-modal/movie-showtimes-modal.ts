@@ -54,7 +54,7 @@ import { BookSeatsComponent } from '../book-seats/book-seats';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { canManage as canManagePosition, canBook as canBookPosition } from '../../../shared/access';
-import { toggleInSet } from '../../../shared/sets';
+import { setsEqual, toggleInSet } from '../../../utils';
 
 @Component({
   selector: 'movie-showtimes-modal',
@@ -237,7 +237,7 @@ export class MovieShowtimesModal {
         }
       }
       const current = untracked(() => this.overflowingNotes());
-      if (this.setsEqual(current, next)) return;
+      if (setsEqual(current, next)) return;
       this.overflowingNotes.set(next);
     });
   }
@@ -546,11 +546,5 @@ export class MovieShowtimesModal {
 
   private markPublishing(id: string, isPublishing: boolean): void {
     this.publishingShowtimeIds.update((current) => toggleInSet(current, id, isPublishing));
-  }
-
-  private setsEqual(a: Set<string>, b: Set<string>): boolean {
-    if (a.size !== b.size) return false;
-    for (const v of a) if (!b.has(v)) return false;
-    return true;
   }
 }

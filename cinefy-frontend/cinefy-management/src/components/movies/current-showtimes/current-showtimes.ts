@@ -5,7 +5,7 @@ import { finalize, merge, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { EditableShowtime, MovieSummary, MovieWithShowtimes } from '../../../shared/types';
 import { canManage as canManagePosition } from '../../../shared/access';
-import { toggleInSet } from '../../../shared/sets';
+import { toggleInSet } from '../../../utils';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Tooltip } from 'primeng/tooltip';
 import {

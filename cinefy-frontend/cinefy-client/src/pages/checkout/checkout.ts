@@ -29,7 +29,7 @@ import {
   TriangleAlertIcon,
   XIcon,
 } from '../../shared/icons';
-import { brandChip } from '../../shared/payments';
+import { brandChip } from '../../utils';
 
 @Component({
   selector: 'checkout-page',

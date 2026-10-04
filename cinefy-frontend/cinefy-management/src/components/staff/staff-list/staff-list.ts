@@ -58,7 +58,7 @@ import {
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
-import { toggleInSet } from '../../../shared/sets';
+import { toggleInSet } from '../../../utils';
 import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
 
 @Component({

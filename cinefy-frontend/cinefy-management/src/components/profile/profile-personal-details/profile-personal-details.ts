@@ -26,7 +26,7 @@ import {
 import { CinefyToastService } from 'cinefy-ui/services';
 import { PhoneFormatPipe } from 'cinefy-ui/pipes';
 import type { StaffMemberDetail } from '../../../shared/types';
-import { NAME_PATTERN } from '../../../shared/validation';
+import { NAME_PATTERN } from 'cinefy-ui/forms';
 import { StaffService } from '../../../services';
 
 @Component({

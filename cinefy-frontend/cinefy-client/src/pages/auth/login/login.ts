@@ -10,8 +10,8 @@ import { AuthFormStage, ApiError } from '../../../shared/types';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
 import { skipErrorToast } from 'cinefy-ui/http';
-import { EMAIL_PATTERN } from '../../../shared/validation';
-import { toSafeRedirect } from '../../../shared/redirect';
+import { EMAIL_PATTERN } from 'cinefy-ui/forms';
+import { toSafeRedirect } from '../../../utils';
 import { ArrowRightIcon, EmailIcon, LockIcon } from '../../../shared/icons';
 
 @Component({

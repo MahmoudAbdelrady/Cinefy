@@ -23,7 +23,7 @@ import {
   WebhookIcon,
 } from '../../../shared/icons';
 import { GATEWAY_PROVIDER_LABELS, type PaymentGateway } from '../../../shared/types';
-import { toggleInSet } from '../../../shared/sets';
+import { toggleInSet } from '../../../utils';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { PaymentGatewaysService } from '../../../services';
 import { ManageGatewayModalComponent } from '../manage-gateway-modal/manage-gateway-modal';

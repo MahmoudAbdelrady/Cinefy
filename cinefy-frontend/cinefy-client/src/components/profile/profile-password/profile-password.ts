@@ -4,11 +4,10 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { CinefyInput, CinefyLoadingSpinner, CinefyPasswordChecklist } from 'cinefy-ui/components';
-import { linkConfirmPassword } from 'cinefy-ui/forms';
+import { linkConfirmPassword, PASSWORD_PATTERN } from 'cinefy-ui/forms';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
 import { KeyRoundIcon, LockIcon } from '../../../shared/icons';
-import { PASSWORD_PATTERN } from '../../../shared/validation';
 import type { ApiError, ChangePasswordPayload } from '../../../shared/types';
 
 @Component({

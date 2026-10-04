@@ -13,7 +13,7 @@ import { CinefyToastService } from 'cinefy-ui/services';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { ClientService } from '../../../services';
 import { CreditCardIcon, TrashIcon, TriangleAlertIcon } from '../../../shared/icons';
-import { brandChip } from '../../../shared/payments';
+import { brandChip } from '../../../utils';
 import type { ClientPaymentMethod } from '../../../shared/types';
 
 @Component({

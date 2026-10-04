@@ -1,2 +1,3 @@
 export { SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE } from './ui';
 export { TIME_FORMAT, DATE_FORMAT } from './formats';
+export { RESOURCE_NAME_PATTERN, NO_WHITESPACE_PATTERN, ALPHANUMERIC_PATTERN } from './validation';
