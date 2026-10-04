@@ -23,6 +23,7 @@ import {
   WebhookIcon,
 } from '../../../shared/icons';
 import { GATEWAY_PROVIDER_LABELS, type PaymentGateway } from '../../../shared/types';
+import { toggleInSet } from '../../../shared/sets';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { PaymentGatewaysService } from '../../../services';
 import { ManageGatewayModalComponent } from '../manage-gateway-modal/manage-gateway-modal';
@@ -142,17 +143,19 @@ export class GatewayListComponent {
 
     this.paymentGatewaysService
       .deletePaymentGateway(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.markDeleting(id, false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
           this.standbyGateways.update((gateways) =>
             gateways.filter((gateway) => gateway.id !== id),
           );
-          this.markDeleting(id, false);
           this.toastService.success('Payment gateway deleted');
           this.gatewayToDelete.set(null);
         },
-        error: () => this.markDeleting(id, false),
+        error: () => {},
       });
   }
 
@@ -189,15 +192,7 @@ export class GatewayListComponent {
   }
 
   private markDeleting(id: string, isDeleting: boolean): void {
-    this.deletingGatewayIds.update((current) => {
-      const next = new Set(current);
-      if (isDeleting) {
-        next.add(id);
-      } else {
-        next.delete(id);
-      }
-      return next;
-    });
+    this.deletingGatewayIds.update((current) => toggleInSet(current, id, isDeleting));
   }
 
   private addStandbyGateway(gateways: PaymentGateway[], gateway: PaymentGateway): PaymentGateway[] {

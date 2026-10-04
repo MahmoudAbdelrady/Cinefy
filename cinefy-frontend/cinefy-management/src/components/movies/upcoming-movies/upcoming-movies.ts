@@ -11,6 +11,7 @@ import {
   StarIcon,
 } from '../../../shared/icons';
 import type { UpcomingMovie } from '../../../shared/types';
+import { toggleInSet } from '../../../shared/sets';
 import { differenceInCalendarDays } from 'date-fns';
 import {
   CinefyLoadingSpinner,
@@ -145,16 +146,15 @@ export class UpcomingMoviesComponent {
     this.setAnnounced(movieId, announced);
     this.moviesService
       .setAnnouncement(movieId, announced)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.setPending(movieId, false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.setPending(movieId, false);
-          this.demoteHighlightIfUnhighlightable(movieId);
-        },
+        next: () => this.demoteHighlightIfUnhighlightable(movieId),
         error: () => {
           // Re-assert the prior value so the switch reverts to the confirmed state.
           this.setAnnounced(movieId, !announced);
-          this.setPending(movieId, false);
         },
       });
   }
@@ -166,16 +166,15 @@ export class UpcomingMoviesComponent {
     this.setHighlighted(movieId, highlighted);
     this.moviesService
       .setHighlight(movieId, highlighted)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.setHighlightPending(movieId, false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.setHighlightPending(movieId, false);
-          this.showtimeEvents.notifyHighlightChanged(movieId, highlighted);
-        },
+        next: () => this.showtimeEvents.notifyHighlightChanged(movieId, highlighted),
         error: () => {
           // Re-assert the prior value so the switch reverts to the confirmed state.
           this.setHighlighted(movieId, !highlighted);
-          this.setHighlightPending(movieId, false);
         },
       });
   }
@@ -185,11 +184,7 @@ export class UpcomingMoviesComponent {
   }
 
   private setPending(movieId: number, pending: boolean): void {
-    this.announcePendingIds.update((ids) => {
-      const next = new Set(ids);
-      pending ? next.add(movieId) : next.delete(movieId);
-      return next;
-    });
+    this.announcePendingIds.update((ids) => toggleInSet(ids, movieId, pending));
   }
 
   private setCommitted(movieId: number, committed: boolean): void {
@@ -212,11 +207,7 @@ export class UpcomingMoviesComponent {
   }
 
   private setHighlightPending(movieId: number, pending: boolean): void {
-    this.highlightPendingIds.update((ids) => {
-      const next = new Set(ids);
-      pending ? next.add(movieId) : next.delete(movieId);
-      return next;
-    });
+    this.highlightPendingIds.update((ids) => toggleInSet(ids, movieId, pending));
   }
 
   private patchMovie(movieId: number, patch: Partial<UpcomingMovie>): void {

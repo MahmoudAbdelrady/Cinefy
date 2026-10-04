@@ -172,6 +172,7 @@ src/
 │   ├── icons.ts                        # Re-exports of lucide icons used in the app — sole source of glyphs
 │   ├── access.ts                       # Position → allowed-route/action rules (canAccessRoute, canManage, ...)
 │   ├── validation.ts                   # Shared form regexes (password/email/name/username patterns)
+│   ├── sets.ts                         # toggleInSet(set, value, include?) — immutable add/delete/flip for Set signals
 │   ├── constants/                      # UI constants (SEARCH_DEBOUNCE_MS, DEFAULT_PAGE_SIZE)
 │   ├── guards/                         # auth-guard, guest-guard, position-guard (route CanActivate/CanMatch)
 │   ├── types/                          # halls, movies, showtimes, booking, staff, payment-gateway,

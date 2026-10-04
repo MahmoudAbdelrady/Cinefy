@@ -9,7 +9,15 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
+import {
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
@@ -50,6 +58,7 @@ import {
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
+import { toggleInSet } from '../../../shared/sets';
 import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
 
 @Component({
@@ -246,10 +255,13 @@ export class StaffListComponent {
 
   protected deleteStaffMember(id: string): void {
     if (this.deletingStaffIds().has(id)) return;
-    this.deletingStaffIds.update((current) => new Set(current).add(id));
+    this.deletingStaffIds.update((current) => toggleInSet(current, id, true));
     this.staffService
       .deleteStaffMember(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.deletingStaffIds.update((current) => toggleInSet(current, id, false))),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
           const staffPage = this.staffPage();
@@ -269,21 +281,10 @@ export class StaffListComponent {
               this.coverageChanged.emit({ action: 'delete', position: deletedPosition });
             }
           }
-          this.deletingStaffIds.update((current) => {
-            const next = new Set(current);
-            next.delete(id);
-            return next;
-          });
           this.toastService.success('Staff member deleted');
           this.memberToDelete.set(null);
         },
-        error: () => {
-          this.deletingStaffIds.update((current) => {
-            const next = new Set(current);
-            next.delete(id);
-            return next;
-          });
-        },
+        error: () => {},
       });
   }
 }

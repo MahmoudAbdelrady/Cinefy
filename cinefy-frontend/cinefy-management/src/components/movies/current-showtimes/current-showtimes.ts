@@ -1,10 +1,11 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
-import { merge, Subject } from 'rxjs';
+import { finalize, merge, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { EditableShowtime, MovieSummary, MovieWithShowtimes } from '../../../shared/types';
 import { canManage as canManagePosition } from '../../../shared/access';
+import { toggleInSet } from '../../../shared/sets';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Tooltip } from 'primeng/tooltip';
 import {
@@ -178,16 +179,15 @@ export class CurrentShowtimesComponent {
     this.setHighlighted(movieId, highlighted);
     this.moviesService
       .setHighlight(movieId, highlighted)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.markHighlightToggling(movieId, false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.markHighlightToggling(movieId, false);
-          this.showtimeEvents.notifyHighlightChanged(movieId, highlighted);
-        },
+        next: () => this.showtimeEvents.notifyHighlightChanged(movieId, highlighted),
         error: () => {
           // Re-assert the prior value so the switch reverts to the confirmed state.
           this.setHighlighted(movieId, !highlighted);
-          this.markHighlightToggling(movieId, false);
         },
       });
   }
@@ -197,40 +197,26 @@ export class CurrentShowtimesComponent {
     this.markDeleting(id, true);
     this.showtimesService
       .deleteMovieShowtimes(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.markDeleting(id, false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.markDeleting(id, false);
           this.toastService.success('Showtimes deleted');
           this.showtimeEvents.notifyDeleted(id);
           this.movieToDelete.set(null);
         },
-        error: () => this.markDeleting(id, false),
+        error: () => {},
       });
   }
 
   private markDeleting(id: number, isDeleting: boolean): void {
-    this.deletingShowtimeIds.update((current) => {
-      const next = new Set(current);
-      if (isDeleting) {
-        next.add(id);
-      } else {
-        next.delete(id);
-      }
-      return next;
-    });
+    this.deletingShowtimeIds.update((current) => toggleInSet(current, id, isDeleting));
   }
 
   private markHighlightToggling(movieId: number, isToggling: boolean): void {
-    this.togglingHighlightIds.update((current) => {
-      const next = new Set(current);
-      if (isToggling) {
-        next.add(movieId);
-      } else {
-        next.delete(movieId);
-      }
-      return next;
-    });
+    this.togglingHighlightIds.update((current) => toggleInSet(current, movieId, isToggling));
   }
 
   private setHighlighted(movieId: number, highlighted: boolean): void {

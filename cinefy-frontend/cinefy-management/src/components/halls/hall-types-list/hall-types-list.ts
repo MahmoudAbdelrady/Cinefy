@@ -31,6 +31,7 @@ import { CinefyToastService } from 'cinefy-ui/services';
 import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService } from '../../../services';
 import { HallType } from '../../../shared/types';
+import { toggleInSet } from '../../../shared/sets';
 import { createHallTypeForm, HALL_TYPE_NAME_ERROR_MESSAGES } from '../hall-type-form';
 
 @Component({
@@ -158,27 +159,21 @@ export class HallTypesListComponent {
     this.markDeleting(type.id!, true);
     this.hallsService
       .deleteHallType(type.id!)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.markDeleting(type.id!, false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
           this.hallTypes.update((types) => types.filter((t) => t.id !== type.id));
-          this.markDeleting(type.id!, false);
           this.closeDeleteConfirm();
           this.toastService.success('Hall type deleted');
         },
-        error: () => this.markDeleting(type.id!, false),
+        error: () => {},
       });
   }
 
   private markDeleting(id: string, isDeleting: boolean): void {
-    this.deletingTypeIds.update((current) => {
-      const next = new Set(current);
-      if (isDeleting) {
-        next.add(id);
-      } else {
-        next.delete(id);
-      }
-      return next;
-    });
+    this.deletingTypeIds.update((current) => toggleInSet(current, id, isDeleting));
   }
 }

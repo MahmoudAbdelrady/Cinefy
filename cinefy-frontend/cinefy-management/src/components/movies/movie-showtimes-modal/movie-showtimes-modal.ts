@@ -54,6 +54,7 @@ import { BookSeatsComponent } from '../book-seats/book-seats';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { canManage as canManagePosition, canBook as canBookPosition } from '../../../shared/access';
+import { toggleInSet } from '../../../shared/sets';
 
 @Component({
   selector: 'movie-showtimes-modal',
@@ -264,10 +265,12 @@ export class MovieShowtimesModal {
 
     this.showtimesService
       .deleteShowtime(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.markDeleting(id, false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.markDeleting(id, false);
           const { wasDraft, movieClosed } = this.applyLocalDeletion(id);
           this.toastService.success('Showtime deleted');
           this.showtimeToDelete.set(null);
@@ -280,7 +283,7 @@ export class MovieShowtimesModal {
             (this.movieShowtimes()?.numberOfCommitted ?? 0) > 0,
           );
         },
-        error: () => this.markDeleting(id, false),
+        error: () => {},
       });
   }
 
@@ -290,15 +293,17 @@ export class MovieShowtimesModal {
 
     this.showtimesService
       .publishShowtimes({ showtimeId: id })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.markPublishing(id, false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.markPublishing(id, false);
           this.applyLocalPublish(id);
           this.showtimeEvents.notifyPublished(this.selectedMovieId(), 1);
           this.toastService.success('Showtime published');
         },
-        error: () => this.markPublishing(id, false),
+        error: () => {},
       });
   }
 
@@ -326,15 +331,7 @@ export class MovieShowtimesModal {
   }
 
   protected toggleNote(id: string) {
-    this.expandedNotes.update((current) => {
-      const next = new Set(current);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
+    this.expandedNotes.update((current) => toggleInSet(current, id));
   }
 
   protected getOccupancy(detail: MovieShowtimeListItem): number {
@@ -544,27 +541,11 @@ export class MovieShowtimesModal {
   }
 
   private markDeleting(id: string, isDeleting: boolean): void {
-    this.deletingShowtimeIds.update((current) => {
-      const next = new Set(current);
-      if (isDeleting) {
-        next.add(id);
-      } else {
-        next.delete(id);
-      }
-      return next;
-    });
+    this.deletingShowtimeIds.update((current) => toggleInSet(current, id, isDeleting));
   }
 
   private markPublishing(id: string, isPublishing: boolean): void {
-    this.publishingShowtimeIds.update((current) => {
-      const next = new Set(current);
-      if (isPublishing) {
-        next.add(id);
-      } else {
-        next.delete(id);
-      }
-      return next;
-    });
+    this.publishingShowtimeIds.update((current) => toggleInSet(current, id, isPublishing));
   }
 
   private setsEqual(a: Set<string>, b: Set<string>): boolean {
