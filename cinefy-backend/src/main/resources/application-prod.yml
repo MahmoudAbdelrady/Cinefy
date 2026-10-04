@@ -11,6 +11,14 @@ logging:
   level:
     root: info
 
+# API Documentation
+springdoc:
+  base-url: ${API_DOCS_BASE_URL:/docs}
+  swagger-ui:
+    path: ${springdoc.base-url}/swagger-ui.html
+  api-docs:
+    path: ${springdoc.base-url}/api-docs
+
 cinefy:
   # Email Configuration
   mail:

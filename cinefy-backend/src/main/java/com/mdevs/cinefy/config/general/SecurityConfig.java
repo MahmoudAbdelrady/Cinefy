@@ -8,6 +8,7 @@ import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
 import com.mdevs.cinefy.shared.security.CinefyAuthenticationEntryPoint;
 import com.mdevs.cinefy.shared.security.CinefyApiAuthorizationManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -46,6 +47,9 @@ public class SecurityConfig {
 
     private final CsrfValidationFilter csrfValidationFilter;
 
+    @Value("${springdoc.base-url}")
+    private String apiDocsBaseUrl;
+
     @Bean
     public CinefyAuthManagers cinefyAuthManagers() {
         return new CinefyAuthManagers(buildManager(staffMemberService), buildManager(clientService));
@@ -67,6 +71,7 @@ public class SecurityConfig {
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
+                            .requestMatchers(apiDocsBaseUrl + "/**").permitAll()
                             .anyRequest().access(apiAuthorizationManager))
                     .exceptionHandling(handling -> handling.authenticationEntryPoint(authenticationEntryPoint))
                     .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
