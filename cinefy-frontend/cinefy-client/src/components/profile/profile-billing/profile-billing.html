@@ -1,38 +1,44 @@
-@if (loading()) {
-  <div class="pb-loading">
-    <cui-loading-spinner variant="lg" />
-  </div>
-} @else if (loadFailed()) {
+@if (loadFailed()) {
   <cui-error-state header="Couldn't load your saved cards" />
 } @else {
-  <ul class="pb-cards">
-    @for (method of paymentMethods(); track method.id) {
-      <li class="pb-card">
-        <span class="pb-card-chip">{{ brandChip(method.cardBrand) }}</span>
-        <div class="pb-card-detail">
-          <p class="pb-card-pan">{{ method.cardNumber }}</p>
-          <p class="pb-card-brand">{{ method.cardBrand }}</p>
-        </div>
-        <button
-          type="button"
-          class="btn-base pb-remove"
-          [disabled]="removing()"
-          (click)="methodToRemove.set(method)"
-        >
-          <svg [lucideIcon]="icons.TrashIcon" [size]="16"></svg>
-          Remove
-        </button>
-      </li>
-    } @empty {
-      <li>
-        <cui-empty-state
-          [icon]="icons.CreditCardIcon"
-          header="No saved cards"
-          description="Cards are saved automatically when you choose to store them while paying."
-        />
-      </li>
+  <section class="pb-group">
+    <h2>Saved cards</h2>
+
+    @if (loading()) {
+      <div class="pb-loading">
+        <cui-loading-spinner variant="lg" />
+      </div>
+    } @else {
+      <ul class="pb-cards">
+        @for (method of paymentMethods(); track method.id) {
+          <li class="pb-card">
+            <span class="pb-card-chip">{{ brandChip(method.cardBrand) }}</span>
+            <div class="pb-card-detail">
+              <p class="pb-card-pan">{{ method.cardNumber }}</p>
+              <p class="pb-card-brand">{{ method.cardBrand }}</p>
+            </div>
+            <button
+              type="button"
+              class="btn-base pb-remove"
+              [disabled]="removing()"
+              (click)="methodToRemove.set(method)"
+            >
+              <svg [lucideIcon]="icons.TrashIcon" [size]="16"></svg>
+              Remove
+            </button>
+          </li>
+        } @empty {
+          <li>
+            <cui-empty-state
+              [icon]="icons.CreditCardIcon"
+              header="No saved cards"
+              description="Cards are saved automatically when you choose to store them while paying."
+            />
+          </li>
+        }
+      </ul>
     }
-  </ul>
+  </section>
 }
 
 @if (methodToRemove(); as method) {
@@ -47,7 +53,7 @@
         <svg [lucideIcon]="icons.TriangleAlertIcon" [size]="24" [strokeWidth]="2"></svg>
       </div>
       <p class="pb-remove-message">
-        This card will be permanently removed from your account. This action cannot be undone.
+        Are you sure you want to remove this card from your account? This action cannot be undone.
       </p>
     </div>
 

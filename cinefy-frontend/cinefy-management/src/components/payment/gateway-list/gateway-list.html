@@ -303,11 +303,9 @@
       </div>
 
       <h3 class="gl-confirm-title">Delete payment gateway</h3>
-      @let deletedChannelCount = gateway.paymentChannels?.length ?? 0;
       <p class="gl-confirm-text">
         Are you sure you want to delete <strong>{{ gateway.name }}</strong
-        >? This action cannot be undone and will remove its credentials and its
-        {{ deletedChannelCount }} {{ deletedChannelCount === 1 ? 'channel' : 'channels' }}.
+        >? This action cannot be undone.
       </p>
     </div>
 
