@@ -609,6 +609,10 @@ Toasts are PrimeNG-backed and live entirely in cinefy-ui. Two pieces, and both a
   (a component-level provider is **not** visible to it).
 - **`<cui-toast />`** rendered **once** in [`app.ts`](src/app/app.ts), beside `<router-outlet>`.
   It is the container every message renders into — one per app, never per page or per layout shell.
+  It runs with `[autoZIndex]="false"` and a fixed `z-index: 10000` (`cinefy-toast.scss`). PrimeNG's
+  auto layering stamps the container's z-index only when it has none and clears it only once every
+  message is gone, so a toast raised while an older one was still visible stayed at the old z-index
+  — behind any `<cui-dialog>` opened in between. Don't turn `autoZIndex` back on.
 
 To raise a toast, inject `CinefyToastService` and call `success(message)` / `error(message)`. That
 two-method surface is the whole API — there is no `warn`/`info`, no options argument, and no
