@@ -633,7 +633,7 @@ renders nowhere. Don't pass a key by hand — the service and component both rea
 - cinefy-ui's components consume runtime `var(--cui-*)` tokens (theming contract). Management's `src/styles.scss` maps its SCSS palette to those tokens once in a `:root { ... }` block — that's the single bridge. Component SCSS in management uses plain `$variables`, not `var()`.
 - Layout mixins: `flex-center`, `flex-align`, `flex-between`, `flex-column` (cinefy-ui).
 - Icon mixins: `icon-box($size)` (management), `lucide-icon-fix` (cinefy-ui, applied on the **parent** of `<lucide-icon>`, never inside a `lucide-icon { }` block).
-- Other mixins: `text-truncate` (cinefy-ui). The empty-state styling is baked into cinefy-ui's `<cui-empty-state>` component (no mixin).
+- Other mixins: `text-truncate`, `disabled-state` (cinefy-ui) — `disabled-state` is the shared `opacity: 0.6` + `cursor: not-allowed` pair for `:disabled` / `:not([href])` / `:has(input:disabled)` states; don't hand-write it. The empty-state styling is baked into cinefy-ui's `<cui-empty-state>` component (no mixin).
 - Responsive mixins: `below-phone/mobile/tablet/desktop` and `from-phone/mobile/tablet/desktop` (mobile-first by default).
 - **Flag new raw values before adding them** — if a color, shadow, gradient, or other "designed" value is not already in `src/shared/styles/`, surface it before writing: name the value, the closest existing token, and how they differ, then wait for the user to choose keep / replace with token / extract to shared. Doesn't apply to plain layout numbers (paddings, gaps, line-heights).
 

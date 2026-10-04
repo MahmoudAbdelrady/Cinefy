@@ -36,8 +36,7 @@
     }
 
     &:not([href]) {
-      opacity: 0.6;
-      cursor: not-allowed;
+      @include disabled-state;
     }
   }
 
@@ -364,8 +363,7 @@
           }
 
           &.co-card-option-disabled {
-            cursor: not-allowed;
-            opacity: 0.6;
+            @include disabled-state;
 
             &:hover {
               border-color: rgba($color-border, 0.5);

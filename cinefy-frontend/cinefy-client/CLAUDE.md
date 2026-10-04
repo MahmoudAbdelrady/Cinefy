@@ -122,7 +122,7 @@ Barrel exports exist at `components/index.ts` (+ a nested `components/auth/forgo
 
 The shared SCSS under `shared/styles/` is a **single partial**, `src/shared/styles/_colors.scss` (unlike management's `_colors`/`_shadows`/`_mixins` split). It holds the color palette **and** the typography vars (`$font-sans` = Geist, `$font-mono` = Geist Mono), and `@forward`s cinefy-ui's tokens so `$radius-*` and `$transition-fast` are available from the same import. Tokens were ported from `mvp-version/src/styles/index.css` (`oklch(...)` → hex). Dark-theme only. (One component-local exception: `src/components/auth/forgot-password/_fp-shared.scss`, shared across the forgot-password step components.)
 
-Import it with `@use 'shared/styles/colors' as *;` (depth-adjust the relative prefix) — **never** hardcode raw values, and **never** `@import`. For shared mixins use `@use 'cinefy-ui/styles/mixins' as *;` (`flex-*`, `lucide-icon-fix`, `text-truncate`); for breakpoints `@use 'cinefy-ui/styles/breakpoints' as *;`. Prefer cinefy-ui's `var(--cui-*)` tokens / components / mixins where they already cover the need.
+Import it with `@use 'shared/styles/colors' as *;` (depth-adjust the relative prefix) — **never** hardcode raw values, and **never** `@import`. For shared mixins use `@use 'cinefy-ui/styles/mixins' as *;` (`flex-*`, `lucide-icon-fix`, `text-truncate`, `disabled-state`); for breakpoints `@use 'cinefy-ui/styles/breakpoints' as *;`. Prefer cinefy-ui's `var(--cui-*)` tokens / components / mixins where they already cover the need.
 
 Token conventions:
 
