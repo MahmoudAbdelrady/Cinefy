@@ -1,7 +1,6 @@
 import {
   afterNextRender,
   Component,
-  computed,
   DestroyRef,
   inject,
   output,
@@ -67,13 +66,6 @@ export class MyTicketsListComponent {
   protected readonly bookings = signal<BookingSummary[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly hasError = signal(false);
-
-  protected readonly description = computed(() => {
-    const count = this.bookings().length;
-    return count
-      ? `${count} booking${count > 1 ? 's' : ''} to complete`
-      : 'No bookings in progress';
-  });
 
   constructor() {
     afterNextRender(() => this.loadActiveBookings());

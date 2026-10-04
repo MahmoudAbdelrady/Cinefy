@@ -1,9 +1,4 @@
-<cui-dialog
-  header="My tickets"
-  [description]="description()"
-  [style]="{ width: '512px' }"
-  (closed)="closed.emit()"
->
+<cui-dialog header="My tickets" [style]="{ width: '512px' }" (closed)="closed.emit()">
   @if (isLoading()) {
     <div class="tickets-status">
       <cui-loading-spinner variant="lg" />

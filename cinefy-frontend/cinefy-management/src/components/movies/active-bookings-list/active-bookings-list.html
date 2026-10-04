@@ -1,9 +1,4 @@
-<cui-dialog
-  header="Active bookings"
-  [description]="description()"
-  (closed)="closed.emit()"
-  [style]="{ width: '560px' }"
->
+<cui-dialog header="Active bookings" (closed)="closed.emit()" [style]="{ width: '560px' }">
   @if (isLoading()) {
     <div class="abl-status">
       <cui-loading-spinner variant="lg" />

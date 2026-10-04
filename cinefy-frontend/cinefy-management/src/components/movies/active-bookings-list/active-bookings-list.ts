@@ -1,12 +1,4 @@
-import {
-  afterNextRender,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  output,
-  signal,
-} from '@angular/core';
+import { afterNextRender, Component, DestroyRef, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { CurrencyPipe, DatePipe } from '@angular/common';
@@ -57,13 +49,6 @@ export class ActiveBookingsListComponent {
   protected readonly isLoading = signal(true);
   protected readonly hasError = signal(false);
   protected readonly bookingToComplete = signal<BookingSummary | null>(null);
-
-  protected readonly description = computed(() => {
-    const count = this.bookings().length;
-    return count
-      ? `${count} booking${count > 1 ? 's' : ''} awaiting payment`
-      : 'No bookings in progress';
-  });
 
   constructor() {
     afterNextRender(() => this.loadActiveBookings());
