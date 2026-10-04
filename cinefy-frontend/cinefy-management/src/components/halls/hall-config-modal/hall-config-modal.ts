@@ -320,14 +320,17 @@ export class HallConfigModalComponent {
     });
 
     effect(() => {
-      if (this.isViewMode()) {
+      const formLocked = this.isViewMode() || this.saving();
+      if (formLocked) {
         this.hallForm.disable({ emitEvent: false });
+        this.copyLayoutControl.disable({ emitEvent: false });
       } else {
         this.hallForm.enable({ emitEvent: false });
+        this.copyLayoutControl.enable({ emitEvent: false });
       }
 
       const statusCtrl = this.hallForm.controls.status;
-      if (this.isViewMode() || this.isStatusLocked()) {
+      if (formLocked || this.isStatusLocked()) {
         statusCtrl.removeValidators(Validators.required);
         statusCtrl.disable({ emitEvent: false });
       } else {
@@ -335,6 +338,15 @@ export class HallConfigModalComponent {
         statusCtrl.enable({ emitEvent: false });
       }
       statusCtrl.updateValueAndValidity();
+
+      const { numberOfRows, seatsPerRow } = this.hallForm.controls;
+      if (formLocked || this.loadingCopiedLayout()) {
+        numberOfRows.disable({ emitEvent: false });
+        seatsPerRow.disable({ emitEvent: false });
+      } else {
+        numberOfRows.enable({ emitEvent: false });
+        seatsPerRow.enable({ emitEvent: false });
+      }
     });
 
     this.copyLayoutControl.valueChanges

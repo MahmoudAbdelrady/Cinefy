@@ -92,7 +92,7 @@
               [required]="!isViewMode()"
               [errorMessages]="{ required: 'Hall type is required' }"
             />
-            <label class="switch-group" [class.disabled]="isViewMode()">
+            <label class="switch-group" [class.disabled]="isViewMode() || saving()">
               <span class="sg-label-text">Supports 3D</span>
               <cui-switch [control]="hallForm.controls.supports3D" />
             </label>
@@ -122,9 +122,11 @@
                 <div class="sc-content">
                   <div class="sc-type-items">
                     @for (item of seatCategoryItems; track item.type) {
-                      <div
+                      <button
+                        type="button"
                         class="sti-item"
                         [class.selected]="selectedSeatCategory().type === item.type"
+                        [disabled]="saving()"
                         (click)="selectSeatCategory(item)"
                       >
                         <div class="sti-item-icon" [ngClass]="item.type.toLowerCase()"></div>
@@ -132,7 +134,7 @@
                         @if (selectedSeatCategory().type === item.type) {
                           <span class="sti-item-selected">Selected</span>
                         }
-                      </div>
+                      </button>
                     }
                   </div>
                   <div class="reservation-toggle">
@@ -140,7 +142,7 @@
                     <label
                       class="switch-group"
                       [class.active]="onSiteOnly()"
-                      [class.disabled]="selectedSeatCategory().type === 'AISLE'"
+                      [class.disabled]="selectedSeatCategory().type === 'AISLE' || saving()"
                     >
                       <div class="sg-label">
                         <span class="sg-label-icon">S</span>
@@ -149,7 +151,7 @@
                       <cui-switch
                         color="highlight"
                         [checked]="onSiteOnly()"
-                        [disabled]="selectedSeatCategory().type === 'AISLE'"
+                        [disabled]="selectedSeatCategory().type === 'AISLE' || saving()"
                         (checkedChange)="setOnSiteOnly($event)"
                       />
                     </label>
@@ -238,7 +240,7 @@
             [(seatLayout)]="seatLayout"
             [selectedSeatType]="selectedSeatCategory().type"
             [selectedOnsiteOnly]="onSiteOnly()"
-            [disabled]="isViewMode()"
+            [disabled]="isViewMode() || saving()"
             [loading]="loadingCopiedLayout()"
             (layoutReset)="onResetLayout()"
           />
@@ -254,7 +256,7 @@
         <button
           class="btn-primary"
           (click)="saveHall()"
-          [disabled]="hallForm.invalid || !hasChanges() || saving()"
+          [disabled]="hallForm.invalid || !hasChanges() || saving() || loadingCopiedLayout()"
         >
           @if (saving()) {
             <cui-loading-spinner variant="sm" />
