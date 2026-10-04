@@ -1,13 +1,19 @@
-<div class="app-layout-container">
-  <div class="sidebar-container">
-    <sidebar-component />
+@if (serverUnavailable()) {
+  <cui-server-unavailable>
+    <button type="button" class="btn-primary" (click)="retry()">Try again</button>
+  </cui-server-unavailable>
+} @else {
+  <div class="app-layout-container">
+    <div class="sidebar-container">
+      <sidebar-component />
+    </div>
+    <div class="main-container">
+      <header class="header-container">
+        <header-component />
+      </header>
+      <main class="content-container">
+        <router-outlet />
+      </main>
+    </div>
   </div>
-  <div class="main-container">
-    <header class="header-container">
-      <header-component />
-    </header>
-    <main class="content-container">
-      <router-outlet />
-    </main>
-  </div>
-</div>
+}

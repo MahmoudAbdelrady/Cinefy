@@ -4,7 +4,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { UserIcon, TicketIcon, LogoutIcon, LoginIcon, SignupIcon } from '../../shared/icons';
-import { CinefyMenu, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { CinefyMenu, CinefyLoadingSpinner, CinefyServerUnavailable } from 'cinefy-ui/components';
 import type { CinefyMenuGroup } from 'cinefy-ui/types';
 import { MyTicketsListComponent } from '../../components';
 import { AuthService, ClientService } from '../../services';
@@ -20,6 +20,7 @@ import type { CurrentUser } from '../../shared/types';
     CinefyLoadingSpinner,
     MyTicketsListComponent,
     CinefyMenu,
+    CinefyServerUnavailable,
   ],
   templateUrl: './app-layout.html',
   styleUrl: './app-layout.scss',
@@ -38,6 +39,8 @@ export class AppLayout {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currentYear = new Date().getFullYear();
+
+  protected readonly serverUnavailable = this.authService.serverUnavailable;
 
   protected readonly myTicketsVisible = signal(false);
 
@@ -70,13 +73,13 @@ export class AppLayout {
   constructor() {
     afterNextRender(() => {
       this.authService
-        .isAuthenticated()
+        .getAuthStatus()
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (authenticated) => {
-            this.isAuthenticated.set(authenticated);
+          next: (status) => {
+            this.isAuthenticated.set(status === 'AUTHENTICATED');
             this.isAuthenticatedLoading.set(false);
-            if (authenticated) {
+            if (this.isAuthenticated()) {
               this.loadCurrentUser();
             } else {
               this.currentUserLoading.set(false);
@@ -99,6 +102,10 @@ export class AppLayout {
           this.currentUserLoading.set(false);
         },
       });
+  }
+
+  protected retry(): void {
+    window.location.reload();
   }
 
   protected logout(): void {

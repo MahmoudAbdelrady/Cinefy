@@ -1,6 +1,8 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
+import { skipServerErrorToast } from 'cinefy-ui/http';
+import type { AuthStatus } from 'cinefy-ui/types';
 import type {
   LoginPayload,
   ForgotPasswordPayload,
@@ -16,8 +18,9 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly staffService = inject(StaffService);
 
-  // null = not yet checked this app session; true/false = known. Read by the route guards.
-  private readonly authStatus = signal<boolean | null>(null);
+  private readonly authStatus = signal<AuthStatus | null>(null);
+
+  readonly serverUnavailable = computed(() => this.authStatus() === 'UNAVAILABLE');
 
   // The in-flight /refresh, shared across all concurrent 401s.
   private refresh$: Observable<void> | null = null;
@@ -25,7 +28,7 @@ export class AuthService {
   login(data: LoginPayload): Observable<void> {
     return this.http
       .post<void>(`${API_PREFIX}/login`, data)
-      .pipe(tap(() => this.authStatus.set(true)));
+      .pipe(tap(() => this.authStatus.set('AUTHENTICATED')));
   }
 
   logout(): Observable<void> {
@@ -46,14 +49,17 @@ export class AuthService {
     return this.http.post<void>(`${API_PREFIX}/reset-password`, data);
   }
 
-  isAuthenticated(): Observable<boolean> {
+  getAuthStatus(): Observable<AuthStatus> {
     const known = this.authStatus();
-    if (known !== null) return of(known);
+    if (known) return of(known);
 
-    return this.http.get<void>(`${API_PREFIX}/session`).pipe(
-      map(() => true),
-      catchError(() => of(false)),
-      tap((valid) => this.authStatus.set(valid)),
+    return this.http.get<void>(`${API_PREFIX}/session`, { context: skipServerErrorToast() }).pipe(
+      map((): AuthStatus => 'AUTHENTICATED'),
+      catchError((error: HttpErrorResponse) => {
+        const unavailable = error.status === 0 || error.status >= 500;
+        return of<AuthStatus>(unavailable ? 'UNAVAILABLE' : 'UNAUTHENTICATED');
+      }),
+      tap((status) => this.authStatus.set(status)),
     );
   }
 
@@ -66,7 +72,7 @@ export class AuthService {
   }
 
   clearAuthState(): void {
-    this.authStatus.set(false);
+    this.authStatus.set('UNAUTHENTICATED');
     this.staffService.clearCurrentStaffMember();
   }
 }

@@ -8,7 +8,7 @@ import { OAuthRegisterForm, OtpStep } from '../../../components';
 import { AuthService } from '../../../services';
 import { ApiError, OAuthCallbackResult, OAuthRegistration } from '../../../shared/types';
 import { skipErrorToast } from 'cinefy-ui/http';
-import { toSafeRedirect } from '../../../utils';
+import { toSafeRedirect } from 'cinefy-ui/utils';
 import { ArrowRightIcon, CheckIcon, TriangleAlertIcon } from '../../../shared/icons';
 
 type OAuthCallbackPhase = 'verifying' | 'register' | 'verify-account' | 'success' | 'failed';

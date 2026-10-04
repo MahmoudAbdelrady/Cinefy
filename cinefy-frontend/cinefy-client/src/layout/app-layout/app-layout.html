@@ -1,66 +1,72 @@
-<div class="app-layout-container">
-  <header class="app-layout-header">
-    <div class="alh-inner">
-      <div class="alh-tabs">
-        <a class="alh-main-tab" routerLink="/">
-          <img class="alh-main-tab-logo" src="app-logo.svg" alt="Cinefy" />
-          <span class="alh-main-tab-text">Cinefy</span>
-        </a>
-        <div class="alh-sub-tabs">
-          <a class="sub-tab" routerLink="/movies" routerLinkActive="active">Movies</a>
+@if (serverUnavailable()) {
+  <cui-server-unavailable>
+    <button type="button" class="btn-primary" (click)="retry()">Try again</button>
+  </cui-server-unavailable>
+} @else {
+  <div class="app-layout-container">
+    <header class="app-layout-header">
+      <div class="alh-inner">
+        <div class="alh-tabs">
+          <a class="alh-main-tab" routerLink="/">
+            <img class="alh-main-tab-logo" src="app-logo.svg" alt="Cinefy" />
+            <span class="alh-main-tab-text">Cinefy</span>
+          </a>
+          <div class="alh-sub-tabs">
+            <a class="sub-tab" routerLink="/movies" routerLinkActive="active">Movies</a>
+          </div>
+        </div>
+        <div class="alh-info">
+          @if (isAuthenticatedLoading() || currentUserLoading()) {
+            <div class="alh-auth-loading">
+              <cui-loading-spinner variant="sm" />
+            </div>
+          } @else if (isAuthenticated()) {
+            <button class="alh-tickets-btn btn-primary" (click)="myTicketsVisible.set(true)">
+              <svg [lucideIcon]="icons.TicketIcon" [size]="18"></svg>
+              <span>My tickets</span>
+            </button>
+            <span class="alh-divider"></span>
+            <cui-menu [items]="userInfoMenuGroups">
+              <button class="alh-user">
+                <span class="alh-user-icon">
+                  <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
+                </span>
+                @if (userDisplayName()) {
+                  <span class="alh-user-name">{{ userDisplayName() }}</span>
+                }
+              </button>
+            </cui-menu>
+          } @else {
+            <div class="alh-auth">
+              <a class="alh-auth-btn btn-secondary" routerLink="/membership/login">
+                <svg [lucideIcon]="icons.LoginIcon" [size]="16"></svg>
+                <span class="ab-text">Login</span>
+              </a>
+              <a class="alh-auth-btn btn-primary" routerLink="/membership/signup">
+                <svg [lucideIcon]="icons.SignupIcon" [size]="16"></svg>
+                <span class="ab-text">Sign up</span>
+              </a>
+            </div>
+          }
         </div>
       </div>
-      <div class="alh-info">
-        @if (isAuthenticatedLoading() || currentUserLoading()) {
-          <div class="alh-auth-loading">
-            <cui-loading-spinner variant="sm" />
-          </div>
-        } @else if (isAuthenticated()) {
-          <button class="alh-tickets-btn btn-primary" (click)="myTicketsVisible.set(true)">
-            <svg [lucideIcon]="icons.TicketIcon" [size]="18"></svg>
-            <span>My tickets</span>
-          </button>
-          <span class="alh-divider"></span>
-          <cui-menu [items]="userInfoMenuGroups">
-            <button class="alh-user">
-              <span class="alh-user-icon">
-                <svg [lucideIcon]="icons.UserIcon" [size]="20"></svg>
-              </span>
-              @if (userDisplayName()) {
-                <span class="alh-user-name">{{ userDisplayName() }}</span>
-              }
-            </button>
-          </cui-menu>
-        } @else {
-          <div class="alh-auth">
-            <a class="alh-auth-btn btn-secondary" routerLink="/membership/login">
-              <svg [lucideIcon]="icons.LoginIcon" [size]="16"></svg>
-              <span class="ab-text">Login</span>
-            </a>
-            <a class="alh-auth-btn btn-primary" routerLink="/membership/signup">
-              <svg [lucideIcon]="icons.SignupIcon" [size]="16"></svg>
-              <span class="ab-text">Sign up</span>
-            </a>
-          </div>
-        }
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <main class="app-layout-content">
-    <router-outlet />
-  </main>
+    <main class="app-layout-content">
+      <router-outlet />
+    </main>
 
-  <footer class="app-layout-footer">
-    <div class="alf-inner">
-      <div class="alf-site-name">
-        <img class="alf-site-name-logo" src="app-logo.svg" alt="Cinefy" />
-        <span class="alf-site-name-text">Cinefy</span>
+    <footer class="app-layout-footer">
+      <div class="alf-inner">
+        <div class="alf-site-name">
+          <img class="alf-site-name-logo" src="app-logo.svg" alt="Cinefy" />
+          <span class="alf-site-name-text">Cinefy</span>
+        </div>
+        <div class="alf-site-info">© {{ currentYear }} Cinefy. All rights reserved.</div>
       </div>
-      <div class="alf-site-info">© {{ currentYear }} Cinefy. All rights reserved.</div>
-    </div>
-  </footer>
-</div>
+    </footer>
+  </div>
+}
 
 @if (myTicketsVisible()) {
   <my-tickets-list (closed)="myTicketsVisible.set(false)" />

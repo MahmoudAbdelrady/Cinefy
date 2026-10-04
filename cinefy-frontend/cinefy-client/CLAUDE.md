@@ -103,7 +103,7 @@ src/
 │   ├── types/                 # Client-facing data shapes (barrel: types/index.ts) — movies, halls, booking, auth, clients, api (ApiError/ApiErrorCode), seats
 │   └── styles/
 │       └── _colors.scss       # Color palette + typography vars; @forwards cinefy-ui tokens — the single shared partial under shared/styles (see also the forgot-password _fp-shared.scss)
-├── utils/                      # Pure helpers (barrel: index.ts) — redirect.ts (toSafeRedirect), payments.ts (brandChip)
+├── utils/                      # Pure helpers (barrel: index.ts) — payments.ts (brandChip); toSafeRedirect lives in cinefy-ui/utils
 ├── environments/
 │   ├── environment.ts         # Dev: apiUrl = http://localhost:8080
 │   └── environment.prod.ts    # Prod: apiUrl = /api

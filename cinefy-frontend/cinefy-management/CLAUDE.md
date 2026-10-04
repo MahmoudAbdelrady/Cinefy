@@ -100,7 +100,7 @@ src/
 │                                       #   input, field-error, loading-spinner, select,
 │                                       #   paginated-select, phone-input, toast, dialog, menu,
 │                                       #   paginator, date-picker, time-picker, switch, empty-state,
-│                                       #   error-state, seat-map, hold-timer, not-found, input-otp,
+│                                       #   error-state, seat-map, hold-timer, not-found, server-unavailable, input-otp,
 │                                       #   password-checklist, media-image
 │                                       #   (so <cui-empty-state> / CinefyEmptyState, and so on).
 │                                       #   empty-state: inputs [icon]/header (required)/[description]; add class="fill" to stretch to full height.
@@ -136,6 +136,7 @@ src/
 │                                       #   from 'cinefy-ui/forms'      — linkConfirmPassword, EMAIL/NAME/PASSWORD_PATTERN
 │                                       #   from 'cinefy-ui/http'       — errorToastInterceptor, networkErrorInterceptor,
 │                                       #                                 skipErrorToast(), skipServerErrorToast()
+│                                       #   from 'cinefy-ui/utils'      — toSafeRedirect (login's ?redirectUrl=)
 ├── pages/                              # Route-level components
 │   ├── auth/                           # login (/login), forgot-password (/forgot-password)
 │   ├── dashboard/                      # Dashboard page (/)
@@ -219,6 +220,8 @@ Two layout shells, each gated by a guard:
 ```
 
 **Position-based access:** a protected route is declared twice — once with `canMatch: [positionCanMatch]` (renders the real page if the current staff position may access it) and once falling through to `AccessDeniedPage`. `/halls`, `/movies`, `/payment`, `/staff`, and `/statistics` follow this exactly. Two routes deviate today, so check before assuming: `/` (dashboard) has the `canMatch` but **no** `AccessDeniedPage` fallthrough — a denied position falls through to the `**` wildcard and gets `NotFoundPage` instead; `/profile` has the fallthrough entry but **no** `canMatch` on the first, so the `AccessDeniedPage` line is dead and profile is open to any authenticated staff member (which is the intent — it's the current user's own profile). The position → route mapping lives in [`shared/access.ts`](src/shared/access.ts) (`canAccessRoute`), and `positionCanMatch` ([`shared/guards/position-guard.ts`](src/shared/guards/position-guard.ts)) reads it. `authGuard` / `guestGuard` ([`shared/guards/`](src/shared/guards/)) gate the two shells on authentication state.
+
+**Auth status is three-state, not a boolean.** `AuthService.getAuthStatus()` resolves `GET /management/auth/session` to `AuthStatus` — `'AUTHENTICATED' | 'UNAUTHENTICATED' | 'UNAVAILABLE'`. A network failure (status `0`) or a server error (`>= 500`) is `UNAVAILABLE` ("couldn't tell"), any other error is `UNAUTHENTICATED`. Only `UNAUTHENTICATED` redirects to `/login` and only `AUTHENTICATED` redirects away from the guest pages — **`UNAVAILABLE` lets navigation through**, and both `AppLayout` and `AuthLayout` render `<cui-server-unavailable>` (with a "Try again" reload) in place of their `<router-outlet>` while `authService.serverUnavailable()` is true. Every resolved status is cached, `UNAVAILABLE` included, so `/session` is called at most once per page load — the "Try again" reload is what clears it; the session request carries `skipServerErrorToast()` so the fallback isn't doubled by a toast.
 
 Planned but not yet implemented: `/settings`.
 

@@ -15,4 +15,5 @@ export {
   LucideCircleX as CircleXIcon,
   LucideClapperboard as ClapperboardIcon,
   LucideTriangleAlert as TriangleAlertIcon,
+  LucideServerOff as ServerOffIcon,
 } from "@lucide/angular";

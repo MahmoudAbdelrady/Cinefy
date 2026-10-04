@@ -23,7 +23,7 @@ import {
 import { OAuthButtonsComponent, OtpStep } from '../../../components';
 import { AuthFormStage } from '../../../shared/types';
 import { AuthService } from '../../../services';
-import { toSafeRedirect } from '../../../utils';
+import { toSafeRedirect } from 'cinefy-ui/utils';
 import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/icons';
 
 @Component({

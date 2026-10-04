@@ -2,12 +2,13 @@ import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyInput, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
 import { EMAIL_PATTERN } from 'cinefy-ui/forms';
+import { toSafeRedirect } from 'cinefy-ui/utils';
 import { ArrowRightIcon, EmailIcon, PasswordIcon } from '../../../shared/icons';
 
 @Component({
@@ -26,6 +27,7 @@ export class LoginPage {
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(CinefyToastService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly submitting = signal(false);
@@ -59,7 +61,7 @@ export class LoginPage {
       .login(this.loginForm.getRawValue())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.router.navigateByUrl('/'),
+        next: () => this.router.navigateByUrl(this.redirectUrl()),
         error: (error: HttpErrorResponse) => {
           this.submitting.set(false);
           this.loginForm.controls.password.reset();
@@ -68,5 +70,9 @@ export class LoginPage {
           }
         },
       });
+  }
+
+  private redirectUrl(): string {
+    return toSafeRedirect(this.route.snapshot.queryParamMap.get('redirectUrl'));
   }
 }
