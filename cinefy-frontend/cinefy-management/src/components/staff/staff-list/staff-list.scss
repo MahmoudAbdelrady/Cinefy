@@ -230,7 +230,7 @@
             white-space: nowrap;
             @include lucide-icon-fix;
 
-            @include below-mobile {
+            @include below-phone {
               padding: 8px;
 
               span {

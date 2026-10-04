@@ -159,7 +159,7 @@
           <button
             type="button"
             class="bs-cancel"
-            [disabled]="settling()"
+            [disabled]="settling() || booking()"
             (click)="cancelVisible.set(true)"
           >
             <svg [lucideIcon]="icons.XIcon" [size]="15"></svg>

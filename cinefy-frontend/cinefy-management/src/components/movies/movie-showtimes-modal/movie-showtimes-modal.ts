@@ -27,7 +27,6 @@ import {
   SHOWTIME_STATUS_LABELS,
   Showtime,
 } from '../../../shared/types';
-import { Tab, TabList, Tabs } from 'primeng/tabs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CalendarIcon,
@@ -61,9 +60,6 @@ import { setsEqual, toggleInSet } from '../../../utils';
   imports: [
     CinefyDialog,
     CinefyDialogFooter,
-    Tabs,
-    TabList,
-    Tab,
     DatePipe,
     DecimalPipe,
     LucideDynamicIcon,
@@ -107,6 +103,7 @@ export class MovieShowtimesModal {
   });
 
   private readonly noteEls = viewChildren<ElementRef<HTMLElement>>('noteText');
+  private readonly dateTabs = viewChildren<ElementRef<HTMLButtonElement>>('dateTab');
   private readonly dialog = viewChild.required(CinefyDialog);
 
   protected readonly statusLabels = SHOWTIME_STATUS_LABELS;
@@ -240,6 +237,15 @@ export class MovieShowtimesModal {
       if (setsEqual(current, next)) return;
       this.overflowingNotes.set(next);
     });
+
+    afterRenderEffect(() => {
+      const index = this.movieShowtimes()?.dates.indexOf(this.selectedTab() ?? '') ?? -1;
+      this.dateTabs()[index]?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      });
+    });
   }
 
   protected onAddShowtime() {
@@ -372,10 +378,12 @@ export class MovieShowtimesModal {
       showtime.startDateTime,
     );
     const isDraft = showtime.status === 'DRAFT';
+    const loadedDates = this.movieShowtimes()?.dates;
+    const isNewDate = !!loadedDates && !loadedDates.includes(createdDate);
 
     this.movieShowtimes.update((m) => {
       if (!m) return m;
-      const dates = m.dates.includes(createdDate) ? m.dates : [...m.dates, createdDate].sort();
+      const dates = isNewDate ? [...m.dates, createdDate].sort() : m.dates;
       return {
         ...m,
         dates,
@@ -383,7 +391,10 @@ export class MovieShowtimesModal {
       };
     });
 
-    if (createdDate !== this.selectedTab()) return;
+    if (createdDate !== this.selectedTab()) {
+      if (isNewDate) this.selectedTab.set(createdDate);
+      return;
+    }
 
     if (isDraft) this.dayDrafts.update((n) => n + 1);
 

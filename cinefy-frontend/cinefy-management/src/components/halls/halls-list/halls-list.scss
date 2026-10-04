@@ -180,7 +180,9 @@
               flex-wrap: wrap;
 
               @include below-mobile {
-                gap: 12px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
               }
 
               .ahidc-item {
@@ -207,6 +209,14 @@
             @include lucide-icon-fix;
             padding: 8px 16px;
             white-space: nowrap;
+
+            @include below-phone {
+              padding: 8px;
+
+              span {
+                display: none;
+              }
+            }
 
             &.view-btn {
               color: $gray-700;

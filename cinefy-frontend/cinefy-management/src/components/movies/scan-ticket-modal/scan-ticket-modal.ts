@@ -57,11 +57,11 @@ export class ScanTicketModalComponent {
 
   readonly close = input<(() => void) | null>(null);
 
+  readonly scanning = signal(false);
+
   protected readonly manualEntry = signal(false);
 
   protected readonly result = signal<BookingConfirmation | null>(null);
-
-  protected readonly scanning = signal(false);
 
   protected readonly scanForm = new FormGroup({
     reference: new FormControl('', {

@@ -25,6 +25,7 @@
   <cui-dialog
     [header]="scanTicket.modalTitle()"
     [description]="scanTicket.modalDescription()"
+    [canClose]="!scanTicket.scanning()"
     [style]="{ width: '480px' }"
     (closed)="scanTicketVisible.set(false)"
   >

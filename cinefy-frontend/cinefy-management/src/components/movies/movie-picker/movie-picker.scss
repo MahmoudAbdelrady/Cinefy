@@ -168,7 +168,7 @@
             }
 
             .midb-item {
-              white-space: nowrap;
+              @include text-truncate;
 
               &:not(:last-child)::after {
                 content: '•';

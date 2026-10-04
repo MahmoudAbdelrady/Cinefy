@@ -1,6 +1,6 @@
 <cui-dialog
   header="Showtimes for {{ selectedMovie().title }}"
-  [style]="{ width: '1000px', height: '850px', maxHeight: 'none' }"
+  [style]="{ width: '1000px', height: '850px' }"
   (closed)="closed.emit()"
 >
   @if (loadingDates()) {
@@ -20,17 +20,23 @@
       />
     } @else {
       <div class="movie-showtimes-container">
-        <p-tabs class="date-tabs" [(value)]="selectedTab">
-          <p-tablist>
-            @for (date of data.dates; track date) {
-              <p-tab class="date-tab" [value]="date">
+        <ul class="date-tabs">
+          @for (date of data.dates; track date) {
+            <li>
+              <button
+                #dateTab
+                type="button"
+                class="date-tab"
+                [class.active]="selectedTab() === date"
+                (click)="selectedTab.set(date)"
+              >
                 <span class="dt-weekday">{{ date | date: 'EEE' }}</span>
                 <span class="dt-day">{{ date | date: 'd' }}</span>
                 <span class="dt-month">{{ date | date: 'MMM' }}</span>
-              </p-tab>
-            }
-          </p-tablist>
-        </p-tabs>
+              </button>
+            </li>
+          }
+        </ul>
 
         <div class="date-showtimes">
           @if (loadingDay()) {

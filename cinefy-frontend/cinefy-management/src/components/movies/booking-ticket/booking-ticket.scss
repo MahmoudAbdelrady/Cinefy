@@ -1,16 +1,23 @@
 @use '../../../shared/styles/colors' as *;
 @use '../../../shared/styles/shadows' as *;
 @use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
 
 :host {
   display: block;
   width: 100%;
+  min-width: 0;
 }
 
 .bt-toolbar {
   @include flex-align;
   gap: 12px;
   margin-bottom: 16px;
+
+  @include below-mobile {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
   @media print {
     display: none;
@@ -22,6 +29,10 @@
     border-radius: $radius-md;
     background-color: $gray-100;
 
+    @include below-mobile {
+      display: flex;
+    }
+
     .bt-tab {
       padding: 6px 14px;
       border-radius: $radius-sm;
@@ -29,6 +40,10 @@
       font-weight: 600;
       color: $gray-600;
       transition: color $transition-fast;
+
+      @include below-mobile {
+        flex: 1;
+      }
 
       &:hover {
         color: $gray-900;
@@ -63,7 +78,7 @@
   }
 
   .bt-ticket {
-    flex: 0 0 350px;
+    flex: 0 0 min(350px, 100%);
     max-width: none;
     padding: 20px;
     border: 1px solid $gray-300;
