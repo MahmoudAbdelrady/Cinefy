@@ -2,10 +2,19 @@ server:
   port: ${SERVER_PORT}
 
 spring:
+  # Database Configuration
   datasource:
     url: jdbc:postgresql://${DATABASE_HOST}/${DATABASE_NAME}
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
+
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
 
 logging:
   level:

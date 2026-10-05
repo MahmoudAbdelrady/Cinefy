@@ -38,4 +38,5 @@ The app won't boot without these (injected with no code default):
 
 - `app.base-url` — empty locally, `/api` in prod (the nginx prefix). Only used to build the auth controllers' cookie path.
 - `server.port` — unset in base/local (Spring's 8080); `SERVER_PORT` in prod.
+- `spring.data.redis.*` — `localhost:6379` with no credentials locally; prod reads `REDIS_HOST`, `REDIS_PORT`, `REDIS_USERNAME` and `REDIS_PASSWORD`, all without fallbacks.
 - Actuator exposes only `health`, with liveness/readiness probes; readiness includes the DB check.
