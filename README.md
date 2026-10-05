@@ -1,6 +1,6 @@
 # Cinefy
 
-**Cinefy is an open-source platform for running a cinema and selling its tickets online.**
+**Cinefy is an open-source platform for managing a cinema.**
 
 It has two web apps that share one backend:
 
