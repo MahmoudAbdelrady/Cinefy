@@ -35,12 +35,19 @@ public class CacheService {
     }
 
     public void add(String key, Object value, Duration ttl) {
-        Duration effectiveTtl = ttl != null ? ttl : Duration.ofMinutes(defaultTtlMinutes);
+        Duration effectiveTtl = resolveTtl(ttl);
         executeOnRedis("write", key, () -> {
             redisTemplate.opsForValue().set(key, value, effectiveTtl);
             return null;
         });
         log.info("Cached value for key '{}' with TTL {}", key, effectiveTtl);
+    }
+
+    public boolean addIfAbsent(String key, Object value, Duration ttl) {
+        Duration effectiveTtl = resolveTtl(ttl);
+        boolean added = Boolean.TRUE.equals(executeOnRedis("write-if-absent", key, () -> redisTemplate.opsForValue().setIfAbsent(key, value, effectiveTtl)));
+        log.info(added ? "Cached value for key '{}' with TTL {}" : "Cache key '{}' already exists, skipped write", key, effectiveTtl);
+        return added;
     }
 
     public void delete(String key) {
@@ -57,5 +64,9 @@ public class CacheService {
             log.error("Failed to {} cache key '{}'", operation, key, ex);
             throw new RuntimeException("Cache is unavailable", ex);
         }
+    }
+
+    private Duration resolveTtl(Duration ttl) {
+        return ttl != null ? ttl : Duration.ofMinutes(defaultTtlMinutes);
     }
 }
