@@ -121,6 +121,8 @@ Cinefy/
 └── .env.example              # Environment variables for the production stack
 ```
 
+Each package has its own README with the details for working on it: [backend](cinefy-backend/README.md), [booking site](cinefy-frontend/cinefy-client/README.md), [staff dashboard](cinefy-frontend/cinefy-management/README.md), [shared UI library](cinefy-frontend/cinefy-ui/README.md).
+
 ---
 
 ## Getting started
@@ -143,63 +145,7 @@ You'll also need credentials for these services:
 
 ### 1. Backend
 
-Create an empty PostgreSQL database. The tables are created automatically on first start.
-
-Then create `cinefy-backend/src/main/resources/application-local.yml` with your settings. The file is ignored by git, so your secrets stay local.
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/cinefy
-    username: postgres
-    password: postgres
-
-springdoc:
-  base-url: /docs
-  swagger-ui:
-    path: /docs/swagger-ui.html
-  api-docs:
-    path: /docs/api-docs
-
-cinefy:
-  mail:
-    username: you@gmail.com
-    password: your-gmail-app-password
-  encryption:
-    key: <random key> # generate with: openssl rand -base64 32
-  admin: # the first admin account, created on start
-    email: admin@example.com
-    password: ChangeMe123!
-  jwt:
-    secret: <random key> # generate with: openssl rand -base64 32
-    access-token-expiration: 900000
-    refresh-token-expiration: 604800000
-    refresh-token-rotation-threshold: 172800000
-  otp:
-    expiration-minutes: 10
-  oauth:
-    registration-token-expiration-minutes: 15
-    google:
-      client-id:
-      client-secret:
-    microsoft:
-      client-id:
-      client-secret:
-    redirect-uri: /membership/oauth/callback
-  cookie:
-    secure: false
-    same-site: Lax
-
-app:
-  base-url: ""
-  frontend:
-    mgmt:
-      url: http://localhost:4201
-    client:
-      url: http://localhost:4200
-  tmdb:
-    access-token: <your TMDB token>
-```
+Create an empty PostgreSQL database, then create `cinefy-backend/src/main/resources/application-local.yml` with your settings. The [backend README](cinefy-backend/README.md#configuration) has a ready-to-fill template.
 
 Start the backend:
 
