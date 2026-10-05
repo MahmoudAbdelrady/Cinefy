@@ -16,6 +16,8 @@
 | `ForbiddenException`, `AuthorizationDeniedException` | 403     | `ForbiddenException` has an optional `ErrorCode` and optional `Object data`    |
 | Any other `Exception`                                | 500     | Message hidden in production                                                   |
 
+When Redis fails, `CacheService` wraps the `DataAccessException` in a plain `RuntimeException("Cache is unavailable")`, which reaches the 500 catch-all (`"Something went wrong"` in production).
+
 Responses produced outside the handler:
 
 - Unauthenticated request to a protected endpoint → 401 `"Authentication required"` (`CinefyAuthenticationEntryPoint`).

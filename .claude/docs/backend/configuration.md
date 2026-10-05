@@ -23,6 +23,7 @@ The app won't boot without these (injected with no code default):
 - `cinefy.oauth.registration-token-expiration-minutes` — lifetime of the encrypted OAuth registration token issued to a first-time social sign-in.
 - `springdoc.base-url` — base for Swagger UI and the OpenAPI JSON. `SecurityConfig` injects it with no default and `application.yml` doesn't set it; local sets `/docs`, prod uses `${API_DOCS_BASE_URL:/docs}`. See [security.md](security.md#api-docs) for why it must never be empty. Spring's `:/docs` fallback applies only when the variable is **absent**, not when it's set to an empty string, so `docker-compose.yml` and `docker-compose.local.yml` pass `${API_DOCS_BASE_URL:-/docs}` (the `:-` form also covers empty) — keep that guard on any compose file that forwards it. `.env.example` lists it with `/docs`.
 - `app.tmdb.access-token` — TMDB bearer token read by `TmdbMovieService`.
+- `spring.data.redis.default-ttl-minutes` — TTL `CacheService.add` applies when the caller passes a `null` TTL. A custom key inside Spring's Redis block (like `springdoc.base-url`); Boot's `RedisProperties` ignores it.
 
 ## Read at request time
 
@@ -31,7 +32,7 @@ The app won't boot without these (injected with no code default):
 ## Defaults
 
 - Defaulted in `application.yml`: `app.tmdb.api-base-url`, `app.tmdb.image-base-url` (TMDB v3), `app.paymob.api-base-url` (`https://accept.paymob.com`).
-- Defaulted only in `application-prod.yml` (env var with fallback): `ACCESS_TOKEN_EXPIRATION` (900000), `REFRESH_TOKEN_EXPIRATION` (604800000), `REFRESH_TOKEN_ROTATION_THRESHOLD` (172800000), `OTP_EXPIRATION_MINUTES` (10), `REGISTRATION_TOKEN_EXPIRATION_MINUTES` (15), `OAUTH_REDIRECT_URI` (`/membership/oauth/callback`), `API_DOCS_BASE_URL` (`/docs`), plus `TMDB_API_BASE_URL`, `TMDB_IMAGE_BASE_URL`, `PAYMOB_API_BASE_URL`. Of these, only `API_DOCS_BASE_URL` is listed in the repo-root `.env.example`.
+- Defaulted only in `application-prod.yml` (env var with fallback): `ACCESS_TOKEN_EXPIRATION` (900000), `REFRESH_TOKEN_EXPIRATION` (604800000), `REFRESH_TOKEN_ROTATION_THRESHOLD` (172800000), `OTP_EXPIRATION_MINUTES` (10), `REGISTRATION_TOKEN_EXPIRATION_MINUTES` (15), `OAUTH_REDIRECT_URI` (`/membership/oauth/callback`), `API_DOCS_BASE_URL` (`/docs`), `CACHE_DEFAULT_TTL_MINUTES` (60), plus `TMDB_API_BASE_URL`, `TMDB_IMAGE_BASE_URL`, `PAYMOB_API_BASE_URL`. Of these, only `API_DOCS_BASE_URL` is listed in the repo-root `.env.example`.
 - `ADMIN_PASSWORD` has no prod fallback, so the env var must exist in prod (it may be empty).
 
 ## Other settings

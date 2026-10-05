@@ -28,6 +28,7 @@ spring:
     redis:
       host: localhost
       port: 6379
+      default-ttl-minutes: 60
 
 springdoc:
   base-url: /docs
