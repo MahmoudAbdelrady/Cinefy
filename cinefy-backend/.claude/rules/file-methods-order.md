@@ -35,7 +35,7 @@ Role groups, top-to-bottom:
 4. **Mappers** — entity/DTO transformations. Placed after side-effect helpers because they're reference material: a reader skimming top-to-bottom sees control flow first, schema-shaped code next-to-last.
    - Within mappers: put **DTO → entity** mappers (e.g. `applyDtoToShowtime`) before **entity → DTO** mappers. The former is used during create/update; the latter during response shaping.
    - **Within each direction, order by first use from the public methods above.** If mapper A is called before mapper B in the file's public API section, A goes above B. Applies to both DTO→entity and entity→DTO groups independently.
-5. **Utilities** — pure stateless helpers with no domain role (math, parsing, string manipulation, format conversions). Examples: `toRowIndex`, `toRowLabel`, regex-matching predicates used by multiple role groups. Placed last because they're the leaves of the call graph — referenced by everything above, depending on nothing.
+5. **Utilities** — pure stateless helpers with no domain role (math, parsing, string manipulation, format conversions). Examples: `toRowIndex`, `positionRowIndex`, `positionColumnNumber` (in `HallService`), regex-matching predicates used by multiple role groups. Placed last because they're the leaves of the call graph — referenced by everything above, depending on nothing.
 
 ## Why this order
 

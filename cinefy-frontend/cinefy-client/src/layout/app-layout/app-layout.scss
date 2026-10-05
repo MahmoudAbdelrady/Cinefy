@@ -242,8 +242,28 @@ $max-width: 1152px;
         }
       }
 
-      .alf-site-info {
-        font-size: 12px;
+      .alf-meta {
+        @include flex-align;
+        gap: 16px;
+
+        @include below-mobile {
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .alf-link {
+          color: $color-muted-foreground;
+          text-decoration: none;
+          transition: color $transition-fast;
+
+          &:hover {
+            color: $color-foreground;
+          }
+        }
+
+        .alf-site-info {
+          font-size: 12px;
+        }
       }
     }
   }

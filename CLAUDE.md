@@ -6,26 +6,33 @@ Cinefy is a cinema management & booking platform. The repository is split into t
 
 ```
 Cinefy/
+├── .claude/docs/        # Detailed reference docs, read on demand (indexed from each subtree's CLAUDE.md)
+├── .github/workflows/   # CI: pr-build, image-scan, build-deploy-prod
 ├── cinefy-backend/      # Spring Boot 4 REST API (Java 25, Maven, PostgreSQL)
-└── cinefy-frontend/     # pnpm workspace (the frontend monorepo)
-    ├── cinefy-management/   # Angular 22 admin/staff dashboard (the app behind /login)
-    ├── cinefy-ui/           # Shared Angular component library (ng-packagr)
-    └── cinefy-client/       # Angular 22 public-facing booking app (SSR)
+├── cinefy-frontend/     # pnpm workspace (the frontend monorepo)
+│   ├── cinefy-management/   # Angular 22 admin/staff dashboard (the app behind /login)
+│   ├── cinefy-ui/           # Shared Angular component library (ng-packagr)
+│   └── cinefy-client/       # Angular 22 public-facing booking app (SSR)
+├── docker-compose.yml   # Production stack (nginx + backend + both apps; external Postgres)
+├── nginx.Dockerfile     # Reverse-proxy image, built from the repo root
+├── nginx.local.conf     # Example proxy config (the other nginx.*.conf files are gitignored)
+└── .env.example         # Env vars for the production stack
 ```
 
-Each subtree has its own detailed `CLAUDE.md` — read the one for the area you're working in:
+Each subtree has its own `CLAUDE.md` — read the one for the area you're working in:
 
-- **Backend:** [`cinefy-backend/CLAUDE.md`](cinefy-backend/CLAUDE.md) — stack, package structure, security model, entity/DTO patterns, API endpoints.
-- **Frontend (management app):** [`cinefy-frontend/cinefy-management/CLAUDE.md`](cinefy-frontend/cinefy-management/CLAUDE.md) — Angular conventions, signals, SCSS design system, the cinefy-ui import contract. This is the canonical reference for the frontend-wide conventions (used by all three frontend packages).
-- **Frontend (client app):** [`cinefy-frontend/cinefy-client/CLAUDE.md`](cinefy-frontend/cinefy-client/CLAUDE.md) — the SSR booking app: SSR-safety rules, structure, and porting from the `mvp-version/` React mock.
+- **Backend:** [`cinefy-backend/CLAUDE.md`](cinefy-backend/CLAUDE.md) — the backend rules, plus an index into the detailed docs under [`.claude/docs/backend/`](.claude/docs/backend/) (security, auth, bookings, payments, persistence, statistics, …).
+- **Frontend (all packages):** [`cinefy-frontend/CLAUDE.md`](cinefy-frontend/CLAUDE.md) — the frontend-wide rules and commands, plus an index into [`.claude/docs/frontend/`](.claude/docs/frontend/) (conventions, HTTP, styling, cinefy-ui, workspace).
+- **Frontend (management app):** [`cinefy-frontend/cinefy-management/CLAUDE.md`](cinefy-frontend/cinefy-management/CLAUDE.md) — dashboard-specific rules, indexing `.claude/docs/frontend/management/`.
+- **Frontend (client app):** [`cinefy-frontend/cinefy-client/CLAUDE.md`](cinefy-frontend/cinefy-client/CLAUDE.md) — the SSR rules, indexing `.claude/docs/frontend/client/`.
 
-`cinefy-ui` (the shared component library) has no `CLAUDE.md` of its own — its import contract and conventions are documented in the management `CLAUDE.md`.
+`cinefy-ui` (the shared component library) has no `CLAUDE.md` of its own — it's covered by the frontend-wide `CLAUDE.md`, [`.claude/docs/frontend/cinefy-ui.md`](.claude/docs/frontend/cinefy-ui.md), and its README's token contract.
 
 ## Working in each half
 
 - **Backend** — Maven via the wrapper, from `cinefy-backend/`:
   ```bash
-  ./mvnw compile      # Java 25 required (the parent is Spring Boot 4.0.5)
+  ./mvnw compile      # Java 25 required (the parent is Spring Boot 4.1.1)
   ./mvnw spring-boot:run
   ```
 - **Frontend** — pnpm, from the workspace root `cinefy-frontend/`:
@@ -39,7 +46,7 @@ Each subtree has its own detailed `CLAUDE.md` — read the one for the area you'
 
   Both `cinefy-management` and `cinefy-client` depend on `cinefy-ui` via `"cinefy-ui": "link:../cinefy-ui/dist"`, so build the library before running either app. **pnpm only** (v12.3.4).
 
-  **Every pnpm command runs from `cinefy-frontend/` — never from inside `cinefy-management/`, `cinefy-client/`, or `cinefy-ui/`.** Those packages have a `package.json` but no lockfile; running pnpm inside one makes it re-resolve all dependencies as a standalone project, leaving a stray lockfile and a private `node_modules` on a different Angular patch than the workspace pins. That breaks the build with hundreds of confusing `InputSignal` type errors. To run one package's script, use `pnpm --filter <package> <script>` from the root. See [`cinefy-management/CLAUDE.md`](cinefy-frontend/cinefy-management/CLAUDE.md#commands) for the details and recovery steps.
+  **Every pnpm command runs from `cinefy-frontend/` — never from inside `cinefy-management/`, `cinefy-client/`, or `cinefy-ui/`.** Those packages have a `package.json` but no pnpm lockfile of their own (the only real lockfile is `cinefy-frontend/pnpm-lock.yaml`; `cinefy-management/` also carries a stray npm `package-lock.json`, and `cinefy-management/` and `cinefy-ui/` each carry a local `pnpm-workspace.yaml`). Running pnpm inside one makes it re-resolve all dependencies as a standalone project, leaving a stray lockfile and a private `node_modules` on a different Angular patch than the workspace pins. That breaks the build with hundreds of confusing `InputSignal` type errors. To run one package's script, use `pnpm --filter <package> <script>` from the root. See [`.claude/docs/frontend/workspace.md`](.claude/docs/frontend/workspace.md#why-the-working-directory-matters) for the details and recovery steps.
 
 ## Report problems, don't fix them unasked
 
@@ -56,7 +63,16 @@ Two things to be honest about when reporting:
 - **Whether you actually observed the problem**, or only reasoned that it could happen. Say which. A defect reproduced in the real code path is a different claim from one inferred from a synthetic test.
 - **Whether the fix is reachable in this app today**, or is defensive against a future caller. Trace it before asserting it's real.
 
+## Keep the docs in sync
+
+**After every change you make, check whether a markdown file documents what you changed, and update it if it does.** Treat this as part of finishing the change, not a follow-up.
+
+- Look in the `CLAUDE.md` for the area, the docs it indexes under [`.claude/docs/`](.claude/docs/), the package `README.md`, and any rule or command file under a `.claude/` folder (e.g. `cinefy-backend/.claude/rules/`, `.claude/commands/`).
+- Update anything the change made wrong or incomplete: renamed or moved files, classes and methods; new or removed endpoints, routes, pages, components, services, config keys and env vars; changed rules, access, constants or behavior.
+- If nothing documents the change, don't create a new doc unless asked. If a change adds a new area that clearly belongs in an existing doc, add it there.
+- In your final message, say which docs you updated, or that none needed it.
+
 ## Conventions
 
-- `.gitignore` is per-subtree (`cinefy-backend/.gitignore`, `cinefy-frontend/.gitignore`); there is no root one — nothing is built at the repo root.
-- The frontend and backend version and deploy independently; they share no build tooling. The only contract between them is the HTTP API (documented in the backend `CLAUDE.md`).
+- Each subtree has its own `.gitignore` (`cinefy-backend/.gitignore`, `cinefy-frontend/.gitignore`). The root `.gitignore` covers what lives at the root: env files (`.env`, `*.env`, except `.env.example`), `nginx.*.conf` (except `nginx.local.conf`) and `docker-compose.local.yml`.
+- The frontend and backend version independently and share no build tooling; the root only holds the deploy files (compose, nginx image, CI). The only contract between them is the HTTP API (documented in Swagger and the backend docs).

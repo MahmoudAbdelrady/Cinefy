@@ -108,9 +108,12 @@ All code lives under `src/main/java/com/mdevs/cinefy/`:
 | `entity/`     | Database entities, with their enums under `entity/enums/`                                                                                      |
 | `repository/` | Database queries                                                                                                                               |
 | `dto/`        | Request and response objects, grouped by area                                                                                                  |
+| `projection/` | Query result projections, grouped by area                                                                                                      |
 | `job/`        | Scheduled jobs: updating showtime statuses, releasing expired seat holds, refreshing movie data from TMDB, cleanup                             |
 | `config/`     | Application, security and database configuration                                                                                               |
 | `filter/`     | Authentication and CSRF request filters                                                                                                        |
-| `shared/`     | Code shared across areas: security, payment gateway client, OAuth clients, exceptions, validation                                              |
+| `aspect/`     | Request and transaction logging                                                                                                                |
+| `shared/`     | Code shared across areas: security, payment gateway client, OAuth clients, exceptions, validation, annotations, ticket QR codes                |
+| `utils/`      | Small helpers: cookies, error responses, logging                                                                                               |
 
 Email templates (verification codes and tickets) are in `src/main/resources/templates/`.

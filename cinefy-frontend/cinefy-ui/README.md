@@ -17,7 +17,7 @@ Both apps use the built output in `cinefy-ui/dist/`, so build the library before
 
 ## Entry points
 
-The library has no main entry point. Import from the sub-path that matches what you need:
+The main entry point exports nothing. Import from the sub-path that matches what you need:
 
 | Import from            | Contents                                                                                                                                             |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -35,7 +35,7 @@ Every component's selector starts with `cui-` and its class with `Cinefy`, for e
 
 ## Theming tokens
 
-The library's components reference these `--cui-*` runtime tokens via `var()` and never use literal colors. Each consuming app owns its full SCSS palette (`_colors.scss`, `_shadows.scss`, etc.) and maps it to the tokens below **once** in a `:root { ... }` bridge inside the app's global `styles.scss`.
+The library's components reference these `--cui-*` runtime tokens via `var()` and never use literal colors. Each consuming app owns its full SCSS palette (e.g. `_colors.scss`) and maps it to the tokens below **once** in a `:root { ... }` bridge inside the app's global `styles.scss`.
 
 This document is the source of truth for which tokens the bridge must define. A token the bridge omits resolves to nothing, so the declaration that reads it is dropped silently.
 
@@ -60,12 +60,12 @@ This document is the source of truth for which tokens the bridge must define. A 
 
 ### Borders & focus
 
-| Token                  | Purpose                                         |
-| ---------------------- | ----------------------------------------------- |
-| `--cui-border-default` | Resting field/panel border                      |
-| `--cui-border-subtle`  | Secondary border (dividers, pills, seat legend) |
-| `--cui-icon-disabled`  | Disabled / unmet icon color                     |
-| `--cui-ring`           | Focus ring color                                |
+| Token                  | Purpose                                              |
+| ---------------------- | ---------------------------------------------------- |
+| `--cui-border-default` | Default border (neutral buttons, password checklist) |
+| `--cui-border-subtle`  | Secondary border (dividers, pills, seat legend)      |
+| `--cui-icon-disabled`  | Disabled / unmet icon color                          |
+| `--cui-ring`           | Focus ring color                                     |
 
 ### Accent / status colors
 

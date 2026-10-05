@@ -20,8 +20,8 @@ The app expects the [backend](../../cinefy-backend/README.md) to be running. In 
 
 The app is rendered on the server, so public pages load quickly and show content before any JavaScript runs.
 
-- **Server-rendered pages:** home, movie catalog, movie details.
-- **Browser-rendered pages:** everything that needs a signed-in customer: sign in and sign up, seat selection, checkout, booking confirmation and profile.
+- **Server-rendered pages:** home, movie catalog, movie details, privacy policy, and the not-found page.
+- **Browser-rendered pages:** everything to do with a customer's account: sign in, sign up, password reset, the OAuth sign-in callback, seat selection, checkout, booking confirmation and profile.
 
 The split is set in `src/app/app.routes.server.ts`.
 
@@ -34,11 +34,11 @@ pnpm --filter cinefy-client serve:ssr:cinefy-client
 
 The server reads these environment variables:
 
-| Variable           | Purpose                                                    | Default                 |
-| ------------------ | ---------------------------------------------------------- | ----------------------- |
-| `PORT`             | Port the server listens on                                 | `4000`                  |
-| `API_ORIGIN`       | Backend address the server uses when rendering pages       | `http://localhost:8080` |
-| `NG_ALLOWED_HOSTS` | Comma-separated host names the server accepts requests for | none                    |
+| Variable           | Purpose                                                                                                    | Default                 |
+| ------------------ | ---------------------------------------------------------------------------------------------------------- | ----------------------- |
+| `PORT`             | Port the server listens on                                                                                 | `4000`                  |
+| `API_ORIGIN`       | Backend address the server puts in front of the relative production API path (`/api`) when rendering pages | `http://localhost:8080` |
+| `NG_ALLOWED_HOSTS` | Comma-separated host names the server accepts requests for                                                 | none                    |
 
 ## Project structure
 

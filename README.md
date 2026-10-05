@@ -118,6 +118,8 @@ Cinefy/
 │   └── cinefy-ui/            # Shared UI library
 ├── .github/workflows/        # CI/CD pipelines
 ├── docker-compose.yml        # Production stack
+├── nginx.Dockerfile          # Reverse-proxy image
+├── nginx.local.conf          # Example proxy config
 └── .env.example              # Environment variables for the production stack
 ```
 
@@ -175,9 +177,9 @@ Sign in to the dashboard with the admin account from your config file. From ther
 
 ## Deployment
 
-Cinefy runs as four Docker containers: the backend, the two web apps and an Nginx proxy in front of them. [`docker-compose.yml`](docker-compose.yml) starts the whole stack and connects to an external PostgreSQL database. To configure it, copy [`.env.example`](.env.example) to `.env` and fill in the values.
+Cinefy runs as four Docker containers: the backend, the two web apps and an Nginx proxy in front of them. [`docker-compose.yml`](docker-compose.yml) starts the whole stack and connects to an external PostgreSQL database. To configure it, copy [`.env.example`](.env.example) to `.env` and fill in the values. Also set `FRONTEND_CLIENT_ALLOWED_HOSTS` (the host names the booking site accepts, comma-separated), and provide the proxy config the compose file mounts at `/srv/sites/cinefy/nginx.conf` ([`nginx.local.conf`](nginx.local.conf) is an example).
 
-GitHub Actions builds every pull request. A separate workflow scans the images for vulnerabilities, publishes them to Docker Hub and deploys them.
+GitHub Actions builds the changed parts of every pull request to `main`. A separate workflow scans the images for vulnerabilities, publishes them to Docker Hub and deploys them.
 
 ---
 

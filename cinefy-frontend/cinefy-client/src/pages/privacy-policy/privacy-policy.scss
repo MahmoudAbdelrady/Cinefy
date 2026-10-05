@@ -1,0 +1,101 @@
+@use '../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use 'cinefy-ui/styles/breakpoints' as *;
+
+.pp-container {
+  width: min(100%, 768px);
+  margin: 0 auto;
+  padding: 40px 16px;
+
+  .pp-header {
+    margin-bottom: 24px;
+
+    h1 {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+
+      @include below-phone {
+        font-size: 24px;
+      }
+    }
+
+    p {
+      margin-top: 4px;
+      font-size: 14px;
+      color: $color-muted-foreground;
+    }
+  }
+
+  .pp-notice {
+    @include lucide-icon-fix;
+
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding: 16px;
+    border: 1px solid rgba($color-primary, 0.4);
+    border-radius: $radius-lg;
+    background-color: rgba($color-primary, 0.08);
+    color: $color-primary;
+
+    svg {
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    p {
+      line-height: 1.6;
+      color: $color-foreground;
+    }
+  }
+
+  .pp-body {
+    @include flex-column;
+
+    gap: 32px;
+    line-height: 1.7;
+    color: rgba($color-foreground, 0.85);
+
+    section {
+      @include flex-column;
+
+      gap: 12px;
+
+      h2 {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        color: $color-foreground;
+      }
+
+      ul {
+        @include flex-column;
+
+        gap: 8px;
+        padding-left: 20px;
+        list-style: disc;
+
+        li::marker {
+          color: $color-muted-foreground;
+        }
+      }
+
+      strong {
+        font-weight: 600;
+        color: $color-foreground;
+      }
+    }
+
+    a {
+      color: $color-primary;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: opacity $transition-fast;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+}
