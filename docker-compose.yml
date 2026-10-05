@@ -51,6 +51,8 @@ services:
       FRONTEND_CLIENT_URL: ${FRONTEND_CLIENT_URL}
 
       TMDB_ACCESS_TOKEN: ${TMDB_ACCESS_TOKEN}
+
+      API_DOCS_BASE_URL: ${API_DOCS_BASE_URL}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:$$SERVER_PORT/actuator/health/readiness || exit 1"]
       interval: 10s
