@@ -125,9 +125,8 @@ public class ClientAuthController {
     @PublicApi
     @PostMapping("/verify-account")
     public ResponseEntity<Void> verifyAccount(@Valid @RequestBody OtpCodeDTO dto) {
-        return clientAuthService.verifyAccount(dto)
-                .map(tokens -> authCookieResponseFactory.tokenResponse(AUTH_CONTEXT, tokens, AUTH_PATH))
-                .orElseGet(() -> ResponseEntity.noContent().build());
+        TokenPairDTO tokens = clientAuthService.verifyAccount(dto);
+        return authCookieResponseFactory.tokenResponse(AUTH_CONTEXT, tokens, AUTH_PATH);
     }
 
     @PublicApi

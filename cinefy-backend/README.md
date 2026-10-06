@@ -24,6 +24,11 @@ spring:
     url: jdbc:postgresql://localhost:5432/cinefy
     username: postgres
     password: postgres
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      default-ttl-minutes: 60
 
 springdoc:
   base-url: /docs

@@ -2,6 +2,11 @@ spring:
   application:
     name: Cinefy
 
+  data:
+    redis:
+      repositories:
+        enabled: false
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:

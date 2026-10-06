@@ -14,10 +14,16 @@ Security plumbing (filters, cookies, auth contexts) is in [security.md](security
 
 ## OTP flows
 
-OTPs live in the `Otp` table (`OtpType`: `EMAIL_VERIFICATION`, `RESET_PASSWORD`) and are emailed by `EmailService`.
+OTPs live in Redis through `CacheService` (`OtpType`: `EMAIL_VERIFICATION`, `RESET_PASSWORD`) and are emailed by `EmailService`. Three entries per user and type:
+
+- `otp:cooldown:<userId>:<userType>:<type>` → the concurrency gate, with a 100 ms TTL. Claimed with `addIfAbsent`.
+- `otp:code:<code>` → an `OtpEntry` record (`code`, `userId`, `userType`, `type`), with a TTL of `cinefy.otp.expiration-minutes`. Written with `addIfAbsent`, which also keeps codes unique.
+- `otp:user:<userId>:<userType>:<type>` → the user's current code, with the same TTL as the code entry.
+
+`OtpService.create` first claims the cooldown entry. If it's already taken (another `create` for the same user and type ran within the last 100 ms), it returns `null` and callers send no email, so concurrent requests produce a single code. Otherwise it writes the new code entry, points the user entry at it, and deletes the previous code entry: every non-concurrent request issues a fresh code with a fresh TTL and invalidates the old one. There is no resend cooldown. Only one request per user and type gets past the gate, so the read-then-write on the user entry can't race. `validate` throws `OTP_INVALID` for a missing code or a code of another type. `consume(OtpEntry)` deletes all three entries and throws `OTP_INVALID` (422) if the code entry was already gone (expired, or consumed by a concurrent request). Redis deletes can't roll back with a DB transaction, so callers (`resetPassword` in both auth services, `verifyAccount`) run `validate` → the DB change → `consume`, all inside their `@Transactional` method. A failed DB change never reaches `consume`, so the code stays usable; a failed `consume` rolls back the DB change, so only the request that actually consumed the code commits. The one gap: the transaction commits after `consume`, so a failed commit still uses up the code.
 
 - **Staff password reset:** `forgot-password` → `verify-reset-code` → `reset-password`. `forgotPassword` skips an `ADMIN` target early (no OTP, no email); `updatePassword` still guards independently.
-- **Client sign-up:** `sign-up` creates an **unverified** client, emails an OTP and returns **201** with no body; `verify-account` verifies it and sets cookies (or returns 204 without cookies if the OTP was already consumed concurrently). An unverified client can't log in.
+- **Client sign-up:** `sign-up` creates an **unverified** client, emails an OTP and returns **201** with no body; `verify-account` verifies it and sets cookies (or 422 `OTP_INVALID` if the OTP was already consumed concurrently). An unverified client can't log in.
 - **Client password reset:** `send-otp` → `verify-otp` → `reset-password`.
 - Password changes go through `applyNewPassword` (shared by change-password and OTP reset), which owns the `PASSWORD_REUSED` check. A wrong current password is `PASSWORD_INCORRECT`.
 

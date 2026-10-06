@@ -3,9 +3,9 @@ package com.mdevs.cinefy.service;
 import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
+import com.mdevs.cinefy.dto.auth.OtpEntry;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
-import com.mdevs.cinefy.entity.Otp;
 import com.mdevs.cinefy.entity.enums.OtpType;
 import com.mdevs.cinefy.entity.enums.StaffPosition;
 import com.mdevs.cinefy.entity.enums.UserType;
@@ -16,7 +16,6 @@ import com.mdevs.cinefy.shared.security.JwtUtil;
 import com.mdevs.cinefy.shared.security.TokenType;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -56,19 +55,15 @@ public class ManagementAuthService {
                 return;
             }
 
-            // TODO: Will be moved to Redis - SET NX approach
-            Otp otp;
-            try {
-                otp = otpService.create(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);
-            } catch (DataIntegrityViolationException ex) {
-                // A concurrent request already issued an active reset code for this user
+            OtpEntry otp = otpService.create(staffMember.getId(), UserType.STAFF_MEMBER, OtpType.RESET_PASSWORD);
+            if (otp == null) {
                 return;
             }
 
             emailService.sendPasswordResetOtp(
                     staffMember.getEmail(),
                     staffMember.getFirstName(),
-                    otp.getCode(),
+                    otp.code(),
                     otpService.getExpiryMinutes());
         });
     }
@@ -79,7 +74,8 @@ public class ManagementAuthService {
 
     @Transactional
     public void resetPassword(ResetPasswordDTO dto) {
-        otpService.validateAndConsume(dto.getCode(), OtpType.RESET_PASSWORD)
-                .ifPresent(otp -> staffMemberService.updatePassword(otp.getUserId(), dto.getNewPassword()));
+        OtpEntry otp = otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
+        staffMemberService.updatePassword(otp.userId(), dto.getNewPassword());
+        otpService.consume(otp);
     }
 }
