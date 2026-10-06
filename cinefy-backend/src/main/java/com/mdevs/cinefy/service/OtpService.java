@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,17 +42,6 @@ public class OtpService {
         return otp;
     }
 
-    public Optional<OtpEntry> validateAndConsume(String code, OtpType type) {
-        OtpEntry otp = validate(code, type);
-        if (!cacheService.delete(codeKey(code))) {
-            return Optional.empty();
-        }
-
-        cacheService.delete(userScopedKey(USER_KEY_PREFIX, otp.userId(), otp.userType(), otp.type()));
-        cacheService.delete(userScopedKey(COOLDOWN_KEY_PREFIX, otp.userId(), otp.userType(), otp.type()));
-        return Optional.of(otp);
-    }
-
     public OtpEntry create(Long userId, UserType userType, OtpType type) {
         if (!cacheService.addIfAbsent(userScopedKey(COOLDOWN_KEY_PREFIX, userId, userType, type), true, Duration.ofMillis(100))) {
             return null;
@@ -68,6 +56,15 @@ public class OtpService {
             cacheService.delete(codeKey(previousCode));
         }
         return otp;
+    }
+
+    public void consume(OtpEntry otp) {
+        if (!cacheService.delete(codeKey(otp.code()))) {
+            throw new BusinessException("Invalid or expired code", ErrorCode.OTP_INVALID);
+        }
+
+        cacheService.delete(userScopedKey(USER_KEY_PREFIX, otp.userId(), otp.userType(), otp.type()));
+        cacheService.delete(userScopedKey(COOLDOWN_KEY_PREFIX, otp.userId(), otp.userType(), otp.type()));
     }
 
     // =========================== Helpers ===========================

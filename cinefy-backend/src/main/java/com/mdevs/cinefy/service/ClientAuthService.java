@@ -44,7 +44,6 @@ import tools.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -154,14 +153,17 @@ public class ClientAuthService {
 
     @Transactional
     public void resetPassword(ResetPasswordDTO dto) {
-        otpService.validateAndConsume(dto.getCode(), OtpType.RESET_PASSWORD)
-                .ifPresent(otp -> clientService.updatePassword(otp.userId(), dto.getNewPassword()));
+        OtpEntry otp = otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
+        clientService.updatePassword(otp.userId(), dto.getNewPassword());
+        otpService.consume(otp);
     }
 
     @Transactional
-    public Optional<TokenPairDTO> verifyAccount(OtpCodeDTO dto) {
-        return otpService.validateAndConsume(dto.getCode(), OtpType.EMAIL_VERIFICATION)
-                .map(otp -> generateTokens(clientService.markVerified(otp.userId())));
+    public TokenPairDTO verifyAccount(OtpCodeDTO dto) {
+        OtpEntry otp = otpService.validate(dto.getCode(), OtpType.EMAIL_VERIFICATION);
+        Client client = clientService.markVerified(otp.userId());
+        otpService.consume(otp);
+        return generateTokens(client);
     }
 
     // =========================== Helpers ===========================

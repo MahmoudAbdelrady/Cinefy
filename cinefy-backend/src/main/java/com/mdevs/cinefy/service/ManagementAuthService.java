@@ -74,7 +74,8 @@ public class ManagementAuthService {
 
     @Transactional
     public void resetPassword(ResetPasswordDTO dto) {
-        otpService.validateAndConsume(dto.getCode(), OtpType.RESET_PASSWORD)
-                .ifPresent(otp -> staffMemberService.updatePassword(otp.userId(), dto.getNewPassword()));
+        OtpEntry otp = otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
+        staffMemberService.updatePassword(otp.userId(), dto.getNewPassword());
+        otpService.consume(otp);
     }
 }
