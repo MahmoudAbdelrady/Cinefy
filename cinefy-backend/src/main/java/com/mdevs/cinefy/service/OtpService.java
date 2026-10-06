@@ -24,8 +24,6 @@ public class OtpService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private static final Duration RESEND_COOLDOWN = Duration.ofMinutes(2);
-
     private static final String CODE_KEY_PREFIX = "otp:code:";
 
     private static final String USER_KEY_PREFIX = "otp:user:";
@@ -57,7 +55,7 @@ public class OtpService {
     }
 
     public OtpEntry create(Long userId, UserType userType, OtpType type) {
-        if (!cacheService.addIfAbsent(userScopedKey(COOLDOWN_KEY_PREFIX, userId, userType, type), true, RESEND_COOLDOWN)) {
+        if (!cacheService.addIfAbsent(userScopedKey(COOLDOWN_KEY_PREFIX, userId, userType, type), true, Duration.ofMillis(100))) {
             return null;
         }
 
