@@ -23,45 +23,46 @@ public class CacheService {
     // ========================= Public API =========================
 
     public Object get(String key) {
-        Object value = executeOnRedis("read", key, () -> redisTemplate.opsForValue().get(key));
-        log.info("Cache {} for key '{}'", value == null ? "miss" : "hit", key);
+        Object value = executeOnRedis("read", () -> redisTemplate.opsForValue().get(key));
+        log.info("Cache {}", value == null ? "miss" : "hit");
         return value;
     }
 
     public boolean exists(String key) {
-        boolean exists = Boolean.TRUE.equals(executeOnRedis("check", key, () -> redisTemplate.hasKey(key)));
-        log.info("Cache key '{}' {}", key, exists ? "exists" : "does not exist");
+        boolean exists = Boolean.TRUE.equals(executeOnRedis("check", () -> redisTemplate.hasKey(key)));
+        log.info("Cache entry {}", exists ? "exists" : "does not exist");
         return exists;
     }
 
     public void add(String key, Object value, Duration ttl) {
         Duration effectiveTtl = resolveTtl(ttl);
-        executeOnRedis("write", key, () -> {
+        executeOnRedis("write", () -> {
             redisTemplate.opsForValue().set(key, value, effectiveTtl);
             return null;
         });
-        log.info("Cached value for key '{}' with TTL {}", key, effectiveTtl);
+        log.info("Cached value with TTL {}", effectiveTtl);
     }
 
     public boolean addIfAbsent(String key, Object value, Duration ttl) {
         Duration effectiveTtl = resolveTtl(ttl);
-        boolean added = Boolean.TRUE.equals(executeOnRedis("write-if-absent", key, () -> redisTemplate.opsForValue().setIfAbsent(key, value, effectiveTtl)));
-        log.info(added ? "Cached value for key '{}' with TTL {}" : "Cache key '{}' already exists, skipped write", key, effectiveTtl);
+        boolean added = Boolean.TRUE.equals(executeOnRedis("write-if-absent", () -> redisTemplate.opsForValue().setIfAbsent(key, value, effectiveTtl)));
+        log.info(added ? "Cached value with TTL {}" : "Cache entry already exists, skipped write", effectiveTtl);
         return added;
     }
 
-    public void delete(String key) {
-        boolean deleted = Boolean.TRUE.equals(executeOnRedis("delete", key, () -> redisTemplate.delete(key)));
-        log.info("{} for key '{}'", deleted ? "Deleted cache entry" : "No cache entry to delete", key);
+    public boolean delete(String key) {
+        boolean deleted = Boolean.TRUE.equals(executeOnRedis("delete", () -> redisTemplate.delete(key)));
+        log.info(deleted ? "Deleted cache entry" : "No cache entry to delete");
+        return deleted;
     }
 
     // =========================== Helpers ===========================
 
-    private <T> T executeOnRedis(String operation, String key, Supplier<T> action) {
+    private <T> T executeOnRedis(String operation, Supplier<T> action) {
         try {
             return action.get();
         } catch (DataAccessException ex) {
-            log.error("Failed to {} cache key '{}'", operation, key, ex);
+            log.error("Failed to {} cache entry", operation, ex);
             throw new RuntimeException("Cache is unavailable", ex);
         }
     }

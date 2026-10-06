@@ -7,12 +7,12 @@ import com.mdevs.cinefy.dto.auth.OAuthCallbackResultDTO;
 import com.mdevs.cinefy.dto.auth.OAuthRegistrationDTO;
 import com.mdevs.cinefy.dto.auth.OAuthSignUpDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
+import com.mdevs.cinefy.dto.auth.OtpEntry;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.SendOtpDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.entity.Client;
-import com.mdevs.cinefy.entity.Otp;
 import com.mdevs.cinefy.entity.enums.OAuthProvider;
 import com.mdevs.cinefy.entity.enums.OtpType;
 import com.mdevs.cinefy.entity.enums.UserType;
@@ -35,7 +35,6 @@ import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -156,13 +155,13 @@ public class ClientAuthService {
     @Transactional
     public void resetPassword(ResetPasswordDTO dto) {
         otpService.validateAndConsume(dto.getCode(), OtpType.RESET_PASSWORD)
-                .ifPresent(otp -> clientService.updatePassword(otp.getUserId(), dto.getNewPassword()));
+                .ifPresent(otp -> clientService.updatePassword(otp.userId(), dto.getNewPassword()));
     }
 
     @Transactional
     public Optional<TokenPairDTO> verifyAccount(OtpCodeDTO dto) {
         return otpService.validateAndConsume(dto.getCode(), OtpType.EMAIL_VERIFICATION)
-                .map(otp -> generateTokens(clientService.markVerified(otp.getUserId())));
+                .map(otp -> generateTokens(clientService.markVerified(otp.userId())));
     }
 
     // =========================== Helpers ===========================
@@ -203,12 +202,8 @@ public class ClientAuthService {
     }
 
     private void dispatchOtp(Client client, OtpType otpType) {
-        // TODO: Will be moved to Redis - SET NX approach
-        Otp otp;
-        try {
-            otp = otpService.create(client.getId(), UserType.CLIENT, otpType);
-        } catch (DataIntegrityViolationException ex) {
-            // A concurrent request already issued an active code of this type for this user
+        OtpEntry otp = otpService.create(client.getId(), UserType.CLIENT, otpType);
+        if (otp == null) {
             return;
         }
 
@@ -216,12 +211,12 @@ public class ClientAuthService {
             case EMAIL_VERIFICATION -> emailService.sendEmailVerificationOtp(
                     client.getEmail(),
                     client.getFirstName(),
-                    otp.getCode(),
+                    otp.code(),
                     otpService.getExpiryMinutes());
             case RESET_PASSWORD -> emailService.sendPasswordResetOtp(
                     client.getEmail(),
                     client.getFirstName(),
-                    otp.getCode(),
+                    otp.code(),
                     otpService.getExpiryMinutes());
         }
     }

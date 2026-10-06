@@ -1,30 +1,36 @@
 package com.mdevs.cinefy.service;
 
-import com.mdevs.cinefy.entity.Otp;
+import com.mdevs.cinefy.dto.auth.OtpEntry;
 import com.mdevs.cinefy.entity.enums.OtpType;
 import com.mdevs.cinefy.entity.enums.UserType;
-import com.mdevs.cinefy.repository.OtpRepository;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
+import java.time.Duration;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class OtpService {
 
-    private final OtpRepository otpRepository;
+    private final CacheService cacheService;
 
     @Value("${cinefy.otp.expiration-minutes}")
     private int expirationMinutes;
 
     private static final SecureRandom RANDOM = new SecureRandom();
+
+    private static final Duration RESEND_COOLDOWN = Duration.ofMinutes(2);
+
+    private static final String CODE_KEY_PREFIX = "otp:code:";
+
+    private static final String USER_KEY_PREFIX = "otp:user:";
+
+    private static final String COOLDOWN_KEY_PREFIX = "otp:cooldown:";
 
     // ========================= Public API =========================
 
@@ -32,54 +38,59 @@ public class OtpService {
         return expirationMinutes;
     }
 
-    public Otp validate(String code, OtpType type) {
-        Otp otp = otpRepository.findByCodeAndType(code, type)
-                .orElseThrow(() -> new BusinessException("Invalid or expired code", ErrorCode.OTP_INVALID));
-        if (otp.getExpirationDate().isBefore(LocalDateTime.now())) {
+    public OtpEntry validate(String code, OtpType type) {
+        if (!(cacheService.get(codeKey(code)) instanceof OtpEntry otp) || otp.type() != type) {
             throw new BusinessException("Invalid or expired code", ErrorCode.OTP_INVALID);
         }
         return otp;
     }
 
-    @Transactional
-    public Optional<Otp> validateAndConsume(String code, OtpType type) {
-        Otp otp = validate(code, type);
-        return consume(otp) ? Optional.of(otp) : Optional.empty();
+    public Optional<OtpEntry> validateAndConsume(String code, OtpType type) {
+        OtpEntry otp = validate(code, type);
+        if (!cacheService.delete(codeKey(code))) {
+            return Optional.empty();
+        }
+
+        cacheService.delete(userScopedKey(USER_KEY_PREFIX, otp.userId(), otp.userType(), otp.type()));
+        cacheService.delete(userScopedKey(COOLDOWN_KEY_PREFIX, otp.userId(), otp.userType(), otp.type()));
+        return Optional.of(otp);
     }
 
-    /**
-     * @throws org.springframework.dao.DataIntegrityViolationException if a concurrent caller already issued an OTP
-     */
-    @Transactional
-    public Otp create(Long userId, UserType userType, OtpType type) {
-        otpRepository.deleteByUserIdAndUserTypeAndType(userId, userType, type);
+    public OtpEntry create(Long userId, UserType userType, OtpType type) {
+        if (!cacheService.addIfAbsent(userScopedKey(COOLDOWN_KEY_PREFIX, userId, userType, type), true, RESEND_COOLDOWN)) {
+            return null;
+        }
 
-        Otp otp = new Otp();
-        otp.setCode(generateUniqueCode());
-        otp.setType(type);
-        otp.setUserId(userId);
-        otp.setUserType(userType);
-        otp.setExpirationDate(LocalDateTime.now().plusMinutes(getExpiryMinutes()));
-        return otpRepository.saveAndFlush(otp);
-    }
-
-    @Transactional
-    public boolean consume(Otp otp) {
-        return otpRepository.deleteByIdReturningCount(otp.getId()) == 1;
-    }
-
-    @Transactional
-    public int deleteExpiredBatch(LocalDateTime cutoffDate, int batchSize) {
-        return otpRepository.deleteExpiredBatch(cutoffDate, batchSize);
+        Duration ttl = Duration.ofMinutes(expirationMinutes);
+        OtpEntry otp = insertWithUniqueCode(userId, userType, type, ttl);
+        String userKey = userScopedKey(USER_KEY_PREFIX, userId, userType, type);
+        String previousCode = cacheService.get(userKey) instanceof String code ? code : null;
+        cacheService.add(userKey, otp.code(), ttl);
+        if (previousCode != null) {
+            cacheService.delete(codeKey(previousCode));
+        }
+        return otp;
     }
 
     // =========================== Helpers ===========================
 
-    private String generateUniqueCode() {
-        String code;
+    private OtpEntry insertWithUniqueCode(Long userId, UserType userType, OtpType type, Duration ttl) {
+        OtpEntry otp;
         do {
-            code = String.format("%06d", RANDOM.nextInt(1_000_000));
-        } while (otpRepository.existsByCode(code));
-        return code;
+            otp = new OtpEntry(generateCode(), userId, userType, type);
+        } while (!cacheService.addIfAbsent(codeKey(otp.code()), otp, ttl));
+        return otp;
+    }
+
+    private String generateCode() {
+        return String.format("%06d", RANDOM.nextInt(1_000_000));
+    }
+
+    private String codeKey(String code) {
+        return CODE_KEY_PREFIX + code;
+    }
+
+    private String userScopedKey(String prefix, Long userId, UserType userType, OtpType type) {
+        return prefix + userId + ":" + userType + ":" + type;
     }
 }

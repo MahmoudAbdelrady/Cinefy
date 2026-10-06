@@ -2,11 +2,11 @@
 
 Config files live in `src/main/resources/`:
 
-| File                    | Role                                                                                                                                                |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `application.yml`       | Base config for every profile: JPA/Envers settings, actuator health probes, defaulted TMDB/Paymob base URLs                                         |
-| `application-local.yml` | Dev profile. Gitignored, holds real secrets. A fill-in template is in [`cinefy-backend/README.md`](../../../cinefy-backend/README.md#configuration) |
-| `application-prod.yml`  | Prod profile. Reads most values from environment variables; `cinefy.cookie.secure: true`, `same-site: Lax` and `app.base-url: /api` are hard-coded  |
+| File                    | Role                                                                                                                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `application.yml`       | Base config for every profile: JPA/Envers settings, actuator health probes, defaulted TMDB/Paymob base URLs, Redis repositories disabled (`spring.data.redis.repositories.enabled: false`) |
+| `application-local.yml` | Dev profile. Gitignored, holds real secrets. A fill-in template is in [`cinefy-backend/README.md`](../../../cinefy-backend/README.md#configuration)                                        |
+| `application-prod.yml`  | Prod profile. Reads most values from environment variables; `cinefy.cookie.secure: true`, `same-site: Lax` and `app.base-url: /api` are hard-coded                                         |
 
 ## Required at startup
 
