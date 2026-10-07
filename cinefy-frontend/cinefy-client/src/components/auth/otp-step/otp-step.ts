@@ -18,7 +18,7 @@ import { AuthService } from '../../../services';
 import type { OtpType } from '../../../shared/types';
 import { ArrowLeftIcon, ArrowRightIcon } from '../../../shared/icons';
 
-const RESEND_COOLDOWN_SECONDS = 10 * 60;
+const RESEND_COOLDOWN_SECONDS = 3 * 60;
 
 @Component({
   selector: 'auth-otp-step',

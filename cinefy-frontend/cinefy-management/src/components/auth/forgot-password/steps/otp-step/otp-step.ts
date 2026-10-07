@@ -17,7 +17,7 @@ import { CinefyLoadingSpinner, CinefyInputOtp } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../../../services/auth';
 
-const RESEND_COOLDOWN_SECONDS = 10 * 60;
+const RESEND_COOLDOWN_SECONDS = 3 * 60;
 
 @Component({
   selector: 'fp-otp-step',
