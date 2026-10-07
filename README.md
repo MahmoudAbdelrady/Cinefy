@@ -45,6 +45,7 @@ The system is made of these parts:
 | **Shared UI library** | Components both apps share, such as the seat map, dialogs and form controls.                          |
 | **Backend API**       | Holds all the business logic: bookings, payments, accounts, scheduling and reports.                   |
 | **PostgreSQL**        | The main database. It also keeps a history of changes to records.                                     |
+| **Redis**             | Holds short-lived data: one-time codes and rate-limit counters.                                       |
 | **TMDB**              | Supplies movie information: titles, posters, cast and trailers.                                       |
 | **Paymob**            | The payment gateway. Customers pay on Paymob's secure checkout page.                                  |
 
@@ -100,7 +101,7 @@ The system is made of these parts:
 | Area                  | Technologies                                                                            |
 | --------------------- | --------------------------------------------------------------------------------------- |
 | **Backend**           | Java 25, Spring Boot 4, Spring Security, Spring Data JPA, Hibernate Envers, Maven       |
-| **Database**          | PostgreSQL                                                                              |
+| **Database**          | PostgreSQL, Redis                                                                       |
 | **Frontend**          | Angular 22 (with server-side rendering for the client app), PrimeNG, Lucide icons, SCSS |
 | **Infrastructure**    | Docker, Docker Compose, Nginx, GitHub Actions                                           |
 | **External services** | TMDB, Paymob, Gmail SMTP, OAuth providers                                               |
@@ -118,9 +119,10 @@ Cinefy/
 │   └── cinefy-ui/            # Shared UI library
 ├── .github/workflows/        # CI/CD pipelines
 ├── docker-compose.yml        # Production stack
+├── docker-compose.local.yml  # Full local stack, built from source
 ├── nginx.Dockerfile          # Reverse-proxy image
-├── nginx.local.conf          # Example proxy config
-└── .env.example              # Environment variables for the production stack
+├── nginx.local.conf          # Proxy config for the local stack
+└── .env.example              # Environment variables (filled in for the local stack)
 ```
 
 Each package has its own README with the details for working on it: [backend](cinefy-backend/README.md), [booking site](cinefy-frontend/cinefy-client/README.md), [staff dashboard](cinefy-frontend/cinefy-management/README.md), [shared UI library](cinefy-frontend/cinefy-ui/README.md).
@@ -135,6 +137,7 @@ Each package has its own README with the details for working on it: [backend](ci
 - **Node.js 24**
 - **pnpm 12** (run `corepack enable` to use the version pinned in the repo)
 - **PostgreSQL**
+- **Redis**
 
 You'll also need credentials for these services:
 
@@ -147,7 +150,7 @@ You'll also need credentials for these services:
 
 ### 1. Backend
 
-Create an empty PostgreSQL database, then create `cinefy-backend/src/main/resources/application-local.yml` with your settings. The [backend README](cinefy-backend/README.md#configuration) has a ready-to-fill template.
+Create an empty PostgreSQL database and start Redis on its default port (6379), then create `cinefy-backend/src/main/resources/application-local.yml` with your settings. The [backend README](cinefy-backend/README.md#configuration) has a ready-to-fill template.
 
 Start the backend:
 
@@ -173,11 +176,24 @@ pnpm mgmt:dev --port 4201       # staff dashboard → http://localhost:4201
 
 Sign in to the dashboard with the admin account from your config file. From there you can create halls, schedule showtimes and set up payments.
 
+### Alternative: run everything with Docker
+
+[`docker-compose.local.yml`](docker-compose.local.yml) builds the backend, both web apps and the Nginx proxy from source, and starts PostgreSQL and Redis alongside them. You only need Docker with Compose.
+
+```bash
+cp .env.example local.env       # then fill in the blank values (secrets)
+docker compose --env-file local.env -f docker-compose.local.yml up -d --build
+```
+
+The booking site runs at **http://localhost** and the staff dashboard at **http://localhost:4200**. Sign in to the dashboard with `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `local.env`.
+
+> Building all the images at once takes a lot of memory. If a build fails with `cannot allocate memory`, build them one at a time with `docker compose --env-file local.env -f docker-compose.local.yml build <service>`, then run `up -d`.
+
 ---
 
 ## Deployment
 
-Cinefy runs as four Docker containers: the backend, the two web apps and an Nginx proxy in front of them. [`docker-compose.yml`](docker-compose.yml) starts the whole stack and connects to an external PostgreSQL database. To configure it, copy [`.env.example`](.env.example) to `.env` and fill in the values. Also set `FRONTEND_CLIENT_ALLOWED_HOSTS` (the host names the booking site accepts, comma-separated), and provide the proxy config the compose file mounts at `/srv/sites/cinefy/nginx.conf` ([`nginx.local.conf`](nginx.local.conf) is an example).
+Cinefy runs as four Docker containers: the backend, the two web apps and an Nginx proxy in front of them. [`docker-compose.yml`](docker-compose.yml) starts the whole stack and connects to an external PostgreSQL database and Redis server. To configure it, copy [`.env.example`](.env.example) to `.env` and fill in the values, and place the proxy config at a path of your choice on the server, then point the `cinefy-nginx` volume in the compose file to it ([`nginx.local.conf`](nginx.local.conf) is an example).
 
 GitHub Actions builds the changed parts of every pull request to `main`. A separate workflow scans the images for vulnerabilities, publishes them to Docker Hub and deploys them.
 

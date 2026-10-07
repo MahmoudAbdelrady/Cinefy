@@ -41,5 +41,5 @@ The app won't boot without these (injected with no code default):
 - `app.base-url` — empty locally, `/api` in prod (the nginx prefix). Only used to build the auth controllers' cookie path.
 - `server.port` — unset in base/local (Spring's 8080); `SERVER_PORT` in prod.
 - `server.forward-headers-strategy` — `native` in prod only, so Tomcat takes the client IP, scheme and host from nginx's `X-Forwarded-*` headers (`request.getRemoteAddr()` is the real caller, which the rate limiter keys on). Local has no proxy and leaves it unset.
-- `spring.data.redis.*` — `localhost:6379` with no credentials locally; prod reads `REDIS_HOST`, `REDIS_PORT`, `REDIS_USERNAME` and `REDIS_PASSWORD`, all without fallbacks.
+- `spring.data.redis.url` — `redis://localhost:6379` with no credentials locally; prod builds `redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}`, all without fallbacks. `REDIS_HOST` is `host:port`. Empty username/password send no `AUTH` (Spring turns blank credentials into none). A password with URL-reserved characters (`@ : / # ?`) must be percent-encoded.
 - Actuator exposes only `health`, with liveness/readiness probes; readiness includes the DB check.

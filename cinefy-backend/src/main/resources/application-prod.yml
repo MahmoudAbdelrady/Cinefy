@@ -12,10 +12,7 @@ spring:
   # Redis Configuration
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      username: ${REDIS_USERNAME}
-      password: ${REDIS_PASSWORD}
+      url: redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}
       default-ttl-minutes: ${CACHE_DEFAULT_TTL_MINUTES:60}
 
 logging:

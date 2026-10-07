@@ -26,8 +26,7 @@ spring:
     password: postgres
   data:
     redis:
-      host: localhost
-      port: 6379
+      url: redis://localhost:6379
       default-ttl-minutes: 60
 
 springdoc:

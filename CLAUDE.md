@@ -13,10 +13,11 @@ Cinefy/
 │   ├── cinefy-management/   # Angular 22 admin/staff dashboard (the app behind /login)
 │   ├── cinefy-ui/           # Shared Angular component library (ng-packagr)
 │   └── cinefy-client/       # Angular 22 public-facing booking app (SSR)
-├── docker-compose.yml   # Production stack (nginx + backend + both apps; external Postgres)
+├── docker-compose.yml   # Production stack (nginx + backend + both apps; external Postgres and Redis)
+├── docker-compose.local.yml # Local stack built from source, plus Postgres and Redis
 ├── nginx.Dockerfile     # Reverse-proxy image, built from the repo root
-├── nginx.local.conf     # Example proxy config (the other nginx.*.conf files are gitignored)
-└── .env.example         # Env vars for the production stack
+├── nginx.local.conf     # Proxy config for the local stack (the other nginx.*.conf files are gitignored)
+└── .env.example         # Env vars, non-secret values filled in for the local stack
 ```
 
 Each subtree has its own `CLAUDE.md` — read the one for the area you're working in:
@@ -74,5 +75,5 @@ Two things to be honest about when reporting:
 
 ## Conventions
 
-- Each subtree has its own `.gitignore` (`cinefy-backend/.gitignore`, `cinefy-frontend/.gitignore`). The root `.gitignore` covers what lives at the root: env files (`.env`, `*.env`, except `.env.example`), `nginx.*.conf` (except `nginx.local.conf`) and `docker-compose.local.yml`.
+- Each subtree has its own `.gitignore` (`cinefy-backend/.gitignore`, `cinefy-frontend/.gitignore`). The root `.gitignore` covers what lives at the root: env files (`.env`, `*.env`, except `.env.example`) and `nginx.*.conf` (except `nginx.local.conf`). `docker-compose.local.yml` is committed: it builds the full stack from source (plus PostgreSQL and Redis) and reads its variables from `local.env`, a copy of `.env.example`, whose non-secret values are filled in for that stack.
 - The frontend and backend version independently and share no build tooling; the root only holds the deploy files (compose, nginx image, CI). The only contract between them is the HTTP API (documented in Swagger and the backend docs).
