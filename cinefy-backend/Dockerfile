@@ -15,6 +15,8 @@ RUN mvn -B clean package -DskipTests
 # ============================ Run stage ==============================
 FROM eclipse-temurin:25-jre-alpine-3.24 AS run
 
+ARG APK_CACHE_BUST
+
 RUN apk upgrade --no-cache \
     && addgroup -S -g 1001 cinefy \
     && adduser -S -u 1001 -G cinefy -H -D cinefy-app
