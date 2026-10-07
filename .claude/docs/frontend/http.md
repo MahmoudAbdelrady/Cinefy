@@ -4,7 +4,7 @@
 
 Both apps register five functional interceptors in `src/app/app.config.ts`, in this order. The first three live in each app's `src/app/core/interceptors/`; the last two are shared and come from `cinefy-ui/http`.
 
-1. **`baseUrlInterceptor`** — prepends `environment.apiUrl` to relative URLs (absolute URLs are skipped), sets `withCredentials: true`, and adds `X-Auth-Context: management` or `client` (the backend uses it to pick the cookie set). The client's version also prefixes a relative `apiUrl` with `process.env.API_ORIGIN` during SSR — see the client's `ssr` notes in its CLAUDE.md.
+1. **`baseUrlInterceptor`** — prepends `environment.apiUrl` to relative URLs (absolute URLs are skipped), sets `withCredentials: true`, and adds `X-Auth-Context: management` or `client` (the backend uses it to pick the cookie set). During SSR, the client's version replaces a relative `apiUrl` with `process.env.API_ORIGIN` (the backend's direct address) — see the client's `ssr` notes in its CLAUDE.md.
 2. **`csrfInterceptor`** — on non-GET/HEAD/OPTIONS/TRACE requests, copies the app's XSRF cookie (`mgmt_XSRF-TOKEN` / `client_XSRF-TOKEN`) into the `X-XSRF-TOKEN` header. Browser only in the client.
 3. **`authRetryInterceptor`** — on a 401, calls the refresh endpoint once and retries. Concurrent 401s share one refresh (`refresh$ ??= …` / `shareReplay`). Skips the login, refresh and session calls. If the retry also 401s, it calls `clearAuthState()` and navigates to the login page (`/login` or `/membership/login`).
 4. **`errorToastInterceptor`** — toasts `error.error.message` on an error response, unless the request's context skips it. **401s are always silent** (the retry interceptor owns them); the client's version is also silent during SSR.

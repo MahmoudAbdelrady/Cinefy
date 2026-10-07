@@ -75,7 +75,7 @@ services:
     environment:
       NG_ALLOWED_HOSTS: ${FRONTEND_CLIENT_ALLOWED_HOSTS}
       PORT: ${CLIENT_PORT}
-      API_ORIGIN: http://cinefy-nginx
+      API_ORIGIN: http://cinefy-backend:${SERVER_PORT}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:$$PORT/ || exit 1"]
       interval: 10s

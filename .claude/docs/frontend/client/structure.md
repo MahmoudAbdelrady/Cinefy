@@ -47,7 +47,7 @@ mvp-version/                   # React design mock (gitignored, local only) — 
 
 ## Interceptor specifics
 
-- `base-url.ts` — during SSR, a relative `apiUrl` (prod `/api`) is itself prefixed with `process.env.API_ORIGIN` (default `http://localhost:8080`). Both compose files set it to `http://cinefy-nginx`: the origin must serve the `/api` prefix, which only Nginx strips — the backend itself has no `/api`. Unset in Docker, SSR fetches hit the client container's own `localhost`, fail, and the page ships its error state until the browser refetches after hydration. Sends `X-Auth-Context: client`.
+- `base-url.ts` — during SSR, a relative `apiUrl` (prod `/api`) is **replaced** by `process.env.API_ORIGIN` (default `http://localhost:8080`), so server rendering calls the backend directly, without Nginx and without the `/api` prefix (only Nginx strips it; the backend has none). Both compose files set it to `http://cinefy-backend:${SERVER_PORT}`. Don't route SSR through Nginx: the prod Nginx picks a server block by `Host`, Node's `fetch` always sends the URL's host (it ignores a `Host` header), and the `default_server` catch-all returns 444 for an internal name. Unset in Docker, SSR fetches hit the client container's own `localhost`, fail, and the page ships its error state until the browser refetches after hydration. Sends `X-Auth-Context: client`.
 - `csrf.ts` — runs in the browser only; cookie `client_XSRF-TOKEN`.
 - `auth-retry.ts` — skips `/client/auth/login|refresh|session`; a second 401 clears auth state and navigates to `/membership/login`.
 
