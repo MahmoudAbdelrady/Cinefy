@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.config.general;
+package com.mdevs.cinefy.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.config.general;
+package com.mdevs.cinefy.config;
 
 import com.mdevs.cinefy.filter.CsrfValidationFilter;
 import com.mdevs.cinefy.filter.JwtAuthenticationFilter;

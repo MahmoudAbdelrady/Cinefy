@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.config.database;
+package com.mdevs.cinefy.config;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.boot.model.naming.Identifier;

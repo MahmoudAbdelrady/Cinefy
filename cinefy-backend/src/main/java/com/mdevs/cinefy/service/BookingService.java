@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.service;
 
-import com.mdevs.cinefy.config.general.AppConfig;
+import com.mdevs.cinefy.config.AppConfig;
 import com.mdevs.cinefy.dto.booking.ActiveBookingDTO;
 import com.mdevs.cinefy.dto.booking.BookedSeatDTO;
 import com.mdevs.cinefy.dto.booking.BookingConfirmationDTO;

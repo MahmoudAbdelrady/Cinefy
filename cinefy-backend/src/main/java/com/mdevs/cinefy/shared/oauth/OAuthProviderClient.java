@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.shared.oauth;
 
-import com.mdevs.cinefy.config.general.AppConfig;
+import com.mdevs.cinefy.config.AppConfig;
 import com.mdevs.cinefy.entity.enums.OAuthProvider;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import jakarta.annotation.PostConstruct;

@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.controller;
 
-import com.mdevs.cinefy.config.general.AppConfig;
+import com.mdevs.cinefy.config.AppConfig;
 import com.mdevs.cinefy.dto.auth.ForgotPasswordDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
