@@ -1,5 +1,6 @@
 server:
   port: ${SERVER_PORT}
+  forward-headers-strategy: native
 
 spring:
   # Database Configuration
@@ -70,6 +71,9 @@ cinefy:
   cookie:
     secure: true
     same-site: Lax
+
+  # Rate Limiting
+  rate-limit-enabled: true
 
 # Variables
 app:

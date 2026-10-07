@@ -65,6 +65,7 @@ cinefy:
   cookie:
     secure: false
     same-site: Lax
+  rate-limit-enabled: false
 
 app:
   base-url: ""

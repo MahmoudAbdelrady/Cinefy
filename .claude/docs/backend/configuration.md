@@ -6,7 +6,7 @@ Config files live in `src/main/resources/`:
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `application.yml`       | Base config for every profile: JPA/Envers settings, actuator health probes, defaulted TMDB/Paymob base URLs, Redis repositories disabled (`spring.data.redis.repositories.enabled: false`) |
 | `application-local.yml` | Dev profile. Gitignored, holds real secrets. A fill-in template is in [`cinefy-backend/README.md`](../../../cinefy-backend/README.md#configuration)                                        |
-| `application-prod.yml`  | Prod profile. Reads most values from environment variables; `cinefy.cookie.secure: true`, `same-site: Lax` and `app.base-url: /api` are hard-coded                                         |
+| `application-prod.yml`  | Prod profile. Reads most values from environment variables; `cinefy.cookie.secure: true`, `same-site: Lax`, `cinefy.rate-limit-enabled: true` and `app.base-url: /api` are hard-coded      |
 
 ## Required at startup
 
@@ -22,6 +22,7 @@ The app won't boot without these (injected with no code default):
 - `cinefy.oauth.google.client-id` / `client-secret`, `cinefy.oauth.microsoft.client-id` / `client-secret` — per-provider OAuth credentials. Empty values boot, but OAuth sign-in then fails.
 - `cinefy.oauth.registration-token-expiration-minutes` — lifetime of the encrypted OAuth registration token issued to a first-time social sign-in.
 - `springdoc.base-url` — base for Swagger UI and the OpenAPI JSON. `SecurityConfig` injects it with no default and `application.yml` doesn't set it; local sets `/docs`, prod uses `${API_DOCS_BASE_URL:/docs}`. See [security.md](security.md#api-docs) for why it must never be empty. Spring's `:/docs` fallback applies only when the variable is **absent**, not when it's set to an empty string, so `docker-compose.yml` and `docker-compose.local.yml` pass `${API_DOCS_BASE_URL:-/docs}` (the `:-` form also covers empty) — keep that guard on any compose file that forwards it. `.env.example` lists it with `/docs`.
+- `cinefy.rate-limit-enabled` — read by `CinefyRateLimiter`; `false` makes `tryConsume` allow every request without touching Redis. `false` locally, `true` in prod.
 - `app.tmdb.access-token` — TMDB bearer token read by `TmdbMovieService`.
 - `spring.data.redis.default-ttl-minutes` — TTL `CacheService.add` applies when the caller passes a `null` TTL. A custom key inside Spring's Redis block (like `springdoc.base-url`); Boot's `RedisProperties` ignores it.
 
@@ -39,5 +40,6 @@ The app won't boot without these (injected with no code default):
 
 - `app.base-url` — empty locally, `/api` in prod (the nginx prefix). Only used to build the auth controllers' cookie path.
 - `server.port` — unset in base/local (Spring's 8080); `SERVER_PORT` in prod.
+- `server.forward-headers-strategy` — `native` in prod only, so Tomcat takes the client IP, scheme and host from nginx's `X-Forwarded-*` headers (`request.getRemoteAddr()` is the real caller, which the rate limiter keys on). Local has no proxy and leaves it unset.
 - `spring.data.redis.*` — `localhost:6379` with no credentials locally; prod reads `REDIS_HOST`, `REDIS_PORT`, `REDIS_USERNAME` and `REDIS_PASSWORD`, all without fallbacks.
 - Actuator exposes only `health`, with liveness/readiness probes; readiness includes the DB check.
