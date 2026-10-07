@@ -11,6 +11,8 @@ import com.mdevs.cinefy.service.ManagementAuthService;
 import com.mdevs.cinefy.shared.security.AuthContext;
 import com.mdevs.cinefy.shared.security.AuthCookieResponseFactory;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
+import com.mdevs.cinefy.shared.annotation.RateLimited;
+import com.mdevs.cinefy.shared.ratelimit.RateLimitPolicy;
 import com.mdevs.cinefy.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -35,6 +37,7 @@ public class ManagementAuthController {
     private static final AuthContext AUTH_CONTEXT = AuthContext.MANAGEMENT;
 
     @PublicApi
+    @RateLimited(RateLimitPolicy.STRICT)
     @PostMapping("/login")
     public ResponseEntity<Void> login(@Valid @RequestBody LoginDTO dto) {
         TokenPairDTO tokens = managementAuthService.login(dto);
@@ -66,6 +69,7 @@ public class ManagementAuthController {
     }
 
     @PublicApi
+    @RateLimited(RateLimitPolicy.STRICT)
     @PostMapping("/forgot-password")
     public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordDTO dto) {
         managementAuthService.forgotPassword(dto);

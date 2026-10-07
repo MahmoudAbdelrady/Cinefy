@@ -6,6 +6,8 @@ import com.mdevs.cinefy.dto.client.UpdateClientProfileDTO;
 import com.mdevs.cinefy.dto.payment.ClientPaymentMethodDTO;
 import com.mdevs.cinefy.service.ClientPaymentMethodService;
 import com.mdevs.cinefy.service.ClientService;
+import com.mdevs.cinefy.shared.annotation.RateLimited;
+import com.mdevs.cinefy.shared.ratelimit.RateLimitPolicy;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +42,7 @@ public class ClientController {
         return ResponseEntity.ok(clientService.updateCurrentClient(dto));
     }
 
+    @RateLimited(RateLimitPolicy.STRICT)
     @PutMapping("/me/password")
     public ResponseEntity<Void> changeCurrentClientPassword(@Valid @RequestBody ChangeClientPasswordDTO dto) {
         clientService.changePassword(dto);

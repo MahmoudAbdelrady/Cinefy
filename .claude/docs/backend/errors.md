@@ -22,6 +22,7 @@ Responses produced outside the handler:
 
 - Unauthenticated request to a protected endpoint → 401 `"Authentication required"` (`CinefyAuthenticationEntryPoint`).
 - Failed CSRF check → 403 `"Invalid CSRF token"` (`CsrfValidationFilter`).
+- Rate limit exceeded → 429 `"Too many requests, please try again later"` (`RateLimitInterceptor`).
 
 **Unhandled request errors fall through to the 500 catch-all:** a wrong content type (`HttpMediaTypeNotSupportedException`), a missing required query parameter (`MissingServletRequestParameterException`), or a mistyped path/query parameter (`MethodArgumentTypeMismatchException`) all return 500 today.
 

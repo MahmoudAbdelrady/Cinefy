@@ -9,6 +9,8 @@ import com.mdevs.cinefy.dto.staff.UpdateProfileDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberDetailDTO;
 import com.mdevs.cinefy.dto.staff.StaffMemberSummaryDTO;
 import com.mdevs.cinefy.service.StaffMemberService;
+import com.mdevs.cinefy.shared.annotation.RateLimited;
+import com.mdevs.cinefy.shared.ratelimit.RateLimitPolicy;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -53,6 +55,7 @@ public class StaffMemberController {
         return ResponseEntity.ok(staffMemberService.updateProfile(dto));
     }
 
+    @RateLimited(RateLimitPolicy.STRICT)
     @PutMapping("/me/password")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER', 'USHER')")
     public ResponseEntity<Void> changeCurrentStaffMemberPassword(@Valid @RequestBody ChangePasswordDTO dto) {
