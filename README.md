@@ -2,10 +2,17 @@
 
 **Cinefy is an open-source platform for managing a cinema.**
 
+**Version:** v1.0.0
+
 It has two web apps that share one backend:
 
 - **Cinefy** is the public booking site. Moviegoers browse what's showing, pick seats, pay online, and receive an e-ticket.
 - **Cinefy Management** is the staff dashboard. Cinema staff use it to set up halls, schedule showtimes, sell and check tickets, manage the team, and follow sales.
+
+| App             | Live at                                                                |
+| --------------- | ---------------------------------------------------------------------- |
+| Booking site    | [cinefy.mdevs.cloud](https://cinefy.mdevs.cloud)                       |
+| Staff dashboard | [cinefy-management.mdevs.cloud](https://cinefy-management.mdevs.cloud) |
 
 ---
 
