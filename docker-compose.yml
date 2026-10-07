@@ -2,13 +2,6 @@ services:
   cinefy-nginx:
     image: mahmoudabdelrady/cinefy-nginx:${CINEFY_NGINX_VERSION}
     restart: unless-stopped
-    depends_on:
-      cinefy-backend:
-        condition: service_healthy
-      cinefy-management:
-        condition: service_healthy
-      cinefy-client:
-        condition: service_healthy
     ports:
       - "127.0.0.1:4001:80"
     volumes:

@@ -5,13 +5,6 @@ services:
       dockerfile: nginx.Dockerfile
     image: mahmoudabdelrady/cinefy-nginx:${CINEFY_NGINX_VERSION}
     restart: unless-stopped
-    depends_on:
-      cinefy-backend:
-        condition: service_healthy
-      cinefy-management:
-        condition: service_healthy
-      cinefy-client:
-        condition: service_healthy
     ports:
       - "80:80"
       - "4200:4200"
