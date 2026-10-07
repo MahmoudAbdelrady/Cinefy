@@ -24,16 +24,9 @@ It has two web apps that share one backend:
 
 ## Architecture
 
-<!--
-  ARCHITECTURE DIAGRAM PLACEHOLDER
-  Replace the blockquote below with the final image, for example:
-
-  <p align="center">
-    <img src="docs/images/architecture.png" alt="Cinefy architecture diagram" width="900">
-  </p>
--->
-
-> 🖼️ **Architecture diagram coming soon.**
+<p align="center">
+  <img src="docs/images/architecture.png" alt="Cinefy architecture diagram" width="900">
+</p>
 
 The system is made of these parts:
 
