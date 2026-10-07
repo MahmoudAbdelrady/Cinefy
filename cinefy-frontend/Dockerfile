@@ -36,6 +36,8 @@ RUN pnpm client:build
 # ============================ Management run =========================
 FROM nginx:1.31.6-alpine3.24-slim AS mgmt
 
+ARG APK_CACHE_BUST
+
 RUN apk upgrade --no-cache
 
 COPY cinefy-management/nginx.conf /etc/nginx/conf.d/default.conf
@@ -43,6 +45,8 @@ COPY --from=mgmt-build /app/cinefy-management/dist/cinefy-management/browser /us
 
 # ============================ Client run =============================
 FROM node:24.21.0-alpine3.24 AS client
+
+ARG APK_CACHE_BUST
 
 RUN apk upgrade --no-cache \
     && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx \

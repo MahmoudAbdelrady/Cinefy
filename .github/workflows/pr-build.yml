@@ -30,10 +30,14 @@ jobs:
       - uses: dorny/paths-filter@v4
         id: filter
         with:
+          predicate-quantifier: some-with-excludes
           filters: |
             backend:
               - 'cinefy-backend/**'
               - '.github/workflows/pr-build.yml'
+              - '!cinefy-backend/Dockerfile'
+              - '!cinefy-backend/.dockerignore'
+              - '!cinefy-backend/**/*.md'
             ui: &ui
               - 'cinefy-frontend/cinefy-ui/**'
               - 'cinefy-frontend/package.json'
