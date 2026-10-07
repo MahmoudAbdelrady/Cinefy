@@ -21,115 +21,115 @@
     background: radial-gradient(circle, rgba($color-primary, 0.12), transparent 65%);
     pointer-events: none;
   }
-}
 
-.nf-stub {
-  position: relative;
-  width: 100%;
-  max-width: 512px;
-  overflow: hidden;
-  border: 1px solid rgba($color-border, 0.5);
-  border-radius: $radius-xl;
-  background: $color-card;
-  box-shadow: $shadow-overlay;
+  .nf-stub {
+    position: relative;
+    width: 100%;
+    max-width: 512px;
+    overflow: hidden;
+    border: 1px solid rgba($color-border, 0.5);
+    border-radius: $radius-xl;
+    background: $color-card;
+    box-shadow: $shadow-overlay;
 
-  .nf-stub-top {
-    @include flex-align;
-    @include lucide-icon-fix;
+    .nf-stub-top {
+      @include flex-align;
+      @include lucide-icon-fix;
 
-    gap: 16px;
-    padding: 32px 24px;
-    background: linear-gradient(160deg, rgba($color-secondary, 0.6), rgba($color-card, 0.2));
-  }
+      gap: 16px;
+      padding: 32px 24px;
+      background: linear-gradient(160deg, rgba($color-secondary, 0.6), rgba($color-card, 0.2));
 
-  .nf-perf {
-    flex: 1;
-    height: 1px;
-    background: repeating-linear-gradient(
-      to right,
-      rgba($color-border, 0.9) 0 8px,
-      transparent 8px 16px
-    );
-  }
+      .nf-perf {
+        flex: 1;
+        height: 1px;
+        background: repeating-linear-gradient(
+          to right,
+          rgba($color-border, 0.9) 0 8px,
+          transparent 8px 16px
+        );
+      }
 
-  .nf-code {
-    @include flex-column;
+      .nf-code {
+        @include flex-column;
 
-    align-items: center;
-    gap: 12px;
-    color: $color-foreground;
-  }
+        align-items: center;
+        gap: 12px;
+        color: $color-foreground;
 
-  .nf-code-reel {
-    display: grid;
-    place-items: center;
-    color: $color-primary;
+        .nf-code-reel {
+          display: grid;
+          place-items: center;
+          color: $color-primary;
 
-    @include below-phone {
-      svg {
-        transform: scale(0.8);
+          @include below-phone {
+            svg {
+              transform: scale(0.8);
+            }
+          }
+        }
+
+        .nf-code-digits {
+          font-family: $font-mono;
+          font-size: 72px;
+          font-weight: 700;
+          line-height: 1;
+          letter-spacing: -0.05em;
+
+          @include below-phone {
+            font-size: 56px;
+          }
+        }
       }
     }
-  }
 
-  .nf-code-digits {
-    font-family: $font-mono;
-    font-size: 72px;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.05em;
-
-    @include below-phone {
-      font-size: 56px;
+    .nf-tear {
+      border-top: 1px dashed rgba($color-border, 0.6);
     }
-  }
 
-  .nf-tear {
-    border-top: 1px dashed rgba($color-border, 0.6);
-  }
+    .nf-stub-body {
+      @include flex-column;
 
-  .nf-stub-body {
-    @include flex-column;
+      align-items: center;
+      gap: 12px;
+      padding: 32px 24px;
+      text-align: center;
 
-    align-items: center;
-    gap: 12px;
-    padding: 32px 24px;
-    text-align: center;
-  }
+      .nf-title {
+        font-size: 30px;
+        font-weight: 700;
+        letter-spacing: -0.025em;
 
-  .nf-title {
-    font-size: 30px;
-    font-weight: 700;
-    letter-spacing: -0.025em;
+        @include below-phone {
+          font-size: 24px;
+        }
+      }
 
-    @include below-phone {
-      font-size: 24px;
+      .nf-note {
+        max-width: 380px;
+        color: $color-muted-foreground;
+        line-height: 1.6;
+      }
+
+      .nf-actions {
+        @include lucide-icon-fix;
+
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+
+        @include below-phone {
+          flex-direction: column;
+          align-self: stretch;
+        }
+
+        .nf-action {
+          @include flex-center;
+
+          gap: 8px;
+          text-decoration: none;
+        }
+      }
     }
-  }
-
-  .nf-note {
-    max-width: 380px;
-    color: $color-muted-foreground;
-    line-height: 1.6;
-  }
-
-  .nf-actions {
-    @include lucide-icon-fix;
-
-    display: flex;
-    gap: 12px;
-    margin-top: 12px;
-
-    @include below-phone {
-      flex-direction: column;
-      align-self: stretch;
-    }
-  }
-
-  .nf-action {
-    @include flex-center;
-
-    gap: 8px;
-    text-decoration: none;
   }
 }

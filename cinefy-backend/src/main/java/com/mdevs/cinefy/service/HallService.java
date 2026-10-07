@@ -174,7 +174,8 @@ public class HallService {
     // =========================== Helpers ===========================
 
     public Hall findHallWithType(String uuid) {
-        return hallRepository.findByUuidWithType(uuid).orElseThrow(() -> new NotFoundException("Hall not found with id: " + uuid));
+        return hallRepository.findByUuidWithType(uuid)
+                .orElseThrow(() -> new NotFoundException("Hall not found"));
     }
 
     public boolean isSeatInGrid(Hall hall, String position) {
@@ -188,7 +189,7 @@ public class HallService {
     }
 
     private HallType findHallType(String uuid) {
-        return hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found with id: " + uuid));
+        return hallTypeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Hall type not found"));
     }
 
     private void validateHallType(String name, Long excludeId) {

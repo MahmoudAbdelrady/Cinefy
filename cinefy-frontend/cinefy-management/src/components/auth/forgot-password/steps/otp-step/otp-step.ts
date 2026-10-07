@@ -1,14 +1,23 @@
-import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule } from '@angular/forms';
-import { interval, takeWhile } from 'rxjs';
+import { finalize, interval, takeWhile } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertIcon, ArrowLeftIcon, ArrowRightIcon } from '../../../../../shared/icons';
 import { CinefyLoadingSpinner, CinefyInputOtp } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../../../services/auth';
 
-const RESEND_COOLDOWN_SECONDS = 10 * 60;
+const RESEND_COOLDOWN_SECONDS = 3 * 60;
 
 @Component({
   selector: 'fp-otp-step',
@@ -47,20 +56,32 @@ export class OtpStep {
     return `You can resend in ${minutes}:${String(remainder).padStart(2, '0')}`;
   });
 
+  constructor() {
+    effect(() => {
+      if (this.verifying() || this.resending()) {
+        this.code.disable({ emitEvent: false });
+      } else {
+        this.code.enable({ emitEvent: false });
+      }
+    });
+  }
+
   protected onResend() {
     if (this.resending() || this.resendCountdown() > 0) return;
     this.resending.set(true);
-    this.code.setValue('');
     this.authService
       .forgotPassword({ email: this.email() })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.resending.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.resending.set(false);
+          this.code.setValue('');
           this.startResendCooldown();
           this.toast.success('A new code has been sent to your email.');
         },
-        error: () => this.resending.set(false),
+        error: () => {},
       });
   }
 
@@ -70,16 +91,13 @@ export class OtpStep {
     const code = this.code.value;
     this.authService
       .verifyResetCode({ code })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.verifying.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.verifying.set(false);
-          this.verified.emit(code);
-        },
-        error: () => {
-          this.verifying.set(false);
-          this.code.setValue('');
-        },
+        next: () => this.verified.emit(code),
+        error: () => this.code.setValue(''),
       });
   }
 

@@ -112,7 +112,7 @@
   transition: color $transition-fast;
   @include lucide-icon-fix;
 
-  &:hover {
+  &:is(button:not(:disabled), a[href]):hover {
     color: $gray-900;
   }
 }

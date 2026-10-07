@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
   Hall,
@@ -17,8 +17,8 @@ const API_PREFIX = '/halls';
 export class HallsService {
   private readonly http = inject(HttpClient);
 
-  getHallTypes(): Observable<HallType[]> {
-    return this.http.get<HallType[]>(`${API_PREFIX}/types`);
+  getHallTypes(context?: HttpContext): Observable<HallType[]> {
+    return this.http.get<HallType[]>(`${API_PREFIX}/types`, { context });
   }
 
   createHallType(data: HallType): Observable<HallType> {
@@ -33,20 +33,24 @@ export class HallsService {
     return this.http.delete<void>(`${API_PREFIX}/types/${id}`);
   }
 
-  getHalls(excludeHallId?: string, statuses?: HallStatus[]): Observable<HallSummary[]> {
+  getHalls(
+    excludeHallId?: string,
+    statuses?: HallStatus[],
+    context?: HttpContext,
+  ): Observable<HallSummary[]> {
     const params = {
       ...(excludeHallId && { excludeHallId }),
       ...(statuses && statuses.length > 0 && { statuses: statuses.join(',') }),
     };
-    return this.http.get<HallSummary[]>(API_PREFIX, { params });
+    return this.http.get<HallSummary[]>(API_PREFIX, { params, context });
   }
 
-  getHallStatusCounts(): Observable<HallStatusCounts> {
-    return this.http.get<HallStatusCounts>(`${API_PREFIX}/status-counts`);
+  getHallStatusCounts(context?: HttpContext): Observable<HallStatusCounts> {
+    return this.http.get<HallStatusCounts>(`${API_PREFIX}/status-counts`, { context });
   }
 
-  getHall(id: string): Observable<HallDetail> {
-    return this.http.get<HallDetail>(`${API_PREFIX}/${id}`);
+  getHall(id: string, context?: HttpContext): Observable<HallDetail> {
+    return this.http.get<HallDetail>(`${API_PREFIX}/${id}`, { context });
   }
 
   getHallLayout(id: string): Observable<HallLayout> {

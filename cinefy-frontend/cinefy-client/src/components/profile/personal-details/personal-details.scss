@@ -22,17 +22,20 @@
         letter-spacing: -0.025em;
         color: $color-foreground;
       }
-
-      p {
-        font-size: 14px;
-        color: $color-muted-foreground;
-      }
     }
 
     .pd-edit {
       @include lucide-icon-fix;
 
       flex-shrink: 0;
+
+      @include below-phone {
+        padding: 8px;
+
+        span {
+          display: none;
+        }
+      }
     }
   }
 
@@ -68,25 +71,8 @@
       justify-content: flex-end;
       gap: 12px;
 
-      @include below-mobile {
+      @include below-phone {
         flex-direction: column-reverse;
-      }
-
-      .pd-cancel {
-        padding: 10px 24px;
-        border: none;
-        border-radius: $radius-md;
-        background-color: transparent;
-        color: $color-foreground;
-        font-family: $font-sans;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color $transition-fast;
-
-        &:hover {
-          background-color: $color-secondary;
-        }
       }
     }
   }
@@ -131,17 +117,6 @@
           font-weight: 500;
           color: $color-foreground;
         }
-      }
-    }
-  }
-
-  @include below-mobile {
-    .pd-header {
-      flex-direction: column;
-      align-items: stretch;
-
-      .pd-edit {
-        align-self: flex-start;
       }
     }
   }

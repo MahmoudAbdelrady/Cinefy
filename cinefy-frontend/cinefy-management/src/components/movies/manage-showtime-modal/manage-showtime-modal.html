@@ -2,6 +2,7 @@
   #dialog
   [header]="modalTitle()"
   [description]="modalDescription()"
+  [canClose]="!submitting()"
   [style]="{ width: '640px' }"
   (closed)="closed.emit()"
 >
@@ -37,7 +38,7 @@
               </div>
             </div>
           </div>
-          @if (!selectedMovie()) {
+          @if (!selectedMovie() && !submitting()) {
             <div class="sm-actions">
               <button type="button" (click)="pickedMovie.set(null)">Change</button>
             </div>
@@ -75,6 +76,7 @@
             valueField="value"
             [control]="showtimeForm.controls.hallId"
             [items]="hallEntries()"
+            [loading]="loadingHalls()"
             [searchable]="true"
             [errorMessages]="{ required: 'Hall is required' }"
           />
@@ -84,7 +86,7 @@
           <cui-switch [control]="showtimeForm.controls.is3D" />
         </div>
         <div class="input-group">
-          <label>Special Notes (Optional)</label>
+          <label>Special notes (optional)</label>
           <textarea
             pTextarea
             placeholder="Add any special notes about this showtime…"
@@ -109,7 +111,7 @@
 
   @if (activeMovie()) {
     <div customFooter class="manage-footer">
-      <button class="btn-secondary" (click)="dialog.close()">Cancel</button>
+      <button class="btn-neutral" (click)="dialog.close()" [disabled]="submitting()">Cancel</button>
       <button
         class="btn-primary"
         [disabled]="showtimeForm.invalid || submitDisabled()"

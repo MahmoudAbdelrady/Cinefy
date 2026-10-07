@@ -1,5 +1,8 @@
-import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
-import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
+import { CinefyEmptyState, CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService } from '../../../services';
 import { LayoutIcon, SettingsIcon } from '../../../shared/icons';
 import { HALL_STATUS_LABELS } from '../../../shared/types';
@@ -14,7 +17,7 @@ interface HallStatusCount {
 
 @Component({
   selector: 'halls-summary',
-  imports: [DashboardWidgetComponent, CinefyLoadingSpinner, CinefyEmptyState],
+  imports: [DashboardWidgetComponent, CinefyLoadingSpinner, CinefyEmptyState, CinefyErrorState],
   templateUrl: './halls-summary.html',
   styleUrl: './halls-summary.scss',
 })
@@ -22,9 +25,11 @@ export class HallsSummaryComponent {
   protected readonly icons = { LayoutIcon, SettingsIcon };
 
   private readonly hallsService = inject(HallsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly hallCounts = signal<HallStatusCounts | null>(null);
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
 
   protected readonly statusCounts = computed<HallStatusCount[]>(() => {
     const counts = this.hallCounts();
@@ -50,12 +55,15 @@ export class HallsSummaryComponent {
   }
 
   private load(): void {
-    this.hallsService.getHallStatusCounts().subscribe({
-      next: (counts) => {
-        this.hallCounts.set(counts);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+    this.hallsService
+      .getHallStatusCounts(skipServerErrorToast())
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (counts) => this.hallCounts.set(counts),
+        error: () => this.failed.set(true),
+      });
   }
 }

@@ -6,6 +6,7 @@ import { CINEFY_TOAST_KEY, CINEFY_TOAST_LIFE } from "cinefy-ui/constants";
   selector: "cui-toast",
   imports: [Toast],
   templateUrl: "./cinefy-toast.html",
+  styleUrl: "./cinefy-toast.scss",
 })
 export class CinefyToast {
   protected readonly toastKey = CINEFY_TOAST_KEY;

@@ -8,9 +8,6 @@
       </div>
       <div>
         <h4>Personal details</h4>
-        <p>
-          {{ isEditing() ? 'Update your contact information' : 'Your contact information' }}
-        </p>
       </div>
     </div>
     @if (profile.position !== 'ADMIN' && !isEditing()) {
@@ -64,7 +61,9 @@
       />
 
       <div class="panel-footer">
-        <button type="button" class="btn-secondary" (click)="cancelEditing()">Cancel</button>
+        <button type="button" class="btn-neutral" [disabled]="saving()" (click)="cancelEditing()">
+          Cancel
+        </button>
         <button
           type="submit"
           class="btn-primary panel-submit"

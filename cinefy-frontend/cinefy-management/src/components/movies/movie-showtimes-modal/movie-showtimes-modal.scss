@@ -5,308 +5,322 @@
 .msm-loading {
   @include flex-center;
   min-height: 240px;
+  color: $gray-500;
 }
 
 .movie-showtimes-container {
   @include flex-column;
   gap: 20px;
-}
 
-.date-tabs {
-  margin-top: -12px;
-  position: sticky;
-  top: -24px;
-  z-index: 1;
-  background: #ffffff;
+  .date-tabs {
+    @include scrollbar-thin;
 
-  .date-tab {
-    @include flex-column;
-    align-items: center;
-    gap: 2px;
-    flex-shrink: 0;
-    padding: 10px 20px;
-    color: $gray-600;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    white-space: nowrap;
-    transition:
-      color $transition-fast,
-      border-color $transition-fast,
-      background-color $transition-fast;
+    display: flex;
+    margin-top: -12px;
+    position: sticky;
+    top: -24px;
+    z-index: 1;
+    overflow-x: auto;
+    list-style: none;
+    background: #ffffff;
+    border-bottom: 1px solid $gray-200;
 
-    .dt-weekday {
-      font-size: 12px;
-      font-weight: 500;
-      text-transform: uppercase;
+    > li {
+      flex-shrink: 0;
     }
 
-    .dt-day {
-      font-size: 24px;
-      font-weight: 700;
-      line-height: 1;
-    }
+    .date-tab {
+      @include flex-column;
+      align-items: center;
+      gap: 2px;
+      padding: 10px 20px;
+      color: $gray-600;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition:
+        color $transition-fast,
+        border-color $transition-fast,
+        background-color $transition-fast;
 
-    .dt-month {
-      font-size: 12px;
-    }
+      .dt-weekday {
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
 
-    &:hover {
-      color: $gray-900;
-      border-bottom-color: $gray-300;
-    }
+      .dt-day {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1;
+      }
 
-    &[data-p-active='true'] {
-      color: $blue-600;
-      border-bottom-color: $blue-600;
-    }
-  }
-}
+      .dt-month {
+        font-size: 12px;
+      }
 
-.date-showtimes {
-  @include flex-column;
-  gap: 16px;
-  padding-top: 8px;
-}
+      &:hover {
+        color: $gray-900;
+        border-bottom-color: $gray-300;
+      }
 
-.ds-total {
-  font-size: 14px;
-  color: $gray-500;
-}
-
-.ds-items {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
-
-  @include from-tablet {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
-
-  .ds-item {
-    @include flex-column;
-    gap: 12px;
-    padding: 16px;
-    border: 1px solid $color-border;
-    border-radius: $radius-lg;
-    transition:
-      border-color $transition-fast,
-      background-color $transition-fast;
-
-    &:hover {
-      border-color: $blue-300;
-      background-color: rgba($blue-50, 0.5);
-    }
-
-    .ds-info {
-      min-width: 0;
-
-      .dsi-details {
-        @include flex-align;
-        gap: 12px;
-        flex-wrap: wrap;
-        min-width: 0;
-
-        .dsid-time {
-          font-size: 20px;
-          font-weight: 700;
-          color: $gray-900;
-        }
-
-        .dsid-location,
-        .dsid-experience {
-          @include flex-align;
-          @include lucide-icon-fix;
-          gap: 6px;
-          font-size: 14px;
-          color: $gray-600;
-        }
-
-        .dsid-status {
-          padding: 4px 10px;
-          border-radius: $radius-full;
-          font-size: 12px;
-          font-weight: 600;
-          background-color: $green-100;
-          color: $green-700;
-
-          &[data-status='DRAFT'] {
-            background-color: $orange-100;
-            color: $orange-700;
-          }
-
-          &[data-status='RUNNING'] {
-            background-color: $blue-100;
-            color: $blue-700;
-          }
-        }
+      &.active {
+        color: $blue-600;
+        border-bottom-color: $blue-600;
       }
     }
+  }
 
-    .ds-occupancy {
-      @include flex-align;
+  .date-showtimes {
+    @include flex-column;
+    gap: 16px;
+    padding-top: 8px;
+
+    .ds-total {
+      font-size: 14px;
+      color: $gray-500;
+    }
+
+    .ds-items {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
       gap: 12px;
 
-      .dso-bar {
-        flex: 1;
-        height: 8px;
-        background-color: $gray-200;
-        border-radius: $radius-full;
-        overflow: hidden;
-
-        .dso-bar-fill {
-          height: 100%;
-          border-radius: $radius-full;
-          background-color: $blue-500;
-          transition: width 300ms ease;
-        }
+      @include from-tablet {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       }
 
-      .dso-percentage {
-        font-size: 12px;
-        color: $gray-500;
-        white-space: nowrap;
-        min-width: 96px;
-        text-align: right;
-      }
-    }
-
-    .ds-notes {
-      @include flex-align;
-      @include lucide-icon-fix;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: $radius-md;
-      background-color: $gray-50;
-      color: $gray-600;
-      font-size: 12px;
-      font-style: italic;
-      width: 100%;
-      min-width: 0;
-
-      > svg {
-        flex-shrink: 0;
-        color: $gray-400;
-        align-self: flex-start;
-        margin-top: 2px;
+      .ds-empty {
+        grid-column: 1 / -1;
       }
 
-      .dsn-text {
-        @include text-truncate;
-        flex: 1;
-        min-width: 0;
-      }
-
-      .dsn-toggle {
-        flex-shrink: 0;
-        padding: 0;
-        background: transparent;
-        border: none;
-        color: $blue-600;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 500;
-        cursor: pointer;
-
-        &:hover {
-          color: $blue-700;
-          text-decoration: underline;
-        }
-      }
-
-      &.expanded {
-        align-items: flex-start;
-
-        .dsn-text {
-          overflow: visible;
-          white-space: pre-wrap;
-          text-overflow: clip;
-          word-break: break-word;
-        }
-      }
-    }
-
-    .ds-actions {
-      @include flex-align;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 4px;
-      padding-top: 12px;
-      border-top: 1px solid $color-border;
-
-      .dsi-action {
-        @include flex-center;
-        @include lucide-icon-fix;
-        position: relative;
-        flex: 1;
-        gap: 6px;
-        min-height: 36px;
-        padding: 8px 14px;
+      .ds-item {
+        @include flex-column;
+        gap: 12px;
+        padding: 16px;
         border: 1px solid $color-border;
-        border-radius: $radius-md;
-        font-size: 13px;
-        font-weight: 500;
-        color: $gray-600;
-        background-color: #ffffff;
-        cursor: pointer;
+        border-radius: $radius-lg;
         transition:
-          color $transition-fast,
           border-color $transition-fast,
           background-color $transition-fast;
 
-        &:disabled {
-          cursor: not-allowed;
-
-          > svg,
-          > span:not(.action-badge) {
-            opacity: 0.6;
-          }
-        }
-
-        .action-badge {
-          position: absolute;
-          top: -8px;
-          right: -8px;
-          padding: 2px 8px;
-          border-radius: $radius-md;
-          font-size: 10px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.03em;
-          color: #ffffff;
-
-          &.action-badge-danger {
-            background-color: $red-600;
-          }
-
-          &.action-badge-muted {
-            background-color: $gray-500;
-          }
-        }
-
-        &.dsi-action-book:hover:not(:disabled) {
-          color: $green-700;
-          border-color: $green-300;
-          background-color: $green-50;
-        }
-
-        &.dsi-action-publish:hover:not(:disabled) {
-          color: $green-700;
-          border-color: $green-300;
-          background-color: $green-50;
-        }
-
-        &.dsi-action-edit:hover:not(:disabled) {
-          color: $blue-700;
+        &:hover {
           border-color: $blue-300;
-          background-color: $blue-50;
+          background-color: rgba($blue-50, 0.5);
         }
 
-        &.dsi-action-delete:hover:not(:disabled) {
-          color: $red-600;
-          border-color: rgba($red-400, 0.5);
-          background-color: $red-50;
+        .ds-info {
+          min-width: 0;
+
+          .dsi-details {
+            @include flex-align;
+            gap: 12px;
+            flex-wrap: wrap;
+            min-width: 0;
+
+            .dsid-time {
+              font-size: 20px;
+              font-weight: 700;
+              color: $gray-900;
+            }
+
+            .dsid-location,
+            .dsid-experience {
+              @include flex-align;
+              @include lucide-icon-fix;
+              gap: 6px;
+              font-size: 14px;
+              color: $gray-600;
+            }
+
+            .dsid-status {
+              padding: 4px 10px;
+              border-radius: $radius-full;
+              font-size: 12px;
+              font-weight: 600;
+              background-color: $green-100;
+              color: $green-700;
+
+              &[data-status='DRAFT'] {
+                background-color: $orange-100;
+                color: $orange-700;
+              }
+
+              &[data-status='RUNNING'] {
+                background-color: $blue-100;
+                color: $blue-700;
+              }
+            }
+          }
+        }
+
+        .ds-occupancy {
+          @include flex-align;
+          gap: 12px;
+
+          .dso-bar {
+            flex: 1;
+            height: 8px;
+            background-color: $gray-200;
+            border-radius: $radius-full;
+            overflow: hidden;
+
+            .dso-bar-fill {
+              height: 100%;
+              border-radius: $radius-full;
+              background-color: $blue-500;
+              transition: width 300ms ease;
+            }
+          }
+
+          .dso-percentage {
+            font-size: 12px;
+            color: $gray-500;
+            white-space: nowrap;
+            min-width: 96px;
+            text-align: right;
+          }
+        }
+
+        .ds-notes {
+          @include flex-align;
+          @include lucide-icon-fix;
+          gap: 6px;
+          padding: 6px 10px;
+          border-radius: $radius-md;
+          background-color: $gray-50;
+          color: $gray-600;
+          font-size: 12px;
+          font-style: italic;
+          width: 100%;
+          min-width: 0;
+
+          > svg {
+            flex-shrink: 0;
+            color: $gray-400;
+            align-self: flex-start;
+            margin-top: 2px;
+          }
+
+          .dsn-text {
+            @include text-truncate;
+            flex: 1;
+            min-width: 0;
+          }
+
+          .dsn-toggle {
+            flex-shrink: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+            color: $blue-600;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 500;
+            cursor: pointer;
+
+            &:hover {
+              color: $blue-700;
+              text-decoration: underline;
+            }
+          }
+
+          &.expanded {
+            align-items: flex-start;
+
+            .dsn-text {
+              overflow: visible;
+              white-space: pre-wrap;
+              text-overflow: clip;
+              word-break: break-word;
+            }
+          }
+        }
+
+        .ds-actions {
+          @include flex-align;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-top: 4px;
+          padding-top: 12px;
+          border-top: 1px solid $color-border;
+
+          .dsi-action {
+            @include flex-center;
+            @include lucide-icon-fix;
+            position: relative;
+            flex: 1;
+            gap: 6px;
+            min-height: 36px;
+            padding: 8px 14px;
+            border: 1px solid $color-border;
+            border-radius: $radius-md;
+            font-size: 13px;
+            font-weight: 500;
+            color: $gray-600;
+            background-color: #ffffff;
+            cursor: pointer;
+            transition:
+              color $transition-fast,
+              border-color $transition-fast,
+              background-color $transition-fast;
+
+            &:disabled {
+              cursor: not-allowed;
+
+              > svg,
+              > span:not(.action-badge) {
+                opacity: 0.6;
+              }
+            }
+
+            .action-badge {
+              position: absolute;
+              top: -8px;
+              right: -8px;
+              padding: 2px 8px;
+              border-radius: $radius-md;
+              font-size: 10px;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 0.03em;
+              color: #ffffff;
+
+              &.action-badge-danger {
+                background-color: $red-600;
+              }
+
+              &.action-badge-muted {
+                background-color: $gray-500;
+              }
+            }
+
+            &.dsi-action-book:hover:not(:disabled) {
+              color: $green-700;
+              border-color: $green-300;
+              background-color: $green-50;
+            }
+
+            &.dsi-action-publish:hover:not(:disabled) {
+              color: $green-700;
+              border-color: $green-300;
+              background-color: $green-50;
+            }
+
+            &.dsi-action-edit:hover:not(:disabled) {
+              color: $blue-700;
+              border-color: $blue-300;
+              background-color: $blue-50;
+            }
+
+            &.dsi-action-delete:hover:not(:disabled) {
+              color: $red-600;
+              border-color: rgba($red-400, 0.5);
+              background-color: $red-50;
+            }
+          }
         }
       }
     }
@@ -318,87 +332,52 @@
   width: 100%;
   justify-content: flex-end;
 
+  @include below-mobile {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
   &.has-drafts {
     justify-content: space-between;
+
+    @include below-mobile {
+      justify-content: flex-start;
+    }
+  }
+
+  button {
+    @include lucide-icon-fix;
   }
 
   .publish-cluster {
     @include flex-align;
     gap: 12px;
-  }
 
-  button {
-    @include flex-align;
-    justify-content: center;
-    @include lucide-icon-fix;
-    gap: 8px;
-    border-radius: $radius-md;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition:
-      background-color $transition-fast,
-      color $transition-fast,
-      border-color $transition-fast;
-  }
-
-  @include below-mobile {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-
-    &.has-drafts {
-      justify-content: flex-start;
-    }
-
-    .publish-cluster {
+    @include below-mobile {
       flex-direction: column;
       align-items: stretch;
       gap: 8px;
     }
-  }
 
-  .btn-add-solid {
-    padding: 10px 20px;
-    background: $blue-600;
-    color: #ffffff;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    .btn-publish-solid {
+      background: $green-600;
+      color: #ffffff;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
-    &:hover {
-      background: $blue-700;
+      &:hover:not(:disabled) {
+        background: $green-700;
+      }
     }
-  }
 
-  .btn-add-outlined {
-    padding: 10px 20px;
-    color: $blue-600;
-    background: transparent;
-    border: 1px solid $blue-200;
+    .btn-publish-outlined {
+      color: $green-600;
+      background: transparent;
+      border: 1px solid $green-300;
 
-    &:hover {
-      background: $blue-50;
-    }
-  }
-
-  .btn-publish-solid {
-    padding: 10px 20px;
-    background: $green-600;
-    color: #ffffff;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-
-    &:hover {
-      background: $green-700;
-    }
-  }
-
-  .btn-publish-outlined {
-    padding: 10px 20px;
-    color: $green-600;
-    background: transparent;
-    border: 1px solid $green-300;
-
-    &:hover {
-      background: $green-50;
+      &:hover:not(:disabled) {
+        background: $green-50;
+      }
     }
   }
 }

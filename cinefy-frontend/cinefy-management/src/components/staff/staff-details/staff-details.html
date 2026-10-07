@@ -1,8 +1,8 @@
 <cui-dialog [style]="{ width: '640px' }" (closed)="closed.emit()">
   <div customHeader class="sd-modal-header">
-    <span class="sdmh-title">Staff Details</span>
+    <span class="sdmh-title">Staff member details</span>
     @if (canManage()) {
-      <button class="sd-action-btn" pTooltip="Edit Info" (click)="requestEdit()">
+      <button class="btn-secondary sd-action-btn" pTooltip="Edit info" (click)="requestEdit()">
         <svg [lucideIcon]="icons.EditIcon" [size]="20" [strokeWidth]="2"></svg>
       </button>
     }
@@ -12,6 +12,8 @@
     <div class="staff-details-loading">
       <cui-loading-spinner variant="md" />
     </div>
+  } @else if (failed()) {
+    <cui-error-state header="Couldn't load staff member details" />
   } @else if (staffMember(); as member) {
     <div class="staff-details-container">
       <div class="sdc-section">
@@ -68,7 +70,7 @@
               <svg [lucideIcon]="icons.CalendarIcon" [size]="14"></svg>
             </div>
             <div class="sdcs-item-info">
-              <span class="item-title">Hired On</span>
+              <span class="item-title">Hired on</span>
               <span class="item-value">{{ member.hiredAt | date: 'mediumDate' }}</span>
             </div>
           </div>
@@ -77,14 +79,14 @@
               <svg [lucideIcon]="icons.BriefCaseIcon" [size]="14"></svg>
             </div>
             <div class="sdcs-item-info">
-              <span class="item-title">Employment Type</span>
+              <span class="item-title">Employment type</span>
               <span class="item-value">{{ employmentTypeLabels[member.employmentType] }}</span>
             </div>
           </div>
         </div>
       </div>
       <div class="sdc-section">
-        <div class="sdc-section-title">Working Schedule</div>
+        <div class="sdc-section-title">Working schedule</div>
         <div class="sdc-section-items">
           <div class="sdcs-item">
             <div class="sdcs-item-icon">

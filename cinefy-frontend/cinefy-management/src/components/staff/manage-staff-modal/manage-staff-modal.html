@@ -10,6 +10,8 @@
     <div class="manage-staff-modal-loading">
       <cui-loading-spinner variant="md" />
     </div>
+  } @else if (failed()) {
+    <cui-error-state header="Couldn't load staff member" />
   } @else {
     <form [formGroup]="staffForm">
       <div class="input-groups">
@@ -65,7 +67,7 @@
       <div class="input-group">
         <cui-input
           label="Password"
-          placeholder="e.g. Strongpassword##123"
+          [placeholder]="isEdit() ? '' : 'e.g. Strongpassword##123'"
           type="password"
           [hint]="isEdit() ? 'Leave empty to keep the current password' : ''"
           [leadingIcon]="icons.KeyIcon"
@@ -90,7 +92,7 @@
         />
       </div>
       <div class="input-group">
-        <label data-required>Employment Type</label>
+        <label data-required>Employment type</label>
         <div class="radio-group">
           @for (entry of employmentTypeEntries; track entry.value) {
             <label
@@ -153,16 +155,18 @@
       </div>
     </form>
   }
-  <div customFooter class="manage-staff-modal-footer">
-    <div class="save-btns">
-      <button class="btn-secondary" [disabled]="saving()" (click)="dialog.close()">Cancel</button>
-      <button
-        class="btn-primary"
-        (click)="saveMember()"
-        [disabled]="staffForm.invalid || saving() || (isEdit() && !hasChanges())"
-      >
-        {{ isEdit() ? 'Save Changes' : 'Add staff member' }}
-      </button>
+  @if (!loading() && !failed()) {
+    <div customFooter class="manage-staff-modal-footer">
+      <div class="save-btns">
+        <button class="btn-neutral" [disabled]="saving()" (click)="dialog.close()">Cancel</button>
+        <button
+          class="btn-primary"
+          (click)="saveMember()"
+          [disabled]="staffForm.invalid || saving() || (isEdit() && !hasChanges())"
+        >
+          {{ isEdit() ? 'Save changes' : 'Add staff member' }}
+        </button>
+      </div>
     </div>
-  </div>
+  }
 </cui-dialog>

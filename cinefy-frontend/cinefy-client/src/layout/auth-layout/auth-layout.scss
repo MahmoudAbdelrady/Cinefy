@@ -10,40 +10,102 @@
   overflow: hidden;
   background-color: $color-background;
   color: $color-foreground;
-}
 
-// ─── Ambient background ──────────────────────────────────────────────────────
-// Soft top vignette, a low breathing amber glow, and a drifting film grain.
-.alc-vignette {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(80% 60% at 50% 0%, rgba($color-foreground, 0.04), transparent 70%);
-}
+  // ─── Ambient background ──────────────────────────────────────────────────────
+  // Soft top vignette, a low breathing amber glow, and a drifting film grain.
+  .alc-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(80% 60% at 50% 0%, rgba($color-foreground, 0.04), transparent 70%);
+  }
 
-.alc-glow {
-  position: absolute;
-  top: -192px;
-  left: 50%;
-  width: 576px;
-  height: 576px;
-  margin-left: -288px;
-  pointer-events: none;
-  border-radius: $radius-full;
-  background-color: rgba($color-primary, 0.15);
-  filter: blur(140px);
-  animation: auth-glow 7s ease-in-out infinite;
-}
+  .alc-glow {
+    position: absolute;
+    top: -192px;
+    left: 50%;
+    width: 576px;
+    height: 576px;
+    margin-left: -288px;
+    pointer-events: none;
+    border-radius: $radius-full;
+    background-color: rgba($color-primary, 0.15);
+    filter: blur(140px);
+    animation: auth-glow 7s ease-in-out infinite;
 
-.alc-grain {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.12;
-  mix-blend-mode: soft-light;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  animation: auth-grain 8s steps(6) infinite;
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  .alc-grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.12;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    animation: auth-grain 8s steps(6) infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  // ─── Top-left header ─────────────────────────────────────────────────────────
+  .auth-layout-header {
+    position: relative;
+    z-index: 10;
+    padding: 24px 40px;
+
+    @include below-mobile {
+      padding: 24px;
+    }
+
+    .alh-brand {
+      @include flex-align;
+      gap: 10px;
+      width: fit-content;
+      text-decoration: none;
+      user-select: none;
+      cursor: pointer;
+      transition: opacity $transition-fast;
+
+      &:hover {
+        opacity: 0.9;
+      }
+
+      .alh-brand-icon {
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+        object-fit: contain;
+      }
+
+      .alh-brand-text {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: $color-foreground;
+      }
+    }
+  }
+
+  // ─── Centered content ────────────────────────────────────────────────────────
+  .auth-layout-content {
+    position: relative;
+    z-index: 10;
+    flex: 1;
+    @include flex-center;
+    padding: 40px 24px;
+
+    .alc-shell {
+      display: grid;
+      width: 100%;
+      max-width: 430px;
+    }
+  }
 }
 
 @keyframes auth-glow {
@@ -78,65 +140,4 @@
   90% {
     transform: translate(-2%, 7%);
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .alc-glow,
-  .alc-grain {
-    animation: none;
-  }
-}
-
-// ─── Top-left header ─────────────────────────────────────────────────────────
-.auth-layout-header {
-  position: relative;
-  z-index: 10;
-  padding: 24px 40px;
-
-  @include below-mobile {
-    padding: 24px;
-  }
-}
-
-.alh-brand {
-  @include flex-align;
-  gap: 10px;
-  width: fit-content;
-  text-decoration: none;
-  user-select: none;
-  cursor: pointer;
-  transition: opacity $transition-fast;
-
-  &:hover {
-    opacity: 0.9;
-  }
-}
-
-.alh-brand-icon {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  object-fit: contain;
-}
-
-.alh-brand-text {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: $color-foreground;
-}
-
-// ─── Centered content ────────────────────────────────────────────────────────
-.auth-layout-content {
-  position: relative;
-  z-index: 10;
-  flex: 1;
-  @include flex-center;
-  padding: 40px 24px;
-}
-
-.alc-shell {
-  display: grid;
-  width: 100%;
-  max-width: 430px;
 }

@@ -1,9 +1,18 @@
-import { afterNextRender, Component, computed, inject, output, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  output,
+  signal,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
   DeleteIcon,
+  EditIcon,
   EyeIcon,
   LayoutIcon,
   SearchIcon,
@@ -11,11 +20,13 @@ import {
   TagIcon,
   UsersIcon,
 } from '../../../shared/icons';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import {
   CinefyInput,
   CinefyLoadingSpinner,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefySelect,
   CinefyDialog,
   CinefyDialogFooter,
@@ -28,6 +39,7 @@ import {
   HallSummary,
   StatisticsChange,
 } from '../../../shared/types';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService } from '../../../services';
 
 @Component({
@@ -42,6 +54,7 @@ import { HallsService } from '../../../services';
     HallConfigModalComponent,
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
   ],
   templateUrl: './halls-list.html',
   styleUrl: './halls-list.scss',
@@ -52,6 +65,7 @@ export class HallsListComponent {
     LayoutIcon,
     UsersIcon,
     EyeIcon,
+    EditIcon,
     DeleteIcon,
     AlertIcon,
     TagIcon,
@@ -60,12 +74,14 @@ export class HallsListComponent {
 
   private readonly hallsService = inject(HallsService);
   private readonly toastService = inject(CinefyToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly statusLabels = HALL_STATUS_LABELS;
 
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
   protected readonly deleting = signal(false);
-  protected readonly viewHallId = signal<string | null>(null);
+  protected readonly configuredHall = signal<{ id: string; editMode: boolean } | null>(null);
   protected readonly hallToDelete = signal<HallSummary | null>(null);
   protected readonly halls = signal<HallSummary[]>([]);
 
@@ -104,22 +120,30 @@ export class HallsListComponent {
 
   constructor() {
     afterNextRender(() => {
-      this.hallsService.getHalls().subscribe({
-        next: (halls) => {
-          this.halls.set(halls);
-          this.statisticsChanged.emit({
-            action: 'set',
-            totalHalls: halls.length,
-            activeHalls: halls.filter((hall) => hall.status === 'ACTIVE').length,
-            totalCapacity: halls.reduce((sum, hall) => sum + hall.totalRows * hall.totalColumns, 0),
-          });
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loading.set(false);
-          this.statisticsChanged.emit({ action: 'reset' });
-        },
-      });
+      this.hallsService
+        .getHalls(undefined, undefined, skipServerErrorToast())
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe({
+          next: (halls) => {
+            this.halls.set(halls);
+            this.statisticsChanged.emit({
+              action: 'set',
+              totalHalls: halls.length,
+              activeHalls: halls.filter((hall) => hall.status === 'ACTIVE').length,
+              totalCapacity: halls.reduce(
+                (sum, hall) => sum + hall.totalRows * hall.totalColumns,
+                0,
+              ),
+            });
+          },
+          error: () => {
+            this.failed.set(true);
+            this.statisticsChanged.emit({ action: 'reset' });
+          },
+        });
     });
   }
 
@@ -145,19 +169,24 @@ export class HallsListComponent {
 
   protected deleteHall(hall: HallSummary): void {
     this.deleting.set(true);
-    this.hallsService.deleteHall(hall.id).subscribe({
-      next: () => {
-        this.halls.update((halls) => halls.filter((h) => h.id !== hall.id));
-        this.statisticsChanged.emit({
-          action: 'delete',
-          status: hall.status,
-          capacity: hall.totalRows * hall.totalColumns,
-        });
-        this.deleting.set(false);
-        this.toastService.success('Hall deleted');
-        this.hallToDelete.set(null);
-      },
-      error: () => this.deleting.set(false),
-    });
+    this.hallsService
+      .deleteHall(hall.id)
+      .pipe(
+        finalize(() => this.deleting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.halls.update((halls) => halls.filter((h) => h.id !== hall.id));
+          this.statisticsChanged.emit({
+            action: 'delete',
+            status: hall.status,
+            capacity: hall.totalRows * hall.totalColumns,
+          });
+          this.toastService.success('Hall deleted');
+          this.hallToDelete.set(null);
+        },
+        error: () => {},
+      });
   }
 }

@@ -19,12 +19,21 @@ import { InputText } from "primeng/inputtext";
 import { EyeIcon, EyeOffIcon, XIcon } from "../icons";
 import { CinefyFieldError } from "../field-error/cinefy-field-error";
 import { isInvalidAndTouched } from "../field-error/control-state";
+import { CinefyLoadingSpinner } from "../loading-spinner/cinefy-loading-spinner";
 
 type CinefyInputSize = "small" | "large";
 
 @Component({
   selector: "cui-input",
-  imports: [ReactiveFormsModule, LucideDynamicIcon, IconField, InputIcon, InputText, CinefyFieldError],
+  imports: [
+    ReactiveFormsModule,
+    LucideDynamicIcon,
+    IconField,
+    InputIcon,
+    InputText,
+    CinefyFieldError,
+    CinefyLoadingSpinner,
+  ],
   templateUrl: "./cinefy-input.html",
   styleUrl: "./cinefy-input.scss",
 })
@@ -50,6 +59,8 @@ export class CinefyInput {
   readonly clearable = input<boolean>(false);
   readonly uppercase = input<boolean>(false);
   readonly preventWhitespace = input<boolean>(false);
+  readonly loading = input<boolean>(false);
+  readonly readonly = input<boolean>(false);
 
   readonly blurred = output<void>();
 
@@ -67,7 +78,9 @@ export class CinefyInput {
     return this.showPassword() ? "text" : "password";
   });
 
-  protected readonly showClear = computed(() => this.clearable() && !this.isPassword() && !!this.controlValue());
+  protected readonly showClear = computed(
+    () => this.clearable() && !this.readonly() && !this.isPassword() && !!this.controlValue(),
+  );
 
   protected readonly hasErrorMessages = computed(() => Object.keys(this.errorMessages()).length > 0);
 

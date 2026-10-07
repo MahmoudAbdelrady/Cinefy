@@ -8,173 +8,171 @@
   border: 1px solid $card-border;
   border-radius: $radius-lg;
   box-shadow: $shadow-xs;
-}
 
-.mp-header {
-  padding: 24px;
-  border-bottom: 1px solid $card-border;
-
-  .mp-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: $gray-900;
-  }
-
-  .mp-subtitle {
-    margin-top: 4px;
-    font-size: 14px;
-    color: $gray-600;
-  }
-}
-
-.mp-loading {
-  @include flex-center;
-
-  min-height: 200px;
-  color: $blue-600;
-}
-
-// ─── Table ───────────────────────────────────────────────────────────────────
-
-.mp-table-wrapper {
-  overflow-x: auto;
-}
-
-.mp-table {
-  width: 100%;
-  min-width: 820px;
-  text-align: left;
-  border-collapse: collapse;
-
-  th {
-    padding: 12px 16px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: $gray-500;
-    white-space: nowrap;
+  .mp-header {
+    padding: 24px;
     border-bottom: 1px solid $card-border;
-  }
 
-  td {
-    padding: 16px;
-    font-size: 14px;
-    border-bottom: 1px solid $card-border;
-  }
-
-  tbody tr {
-    transition: background-color 200ms ease;
-
-    &:hover {
-      background-color: $gray-50;
+    .mp-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: $gray-900;
     }
 
-    &:last-child td {
-      border-bottom: none;
+    .mp-subtitle {
+      margin-top: 4px;
+      font-size: 14px;
+      color: $gray-600;
+    }
+
+    @include below-mobile {
+      padding: 20px 16px;
     }
   }
 
-  th:first-child,
-  td:first-child {
-    padding-left: 24px;
-  }
+  .mp-loading {
+    @include flex-center;
 
-  th:last-child,
-  td:last-child {
-    padding-right: 24px;
-  }
-
-  .numeric {
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-
-  td.numeric {
-    color: $gray-900;
-  }
-
-  .mp-col-rank {
-    width: 56px;
-  }
-
-  .mp-col-occupancy {
-    width: 240px;
-  }
-
-  .mp-cell-rank {
-    font-weight: 600;
-    color: $gray-400;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .mp-cell-title {
-    font-weight: 500;
-    color: $gray-900;
-  }
-
-  .mp-cell-unit {
-    margin-left: 4px;
-    font-size: 12px;
-    color: $gray-500;
-  }
-
-  .mp-cell-empty {
+    min-height: 200px;
     color: $gray-400;
   }
 
-  .mp-cell-occupancy {
-    .mp-occupancy-row {
-      @include flex-align;
+  // ─── Table ─────────────────────────────────────────────────────────────────
 
-      gap: 12px;
+  .mp-table-wrapper {
+    overflow-x: auto;
 
-      .mp-occupancy-track {
-        flex: 1;
-        height: 8px;
-        background-color: $gray-200;
-        border-radius: $radius-full;
-        overflow: hidden;
+    .mp-table {
+      width: 100%;
+      min-width: 820px;
+      text-align: left;
+      border-collapse: collapse;
 
-        .mp-occupancy-fill {
-          display: block;
-          height: 100%;
-          border-radius: $radius-full;
+      th {
+        padding: 12px 16px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: $gray-500;
+        white-space: nowrap;
+        border-bottom: 1px solid $card-border;
+      }
 
-          &[data-level='high'] {
-            background-color: $green-500;
-          }
+      td {
+        padding: 16px;
+        font-size: 14px;
+        border-bottom: 1px solid $card-border;
+      }
 
-          &[data-level='medium'] {
-            background-color: $amber-500;
-          }
+      tbody tr {
+        transition: background-color 200ms ease;
 
-          &[data-level='low'] {
-            background-color: $red-500;
-          }
+        &:hover {
+          background-color: $gray-50;
+        }
+
+        &:last-child td {
+          border-bottom: none;
         }
       }
 
-      .mp-occupancy-value {
-        width: 60px;
-        text-align: right;
-        color: $gray-600;
+      th:first-child,
+      td:first-child {
+        padding-left: 24px;
+      }
+
+      th:last-child,
+      td:last-child {
+        padding-right: 24px;
+      }
+
+      .numeric {
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+
+      td.numeric {
+        color: $gray-900;
+      }
+
+      .mp-col-rank {
+        width: 56px;
+      }
+
+      .mp-col-occupancy {
+        width: 240px;
+      }
+
+      .mp-cell-rank {
+        font-weight: 600;
+        color: $gray-400;
         font-variant-numeric: tabular-nums;
       }
-    }
 
-    .mp-occupancy-note {
-      margin-top: 6px;
-      font-size: 12px;
-      color: $gray-500;
-      font-variant-numeric: tabular-nums;
-    }
-  }
-}
+      .mp-cell-title {
+        font-weight: 500;
+        color: $gray-900;
+      }
 
-@include below-mobile {
-  .mp-header {
-    padding: 20px 16px;
+      .mp-cell-unit {
+        margin-left: 4px;
+        font-size: 12px;
+        color: $gray-500;
+      }
+
+      .mp-cell-empty {
+        color: $gray-400;
+      }
+
+      .mp-cell-occupancy {
+        .mp-occupancy-row {
+          @include flex-align;
+
+          gap: 12px;
+
+          .mp-occupancy-track {
+            flex: 1;
+            height: 8px;
+            background-color: $gray-200;
+            border-radius: $radius-full;
+            overflow: hidden;
+
+            .mp-occupancy-fill {
+              display: block;
+              height: 100%;
+              border-radius: $radius-full;
+
+              &[data-level='high'] {
+                background-color: $green-500;
+              }
+
+              &[data-level='medium'] {
+                background-color: $amber-500;
+              }
+
+              &[data-level='low'] {
+                background-color: $red-500;
+              }
+            }
+          }
+
+          .mp-occupancy-value {
+            width: 60px;
+            text-align: right;
+            color: $gray-600;
+            font-variant-numeric: tabular-nums;
+          }
+        }
+
+        .mp-occupancy-note {
+          margin-top: 6px;
+          font-size: 12px;
+          color: $gray-500;
+          font-variant-numeric: tabular-nums;
+        }
+      }
+    }
   }
 }

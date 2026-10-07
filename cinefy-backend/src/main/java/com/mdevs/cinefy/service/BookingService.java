@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.service;
 
-import com.mdevs.cinefy.config.general.AppConfig;
+import com.mdevs.cinefy.config.AppConfig;
 import com.mdevs.cinefy.dto.booking.ActiveBookingDTO;
 import com.mdevs.cinefy.dto.booking.BookedSeatDTO;
 import com.mdevs.cinefy.dto.booking.BookingConfirmationDTO;
@@ -36,7 +36,7 @@ import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.dto.email.InlineResource;
-import com.mdevs.cinefy.shared.QrGenerator;
+import com.mdevs.cinefy.utils.QrGenerator;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.ConflictException;
@@ -434,7 +434,7 @@ public class BookingService {
 
     private Showtime findBookableShowtime(String uuid) {
         Showtime showtime = showtimeRepository.findByUuidWithHall(uuid)
-                .orElseThrow(() -> new NotFoundException("Showtime not found"));
+                .orElseThrow(() -> new NotFoundException("Showtime not found or it may no longer be available"));
         if (!isBookable(showtime)) {
             throw new BusinessException("This showtime is not available for booking");
         }
@@ -584,14 +584,17 @@ public class BookingService {
             bookingRepository.delete(existing);
             return null;
         }
-        if (BookingStatus.PENDING_PAYMENT.equals(existing.getStatus())) {
-            throw new BusinessException("A payment is already in progress for this booking. Complete or cancel it before changing seats");
-        }
-
         Set<String> currentPositions = existing.getSeats().stream()
                 .map(BookingSeat::getPosition)
                 .collect(Collectors.toSet());
         Set<String> requested = new LinkedHashSet<>(requestedPositions);
+
+        if (requested.equals(currentPositions)) {
+            return existing;
+        }
+        if (BookingStatus.PENDING_PAYMENT.equals(existing.getStatus())) {
+            throw new BusinessException("A payment is already in progress for this booking. Complete or cancel it before changing seats");
+        }
 
         boolean overlaps = requested.stream().anyMatch(currentPositions::contains);
         if (!overlaps) {

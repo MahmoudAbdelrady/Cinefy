@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import {
   DoneStep,
   type ForgotPasswordStage,
@@ -50,15 +51,17 @@ export class ForgotPasswordPage {
     this.requestingNewCode.set(true);
     this.authService
       .forgotPassword({ email: this.email() })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.requestingNewCode.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.requestingNewCode.set(false);
           this.code.set('');
           this.stage.set('otp');
           this.toast.success('A new code has been sent to your email.');
         },
-        error: () => this.requestingNewCode.set(false),
+        error: () => {},
       });
   }
 }

@@ -14,6 +14,14 @@ public final class ValidationPatterns {
 
     public static final String NAME_MESSAGE = "Name may only contain letters, spaces, hyphens, and apostrophes";
 
+    public static final int NAME_MIN_LENGTH = 2;
+
+    public static final int NAME_MAX_LENGTH = 50;
+
+    public static final String FIRST_NAME_SIZE_MESSAGE = "First name must be {min}-{max} characters";
+
+    public static final String LAST_NAME_SIZE_MESSAGE = "Last name must be {min}-{max} characters";
+
     public static final String RESOURCE_NAME = "^[A-Za-z0-9]+([ -][A-Za-z0-9]+)*$";
 
     public static final String RESOURCE_NAME_MESSAGE =

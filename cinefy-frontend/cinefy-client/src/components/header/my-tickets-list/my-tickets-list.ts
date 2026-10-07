@@ -1,7 +1,6 @@
 import {
   afterNextRender,
   Component,
-  computed,
   DestroyRef,
   inject,
   output,
@@ -13,12 +12,15 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInSeconds } from 'date-fns';
+import { finalize } from 'rxjs';
 import {
   CinefyDialog,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyLoadingSpinner,
   CinefyMediaImage,
 } from 'cinefy-ui/components';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { BookingService } from '../../../services';
 import type { BookingSummary } from '../../../shared/types';
 import {
@@ -27,7 +29,6 @@ import {
   ClockIcon,
   TicketIcon,
   ArrowRightIcon,
-  TriangleAlertIcon,
 } from '../../../shared/icons';
 
 @Component({
@@ -37,6 +38,7 @@ import {
     LucideDynamicIcon,
     CinefyDialog,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
     CinefyMediaImage,
     CurrencyPipe,
@@ -52,7 +54,6 @@ export class MyTicketsListComponent {
     ClockIcon,
     TicketIcon,
     ArrowRightIcon,
-    TriangleAlertIcon,
   };
 
   private readonly bookingService = inject(BookingService);
@@ -66,30 +67,20 @@ export class MyTicketsListComponent {
   protected readonly isLoading = signal(true);
   protected readonly hasError = signal(false);
 
-  protected readonly description = computed(() => {
-    const count = this.bookings().length;
-    return count
-      ? `${count} booking${count > 1 ? 's' : ''} to complete`
-      : 'No bookings in progress';
-  });
-
   constructor() {
     afterNextRender(() => this.loadActiveBookings());
   }
 
   private loadActiveBookings(): void {
     this.bookingService
-      .getActiveBookings()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .getActiveBookings(skipServerErrorToast())
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (bookings) => {
-          this.bookings.set(bookings);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.hasError.set(true);
-          this.isLoading.set(false);
-        },
+        next: (bookings) => this.bookings.set(bookings),
+        error: () => this.hasError.set(true),
       });
   }
 

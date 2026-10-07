@@ -5,11 +5,7 @@
   </header>
 
   @if (failed()) {
-    <cui-empty-state
-      [icon]="icons.WarningIcon"
-      header="Couldn't load movie performance"
-      description="Something went wrong. Please try again later."
-    />
+    <cui-error-state header="Couldn't load movie performance" />
   } @else if (!loading() && rows().length === 0) {
     <cui-empty-state
       [icon]="icons.ClapperboardIcon"
@@ -74,11 +70,13 @@
       </div>
     }
 
-    <cui-paginator
-      [(page)]="page"
-      [pageCount]="pageCount()"
-      [totalItems]="totalItems()"
-      [pageSize]="pageSize"
-    />
+    @if (!failed()) {
+      <cui-paginator
+        [(page)]="page"
+        [pageCount]="pageCount()"
+        [totalItems]="totalItems()"
+        [pageSize]="pageSize"
+      />
+    }
   }
 </section>

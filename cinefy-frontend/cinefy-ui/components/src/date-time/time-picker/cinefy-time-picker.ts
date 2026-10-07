@@ -1,4 +1,4 @@
-import { Component, computed, input, signal, type InputSignal } from "@angular/core";
+import { Component, computed, effect, input, signal, type InputSignal } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormsModule } from "@angular/forms";
 import { startWith, switchMap } from "rxjs";
@@ -50,11 +50,21 @@ export class CinefyTimePicker {
 
   protected readonly suppressError = signal(false);
 
+  protected readonly disabled = signal(false);
+
   protected readonly hasErrorMessages = computed(() => Object.keys(this.errorMessages()).length > 0);
 
   private readonly isInvalid = isInvalidAndTouched(this.control);
 
   protected readonly showsError = computed(() => !this.suppressError() && this.isInvalid());
+
+  constructor() {
+    effect(() => {
+      const c = this.control();
+      this.disabled.set(c.disabled);
+      c.registerOnDisabledChange((isDisabled) => this.disabled.set(isDisabled));
+    });
+  }
 
   protected onOverlayShow(): void {
     this.suppressError.set(this.control().untouched);

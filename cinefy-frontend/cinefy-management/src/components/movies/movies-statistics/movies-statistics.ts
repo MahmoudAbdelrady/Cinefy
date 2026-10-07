@@ -5,6 +5,7 @@ import { switchMap } from 'rxjs/operators';
 import { CalendarIcon, ClockIcon, ClapperboardIcon } from '../../../shared/icons';
 import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { StatsComponent } from '../../stats/stats';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { ShowtimeEventsService, ShowtimesService } from '../../../services';
 import type { ShowtimesStatistics, StatsCard } from '../../../shared/types';
 
@@ -27,16 +28,16 @@ export class MoviesStatisticsComponent {
   protected readonly cards = computed<StatsCard[]>(() => {
     const s = this.statistics();
     return [
-      { label: 'Total Movies', value: s?.totalMovies?.toString() ?? '—', icon: ClapperboardIcon },
-      { label: 'Total Showtimes', value: s?.totalShowtimes?.toString() ?? '—', icon: CalendarIcon },
-      { label: "Today's Showtimes", value: s?.todayShowtimes?.toString() ?? '—', icon: ClockIcon },
+      { label: 'Total movies', value: s?.totalMovies?.toString() ?? '-', icon: ClapperboardIcon },
+      { label: 'Total showtimes', value: s?.totalShowtimes?.toString() ?? '-', icon: CalendarIcon },
+      { label: "Today's showtimes", value: s?.todayShowtimes?.toString() ?? '-', icon: ClockIcon },
     ];
   });
 
   constructor() {
     this.refetch$
       .pipe(
-        switchMap(() => this.showtimesService.getShowtimesStatistics()),
+        switchMap(() => this.showtimesService.getShowtimesStatistics(skipServerErrorToast())),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({

@@ -4,12 +4,13 @@
   <form id="stm-form" class="stm-form" [formGroup]="scanForm" (ngSubmit)="submit()">
     <div class="stm-reference">
       <div class="stm-reference-head">
-        <span class="stm-reference-label" data-required>Booking Reference</span>
+        <span class="stm-reference-label" data-required>Booking reference</span>
 
         <label class="stm-manual">
           <input
             type="checkbox"
             [checked]="manualEntry()"
+            [disabled]="scanning()"
             (change)="onManualEntryChange($event.target.checked)"
           />
           <span>Enter manually</span>
@@ -23,6 +24,7 @@
         [uppercase]="true"
         [preventWhitespace]="true"
         [autoFocus]="true"
+        [loading]="!manualEntry() && scanning()"
         (blurred)="onInputBlur()"
       />
 
@@ -63,7 +65,7 @@
       <div class="stm-fact">
         <dt>
           <svg [lucideIcon]="icons.QrCodeIcon" [size]="15"></svg>
-          <span>Booking Reference</span>
+          <span>Booking reference</span>
         </dt>
         <dd>#{{ scan.bookingReference }}</dd>
       </div>
@@ -108,18 +110,23 @@
 @if (scan !== null || manualEntry()) {
   <div class="stm-actions">
     @if (close(); as close) {
-      <button type="button" class="btn-secondary" (click)="close()">
+      <button type="button" class="btn-neutral" (click)="close()" [disabled]="scanning()">
         {{ scan === null ? 'Cancel' : 'Close' }}
       </button>
     }
     @if (scan === null) {
       <button type="submit" form="stm-form" class="btn-primary" [disabled]="!canSubmit()">
-        {{ scanning() ? 'Verifying...' : 'Verify Ticket' }}
+        @if (scanning()) {
+          <cui-loading-spinner variant="sm" />
+          <span>Verifying…</span>
+        } @else {
+          <span>Verify ticket</span>
+        }
       </button>
     } @else {
       <button type="button" class="btn-primary" (click)="scanAgain()">
         <svg [lucideIcon]="icons.ScanLineIcon" [size]="16"></svg>
-        <span>Scan Again</span>
+        <span>Scan again</span>
       </button>
     }
   </div>

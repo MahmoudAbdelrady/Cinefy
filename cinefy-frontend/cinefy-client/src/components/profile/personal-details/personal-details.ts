@@ -1,6 +1,15 @@
-import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
@@ -16,7 +25,7 @@ import { PhoneFormatPipe } from 'cinefy-ui/pipes';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { ClientService } from '../../../services';
 import { EditIcon, EmailIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
-import { NAME_PATTERN } from '../../../shared/validation';
+import { NAME_PATTERN } from 'cinefy-ui/forms';
 import type { CurrentUser, UpdateProfilePayload } from '../../../shared/types';
 
 @Component({
@@ -95,6 +104,16 @@ export class PersonalDetailsComponent {
     this.personalForm.controls.phoneNumber.addValidators(
       phoneNumberValidator(this.personalForm.controls.phoneCountry),
     );
+
+    effect(() => {
+      if (this.saving()) {
+        this.personalForm.disable({ emitEvent: false });
+      } else {
+        this.personalForm.enable({ emitEvent: false });
+        this.personalForm.controls.email.disable({ emitEvent: false });
+      }
+    });
+
     afterNextRender(() => this.loadCurrentUser());
   }
 
@@ -145,15 +164,17 @@ export class PersonalDetailsComponent {
     this.saving.set(true);
     this.clientService
       .updateCurrentUser(payload)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (user) => {
           this.currentUser.set(user);
-          this.saving.set(false);
           this.isEditing.set(false);
           this.toastService.success('Profile updated');
         },
-        error: () => this.saving.set(false),
+        error: () => {},
       });
   }
 }

@@ -10,261 +10,297 @@
   border-radius: $radius-lg;
   border: 1px solid $gray-200;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
 
-// ─── Header ─────────────────────────────────────────────────────────────────────
+  // ─── Header ─────────────────────────────────────────────────────────────────────
 
-.sl-header {
-  @include flex-column;
-  gap: 16px;
-  padding: 24px;
-  border-bottom: 1px solid $gray-200;
+  .sl-header {
+    @include flex-column;
+    gap: 16px;
+    padding: 24px;
+    border-bottom: 1px solid $gray-200;
 
-  @include from-tablet {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
+    @include from-tablet {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-.sl-header-left {
-  h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: $gray-900;
-    line-height: 1.3;
-  }
+    .sl-header-left {
+      h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: $gray-900;
+        line-height: 1.3;
+      }
 
-  p {
-    font-size: 14px;
-    color: $gray-600;
-    margin-top: 4px;
-  }
-}
+      p {
+        font-size: 14px;
+        color: $gray-600;
+        margin-top: 4px;
+      }
+    }
 
-.sl-header-right {
-  @include flex-align;
-  gap: 12px;
-  flex-shrink: 0;
-  flex-wrap: wrap;
+    .sl-header-right {
+      @include flex-align;
+      gap: 12px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
 
-  @include below-mobile {
-    width: 100%;
-  }
-}
+      @include below-mobile {
+        width: 100%;
+      }
 
-.search-filter {
-  width: 288px;
-  max-width: 100%;
+      .search-filter {
+        width: 288px;
+        max-width: 100%;
 
-  @include below-mobile {
-    width: 100%;
-  }
-}
+        @include below-mobile {
+          width: 100%;
+        }
+      }
 
-.drop-down-filter {
-  min-width: 180px;
+      .drop-down-filter {
+        min-width: 180px;
 
-  @include below-mobile {
-    width: 100%;
-  }
-}
-
-// ─── Items ──────────────────────────────────────────────────────────────────────
-
-.sl-items {
-  @include flex-column;
-}
-
-.staff-members {
-  @include flex-column;
-}
-
-.staff-member {
-  @include flex-between;
-  gap: 16px;
-  padding: 24px;
-  border-bottom: 1px solid $gray-200;
-  transition: background-color $transition-fast;
-
-  &:hover {
-    background-color: rgba($gray-50, 0.8);
+        @include below-mobile {
+          width: 100%;
+        }
+      }
+    }
   }
 
-  &:last-child {
-    border-bottom: none;
-  }
+  // ─── Items ──────────────────────────────────────────────────────────────────────
 
-  @include below-tablet {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
+  .sl-items {
+    @include flex-column;
 
-.sl-loading {
-  @include flex-center;
-  min-height: 100px;
-}
+    .sl-loading {
+      @include flex-center;
+      min-height: 100px;
+      color: $gray-500;
+    }
 
-// ─── Info side ──────────────────────────────────────────────────────────────────
+    .staff-members {
+      @include flex-column;
 
-.staff-info {
-  @include flex-align;
-  gap: 16px;
-  flex: 1;
-  min-width: 0;
-}
+      .staff-member {
+        @include flex-between;
+        gap: 16px;
+        padding: 24px;
+        border-bottom: 1px solid $gray-200;
+        transition: background-color $transition-fast;
 
-// ─── Monogram ───────────────────────────────────────────────────────────────────
+        &:hover {
+          background-color: rgba($gray-50, 0.8);
+        }
 
-.si-img {
-  position: relative;
-  width: 56px;
-  height: 56px;
-  border-radius: $radius-xl;
-  @include flex-center;
-  flex-shrink: 0;
-  overflow: hidden;
-  background-color: $gray-900;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.025em;
+        &:last-child {
+          border-bottom: none;
+        }
 
-  .si-img-initials {
-    user-select: none;
-  }
-}
+        @include below-tablet {
+          flex-direction: column;
+          align-items: stretch;
+        }
 
-// ─── Name + position chip + contact ─────────────────────────────────────────────
+        @include below-mobile {
+          padding: 16px;
+        }
 
-.si-details {
-  flex: 1;
-  min-width: 0;
-}
+        // ─── Info side ──────────────────────────────────────────────────────────────────
 
-.sid-name-box {
-  @include flex-align;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 8px;
-}
+        .staff-info {
+          @include flex-align;
+          gap: 16px;
+          flex: 1;
+          min-width: 0;
 
-.sidb-name {
-  font-size: 18px;
-  font-weight: 600;
-  color: $gray-900;
-  @include text-truncate;
-}
+          // ─── Monogram ───────────────────────────────────────────────────────────────────
 
-.sidb-position {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: $radius-xs;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  border: 1px solid transparent;
+          .si-img {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            border-radius: $radius-xl;
+            @include flex-center;
+            flex-shrink: 0;
+            overflow: hidden;
+            background-color: $gray-900;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.025em;
 
-  .sidbp-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: $radius-pill;
-    background-color: currentColor;
-    opacity: 0.7;
-  }
+            .si-img-initials {
+              user-select: none;
+            }
+          }
 
-  // Position-specific soft surface + ink (shared palette)
-  @include staff-position-chip-colors;
-}
+          // ─── Name + position chip + contact ─────────────────────────────────────────────
 
-.sid-contact {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: 24px;
-  row-gap: 4px;
-  font-size: 14px;
-  color: $gray-600;
-}
+          .si-details {
+            flex: 1;
+            min-width: 0;
 
-.sidc-item {
-  @include flex-align;
-  gap: 6px;
-  min-width: 0;
-  @include lucide-icon-fix;
+            .sid-name-box {
+              @include flex-align;
+              flex-wrap: wrap;
+              gap: 12px;
+              margin-bottom: 8px;
 
-  svg {
-    color: $gray-400;
-    flex-shrink: 0;
-  }
+              .sidb-name {
+                font-size: 18px;
+                font-weight: 600;
+                color: $gray-900;
+                @include text-truncate;
+              }
 
-  > span {
-    @include text-truncate;
-  }
-}
+              .sidb-position {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 4px 8px;
+                border-radius: $radius-xs;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                border: 1px solid transparent;
 
-// ─── Action buttons ─────────────────────────────────────────────────────────────
+                .sidbp-dot {
+                  width: 6px;
+                  height: 6px;
+                  border-radius: $radius-pill;
+                  background-color: currentColor;
+                  opacity: 0.7;
+                }
 
-.staff-actions {
-  @include flex-align;
-  gap: 8px;
-  flex-shrink: 0;
+                // Position-specific soft surface + ink (shared palette)
+                @include staff-position-chip-colors;
+              }
+            }
 
-  @include below-tablet {
-    justify-content: flex-end;
-  }
-}
+            .sid-contact {
+              display: flex;
+              flex-wrap: wrap;
+              align-items: center;
+              column-gap: 24px;
+              row-gap: 4px;
+              font-size: 14px;
+              color: $gray-600;
 
-.sa-btn {
-  @include flex-align;
-  gap: 8px;
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: $radius-md;
-  border: 1px solid transparent;
-  background-color: transparent;
-  transition: all $transition-fast;
-  white-space: nowrap;
-  cursor: pointer;
-  @include lucide-icon-fix;
+              @include below-mobile {
+                column-gap: 16px;
+                row-gap: 10px;
+              }
 
-  &:active {
-    transform: scale(0.97);
-  }
-}
+              .sidc-item {
+                @include flex-align;
+                gap: 6px;
+                min-width: 0;
+                @include lucide-icon-fix;
 
-.sa-btn-view {
-  color: $gray-700;
-  border-color: $gray-300;
+                svg {
+                  color: $gray-400;
+                  flex-shrink: 0;
+                }
 
-  &:hover {
-    background-color: $gray-100;
-  }
-}
+                > span {
+                  @include text-truncate;
+                }
+              }
+            }
+          }
+        }
 
-.sa-btn-edit {
-  color: $blue-600;
-  border-color: $blue-200;
+        // ─── Action buttons ─────────────────────────────────────────────────────────────
 
-  &:hover {
-    background-color: $blue-50;
-  }
-}
+        .staff-actions {
+          @include flex-align;
+          gap: 8px;
+          flex-shrink: 0;
 
-.sa-btn-delete {
-  color: $red-600;
-  border-color: $red-200;
+          @include below-tablet {
+            justify-content: flex-end;
+          }
 
-  &:hover {
-    background-color: $red-50;
+          .sa-btn {
+            padding: 8px 12px;
+            border: 1px solid transparent;
+            background-color: transparent;
+            white-space: nowrap;
+            @include lucide-icon-fix;
+
+            @include below-phone {
+              padding: 8px;
+
+              span {
+                display: none;
+              }
+            }
+
+            &.sa-btn-view {
+              color: $gray-700;
+              border-color: $gray-300;
+
+              &:hover {
+                background-color: $gray-100;
+              }
+            }
+
+            &.sa-btn-edit {
+              color: $blue-600;
+              border-color: $blue-200;
+
+              &:hover {
+                background-color: $blue-50;
+              }
+            }
+
+            &.sa-btn-delete {
+              color: $red-600;
+              border-color: $red-200;
+
+              &:hover {
+                background-color: $red-50;
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
 
 // ─── Delete Modal ───────────────────────────────────────────────────────────────
+
+.delete-modal-content {
+  text-align: center;
+
+  .dmc-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-full;
+    background-color: $red-50;
+    @include flex-center;
+    margin: 0 auto 16px;
+
+    svg {
+      display: flex;
+      color: $red-600;
+    }
+  }
+
+  .dmc-message {
+    font-size: 14px;
+    color: $gray-600;
+    line-height: 1.6;
+    margin-bottom: 24px;
+
+    strong {
+      color: $gray-900;
+    }
+  }
+}
 
 .delete-modal-footer {
   @include flex-align;
@@ -273,55 +309,5 @@
 
   button {
     flex: 1;
-  }
-}
-
-.delete-modal-content {
-  text-align: center;
-}
-
-.dmc-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: $radius-full;
-  background-color: $red-50;
-  @include flex-center;
-  margin: 0 auto 16px;
-
-  svg {
-    display: flex;
-    color: $red-600;
-  }
-}
-
-.dmc-message {
-  font-size: 14px;
-  color: $gray-600;
-  line-height: 1.6;
-  margin-bottom: 24px;
-
-  strong {
-    color: $gray-900;
-  }
-}
-
-// ─── Responsive tweaks ──────────────────────────────────────────────────────────
-
-@include below-mobile {
-  .staff-member {
-    padding: 16px;
-  }
-
-  .sid-contact {
-    column-gap: 16px;
-    row-gap: 10px;
-  }
-
-  .sa-btn {
-    padding: 8px;
-
-    span {
-      display: none;
-    }
   }
 }

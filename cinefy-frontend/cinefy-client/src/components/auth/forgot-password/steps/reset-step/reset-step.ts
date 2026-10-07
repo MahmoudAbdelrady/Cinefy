@@ -1,11 +1,11 @@
-import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyInput, CinefyPasswordChecklist, CinefyLoadingSpinner } from 'cinefy-ui/components';
-import { linkConfirmPassword } from 'cinefy-ui/forms';
-import { PASSWORD_PATTERN } from '../../../../../shared/validation';
+import { linkConfirmPassword, PASSWORD_PATTERN } from 'cinefy-ui/forms';
 import type { ApiError } from '../../../../../shared/types';
 import { AuthService } from '../../../../../services';
 import { ArrowRightIcon, LockIcon } from '../../../../../shared/icons';
@@ -56,6 +56,14 @@ export class ResetStep {
       this.resetForm.controls.confirmPassword,
       this.destroyRef,
     );
+
+    effect(() => {
+      if (this.submitting()) {
+        this.resetForm.disable({ emitEvent: false });
+      } else {
+        this.resetForm.enable({ emitEvent: false });
+      }
+    });
   }
 
   protected onSubmit() {
@@ -64,17 +72,22 @@ export class ResetStep {
 
     this.authService
       .resetPassword({ code: this.code(), newPassword: this.resetForm.controls.newPassword.value })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.submitting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.submitting.set(false);
-          this.reset.emit();
-        },
+        next: () => this.reset.emit(),
         error: (err: HttpErrorResponse) => {
-          this.submitting.set(false);
           const errorResponse = err.error as ApiError | null;
           if (errorResponse?.errorCode === 'OTP_INVALID') this.codeRejected.set(true);
-          if (errorResponse?.errorCode === 'PASSWORD_REUSED') this.resetForm.reset();
+          if (
+            errorResponse?.errorCode === 'PASSWORD_REUSED' ||
+            err.status === 0 ||
+            err.status >= 500
+          ) {
+            this.resetForm.reset();
+          }
         },
       });
   }

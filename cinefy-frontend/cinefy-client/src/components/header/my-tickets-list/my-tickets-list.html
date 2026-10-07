@@ -1,18 +1,10 @@
-<cui-dialog
-  header="My Tickets"
-  [description]="description()"
-  [style]="{ width: '512px' }"
-  (closed)="closed.emit()"
->
+<cui-dialog header="My tickets" [style]="{ width: '512px' }" (closed)="closed.emit()">
   @if (isLoading()) {
     <div class="tickets-status">
       <cui-loading-spinner variant="lg" />
     </div>
   } @else if (hasError()) {
-    <cui-empty-state
-      [icon]="icons.TriangleAlertIcon"
-      header="We couldn't load your bookings. Please try again."
-    />
+    <cui-error-state header="Couldn't load your tickets" />
   } @else {
     <ul class="bookings-list">
       @for (booking of bookings(); track booking.id) {
@@ -76,10 +68,12 @@
           </div>
         </li>
       } @empty {
-        <cui-empty-state
-          [icon]="icons.TicketIcon"
-          header="Bookings you start will wait here until you complete them."
-        />
+        <li>
+          <cui-empty-state
+            [icon]="icons.TicketIcon"
+            header="Bookings you start will wait here until you complete them."
+          />
+        </li>
       }
     </ul>
   }

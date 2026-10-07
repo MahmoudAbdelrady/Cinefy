@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.controller;
 
+import com.mdevs.cinefy.config.AppConfig;
 import com.mdevs.cinefy.dto.RedirectionDTO;
 import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OAuthCallbackDTO;
@@ -14,8 +15,10 @@ import com.mdevs.cinefy.dto.client.SignUpDTO;
 import com.mdevs.cinefy.service.ClientAuthService;
 import com.mdevs.cinefy.service.JwtSessionService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
+import com.mdevs.cinefy.shared.annotation.RateLimited;
 import com.mdevs.cinefy.shared.oauth.OAuthAuthorizationDTO;
 import com.mdevs.cinefy.shared.oauth.OAuthProviderClient;
+import com.mdevs.cinefy.shared.ratelimit.RateLimitPolicy;
 import com.mdevs.cinefy.shared.security.AuthCookieResponseFactory;
 import com.mdevs.cinefy.shared.security.AuthContext;
 import com.mdevs.cinefy.utils.CookieUtil;
@@ -50,7 +53,7 @@ public class ClientAuthController {
 
     private final CookieUtil cookieUtil;
 
-    private static final String AUTH_PATH = "/client/auth";
+    private static final String AUTH_PATH = AppConfig.getBaseUrl() + "/client/auth";
 
     private static final AuthContext AUTH_CONTEXT = AuthContext.CLIENT;
 
@@ -94,6 +97,7 @@ public class ClientAuthController {
     }
 
     @PublicApi
+    @RateLimited(RateLimitPolicy.STRICT)
     @PostMapping("/sign-up")
     public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpDTO dto) {
         clientAuthService.signUp(dto);
@@ -101,6 +105,7 @@ public class ClientAuthController {
     }
 
     @PublicApi
+    @RateLimited(RateLimitPolicy.STRICT)
     @PostMapping("/send-otp")
     public ResponseEntity<Void> sendOtp(@Valid @RequestBody SendOtpDTO dto) {
         clientAuthService.sendOtp(dto);
@@ -124,12 +129,12 @@ public class ClientAuthController {
     @PublicApi
     @PostMapping("/verify-account")
     public ResponseEntity<Void> verifyAccount(@Valid @RequestBody OtpCodeDTO dto) {
-        return clientAuthService.verifyAccount(dto)
-                .map(tokens -> authCookieResponseFactory.tokenResponse(AUTH_CONTEXT, tokens, AUTH_PATH))
-                .orElseGet(() -> ResponseEntity.noContent().build());
+        TokenPairDTO tokens = clientAuthService.verifyAccount(dto);
+        return authCookieResponseFactory.tokenResponse(AUTH_CONTEXT, tokens, AUTH_PATH);
     }
 
     @PublicApi
+    @RateLimited(RateLimitPolicy.STRICT)
     @PostMapping("/login")
     public ResponseEntity<Void> login(@Valid @RequestBody LoginDTO dto) {
         TokenPairDTO tokens = clientAuthService.login(dto);

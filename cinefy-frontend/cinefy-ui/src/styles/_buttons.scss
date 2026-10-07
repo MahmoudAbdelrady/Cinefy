@@ -4,32 +4,44 @@
 .btn-base {
   @include flex-center;
   gap: 8px;
-  padding: 10px 24px;
+  padding: 8px 24px;
   font-size: 14px;
   font-weight: 500;
   border-radius: $radius-md;
   transition: all $transition-fast;
   cursor: pointer;
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    @include disabled-state;
+  }
 }
 
 .btn-primary {
   @extend .btn-base;
   color: var(--cui-text-on-accent);
   background-color: var(--cui-accent);
-  box-shadow: var(--cui-button-shadow);
 
   &:hover:not(:disabled) {
     background-color: var(--cui-accent-hover);
   }
-
-  &:disabled {
-    background-color: var(--cui-surface-disabled-strong);
-    box-shadow: none;
-    cursor: not-allowed;
-  }
 }
 
 .btn-secondary {
+  @extend .btn-base;
+  color: var(--cui-accent);
+  background-color: var(--cui-surface-base);
+  border: 1px solid var(--cui-button-secondary-border);
+
+  &:hover:not(:disabled) {
+    background-color: var(--cui-button-secondary-hover);
+  }
+}
+
+.btn-neutral {
   @extend .btn-base;
   color: var(--cui-option-text);
   background-color: var(--cui-surface-base);
@@ -38,26 +50,15 @@
   &:hover:not(:disabled) {
     background-color: var(--cui-surface-hover);
   }
-
-  &:disabled {
-    color: var(--cui-text-muted);
-    cursor: not-allowed;
-  }
 }
 
 .btn-danger {
   @extend .btn-base;
   color: var(--cui-danger-text);
   background-color: var(--cui-danger);
-  box-shadow: var(--cui-button-shadow-strong);
 
   &:hover:not(:disabled) {
     background-color: var(--cui-danger-hover);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
   }
 }
 
@@ -65,15 +66,8 @@
   @extend .btn-base;
   color: var(--cui-text-on-accent);
   background-color: var(--cui-success);
-  box-shadow: var(--cui-button-shadow);
 
   &:hover:not(:disabled) {
     background-color: var(--cui-success-hover);
-  }
-
-  &:disabled {
-    background-color: var(--cui-surface-disabled-strong);
-    box-shadow: none;
-    cursor: not-allowed;
   }
 }

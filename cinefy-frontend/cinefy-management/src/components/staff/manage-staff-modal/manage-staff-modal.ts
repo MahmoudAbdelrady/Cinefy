@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { merge } from 'rxjs';
+import { finalize, merge } from 'rxjs';
 import { addDays, differenceInMinutes, parse } from 'date-fns';
 import { CheckIcon, EmailIcon, KeyIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import { RadioButton } from 'primeng/radiobutton';
@@ -22,6 +22,7 @@ import {
   CinefyPasswordChecklist,
   CinefySelect,
   CinefyLoadingSpinner,
+  CinefyErrorState,
   DEFAULT_COUNTRY,
   CinefyPhoneInput,
   phoneNumberValidator,
@@ -42,8 +43,9 @@ import {
   type UserPosition,
   type WeekDay,
 } from '../../../shared/types';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
-import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
+import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from 'cinefy-ui/forms';
 import { assignableStaffPositions } from '../../../shared/access';
 import { TIME_FORMAT } from '../../../shared/constants';
 
@@ -82,6 +84,7 @@ function countMinutesInRange(start: string, end: string): number {
     ReactiveFormsModule,
     CinefyTimePicker,
     CinefyLoadingSpinner,
+    CinefyErrorState,
   ],
   templateUrl: './manage-staff-modal.html',
   styleUrl: './manage-staff-modal.scss',
@@ -118,6 +121,7 @@ export class ManageStaffModalComponent {
 
   protected readonly resolvedStaffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
+  protected readonly failed = signal(false);
   protected readonly saving = signal(false);
   private readonly initialFormSnapshot = signal<string | null>(null);
 
@@ -264,7 +268,7 @@ export class ManageStaffModalComponent {
       passwordControl.updateValueAndValidity({ emitEvent: false });
     });
 
-    effect(() => {
+    effect((onCleanup) => {
       const member = this.selectedStaffMember();
       if (member) {
         this.resolvedStaffMember.set(member);
@@ -273,16 +277,18 @@ export class ManageStaffModalComponent {
       const id = this.staffMemberId();
       if (id === null) return;
       this.loading.set(true);
-      this.staffService
-        .getStaffMember(id)
-        .pipe(takeUntilDestroyed(this.destroyRef))
+      this.failed.set(false);
+      const sub = this.staffService
+        .getStaffMember(id, skipServerErrorToast())
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
-          next: (detail) => {
-            this.resolvedStaffMember.set(detail);
-            this.loading.set(false);
-          },
-          error: () => this.loading.set(false),
+          next: (detail) => this.resolvedStaffMember.set(detail),
+          error: () => this.failed.set(true),
         });
+      onCleanup(() => sub.unsubscribe());
     });
 
     effect(() => {
@@ -304,6 +310,14 @@ export class ManageStaffModalComponent {
       });
       this.staffForm.markAllAsTouched();
       this.initialFormSnapshot.set(JSON.stringify(this.staffForm.getRawValue()));
+    });
+
+    effect(() => {
+      if (this.saving()) {
+        this.staffForm.disable({ emitEvent: false });
+      } else {
+        this.staffForm.enable({ emitEvent: false });
+      }
     });
   }
 
@@ -331,19 +345,23 @@ export class ManageStaffModalComponent {
 
     this.saving.set(true);
     const isEdit = this.isEdit();
-    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (member) => {
-        this.saving.set(false);
-        if (isEdit) {
-          this.staffMemberUpdated.emit(member);
-          this.toastService.success('Staff member updated');
-        } else {
-          this.staffMemberCreated.emit(member);
-          this.toastService.success('Staff member created');
-        }
-        this.dialog().close();
-      },
-      error: () => this.saving.set(false),
-    });
+    request$
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (member) => {
+          if (isEdit) {
+            this.staffMemberUpdated.emit(member);
+            this.toastService.success('Staff member updated');
+          } else {
+            this.staffMemberCreated.emit(member);
+            this.toastService.success('Staff member created');
+          }
+          this.dialog().close();
+        },
+        error: () => {},
+      });
   }
 }

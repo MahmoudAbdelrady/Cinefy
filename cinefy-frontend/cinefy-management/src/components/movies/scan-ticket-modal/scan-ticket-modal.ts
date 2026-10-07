@@ -1,9 +1,15 @@
 import { Component, computed, DestroyRef, inject, input, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CinefyFieldError, CinefyInput, CinefyMediaImage } from 'cinefy-ui/components';
+import {
+  CinefyFieldError,
+  CinefyInput,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
+} from 'cinefy-ui/components';
 import {
   CalendarIcon,
   ClockIcon,
@@ -12,7 +18,7 @@ import {
   ScanLineIcon,
   TicketIcon,
 } from '../../../shared/icons';
-import { ALPHANUMERIC_PATTERN } from '../../../shared/validation';
+import { ALPHANUMERIC_PATTERN } from '../../../shared/constants';
 import { BookingService } from '../../../services';
 import { compareSeatPositions } from 'cinefy-ui/types';
 import type { BookingConfirmation } from '../../../shared/types';
@@ -27,6 +33,7 @@ const AUTO_SUBMIT_DELAY_MS = 500;
     LucideDynamicIcon,
     CinefyInput,
     CinefyFieldError,
+    CinefyLoadingSpinner,
     CinefyMediaImage,
   ],
   templateUrl: './scan-ticket-modal.html',
@@ -50,11 +57,11 @@ export class ScanTicketModalComponent {
 
   readonly close = input<(() => void) | null>(null);
 
+  readonly scanning = signal(false);
+
   protected readonly manualEntry = signal(false);
 
   protected readonly result = signal<BookingConfirmation | null>(null);
-
-  protected readonly scanning = signal(false);
 
   protected readonly scanForm = new FormGroup({
     reference: new FormControl('', {
@@ -67,7 +74,7 @@ export class ScanTicketModalComponent {
 
   private autoSubmitTimer: ReturnType<typeof setTimeout> | null = null;
 
-  readonly modalTitle = computed(() => (this.result() ? 'Ticket Info' : 'Scan Ticket'));
+  readonly modalTitle = computed(() => (this.result() ? 'Ticket info' : 'Scan ticket'));
 
   readonly modalDescription = computed(() => {
     if (this.result()) return 'Ticket verified and marked as used';
@@ -88,7 +95,7 @@ export class ScanTicketModalComponent {
 
   constructor() {
     this.referenceControl.valueChanges
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.scheduleAutoSubmit());
 
     this.destroyRef.onDestroy(() => this.clearAutoSubmit());
@@ -116,18 +123,22 @@ export class ScanTicketModalComponent {
 
     const reference = this.referenceControl.value;
     this.scanning.set(true);
+    this.scanForm.disable({ emitEvent: false });
 
     this.bookingService
       .scanTicket(reference)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.scanning.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (confirmation) => {
-          this.scanning.set(false);
+          this.scanForm.enable({ emitEvent: false });
           this.result.set(confirmation);
           this.clearReference();
         },
         error: () => {
-          this.scanning.set(false);
+          this.scanForm.enable({ emitEvent: false });
           this.clearReference();
           this.focusInput();
         },

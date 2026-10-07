@@ -29,21 +29,17 @@ $color-destructive-strong: #c20009;
 $color-destructive-foreground: #fafafa;
 $color-destructive-subtle: #3a1113;
 
-// Success
-$color-success: #22c55e;
-
-// Info — neutral
+// Info: neutral
 $color-info: #38bdf8;
 
 // Borders, inputs
 $color-border: #262626;
 $color-input: #262626;
 
-// Neutral grays (Tailwind scale) — dim-white text over backdrops/scrims
+// Neutral grays (Tailwind scale): dim-white text over backdrops/scrims
 $color-gray-300: #d1d5db;
 
-// Seat tiers (selected uses the theme accent — see $color-primary)
-$color-seat-standard: #333333;
+// Seat tiers (selected uses the theme accent, see $color-primary)
 $color-seat-premium: #2a5885;
 $color-seat-recliner: #684d92;
 $color-seat-taken: #222222;

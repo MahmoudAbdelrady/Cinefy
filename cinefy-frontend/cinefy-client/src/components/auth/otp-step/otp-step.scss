@@ -22,6 +22,8 @@
   color: $color-muted-foreground;
 
   .fp-otp-resend {
+    @include flex-align;
+    gap: 6px;
     background: none;
     border: none;
     padding: 0;
@@ -31,8 +33,12 @@
     cursor: pointer;
     transition: color $transition-fast;
 
-    &:hover {
+    &:hover:not(:disabled) {
       color: rgba($color-primary, 0.8);
+    }
+
+    &:disabled {
+      @include disabled-state;
     }
   }
 
@@ -50,4 +56,8 @@
 
 .fp-back-link {
   @include fp-back-link;
+
+  &:disabled {
+    @include disabled-state;
+  }
 }

@@ -1,18 +1,21 @@
-import { afterNextRender, Component, inject, signal } from '@angular/core';
-import { switchMap, take } from 'rxjs';
+import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, switchMap, take } from 'rxjs';
 import {
   ProfileIdentityComponent,
   ProfilePasswordComponent,
   ProfilePersonalDetailsComponent,
 } from '../../components';
 import type { StaffMemberDetail } from '../../shared/types';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../services';
-import { CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 
 @Component({
   selector: 'profile-page',
   imports: [
     CinefyLoadingSpinner,
+    CinefyErrorState,
     ProfileIdentityComponent,
     ProfilePersonalDetailsComponent,
     ProfilePasswordComponent,
@@ -22,9 +25,11 @@ import { CinefyLoadingSpinner } from 'cinefy-ui/components';
 })
 export class ProfilePage {
   private readonly staffService = inject(StaffService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly profile = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
+  protected readonly failed = signal(false);
 
   constructor() {
     afterNextRender(() => {
@@ -38,14 +43,15 @@ export class ProfilePage {
       .getCurrentStaffMember()
       .pipe(
         take(1),
-        switchMap((current) => this.staffService.getStaffMember(current.id)),
+        switchMap((current) =>
+          this.staffService.getStaffMember(current.id, skipServerErrorToast()),
+        ),
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (profile) => {
-          this.profile.set(profile);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
+        next: (profile) => this.profile.set(profile),
+        error: () => this.failed.set(true),
       });
   }
 }

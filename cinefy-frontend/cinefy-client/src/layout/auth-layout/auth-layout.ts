@@ -1,10 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { CinefyServerUnavailable } from 'cinefy-ui/components';
+import { AuthService } from '../../services';
 
 @Component({
   selector: 'auth-layout',
-  imports: [RouterOutlet, RouterLink],
+  imports: [RouterOutlet, RouterLink, CinefyServerUnavailable],
   templateUrl: './auth-layout.html',
   styleUrl: './auth-layout.scss',
 })
-export class AuthLayout {}
+export class AuthLayout {
+  private readonly authService = inject(AuthService);
+
+  protected readonly serverUnavailable = this.authService.serverUnavailable;
+
+  protected retry(): void {
+    window.location.reload();
+  }
+}

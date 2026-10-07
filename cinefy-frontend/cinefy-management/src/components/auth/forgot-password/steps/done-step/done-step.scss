@@ -9,50 +9,50 @@
 
 .done-step-container {
   @include auth-stage;
-}
 
-.fp-done-card {
-  @include auth-card;
-  text-align: center;
+  .fp-done-card {
+    @include auth-card;
+    text-align: center;
 
-  h1 {
-    font-size: 22px;
-    line-height: 1.25;
-    letter-spacing: -0.01em;
-    font-weight: 600;
-    color: $gray-900;
-    margin: 0;
-  }
+    .fp-done-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: $radius-full;
+      background-color: $green-100;
+      color: $green-600;
+      margin: 0 auto 20px;
+      @include flex-center;
+      @include lucide-icon-fix;
+    }
 
-  p {
-    margin: 8px 0 0;
-    font-size: 14px;
-    color: $gray-600;
-    line-height: 1.5;
-  }
-}
+    h1 {
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+      font-weight: 600;
+      color: $gray-900;
+      margin: 0;
+    }
 
-.fp-done-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: $radius-full;
-  background-color: $green-100;
-  color: $green-600;
-  margin: 0 auto 20px;
-  @include flex-center;
-  @include lucide-icon-fix;
-}
+    p {
+      margin: 8px 0 0;
+      font-size: 14px;
+      color: $gray-600;
+      line-height: 1.5;
+    }
 
-.fp-done-cta {
-  @include auth-submit-btn;
-  margin-top: 24px;
-  text-decoration: none;
+    .fp-done-cta {
+      @include auth-submit-btn;
+      margin-top: 24px;
+      text-decoration: none;
 
-  .fp-submit-arrow {
-    @include auth-submit-arrow;
-  }
+      .fp-submit-arrow {
+        @include auth-submit-arrow;
+      }
 
-  &:hover .fp-submit-arrow {
-    @include auth-submit-arrow-hover;
+      &:hover .fp-submit-arrow {
+        @include auth-submit-arrow-hover;
+      }
+    }
   }
 }

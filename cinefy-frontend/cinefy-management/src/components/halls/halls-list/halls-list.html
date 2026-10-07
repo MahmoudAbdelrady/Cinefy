@@ -1,7 +1,7 @@
 <div class="all-halls">
   <div class="ah-header">
     <div class="ah-header-left">
-      <h3>All Halls</h3>
+      <h3>All halls</h3>
       <p>Manage your cinema halls and seating arrangements</p>
     </div>
     <form class="ah-header-right" [formGroup]="filterForm">
@@ -30,6 +30,8 @@
       <div class="ah-loading">
         <cui-loading-spinner variant="xl" />
       </div>
+    } @else if (failed()) {
+      <cui-error-state header="Couldn't load halls" />
     } @else {
       <ul class="ah-items-container">
         @for (hall of filteredHalls(); track hall.id) {
@@ -62,11 +64,21 @@
               </div>
             </div>
             <div class="ahi-actions">
-              <button (click)="viewHallId.set(hall.id)">
+              <button
+                class="btn-base view-btn"
+                (click)="configuredHall.set({ id: hall.id, editMode: false })"
+              >
                 <svg [lucideIcon]="icons.EyeIcon" [size]="16" [strokeWidth]="2.5"></svg>
                 <span>View</span>
               </button>
-              <button (click)="hallToDelete.set(hall)">
+              <button
+                class="btn-base edit-btn"
+                (click)="configuredHall.set({ id: hall.id, editMode: true })"
+              >
+                <svg [lucideIcon]="icons.EditIcon" [size]="16" [strokeWidth]="2.5"></svg>
+                <span>Edit</span>
+              </button>
+              <button class="btn-base delete-btn" (click)="hallToDelete.set(hall)">
                 <svg [lucideIcon]="icons.DeleteIcon" [size]="16" [strokeWidth]="2.5"></svg>
                 <span>Delete</span>
               </button>
@@ -84,17 +96,18 @@
   </div>
 </div>
 
-@if (viewHallId(); as hallId) {
+@if (configuredHall(); as hall) {
   <hall-config-modal
-    (closed)="viewHallId.set(null)"
-    [selectedHallId]="hallId"
+    (closed)="configuredHall.set(null)"
+    [selectedHallId]="hall.id"
+    [openInEditMode]="hall.editMode"
     (hallUpdated)="updateHall($event)"
   />
 }
 
 @if (hallToDelete(); as hall) {
   <cui-dialog
-    header="Delete Hall"
+    header="Delete hall"
     [canClose]="!deleting()"
     [style]="{ width: '448px' }"
     (closed)="hallToDelete.set(null)"
@@ -105,12 +118,12 @@
       </div>
       <p class="dmc-message">
         Are you sure you want to delete <strong>{{ hall.name }}</strong
-        >? This action cannot be undone and will remove all seat configurations and associated data.
+        >? This action cannot be undone.
       </p>
     </div>
 
     <div customFooter class="delete-modal-footer">
-      <button class="btn-secondary" [disabled]="deleting()" (click)="hallToDelete.set(null)">
+      <button class="btn-neutral" [disabled]="deleting()" (click)="hallToDelete.set(null)">
         Cancel
       </button>
       <button class="btn-danger" [disabled]="deleting()" (click)="deleteHall(hall)">
@@ -118,7 +131,7 @@
           <cui-loading-spinner variant="sm" />
           <span>Deleting…</span>
         } @else {
-          <span>Delete Hall</span>
+          <span>Delete hall</span>
         }
       </button>
     </div>

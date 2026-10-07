@@ -1,4 +1,12 @@
-import { Component, computed, DestroyRef, inject, linkedSignal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  linkedSignal,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -9,13 +17,14 @@ import {
   CinefyDialog,
   CinefyDialogFooter,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyHoldTimer,
   CinefyLoadingSpinner,
   CinefySeatMap,
 } from 'cinefy-ui/components';
 import { BookingCancelledComponent, BookingSummaryComponent } from '../../components';
 import { BookingService } from '../../services';
-import { skipErrorToast } from '../../app/core/interceptors';
+import { skipErrorToast } from 'cinefy-ui/http';
 import { ArrowLeftIcon, TicketXIcon, TriangleAlertIcon, XIcon } from '../../shared/icons';
 import { seatRowLabel, type Seat, type SeatCategory } from 'cinefy-ui/types';
 import type {
@@ -70,6 +79,7 @@ function priceByCategory(pricing: TicketPrice[]): Record<SelectableSeatCategory,
     CinefyDialog,
     CinefyDialogFooter,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
   ],
   templateUrl: './seat-selection.html',
@@ -135,10 +145,12 @@ export class SeatSelectionPage {
       .filter((seat) => booked.has(seat.id));
   });
 
+  protected readonly submitting = signal(false);
+
   private readonly perShowtime = <T>(initial: T) =>
     linkedSignal({ source: this.showtimeId, computation: () => initial });
 
-  protected readonly cancelling = this.perShowtime(false);
+  protected readonly canceling = this.perShowtime(false);
   protected readonly cancelled = this.perShowtime(false);
   protected readonly bookingExpired = this.perShowtime(false);
   protected readonly cancelVisible = this.perShowtime(false);
@@ -161,9 +173,9 @@ export class SeatSelectionPage {
 
   protected confirmCancel(): void {
     const activeBooking = this.activeBooking();
-    if (!activeBooking || this.cancelling()) return;
+    if (!activeBooking || this.canceling()) return;
 
-    this.cancelling.set(true);
+    this.canceling.set(true);
     this.bookingService
       .cancelBooking(activeBooking.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -173,7 +185,7 @@ export class SeatSelectionPage {
           this.cancelled.set(true);
         },
         error: () => {
-          this.cancelling.set(false);
+          this.canceling.set(false);
         },
       });
   }

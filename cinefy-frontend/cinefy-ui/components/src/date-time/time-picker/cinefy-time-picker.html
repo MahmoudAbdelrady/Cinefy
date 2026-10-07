@@ -3,7 +3,7 @@
     [ngModel]="displayValue()"
     (ngModelChange)="onDisplayChange($event)"
     [ngModelOptions]="{ standalone: true }"
-    [disabled]="control().disabled"
+    [disabled]="disabled()"
     (onBlur)="control().markAsTouched()"
     [placeholder]="placeholder()"
     [appendTo]="container()"

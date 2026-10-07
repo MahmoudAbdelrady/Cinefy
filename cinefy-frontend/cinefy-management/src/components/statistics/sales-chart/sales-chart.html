@@ -11,7 +11,7 @@
           [lucideIcon]="showTable() ? icons.ChevronUpIcon : icons.ChevronDownIcon"
           [size]="16"
         ></svg>
-        <span>{{ showTable() ? 'Hide Details' : 'View Details' }}</span>
+        <span>{{ showTable() ? 'Hide details' : 'View details' }}</span>
       </button>
     }
   </header>
@@ -21,11 +21,7 @@
       <cui-loading-spinner variant="xl" />
     </div>
   } @else if (failed()) {
-    <cui-empty-state
-      [icon]="icons.WarningIcon"
-      header="Couldn't load sales over time"
-      description="Something went wrong. Please try again later."
-    />
+    <cui-error-state header="Couldn't load sales over time" />
   } @else if (isEmpty()) {
     <cui-empty-state
       [icon]="icons.ChartColumnIcon"

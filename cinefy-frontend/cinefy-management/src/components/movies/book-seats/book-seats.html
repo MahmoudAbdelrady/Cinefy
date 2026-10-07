@@ -3,11 +3,7 @@
     <cui-loading-spinner variant="lg" />
   </div>
 } @else if (errorMessage(); as message) {
-  <cui-empty-state
-    [icon]="icons.WarningIcon"
-    header="Couldn't load the seat layout"
-    [description]="message"
-  />
+  <cui-error-state header="Couldn't load the seat layout" [description]="message" />
 } @else if (stage() === 'done') {
   <div class="bs-done">
     <div class="bs-done-icon">
@@ -46,6 +42,7 @@
           [rows]="hall()"
           [initialSelectedIds]="bookedSeatIds()"
           [allowOnSiteOnly]="true"
+          [canSelect]="!booking()"
           (selectionChange)="onSelectionChange($event)"
         />
 
@@ -58,7 +55,7 @@
 
       <aside class="bs-summary">
         <div class="bs-summary-header">
-          <h3 class="bs-summary-title">Booking Summary</h3>
+          <h3 class="bs-summary-title">Booking summary</h3>
 
           @if (activeBooking(); as booking) {
             <cui-hold-timer [expiresAt]="booking.expiresAt" (expired)="onTimerExpired()" />
@@ -162,7 +159,7 @@
           <button
             type="button"
             class="bs-cancel"
-            [disabled]="settling()"
+            [disabled]="settling() || booking()"
             (click)="cancelVisible.set(true)"
           >
             <svg [lucideIcon]="icons.XIcon" [size]="15"></svg>
@@ -175,7 +172,7 @@
     @if (cancelVisible()) {
       <cui-dialog
         header="Cancel this booking?"
-        [canClose]="!cancelling()"
+        [canClose]="!canceling()"
         [style]="{ width: '448px' }"
         (closed)="cancelVisible.set(false)"
       >
@@ -192,8 +189,8 @@
         <div customFooter class="bs-dialog-footer">
           <button
             type="button"
-            class="btn-secondary"
-            [disabled]="cancelling()"
+            class="btn-neutral"
+            [disabled]="canceling()"
             (click)="cancelVisible.set(false)"
           >
             Keep booking
@@ -201,10 +198,10 @@
           <button
             type="button"
             class="btn-danger"
-            [disabled]="cancelling()"
+            [disabled]="canceling()"
             (click)="cancelPayment()"
           >
-            @if (cancelling()) {
+            @if (canceling()) {
               <cui-loading-spinner variant="xs" />
               <span>Canceling…</span>
             } @else {
@@ -226,7 +223,7 @@
             <svg [lucideIcon]="icons.ClockIcon" [size]="24" [strokeWidth]="2"></svg>
           </div>
           <p class="rem-message">
-            The hold timer ran out and the seats were released. Start a new Booking to try again.
+            The hold timer ran out and the seats were released. Start a new booking to try again.
           </p>
         </div>
 

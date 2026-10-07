@@ -18,13 +18,27 @@
       @if (resendCountdown() > 0) {
         <span class="fp-otp-cooldown">{{ resendLabel() }}</span>
       } @else {
-        <button type="button" class="fp-otp-resend" [disabled]="resending()" (click)="onResend()">
-          {{ resending() ? 'Sending…' : 'Resend code' }}
+        <button
+          type="button"
+          class="fp-otp-resend"
+          [disabled]="resending() || verifying()"
+          (click)="onResend()"
+        >
+          @if (resending()) {
+            <cui-loading-spinner variant="xs" />
+            <span>Sending…</span>
+          } @else {
+            <span>Resend code</span>
+          }
         </button>
       }
     </p>
 
-    <button type="submit" class="btn-primary fp-submit" [disabled]="!complete() || verifying()">
+    <button
+      type="submit"
+      class="btn-primary fp-submit"
+      [disabled]="!complete() || verifying() || resending()"
+    >
       @if (verifying()) {
         <cui-loading-spinner variant="xs" />
         <span>Verifying…</span>
@@ -36,7 +50,12 @@
   </form>
 
   @if (showBack()) {
-    <button type="button" class="fp-back-link" (click)="onBack()">
+    <button
+      type="button"
+      class="fp-back-link"
+      [disabled]="verifying() || resending()"
+      (click)="onBack()"
+    >
       <svg [lucideIcon]="icons.ArrowLeftIcon" [size]="16"></svg>
       <span>Use a different email</span>
     </button>

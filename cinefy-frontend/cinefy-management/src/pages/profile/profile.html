@@ -2,10 +2,12 @@
   <div class="profile-loading">
     <cui-loading-spinner variant="md" />
   </div>
+} @else if (failed()) {
+  <cui-error-state header="Couldn't load your profile" />
 } @else if (profile(); as currentProfile) {
   <div class="profile-page">
     <div class="profile-intro">
-      <h2>My Profile</h2>
+      <h2>My profile</h2>
       <p>An overview of your account information.</p>
     </div>
 

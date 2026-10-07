@@ -23,9 +23,9 @@ export class HallsStatisticsComponent {
   protected readonly cards = computed<StatsCard[]>(() => {
     const s = this.statistics();
     return [
-      { label: 'Total Halls', value: s?.totalHalls?.toString() ?? '—', icon: LayoutIcon },
-      { label: 'Active Halls', value: s?.activeHalls?.toString() ?? '—', icon: EyeIcon },
-      { label: 'Total Capacity', value: s?.totalCapacity?.toString() ?? '—', icon: UsersIcon },
+      { label: 'Total halls', value: s?.totalHalls?.toString() ?? '-', icon: LayoutIcon },
+      { label: 'Active halls', value: s?.activeHalls?.toString() ?? '-', icon: EyeIcon },
+      { label: 'Total capacity', value: s?.totalCapacity?.toString() ?? '-', icon: UsersIcon },
     ];
   });
 

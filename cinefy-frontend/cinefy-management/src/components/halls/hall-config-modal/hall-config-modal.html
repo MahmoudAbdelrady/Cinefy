@@ -1,19 +1,9 @@
-<cui-dialog #dialog (closed)="closed.emit()" [style]="{ width: '1300px' }">
+<cui-dialog #dialog [canClose]="!saving()" [style]="{ width: '1300px' }" (closed)="closed.emit()">
   <div customHeader class="hall-config-modal-header">
     <span class="hcmh-title">{{ modalTitle() }}</span>
-    @if (selectedHallId() && !loadingHall() && !loadHallError()) {
-      <button
-        class="mode-toggle-btn"
-        [class.edit]="!isEditMode()"
-        [class.view]="isEditMode()"
-        (click)="toggleEditMode()"
-        [pTooltip]="isEditMode() ? 'Switch to View mode' : 'Switch to Edit mode'"
-      >
-        <svg
-          [lucideIcon]="isEditMode() ? icons.EyeIcon : icons.EditIcon"
-          [size]="20"
-          [strokeWidth]="2"
-        ></svg>
+    @if (selectedHallId() && !isEditing() && !loadingHall() && !loadHallError()) {
+      <button class="btn-secondary edit-btn" (click)="isEditing.set(true)" pTooltip="Edit hall">
+        <svg [lucideIcon]="icons.EditIcon" [size]="20" [strokeWidth]="2"></svg>
       </button>
     }
   </div>
@@ -24,23 +14,19 @@
     </div>
   } @else if (loadHallError()) {
     <div class="hall-config-error">
-      <cui-empty-state
-        [icon]="icons.WarningIcon"
-        header="Failed to load hall"
-        description="Something went wrong. Please try again later."
-      />
+      <cui-error-state header="Failed to load hall" />
     </div>
   } @else {
     <div class="hall-config-modal-content">
       <div class="hall-information">
         <div class="hi-header">
           <svg [lucideIcon]="icons.SettingsIcon" [size]="16" [strokeWidth]="2.5"></svg>
-          <span>Hall Information</span>
+          <span>Hall information</span>
         </div>
         <form class="hi-form" [formGroup]="hallForm">
           <div class="input-group">
             <cui-input
-              label="Hall Name"
+              label="Hall name"
               placeholder="e.g. Hall 1, VIP Hall, IMAX"
               [control]="hallForm.controls.name"
               [errorMessages]="{
@@ -54,10 +40,11 @@
           <div class="number-input-group">
             <div class="input-group">
               <cui-input
-                label="Number of Rows"
+                label="Number of rows"
                 type="number"
                 placeholder="e.g. 10"
                 [control]="hallForm.controls.numberOfRows"
+                [loading]="!isViewMode() && loadingCopiedLayout()"
                 [errorMessages]="{
                   required: 'Number of rows is required',
                   min: 'Must be at least 1',
@@ -67,10 +54,11 @@
             </div>
             <div class="input-group">
               <cui-input
-                label="Seats per Row"
+                label="Seats per row"
                 type="number"
                 placeholder="e.g. 12"
                 [control]="hallForm.controls.seatsPerRow"
+                [loading]="!isViewMode() && loadingCopiedLayout()"
                 [errorMessages]="{
                   required: 'Seats per row is required',
                   min: 'Must be at least 1',
@@ -99,11 +87,12 @@
               placeholder="Select a type"
               [control]="hallForm.controls.typeId"
               [items]="hallTypeEntries()"
+              [loading]="!isViewMode() && loadingHallTypes()"
               [searchable]="true"
               [required]="!isViewMode()"
               [errorMessages]="{ required: 'Hall type is required' }"
             />
-            <label class="switch-group" [class.disabled]="isViewMode()">
+            <label class="switch-group" [class.disabled]="isViewMode() || saving()">
               <span class="sg-label-text">Supports 3D</span>
               <cui-switch [control]="hallForm.controls.supports3D" />
             </label>
@@ -111,12 +100,13 @@
           @if (!isViewMode()) {
             <div class="input-group">
               <cui-select
-                label="Copy Layout From Existing Hall"
+                label="Copy layout from existing hall"
                 placeholder="None"
                 labelField="label"
                 valueField="value"
                 [control]="copyLayoutControl"
                 [items]="hallEntries()"
+                [loading]="loadingHalls()"
                 [clearable]="true"
                 [searchable]="true"
               />
@@ -127,14 +117,16 @@
               <div class="seat-categories">
                 <div class="sc-header">
                   <svg [lucideIcon]="icons.StarIcon" [size]="16" [strokeWidth]="2.5"></svg>
-                  <span>Seat Categories</span>
+                  <span>Seat categories</span>
                 </div>
                 <div class="sc-content">
                   <div class="sc-type-items">
                     @for (item of seatCategoryItems; track item.type) {
-                      <div
+                      <button
+                        type="button"
                         class="sti-item"
                         [class.selected]="selectedSeatCategory().type === item.type"
+                        [disabled]="saving()"
                         (click)="selectSeatCategory(item)"
                       >
                         <div class="sti-item-icon" [ngClass]="item.type.toLowerCase()"></div>
@@ -142,7 +134,7 @@
                         @if (selectedSeatCategory().type === item.type) {
                           <span class="sti-item-selected">Selected</span>
                         }
-                      </div>
+                      </button>
                     }
                   </div>
                   <div class="reservation-toggle">
@@ -150,16 +142,16 @@
                     <label
                       class="switch-group"
                       [class.active]="onSiteOnly()"
-                      [class.disabled]="selectedSeatCategory().type === 'AISLE'"
+                      [class.disabled]="selectedSeatCategory().type === 'AISLE' || saving()"
                     >
                       <div class="sg-label">
                         <span class="sg-label-icon">S</span>
-                        <span class="sg-label-text">On-Site Only</span>
+                        <span class="sg-label-text">On-site only</span>
                       </div>
                       <cui-switch
                         color="highlight"
                         [checked]="onSiteOnly()"
-                        [disabled]="selectedSeatCategory().type === 'AISLE'"
+                        [disabled]="selectedSeatCategory().type === 'AISLE' || saving()"
                         (checkedChange)="setOnSiteOnly($event)"
                       />
                     </label>
@@ -176,54 +168,62 @@
             <div class="ticket-pricing">
               <div class="tp-header">
                 <svg [lucideIcon]="icons.DollarSignIcon" [size]="16" [strokeWidth]="2.5"></svg>
-                <span class="tp-title"
-                  >Ticket Pricing <span class="tp-vat">(without VAT)</span></span
-                >
+                <span class="tp-title">Ticket pricing</span>
               </div>
               <div class="tp-content">
-                @if (hasNormalSeats()) {
-                  <div class="tp-input-group">
-                    <div class="tpi-label">
-                      <span class="tpi-label-icon normal"></span>
-                      <span class="tpi-label-text" [attr.data-required]="!isViewMode() ? '' : null"
-                        >Normal</span
-                      >
-                    </div>
-                    <cui-input
-                      type="number"
-                      placeholder="e.g. 10"
-                      [leadingIcon]="icons.DollarSignIcon"
-                      [control]="hallForm.controls.normalPrice"
-                      [errorMessages]="{
-                        required: 'Normal price is required',
-                        min: 'Price must be at least 1',
-                        max: 'Price is too large',
-                        maxDecimals: 'Price can have at most 2 decimal places',
-                      }"
-                    />
+                @if (!isViewMode() && loadingCopiedLayout()) {
+                  <div class="tp-loading">
+                    <cui-loading-spinner variant="lg" />
                   </div>
-                }
-                @if (hasVipSeats()) {
-                  <div class="tp-input-group">
-                    <div class="tpi-label">
-                      <span class="tpi-label-icon vip"></span>
-                      <span class="tpi-label-text" [attr.data-required]="!isViewMode() ? '' : null"
-                        >VIP</span
-                      >
+                } @else {
+                  @if (hasNormalSeats()) {
+                    <div class="tp-input-group">
+                      <div class="tpi-label">
+                        <span class="tpi-label-icon normal"></span>
+                        <span
+                          class="tpi-label-text"
+                          [attr.data-required]="!isViewMode() ? '' : null"
+                          >Normal</span
+                        >
+                      </div>
+                      <cui-input
+                        type="number"
+                        placeholder="e.g. 10"
+                        [leadingIcon]="icons.DollarSignIcon"
+                        [control]="hallForm.controls.normalPrice"
+                        [errorMessages]="{
+                          required: 'Normal price is required',
+                          min: 'Price must be at least 1',
+                          max: 'Price is too large',
+                          maxDecimals: 'Price can have at most 2 decimal places',
+                        }"
+                      />
                     </div>
-                    <cui-input
-                      type="number"
-                      placeholder="e.g. 10"
-                      [leadingIcon]="icons.DollarSignIcon"
-                      [control]="hallForm.controls.vipPrice"
-                      [errorMessages]="{
-                        required: 'VIP price is required',
-                        min: 'Price must be at least 1',
-                        max: 'Price is too large',
-                        maxDecimals: 'Price can have at most 2 decimal places',
-                      }"
-                    />
-                  </div>
+                  }
+                  @if (hasVipSeats()) {
+                    <div class="tp-input-group">
+                      <div class="tpi-label">
+                        <span class="tpi-label-icon vip"></span>
+                        <span
+                          class="tpi-label-text"
+                          [attr.data-required]="!isViewMode() ? '' : null"
+                          >VIP</span
+                        >
+                      </div>
+                      <cui-input
+                        type="number"
+                        placeholder="e.g. 10"
+                        [leadingIcon]="icons.DollarSignIcon"
+                        [control]="hallForm.controls.vipPrice"
+                        [errorMessages]="{
+                          required: 'VIP price is required',
+                          min: 'Price must be at least 1',
+                          max: 'Price is too large',
+                          maxDecimals: 'Price can have at most 2 decimal places',
+                        }"
+                      />
+                    </div>
+                  }
                 }
               </div>
             </div>
@@ -233,14 +233,15 @@
       <div class="hall-layout-editor">
         <div class="hle-header">
           <svg [lucideIcon]="icons.LayoutIcon" [size]="16" [strokeWidth]="2.5"></svg>
-          <span>Seat Layout Editor</span>
+          <span>Seat layout editor</span>
         </div>
         <div class="hle-content">
           <hall-layout-editor
             [(seatLayout)]="seatLayout"
             [selectedSeatType]="selectedSeatCategory().type"
             [selectedOnsiteOnly]="onSiteOnly()"
-            [disabled]="isViewMode()"
+            [disabled]="isViewMode() || saving()"
+            [loading]="loadingCopiedLayout()"
             (layoutReset)="onResetLayout()"
           />
         </div>
@@ -251,37 +252,20 @@
   @if (!isViewMode()) {
     <div customFooter class="hall-config-modal-footer">
       <div class="save-btns">
-        <button class="btn-secondary" (click)="dialog.close()">Cancel</button>
+        <button class="btn-neutral" (click)="dialog.close()" [disabled]="saving()">Cancel</button>
         <button
           class="btn-primary"
           (click)="saveHall()"
-          [disabled]="hallForm.invalid || !hasChanges() || saving()"
+          [disabled]="hallForm.invalid || !hasChanges() || saving() || loadingCopiedLayout()"
         >
           @if (saving()) {
             <cui-loading-spinner variant="sm" />
             <span>{{ selectedHallId() ? 'Saving…' : 'Creating…' }}</span>
           } @else {
-            {{ selectedHallId() ? 'Save Changes' : 'Create Hall' }}
+            {{ selectedHallId() ? 'Save changes' : 'Create hall' }}
           }
         </button>
       </div>
     </div>
   }
 </cui-dialog>
-
-@if (discardVisible()) {
-  <cui-dialog
-    header="Discard Changes"
-    [style]="{ width: '448px' }"
-    (closed)="discardVisible.set(false)"
-  >
-    <p class="discard-message">
-      You have unsaved changes. Switching to view mode will discard them.
-    </p>
-
-    <div customFooter class="discard-footer">
-      <button class="btn-secondary" (click)="discardVisible.set(false)">Cancel</button>
-      <button class="btn-danger" (click)="confirmDiscard()">Discard</button>
-    </div>
-  </cui-dialog>
-}

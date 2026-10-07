@@ -1,17 +1,24 @@
+@use 'cinefy-ui/styles/mixins' as *;
 @use '../../_fp-shared' as *;
 
-.fp-heading {
-  @include fp-heading;
-}
+.fp-stage {
+  .fp-heading {
+    @include fp-heading;
+  }
 
-.fp-form {
-  @include fp-form;
-}
+  .fp-form {
+    @include fp-form;
 
-.fp-submit {
-  @include fp-submit;
-}
+    .fp-submit {
+      @include fp-submit;
+    }
+  }
 
-.fp-back-link {
-  @include fp-back-link;
+  .fp-back-link {
+    @include fp-back-link;
+
+    &:not([href]) {
+      @include disabled-state;
+    }
+  }
 }

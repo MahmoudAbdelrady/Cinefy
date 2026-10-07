@@ -3,12 +3,6 @@
 @use 'cinefy-ui/styles/mixins' as *;
 @use 'cinefy-ui/styles/breakpoints' as *;
 
-.cs-loading {
-  @include flex-center;
-  padding: 48px 0;
-  color: $gray-400;
-}
-
 :host {
   display: block;
   margin-bottom: 32px;
@@ -31,363 +25,458 @@
       align-items: stretch;
     }
 
-    h4 {
-      font-size: 16px;
-      font-weight: 600;
-      color: $gray-900;
+    .h-info {
+      h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: $gray-900;
+      }
+
+      p {
+        font-size: 14px;
+        color: $gray-600;
+        margin-top: 4px;
+      }
     }
 
-    p {
-      font-size: 14px;
-      color: $gray-600;
-      margin-top: 4px;
-    }
-  }
-}
+    .h-controls {
+      @include flex-align;
+      gap: 16px;
+      flex-shrink: 0;
 
-.h-controls {
-  @include flex-align;
-  gap: 16px;
-  flex-shrink: 0;
+      @include below-mobile {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+      }
 
-  @include below-mobile {
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-  }
-}
+      .h-filter {
+        @include flex-align;
+        gap: 10px;
 
-.h-filter {
-  @include flex-align;
-  gap: 10px;
+        @include below-mobile {
+          justify-content: space-between;
+        }
 
-  @include below-mobile {
-    justify-content: space-between;
-  }
+        .hf-label {
+          font-size: 14px;
+          font-weight: 500;
+          color: $gray-700;
+          white-space: nowrap;
+          cursor: pointer;
+          user-select: none;
+        }
+      }
 
-  .hf-label {
-    font-size: 14px;
-    font-weight: 500;
-    color: $gray-700;
-    white-space: nowrap;
-    cursor: pointer;
-    user-select: none;
-  }
-}
+      .h-search {
+        width: 288px;
+        flex-shrink: 0;
 
-.h-search {
-  width: 288px;
-  flex-shrink: 0;
-
-  @include below-mobile {
-    width: 100%;
-  }
-}
-
-// ─── Card grid ───────────────────────────────────────────────────────────────
-
-.cs-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  padding: 24px;
-
-  @include from-desktop {
-    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-  }
-
-  @include below-mobile {
-    padding: 16px;
-  }
-}
-
-.cs-empty {
-  grid-column: 1 / -1;
-}
-
-.movie-card {
-  display: flex;
-  flex-direction: column;
-  border-radius: $radius-xl;
-  border: 1px solid $gray-200;
-  background-color: #ffffff;
-  transition:
-    border-color $transition-fast,
-    background-color $transition-fast,
-    box-shadow $transition-fast;
-
-  &:hover {
-    border-color: $gray-300;
-    box-shadow: $shadow-md;
-  }
-
-  &--highlighted {
-    border-color: $orange-100;
-    background-color: rgba($orange-50, 0.4);
-
-    &:hover {
-      border-color: $orange-100;
-    }
-  }
-}
-
-// ─── Identity ────────────────────────────────────────────────────────────────
-
-.mc-identity {
-  @include flex-align;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 16px;
-}
-
-.mci-poster {
-  position: relative;
-  flex-shrink: 0;
-
-  cui-media-image {
-    width: 104px;
-    height: 156px;
-    border-radius: $radius-lg;
-    box-shadow: $shadow-sm;
-  }
-}
-
-.mci-badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 24px;
-  height: 24px;
-  border-radius: $radius-full;
-  background-color: $orange-500;
-  box-shadow:
-    0 0 0 2px #ffffff,
-    $shadow-sm;
-  @include flex-center;
-
-  svg {
-    display: flex;
-    color: #ffffff;
-    fill: #ffffff;
-  }
-}
-
-.mci-body {
-  flex: 1;
-  min-width: 0;
-  @include flex-column;
-}
-
-.mcib-head {
-  @include flex-between;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 6px;
-
-  h4 {
-    font-size: 15px;
-    font-weight: 600;
-    color: $gray-900;
-    line-height: 1.3;
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-}
-
-.mcib-chip {
-  @include flex-align;
-  gap: 6px;
-  flex-shrink: 0;
-  padding: 4px 8px;
-  background-color: $gray-100;
-  border-radius: $radius-md;
-  font-size: 13px;
-  font-weight: 500;
-  color: $gray-700;
-  white-space: nowrap;
-
-  svg {
-    display: flex;
-    color: $gray-500;
-  }
-
-  .mcib-chip-draft {
-    color: $orange-600;
-  }
-}
-
-.mcib-genre {
-  font-size: 14px;
-  color: $gray-500;
-  @include text-truncate;
-}
-
-.mcib-meta {
-  margin-top: 2px;
-  @include flex-align;
-  flex-wrap: wrap;
-  font-size: 14px;
-  color: $gray-500;
-  min-width: 0;
-
-  span:not(:last-child)::after {
-    content: '•';
-    margin: 0 6px;
-    color: $gray-400;
-  }
-}
-
-// ─── Footer ──────────────────────────────────────────────────────────────────
-
-.mc-footer {
-  margin-top: auto;
-  border-top: 1px solid $gray-100;
-
-  .movie-card--highlighted & {
-    border-top-color: $orange-100;
-  }
-}
-
-.mcf-highlight {
-  @include flex-between;
-  gap: 12px;
-  padding: 10px 16px;
-
-  &--disabled {
-    opacity: 0.6;
-  }
-
-  .mcfh-label {
-    @include flex-align;
-    @include lucide-icon-fix;
-    align-items: flex-start;
-    gap: 8px;
-    min-width: 0;
-  }
-
-  .mcfh-icon {
-    margin-top: 1px;
-    flex-shrink: 0;
-    color: $gray-400;
-    transition: color $transition-fast;
-  }
-
-  .mcfh-text {
-    min-width: 0;
-  }
-
-  .mcfh-title {
-    display: block;
-    font-size: 14px;
-    font-weight: 500;
-    color: $gray-600;
-    @include text-truncate;
-    transition: color $transition-fast;
-  }
-
-  .mcfh-subtitle {
-    display: block;
-    margin-top: 2px;
-    font-size: 12px;
-    line-height: 1.3;
-    color: $gray-500;
-  }
-
-  .mcfh-control {
-    @include flex-align;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  .mcfh-pending {
-    display: flex;
-    flex-shrink: 0;
-    color: $orange-600;
-  }
-
-  &--on {
-    .mcfh-icon {
-      color: $orange-500;
-      fill: $orange-400;
-    }
-
-    .mcfh-title {
-      color: $orange-700;
-    }
-  }
-}
-
-.mcf-actions {
-  @include flex-align;
-  gap: 8px;
-  padding: 12px 16px;
-  border-top: 1px solid $gray-100;
-
-  .movie-card--highlighted & {
-    border-top-color: $orange-100;
-  }
-
-  button {
-    border-radius: $radius-lg;
-    transition:
-      background-color $transition-fast,
-      color $transition-fast;
-    white-space: nowrap;
-  }
-
-  .mcfa-view {
-    flex: 1;
-    @include flex-center;
-    padding: 8px 12px;
-    font-size: 14px;
-    font-weight: 500;
-    background-color: $gray-100;
-    color: $gray-700;
-
-    &:hover {
-      background-color: $gray-200;
+        @include below-mobile {
+          width: 100%;
+        }
+      }
     }
   }
 
-  .mcfa-add {
-    flex: 1;
-    @include flex-center;
-    gap: 6px;
-    padding: 8px 12px;
-    font-size: 14px;
-    font-weight: 500;
-    background-color: $blue-600;
-    color: #ffffff;
-
-    &:hover {
-      background-color: $blue-700;
+  .content {
+    .cs-loading {
+      @include flex-center;
+      padding: 48px 0;
+      color: $gray-400;
     }
 
-    svg {
-      display: flex;
-    }
-  }
+    // ─── Card grid ───────────────────────────────────────────────────────────────
 
-  .mcfa-delete {
-    padding: 8px;
-    color: $gray-400;
+    .cs-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 24px;
 
-    &:hover {
-      color: $red-600;
-      background-color: $red-50;
-    }
+      @include from-desktop {
+        grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      }
 
-    &:disabled {
-      cursor: default;
-    }
+      @include below-mobile {
+        padding: 16px;
+      }
 
-    svg {
-      display: flex;
+      .cs-empty {
+        grid-column: 1 / -1;
+      }
+
+      .movie-card {
+        display: flex;
+        flex-direction: column;
+        border-radius: $radius-xl;
+        border: 1px solid $gray-200;
+        background-color: #ffffff;
+        transition:
+          border-color $transition-fast,
+          background-color $transition-fast,
+          box-shadow $transition-fast;
+
+        &:hover {
+          border-color: $gray-300;
+          box-shadow: $shadow-md;
+        }
+
+        // ─── Identity ────────────────────────────────────────────────────────────────
+
+        .mc-identity {
+          @include flex-align;
+          align-items: flex-start;
+          gap: 16px;
+          padding: 16px;
+
+          @include below-mobile {
+            padding: 12px;
+            gap: 12px;
+          }
+
+          .mci-poster {
+            position: relative;
+            flex-shrink: 0;
+
+            cui-media-image {
+              width: 104px;
+              height: 156px;
+              border-radius: $radius-lg;
+              box-shadow: $shadow-sm;
+
+              @include below-mobile {
+                width: 72px;
+                height: 108px;
+              }
+            }
+
+            .mci-badge {
+              position: absolute;
+              top: -8px;
+              right: -8px;
+              width: 24px;
+              height: 24px;
+              border-radius: $radius-full;
+              background-color: $orange-500;
+              box-shadow:
+                0 0 0 2px #ffffff,
+                $shadow-sm;
+              @include flex-center;
+
+              svg {
+                display: flex;
+                color: #ffffff;
+                fill: #ffffff;
+              }
+            }
+          }
+
+          .mci-body {
+            flex: 1;
+            min-width: 0;
+            @include flex-column;
+
+            .mcib-head {
+              @include flex-between;
+              align-items: flex-start;
+              gap: 8px;
+              margin-bottom: 6px;
+
+              @include below-mobile {
+                flex-direction: column;
+                gap: 6px;
+              }
+
+              h4 {
+                font-size: 15px;
+                font-weight: 600;
+                color: $gray-900;
+                line-height: 1.3;
+                min-width: 0;
+                overflow-wrap: anywhere;
+
+                @include below-mobile {
+                  font-size: 14px;
+                }
+              }
+
+              .mcib-chip {
+                @include flex-align;
+                gap: 6px;
+                flex-shrink: 0;
+                padding: 4px 8px;
+                background-color: $gray-100;
+                border-radius: $radius-md;
+                font-size: 13px;
+                font-weight: 500;
+                color: $gray-700;
+                white-space: nowrap;
+
+                @include below-mobile {
+                  align-self: flex-start;
+                }
+
+                svg {
+                  display: flex;
+                  color: $gray-500;
+                }
+
+                .mcib-chip-draft {
+                  color: $orange-600;
+                }
+              }
+            }
+
+            .mcib-genre {
+              font-size: 14px;
+              color: $gray-500;
+              @include text-truncate;
+
+              @include below-mobile {
+                font-size: 13px;
+              }
+            }
+
+            .mcib-meta {
+              margin-top: 2px;
+              @include flex-align;
+              flex-wrap: wrap;
+              font-size: 14px;
+              color: $gray-500;
+              min-width: 0;
+
+              @include below-mobile {
+                font-size: 13px;
+              }
+
+              span:not(:last-child)::after {
+                content: '•';
+                margin: 0 6px;
+                color: $gray-400;
+              }
+            }
+          }
+        }
+
+        // ─── Footer ──────────────────────────────────────────────────────────────────
+
+        .mc-footer {
+          margin-top: auto;
+          border-top: 1px solid $gray-100;
+
+          .mcf-highlight {
+            @include flex-between;
+            gap: 12px;
+            padding: 10px 16px;
+
+            @include below-mobile {
+              padding-left: 12px;
+              padding-right: 12px;
+            }
+
+            &--disabled {
+              opacity: 0.6;
+            }
+
+            .mcfh-label {
+              @include flex-align;
+              @include lucide-icon-fix;
+              align-items: flex-start;
+              gap: 8px;
+              min-width: 0;
+
+              .mcfh-icon {
+                margin-top: 1px;
+                flex-shrink: 0;
+                color: $gray-400;
+                transition: color $transition-fast;
+              }
+
+              .mcfh-text {
+                min-width: 0;
+
+                .mcfh-title {
+                  display: block;
+                  font-size: 14px;
+                  font-weight: 500;
+                  color: $gray-600;
+                  @include text-truncate;
+                  transition: color $transition-fast;
+                }
+
+                .mcfh-subtitle {
+                  display: block;
+                  margin-top: 2px;
+                  font-size: 12px;
+                  line-height: 1.3;
+                  color: $gray-500;
+                }
+              }
+            }
+
+            .mcfh-control {
+              @include flex-align;
+              gap: 8px;
+              flex-shrink: 0;
+
+              .mcfh-pending {
+                display: flex;
+                flex-shrink: 0;
+                color: $orange-600;
+              }
+            }
+
+            &--on {
+              .mcfh-label {
+                .mcfh-icon {
+                  color: $orange-500;
+                  fill: $orange-400;
+                }
+
+                .mcfh-text .mcfh-title {
+                  color: $orange-700;
+                }
+              }
+            }
+          }
+
+          .mcf-actions {
+            @include flex-align;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid $gray-100;
+
+            @include below-mobile {
+              padding-left: 12px;
+              padding-right: 12px;
+              flex-wrap: wrap;
+            }
+
+            button {
+              border-radius: $radius-lg;
+              transition:
+                background-color $transition-fast,
+                color $transition-fast;
+              white-space: nowrap;
+            }
+
+            .mcfa-view {
+              flex: 1;
+              @include flex-center;
+              padding: 8px 12px;
+              font-size: 14px;
+              font-weight: 500;
+              background-color: $gray-100;
+              color: $gray-700;
+
+              &:hover {
+                background-color: $gray-200;
+              }
+
+              @include below-mobile {
+                flex: 1 1 100%;
+              }
+            }
+
+            .mcfa-add {
+              flex: 1;
+              @include flex-center;
+              gap: 6px;
+              padding: 8px 12px;
+              font-size: 14px;
+              font-weight: 500;
+              background-color: $blue-600;
+              color: #ffffff;
+
+              &:hover {
+                background-color: $blue-700;
+              }
+
+              svg {
+                display: flex;
+              }
+
+              @include below-mobile {
+                flex: 1 1 auto;
+              }
+            }
+
+            .mcfa-delete {
+              padding: 8px;
+              color: $gray-400;
+
+              &:hover {
+                color: $red-600;
+                background-color: $red-50;
+              }
+
+              &:disabled {
+                cursor: default;
+              }
+
+              svg {
+                display: flex;
+              }
+
+              @include below-mobile {
+                flex: 0 0 auto;
+              }
+            }
+          }
+        }
+
+        &--highlighted {
+          border-color: $orange-100;
+          background-color: rgba($orange-50, 0.4);
+
+          &:hover {
+            border-color: $orange-100;
+          }
+
+          .mc-footer {
+            border-top-color: $orange-100;
+
+            .mcf-actions {
+              border-top-color: $orange-100;
+            }
+          }
+        }
+      }
     }
   }
 }
 
 // ─── Modal ───────────────────────────────────────────────────────────────────
+
+.delete-modal-content {
+  text-align: center;
+
+  .dmc-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-full;
+    background-color: $red-50;
+    @include flex-center;
+    margin: 0 auto 16px;
+
+    svg {
+      display: flex;
+      color: $red-600;
+    }
+  }
+
+  .dmc-message {
+    font-size: 14px;
+    color: $gray-600;
+    line-height: 1.6;
+    margin-bottom: 24px;
+
+    strong {
+      color: $gray-900;
+    }
+  }
+}
 
 .delete-modal-footer {
   @include flex-align;
@@ -396,88 +485,5 @@
 
   button {
     flex: 1;
-  }
-}
-
-.delete-modal-content {
-  text-align: center;
-}
-
-.dmc-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: $radius-full;
-  background-color: $red-50;
-  @include flex-center;
-  margin: 0 auto 16px;
-
-  svg {
-    display: flex;
-    color: $red-600;
-  }
-}
-
-.dmc-message {
-  font-size: 14px;
-  color: $gray-600;
-  line-height: 1.6;
-  margin-bottom: 24px;
-
-  strong {
-    color: $gray-900;
-  }
-}
-
-// ─── Responsive ──────────────────────────────────────────────────────────────
-
-@include below-mobile {
-  .mc-identity {
-    padding: 12px;
-    gap: 12px;
-  }
-
-  .mci-poster cui-media-image {
-    width: 72px;
-    height: 108px;
-  }
-
-  .mcib-head {
-    flex-direction: column;
-    gap: 6px;
-
-    h4 {
-      font-size: 14px;
-    }
-  }
-
-  .mcib-chip {
-    align-self: flex-start;
-  }
-
-  .mcib-genre,
-  .mcib-meta {
-    font-size: 13px;
-  }
-
-  .mcf-highlight,
-  .mcf-actions {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  .mcf-actions {
-    flex-wrap: wrap;
-
-    .mcfa-view {
-      flex: 1 1 100%;
-    }
-
-    .mcfa-add {
-      flex: 1 1 auto;
-    }
-
-    .mcfa-delete {
-      flex: 0 0 auto;
-    }
   }
 }

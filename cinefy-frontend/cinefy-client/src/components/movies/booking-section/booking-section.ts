@@ -4,11 +4,12 @@ import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { format, isFuture, isToday, isTomorrow, parseISO } from 'date-fns';
-import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { BookingService } from '../../../services';
 import type { HallTypeShowtimes } from '../../../shared/types';
-import { CalendarIcon, TriangleAlertIcon } from '../../../shared/icons';
+import { CalendarIcon } from '../../../shared/icons';
 
 interface DateOption {
   date: string;
@@ -25,6 +26,7 @@ interface DateOption {
     LucideDynamicIcon,
     Time12hPipe,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
   ],
   templateUrl: './booking-section.html',
@@ -33,7 +35,6 @@ interface DateOption {
 export class BookingSectionComponent {
   protected readonly icons = {
     CalendarIcon,
-    TriangleAlertIcon,
   };
 
   private readonly bookingService = inject(BookingService);
@@ -49,7 +50,8 @@ export class BookingSectionComponent {
 
   protected readonly datesResource = rxResource({
     params: () => this.movieId(),
-    stream: ({ params: movieId }) => this.bookingService.getBookableDates(movieId),
+    stream: ({ params: movieId }) =>
+      this.bookingService.getBookableDates(movieId, skipServerErrorToast()),
   });
 
   protected readonly dates = computed<DateOption[]>(() =>
@@ -63,7 +65,8 @@ export class BookingSectionComponent {
       const date = this.activeDate();
       return date ? { movieId: this.movieId(), date } : undefined;
     },
-    stream: ({ params }) => this.bookingService.getBookableShowtimes(params.movieId, params.date),
+    stream: ({ params }) =>
+      this.bookingService.getBookableShowtimes(params.movieId, params.date, skipServerErrorToast()),
   });
 
   protected readonly dayShowtimes = computed<HallTypeShowtimes[]>(

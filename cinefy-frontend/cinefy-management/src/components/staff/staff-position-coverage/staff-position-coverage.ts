@@ -1,4 +1,6 @@
-import { afterNextRender, Component, inject, signal } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   USER_POSITION_LABELS,
@@ -7,13 +9,14 @@ import {
   type PositionCoverageItem,
   type UserPosition,
 } from '../../../shared/types';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
 import { InfoIcon } from '../../../shared/icons';
-import { CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 
 @Component({
   selector: 'staff-position-coverage',
-  imports: [CinefyLoadingSpinner, LucideDynamicIcon],
+  imports: [CinefyLoadingSpinner, CinefyErrorState, LucideDynamicIcon],
   templateUrl: './staff-position-coverage.html',
   styleUrl: './staff-position-coverage.scss',
 })
@@ -21,21 +24,26 @@ export class StaffPositionCoverageComponent {
   protected readonly icons = { info: InfoIcon };
 
   private readonly staffService = inject(StaffService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly positionLabels = USER_POSITION_LABELS;
 
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
   protected readonly positionCoverageItems = signal<PositionCoverage | null>(null);
 
   constructor() {
     afterNextRender(() => {
-      this.staffService.getPositionCoverage().subscribe({
-        next: (coverage) => {
-          this.positionCoverageItems.set(coverage);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
+      this.staffService
+        .getPositionCoverage(skipServerErrorToast())
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe({
+          next: (coverage) => this.positionCoverageItems.set(coverage),
+          error: () => this.failed.set(true),
+        });
     });
   }
 

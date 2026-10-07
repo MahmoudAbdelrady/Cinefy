@@ -7,22 +7,22 @@ on:
         description: Scan backend
         type: boolean
         required: false
-        default: true
+        default: false
       management:
         description: Scan management
         type: boolean
         required: false
-        default: true
+        default: false
       client:
         description: Scan client
         type: boolean
         required: false
-        default: true
+        default: false
       nginx:
         description: Scan nginx
         type: boolean
         required: false
-        default: true
+        default: false
       severity:
         description: Severities to report
         type: choice

@@ -8,14 +8,14 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefyDialog,
   CinefyDialogFooter,
-  CinefyEmptyState,
+  CinefyErrorState,
   CinefyHoldTimer,
   CinefyLoadingSpinner,
   CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { BookingCancelledComponent } from '../../components';
 import { BookingService, ClientService } from '../../services';
-import { skipErrorToast } from '../../app/core/interceptors';
+import { skipErrorToast, skipServerErrorToast } from 'cinefy-ui/http';
 import { compareSeatPositions, SEAT_CATEGORY_LABEL } from 'cinefy-ui/types';
 import type { ApiError, ClientPaymentMethod } from '../../shared/types';
 import {
@@ -29,7 +29,7 @@ import {
   TriangleAlertIcon,
   XIcon,
 } from '../../shared/icons';
-import { brandChip } from '../../shared/payments';
+import { brandChip } from '../../utils';
 
 @Component({
   selector: 'checkout-page',
@@ -41,7 +41,7 @@ import { brandChip } from '../../shared/payments';
     CinefyDialogFooter,
     CinefyHoldTimer,
     BookingCancelledComponent,
-    CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
     CurrencyPipe,
     DatePipe,
@@ -95,7 +95,7 @@ export class CheckoutPage {
 
   protected readonly processing = this.perBooking(false);
   protected readonly redirecting = this.perBooking(false);
-  protected readonly cancelling = this.perBooking(false);
+  protected readonly canceling = this.perBooking(false);
   protected readonly cancelled = this.perBooking(false);
   protected readonly bookingExpired = this.perBooking(false);
   protected readonly cancelVisible = this.perBooking(false);
@@ -103,7 +103,7 @@ export class CheckoutPage {
 
   private readonly paymentMethodsResource = rxResource({
     params: () => this.bookingId() ?? undefined,
-    stream: () => this.clientService.getPaymentMethods(),
+    stream: () => this.clientService.getPaymentMethods(skipServerErrorToast()),
   });
 
   protected readonly savedMethods = computed(() => this.paymentMethodsResource.value() ?? []);
@@ -194,9 +194,9 @@ export class CheckoutPage {
 
   protected confirmCancel(): void {
     const booking = this.booking();
-    if (!booking || this.cancelling()) return;
+    if (!booking || this.canceling()) return;
 
-    this.cancelling.set(true);
+    this.canceling.set(true);
     this.bookingService
       .cancelBooking(booking.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -206,7 +206,7 @@ export class CheckoutPage {
           this.cancelled.set(true);
         },
         error: () => {
-          this.cancelling.set(false);
+          this.canceling.set(false);
         },
       });
   }

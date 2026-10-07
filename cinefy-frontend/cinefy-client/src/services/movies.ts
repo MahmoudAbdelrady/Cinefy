@@ -14,17 +14,17 @@ const API_PREFIX = '/movies';
 export class MoviesService {
   private readonly http = inject(HttpClient);
 
-  getHighlighted(): Observable<HighlightedMovie[]> {
-    return this.http.get<HighlightedMovie[]>(`${API_PREFIX}/highlighted`);
+  getHighlighted(context?: HttpContext): Observable<HighlightedMovie[]> {
+    return this.http.get<HighlightedMovie[]>(`${API_PREFIX}/highlighted`, { context });
   }
 
-  getNowShowing(limit?: number): Observable<NowShowingMovie[]> {
+  getNowShowing(limit?: number, context?: HttpContext): Observable<NowShowingMovie[]> {
     const params = { ...(limit !== undefined && { limit }) };
-    return this.http.get<NowShowingMovie[]>(`${API_PREFIX}/now-showing`, { params });
+    return this.http.get<NowShowingMovie[]>(`${API_PREFIX}/now-showing`, { params, context });
   }
 
-  getAnnouncedUpcoming(): Observable<MovieSearchResult[]> {
-    return this.http.get<MovieSearchResult[]>(`${API_PREFIX}/announced-upcoming`);
+  getAnnouncedUpcoming(context?: HttpContext): Observable<MovieSearchResult[]> {
+    return this.http.get<MovieSearchResult[]>(`${API_PREFIX}/announced-upcoming`, { context });
   }
 
   getMovieDetails(id: number, context?: HttpContext): Observable<MovieDetail> {

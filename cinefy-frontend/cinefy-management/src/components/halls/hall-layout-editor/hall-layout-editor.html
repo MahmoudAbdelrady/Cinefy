@@ -43,6 +43,12 @@
         />
       }
     </div>
+
+    @if (loading()) {
+      <div class="seats-grid-overlay">
+        <cui-loading-spinner variant="lg" />
+      </div>
+    }
   </div>
 
   @if (hasLayout()) {
@@ -59,17 +65,17 @@
         <div class="legend-icon onsite-only">
           <span class="onsite-dot"></span>
         </div>
-        <span>On-Site Only ({{ stats().onsiteOnly }})</span>
+        <span>On-site only ({{ stats().onsiteOnly }})</span>
       </div>
     </div>
     <div class="seats-count-container">
       <p>
-        <strong>Total Seats:</strong> {{ stats().total }} (Normal: {{ stats().normal }}, VIP:
-        {{ stats().vip }}, On-Site Only: {{ stats().onsiteOnly }})
+        <strong>Total seats:</strong> {{ stats().total }} (Normal: {{ stats().normal }}, VIP:
+        {{ stats().vip }}, On-site only: {{ stats().onsiteOnly }})
       </p>
     </div>
     @if (!disabled()) {
-      <button class="reset-btn" (click)="layoutReset.emit()">Reset Layout</button>
+      <button class="reset-btn" (click)="layoutReset.emit()">Reset layout</button>
     }
   }
 </div>

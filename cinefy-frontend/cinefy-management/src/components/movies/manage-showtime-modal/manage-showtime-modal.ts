@@ -20,6 +20,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { differenceInCalendarDays, format, isPast } from 'date-fns';
 import {
   ACTIVE_HALL_STATUSES,
@@ -112,6 +113,7 @@ export class ManageShowtimeModalComponent {
 
   protected readonly submitting = signal(false);
   private readonly halls = signal<HallSummary[]>([]);
+  protected readonly loadingHalls = signal(true);
   protected pickedMovie = signal<MovieSearchResult | null>(null);
   protected readonly activeMovieDetail = signal<MovieDetail | null>(null);
   private readonly initialFormSnapshot = signal<string | null>(null);
@@ -154,8 +156,8 @@ export class ManageShowtimeModalComponent {
   );
 
   protected readonly modalTitle = computed(() => {
-    if (this.isEditMode()) return 'Edit Showtime';
-    return this.activeMovie() ? 'Schedule Showtime' : 'Schedule a Movie';
+    if (this.isEditMode()) return 'Edit showtime';
+    return this.activeMovie() ? 'Schedule showtime' : 'Schedule a movie';
   });
 
   protected readonly modalDescription = computed(() => {
@@ -168,7 +170,7 @@ export class ManageShowtimeModalComponent {
   });
 
   protected readonly submitLabel = computed(() =>
-    this.isEditMode() ? 'Save Changes' : 'Create Showtime',
+    this.isEditMode() ? 'Save changes' : 'Create showtime',
   );
 
   protected readonly hallEntries = computed(() =>
@@ -228,7 +230,14 @@ export class ManageShowtimeModalComponent {
     afterNextRender(() => {
       this.hallsService
         .getHalls(undefined, ACTIVE_HALL_STATUSES)
-        .subscribe((halls) => this.halls.set(halls));
+        .pipe(
+          finalize(() => this.loadingHalls.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe({
+          next: (halls) => this.halls.set(halls),
+          error: () => {},
+        });
     });
   }
 
@@ -242,20 +251,26 @@ export class ManageShowtimeModalComponent {
       : this.showtimesService.createShowtime(draft);
 
     this.submitting.set(true);
-    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (showtime) => {
-        this.submitting.set(false);
-        if (editing) {
-          this.showtimeEvents.notifyUpdated(showtime);
-          this.toastService.success('Showtime updated');
-        } else {
-          this.showtimeEvents.notifyCreated(showtime);
-          this.toastService.success('Showtime created');
-        }
-        this.dialog().close();
-      },
-      error: () => this.submitting.set(false),
-    });
+    this.showtimeForm.disable({ emitEvent: false });
+    request$
+      .pipe(
+        finalize(() => this.submitting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (showtime) => {
+          this.showtimeForm.enable({ emitEvent: false });
+          if (editing) {
+            this.showtimeEvents.notifyUpdated(showtime);
+            this.toastService.success('Showtime updated');
+          } else {
+            this.showtimeEvents.notifyCreated(showtime);
+            this.toastService.success('Showtime created');
+          }
+          this.dialog().close();
+        },
+        error: () => this.showtimeForm.enable({ emitEvent: false }),
+      });
   }
 
   private submit(): ShowtimeDraft | null {

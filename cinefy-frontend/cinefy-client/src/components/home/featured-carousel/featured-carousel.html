@@ -23,7 +23,7 @@
               <div class="fc-data reveal">
                 <div class="fc-meta">
                   <div class="fc-badge">
-                    {{ slide.bookingOpened ? 'Now Showing' : 'Coming Soon' }}
+                    {{ slide.bookingOpened ? 'Now showing' : 'Coming soon' }}
                   </div>
                   @if (slide.movieDetails.duration; as runtime) {
                     <span class="fc-meta-item">
@@ -48,13 +48,13 @@
                     <a
                       class="fc-book-btn btn-primary"
                       routerLink="/movies/{{ slide.movieDetails.id }}"
-                      >Book Tickets</a
+                      >Book tickets</a
                     >
                   }
                   @if (slide.movieDetails.trailerUrl) {
                     <button class="fc-trailer-btn btn-base" (click)="openTrailer(slide)">
                       <svg [lucideIcon]="icons.PlayIcon" [size]="16"></svg>
-                      <span>Watch Trailer</span>
+                      <span>Watch trailer</span>
                     </button>
                   }
                 </div>

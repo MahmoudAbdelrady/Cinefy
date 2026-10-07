@@ -1,0 +1,91 @@
+package com.mdevs.cinefy.config;
+
+import com.mdevs.cinefy.filter.CsrfValidationFilter;
+import com.mdevs.cinefy.filter.JwtAuthenticationFilter;
+import com.mdevs.cinefy.service.ClientService;
+import com.mdevs.cinefy.service.StaffMemberService;
+import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
+import com.mdevs.cinefy.shared.security.CinefyAuthenticationEntryPoint;
+import com.mdevs.cinefy.shared.security.CinefyApiAuthorizationManager;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
+
+@Configuration
+@EnableMethodSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final StaffMemberService staffMemberService;
+
+    private final ClientService clientService;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private final CinefyApiAuthorizationManager apiAuthorizationManager;
+
+    private final CinefyAuthenticationEntryPoint authenticationEntryPoint;
+
+    private final CsrfValidationFilter csrfValidationFilter;
+
+    @Value("${springdoc.base-url}")
+    private String apiDocsBaseUrl;
+
+    @Bean
+    public CinefyAuthManagers cinefyAuthManagers() {
+        return new CinefyAuthManagers(buildManager(staffMemberService), buildManager(clientService));
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
+        try {
+            httpSecurity
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .cors(config -> config.configurationSource(_ -> {
+                        CorsConfiguration corsConfiguration = new CorsConfiguration();
+                        corsConfiguration.setAllowedOrigins(List.of(AppConfig.getFrontendManagementUrl(), AppConfig.getFrontendClientUrl()));
+                        corsConfiguration.setAllowedMethods(List.of("*"));
+                        corsConfiguration.setAllowedHeaders(List.of("*"));
+                        corsConfiguration.setAllowCredentials(true);
+                        return corsConfiguration;
+                    }))
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
+                            .requestMatchers(apiDocsBaseUrl + "/**").permitAll()
+                            .anyRequest().access(apiAuthorizationManager))
+                    .exceptionHandling(handling -> handling.authenticationEntryPoint(authenticationEntryPoint))
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                    .addFilterAfter(csrfValidationFilter, UsernamePasswordAuthenticationFilter.class);
+
+            return httpSecurity.build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private AuthenticationManager buildManager(UserDetailsService userDetailsService) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return new ProviderManager(provider);
+    }
+}

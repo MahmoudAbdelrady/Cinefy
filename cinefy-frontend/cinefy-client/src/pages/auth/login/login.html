@@ -31,7 +31,11 @@
               required: 'Password is required',
             }"
           />
-          <a class="lp-forgot" routerLink="../forgot-password" queryParamsHandling="preserve">
+          <a
+            class="lp-forgot"
+            [routerLink]="authenticating() ? null : '../forgot-password'"
+            queryParamsHandling="preserve"
+          >
             Forgot password?
           </a>
         </div>
@@ -39,7 +43,7 @@
         <button
           type="submit"
           class="btn-primary lp-submit"
-          [disabled]="loginForm.invalid || submitting()"
+          [disabled]="loginForm.invalid || authenticating()"
         >
           @if (submitting()) {
             <cui-loading-spinner variant="xs" />
@@ -51,11 +55,13 @@
         </button>
       </form>
 
-      <oauth-buttons />
+      <oauth-buttons [canConnect]="!submitting()" (connectingChange)="connecting.set($event)" />
 
       <p class="lp-footer">
-        New to Cinefy?
-        <a routerLink="../signup" queryParamsHandling="preserve">Create an account</a>
+        Don't have an account?
+        <a [routerLink]="authenticating() ? null : '../signup'" queryParamsHandling="preserve">
+          Create an account
+        </a>
       </p>
     }
     @case ('verify') {

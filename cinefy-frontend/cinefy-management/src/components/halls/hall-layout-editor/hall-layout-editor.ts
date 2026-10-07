@@ -1,6 +1,6 @@
 import { Component, computed, input, model, output } from '@angular/core';
 import { Tooltip } from 'primeng/tooltip';
-import { CinefyEmptyState } from 'cinefy-ui/components';
+import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { seatRowLabel } from 'cinefy-ui/types';
 import type { Seat, SeatCategory } from '../../../shared/types';
 import { LayoutTemplateIcon } from '../../../shared/icons';
@@ -34,7 +34,7 @@ export function seatStats(layout: Seat[][]): SeatStats {
 
 @Component({
   selector: 'hall-layout-editor',
-  imports: [CinefyEmptyState, Tooltip],
+  imports: [CinefyEmptyState, CinefyLoadingSpinner, Tooltip],
   templateUrl: './hall-layout-editor.html',
   styleUrl: './hall-layout-editor.scss',
 })
@@ -46,6 +46,7 @@ export class HallLayoutEditorComponent {
   readonly selectedSeatType = input<SeatCategory>('NORMAL');
   readonly selectedOnsiteOnly = input(false);
   readonly disabled = input(false);
+  readonly loading = input(false);
 
   readonly seatLayout = model<Seat[][]>([]);
 

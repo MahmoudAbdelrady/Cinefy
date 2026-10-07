@@ -57,8 +57,6 @@ public class ShowtimeService {
 
     private final CurrentUserService currentUserService;
 
-    private static final int CLEANUP_BUFFER_MINUTES = 15;
-
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     // ========================= Public API =========================
@@ -238,7 +236,7 @@ public class ShowtimeService {
     // =========================== Helpers ===========================
 
     private Showtime findShowtime(String uuid) {
-        return showtimeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Showtime not found: " + uuid));
+        return showtimeRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundException("Showtime not found"));
     }
 
     private void validateShowtime(Hall hall, TmdbMovie movie, ShowtimeDTO dto, Long showtimeId) {
@@ -262,7 +260,7 @@ public class ShowtimeService {
             throw new BusinessException("Movie '" + movie.getTitle() + "' does not have a runtime yet and cannot be scheduled");
         }
 
-        LocalDateTime end = dto.getDateTime().plusMinutes(movie.getDurationMinutes()).plusMinutes(CLEANUP_BUFFER_MINUTES);
+        LocalDateTime end = dto.getDateTime().plusMinutes(movie.getDurationMinutes());
         boolean overlaps = showtimeRepository.existsOverlapping(hall, dto.getDateTime(), end, showtimeId);
         if (overlaps) {
             throw new BusinessException("Another showtime is already scheduled in this hall at the selected time");
@@ -336,7 +334,7 @@ public class ShowtimeService {
         showtime.setTmdbMovie(movie);
         showtime.setHall(hall);
         showtime.setStartDateTime(dto.getDateTime());
-        showtime.setEndDateTime(dto.getDateTime().plusMinutes(movie.getDurationMinutes()).plusMinutes(CLEANUP_BUFFER_MINUTES));
+        showtime.setEndDateTime(dto.getDateTime().plusMinutes(movie.getDurationMinutes()));
         showtime.set3D(dto.is3D());
         showtime.setSpecialNotes(dto.getSpecialNotes());
         return showtime;

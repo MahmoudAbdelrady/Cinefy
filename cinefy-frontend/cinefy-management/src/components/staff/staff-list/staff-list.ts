@@ -9,7 +9,15 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { combineLatest, debounceTime, distinctUntilChanged, startWith, switchMap, tap } from 'rxjs';
+import {
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   AlertIcon,
@@ -32,6 +40,7 @@ import {
   CinefyInput,
   CinefyLoadingSpinner,
   CinefyEmptyState,
+  CinefyErrorState,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
@@ -46,8 +55,10 @@ import {
   type StaffMemberSummary,
   type UserPosition,
 } from '../../../shared/types';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
+import { toggleInSet } from '../../../utils';
 import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
 
 @Component({
@@ -60,6 +71,7 @@ import { SEARCH_DEBOUNCE_MS } from '../../../shared/constants';
     CinefyPaginator,
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyDialog,
     CinefyDialogFooter,
     StaffDetailsComponent,
@@ -106,6 +118,7 @@ export class StaffListComponent {
   protected readonly page = signal(0);
 
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
   protected readonly staffPage = signal<PaginatedResponse<StaffMemberSummary> | null>(null);
 
   protected readonly filterForm = new FormGroup({
@@ -154,7 +167,7 @@ export class StaffListComponent {
 
   constructor() {
     this.filterForm.controls.position.valueChanges
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((position) => {
         this.positionFilter.set(position ?? undefined);
         this.page.set(0);
@@ -163,12 +176,17 @@ export class StaffListComponent {
     afterNextRender(() => {
       this.staff$
         .pipe(
-          tap(() => this.loading.set(true)),
+          tap(() => {
+            this.loading.set(true);
+            this.failed.set(false);
+          }),
           switchMap(([search, position, page]) =>
-            this.staffService.getStaffMembers(search || undefined, position, {
-              page,
-              size: this.pageSize,
-            }),
+            this.staffService.getStaffMembers(
+              search || undefined,
+              position,
+              { page, size: this.pageSize },
+              skipServerErrorToast(),
+            ),
           ),
           takeUntilDestroyed(this.destroyRef),
         )
@@ -177,7 +195,10 @@ export class StaffListComponent {
             this.staffPage.set(staffPage);
             this.loading.set(false);
           },
-          error: () => this.loading.set(false),
+          error: () => {
+            this.failed.set(true);
+            this.loading.set(false);
+          },
         });
     });
   }
@@ -234,41 +255,36 @@ export class StaffListComponent {
 
   protected deleteStaffMember(id: string): void {
     if (this.deletingStaffIds().has(id)) return;
-    this.deletingStaffIds.update((current) => new Set(current).add(id));
-    this.staffService.deleteStaffMember(id).subscribe({
-      next: () => {
-        const staffPage = this.staffPage();
-        if (staffPage) {
-          const deletedPosition = staffPage.content.find((m) => m.id === id)?.position;
-          const content = staffPage.content.filter((m) => m.id !== id);
-          if (content.length === 0 && this.page() > 0) {
-            this.page.update((p) => p - 1);
-          } else {
-            this.staffPage.set({
-              ...staffPage,
-              content,
-              page: { ...staffPage.page, totalElements: staffPage.page.totalElements - 1 },
-            });
+    this.deletingStaffIds.update((current) => toggleInSet(current, id, true));
+    this.staffService
+      .deleteStaffMember(id)
+      .pipe(
+        finalize(() => this.deletingStaffIds.update((current) => toggleInSet(current, id, false))),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          const staffPage = this.staffPage();
+          if (staffPage) {
+            const deletedPosition = staffPage.content.find((m) => m.id === id)?.position;
+            const content = staffPage.content.filter((m) => m.id !== id);
+            if (content.length === 0 && this.page() > 0) {
+              this.page.update((p) => p - 1);
+            } else {
+              this.staffPage.set({
+                ...staffPage,
+                content,
+                page: { ...staffPage.page, totalElements: staffPage.page.totalElements - 1 },
+              });
+            }
+            if (deletedPosition) {
+              this.coverageChanged.emit({ action: 'delete', position: deletedPosition });
+            }
           }
-          if (deletedPosition) {
-            this.coverageChanged.emit({ action: 'delete', position: deletedPosition });
-          }
-        }
-        this.deletingStaffIds.update((current) => {
-          const next = new Set(current);
-          next.delete(id);
-          return next;
-        });
-        this.toastService.success('Staff member deleted');
-        this.memberToDelete.set(null);
-      },
-      error: () => {
-        this.deletingStaffIds.update((current) => {
-          const next = new Set(current);
-          next.delete(id);
-          return next;
-        });
-      },
-    });
+          this.toastService.success('Staff member deleted');
+          this.memberToDelete.set(null);
+        },
+        error: () => {},
+      });
   }
 }

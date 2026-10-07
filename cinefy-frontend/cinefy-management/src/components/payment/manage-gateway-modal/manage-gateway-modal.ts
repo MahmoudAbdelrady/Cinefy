@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { startWith } from 'rxjs';
+import { finalize, startWith } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefySelect,
@@ -23,8 +23,8 @@ import {
   CinefySwitch,
 } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
-import { ExternalLinkIcon, KeyIcon, LockIcon, WebhookIcon } from '../../../shared/icons';
-import { NO_WHITESPACE_PATTERN, RESOURCE_NAME_PATTERN } from '../../../shared/validation';
+import { ExternalLinkIcon, KeyIcon, WebhookIcon } from '../../../shared/icons';
+import { NO_WHITESPACE_PATTERN, RESOURCE_NAME_PATTERN } from '../../../shared/constants';
 import type {
   GatewayProvider,
   PaymentChannel,
@@ -72,7 +72,6 @@ function buildCredentialsGroup(
 export class ManageGatewayModalComponent {
   protected readonly icons = {
     KeyIcon,
-    LockIcon,
     ExternalLinkIcon,
     WebhookIcon,
   };
@@ -199,6 +198,15 @@ export class ManageGatewayModalComponent {
       ),
     );
 
+    effect(() => {
+      if (this.saving()) {
+        this.form.disable({ emitEvent: false });
+      } else {
+        this.form.enable({ emitEvent: false });
+        this.form.controls.provider.disable({ emitEvent: false });
+      }
+    });
+
     afterNextRender(() => {
       if (this.isEditMode()) this.initialFormSnapshot.set(this.snapshotValue());
     });
@@ -235,19 +243,23 @@ export class ManageGatewayModalComponent {
       ? this.paymentGatewaysService.updatePaymentGateway(editing.id, request)
       : this.paymentGatewaysService.createPaymentGateway(request);
 
-    save$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (gateway) => {
-        this.saving.set(false);
-        if (editing) {
-          this.gatewayUpdated.emit(gateway);
-        } else {
-          this.gatewayCreated.emit(gateway);
-        }
-        this.toastService.success(editing ? 'Payment gateway updated' : 'Payment gateway added');
-        this.dialog().close();
-      },
-      error: () => this.saving.set(false),
-    });
+    save$
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (gateway) => {
+          if (editing) {
+            this.gatewayUpdated.emit(gateway);
+          } else {
+            this.gatewayCreated.emit(gateway);
+          }
+          this.toastService.success(editing ? 'Payment gateway updated' : 'Payment gateway added');
+          this.dialog().close();
+        },
+        error: () => {},
+      });
   }
 
   private snapshotValue(): string {

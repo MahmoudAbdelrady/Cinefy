@@ -4,50 +4,54 @@
 
 .login-page {
   width: 100%;
-}
 
-.lp-heading {
-  @include auth-heading;
-}
+  .lp-heading {
+    @include auth-heading;
+  }
 
-.lp-card {
-  @include auth-card;
-}
+  .lp-card {
+    @include auth-card;
 
-.lp-form {
-  @include auth-form;
-}
+    .lp-form {
+      @include auth-form;
 
-.lp-password {
-  @include flex-column;
-  gap: 8px;
-}
+      .lp-password {
+        @include flex-column;
+        gap: 8px;
 
-.lp-forgot {
-  display: flex;
-  justify-content: flex-end;
+        .lp-forgot {
+          display: flex;
+          justify-content: flex-end;
 
-  a {
-    font-size: 12px;
-    font-weight: 500;
-    color: $blue-600;
-    text-decoration: none;
-    transition: color $transition-fast;
+          a {
+            font-size: 12px;
+            font-weight: 500;
+            color: $blue-600;
+            text-decoration: none;
+            transition: color $transition-fast;
 
-    &:hover {
-      color: $blue-700;
+            &[href]:hover {
+              color: $blue-700;
+            }
+
+            &:not([href]) {
+              @include disabled-state;
+            }
+          }
+        }
+      }
+
+      .lp-submit {
+        @include auth-submit-btn;
+
+        .lp-submit-arrow {
+          @include auth-submit-arrow;
+        }
+
+        &:not(:disabled):hover .lp-submit-arrow {
+          @include auth-submit-arrow-hover;
+        }
+      }
     }
-  }
-}
-
-.lp-submit {
-  @include auth-submit-btn;
-
-  .lp-submit-arrow {
-    @include auth-submit-arrow;
-  }
-
-  &:not(:disabled):hover .lp-submit-arrow {
-    @include auth-submit-arrow-hover;
   }
 }

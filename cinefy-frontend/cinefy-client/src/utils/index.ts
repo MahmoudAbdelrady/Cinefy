@@ -1,0 +1,1 @@
+export { brandChip } from './payments';

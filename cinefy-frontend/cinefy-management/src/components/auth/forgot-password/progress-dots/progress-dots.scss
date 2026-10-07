@@ -5,55 +5,55 @@
   @include flex-center;
   gap: 6px;
   margin-bottom: 28px;
-}
 
-.fp-dot-group {
-  @include flex-column;
-  align-items: center;
-  gap: 6px;
-}
+  .fp-dot-group {
+    @include flex-column;
+    align-items: center;
+    gap: 6px;
 
-.fp-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: $radius-full;
-  background-color: $gray-200;
-  transition:
-    background-color $transition-fast,
-    box-shadow $transition-fast;
+    .fp-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: $radius-full;
+      background-color: $gray-200;
+      transition:
+        background-color $transition-fast,
+        box-shadow $transition-fast;
 
-  &--active {
-    background-color: $blue-600;
-    box-shadow: 0 0 0 4px $blue-100;
+      &--active {
+        background-color: $blue-600;
+        box-shadow: 0 0 0 4px $blue-100;
+      }
+
+      &--done {
+        background-color: $blue-600;
+      }
+    }
+
+    .fp-dot-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 600;
+      color: $gray-400;
+      transition: color $transition-fast;
+
+      &--lit {
+        color: $gray-800;
+      }
+    }
   }
 
-  &--done {
-    background-color: $blue-600;
-  }
-}
+  .fp-connector {
+    display: block;
+    width: 40px;
+    height: 1px;
+    margin-bottom: 20px;
+    background-color: $gray-200;
+    transition: background-color $transition-fast;
 
-.fp-dot-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 600;
-  color: $gray-400;
-  transition: color $transition-fast;
-
-  &--lit {
-    color: $gray-800;
-  }
-}
-
-.fp-connector {
-  display: block;
-  width: 40px;
-  height: 1px;
-  margin-bottom: 20px;
-  background-color: $gray-200;
-  transition: background-color $transition-fast;
-
-  &--done {
-    background-color: $blue-600;
+    &--done {
+      background-color: $blue-600;
+    }
   }
 }

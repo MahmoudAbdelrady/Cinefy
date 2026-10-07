@@ -1,0 +1,14 @@
+<nav class="pages">
+  @for (tab of tabs(); track tab.path) {
+    <a
+      class="page-item"
+      [routerLink]="tab.path"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="navigated.emit()"
+    >
+      <svg [lucideIcon]="tab.icon" [size]="20"></svg>
+      <span>{{ tab.label }}</span>
+    </a>
+  }
+</nav>

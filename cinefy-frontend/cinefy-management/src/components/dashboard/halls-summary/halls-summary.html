@@ -10,6 +10,8 @@
     <div class="hs-loading">
       <cui-loading-spinner variant="lg" />
     </div>
+  } @else if (failed()) {
+    <cui-error-state class="hs-error" header="Couldn't load halls" />
   } @else if (totalHalls() === 0) {
     <cui-empty-state
       class="hs-empty"

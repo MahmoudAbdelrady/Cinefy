@@ -1,6 +1,16 @@
-import { Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EditIcon, EmailIcon, PhoneIcon, UserIcon } from '../../../shared/icons';
 import {
@@ -16,7 +26,7 @@ import {
 import { CinefyToastService } from 'cinefy-ui/services';
 import { PhoneFormatPipe } from 'cinefy-ui/pipes';
 import type { StaffMemberDetail } from '../../../shared/types';
-import { NAME_PATTERN } from '../../../shared/validation';
+import { NAME_PATTERN } from 'cinefy-ui/forms';
 import { StaffService } from '../../../services';
 
 @Component({
@@ -101,6 +111,15 @@ export class ProfilePersonalDetailsComponent {
     this.personalForm.controls.phoneNumber.addValidators(
       phoneNumberValidator(this.personalForm.controls.phoneCountry),
     );
+
+    effect(() => {
+      if (this.saving()) {
+        this.personalForm.disable({ emitEvent: false });
+      } else {
+        this.personalForm.enable({ emitEvent: false });
+        this.personalForm.controls.email.disable({ emitEvent: false });
+      }
+    });
   }
 
   protected startEditing(): void {
@@ -132,7 +151,10 @@ export class ProfilePersonalDetailsComponent {
         lastName: value.lastName,
         phoneNumber: toE164Digits(this.personalForm.controls.phoneCountry, value.phoneNumber),
       })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (profile) => {
           this.staffService.patchCurrentStaffMember({
@@ -141,11 +163,10 @@ export class ProfilePersonalDetailsComponent {
             fullName: `${profile.firstName} ${profile.lastName}`,
           });
           this.updated.emit(profile);
-          this.saving.set(false);
           this.isEditing.set(false);
           this.toastService.success('Profile updated');
         },
-        error: () => this.saving.set(false),
+        error: () => {},
       });
   }
 }

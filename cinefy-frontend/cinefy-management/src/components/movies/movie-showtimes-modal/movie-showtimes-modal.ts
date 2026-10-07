@@ -15,6 +15,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { format } from 'date-fns';
 import {
@@ -26,7 +27,6 @@ import {
   SHOWTIME_STATUS_LABELS,
   Showtime,
 } from '../../../shared/types';
-import { Tab, TabList, Tabs } from 'primeng/tabs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CalendarIcon,
@@ -40,31 +40,32 @@ import {
   TicketIcon,
   WarningIcon,
 } from '../../../shared/icons';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { ShowtimeEventsService, ShowtimesService, StaffService } from '../../../services';
 import {
   CinefyDialog,
   CinefyDialogFooter,
   CinefyLoadingSpinner,
   CinefyEmptyState,
+  CinefyErrorState,
 } from 'cinefy-ui/components';
 import { BookSeatsComponent } from '../book-seats/book-seats';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { Time12hPipe } from 'cinefy-ui/pipes';
 import { canManage as canManagePosition, canBook as canBookPosition } from '../../../shared/access';
+import { setsEqual, toggleInSet } from '../../../utils';
 
 @Component({
   selector: 'movie-showtimes-modal',
   imports: [
     CinefyDialog,
     CinefyDialogFooter,
-    Tabs,
-    TabList,
-    Tab,
     DatePipe,
     DecimalPipe,
     LucideDynamicIcon,
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
     Time12hPipe,
     BookSeatsComponent,
   ],
@@ -102,6 +103,7 @@ export class MovieShowtimesModal {
   });
 
   private readonly noteEls = viewChildren<ElementRef<HTMLElement>>('noteText');
+  private readonly dateTabs = viewChildren<ElementRef<HTMLButtonElement>>('dateTab');
   private readonly dialog = viewChild.required(CinefyDialog);
 
   protected readonly statusLabels = SHOWTIME_STATUS_LABELS;
@@ -118,7 +120,9 @@ export class MovieShowtimesModal {
   protected readonly movieShowtimes = signal<MovieShowtimeDatesResponse | null>(null);
   protected readonly movieShowtimeDetails = signal<MovieShowtimeListItem[]>([]);
   protected readonly loadingDates = signal(true);
+  protected readonly datesFailed = signal(false);
   protected readonly loadingDay = signal(false);
+  protected readonly dayFailed = signal(false);
   protected readonly dayDrafts = signal(0);
   protected readonly selectedTab = signal<string | undefined>(undefined);
   protected readonly deletingShowtimeIds = signal<Set<string>>(new Set());
@@ -149,26 +153,35 @@ export class MovieShowtimesModal {
   constructor() {
     effect((onCleanup) => {
       this.loadingDates.set(true);
+      this.datesFailed.set(false);
       this.movieShowtimes.set(null);
       this.movieShowtimeDetails.set([]);
       this.dayDrafts.set(0);
       this.selectedTab.set(undefined);
 
-      const sub = this.showtimesService.getMovieShowtimeDates(this.selectedMovieId()).subscribe({
-        next: (data) => {
-          this.movieShowtimes.set(data);
-          this.loadingDates.set(false);
-          if (data.dates.length > 0) {
-            this.selectedTab.set(data.dates[0]);
-          }
-        },
-        error: () => this.loadingDates.set(false),
-      });
+      const sub = this.showtimesService
+        .getMovieShowtimeDates(this.selectedMovieId(), skipServerErrorToast())
+        .pipe(
+          finalize(() => this.loadingDates.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe({
+          next: (data) => {
+            this.movieShowtimes.set(data);
+            if (data.dates.length > 0) {
+              this.selectedTab.set(data.dates[0]);
+            }
+          },
+          error: () => this.datesFailed.set(true),
+        });
       onCleanup(() => sub.unsubscribe());
     });
 
     effect((onCleanup) => {
       const targetDate = this.selectedTab();
+      this.dayFailed.set(false);
+      this.movieShowtimeDetails.set([]);
+      this.dayDrafts.set(0);
       if (!targetDate) {
         this.loadingDay.set(false);
         return;
@@ -176,7 +189,8 @@ export class MovieShowtimesModal {
 
       this.loadingDay.set(true);
       const sub = this.showtimesService
-        .getMovieShowtimesForDate(this.selectedMovieId(), targetDate)
+        .getMovieShowtimesForDate(this.selectedMovieId(), targetDate, skipServerErrorToast())
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (data) => {
             if (this.selectedTab() !== targetDate) return;
@@ -186,6 +200,7 @@ export class MovieShowtimesModal {
           },
           error: () => {
             if (this.selectedTab() !== targetDate) return;
+            this.dayFailed.set(true);
             this.loadingDay.set(false);
           },
         });
@@ -219,8 +234,17 @@ export class MovieShowtimesModal {
         }
       }
       const current = untracked(() => this.overflowingNotes());
-      if (this.setsEqual(current, next)) return;
+      if (setsEqual(current, next)) return;
       this.overflowingNotes.set(next);
+    });
+
+    afterRenderEffect(() => {
+      const index = this.movieShowtimes()?.dates.indexOf(this.selectedTab() ?? '') ?? -1;
+      this.dateTabs()[index]?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      });
     });
   }
 
@@ -247,10 +271,12 @@ export class MovieShowtimesModal {
 
     this.showtimesService
       .deleteShowtime(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.markDeleting(id, false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.markDeleting(id, false);
           const { wasDraft, movieClosed } = this.applyLocalDeletion(id);
           this.toastService.success('Showtime deleted');
           this.showtimeToDelete.set(null);
@@ -263,7 +289,7 @@ export class MovieShowtimesModal {
             (this.movieShowtimes()?.numberOfCommitted ?? 0) > 0,
           );
         },
-        error: () => this.markDeleting(id, false),
+        error: () => {},
       });
   }
 
@@ -273,15 +299,17 @@ export class MovieShowtimesModal {
 
     this.showtimesService
       .publishShowtimes({ showtimeId: id })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.markPublishing(id, false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
-          this.markPublishing(id, false);
           this.applyLocalPublish(id);
           this.showtimeEvents.notifyPublished(this.selectedMovieId(), 1);
           this.toastService.success('Showtime published');
         },
-        error: () => this.markPublishing(id, false),
+        error: () => {},
       });
   }
 
@@ -309,15 +337,7 @@ export class MovieShowtimesModal {
   }
 
   protected toggleNote(id: string) {
-    this.expandedNotes.update((current) => {
-      const next = new Set(current);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
+    this.expandedNotes.update((current) => toggleInSet(current, id));
   }
 
   protected getOccupancy(detail: MovieShowtimeListItem): number {
@@ -358,10 +378,12 @@ export class MovieShowtimesModal {
       showtime.startDateTime,
     );
     const isDraft = showtime.status === 'DRAFT';
+    const loadedDates = this.movieShowtimes()?.dates;
+    const isNewDate = !!loadedDates && !loadedDates.includes(createdDate);
 
     this.movieShowtimes.update((m) => {
       if (!m) return m;
-      const dates = m.dates.includes(createdDate) ? m.dates : [...m.dates, createdDate].sort();
+      const dates = isNewDate ? [...m.dates, createdDate].sort() : m.dates;
       return {
         ...m,
         dates,
@@ -369,7 +391,10 @@ export class MovieShowtimesModal {
       };
     });
 
-    if (createdDate !== this.selectedTab()) return;
+    if (createdDate !== this.selectedTab()) {
+      if (isNewDate) this.selectedTab.set(createdDate);
+      return;
+    }
 
     if (isDraft) this.dayDrafts.update((n) => n + 1);
 
@@ -527,32 +552,10 @@ export class MovieShowtimesModal {
   }
 
   private markDeleting(id: string, isDeleting: boolean): void {
-    this.deletingShowtimeIds.update((current) => {
-      const next = new Set(current);
-      if (isDeleting) {
-        next.add(id);
-      } else {
-        next.delete(id);
-      }
-      return next;
-    });
+    this.deletingShowtimeIds.update((current) => toggleInSet(current, id, isDeleting));
   }
 
   private markPublishing(id: string, isPublishing: boolean): void {
-    this.publishingShowtimeIds.update((current) => {
-      const next = new Set(current);
-      if (isPublishing) {
-        next.add(id);
-      } else {
-        next.delete(id);
-      }
-      return next;
-    });
-  }
-
-  private setsEqual(a: Set<string>, b: Set<string>): boolean {
-    if (a.size !== b.size) return false;
-    for (const v of a) if (!b.has(v)) return false;
-    return true;
+    this.publishingShowtimeIds.update((current) => toggleInSet(current, id, isPublishing));
   }
 }

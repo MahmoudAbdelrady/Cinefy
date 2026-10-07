@@ -32,6 +32,11 @@
   text-overflow: ellipsis;
 }
 
+@mixin disabled-state {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @mixin dialog-header {
   @include flex-align;
 

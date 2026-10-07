@@ -4,18 +4,14 @@
       <cui-loading-spinner variant="lg" />
     </div>
   } @else if (highlightedMovies.error()) {
-    <cui-empty-state
-      [icon]="icons.TriangleAlertIcon"
-      header="Failed to load movies"
-      description="Something went wrong. Please try again later."
-    />
+    <cui-error-state header="Failed to load movies" />
   } @else if (highlightedMovies.value()!.length) {
     <featured-carousel [slides]="highlightedMovies.value()!" />
   }
   <section class="now-showing-movies">
     <div class="ms-header">
-      <h3>Now Showing</h3>
-      <a routerLink="/movies">View All</a>
+      <h3>Now showing</h3>
+      <a routerLink="/movies">View all</a>
     </div>
     <div class="ms-content">
       @if (nowShowingMovies.isLoading()) {
@@ -23,12 +19,7 @@
           <cui-loading-spinner variant="lg" />
         </div>
       } @else if (nowShowingMovies.error()) {
-        <cui-empty-state
-          class="ms-empty"
-          [icon]="icons.TriangleAlertIcon"
-          header="Failed to load movies"
-          description="Something went wrong. Please try again later."
-        />
+        <cui-error-state class="ms-empty" header="Failed to load movies" />
       } @else {
         <ul class="ms-grid">
           @for (movie of nowShowingMovies.value(); track movie.id) {
@@ -41,7 +32,7 @@
                 <div class="mc-poster">
                   <cui-media-image [src]="movie.posterUrl" alt="{{ movie.title }} poster" />
                   <div class="mc-poster-overlay">
-                    <button class="mc-tickets-btn btn-primary">Get Tickets</button>
+                    <button class="mc-tickets-btn btn-primary">Get tickets</button>
                   </div>
                 </div>
                 <div class="mc-meta">
@@ -60,12 +51,13 @@
               </a>
             </li>
           } @empty {
-            <cui-empty-state
-              class="ms-empty"
-              [icon]="icons.ClapperboardIcon"
-              header="No movies showing"
-              description="Check back soon for what's playing in theaters."
-            />
+            <li class="ms-empty">
+              <cui-empty-state
+                [icon]="icons.ClapperboardIcon"
+                header="No movies showing"
+                description="Check back soon for what's playing in theaters."
+              />
+            </li>
           }
         </ul>
       }
@@ -73,7 +65,7 @@
   </section>
   <section class="upcoming-movies">
     <div class="ms-header">
-      <h3>Coming Soon</h3>
+      <h3>Coming soon</h3>
     </div>
     <div class="ms-content">
       @if (upcomingMovies.isLoading()) {
@@ -81,12 +73,7 @@
           <cui-loading-spinner variant="lg" />
         </div>
       } @else if (upcomingMovies.error()) {
-        <cui-empty-state
-          class="ms-empty"
-          [icon]="icons.TriangleAlertIcon"
-          header="Failed to load movies"
-          description="Something went wrong. Please try again later."
-        />
+        <cui-error-state class="ms-empty" header="Failed to load movies" />
       } @else {
         <ul class="ms-grid">
           @for (movie of upcomingMovies.value(); track movie.id) {
@@ -110,12 +97,13 @@
               </a>
             </li>
           } @empty {
-            <cui-empty-state
-              class="ms-empty"
-              [icon]="icons.CalendarIcon"
-              header="No upcoming movies"
-              description="New releases will appear here as they're announced."
-            />
+            <li class="ms-empty">
+              <cui-empty-state
+                [icon]="icons.CalendarIcon"
+                header="No upcoming movies"
+                description="New releases will appear here as they're announced."
+              />
+            </li>
           }
         </ul>
       }

@@ -7,16 +7,10 @@
 :root {
   // Surfaces
   --cui-surface-base: #ffffff;
-  --cui-surface-input: #ffffff;
-  --cui-surface-overlay: #ffffff;
   --cui-surface-hover: #{$gray-100};
-  --cui-surface-disabled: #{$gray-50};
-  --cui-surface-disabled-strong: #{$gray-300};
-  --cui-surface-active: #{$gray-50};
 
   // Text
   --cui-text-primary: #{$gray-900};
-  --cui-text-emphasis: #{$gray-800};
   --cui-text-muted: #{$gray-500};
   --cui-text-faint: #{$gray-400};
   --cui-text-hint: #{$gray-500};
@@ -27,10 +21,8 @@
   // Borders & focus
   --cui-border-default: #{$gray-300};
   --cui-border-subtle: #{$gray-200};
-  --cui-border-strong: #{$gray-400};
   --cui-icon-disabled: #{$gray-300};
   --cui-ring: #{$blue-500};
-  --cui-ring-error: #{$red-500};
 
   // Accent / status
   --cui-accent: #{$blue-600};
@@ -44,11 +36,6 @@
   --cui-danger-subtle: #{$red-200};
   --cui-success: #{$green-600};
   --cui-success-hover: #{$green-700};
-
-  // Switch
-  --cui-switch-track: #{$gray-200};
-  --cui-switch-thumb: #ffffff;
-  --cui-switch-thumb-shadow: #{$shadow-sm};
 
   // Media image (poster/backdrop/profile placeholder)
   --cui-media-placeholder-bg: #{$gray-100};
@@ -79,22 +66,12 @@
   // Misc
   --cui-scrollbar-thumb: #{$gray-300};
 
-  // Elevation (lib still uses purpose-specific shadow tokens; map from $shadow-*)
-  --cui-overlay-shadow: #{$shadow-md};
-  --cui-popover-shadow: #{$shadow-lg};
-  --cui-button-shadow: #{$shadow-xs};
-  --cui-button-shadow-strong: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  // Secondary button
+  --cui-button-secondary-border: #{$blue-300};
+  --cui-button-secondary-hover: #{$blue-50};
 
   // Option rows (selects)
   --cui-option-text: #{$gray-700};
-  --cui-option-selected-surface: #{$blue-50};
-  --cui-option-selected-text: #{$blue-600};
-
-  // Modal
-  --cui-modal-backdrop: rgba(0, 0, 0, 0.5);
-  --cui-modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  --cui-modal-header-bg: linear-gradient(to right, #{$blue-50}, #{$purple-50});
-  --cui-modal-footer-bg: #{$gray-50};
 }
 
 *,

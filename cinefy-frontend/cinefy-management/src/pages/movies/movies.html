@@ -1,31 +1,21 @@
 <ng-template #headerActionsTemplate>
   <div class="action-buttons-container">
     @if (canBook()) {
-      <button (click)="scanTicketVisible.set(true)">
-        <svg
-          [lucideIcon]="icons.QrCodeIcon"
-          [size]="16"
-          [strokeWidth]="2.5"
-          class="secondary-btn"
-        ></svg>
-        <span>Scan Ticket</span>
+      <button class="btn-secondary" (click)="scanTicketVisible.set(true)">
+        <svg [lucideIcon]="icons.QrCodeIcon" [size]="16" [strokeWidth]="2.5"></svg>
+        <span>Scan ticket</span>
       </button>
 
-      <button (click)="activeBookingsVisible.set(true)">
-        <svg
-          [lucideIcon]="icons.TicketIcon"
-          [size]="16"
-          [strokeWidth]="2.5"
-          class="secondary-btn"
-        ></svg>
-        <span>Active Bookings</span>
+      <button class="btn-secondary" (click)="activeBookingsVisible.set(true)">
+        <svg [lucideIcon]="icons.TicketIcon" [size]="16" [strokeWidth]="2.5"></svg>
+        <span>Active bookings</span>
       </button>
     }
 
     @if (canManage()) {
-      <button (click)="scheduleMovieVisible.set(true)">
+      <button class="btn-primary" (click)="scheduleMovieVisible.set(true)">
         <svg [lucideIcon]="icons.PlusIcon" [size]="16" [strokeWidth]="2.5"></svg>
-        <span>Schedule Movie</span>
+        <span>Schedule movie</span>
       </button>
     }
   </div>
@@ -35,6 +25,7 @@
   <cui-dialog
     [header]="scanTicket.modalTitle()"
     [description]="scanTicket.modalDescription()"
+    [canClose]="!scanTicket.scanning()"
     [style]="{ width: '480px' }"
     (closed)="scanTicketVisible.set(false)"
   >

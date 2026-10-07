@@ -9,6 +9,8 @@
 }
 
 .sm-grid-scroll {
+  @include scrollbar-thin;
+
   width: 100%;
   padding-bottom: 32px;
   overflow-x: auto;
@@ -66,7 +68,7 @@
     border-color: var(--cui-seat-normal-border);
     color: var(--cui-seat-normal-text);
 
-    &:hover {
+    &.can-select:hover {
       border-color: var(--cui-seat-normal-hover-border);
     }
   }
@@ -76,7 +78,7 @@
     border-color: var(--cui-seat-vip-border);
     color: var(--cui-seat-vip-text);
 
-    &:hover {
+    &.can-select:hover {
       border-color: var(--cui-seat-vip-hover-border);
     }
   }
@@ -86,6 +88,10 @@
     background: var(--cui-seat-selected-surface);
     border-color: var(--cui-seat-selected-border);
     color: var(--cui-seat-selected-text);
+  }
+
+  &:not(.can-select) {
+    @include disabled-state;
   }
 
   &[data-category]:disabled,

@@ -2,12 +2,17 @@ spring:
   application:
     name: Cinefy
 
+  data:
+    redis:
+      repositories:
+        enabled: false
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
       naming:
-        physical-strategy: com.mdevs.cinefy.config.database.CinefyTableNamingStrategy
+        physical-strategy: com.mdevs.cinefy.config.CinefyTableNamingStrategy
     properties:
       org.hibernate.envers:
         store_data_at_delete: true

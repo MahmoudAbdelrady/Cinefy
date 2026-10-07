@@ -1,8 +1,16 @@
 import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInMinutes, format, parse, startOfMinute } from 'date-fns';
-import { CinefyEmptyState, CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
+import {
+  CinefyEmptyState,
+  CinefyErrorState,
+  CinefyLoadingSpinner,
+  CinefyMediaImage,
+} from 'cinefy-ui/components';
 import { Time12hPipe } from 'cinefy-ui/pipes';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { ShowtimesService } from '../../../services';
 import { DATE_FORMAT, TIME_FORMAT } from '../../../shared/constants';
 import { CalendarClockIcon, CalendarIcon, ClockIcon, TicketIcon } from '../../../shared/icons';
@@ -26,6 +34,7 @@ const TICK_INTERVAL_MS = 30_000;
     CinefyMediaImage,
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
     Time12hPipe,
   ],
   templateUrl: './today-schedule.html',
@@ -39,11 +48,12 @@ export class TodayScheduleComponent {
     TicketIcon,
   };
 
-  private readonly destroyRef = inject(DestroyRef);
   private readonly showtimesService = inject(ShowtimesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly screenings = signal<ScheduledShowtime[]>([]);
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
 
   private readonly now = signal(new Date());
 
@@ -78,12 +88,15 @@ export class TodayScheduleComponent {
   }
 
   private load(): void {
-    this.showtimesService.getScheduleForDate(format(new Date(), DATE_FORMAT)).subscribe({
-      next: (screenings) => {
-        this.screenings.set(screenings);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+    this.showtimesService
+      .getScheduleForDate(format(new Date(), DATE_FORMAT), skipServerErrorToast())
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (screenings) => this.screenings.set(screenings),
+        error: () => this.failed.set(true),
+      });
   }
 }

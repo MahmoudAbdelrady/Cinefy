@@ -9,9 +9,15 @@
     </a>
   </div>
   <div class="alc-content">
-    <div class="alc-shell">
-      <router-outlet />
-    </div>
+    @if (serverUnavailable()) {
+      <cui-server-unavailable>
+        <button type="button" class="btn-primary" (click)="retry()">Try again</button>
+      </cui-server-unavailable>
+    } @else {
+      <div class="alc-shell">
+        <router-outlet />
+      </div>
+    }
   </div>
   <div class="alc-footer">
     <span>v1.0.0</span>

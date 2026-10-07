@@ -10,6 +10,8 @@
     <div class="ag-loading">
       <cui-loading-spinner variant="lg" />
     </div>
+  } @else if (failed()) {
+    <cui-error-state class="ag-error" header="Couldn't load the active gateway" />
   } @else if (gateway(); as gateway) {
     <div class="ag-body">
       <h4 class="ag-name">{{ gateway.name }}</h4>

@@ -4,16 +4,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import {
-  CinefyEmptyState,
-  CinefyLoadingSpinner,
-  CinefyMediaImage,
-} from 'cinefy-ui/components';
+import { CinefyErrorState, CinefyLoadingSpinner, CinefyMediaImage } from 'cinefy-ui/components';
 import { DurationPipe } from 'cinefy-ui/pipes';
 import { BookingSectionComponent, TrailerModalComponent } from '../../components';
 import { MoviesService } from '../../services';
-import { skipErrorToast } from '../../app/core/interceptors';
-import { ClockIcon, EyeIcon, PlayIcon, TriangleAlertIcon, UserIcon } from '../../shared/icons';
+import { skipErrorToast } from 'cinefy-ui/http';
+import { ClockIcon, EyeIcon, PlayIcon, UserIcon } from '../../shared/icons';
 import type { ApiError } from '../../shared/types';
 
 interface CrewMember {
@@ -25,7 +21,7 @@ interface CrewMember {
   selector: 'movie-detail-page',
   imports: [
     LucideDynamicIcon,
-    CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
     CinefyMediaImage,
     DurationPipe,
@@ -40,7 +36,6 @@ export class MovieDetailPage {
     ClockIcon,
     EyeIcon,
     PlayIcon,
-    TriangleAlertIcon,
     UserIcon,
   };
 

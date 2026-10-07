@@ -1,32 +1,21 @@
-import {
-  afterNextRender,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  output,
-  signal,
-} from '@angular/core';
+import { afterNextRender, Component, DestroyRef, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { differenceInSeconds, format } from 'date-fns';
 import {
   CinefyDialog,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyLoadingSpinner,
   CinefyMediaImage,
 } from 'cinefy-ui/components';
 import { BookSeatsComponent } from '../book-seats/book-seats';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { BookingService } from '../../../services';
 import type { BookingSummary } from '../../../shared/types';
-import {
-  CalendarIcon,
-  ClapperboardIcon,
-  ClockIcon,
-  TicketIcon,
-  WarningIcon,
-} from '../../../shared/icons';
+import { CalendarIcon, ClapperboardIcon, ClockIcon, TicketIcon } from '../../../shared/icons';
 
 @Component({
   selector: 'active-bookings-list',
@@ -36,6 +25,7 @@ import {
     LucideDynamicIcon,
     CinefyDialog,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
     CinefyMediaImage,
     BookSeatsComponent,
@@ -49,7 +39,6 @@ export class ActiveBookingsListComponent {
     ClapperboardIcon,
     ClockIcon,
     TicketIcon,
-    WarningIcon,
   };
 
   private readonly bookingService = inject(BookingService);
@@ -61,13 +50,6 @@ export class ActiveBookingsListComponent {
   protected readonly hasError = signal(false);
   protected readonly bookingToComplete = signal<BookingSummary | null>(null);
 
-  protected readonly description = computed(() => {
-    const count = this.bookings().length;
-    return count
-      ? `${count} booking${count > 1 ? 's' : ''} awaiting payment`
-      : 'No bookings in progress';
-  });
-
   constructor() {
     afterNextRender(() => this.loadActiveBookings());
   }
@@ -75,18 +57,17 @@ export class ActiveBookingsListComponent {
   protected loadActiveBookings(): void {
     this.isLoading.set(true);
     this.bookingService
-      .getActiveBookings()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .getActiveBookings(skipServerErrorToast())
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (bookings) => {
           this.bookings.set(bookings);
           this.hasError.set(false);
-          this.isLoading.set(false);
         },
-        error: () => {
-          this.hasError.set(true);
-          this.isLoading.set(false);
-        },
+        error: () => this.hasError.set(true),
       });
   }
 

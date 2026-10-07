@@ -18,6 +18,7 @@
       [placeholder]="placeholder()"
       [pSize]="size()"
       [invalid]="isInvalid()"
+      [readonly]="loading() || readonly()"
       [class.uppercase]="uppercase()"
       (input)="onInput($event)"
       (blur)="blurred.emit()"
@@ -26,7 +27,11 @@
       (paste)="onClipboardEvent($event)"
     />
 
-    @if (isPassword()) {
+    @if (loading()) {
+    <p-inputicon>
+      <cui-loading-spinner variant="sm" />
+    </p-inputicon>
+    } @else if (isPassword()) {
     <p-inputicon>
       <button type="button" class="cui-field-action" (click)="toggleShowPassword()">
         <svg [lucideIcon]="showPassword() ? icons.EyeOffIcon : icons.EyeIcon" [size]="18"></svg>

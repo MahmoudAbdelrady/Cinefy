@@ -5,122 +5,123 @@
 .abl-status {
   @include flex-center;
   padding: 32px 0;
+  color: $gray-500;
 }
 
 .abl-list {
   @include flex-column;
   gap: 12px;
-}
 
-.abl-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid $color-border;
-  border-radius: $radius-lg;
-  background-color: $color-card;
-
-  @include below-phone {
-    flex-wrap: wrap;
-  }
-
-  .abli-poster {
-    flex-shrink: 0;
-    width: 64px;
-    aspect-ratio: 2 / 3;
-    overflow: hidden;
-    border-radius: $radius-md;
-    background-color: $gray-100;
-  }
-
-  .abli-info {
-    @include flex-column;
-    flex: 1;
-    gap: 8px;
-    min-width: 0;
-
-    .abli-header {
-      @include flex-align;
-      gap: 8px;
-
-      h3 {
-        @include text-truncate;
-        min-width: 0;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 1.25;
-        color: $gray-900;
-      }
-
-      .expiring-badge {
-        @include flex-align;
-        @include lucide-icon-fix;
-        flex-shrink: 0;
-        gap: 4px;
-        padding: 2px 8px;
-        border-radius: $radius-full;
-        background-color: $red-50;
-        font-size: 11px;
-        font-weight: 500;
-        white-space: nowrap;
-        color: $red-600;
-      }
-    }
-
-    .abli-meta {
-      @include flex-column;
-      gap: 5px;
-      font-size: 12px;
-      color: $gray-500;
-
-      .abli-meta-item {
-        @include flex-align;
-        @include lucide-icon-fix;
-        gap: 6px;
-      }
-    }
-
-    .abli-pricing {
-      @include flex-align;
-      gap: 8px;
-      padding-top: 2px;
-      font-size: 12px;
-
-      .ticket-count {
-        @include flex-align;
-        @include lucide-icon-fix;
-        gap: 4px;
-        padding: 2px 8px;
-        border-radius: $radius-sm;
-        background-color: $color-secondary;
-        font-weight: 500;
-        color: $color-primary;
-      }
-
-      .total-price {
-        font-weight: 700;
-        color: $gray-900;
-      }
-    }
-  }
-
-  .abli-actions {
-    flex-shrink: 0;
-
-    .btn-primary {
-      @include lucide-icon-fix;
-      height: 34px;
-      gap: 6px;
-      padding: 0 14px;
-      justify-content: center;
-    }
+  .abl-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid $color-border;
+    border-radius: $radius-lg;
+    background-color: $color-card;
 
     @include below-phone {
-      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .abli-poster {
+      flex-shrink: 0;
+      width: 64px;
+      aspect-ratio: 2 / 3;
+      overflow: hidden;
+      border-radius: $radius-md;
+      background-color: $gray-100;
+    }
+
+    .abli-info {
+      @include flex-column;
+      flex: 1;
+      gap: 8px;
+      min-width: 0;
+
+      .abli-header {
+        @include flex-align;
+        gap: 8px;
+
+        h3 {
+          @include text-truncate;
+          min-width: 0;
+          font-size: 14px;
+          font-weight: 600;
+          line-height: 1.25;
+          color: $gray-900;
+        }
+
+        .expiring-badge {
+          @include flex-align;
+          @include lucide-icon-fix;
+          flex-shrink: 0;
+          gap: 4px;
+          padding: 2px 8px;
+          border-radius: $radius-full;
+          background-color: $red-50;
+          font-size: 11px;
+          font-weight: 500;
+          white-space: nowrap;
+          color: $red-600;
+        }
+      }
+
+      .abli-meta {
+        @include flex-column;
+        gap: 5px;
+        font-size: 12px;
+        color: $gray-500;
+
+        .abli-meta-item {
+          @include flex-align;
+          @include lucide-icon-fix;
+          gap: 6px;
+        }
+      }
+
+      .abli-pricing {
+        @include flex-align;
+        gap: 8px;
+        padding-top: 2px;
+        font-size: 12px;
+
+        .ticket-count {
+          @include flex-align;
+          @include lucide-icon-fix;
+          gap: 4px;
+          padding: 2px 8px;
+          border-radius: $radius-sm;
+          background-color: $color-secondary;
+          font-weight: 500;
+          color: $color-primary;
+        }
+
+        .total-price {
+          font-weight: 700;
+          color: $gray-900;
+        }
+      }
+    }
+
+    .abli-actions {
+      flex-shrink: 0;
+
+      @include below-phone {
+        width: 100%;
+      }
 
       .btn-primary {
-        width: 100%;
+        @include lucide-icon-fix;
+        height: 34px;
+        gap: 6px;
+        padding: 0 14px;
+        justify-content: center;
+
+        @include below-phone {
+          width: 100%;
+        }
       }
     }
   }

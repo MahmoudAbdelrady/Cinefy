@@ -9,11 +9,7 @@
       <cui-loading-spinner variant="lg" />
     </div>
   } @else if (details.error()) {
-    <cui-empty-state
-      [icon]="icons.TriangleAlertIcon"
-      header="Couldn't load these details"
-      description="Something went wrong. Please try again later."
-    />
+    <cui-error-state header="Couldn't load these details" />
   } @else if (details.value(); as detail) {
     <div class="pbdm-details">
       @if (detail.qrCode) {

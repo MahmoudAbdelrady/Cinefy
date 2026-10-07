@@ -11,6 +11,8 @@
     <div class="tsch-loading">
       <cui-loading-spinner variant="lg" />
     </div>
+  } @else if (failed()) {
+    <cui-error-state class="tsch-error" header="Couldn't load today's schedule" />
   } @else {
     <ul class="tsch-list">
       @for (screening of screenings(); track screening.id) {

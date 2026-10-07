@@ -6,74 +6,74 @@
   width: min(100%, 896px);
   margin: 0 auto;
   padding: 40px 16px;
-}
 
-.profile-tabs {
-  display: flex;
-  gap: 32px;
-
-  @include below-mobile {
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .pt-list {
-    @include flex-column;
-    flex-shrink: 0;
-    gap: 4px;
-    width: 208px;
-    height: fit-content;
-    padding: 8px;
-    border: 1px solid rgba($color-border, 0.5);
-    border-radius: $radius-lg;
-    background-color: $color-card;
+  .profile-tabs {
+    display: flex;
+    gap: 32px;
 
     @include below-mobile {
-      width: 100%;
+      flex-direction: column;
+      gap: 24px;
     }
 
-    .pt-tab {
-      @include flex-align;
-      @include lucide-icon-fix;
-      gap: 6px;
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid transparent;
-      border-radius: $radius-md;
-      background-color: transparent;
-      color: $color-muted-foreground;
-      font-family: $font-sans;
-      font-size: 14px;
-      font-weight: 500;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.15s ease;
-
-      &:hover {
-        color: $color-foreground;
-      }
-
-      &:focus-visible {
-        border-color: $color-primary;
-        outline: 1px solid $color-primary;
-        box-shadow: 0 0 0 3px rgba($color-primary, 0.5);
-      }
-
-      &.active {
-        border-color: $color-input;
-        background-color: rgba($color-input, 0.3);
-        color: $color-foreground;
-      }
-    }
-  }
-
-  .pt-panels {
-    min-width: 0;
-    flex: 1;
-
-    .pt-account:not([hidden]) {
+    .pt-list {
       @include flex-column;
-      gap: 32px;
+      flex-shrink: 0;
+      gap: 4px;
+      width: 208px;
+      height: fit-content;
+      padding: 8px;
+      border: 1px solid rgba($color-border, 0.5);
+      border-radius: $radius-lg;
+      background-color: $color-card;
+
+      @include below-mobile {
+        width: 100%;
+      }
+
+      .pt-tab {
+        @include flex-align;
+        @include lucide-icon-fix;
+        gap: 6px;
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid transparent;
+        border-radius: $radius-md;
+        background-color: transparent;
+        color: $color-muted-foreground;
+        font-family: $font-sans;
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        &:hover {
+          color: $color-foreground;
+        }
+
+        &:focus-visible {
+          border-color: $color-primary;
+          outline: 1px solid $color-primary;
+          box-shadow: 0 0 0 3px rgba($color-primary, 0.5);
+        }
+
+        &.active {
+          border-color: $color-input;
+          background-color: rgba($color-input, 0.3);
+          color: $color-foreground;
+        }
+      }
+    }
+
+    .pt-panel {
+      min-width: 0;
+      flex: 1;
+
+      .pt-account {
+        @include flex-column;
+        gap: 32px;
+      }
     }
   }
 }

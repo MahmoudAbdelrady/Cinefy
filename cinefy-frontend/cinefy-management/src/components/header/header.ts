@@ -3,25 +3,24 @@ import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { ChevronDownIcon, LogoutIcon, MenuIcon, UserIcon } from '../../shared/icons';
+import { ChevronDownIcon, LogoutIcon, UserIcon } from '../../shared/icons';
 import { CinefyMenu } from 'cinefy-ui/components';
 import { CinefyMenuGroup } from 'cinefy-ui/types';
-import { AuthService, HeaderActionsService, SidebarService, StaffService } from '../../services';
+import { AuthService, HeaderActionsService, StaffService } from '../../services';
 import { USER_POSITION_LABELS } from '../../shared/types';
+import { DrawerComponent } from '../drawer/drawer';
 
 @Component({
   selector: 'header-component',
-  imports: [LucideDynamicIcon, NgTemplateOutlet, CinefyMenu],
+  imports: [LucideDynamicIcon, NgTemplateOutlet, CinefyMenu, DrawerComponent],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
 export class HeaderComponent {
   protected readonly icons = {
     ChevronDownIcon,
-    MenuIcon,
   };
 
-  private readonly sidebarService = inject(SidebarService);
   private readonly headerActionsService = inject(HeaderActionsService);
   private readonly authService = inject(AuthService);
   private readonly staffService = inject(StaffService);
@@ -60,10 +59,6 @@ export class HeaderComponent {
     if (!user) return '';
     return (user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase();
   });
-
-  protected openSidebar() {
-    this.sidebarService.open();
-  }
 
   private logout() {
     if (this.loggingOut()) return;

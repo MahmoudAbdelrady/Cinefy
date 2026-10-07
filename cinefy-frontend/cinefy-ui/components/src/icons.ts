@@ -2,7 +2,6 @@ export {
   LucideEye as EyeIcon,
   LucideEyeOff as EyeOffIcon,
   LucidePhone as PhoneIcon,
-  LucideLoader as LoaderIcon,
   LucideChevronUp as ChevronUpIcon,
   LucideChevronDown as ChevronDownIcon,
   LucideChevronLeft as ChevronLeftIcon,
@@ -15,4 +14,6 @@ export {
   LucideCircleCheck as CircleCheckIcon,
   LucideCircleX as CircleXIcon,
   LucideClapperboard as ClapperboardIcon,
+  LucideTriangleAlert as TriangleAlertIcon,
+  LucideServerOff as ServerOffIcon,
 } from "@lucide/angular";

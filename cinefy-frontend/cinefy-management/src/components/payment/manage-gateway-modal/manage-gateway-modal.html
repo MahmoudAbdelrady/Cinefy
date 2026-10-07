@@ -74,6 +74,7 @@
             <cui-switch
               size="sm"
               [checked]="channelsEnabled()"
+              [disabled]="saving()"
               (checkedChange)="onChannelsToggle($event)"
             />
           }
@@ -83,6 +84,7 @@
           <p class="section-help">{{ providerSpec().channelHelp }}</p>
           <payment-channels
             [providerConfig]="providerSpec().providerConfig ?? []"
+            [canEdit]="!saving()"
             [(channels)]="channels"
             (openChange)="channelFormOpen.set($event)"
           />
@@ -92,12 +94,8 @@
   </form>
 
   <div class="gateway-footer" customFooter>
-    <p class="encrypted-note">
-      <svg [lucideIcon]="icons.LockIcon" [size]="13" [strokeWidth]="2"></svg>
-      Credentials are encrypted and never sent back to the browser.
-    </p>
     <div class="footer-actions">
-      <button type="button" class="btn-secondary" [disabled]="saving()" (click)="dialog.close()">
+      <button type="button" class="btn-neutral" [disabled]="saving()" (click)="dialog.close()">
         Cancel
       </button>
       <button

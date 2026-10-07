@@ -1,3 +1,4 @@
+@use 'cinefy-ui/styles/mixins' as *;
 @use '../../../auth-card' as *;
 
 :host {
@@ -7,32 +8,36 @@
 
 .request-step-container {
   @include auth-stage;
-}
 
-.fp-heading {
-  @include auth-heading;
-}
-
-.fp-card {
-  @include auth-card;
-}
-
-.fp-form {
-  @include auth-form;
-}
-
-.fp-submit {
-  @include auth-submit-btn;
-
-  .fp-submit-arrow {
-    @include auth-submit-arrow;
+  .fp-heading {
+    @include auth-heading;
   }
 
-  &:not(:disabled):hover .fp-submit-arrow {
-    @include auth-submit-arrow-hover;
-  }
-}
+  .fp-card {
+    @include auth-card;
 
-.fp-back-link {
-  @include auth-back-link;
+    .fp-form {
+      @include auth-form;
+
+      .fp-submit {
+        @include auth-submit-btn;
+
+        .fp-submit-arrow {
+          @include auth-submit-arrow;
+        }
+
+        &:not(:disabled):hover .fp-submit-arrow {
+          @include auth-submit-arrow-hover;
+        }
+      }
+    }
+  }
+
+  .fp-back-link {
+    @include auth-back-link;
+
+    &:not([href]) {
+      @include disabled-state;
+    }
+  }
 }

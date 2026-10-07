@@ -1,16 +1,12 @@
 <section class="booking-section">
-  <h2 class="bs-heading">Book Tickets</h2>
+  <h2 class="bs-heading">Book tickets</h2>
 
   @if (datesResource.isLoading()) {
     <div class="bs-loading">
       <cui-loading-spinner variant="lg" />
     </div>
   } @else if (datesResource.error()) {
-    <cui-empty-state
-      [icon]="icons.TriangleAlertIcon"
-      header="Couldn't load showtimes"
-      description="Something went wrong. Please try again later."
-    />
+    <cui-error-state header="Couldn't load showtimes" />
   } @else if (!dates().length) {
     <div class="bs-state">
       <svg [lucideIcon]="icons.CalendarIcon" [size]="48"></svg>
@@ -43,11 +39,7 @@
         <cui-loading-spinner variant="lg" />
       </div>
     } @else if (showtimesResource.error()) {
-      <cui-empty-state
-        [icon]="icons.TriangleAlertIcon"
-        header="Couldn't load showtimes"
-        description="Something went wrong. Please try again later."
-      />
+      <cui-error-state header="Couldn't load showtimes" />
     } @else {
       <ul class="bs-formats">
         @for (group of dayShowtimes(); track group.hallType) {
@@ -64,7 +56,7 @@
                       @if (showtime.is3D) {
                         <span class="bs-time-badge">3D</span>
                       }
-                      <span class="sold-out-badge">Sold Out</span>
+                      <span class="sold-out-badge">Sold out</span>
                     </span>
                   } @else {
                     <a class="bs-time" routerLink="/movies/{{ movieId() }}/seats/{{ showtime.id }}">
@@ -79,11 +71,13 @@
             </ul>
           </li>
         } @empty {
-          <cui-empty-state
-            [icon]="icons.CalendarIcon"
-            header="No showtimes for this date"
-            description="Try another date above."
-          />
+          <li>
+            <cui-empty-state
+              [icon]="icons.CalendarIcon"
+              header="No showtimes for this date"
+              description="Try another date above."
+            />
+          </li>
         }
       </ul>
     }

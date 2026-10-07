@@ -34,7 +34,7 @@ public class EmailService {
                 "Reset your password",
                 "We received a request to reset your password. Use the verification code below to continue. "
                         + "Do not share this code with anyone.",
-                "If you didn't request a password reset, you can safely ignore this email — your password will remain unchanged.",
+                "If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.",
                 name,
                 code,
                 expiryMinutes);

@@ -3,11 +3,7 @@
     <cui-loading-spinner variant="xl" />
   </div>
 } @else if (failed()) {
-  <cui-empty-state
-    [icon]="icons.WarningIcon"
-    header="Couldn't load the summary"
-    description="Something went wrong. Please try again later."
-  />
+  <cui-error-state header="Couldn't load the summary" />
 } @else {
   <ul class="summary-grid">
     @for (card of cards(); track card.key) {

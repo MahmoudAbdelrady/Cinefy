@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type { HallType } from '../shared/types';
 
@@ -9,7 +9,7 @@ const API_PREFIX = '/halls';
 export class HallsService {
   private readonly http = inject(HttpClient);
 
-  getHallTypes(): Observable<HallType[]> {
-    return this.http.get<HallType[]>(`${API_PREFIX}/types`);
+  getHallTypes(context?: HttpContext): Observable<HallType[]> {
+    return this.http.get<HallType[]>(`${API_PREFIX}/types`, { context });
   }
 }

@@ -1,23 +1,19 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyInput, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { CinefyToastService } from 'cinefy-ui/services';
 import { AuthService } from '../../../services';
-import { EMAIL_PATTERN } from '../../../shared/validation';
+import { EMAIL_PATTERN } from 'cinefy-ui/forms';
+import { toSafeRedirect } from 'cinefy-ui/utils';
 import { ArrowRightIcon, EmailIcon, PasswordIcon } from '../../../shared/icons';
 
 @Component({
   selector: 'login-page',
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    LucideDynamicIcon,
-    CinefyInput,
-    CinefyLoadingSpinner,
-  ],
+  imports: [ReactiveFormsModule, RouterLink, LucideDynamicIcon, CinefyInput, CinefyLoadingSpinner],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -31,6 +27,7 @@ export class LoginPage {
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(CinefyToastService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly submitting = signal(false);
@@ -46,6 +43,16 @@ export class LoginPage {
     }),
   });
 
+  constructor() {
+    effect(() => {
+      if (this.submitting()) {
+        this.loginForm.disable({ emitEvent: false });
+      } else {
+        this.loginForm.enable({ emitEvent: false });
+      }
+    });
+  }
+
   protected onSubmit() {
     if (this.loginForm.invalid || this.submitting()) return;
     this.submitting.set(true);
@@ -54,12 +61,18 @@ export class LoginPage {
       .login(this.loginForm.getRawValue())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.router.navigateByUrl('/'),
-        error: () => {
+        next: () => this.router.navigateByUrl(this.redirectUrl()),
+        error: (error: HttpErrorResponse) => {
           this.submitting.set(false);
           this.loginForm.controls.password.reset();
-          this.toastService.error('Invalid email or password');
+          if (error.status !== 0 && error.status < 500) {
+            this.toastService.error('Invalid email or password');
+          }
         },
       });
+  }
+
+  private redirectUrl(): string {
+    return toSafeRedirect(this.route.snapshot.queryParamMap.get('redirectUrl'));
   }
 }

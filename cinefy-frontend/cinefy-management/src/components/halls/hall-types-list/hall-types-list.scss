@@ -1,0 +1,174 @@
+@use '../../../shared/styles/colors' as *;
+@use 'cinefy-ui/styles/mixins' as *;
+@use '../hall-type-row' as *;
+
+@include hall-type-row;
+
+.existing-types-container {
+  .section-head {
+    @include flex-align;
+    gap: 12px;
+    margin-bottom: 12px;
+
+    h3 {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: $gray-500;
+      white-space: nowrap;
+    }
+
+    .sh-rule {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, $gray-200, transparent);
+    }
+
+    .sh-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: $gray-400;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  .loading-types {
+    @include flex-center;
+    padding: 24px 16px;
+    color: $gray-500;
+  }
+
+  .load-types-error {
+    @include flex-center;
+    padding: 24px 16px;
+  }
+
+  .existing-types-list {
+    @include flex-column;
+    gap: 8px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 8px;
+
+    .existing-type-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      background-color: $gray-50;
+      border-radius: $radius-md;
+      border: 1px solid $gray-200;
+      transition:
+        border-color $transition-fast,
+        background-color $transition-fast;
+
+      &:has(.inline-edit-field) {
+        align-items: flex-start;
+      }
+
+      &:hover {
+        border-color: $gray-300;
+        background-color: #ffffff;
+      }
+
+      &:hover,
+      &:focus-within {
+        .action-buttons:not(.editing) {
+          opacity: 1;
+        }
+      }
+
+      .edit-type-form {
+        display: contents;
+      }
+
+      .type-name {
+        flex: 1;
+        min-width: 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: $gray-800;
+        @include text-truncate;
+      }
+    }
+  }
+}
+
+// ─── Delete Confirmation Popover ─────────────────────────────────────────────
+
+.delete-confirm-popover {
+  width: 240px;
+
+  .delete-confirm-header {
+    @include flex-align;
+    @include lucide-icon-fix;
+    gap: 8px;
+    margin-bottom: 4px;
+    color: $red-500;
+
+    span {
+      font-size: 14px;
+      font-weight: 600;
+      color: $gray-900;
+    }
+  }
+
+  > p {
+    font-size: 13px;
+    color: $gray-500;
+    margin-bottom: 12px;
+  }
+
+  .delete-confirm-actions {
+    @include flex-align;
+    gap: 8px;
+
+    button {
+      @include flex-center;
+      gap: 6px;
+      flex: 1;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: $radius-sm;
+      transition: all $transition-fast;
+
+      &.btn-cancel {
+        color: $gray-700;
+        border: 1px solid $gray-300;
+
+        &:hover {
+          background-color: $gray-100;
+        }
+
+        &:disabled {
+          color: $gray-300;
+          cursor: not-allowed;
+
+          &:hover {
+            background-color: transparent;
+          }
+        }
+      }
+
+      &.btn-delete {
+        color: #ffffff;
+        background-color: $red-500;
+
+        &:hover {
+          background-color: $red-600;
+        }
+
+        &:disabled {
+          background-color: $gray-300;
+          cursor: not-allowed;
+
+          &:hover {
+            background-color: $gray-300;
+          }
+        }
+      }
+    }
+  }
+}

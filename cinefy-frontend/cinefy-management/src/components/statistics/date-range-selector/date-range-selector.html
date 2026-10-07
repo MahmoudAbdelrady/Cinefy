@@ -15,7 +15,7 @@
 
   <button
     type="button"
-    class="custom-trigger"
+    class="btn-base custom-trigger"
     [class.selected]="preset() === 'custom'"
     (click)="toggleCustomRange($event)"
   >
@@ -37,7 +37,11 @@
 
         <label class="crp-field">
           <span>To</span>
-          <cui-date-picker [control]="customForm.controls.to" [max]="today" placeholder="End date" />
+          <cui-date-picker
+            [control]="customForm.controls.to"
+            [max]="today"
+            placeholder="End date"
+          />
         </label>
       </div>
 
@@ -46,7 +50,7 @@
       }
 
       <div class="crp-actions">
-        <button type="button" class="btn-secondary" (click)="closeCustomRange()">Cancel</button>
+        <button type="button" class="btn-neutral" (click)="closeCustomRange()">Cancel</button>
         <button type="button" class="btn-primary" [disabled]="!canApply()" (click)="applyCustom()">
           Apply
         </button>

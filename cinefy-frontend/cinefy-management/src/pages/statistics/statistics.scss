@@ -5,27 +5,27 @@
 .statistics-container {
   @include flex-column;
   gap: 24px;
-}
 
-.statistics-header {
-  @include flex-align;
+  .statistics-header {
+    @include flex-align;
 
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
 
-  .statistics-range-label {
-    font-size: 14px;
-    color: $gray-600;
+    .statistics-range-label {
+      font-size: 14px;
+      color: $gray-600;
 
-    span {
-      font-weight: 600;
-      color: $gray-900;
-      white-space: nowrap;
+      span {
+        font-weight: 600;
+        color: $gray-900;
+        white-space: nowrap;
+      }
     }
-  }
 
-  @include below-mobile {
-    justify-content: stretch;
+    @include below-mobile {
+      justify-content: stretch;
+    }
   }
 }

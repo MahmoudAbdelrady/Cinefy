@@ -8,280 +8,247 @@
   border-radius: $radius-lg;
   border: 1px solid $gray-200;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
 
-.ah-header {
-  @include flex-between;
-  gap: 16px;
-  padding: 24px;
-  border-bottom: 1px solid $gray-200;
-
-  @include below-mobile {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-.ah-header-left {
-  h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: $gray-900;
-    line-height: 1.3;
-  }
-
-  p {
-    font-size: 14px;
-    color: $gray-600;
-    margin-top: 4px;
-  }
-}
-
-.ah-header-right {
-  @include flex-align;
-  gap: 12px;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-
-  @include below-mobile {
-    width: 100%;
-  }
-}
-
-.search-filter {
-  width: 288px;
-  max-width: 100%;
-
-  @include below-mobile {
-    width: 100%;
-  }
-}
-
-.drop-down-filter {
-  min-width: 180px;
-
-  @include below-mobile {
-    width: 100%;
-  }
-}
-
-// ─── Hall Items ─────────────────────────────────────────────────────────────────
-
-.ah-items {
-  @include flex-column;
-}
-
-.ah-items-container {
-  @include flex-column;
-  max-height: 680px;
-  overflow-y: auto;
-}
-
-.ah-item {
-  @include flex-between;
-  gap: 16px;
-  padding: 24px;
-  border-bottom: 1px solid $gray-200;
-  transition: background-color $transition-fast;
-
-  &:hover {
-    background-color: $gray-50;
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  @include below-tablet {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-.ahi-info {
-  @include flex-align;
-  gap: 16px;
-  flex: 1;
-  min-width: 0;
-}
-
-.ahi-info-icon {
-  @include icon-box(64px);
-  background-color: $gray-100;
-  flex-shrink: 0;
-
-  svg {
-    color: $gray-500;
-  }
-
-  @include below-mobile {
-    @include icon-box(48px);
-  }
-}
-
-.ahi-info-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.ahid-header {
-  @include flex-align;
-  gap: 12px;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
-
-  h4 {
-    font-size: 18px;
-    font-weight: 600;
-    color: $gray-900;
-  }
-
-  p {
-    padding: 4px 12px;
-    border-radius: $radius-full;
-    font-size: 12px;
-    font-weight: 600;
-  }
-}
-
-.ahid-content {
-  @include flex-align;
-  gap: 24px;
-  font-size: 14px;
-  color: $gray-600;
-  flex-wrap: wrap;
-
-  @include below-mobile {
-    gap: 12px;
-  }
-}
-
-.ahidc-item {
-  @include flex-align;
-  gap: 6px;
-  @include lucide-icon-fix;
-
-  &.current-movie {
-    &::before {
-      content: '';
-      display: inline-block;
-      width: 1px;
-      height: 16px;
-      background-color: $gray-300;
-      margin-right: 8px;
-    }
+  .ah-header {
+    @include flex-between;
+    gap: 16px;
+    padding: 24px;
+    border-bottom: 1px solid $gray-200;
 
     @include below-mobile {
-      &::before {
-        display: none;
-      }
+      flex-direction: column;
+      align-items: stretch;
     }
-  }
-}
 
-// ─── Status Badges ──────────────────────────────────────────────────────────────
+    .ah-header-left {
+      h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: $gray-900;
+        line-height: 1.3;
+      }
 
-.ahidh-status {
-  &[data-status='ACTIVE'] {
-    background-color: $green-100;
-    color: $green-700;
-  }
-
-  &[data-status='SCHEDULED'] {
-    background-color: $blue-100;
-    color: $blue-700;
-  }
-
-  &[data-status='UNDER_MAINTENANCE'] {
-    background-color: #fef3c7;
-    color: #b45309;
-  }
-
-  &[data-status='INACTIVE'] {
-    background-color: $gray-100;
-    color: $gray-700;
-  }
-}
-
-// ─── Loading State ──────────────────────────────────────────────────────────────
-
-.ah-loading {
-  @include flex-center;
-  flex-direction: column;
-  gap: 12px;
-  padding: 64px 24px;
-  color: $gray-400;
-}
-
-// ─── Action Buttons ─────────────────────────────────────────────────────────────
-
-.ahi-actions {
-  @include flex-align;
-  gap: 8px;
-  flex-shrink: 0;
-
-  @include below-tablet {
-    justify-content: flex-end;
-  }
-
-  button {
-    @include flex-align;
-    @include lucide-icon-fix;
-    gap: 8px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: $radius-md;
-    transition: all $transition-fast;
-    white-space: nowrap;
-
-    &:first-child {
-      color: $blue-600;
-      border: 1px solid $blue-200;
-
-      &:hover {
-        background-color: $blue-50;
+      p {
+        font-size: 14px;
+        color: $gray-600;
+        margin-top: 4px;
       }
     }
 
-    &:last-child {
-      color: $red-600;
-      border: 1px solid rgba($red-400, 0.4);
+    .ah-header-right {
+      @include flex-align;
+      gap: 12px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
 
-      &:hover {
-        background-color: $red-50;
+      @include below-mobile {
+        width: 100%;
+      }
+
+      .search-filter {
+        width: 288px;
+        max-width: 100%;
+
+        @include below-mobile {
+          width: 100%;
+        }
+      }
+
+      .drop-down-filter {
+        min-width: 180px;
+
+        @include below-mobile {
+          width: 100%;
+        }
       }
     }
+  }
 
-    &:active {
-      transform: scale(0.97);
+  // ─── Hall Items ─────────────────────────────────────────────────────────────────
+
+  .ah-items {
+    @include flex-column;
+
+    // ─── Loading State ──────────────────────────────────────────────────────────────
+
+    .ah-loading {
+      @include flex-center;
+      flex-direction: column;
+      gap: 12px;
+      padding: 64px 24px;
+      color: $gray-400;
+    }
+
+    .ah-items-container {
+      @include flex-column;
+      max-height: 680px;
+      overflow-y: auto;
+
+      .ah-item {
+        @include flex-between;
+        gap: 16px;
+        padding: 24px;
+        border-bottom: 1px solid $gray-200;
+        transition: background-color $transition-fast;
+
+        &:hover {
+          background-color: $gray-50;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        @include below-tablet {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .ahi-info {
+          @include flex-align;
+          gap: 16px;
+          flex: 1;
+          min-width: 0;
+
+          .ahi-info-icon {
+            @include icon-box(64px);
+            background-color: $gray-100;
+            flex-shrink: 0;
+
+            svg {
+              color: $gray-500;
+            }
+
+            @include below-mobile {
+              @include icon-box(48px);
+            }
+          }
+
+          .ahi-info-details {
+            flex: 1;
+            min-width: 0;
+
+            .ahid-header {
+              @include flex-align;
+              gap: 12px;
+              margin-bottom: 8px;
+              flex-wrap: wrap;
+
+              h4 {
+                font-size: 18px;
+                font-weight: 600;
+                color: $gray-900;
+              }
+
+              p {
+                padding: 4px 12px;
+                border-radius: $radius-full;
+                font-size: 12px;
+                font-weight: 600;
+              }
+
+              // ─── Status Badges ──────────────────────────────────────────────────────────────
+
+              .ahidh-status {
+                &[data-status='ACTIVE'] {
+                  background-color: $green-100;
+                  color: $green-700;
+                }
+
+                &[data-status='SCHEDULED'] {
+                  background-color: $blue-100;
+                  color: $blue-700;
+                }
+
+                &[data-status='UNDER_MAINTENANCE'] {
+                  background-color: #fef3c7;
+                  color: #b45309;
+                }
+
+                &[data-status='INACTIVE'] {
+                  background-color: $gray-100;
+                  color: $gray-700;
+                }
+              }
+            }
+
+            .ahid-content {
+              @include flex-align;
+              gap: 24px;
+              font-size: 14px;
+              color: $gray-600;
+              flex-wrap: wrap;
+
+              @include below-mobile {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+              }
+
+              .ahidc-item {
+                @include flex-align;
+                gap: 6px;
+                @include lucide-icon-fix;
+              }
+            }
+          }
+        }
+
+        // ─── Action Buttons ─────────────────────────────────────────────────────────────
+
+        .ahi-actions {
+          @include flex-align;
+          gap: 8px;
+          flex-shrink: 0;
+
+          @include below-tablet {
+            justify-content: flex-end;
+          }
+
+          button {
+            @include lucide-icon-fix;
+            padding: 8px 16px;
+            white-space: nowrap;
+
+            @include below-phone {
+              padding: 8px;
+
+              span {
+                display: none;
+              }
+            }
+
+            &.view-btn {
+              color: $gray-700;
+              border: 1px solid $gray-300;
+
+              &:hover {
+                background-color: $gray-100;
+              }
+            }
+
+            &.edit-btn {
+              color: $blue-600;
+              border: 1px solid $blue-200;
+
+              &:hover {
+                background-color: $blue-50;
+              }
+            }
+
+            &.delete-btn {
+              color: $red-600;
+              border: 1px solid $red-200;
+
+              &:hover {
+                background-color: $red-50;
+              }
+            }
+          }
+        }
+      }
     }
   }
-}
-
-// ─── View Modal ─────────────────────────────────────────────────────────────────
-
-.view-modal-content {
-  @include flex-column;
-  gap: 16px;
-}
-
-.vmc-detail {
-  @include flex-align;
-  gap: 12px;
-}
-
-.vmc-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: $gray-500;
-  min-width: 100px;
-}
-
-.vmc-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: $gray-900;
 }
 
 // ─── Delete Modal ───────────────────────────────────────────────────────────────
@@ -298,29 +265,29 @@
 
 .delete-modal-content {
   text-align: center;
-}
 
-.dmc-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: $radius-full;
-  background-color: $red-50;
-  @include flex-center;
-  margin: 0 auto 16px;
+  .dmc-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-full;
+    background-color: $red-50;
+    @include flex-center;
+    margin: 0 auto 16px;
 
-  svg {
-    display: flex;
-    color: $red-600;
+    svg {
+      display: flex;
+      color: $red-600;
+    }
   }
-}
 
-.dmc-message {
-  font-size: 14px;
-  color: $gray-600;
-  line-height: 1.6;
-  margin-bottom: 24px;
+  .dmc-message {
+    font-size: 14px;
+    color: $gray-600;
+    line-height: 1.6;
+    margin-bottom: 24px;
 
-  strong {
-    color: $gray-900;
+    strong {
+      color: $gray-900;
+    }
   }
 }

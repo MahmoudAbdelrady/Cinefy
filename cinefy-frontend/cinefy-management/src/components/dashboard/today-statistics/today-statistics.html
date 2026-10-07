@@ -14,9 +14,13 @@
         <li class="ts-figure">
           <p class="ts-figure-label">{{ figure.label }}</p>
           <p class="ts-figure-value">
-            {{ (figure.value | number) + (figure.isPercentage ? '%' : '') }}
-            @if (figure.unit) {
-              <span class="ts-figure-unit">{{ figure.unit }}</span>
+            @if (figure.value === null) {
+              -
+            } @else {
+              {{ (figure.value | number) + (figure.isPercentage ? '%' : '') }}
+              @if (figure.unit) {
+                <span class="ts-figure-unit">{{ figure.unit }}</span>
+              }
             }
           </p>
         </li>

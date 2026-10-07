@@ -6,39 +6,39 @@
   @include flex-center;
   min-height: 60vh;
   padding: 24px;
-}
 
-.content {
-  @include flex-center;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 420px;
-  text-align: center;
+  .content {
+    @include flex-center;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 420px;
+    text-align: center;
 
-  h1 {
-    font-size: 24px;
-    font-weight: 600;
-    color: $gray-900;
+    .icon-box {
+      @include flex-center;
+      width: 72px;
+      height: 72px;
+      border-radius: $radius-full;
+      background-color: $red-50;
+      color: $red-600;
+      margin-bottom: 4px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: $gray-900;
+    }
+
+    p {
+      font-size: 14px;
+      color: $gray-500;
+      line-height: 1.6;
+    }
+
+    .btn-primary {
+      margin-top: 12px;
+      text-decoration: none;
+    }
   }
-
-  p {
-    font-size: 14px;
-    color: $gray-500;
-    line-height: 1.6;
-  }
-
-  .btn-primary {
-    margin-top: 12px;
-    text-decoration: none;
-  }
-}
-
-.icon-box {
-  @include flex-center;
-  width: 72px;
-  height: 72px;
-  border-radius: $radius-full;
-  background-color: $red-50;
-  color: $red-600;
-  margin-bottom: 4px;
 }

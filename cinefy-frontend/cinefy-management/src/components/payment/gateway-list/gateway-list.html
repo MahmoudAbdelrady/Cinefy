@@ -2,6 +2,8 @@
   <div class="gl-loading">
     <cui-loading-spinner variant="md" />
   </div>
+} @else if (failed()) {
+  <cui-error-state class="gl-empty" header="Couldn't load payment gateways" />
 } @else {
   @if (standbyGateways().length && !activeGateway()) {
     <div class="gl-notice">
@@ -24,25 +26,18 @@
   }
 
   @if (!activeGateway() && !standbyGateways().length) {
-    <section class="gateway-list">
-      <header class="gl-header">
-        <h3>All Payment Gateways</h3>
-        <p>Only one gateway is allowed to receives new payments.</p>
-      </header>
-
-      <cui-empty-state
-        class="gl-empty"
-        [icon]="icons.CreditCardIcon"
-        header="No payment gateways yet"
-        description="Add a gateway to start taking online payments."
-      />
-    </section>
+    <cui-empty-state
+      class="gl-empty"
+      [icon]="icons.CreditCardIcon"
+      header="No payment gateways yet"
+      description="Add a gateway to start taking online payments."
+    />
   } @else {
     @if (activeGateway(); as gateway) {
       <section class="gl-active">
         <p class="gl-group-label active">
           <span class="gl-group-dot"></span>
-          Active Gateway
+          Active gateway
         </p>
 
         <article class="gl-active-card">
@@ -85,7 +80,7 @@
           <table class="gl-table">
             <thead>
               <tr>
-                <th class="gl-col-name">Gateway Name</th>
+                <th class="gl-col-name">Gateway name</th>
                 <th>Provider</th>
                 <th>Added</th>
                 <th>Channels</th>
@@ -124,7 +119,7 @@
 <ng-template #gatewayActions let-gateway>
   <button
     type="button"
-    class="gl-action"
+    class="btn-base gl-action"
     [class.deactivate]="gateway.active"
     [class.activate]="!gateway.active"
     (click)="gatewayToToggle.set(gateway)"
@@ -137,12 +132,12 @@
     <span>{{ gateway.active ? 'Deactivate' : 'Activate' }}</span>
   </button>
 
-  <button type="button" class="gl-action" (click)="gatewayToViewChannels.set(gateway)">
+  <button type="button" class="btn-base gl-action" (click)="gatewayToViewChannels.set(gateway)">
     <svg [lucideIcon]="icons.EyeIcon" [size]="16" [strokeWidth]="2"></svg>
     <span>Channels</span>
   </button>
 
-  <button type="button" class="gl-action edit" (click)="gatewayToEdit.set(gateway)">
+  <button type="button" class="btn-base gl-action edit" (click)="gatewayToEdit.set(gateway)">
     <svg [lucideIcon]="icons.EditIcon" [size]="16" [strokeWidth]="2"></svg>
     <span>Edit</span>
   </button>
@@ -150,7 +145,7 @@
   @if (!gateway.active) {
     <button
       type="button"
-      class="gl-action delete"
+      class="btn-base gl-action delete"
       [disabled]="isDeleting(gateway.id)"
       (click)="gatewayToDelete.set(gateway)"
     >
@@ -223,7 +218,7 @@
 
     <div customFooter class="gl-confirm-footer">
       <button
-        class="btn-secondary"
+        class="btn-neutral"
         [disabled]="togglingGateway()"
         (click)="gatewayToToggle.set(null)"
       >
@@ -307,16 +302,15 @@
         <svg [lucideIcon]="icons.AlertIcon" [size]="24" [strokeWidth]="2"></svg>
       </div>
 
-      <h3 class="gl-confirm-title">Delete {{ gateway.name }}?</h3>
-      @let deletedChannelCount = gateway.paymentChannels?.length ?? 0;
+      <h3 class="gl-confirm-title">Delete payment gateway</h3>
       <p class="gl-confirm-text">
-        This removes the gateway, its credentials, and its {{ deletedChannelCount }}
-        {{ deletedChannelCount === 1 ? 'channel' : 'channels' }}. This can't be undone.
+        Are you sure you want to delete <strong>{{ gateway.name }}</strong
+        >? This action cannot be undone.
       </p>
     </div>
 
     <div customFooter class="gl-confirm-footer">
-      <button class="btn-secondary" [disabled]="deleting" (click)="gatewayToDelete.set(null)">
+      <button class="btn-neutral" [disabled]="deleting" (click)="gatewayToDelete.set(null)">
         Cancel
       </button>
       <button class="btn-danger" [disabled]="deleting" (click)="deleteGateway(gateway.id)">

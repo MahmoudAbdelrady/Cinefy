@@ -3,6 +3,10 @@
     display: none;
   }
 
+  .p-dialog-content {
+    contain: inline-size;
+  }
+
   .cui-dialog-heading {
     display: flex;
     flex-direction: column;

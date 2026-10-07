@@ -1,7 +1,7 @@
 <div class="current-showtimes-container">
   <div class="header">
     <div class="h-info">
-      <h4>Current Movies & Showtimes</h4>
+      <h4>Current movies & showtimes</h4>
       <p>Manage movies currently showing in your cinema</p>
     </div>
     <div class="h-controls">
@@ -33,6 +33,8 @@
       <div class="cs-loading">
         <cui-loading-spinner variant="md" />
       </div>
+    } @else if (failed()) {
+      <cui-error-state header="Couldn't load current movies" />
     } @else {
       <ul class="cs-grid">
         @for (item of filteredMovies(); track item.movieDetails.id) {
@@ -125,7 +127,7 @@
                 @if (canManage()) {
                   <button class="mcfa-add" (click)="movieToAdd.set(shMovie)">
                     <svg [lucideIcon]="icons.PlusIcon" [size]="15"></svg>
-                    <span>Add Showtime</span>
+                    <span>Add showtime</span>
                   </button>
                   <button
                     class="mcfa-delete"
@@ -190,7 +192,7 @@
 @if (movieToDelete(); as item) {
   @let deleting = deletingShowtimeIds().has(item.movieDetails.id);
   <cui-dialog
-    header="Delete All Showtimes"
+    header="Delete all showtimes"
     [canClose]="!deleting"
     [style]="{ width: '500px' }"
     (closed)="movieToDelete.set(null)"
@@ -207,7 +209,7 @@
     </div>
 
     <div customFooter class="delete-modal-footer">
-      <button class="btn-secondary" [disabled]="deleting" (click)="movieToDelete.set(null)">
+      <button class="btn-neutral" [disabled]="deleting" (click)="movieToDelete.set(null)">
         Cancel
       </button>
       <button
@@ -219,7 +221,7 @@
           <cui-loading-spinner variant="sm" />
           <span>Deleting…</span>
         } @else {
-          <span>Delete All</span>
+          <span>Delete all</span>
         }
       </button>
     </div>

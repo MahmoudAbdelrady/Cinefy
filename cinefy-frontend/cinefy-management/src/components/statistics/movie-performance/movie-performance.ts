@@ -1,9 +1,25 @@
-import { Component, computed, effect, inject, input, linkedSignal, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
-import { Subscription } from 'rxjs';
-import { CinefyEmptyState, CinefyLoadingSpinner, CinefyPaginator } from 'cinefy-ui/components';
-import { ClapperboardIcon, WarningIcon } from '../../../shared/icons';
+import { finalize, Subscription } from 'rxjs';
+import {
+  CinefyEmptyState,
+  CinefyErrorState,
+  CinefyLoadingSpinner,
+  CinefyPaginator,
+} from 'cinefy-ui/components';
+import { ClapperboardIcon } from '../../../shared/icons';
 import { DEFAULT_PAGE_SIZE } from '../../../shared/constants';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
 import type { DateRange, MoviePerformance } from '../../../shared/types';
@@ -34,17 +50,17 @@ interface MovieRow {
 
 @Component({
   selector: 'movie-performance',
-  imports: [CinefyLoadingSpinner, CinefyEmptyState, CinefyPaginator, DecimalPipe],
+  imports: [CinefyLoadingSpinner, CinefyEmptyState, CinefyErrorState, CinefyPaginator, DecimalPipe],
   templateUrl: './movie-performance.html',
   styleUrl: './movie-performance.scss',
 })
 export class MoviePerformanceComponent {
   protected readonly icons = {
     ClapperboardIcon,
-    WarningIcon,
   };
 
   private readonly statisticsService = inject(StatisticsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currency = CURRENCY;
   protected readonly pageSize = DEFAULT_PAGE_SIZE;
@@ -89,17 +105,19 @@ export class MoviePerformanceComponent {
   private load(range: DateRange, page: number): Subscription {
     this.loading.set(true);
     this.failed.set(false);
-    return this.statisticsService.getMoviePerformance(range, page, this.pageSize).subscribe({
-      next: (response) => {
-        this.movies.set(response.content);
-        this.totalItems.set(response.page.totalElements);
-        this.pageCount.set(Math.max(1, response.page.totalPages));
-        this.loading.set(false);
-      },
-      error: () => {
-        this.failed.set(true);
-        this.loading.set(false);
-      },
-    });
+    return this.statisticsService
+      .getMoviePerformance(range, page, this.pageSize, skipServerErrorToast())
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (response) => {
+          this.movies.set(response.content);
+          this.totalItems.set(response.page.totalElements);
+          this.pageCount.set(Math.max(1, response.page.totalPages));
+        },
+        error: () => this.failed.set(true),
+      });
   }
 }

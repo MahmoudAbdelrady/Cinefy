@@ -41,7 +41,7 @@ public class CinefyApiAuthorizationManager implements AuthorizationManager<Reque
                 return handlerMethod.hasMethodAnnotation(PublicApi.class) || handlerMethod.getBeanType().isAnnotationPresent(PublicApi.class);
             }
         } catch (Exception ex) {
-            log.warn("Could not resolve handler for {} — treating as non-public", request.getRequestURI(), ex);
+            log.warn("Could not resolve handler for {}, treating as non-public", request.getRequestURI(), ex);
         }
         return false;
     }

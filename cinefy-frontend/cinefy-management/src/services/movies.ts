@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type { MovieSearchResult, UpcomingMovie, MovieDetail } from '../shared/types';
 import type { PaginatedResponse } from 'cinefy-ui/types';
@@ -13,17 +13,21 @@ export class MoviesService {
   searchMovies(
     query: string,
     pageable?: { page?: number; size?: number },
+    context?: HttpContext,
   ): Observable<PaginatedResponse<MovieSearchResult>> {
     const params = {
       query,
       ...pageable,
     };
-    return this.http.get<PaginatedResponse<MovieSearchResult>>(`${API_PREFIX}/search`, { params });
+    return this.http.get<PaginatedResponse<MovieSearchResult>>(`${API_PREFIX}/search`, {
+      params,
+      context,
+    });
   }
 
-  getUpcomingMovies(limit?: number): Observable<UpcomingMovie[]> {
+  getUpcomingMovies(limit?: number, context?: HttpContext): Observable<UpcomingMovie[]> {
     const params = { ...(limit !== undefined && { limit }) };
-    return this.http.get<UpcomingMovie[]>(`${API_PREFIX}/upcoming`, { params });
+    return this.http.get<UpcomingMovie[]>(`${API_PREFIX}/upcoming`, { params, context });
   }
 
   getMovieDetails(id: number): Observable<MovieDetail> {

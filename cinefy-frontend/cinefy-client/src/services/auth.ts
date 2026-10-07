@@ -1,6 +1,8 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { HttpClient, HttpContext, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { catchError, finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
+import { skipServerErrorToast } from 'cinefy-ui/http';
+import type { AuthStatus } from 'cinefy-ui/types';
 import type {
   SignUpPayload,
   LoginPayload,
@@ -22,7 +24,9 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly clientService = inject(ClientService);
 
-  private readonly authStatus = signal<boolean | null>(null);
+  private readonly authStatus = signal<AuthStatus | null>(null);
+
+  readonly serverUnavailable = computed(() => this.authStatus() === 'UNAVAILABLE');
 
   private refresh$: Observable<void> | null = null;
 
@@ -33,7 +37,7 @@ export class AuthService {
   verifyAccount(data: OtpCodePayload): Observable<void> {
     return this.http
       .post<void>(`${API_PREFIX}/verify-account`, data)
-      .pipe(tap(() => this.authStatus.set(true)));
+      .pipe(tap(() => this.authStatus.set('AUTHENTICATED')));
   }
 
   sendOtp(data: SendOtpPayload): Observable<void> {
@@ -43,7 +47,7 @@ export class AuthService {
   login(data: LoginPayload, context?: HttpContext): Observable<void> {
     return this.http
       .post<void>(`${API_PREFIX}/login`, data, { context })
-      .pipe(tap(() => this.authStatus.set(true)));
+      .pipe(tap(() => this.authStatus.set('AUTHENTICATED')));
   }
 
   getOAuthAuthorizationUrl(provider: string, redirectUrl?: string): Observable<string> {
@@ -62,14 +66,16 @@ export class AuthService {
       .post<OAuthCallbackResult | null>(`${API_PREFIX}/oauth/callback`, data, { context })
       .pipe(
         map((result) => result ?? {}),
-        tap((result) => this.authStatus.set(!result.registration)),
+        tap((result) =>
+          this.authStatus.set(result.registration ? 'UNAUTHENTICATED' : 'AUTHENTICATED'),
+        ),
       );
   }
 
   oAuthSignUp(data: OAuthSignUpPayload, context?: HttpContext): Observable<void> {
     return this.http
       .post<void>(`${API_PREFIX}/oauth/sign-up`, data, { context })
-      .pipe(tap(() => this.authStatus.set(true)));
+      .pipe(tap(() => this.authStatus.set('AUTHENTICATED')));
   }
 
   logout(): Observable<void> {
@@ -86,14 +92,17 @@ export class AuthService {
     return this.http.post<void>(`${API_PREFIX}/reset-password`, data);
   }
 
-  isAuthenticated(): Observable<boolean> {
+  getAuthStatus(): Observable<AuthStatus> {
     const known = this.authStatus();
-    if (known !== null) return of(known);
+    if (known) return of(known);
 
-    return this.http.get<void>(`${API_PREFIX}/session`).pipe(
-      map(() => true),
-      catchError(() => of(false)),
-      tap((valid) => this.authStatus.set(valid)),
+    return this.http.get<void>(`${API_PREFIX}/session`, { context: skipServerErrorToast() }).pipe(
+      map((): AuthStatus => 'AUTHENTICATED'),
+      catchError((error: HttpErrorResponse) => {
+        const unavailable = error.status === 0 || error.status >= 500;
+        return of<AuthStatus>(unavailable ? 'UNAVAILABLE' : 'UNAUTHENTICATED');
+      }),
+      tap((status) => this.authStatus.set(status)),
     );
   }
 
@@ -106,7 +115,7 @@ export class AuthService {
   }
 
   clearAuthState(): void {
-    this.authStatus.set(false);
+    this.authStatus.set('UNAUTHENTICATED');
     this.clientService.clearCurrentUser();
   }
 }

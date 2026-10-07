@@ -30,7 +30,7 @@
           }"
         />
         <div class="lp-forgot">
-          <a routerLink="/forgot-password">Forgot password?</a>
+          <a [routerLink]="submitting() ? null : '/forgot-password'">Forgot password?</a>
         </div>
       </div>
 

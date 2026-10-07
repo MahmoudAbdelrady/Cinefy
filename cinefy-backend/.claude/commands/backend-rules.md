@@ -7,21 +7,25 @@ When working on the `cinefy-backend` module, always enforce these rules:
 Any time a repository method returns a collection or a single entity whose associations are accessed afterwards, eagerly load those associations at the query level — never rely on lazy loading triggering separate queries in a loop.
 
 **How to apply:**
+
 - For `@ManyToOne` / `@OneToOne`: use `@EntityGraph(attributePaths = "fieldName")` on the repository method.
 - For multiple `@OneToMany` collections fetched together on a single entity: declare fields as `Set<T>` (not `List<T>`) and use `@EntityGraph(attributePaths = {"col1", "col2"})`.
 - For paginated queries (`Page<T>`): only use `@EntityGraph` on `@ManyToOne` associations — never on `@OneToMany` collections (causes in-memory pagination / `HHH90003004`).
 - Alternative when filtering/ordering on the joined table is needed: use a custom `@Query` with `JOIN FETCH`.
 
 **Example:**
-```java
-// Single entity — loads all needed associations in one query
-@EntityGraph(attributePaths = {"type", "categoryPrices", "seats"})
-Optional<Hall> findByUuid(String uuid);
 
-// Paginated list — only ManyToOne is safe here
+```java
+// Single entity — fetches the ManyToOne the mapper reads (HallRepository)
+@Query("SELECT h FROM Hall h JOIN FETCH h.type WHERE h.uuid = :uuid")
+Optional<Hall> findByUuidWithType(@Param("uuid") String uuid);
+
+// Paginated list (illustrative) — only a ManyToOne is safe to fetch here
 @EntityGraph(attributePaths = "type")
-Page<Hall> findAll(Pageable pageable);
+Page<Hall> findAllByStatus(HallStatus status, Pageable pageable);
 ```
+
+The codebase currently fetches with `@Query … JOIN FETCH` throughout; no repository uses `@EntityGraph` yet. `Hall.layout` and `Hall.categoryPrices` are JSONB columns, not associations, so they need no fetching.
 
 ---
 
@@ -29,13 +33,15 @@ Page<Hall> findAll(Pageable pageable);
 
 Any `@ManyToOne` or `@OneToOne` field in an entity must have a corresponding `@Index` on the FK column in `@Table`. PostgreSQL does **not** create indexes for foreign keys automatically.
 
-**Column naming:** follows `CinefyTableNamingStrategy` — camelCase field `hallType` → column `HALL_TYPE_ID`.
+**Column naming:** follows `CinefyTableNamingStrategy` — camelCase field `hallType` → column `HALL_TYPE_ID` (so `Hall.type` → `TYPE_ID`).
 
 **How to apply:**
+
 - If the entity already has `@Table`: add the index to the existing `indexes` array.
 - If the entity has no `@Table`: add one.
 
 **Example:**
+
 ```java
 @Entity
 @Table(indexes = {

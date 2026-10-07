@@ -17,6 +17,8 @@ import com.mdevs.cinefy.service.BookingService;
 import com.mdevs.cinefy.service.ClientPaymentMethodService;
 import com.mdevs.cinefy.service.PaymentService;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
+import com.mdevs.cinefy.shared.annotation.RateLimited;
+import com.mdevs.cinefy.shared.ratelimit.RateLimitPolicy;
 import com.mdevs.cinefy.shared.validation.ValidationPatterns;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -164,6 +166,7 @@ public class BookingController {
 
     @PublicApi
     @PreAuthorize("permitAll()")
+    @RateLimited(RateLimitPolicy.NONE)
     @PostMapping("/payment-callback")
     public ResponseEntity<Void> handlePaymentCallback(@RequestBody JsonNode payload, @RequestParam String hmac) {
         PaymentCallbackData callback = paymentService.handleCallback(payload, hmac);

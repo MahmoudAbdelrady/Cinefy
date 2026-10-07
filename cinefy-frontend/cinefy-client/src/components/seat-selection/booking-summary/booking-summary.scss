@@ -6,92 +6,86 @@
   border: 1px solid rgba($color-border, 0.5);
   border-radius: $radius-xl;
   background: $color-card;
-}
 
-.bsum-heading {
-  margin-bottom: 16px;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.bsum-empty {
-  @include flex-column;
-
-  align-items: center;
-  gap: 8px;
-  padding: 32px 0;
-  text-align: center;
-  color: $color-muted-foreground;
-
-  svg {
-    opacity: 0.5;
+  .bsum-heading {
+    margin-bottom: 16px;
+    font-size: 18px;
+    font-weight: 600;
   }
 
-  p {
-    font-size: 14px;
+  .bsum-empty {
+    @include flex-column;
+
+    align-items: center;
+    gap: 8px;
+    padding: 32px 0;
+    text-align: center;
+    color: $color-muted-foreground;
+
+    svg {
+      opacity: 0.5;
+    }
+
+    p {
+      font-size: 14px;
+    }
   }
-}
 
-.bsum-seats {
-  @include scrollbar-thin;
+  .bsum-seats {
+    @include scrollbar-thin;
 
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 160px;
-  overflow-y: auto;
-}
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 160px;
+    overflow-y: auto;
 
-.bsum-seat {
-  @include flex-between;
+    .bsum-seat {
+      @include flex-between;
 
-  gap: 12px;
-  font-size: 14px;
-}
+      gap: 12px;
+      font-size: 14px;
 
-.bsum-seat-label {
-  @include flex-align;
-  gap: 8px;
-}
+      .bsum-seat-label {
+        @include flex-align;
+        gap: 8px;
 
-.bsum-seat-position {
-  font-family: $font-mono;
-  font-weight: 500;
-  color: $color-primary;
-}
+        .bsum-seat-position {
+          font-family: $font-mono;
+          font-weight: 500;
+          color: $color-primary;
+        }
 
-.bsum-seat-category {
-  color: $color-muted-foreground;
-}
+        .bsum-seat-category {
+          color: $color-muted-foreground;
+        }
+      }
 
-.bsum-seat-price {
-  font-family: $font-mono;
-  color: $color-foreground;
-}
+      .bsum-seat-price {
+        font-family: $font-mono;
+        color: $color-foreground;
+      }
+    }
+  }
 
-.bsum-total {
-  @include flex-between;
+  .bsum-total {
+    @include flex-between;
 
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba($color-border, 0.5);
-  font-size: 18px;
-  font-weight: 700;
-}
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba($color-border, 0.5);
+    font-size: 18px;
+    font-weight: 700;
 
-.bsum-total-note {
-  font-size: 12px;
-  font-weight: 400;
-  color: $color-muted-foreground;
-}
+    .bsum-total-value {
+      font-family: $font-mono;
+    }
+  }
 
-.bsum-total-value {
-  font-family: $font-mono;
-}
-
-.bsum-proceed {
-  width: 100%;
-  margin-top: 24px;
-  padding: 12px 16px;
-  font-weight: 600;
+  .bsum-proceed {
+    width: 100%;
+    margin-top: 24px;
+    padding: 12px 16px;
+    font-weight: 600;
+  }
 }

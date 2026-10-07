@@ -1,8 +1,11 @@
-import { afterNextRender, Component, computed, inject, signal } from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
-import { skipErrorToast } from '../../../app/core/interceptors';
+import { CinefyEmptyState, CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { skipErrorToast } from 'cinefy-ui/http';
 import { PaymentGatewaysService } from '../../../services';
 import { AlertIcon, CreditCardIcon, SettingsIcon } from '../../../shared/icons';
 import { GATEWAY_PROVIDER_LABELS } from '../../../shared/types';
@@ -17,6 +20,7 @@ import { DashboardWidgetComponent } from '../dashboard-widget/dashboard-widget';
     RouterLink,
     LucideDynamicIcon,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
   ],
   templateUrl: './active-gateway.html',
@@ -26,9 +30,11 @@ export class ActiveGatewayComponent {
   protected readonly icons = { AlertIcon, CreditCardIcon, SettingsIcon };
 
   private readonly paymentGatewaysService = inject(PaymentGatewaysService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly gateway = signal<PaymentGateway | null>(null);
   protected readonly loading = signal(true);
+  protected readonly failed = signal(false);
 
   protected readonly providerLabel = computed(() => {
     const provider = this.gateway()?.provider;
@@ -56,12 +62,16 @@ export class ActiveGatewayComponent {
   }
 
   private load(): void {
-    this.paymentGatewaysService.getActivePaymentGateway(skipErrorToast()).subscribe({
-      next: (gateway) => {
-        this.gateway.set(gateway);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+    this.paymentGatewaysService
+      .getActivePaymentGateway(skipErrorToast())
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (gateway) => this.gateway.set(gateway),
+        error: (error: HttpErrorResponse) =>
+          this.failed.set(error.status !== HttpStatusCode.NotFound),
+      });
   }
 }

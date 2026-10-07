@@ -1,7 +1,8 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import {
   DEFAULT_COUNTRY,
@@ -13,12 +14,16 @@ import {
   toE164Digits,
   type PhoneCountryCode,
 } from 'cinefy-ui/components';
-import { linkConfirmPassword } from 'cinefy-ui/forms';
+import {
+  EMAIL_PATTERN,
+  linkConfirmPassword,
+  NAME_PATTERN,
+  PASSWORD_PATTERN,
+} from 'cinefy-ui/forms';
 import { OAuthButtonsComponent, OtpStep } from '../../../components';
 import { AuthFormStage } from '../../../shared/types';
 import { AuthService } from '../../../services';
-import { EMAIL_PATTERN, NAME_PATTERN, PASSWORD_PATTERN } from '../../../shared/validation';
-import { toSafeRedirect } from '../../../shared/redirect';
+import { toSafeRedirect } from 'cinefy-ui/utils';
 import { ArrowRightIcon, EmailIcon, LockIcon, UserIcon } from '../../../shared/icons';
 
 @Component({
@@ -52,6 +57,7 @@ export class SignUpPage {
 
   protected readonly stage = signal<AuthFormStage>('form');
   protected readonly submitting = signal(false);
+  protected readonly connecting = signal(false);
 
   protected readonly signupForm = new FormGroup({
     firstName: new FormControl('', {
@@ -94,6 +100,8 @@ export class SignUpPage {
     }),
   });
 
+  protected readonly authenticating = computed(() => this.submitting() || this.connecting());
+
   protected readonly verifyAccount = (code: string) => this.authService.verifyAccount({ code });
 
   constructor() {
@@ -105,10 +113,18 @@ export class SignUpPage {
       this.signupForm.controls.confirmPassword,
       this.destroyRef,
     );
+
+    effect(() => {
+      if (this.authenticating()) {
+        this.signupForm.disable({ emitEvent: false });
+      } else {
+        this.signupForm.enable({ emitEvent: false });
+      }
+    });
   }
 
   protected onSubmit() {
-    if (this.signupForm.invalid || this.submitting()) return;
+    if (this.signupForm.invalid || this.authenticating()) return;
 
     const value = this.signupForm.getRawValue();
     this.submitting.set(true);
@@ -121,13 +137,13 @@ export class SignUpPage {
         phoneNumber: toE164Digits(this.signupForm.controls.phoneCountry, value.phoneNumber),
         password: value.password,
       })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.submitting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.submitting.set(false);
-          this.stage.set('verify');
-        },
-        error: () => this.submitting.set(false),
+        next: () => this.stage.set('verify'),
+        error: () => {},
       });
   }
 

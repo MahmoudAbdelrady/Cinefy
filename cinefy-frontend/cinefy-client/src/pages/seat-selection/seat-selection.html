@@ -3,9 +3,8 @@
     <cui-loading-spinner variant="lg" />
   </div>
 } @else if (seatSelectionResource.error()) {
-  <cui-empty-state
+  <cui-error-state
     class="ss-error"
-    [icon]="icons.TriangleAlertIcon"
     header="Couldn't load this showtime"
     [description]="errorMessage()"
   />
@@ -48,9 +47,14 @@
             <cui-hold-timer [expiresAt]="booking.expiresAt" (expired)="onExpired()" />
 
             @if (!expired) {
-              <button type="button" class="btn-base ss-cancel" (click)="cancelVisible.set(true)">
+              <button
+                type="button"
+                class="btn-base ss-cancel"
+                [disabled]="submitting()"
+                (click)="cancelVisible.set(true)"
+              >
                 <svg [lucideIcon]="icons.XIcon" [size]="16"></svg>
-                <span class="ss-cancel-label">Cancel Booking</span>
+                <span class="ss-cancel-label">Cancel booking</span>
               </button>
             }
           </div>
@@ -77,6 +81,7 @@
           <cui-seat-map
             [rows]="hall()"
             [initialSelectedIds]="bookedSeats()"
+            [canSelect]="!submitting()"
             (selectionChange)="selectedSeats.set($event)"
           />
         </div>
@@ -86,6 +91,7 @@
             [showtimeId]="showtimeId()!"
             [selectedSeats]="selectedSeats()"
             [prices]="prices()"
+            (submittingChange)="submitting.set($event)"
           />
         </div>
       </div>
@@ -98,7 +104,7 @@
     #cancelDialog
     header="Cancel this booking?"
     [style]="{ width: '448px' }"
-    [canClose]="!cancelling()"
+    [canClose]="!canceling()"
     (closed)="cancelVisible.set(false)"
   >
     <div class="ss-cancel-modal-content">
@@ -113,18 +119,18 @@
     <div customFooter class="ss-dialog-footer">
       <button
         type="button"
-        class="btn-secondary"
-        [disabled]="cancelling()"
+        class="btn-neutral"
+        [disabled]="canceling()"
         (click)="closeCancelDialog()"
       >
         Keep booking
       </button>
-      <button type="button" class="btn-danger" [disabled]="cancelling()" (click)="confirmCancel()">
-        @if (cancelling()) {
+      <button type="button" class="btn-danger" [disabled]="canceling()" (click)="confirmCancel()">
+        @if (canceling()) {
           <cui-loading-spinner variant="xs" />
           <span>Canceling…</span>
         } @else {
-          Cancel Booking
+          Cancel booking
         }
       </button>
     </div>

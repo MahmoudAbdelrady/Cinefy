@@ -1,15 +1,12 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Tooltip } from 'primeng/tooltip';
-import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
-import {
-  ChartColumnIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  WarningIcon,
-} from '../../../shared/icons';
+import { CinefyEmptyState, CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { ChartColumnIcon, ChevronDownIcon, ChevronUpIcon } from '../../../shared/icons';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
 import type { DateRange, SalesPoint, StatisticsPeriodTotals } from '../../../shared/types';
@@ -33,6 +30,7 @@ function grossRevenueOf(details: StatisticsPeriodTotals): number {
   imports: [
     CinefyLoadingSpinner,
     CinefyEmptyState,
+    CinefyErrorState,
     DecimalPipe,
     DatePipe,
     Tooltip,
@@ -46,10 +44,10 @@ export class SalesChartComponent {
     ChartColumnIcon,
     ChevronDownIcon,
     ChevronUpIcon,
-    WarningIcon,
   };
 
   private readonly statisticsService = inject(StatisticsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currency = CURRENCY;
 
@@ -94,16 +92,16 @@ export class SalesChartComponent {
   private load(range: DateRange): Subscription {
     this.loading.set(true);
     this.failed.set(false);
-    return this.statisticsService.getSales(range).subscribe({
-      next: (points) => {
-        this.points.set(points);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.failed.set(true);
-        this.loading.set(false);
-      },
-    });
+    return this.statisticsService
+      .getSales(range, skipServerErrorToast())
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (points) => this.points.set(points),
+        error: () => this.failed.set(true),
+      });
   }
 
   protected toggleTable(): void {

@@ -1,115 +1,142 @@
-# cinefy-ui — Semantic Token Contract
+# cinefy-ui
 
-The library's components reference these `--cui-*` runtime tokens via `var()` and never use literal colors. Each consuming app owns its full SCSS palette (`_colors.scss`, `_shadows.scss`, etc.) and maps it to the tokens below **once** in a `:root { ... }` bridge inside the app's global `styles.scss`.
+The shared Angular component library used by both Cinefy web apps, the [booking site](../cinefy-client/README.md) and the [staff dashboard](../cinefy-management/README.md). It holds the pieces both apps need, such as the seat map, dialogs, form controls and error handling, so they look and behave the same in both.
 
-This document is the source of truth for which tokens the bridge must define. cinefy-client will read this list when implementing its dark theme.
+For an overview of the project, see the [main README](../../README.md).
 
-## Surfaces
+## Building
 
-| Token                           | Purpose                                                  |
-| ------------------------------- | -------------------------------------------------------- |
-| `--cui-surface-base`            | Base page-level surface (modal panel, plain backgrounds) |
-| `--cui-surface-input`           | Input/select field background                            |
-| `--cui-surface-overlay`         | Popover/dropdown panel background                        |
-| `--cui-surface-hover`           | Hover background for interactive rows/toggles            |
-| `--cui-surface-disabled`        | Disabled field background (light gray)                   |
-| `--cui-surface-disabled-strong` | Disabled filled-button background (stronger gray)        |
-| `--cui-surface-active`          | Pressed/active state background                          |
+Run every command from the `cinefy-frontend/` folder, not from inside this one.
 
-## Text
+```bash
+pnpm ui:build       # build once
+pnpm ui:watch       # rebuild on every change
+```
 
-| Token                  | Purpose                                           |
-| ---------------------- | ------------------------------------------------- |
-| `--cui-text-primary`   | Field values, labels                              |
-| `--cui-text-emphasis`  | Body/cell text (slightly less heavy than primary) |
-| `--cui-text-muted`     | Placeholders, leading icons                       |
-| `--cui-text-hint`      | Hint/help text below fields                       |
-| `--cui-text-strong`    | Hover-emphasis text                               |
-| `--cui-text-error`     | Validation messages, required asterisk            |
-| `--cui-text-on-accent` | Text drawn on top of the accent color             |
+Both apps use the built output in `cinefy-ui/dist/`, so build the library before running either app.
 
-## Borders & focus
+## Entry points
 
-| Token                  | Purpose                              |
-| ---------------------- | ------------------------------------ |
-| `--cui-border-default` | Resting field/panel border           |
-| `--cui-border-subtle`  | Secondary border (popover, dividers) |
-| `--cui-border-strong`  | Hover-emphasis border                |
-| `--cui-icon-disabled`  | Disabled icon/button color           |
-| `--cui-ring`           | Focus ring color                     |
-| `--cui-ring-error`     | Focus ring color in error state      |
+The main entry point exports nothing. Import from the sub-path that matches what you need:
 
-## Accent / status colors
+| Import from            | Contents                                                                                                                                             |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cinefy-ui/components` | UI components: inputs, selects, date and time pickers, dialog, menu, paginator, toast, switch, empty and error states, seat map, hold timer and more |
+| `cinefy-ui/services`   | The toast service                                                                                                                                    |
+| `cinefy-ui/pipes`      | Formatting pipes: duration, phone number, relative time, 12-hour time                                                                                |
+| `cinefy-ui/types`      | Shared types, such as paginated responses and seats                                                                                                  |
+| `cinefy-ui/forms`      | Form validators and validation patterns                                                                                                              |
+| `cinefy-ui/http`       | HTTP interceptors that show error toasts and handle an unreachable server                                                                            |
+| `cinefy-ui/constants`  | Shared constants                                                                                                                                     |
+| `cinefy-ui/utils`      | Small helpers                                                                                                                                        |
+| `cinefy-ui/styles/*`   | SCSS partials: breakpoints, buttons, mixins, design tokens                                                                                           |
 
-| Token                 | Purpose                                                           |
-| --------------------- | ----------------------------------------------------------------- |
-| `--cui-accent`        | Primary brand action color (selected day, `.btn-primary` surface) |
-| `--cui-accent-hover`  | Primary brand action color, hover state                           |
-| `--cui-accent-subtle` | Soft tint of accent (today's date outline)                        |
-| `--cui-danger`        | Destructive action color (`.btn-danger` surface)                  |
-| `--cui-danger-hover`  | Destructive action color, hover state                             |
-| `--cui-success`       | Positive action color (`.btn-success` surface)                    |
-| `--cui-success-hover` | Positive action color, hover state                                |
+Every component's selector starts with `cui-` and its class with `Cinefy`, for example `<cui-dialog>` and `CinefyDialog`.
 
-## Elevation
+## Theming tokens
 
-### Generic shadow scale
+The library's components reference these `--cui-*` runtime tokens via `var()` and never use literal colors. Each consuming app owns its full SCSS palette (e.g. `_colors.scss`) and maps it to the tokens below **once** in a `:root { ... }` bridge inside the app's global `styles.scss`.
 
-Use when the purpose isn't represented by a more specific token below.
+This document is the source of truth for which tokens the bridge must define. A token the bridge omits resolves to nothing, so the declaration that reads it is dropped silently.
 
-| Token                           | Purpose                                         |
-| ------------------------------- | ----------------------------------------------- |
-| `--cui-shadow-xs`               | Minimal lift (badge, subtle button)             |
-| `--cui-shadow-sm`               | Small card                                      |
-| `--cui-shadow-md`               | Medium card / dropdown                          |
-| `--cui-shadow-lg`               | Large overlay (date/time picker popover)        |
-| `--cui-shadow-focus-ring`       | Standard focus ring around interactive elements |
-| `--cui-shadow-focus-ring-error` | Error-state focus ring                          |
+### Surfaces
 
-### Component-purpose shadow tokens
+| Token                 | Purpose                                                  |
+| --------------------- | -------------------------------------------------------- |
+| `--cui-surface-base`  | Base surface (secondary/neutral buttons, checklist rows) |
+| `--cui-surface-hover` | Hover background for neutral buttons                     |
 
-Overridable independently of the scale.
+### Text
 
-| Token                        | Purpose                                     |
-| ---------------------------- | ------------------------------------------- |
-| `--cui-overlay-shadow`       | Small popover / dropdown elevation          |
-| `--cui-popover-shadow`       | Larger popover (date/time picker) elevation |
-| `--cui-button-shadow`        | Subtle shadow under primary/success buttons |
-| `--cui-button-shadow-strong` | Stronger shadow under destructive buttons   |
+| Token                  | Purpose                                         |
+| ---------------------- | ----------------------------------------------- |
+| `--cui-text-primary`   | Field values, labels                            |
+| `--cui-text-muted`     | Placeholders, secondary labels, leading icons   |
+| `--cui-text-faint`     | De-emphasized icons (menu item icons)           |
+| `--cui-text-hint`      | Hint/help text below fields                     |
+| `--cui-text-strong`    | Emphasized text (input labels, not-found title) |
+| `--cui-text-error`     | Validation messages, required asterisk          |
+| `--cui-text-on-accent` | Text drawn on top of the accent color           |
 
-## Options (select rows)
+### Borders & focus
 
-| Token                           | Purpose                    |
-| ------------------------------- | -------------------------- |
-| `--cui-option-text`             | Resting option text        |
-| `--cui-option-selected-surface` | Selected option background |
-| `--cui-option-selected-text`    | Selected option text       |
+| Token                  | Purpose                                              |
+| ---------------------- | ---------------------------------------------------- |
+| `--cui-border-default` | Default border (neutral buttons, password checklist) |
+| `--cui-border-subtle`  | Secondary border (dividers, pills, seat legend)      |
+| `--cui-icon-disabled`  | Disabled / unmet icon color                          |
+| `--cui-ring`           | Focus ring color                                     |
 
-## Modal
+### Accent / status colors
 
-| Token                   | Purpose                                     |
-| ----------------------- | ------------------------------------------- |
-| `--cui-modal-backdrop`  | Modal overlay background                    |
-| `--cui-modal-shadow`    | Modal panel elevation                       |
-| `--cui-modal-header-bg` | Modal header background (may be a gradient) |
-| `--cui-modal-footer-bg` | Modal footer background                     |
+| Token                  | Purpose                                                       |
+| ---------------------- | ------------------------------------------------------------- |
+| `--cui-accent`         | Primary brand action color (`.btn-primary` surface)           |
+| `--cui-accent-hover`   | Primary brand action color, hover state                       |
+| `--cui-accent-subtle`  | Soft accent tint (select header action button)                |
+| `--cui-highlight`      | Secondary emphasis color (`<cui-switch color="highlight">`)   |
+| `--cui-highlight-ring` | Focus ring for highlight-colored switches                     |
+| `--cui-danger`         | Destructive action color (`.btn-danger` surface)              |
+| `--cui-danger-hover`   | Destructive action color, hover state                         |
+| `--cui-danger-subtle`  | Soft danger tint (select "clear" action)                      |
+| `--cui-danger-text`    | Text drawn on top of the danger color                         |
+| `--cui-success`        | Positive action color (`.btn-success` surface, met checklist) |
+| `--cui-success-hover`  | Positive action color, hover state                            |
 
-## Toast (success / error variants)
+### Buttons
 
-| Token                                 | Purpose            |
-| ------------------------------------- | ------------------ |
-| `--cui-toast-shadow`                  | Toast elevation    |
-| `--cui-toast-{success,error}-surface` | Toast background   |
-| `--cui-toast-{success,error}-border`  | Toast border       |
-| `--cui-toast-{success,error}-text`    | Toast text         |
-| `--cui-toast-{success,error}-icon`    | Toast leading icon |
+| Token                           | Purpose                           |
+| ------------------------------- | --------------------------------- |
+| `--cui-button-secondary-border` | `.btn-secondary` border           |
+| `--cui-button-secondary-hover`  | `.btn-secondary` hover background |
 
-## Misc
+### Options (menu / select rows)
+
+| Token               | Purpose                                          |
+| ------------------- | ------------------------------------------------ |
+| `--cui-option-text` | Resting option text (menu items, `.btn-neutral`) |
+
+### Media image
+
+| Token                          | Purpose                                     |
+| ------------------------------ | ------------------------------------------- |
+| `--cui-media-placeholder-bg`   | Poster/backdrop/profile placeholder surface |
+| `--cui-media-placeholder-icon` | Placeholder icon color                      |
+
+### Seat map
+
+| Token                            | Purpose                   |
+| -------------------------------- | ------------------------- |
+| `--cui-seat-normal-surface`      | Normal seat background    |
+| `--cui-seat-normal-border`       | Normal seat border        |
+| `--cui-seat-normal-hover-border` | Normal seat border, hover |
+| `--cui-seat-normal-text`         | Normal seat label         |
+| `--cui-seat-vip-surface`         | VIP seat background       |
+| `--cui-seat-vip-border`          | VIP seat border           |
+| `--cui-seat-vip-hover-border`    | VIP seat border, hover    |
+| `--cui-seat-vip-text`            | VIP seat label            |
+| `--cui-seat-selected-surface`    | Selected seat background  |
+| `--cui-seat-selected-border`     | Selected seat border      |
+| `--cui-seat-selected-text`       | Selected seat label       |
+| `--cui-seat-taken-surface`       | Taken seat background     |
+| `--cui-seat-taken-border`        | Taken seat border         |
+| `--cui-seat-legend-surface`      | Legend pill background    |
+
+### Hold timer
+
+| Token                               | Purpose                                 |
+| ----------------------------------- | --------------------------------------- |
+| `--cui-hold-timer-surface`          | Timer pill background                   |
+| `--cui-hold-timer-expiring-surface` | Background once the hold is near expiry |
+| `--cui-hold-timer-expiring-border`  | Border once the hold is near expiry     |
+| `--cui-hold-timer-expiring-text`    | Text once the hold is near expiry       |
+
+### Misc
 
 | Token                   | Purpose                      |
 | ----------------------- | ---------------------------- |
 | `--cui-scrollbar-thumb` | Custom scrollbar thumb color |
 
-## Reference implementation
+### Reference implementations
 
-See [`cinefy-management/src/styles.scss`](../cinefy-management/src/styles.scss) for a complete bridge that maps every token above to management's light SCSS palette. cinefy-client will follow the same pattern with its dark palette.
+Both apps define every token above: [`cinefy-management/src/styles.scss`](../cinefy-management/src/styles.scss) maps management's light palette, and [`cinefy-client/src/styles.scss`](../cinefy-client/src/styles.scss) maps the client's dark palette.

@@ -1,49 +1,44 @@
 import { Component, computed, input, type InputSignal } from "@angular/core";
-import { LucideDynamicIcon } from "@lucide/angular";
-import { LoaderIcon } from "../icons";
+import { ProgressSpinner } from "primeng/progressspinner";
 
 type LoadingSpinnerVariant = "xs" | "sm" | "md" | "lg" | "xl";
 
-const VARIANT_PRESETS: Record<LoadingSpinnerVariant, { size: number; strokeWidth: number }> = {
-  xs: { size: 14, strokeWidth: 2.5 },
-  sm: { size: 16, strokeWidth: 2.5 },
-  md: { size: 24, strokeWidth: 2 },
-  lg: { size: 28, strokeWidth: 2.5 },
-  xl: { size: 32, strokeWidth: 3 },
+const VARIANT_PRESETS: Record<LoadingSpinnerVariant, { width: number; height: number; strokeWidth: number }> = {
+  xs: { width: 14, height: 14, strokeWidth: 10 },
+  sm: { width: 16, height: 16, strokeWidth: 10 },
+  md: { width: 24, height: 24, strokeWidth: 8 },
+  lg: { width: 28, height: 28, strokeWidth: 10 },
+  xl: { width: 32, height: 32, strokeWidth: 12 },
 };
 
 @Component({
   selector: "cui-loading-spinner",
-  imports: [LucideDynamicIcon],
-  template: `<div class="spinner" [style.width.px]="resolvedSize()" [style.height.px]="resolvedSize()">
-    <svg [lucideIcon]="icons.LoaderIcon" [size]="resolvedSize()" [strokeWidth]="resolvedStrokeWidth()"></svg>
-  </div>`,
+  imports: [ProgressSpinner],
+  template: `<p-progress-spinner [strokeWidth]="resolvedStrokeWidth()" [style]="spinnerStyle()" />`,
   styles: `
-    .spinner {
-      display: grid;
-      place-items: center;
-      animation: spin 700ms linear infinite;
-    }
+    :host {
+      --p-progressspinner-color-one: currentColor;
+      --p-progressspinner-color-two: currentColor;
+      --p-progressspinner-color-three: currentColor;
+      --p-progressspinner-color-four: currentColor;
+      --p-content-border-color: transparent;
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
+      ::ng-deep .p-progressspinner {
+        display: flex;
       }
     }
   `,
 })
 export class CinefyLoadingSpinner {
-  protected readonly icons = {
-    LoaderIcon,
-  };
-
   readonly variant: InputSignal<LoadingSpinnerVariant | null> = input<LoadingSpinnerVariant | null>(null);
-  readonly size: InputSignal<number | null> = input<number | null>(null);
   readonly strokeWidth: InputSignal<number | null> = input<number | null>(null);
 
-  protected readonly resolvedSize = computed(() => this.size() ?? VARIANT_PRESETS[this.variant() ?? "md"].size);
+  private readonly preset = computed(() => VARIANT_PRESETS[this.variant() ?? "md"]);
 
-  protected readonly resolvedStrokeWidth = computed(
-    () => this.strokeWidth() ?? VARIANT_PRESETS[this.variant() ?? "md"].strokeWidth,
-  );
+  protected readonly spinnerStyle = computed(() => ({
+    width: `${this.preset().width}px`,
+    height: `${this.preset().height}px`,
+  }));
+
+  protected readonly resolvedStrokeWidth = computed(() => this.strokeWidth() ?? this.preset().strokeWidth);
 }

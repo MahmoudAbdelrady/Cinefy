@@ -20,6 +20,7 @@
               <cui-switch
                 size="sm"
                 [checked]="channel.active"
+                [disabled]="!canEdit()"
                 (checkedChange)="toggleChannel($index, $event)"
                 [pTooltip]="channel.active ? 'Deactivate channel' : 'Activate channel'"
                 tooltipPosition="top"
@@ -27,17 +28,20 @@
               <span class="channel-divider"></span>
               <button
                 type="button"
+                class="btn-secondary"
                 pTooltip="Edit channel"
                 tooltipPosition="top"
+                [disabled]="!canEdit()"
                 (click)="startEdit($index)"
               >
                 <svg [lucideIcon]="icons.EditIcon" [size]="15" [strokeWidth]="2"></svg>
               </button>
               <button
                 type="button"
-                class="danger"
+                class="btn-base danger"
                 pTooltip="Remove channel"
                 tooltipPosition="top"
+                [disabled]="!canEdit()"
                 (click)="removeChannel($index)"
               >
                 <svg [lucideIcon]="icons.DeleteIcon" [size]="15" [strokeWidth]="2"></svg>
@@ -55,7 +59,7 @@
     </div>
   } @else {
     <div class="channels-add">
-      <button type="button" (click)="startAdd()">
+      <button type="button" [disabled]="!canEdit()" (click)="startAdd()">
         <svg [lucideIcon]="icons.PlusIcon" [size]="15" [strokeWidth]="2.5"></svg>
         Add channel
       </button>
@@ -116,7 +120,7 @@
     </div>
 
     <div class="channel-form-actions">
-      <button type="button" class="btn-secondary" (click)="closeChannelForm()">Cancel</button>
+      <button type="button" class="btn-neutral" (click)="closeChannelForm()">Cancel</button>
       <button type="submit" class="btn-primary" [disabled]="!canCommit()">
         {{ saveLabel() }}
       </button>

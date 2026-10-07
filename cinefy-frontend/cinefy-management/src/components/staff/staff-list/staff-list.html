@@ -1,7 +1,7 @@
 <div class="staff-list-container">
   <div class="sl-header">
     <div class="sl-header-left">
-      <h3>All Staff Members</h3>
+      <h3>All staff members</h3>
       <p>Manage your cinema team and their shift schedules</p>
     </div>
     <form class="sl-header-right" [formGroup]="filterForm">
@@ -30,6 +30,8 @@
       <div class="sl-loading">
         <cui-loading-spinner variant="md" />
       </div>
+    } @else if (failed()) {
+      <cui-error-state header="Couldn't load staff members" />
     } @else {
       <ul class="staff-members">
         @for (member of staffMembers(); track member.id) {
@@ -73,16 +75,16 @@
               </div>
             </div>
             <div class="staff-actions">
-              <button class="sa-btn sa-btn-view" (click)="memberToView.set(member.id)">
+              <button class="btn-base sa-btn sa-btn-view" (click)="memberToView.set(member.id)">
                 <svg [lucideIcon]="icons.EyeIcon" [size]="16"></svg>
                 <span>View</span>
               </button>
               @if (canManageRow(member)) {
-                <button class="sa-btn sa-btn-edit" (click)="openEditDialog(member.id)">
+                <button class="btn-base sa-btn sa-btn-edit" (click)="openEditDialog(member.id)">
                   <svg [lucideIcon]="icons.EditIcon" [size]="16"></svg>
                   <span>Edit</span>
                 </button>
-                <button class="sa-btn sa-btn-delete" (click)="memberToDelete.set(member)">
+                <button class="btn-base sa-btn sa-btn-delete" (click)="memberToDelete.set(member)">
                   <svg [lucideIcon]="icons.DeleteIcon" [size]="16"></svg>
                   <span>Delete</span>
                 </button>
@@ -103,12 +105,14 @@
       </ul>
     }
   </div>
-  <cui-paginator
-    [(page)]="page"
-    [pageCount]="pageCount()"
-    [totalItems]="totalItems()"
-    [pageSize]="pageSize"
-  />
+  @if (!failed()) {
+    <cui-paginator
+      [(page)]="page"
+      [pageCount]="pageCount()"
+      [totalItems]="totalItems()"
+      [pageSize]="pageSize"
+    />
+  }
 </div>
 
 @if (memberToView(); as memberId) {
@@ -132,7 +136,7 @@
 @if (memberToDelete(); as member) {
   @let deleting = deletingStaffIds().has(member.id);
   <cui-dialog
-    header="Delete Staff Member"
+    header="Delete staff member"
     [canClose]="!deleting"
     [style]="{ width: '448px' }"
     (closed)="memberToDelete.set(null)"
@@ -143,19 +147,20 @@
       </div>
       <p class="dmc-message">
         Are you sure you want to remove <strong>{{ member.fullName }}</strong> from the staff
-        roster? This action cannot be undone and will revoke their access immediately.
+        roster? This action cannot be undone.
       </p>
     </div>
 
     <div customFooter class="delete-modal-footer">
-      <button class="btn-secondary" [disabled]="deleting" (click)="memberToDelete.set(null)">
+      <button class="btn-neutral" [disabled]="deleting" (click)="memberToDelete.set(null)">
         Cancel
       </button>
       <button class="btn-danger" [disabled]="deleting" (click)="deleteStaffMember(member.id)">
         @if (deleting) {
+          <cui-loading-spinner variant="sm" />
           <span>Deleting…</span>
         } @else {
-          <span>Delete Member</span>
+          <span>Delete member</span>
         }
       </button>
     </div>

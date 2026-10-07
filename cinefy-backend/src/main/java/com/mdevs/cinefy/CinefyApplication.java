@@ -1,6 +1,8 @@
 package com.mdevs.cinefy;
 
 import com.mdevs.cinefy.service.StaffMemberService;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +20,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableAsync
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
+@OpenAPIDefinition(info = @Info(title = "Cinefy API Docs", version = "v1"))
 @SpringBootApplication
 public class CinefyApplication {
 

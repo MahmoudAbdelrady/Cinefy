@@ -1,22 +1,17 @@
-import { Component, DestroyRef, inject, output, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CinefyInput, CinefyLoadingSpinner } from 'cinefy-ui/components';
 import { ArrowLeftIcon, ArrowRightIcon, EmailIcon } from '../../../../../shared/icons';
-import { EMAIL_PATTERN } from '../../../../../shared/validation';
+import { EMAIL_PATTERN } from 'cinefy-ui/forms';
 import { AuthService } from '../../../../../services/auth';
 
 @Component({
   selector: 'fp-request-step',
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    LucideDynamicIcon,
-    CinefyInput,
-    CinefyLoadingSpinner,
-  ],
+  imports: [ReactiveFormsModule, RouterLink, LucideDynamicIcon, CinefyInput, CinefyLoadingSpinner],
   templateUrl: './request-step.html',
   styleUrl: './request-step.scss',
 })
@@ -41,19 +36,29 @@ export class RequestStep {
     }),
   });
 
+  constructor() {
+    effect(() => {
+      if (this.submitting()) {
+        this.requestForm.disable({ emitEvent: false });
+      } else {
+        this.requestForm.enable({ emitEvent: false });
+      }
+    });
+  }
+
   protected onSubmit() {
     if (this.requestForm.invalid || this.submitting()) return;
     this.submitting.set(true);
     const email = this.requestForm.controls.email.value;
     this.authService
       .forgotPassword({ email })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.submitting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.submitting.set(false);
-          this.requested.emit(email);
-        },
-        error: () => this.submitting.set(false),
+        next: () => this.requested.emit(email),
+        error: () => {},
       });
   }
 }

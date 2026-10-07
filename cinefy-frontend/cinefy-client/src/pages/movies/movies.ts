@@ -6,18 +6,14 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import {
   CinefySelect,
   CinefyEmptyState,
+  CinefyErrorState,
   CinefyInput,
   CinefyLoadingSpinner,
   CinefyMediaImage,
 } from 'cinefy-ui/components';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { HallsService, MoviesService } from '../../services';
-import {
-  ClapperboardIcon,
-  SearchIcon,
-  SlidersHorizontalIcon,
-  XIcon,
-  TriangleAlertIcon,
-} from '../../shared/icons';
+import { ClapperboardIcon, SearchIcon, SlidersHorizontalIcon, XIcon } from '../../shared/icons';
 
 @Component({
   selector: 'movies-page',
@@ -29,6 +25,7 @@ import {
     CinefySelect,
     CinefyMediaImage,
     CinefyEmptyState,
+    CinefyErrorState,
     CinefyLoadingSpinner,
   ],
   templateUrl: './movies.html',
@@ -40,7 +37,6 @@ export class MoviesPage {
     SlidersHorizontalIcon,
     XIcon,
     ClapperboardIcon,
-    TriangleAlertIcon,
   };
 
   private readonly moviesService = inject(MoviesService);
@@ -54,11 +50,11 @@ export class MoviesPage {
   });
 
   protected readonly movies = rxResource({
-    stream: () => this.moviesService.getNowShowing(),
+    stream: () => this.moviesService.getNowShowing(undefined, skipServerErrorToast()),
   });
 
-  private readonly hallTypes = rxResource({
-    stream: () => this.hallsService.getHallTypes(),
+  protected readonly hallTypes = rxResource({
+    stream: () => this.hallsService.getHallTypes(skipServerErrorToast()),
   });
 
   private readonly search = toSignal(this.filterForm.controls.search.valueChanges, {

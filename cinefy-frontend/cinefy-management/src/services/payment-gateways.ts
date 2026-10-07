@@ -9,8 +9,8 @@ const API_PREFIX = '/payment-gateways';
 export class PaymentGatewaysService {
   private readonly http = inject(HttpClient);
 
-  getPaymentGateways(): Observable<PaymentGatewayList> {
-    return this.http.get<PaymentGatewayList>(API_PREFIX);
+  getPaymentGateways(context?: HttpContext): Observable<PaymentGatewayList> {
+    return this.http.get<PaymentGatewayList>(API_PREFIX, { context });
   }
 
   getActivePaymentGateway(context?: HttpContext): Observable<PaymentGateway> {

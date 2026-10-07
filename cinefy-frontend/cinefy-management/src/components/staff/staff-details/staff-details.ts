@@ -2,13 +2,15 @@ import {
   afterNextRender,
   Component,
   computed,
+  DestroyRef,
   inject,
   input,
   output,
   signal,
   viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Tooltip } from 'primeng/tooltip';
 import {
@@ -20,7 +22,12 @@ import {
   UserIcon,
 } from '../../../shared/icons';
 import { DatePipe } from '@angular/common';
-import { CinefyDialog, CinefyDialogHeader, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import {
+  CinefyDialog,
+  CinefyDialogHeader,
+  CinefyErrorState,
+  CinefyLoadingSpinner,
+} from 'cinefy-ui/components';
 import { PhoneFormatPipe, Time12hPipe } from 'cinefy-ui/pipes';
 import {
   EMPLOYMENT_TYPE_LABELS,
@@ -28,6 +35,7 @@ import {
   WEEK_DAY_LABELS,
   type StaffMemberDetail,
 } from '../../../shared/types';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StaffService } from '../../../services';
 import { canManageStaffMember } from '../../../shared/access';
 
@@ -39,6 +47,7 @@ import { canManageStaffMember } from '../../../shared/access';
     LucideDynamicIcon,
     Tooltip,
     CinefyLoadingSpinner,
+    CinefyErrorState,
     DatePipe,
     Time12hPipe,
     PhoneFormatPipe,
@@ -57,6 +66,7 @@ export class StaffDetailsComponent {
   };
 
   private readonly staffService = inject(StaffService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly dialog = viewChild.required(CinefyDialog);
 
@@ -71,6 +81,7 @@ export class StaffDetailsComponent {
 
   protected readonly staffMember = signal<StaffMemberDetail | null>(null);
   protected readonly loading = signal(false);
+  protected readonly failed = signal(false);
 
   private readonly currentUser = toSignal(this.staffService.getCurrentStaffMember());
 
@@ -83,13 +94,16 @@ export class StaffDetailsComponent {
   constructor() {
     afterNextRender(() => {
       this.loading.set(true);
-      this.staffService.getStaffMember(this.staffMemberId()).subscribe({
-        next: (member) => {
-          this.staffMember.set(member);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
+      this.staffService
+        .getStaffMember(this.staffMemberId(), skipServerErrorToast())
+        .pipe(
+          finalize(() => this.loading.set(false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe({
+          next: (member) => this.staffMember.set(member),
+          error: () => this.failed.set(true),
+        });
     });
   }
 

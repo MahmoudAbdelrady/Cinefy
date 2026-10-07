@@ -16,8 +16,8 @@ const API_PREFIX = '/booking';
 export class BookingService {
   private readonly http = inject(HttpClient);
 
-  getActiveBookings(): Observable<BookingSummary[]> {
-    return this.http.get<BookingSummary[]>(`${API_PREFIX}/active`);
+  getActiveBookings(context?: HttpContext): Observable<BookingSummary[]> {
+    return this.http.get<BookingSummary[]>(`${API_PREFIX}/active`, { context });
   }
 
   getSeatSelection(showtimeId: string, context?: HttpContext): Observable<ShowtimeSeatSelection> {

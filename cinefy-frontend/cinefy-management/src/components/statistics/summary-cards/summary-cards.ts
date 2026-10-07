@@ -1,15 +1,12 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CinefyEmptyState, CinefyLoadingSpinner } from 'cinefy-ui/components';
-import {
-  ArrowDownRightIcon,
-  ArrowUpRightIcon,
-  MinusIcon,
-  WarningIcon,
-} from '../../../shared/icons';
+import { CinefyErrorState, CinefyLoadingSpinner } from 'cinefy-ui/components';
+import { ArrowDownRightIcon, ArrowUpRightIcon, MinusIcon } from '../../../shared/icons';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
+import { skipServerErrorToast } from 'cinefy-ui/http';
 import { StatisticsService } from '../../../services';
 import { CURRENCY } from '../../../shared/types';
 import type { DateRange, StatisticsSummary } from '../../../shared/types';
@@ -36,7 +33,7 @@ function computeDelta(current: number, previous: number): MetricDelta {
 
 @Component({
   selector: 'summary-cards',
-  imports: [LucideDynamicIcon, CinefyLoadingSpinner, CinefyEmptyState, DecimalPipe],
+  imports: [LucideDynamicIcon, CinefyLoadingSpinner, CinefyErrorState, DecimalPipe],
   templateUrl: './summary-cards.html',
   styleUrl: './summary-cards.scss',
 })
@@ -45,10 +42,10 @@ export class SummaryCardsComponent {
     ArrowUpRightIcon,
     ArrowDownRightIcon,
     MinusIcon,
-    WarningIcon,
   };
 
   private readonly statisticsService = inject(StatisticsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly range = input.required<DateRange>();
 
@@ -69,7 +66,6 @@ export class SummaryCardsComponent {
     const { current, previous } = summary;
     const grossCurrent = current.netRevenue + current.refunded;
     const grossPrevious = previous.netRevenue + previous.refunded;
-    const refundShare = grossCurrent === 0 ? 0 : current.refunded / grossCurrent;
 
     return [
       {
@@ -124,15 +120,15 @@ export class SummaryCardsComponent {
   private load(range: DateRange): Subscription {
     this.loading.set(true);
     this.failed.set(false);
-    return this.statisticsService.getSummary(range).subscribe({
-      next: (summary) => {
-        this.summary.set(summary);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.failed.set(true);
-        this.loading.set(false);
-      },
-    });
+    return this.statisticsService
+      .getSummary(range, skipServerErrorToast())
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (summary) => this.summary.set(summary),
+        error: () => this.failed.set(true),
+      });
   }
 }

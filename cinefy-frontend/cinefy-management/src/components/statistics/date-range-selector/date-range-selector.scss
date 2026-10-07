@@ -7,6 +7,11 @@
   @include flex-align;
   gap: 8px;
 
+  @include below-mobile {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
   .rs-label {
     font-size: 14px;
     color: $gray-600;
@@ -18,6 +23,10 @@
     padding: 4px;
     background-color: $gray-100;
     border-radius: $radius-lg;
+
+    @include below-mobile {
+      flex: 1;
+    }
 
     button {
       padding: 6px 12px;
@@ -45,27 +54,22 @@
         outline: none;
         box-shadow: $shadow-focus-ring;
       }
+
+      @include below-mobile {
+        flex: 1;
+      }
     }
   }
 
   .custom-trigger {
-    @include flex-center;
     @include lucide-icon-fix;
 
-    gap: 8px;
     padding: 8px 12px;
-    font-size: 14px;
-    font-weight: 500;
     white-space: nowrap;
     color: $gray-600;
     background-color: $color-background;
     border: 1px solid $gray-300;
     border-radius: $radius-lg;
-    cursor: pointer;
-    transition:
-      background-color $transition-fast,
-      border-color $transition-fast,
-      color $transition-fast;
 
     &:hover {
       background-color: $gray-100;
@@ -81,21 +85,8 @@
       outline: none;
       box-shadow: $shadow-focus-ring;
     }
-  }
 
-  @include below-mobile {
-    width: 100%;
-    flex-wrap: wrap;
-
-    .preset-pills {
-      flex: 1;
-
-      button {
-        flex: 1;
-      }
-    }
-
-    .custom-trigger {
+    @include below-mobile {
       width: 100%;
     }
   }
@@ -109,16 +100,16 @@
   .crp-fields {
     @include flex-column;
     gap: 12px;
-  }
 
-  .crp-field {
-    @include flex-column;
-    gap: 4px;
+    .crp-field {
+      @include flex-column;
+      gap: 4px;
 
-    > span {
-      font-size: 12px;
-      font-weight: 500;
-      color: $gray-600;
+      > span {
+        font-size: 12px;
+        font-weight: 500;
+        color: $gray-600;
+      }
     }
   }
 

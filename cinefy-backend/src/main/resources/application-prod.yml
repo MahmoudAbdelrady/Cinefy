@@ -1,15 +1,31 @@
 server:
   port: ${SERVER_PORT}
+  forward-headers-strategy: native
 
 spring:
+  # Database Configuration
   datasource:
     url: jdbc:postgresql://${DATABASE_HOST}/${DATABASE_NAME}
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
 
+  # Redis Configuration
+  data:
+    redis:
+      url: redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}
+      default-ttl-minutes: ${CACHE_DEFAULT_TTL_MINUTES:60}
+
 logging:
   level:
-    root: error
+    root: info
+
+# API Documentation
+springdoc:
+  base-url: ${API_DOCS_BASE_URL:/docs}
+  swagger-ui:
+    path: ${springdoc.base-url}/swagger-ui.html
+  api-docs:
+    path: ${springdoc.base-url}/api-docs
 
 cinefy:
   # Email Configuration
@@ -53,8 +69,12 @@ cinefy:
     secure: true
     same-site: Lax
 
+  # Rate Limiting
+  rate-limit-enabled: true
+
 # Variables
 app:
+  base-url: /api
   frontend:
     mgmt:
       url: ${FRONTEND_MGMT_URL}
