@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.shared.exception;
 
-import com.mdevs.cinefy.config.general.AppConfig;
+import com.mdevs.cinefy.config.AppConfig;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.ConflictException;
 import com.mdevs.cinefy.shared.exception.types.ForbiddenException;

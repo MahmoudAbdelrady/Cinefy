@@ -17,7 +17,7 @@
 
 ## Callbacks
 
-- `POST /booking/payment-callback` (webhook) is the **source of truth**. `handlePaymentCallback` pattern-matches the sealed `PaymentCallbackData`: transactions go to `bookingService.applyPaymentResult(...)`, card tokens to `clientPaymentMethodService.createMethod(...)`. The body is a Jackson 3 `JsonNode`.
+- `POST /booking/payment-callback` (webhook) is the **source of truth**. `handlePaymentCallback` pattern-matches the sealed `PaymentCallbackData`: transactions go to `bookingService.applyPaymentResult(...)`, card tokens to `clientPaymentMethodService.createMethod(...)`. The body is a Jackson 3 `JsonNode`. It's `@RateLimited(RateLimitPolicy.NONE)`: Paymob calls from its own IPs, so a shared per-IP bucket would reject real payment results under load.
 - `GET /booking/payment-redirect` is only the browser's return leg (302 to the frontend). Paymob's cancel button calls it with an **empty** param map, so `handleRedirect` returns null on empty input and the service falls back to the client home URL instead of failing HMAC.
 
 ## Gateway CRUD (`/payment-gateways`, ADMIN/MANAGER)

@@ -1,4 +1,4 @@
-package com.mdevs.cinefy.config.general;
+package com.mdevs.cinefy.config;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

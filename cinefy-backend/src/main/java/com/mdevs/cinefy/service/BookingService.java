@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.service;
 
-import com.mdevs.cinefy.config.general.AppConfig;
+import com.mdevs.cinefy.config.AppConfig;
 import com.mdevs.cinefy.dto.booking.ActiveBookingDTO;
 import com.mdevs.cinefy.dto.booking.BookedSeatDTO;
 import com.mdevs.cinefy.dto.booking.BookingConfirmationDTO;
@@ -36,7 +36,7 @@ import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.dto.email.InlineResource;
-import com.mdevs.cinefy.shared.QrGenerator;
+import com.mdevs.cinefy.utils.QrGenerator;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.ConflictException;
