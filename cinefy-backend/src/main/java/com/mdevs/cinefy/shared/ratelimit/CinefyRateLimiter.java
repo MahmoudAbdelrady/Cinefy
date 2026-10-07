@@ -29,7 +29,7 @@ public class CinefyRateLimiter {
         try {
             return rateLimitProxyManager.getProxy(KEY_PREFIX + key, () -> createBucketConfiguration(policy)).tryConsume(1);
         } catch (RedisException | TimeoutException ex) {
-            log.error("Rate limit check failed, allowing request: {}", ex.getMessage());
+            log.error("Rate limit check failed, allowing request: {}", ex.getMessage(), ex);
             return true;
         }
     }
