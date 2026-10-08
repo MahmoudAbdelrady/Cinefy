@@ -18,7 +18,7 @@
 
   <div class="dv-columns">
     @if (canBook()) {
-      <today-schedule />
+      <today-schedule [canManage]="canManage()" />
     }
 
     @if (canManage()) {
