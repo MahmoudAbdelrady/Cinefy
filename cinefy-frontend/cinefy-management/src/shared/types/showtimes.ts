@@ -64,13 +64,13 @@ interface MovieShowtimeListItem {
 }
 
 interface MovieShowtimeDatesResponse {
-  numberOfDrafts: number;
-  numberOfCommitted: number;
+  numberOfDrafts?: number;
+  numberOfCommitted?: number;
   dates: string[];
 }
 
 interface MovieShowtimesResponse {
-  numberOfDrafts: number;
+  numberOfDrafts?: number;
   showtimes: MovieShowtimeListItem[];
 }
 
