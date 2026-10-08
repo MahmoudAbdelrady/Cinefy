@@ -18,6 +18,7 @@ import com.mdevs.cinefy.shared.exception.types.ConflictException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.payment.PaymobClient;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
+import com.mdevs.cinefy.utils.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +29,8 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +50,8 @@ public class PaymentGatewayService {
     private final CredentialCipher credentialCipher;
 
     private final ObjectMapper objectMapper;
+
+    private final DateUtil dateUtil;
 
     private static final List<String> SUPPORTED_CHANNEL_CURRENCIES = List.of("EGP", "USD");
 
@@ -150,13 +154,13 @@ public class PaymentGatewayService {
             throw new BusinessException("An active payment gateway cannot be deleted");
         }
 
-        LocalDateTime startDate = LocalDateTime.now().minusDays(SETTLED_BOOKING_RETENTION_DAYS);
+        Instant startDate = Instant.now().minus(SETTLED_BOOKING_RETENTION_DAYS, ChronoUnit.DAYS);
         if (bookingRepository.existsActivityByGateway(gateway.getId(), startDate)) {
             throw new BusinessException("This payment gateway has a payment in progress or one settled within the last "
                     + SETTLED_BOOKING_RETENTION_DAYS + " days and cannot be deleted yet");
         }
 
-        gateway.setDeletedAt(LocalDateTime.now());
+        gateway.setDeletedAt(Instant.now());
         paymentGatewayRepository.save(gateway);
     }
 
@@ -311,7 +315,7 @@ public class PaymentGatewayService {
         dto.setActive(gateway.isActive());
         dto.setCredentials(credentials);
         dto.setPaymentChannels(channels);
-        dto.setCreatedAt(gateway.getCreatedAt());
+        dto.setCreatedAt(dateUtil.toCinemaDateTime(gateway.getCreatedAt()));
         return dto;
     }
 

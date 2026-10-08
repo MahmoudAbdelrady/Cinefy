@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -29,6 +29,6 @@ public class InvalidJwt extends BaseEntity {
     @Column(nullable = false)
     private TokenType type;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
-    private LocalDateTime expirationDate;
+    @Column(nullable = false, columnDefinition = "TIMESTAMPTZ(0)")
+    private Instant expirationDate;
 }

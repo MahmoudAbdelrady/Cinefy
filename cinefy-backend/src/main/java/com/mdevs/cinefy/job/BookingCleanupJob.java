@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Slf4j
 @Component
@@ -19,7 +19,7 @@ public class BookingCleanupJob {
 
     @Scheduled(cron = "0 * * * * *")
     public void deleteExpiredPendingBookings() {
-        LocalDateTime cutOffDate = LocalDateTime.now();
+        Instant cutOffDate = Instant.now();
 
         int totalDeleted = 0;
         int batchDeleted;

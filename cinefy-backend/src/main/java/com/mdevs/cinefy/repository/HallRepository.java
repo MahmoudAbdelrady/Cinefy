@@ -1,9 +1,9 @@
 package com.mdevs.cinefy.repository;
 
 import com.mdevs.cinefy.projection.hall.HallStatusCountProjection;
-import com.mdevs.cinefy.projection.statistics.DailyHallProjection;
 import com.mdevs.cinefy.projection.statistics.MovieHallProjection;
 import com.mdevs.cinefy.projection.statistics.HallPeriodProjection;
+import com.mdevs.cinefy.projection.statistics.ShowtimeHallProjection;
 import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.enums.HallStatus;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -61,22 +61,22 @@ public interface HallRepository extends BaseRepository<Hall> {
             AND s.startDateTime BETWEEN :previousFrom AND :to
             """)
     List<HallPeriodProjection> findShowtimeHallsBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
-                                                        @Param("previousFrom") LocalDateTime previousFrom,
-                                                        @Param("from") LocalDateTime from,
-                                                        @Param("to") LocalDateTime to);
+                                                        @Param("previousFrom") Instant previousFrom,
+                                                        @Param("from") Instant from,
+                                                        @Param("to") Instant to);
 
     @Query("""
-            SELECT new com.mdevs.cinefy.projection.statistics.DailyHallProjection(
-                CAST(s.startDateTime AS LocalDate),
+            SELECT new com.mdevs.cinefy.projection.statistics.ShowtimeHallProjection(
+                s.startDateTime,
                 h)
             FROM Hall h
             JOIN Showtime s ON s.hall = h
             WHERE s.status IN :statuses
             AND s.startDateTime BETWEEN :from AND :to
             """)
-    List<DailyHallProjection> findDailyShowtimeHallsBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
-                                                            @Param("from") LocalDateTime from,
-                                                            @Param("to") LocalDateTime to);
+    List<ShowtimeHallProjection> findHallPerShowtimeBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
+                                                            @Param("from") Instant from,
+                                                            @Param("to") Instant to);
 
     @Query("""
             SELECT new com.mdevs.cinefy.projection.statistics.MovieHallProjection(
@@ -90,8 +90,8 @@ public interface HallRepository extends BaseRepository<Hall> {
             """)
     List<MovieHallProjection> findMovieShowtimeHallsBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
                                                             @Param("movieIds") List<Long> movieIds,
-                                                            @Param("from") LocalDateTime from,
-                                                            @Param("to") LocalDateTime to);
+                                                            @Param("from") Instant from,
+                                                            @Param("to") Instant to);
 
     boolean existsByCode(String code);
 

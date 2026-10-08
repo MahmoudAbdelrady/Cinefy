@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -24,11 +24,11 @@ import java.time.LocalDateTime;
 })
 public class Showtime extends BaseEntity {
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
-    private LocalDateTime startDateTime;
+    @Column(nullable = false, columnDefinition = "TIMESTAMPTZ(0)")
+    private Instant startDateTime;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
-    private LocalDateTime endDateTime;
+    @Column(nullable = false, columnDefinition = "TIMESTAMPTZ(0)")
+    private Instant endDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(nullable = false)

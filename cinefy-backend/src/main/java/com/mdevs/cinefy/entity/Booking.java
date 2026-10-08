@@ -8,7 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,26 +74,26 @@ public class Booking extends BaseEntity {
 
     private Boolean onHold = true;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
-    private LocalDateTime expiresAt;
+    @Column(nullable = false, columnDefinition = "TIMESTAMPTZ(0)")
+    private Instant expiresAt;
 
     @Column(nullable = false)
     @ColumnDefault("false")
     private boolean ticketUsed = false;
 
     public boolean hasExpired() {
-        return hasExpired(LocalDateTime.now());
+        return hasExpired(Instant.now());
     }
 
-    public boolean hasExpired(LocalDateTime asOf) {
+    public boolean hasExpired(Instant asOf) {
         return !expiresAt.isAfter(asOf);
     }
 
     public boolean isActiveHold() {
-        return isActiveHold(LocalDateTime.now());
+        return isActiveHold(Instant.now());
     }
 
-    public boolean isActiveHold(LocalDateTime asOf) {
+    public boolean isActiveHold(Instant asOf) {
         return Boolean.TRUE.equals(onHold) && !hasExpired(asOf);
     }
 }

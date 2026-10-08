@@ -12,8 +12,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -109,8 +109,8 @@ public interface TmdbMovieRepository extends JpaRepository<TmdbMovie, Long> {
                     AND s.startDateTime BETWEEN :from AND :to
                     """)
     Page<MovieRevenueProjection> findMoviePerformanceBetween(@Param("statuses") Set<ShowtimeStatus> statuses,
-                                                             @Param("from") LocalDateTime from,
-                                                             @Param("to") LocalDateTime to,
+                                                             @Param("from") Instant from,
+                                                             @Param("to") Instant to,
                                                              Pageable pageable);
 
     List<TmdbMovie> findByIdGreaterThanOrderByIdAsc(Long maxId, Pageable pageable);

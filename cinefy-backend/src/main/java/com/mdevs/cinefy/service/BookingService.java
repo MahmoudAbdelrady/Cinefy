@@ -36,6 +36,7 @@ import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.dto.email.InlineResource;
+import com.mdevs.cinefy.utils.DateUtil;
 import com.mdevs.cinefy.utils.QrGenerator;
 import com.mdevs.cinefy.shared.exception.ErrorCode;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
@@ -58,9 +59,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -93,6 +94,8 @@ public class BookingService {
 
     private final EmailService emailService;
 
+    private final DateUtil dateUtil;
+
     @Lazy
     private final BookingService self;
 
@@ -110,8 +113,6 @@ public class BookingService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
-
     private static final String BOOKING_CONFIRMATION_PATH = "/booking-confirmation/";
 
     private static final String TICKET_QR_CONTENT_ID = "ticket-qr";
@@ -122,26 +123,28 @@ public class BookingService {
 
     public static boolean isBookable(Showtime showtime) {
         return ShowtimeStatus.COMMITTED_STATUSES.contains(showtime.getStatus())
-                && !showtime.getEndDateTime().isBefore(LocalDateTime.now().plusMinutes(BOOKING_CUTOFF_MINUTES));
+                && !showtime.getEndDateTime().isBefore(Instant.now().plus(BOOKING_CUTOFF_MINUTES, ChronoUnit.MINUTES));
     }
 
     public List<String> getBookableDates(Long movieId) {
-        LocalDateTime cutOffDate = LocalDateTime.now().plusMinutes(BOOKING_CUTOFF_MINUTES);
-        return showtimeRepository.findDistinctBookableShowtimeDates(movieId, ShowtimeStatus.COMMITTED_STATUSES, cutOffDate)
+        Instant cutOffDate = Instant.now().plus(BOOKING_CUTOFF_MINUTES, ChronoUnit.MINUTES);
+        return showtimeRepository.findBookableStartDateTimes(movieId, ShowtimeStatus.COMMITTED_STATUSES, cutOffDate)
                 .stream()
-                .map(LocalDate::toString)
+                .map(startDateTime -> dateUtil.toCinemaDate(startDateTime).toString())
+                .distinct()
                 .toList();
     }
 
     public List<HallTypeShowtimesDTO> getBookableShowtimesForDate(Long movieId, LocalDate date) {
-        LocalDateTime cutOffDate = LocalDateTime.now().plusMinutes(BOOKING_CUTOFF_MINUTES);
-        List<Showtime> showtimes = showtimeRepository.findBookableByMovieAndDateRangeWithHall(movieId, ShowtimeStatus.COMMITTED_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay(), cutOffDate);
+        Instant cutOffDate = Instant.now().plus(BOOKING_CUTOFF_MINUTES, ChronoUnit.MINUTES);
+        List<Showtime> showtimes = showtimeRepository.findBookableByMovieAndDateRangeWithHall(movieId, ShowtimeStatus.COMMITTED_STATUSES,
+                dateUtil.startOfDay(date), dateUtil.startOfDay(date.plusDays(1)), cutOffDate);
 
         List<Long> showtimeIds = showtimes.stream().map(Showtime::getId).toList();
         User currentUser = SecurityUtil.isAuthenticated() ? currentUserService.loadCurrentUser() : null;
         Long clientId = currentUser instanceof Client client ? client.getId() : null;
         Long staffId = currentUser instanceof StaffMember staff ? staff.getId() : null;
-        Map<Long, Integer> bookedSeatsByShowtime = bookingRepository.countBookedSeatsByShowtime(showtimeIds, LocalDateTime.now(), clientId, staffId)
+        Map<Long, Integer> bookedSeatsByShowtime = bookingRepository.countBookedSeatsByShowtime(showtimeIds, Instant.now(), clientId, staffId)
                 .stream()
                 .collect(Collectors.toMap(ShowtimeBookedSeatsProjection::getShowtimeId, ShowtimeBookedSeatsProjection::getBookedSeats));
 
@@ -161,7 +164,7 @@ public class BookingService {
     public SeatSelectionDTO getSeatSelection(String showtimeUuid) {
         Showtime showtime = findBookableShowtime(showtimeUuid);
         Hall hall = showtime.getHall();
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         HallLayoutDTO hallLayout = hallService.getHallLayout(hall);
         List<String> bookedSeats = bookingRepository.findBookedPositions(showtime.getId(), now);
@@ -182,7 +185,7 @@ public class BookingService {
 
     public List<BookingSummaryDTO> getActiveBookings() {
         User user = currentUserService.loadCurrentUser();
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         List<Booking> bookings = user instanceof Client
                 ? bookingRepository.findActiveOnHoldByClient(user.getId(), now)
@@ -414,7 +417,7 @@ public class BookingService {
     }
 
     @Transactional
-    public int deleteExpiredPendingBatch(LocalDateTime cutOffDate, int batchSize) {
+    public int deleteExpiredPendingBatch(Instant cutOffDate, int batchSize) {
         List<Long> bookingIds = bookingRepository.findExpiredPendingIds(cutOffDate, PageRequest.of(0, batchSize));
         if (bookingIds.isEmpty()) {
             return 0;
@@ -457,7 +460,7 @@ public class BookingService {
         return findBookingByUuidWithDetail(uuid);
     }
 
-    private Optional<Booking> findOnHoldBooking(Long showtimeId, User user, LocalDateTime now) {
+    private Optional<Booking> findOnHoldBooking(Long showtimeId, User user, Instant now) {
         return user instanceof Client
                 ? bookingRepository.findOnHoldByShowtimeAndClient(showtimeId, user.getId(), now)
                 : bookingRepository.findOnHoldByShowtimeAndBookedBy(showtimeId, user.getId(), now);
@@ -546,6 +549,7 @@ public class BookingService {
 
         Map<String, Object> variables = Map.of(
                 "booking", booking,
+                "showtimeStart", dateUtil.toCinemaDateTime(booking.getShowtime().getStartDateTime()),
                 "seats", seats);
 
         emailService.sendBookingTicket(
@@ -566,7 +570,7 @@ public class BookingService {
             throw new BusinessException("This booking has already been paid for");
         }
         if (status == null) {
-            booking.setExpiresAt(LocalDateTime.now().plusMinutes(HOLD_WINDOW_MINUTES));
+            booking.setExpiresAt(Instant.now().plus(HOLD_WINDOW_MINUTES, ChronoUnit.MINUTES));
             booking.setStatus(BookingStatus.PENDING_PAYMENT);
         }
         booking.setPaymentTransactionId(null);
@@ -621,7 +625,7 @@ public class BookingService {
     }
 
     private void claimRequestedSeats(Showtime showtime, List<String> requestedPositions) {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         List<BookingSeat> activeSeats = bookingRepository.findActiveSeats(showtime.getId(), requestedPositions);
 
         List<String> blockedPositions = new ArrayList<>();
@@ -657,7 +661,7 @@ public class BookingService {
         booking.setHallName(hall.getName());
         booking.setHallType(hall.getType().getName());
         booking.setIdempotencyKey(idempotencyKey);
-        booking.setExpiresAt(LocalDateTime.now().plusMinutes(HOLD_WINDOW_MINUTES));
+        booking.setExpiresAt(Instant.now().plus(HOLD_WINDOW_MINUTES, ChronoUnit.MINUTES));
 
         if (user instanceof Client client) {
             booking.setClient(client);
@@ -700,7 +704,7 @@ public class BookingService {
         Hall hall = showtime.getHall();
         return new BookingShowtimeDTO(
                 showtime.getUuid(),
-                showtime.getStartDateTime().toLocalTime().format(TIME_FORMATTER),
+                dateUtil.formatTime(showtime.getStartDateTime()),
                 showtime.is3D(),
                 bookedSeats >= hall.getCapacity());
     }
@@ -709,7 +713,7 @@ public class BookingService {
                                                 ActiveBookingDTO activeBooking, boolean fullyBooked) {
         SeatSelectionDTO dto = new SeatSelectionDTO();
         dto.setMovieTitle(showtime.getTmdbMovie().getTitle());
-        dto.setStartDateTime(showtime.getStartDateTime());
+        dto.setStartDateTime(dateUtil.toCinemaDateTime(showtime.getStartDateTime()));
         dto.setHallName(hall.getName());
         dto.setHallType(hall.getType().getName());
         dto.set3D(showtime.is3D());
@@ -738,7 +742,7 @@ public class BookingService {
         dto.setExpiresAt(booking.getExpiresAt());
         dto.setMovie(tmdbMovieService.toSearchResult(showtime.getTmdbMovie()));
         dto.setShowtimeId(showtime.getUuid());
-        dto.setStartDateTime(showtime.getStartDateTime());
+        dto.setStartDateTime(dateUtil.toCinemaDateTime(showtime.getStartDateTime()));
         dto.setHallName(booking.getHallName());
         dto.setHallType(booking.getHallType());
         dto.set3D(showtime.is3D());
@@ -761,7 +765,7 @@ public class BookingService {
         dto.setBookingReference(booking.getBookingReference());
         dto.setQrCode(booking.getTicketQrCode());
         dto.setMovie(tmdbMovieService.toSearchResult(showtime.getTmdbMovie()));
-        dto.setStartDateTime(showtime.getStartDateTime());
+        dto.setStartDateTime(dateUtil.toCinemaDateTime(showtime.getStartDateTime()));
         dto.setHallName(booking.getHallName());
         dto.setHallType(booking.getHallType());
         dto.set3D(showtime.is3D());
@@ -776,7 +780,7 @@ public class BookingService {
         return new PastBookingDTO(
                 booking.getUuid(),
                 tmdbMovieService.toSearchResult(showtime.getTmdbMovie()),
-                showtime.getStartDateTime(),
+                dateUtil.toCinemaDateTime(showtime.getStartDateTime()),
                 booking.getHallType(),
                 showtime.is3D(),
                 booking.getStatus().equals(BookingStatus.REFUNDED),
@@ -792,7 +796,7 @@ public class BookingService {
                 showtime.getUuid(),
                 booking.getExpiresAt(),
                 tmdbMovieService.toSearchResult(showtime.getTmdbMovie()),
-                showtime.getStartDateTime(),
+                dateUtil.toCinemaDateTime(showtime.getStartDateTime()),
                 booking.getHallName(),
                 booking.getHallType(),
                 showtime.is3D(),

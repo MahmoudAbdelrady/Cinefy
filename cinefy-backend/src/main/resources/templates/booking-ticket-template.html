@@ -18,7 +18,7 @@
   >
     <div
       style="display: none; max-height: 0; overflow: hidden; opacity: 0"
-      th:text="|${booking.showtime.tmdbMovie.title} · ${#temporals.format(booking.showtime.startDateTime, 'MMM d, yyyy')} at ${#temporals.format(booking.showtime.startDateTime, 'h:mm a')} · ${booking.hallName}. Show this QR at the gate.|"
+      th:text="|${booking.showtime.tmdbMovie.title} · ${#temporals.format(showtimeStart, 'MMM d, yyyy')} at ${#temporals.format(showtimeStart, 'h:mm a')} · ${booking.hallName}. Show this QR at the gate.|"
     ></div>
 
     <table
@@ -169,7 +169,7 @@
                           <td style="padding-bottom: 12px; color: #717182; white-space: nowrap">Date</td>
                           <td
                             align="right"
-                            th:text="${#temporals.format(booking.showtime.startDateTime, 'MMM d, yyyy')}"
+                            th:text="${#temporals.format(showtimeStart, 'MMM d, yyyy')}"
                             style="
                               padding-bottom: 12px;
                               color: #030213;
@@ -182,7 +182,7 @@
                           <td style="padding-bottom: 16px; color: #717182; white-space: nowrap">Time</td>
                           <td
                             align="right"
-                            th:text="${#temporals.format(booking.showtime.startDateTime, 'h:mm a')}"
+                            th:text="${#temporals.format(showtimeStart, 'h:mm a')}"
                             style="
                               padding-bottom: 16px;
                               color: #030213;

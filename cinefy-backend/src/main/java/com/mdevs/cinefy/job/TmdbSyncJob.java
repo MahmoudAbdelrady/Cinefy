@@ -3,6 +3,7 @@ package com.mdevs.cinefy.job;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.service.TmdbMovieService;
+import com.mdevs.cinefy.utils.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,8 @@ public class TmdbSyncJob {
     private final TmdbMovieRepository tmdbMovieRepository;
 
     private final TmdbMovieService tmdbMovieService;
+
+    private final DateUtil dateUtil;
 
     private static final int BATCH_SIZE = 50;
 
@@ -39,7 +42,7 @@ public class TmdbSyncJob {
     }
 
     private int deleteOrphanMovies() {
-        LocalDate today = LocalDate.now();
+        LocalDate today = dateUtil.today();
         int deleted = 0;
         int deletedBatch;
         do {

@@ -8,8 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
@@ -61,8 +60,8 @@ public class JwtUtil {
         return TokenType.valueOf(claims.get(CLAIM_TYPE, String.class));
     }
 
-    public LocalDateTime getExpiration(Claims claims) {
-        return LocalDateTime.ofInstant(claims.getExpiration().toInstant(), ZoneId.systemDefault());
+    public Instant getExpiration(Claims claims) {
+        return claims.getExpiration().toInstant();
     }
 
     public long getRemainingValidity(Claims claims) {
