@@ -68,7 +68,7 @@ const MAX_PRICE = 99_999_999.99;
 
 function createSeatGrid(rows: number, cols: number): Seat[][] {
   return Array.from({ length: rows }, () =>
-    Array.from({ length: cols }, () => ({ type: 'NORMAL' as SeatCategory, onsiteOnly: false })),
+    Array.from({ length: cols }, () => ({ type: 'STANDARD' as SeatCategory, onsiteOnly: false })),
   );
 }
 
@@ -80,7 +80,7 @@ function resizeGrid(prev: Seat[][], rows: number, cols: number): Seat[][] {
       if (i < prev.length && j < prev[i].length) {
         row.push(prev[i][j]);
       } else {
-        row.push({ type: 'NORMAL', onsiteOnly: false });
+        row.push({ type: 'STANDARD', onsiteOnly: false });
       }
     }
     layout.push(row);
@@ -100,7 +100,7 @@ function maxDecimals(decimals: number): ValidatorFn {
 interface LayoutBaseline {
   numberOfRows: number;
   seatsPerRow: number;
-  normalPrice: number | null;
+  standardPrice: number | null;
   vipPrice: number | null;
   grid: Seat[][];
 }
@@ -229,7 +229,7 @@ export class HallConfigModalComponent {
       validators: [Validators.required],
     }),
     supports3D: new FormControl(false, { nonNullable: true }),
-    normalPrice: new FormControl<number | null>(null),
+    standardPrice: new FormControl<number | null>(null),
     vipPrice: new FormControl<number | null>(null),
   });
 
@@ -263,7 +263,7 @@ export class HallConfigModalComponent {
   });
 
   private readonly seatStatsValue = computed(() => seatStats(this.seatLayout()));
-  protected readonly hasNormalSeats = computed(() => this.seatStatsValue().normal > 0);
+  protected readonly hasStandardSeats = computed(() => this.seatStatsValue().standard > 0);
   protected readonly hasVipSeats = computed(() => this.seatStatsValue().vip > 0);
   protected readonly onSiteOnly = computed(() =>
     this.selectedSeatCategory().type === 'AISLE' ? false : this.onSiteOnlyPreference(),
@@ -290,18 +290,18 @@ export class HallConfigModalComponent {
 
   constructor() {
     effect(() => {
-      const normalCtrl = this.hallForm.controls.normalPrice;
+      const standardCtrl = this.hallForm.controls.standardPrice;
       const vipCtrl = this.hallForm.controls.vipPrice;
 
-      if (this.hasNormalSeats()) {
-        normalCtrl.setValidators([
+      if (this.hasStandardSeats()) {
+        standardCtrl.setValidators([
           Validators.required,
           Validators.min(1),
           Validators.max(MAX_PRICE),
           maxDecimals(MAX_PRICE_DECIMALS),
         ]);
       } else {
-        normalCtrl.clearValidators();
+        standardCtrl.clearValidators();
       }
 
       if (this.hasVipSeats()) {
@@ -315,7 +315,7 @@ export class HallConfigModalComponent {
         vipCtrl.clearValidators();
       }
 
-      normalCtrl.updateValueAndValidity();
+      standardCtrl.updateValueAndValidity();
       vipCtrl.updateValueAndValidity();
     });
 
@@ -431,7 +431,7 @@ export class HallConfigModalComponent {
       this.hallForm.patchValue({
         numberOfRows: null,
         seatsPerRow: null,
-        normalPrice: null,
+        standardPrice: null,
         vipPrice: null,
       });
       this.seatLayout.set([]);
@@ -447,7 +447,7 @@ export class HallConfigModalComponent {
       this.hallForm.patchValue({
         numberOfRows: null,
         seatsPerRow: null,
-        normalPrice: null,
+        standardPrice: null,
         vipPrice: null,
       });
       this.seatLayout.set([]);
@@ -515,7 +515,7 @@ export class HallConfigModalComponent {
   private buildHallPayload(): Hall {
     const formValue = this.hallForm.getRawValue();
     const layout = this.extractLayout();
-    const ticketPricing = this.buildTicketPricing(formValue.normalPrice, formValue.vipPrice);
+    const ticketPricing = this.buildTicketPricing(formValue.standardPrice, formValue.vipPrice);
 
     return {
       name: formValue.name,
@@ -539,7 +539,7 @@ export class HallConfigModalComponent {
       for (let colIdx = 0; colIdx < seatLayout[rowIdx].length; colIdx++) {
         const seat = seatLayout[rowIdx][colIdx];
         const seatId = `${label}${colIdx + 1}`;
-        if (seat.type !== 'NORMAL') {
+        if (seat.type !== 'STANDARD') {
           if (!categories[seat.type]) categories[seat.type] = [];
           categories[seat.type]!.push(seatId);
         }
@@ -550,10 +550,13 @@ export class HallConfigModalComponent {
     return { categories, onSiteOnly };
   }
 
-  private buildTicketPricing(normalPrice: number | null, vipPrice: number | null): TicketPricing[] {
+  private buildTicketPricing(
+    standardPrice: number | null,
+    vipPrice: number | null,
+  ): TicketPricing[] {
     const pricing: TicketPricing[] = [];
-    if (this.hasNormalSeats() && normalPrice != null) {
-      pricing.push({ seatCategory: 'NORMAL', price: normalPrice });
+    if (this.hasStandardSeats() && standardPrice != null) {
+      pricing.push({ seatCategory: 'STANDARD', price: standardPrice });
     }
     if (this.hasVipSeats() && vipPrice != null && vipPrice > 0) {
       pricing.push({ seatCategory: 'VIP', price: vipPrice });
@@ -562,11 +565,11 @@ export class HallConfigModalComponent {
   }
 
   private extractPrices(pricing: TicketPricing[] | undefined): {
-    normalPrice: number | null;
+    standardPrice: number | null;
     vipPrice: number | null;
   } {
     return {
-      normalPrice: pricing?.find((p) => p.seatCategory === 'NORMAL')?.price ?? null,
+      standardPrice: pricing?.find((p) => p.seatCategory === 'STANDARD')?.price ?? null,
       vipPrice: pricing?.find((p) => p.seatCategory === 'VIP')?.price ?? null,
     };
   }
@@ -576,12 +579,12 @@ export class HallConfigModalComponent {
   }
 
   private applyLayoutData(source: HallLayout): void {
-    const { normalPrice, vipPrice } = this.extractPrices(source.ticketPricing);
+    const { standardPrice, vipPrice } = this.extractPrices(source.ticketPricing);
 
     this.hallForm.patchValue({
       numberOfRows: source.numberOfRows,
       seatsPerRow: source.seatsPerRow,
-      normalPrice,
+      standardPrice,
       vipPrice,
     });
 
@@ -594,7 +597,7 @@ export class HallConfigModalComponent {
     this.layoutBaseline.set({
       numberOfRows: source.numberOfRows,
       seatsPerRow: source.seatsPerRow,
-      normalPrice,
+      standardPrice,
       vipPrice,
       grid: this.deepCopyGrid(grid),
     });
@@ -615,7 +618,7 @@ export class HallConfigModalComponent {
       }
     }
 
-    // Handle NORMAL seats that are onSiteOnly (not in categories since NORMAL is the default)
+    // Handle STANDARD seats that are onSiteOnly (not in categories since STANDARD is the default)
     for (const pos of onSiteOnlySet) {
       const { rowIdx, colIdx } = this.parseSeatPosition(pos);
       if (rowIdx < rows && colIdx < cols) {

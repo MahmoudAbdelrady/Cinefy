@@ -30,3 +30,24 @@ OAuth-registered clients have no password, so `User.password` is nullable. On a 
 ALTER TABLE CLIENTS ALTER COLUMN PASSWORD DROP NOT NULL;
 -- and STAFF_MEMBERS if it inherited the constraint
 ```
+
+## Seat category `NORMAL` renamed to `STANDARD`
+
+`SeatCategory.NORMAL` became `STANDARD`. Existing rows still hold `NORMAL` in `BOOKING_SEATS.CATEGORY` and as a JSON key in `HALLS.LAYOUT -> categories` and `HALLS.CATEGORY_PRICES`, which Hibernate can no longer map. The generated check constraint on `BOOKING_SEATS.CATEGORY` also still lists the old value, and `ddl-auto=update` never replaces it:
+
+```sql
+ALTER TABLE BOOKING_SEATS DROP CONSTRAINT IF EXISTS BOOKING_SEATS_CATEGORY_CHECK;
+
+UPDATE BOOKING_SEATS SET CATEGORY = 'STANDARD' WHERE CATEGORY = 'NORMAL';
+
+ALTER TABLE BOOKING_SEATS
+  ADD CONSTRAINT BOOKING_SEATS_CATEGORY_CHECK CHECK (CATEGORY IN ('STANDARD', 'VIP', 'AISLE'));
+
+UPDATE HALLS
+  SET CATEGORY_PRICES = (CATEGORY_PRICES - 'NORMAL') || jsonb_build_object('STANDARD', CATEGORY_PRICES -> 'NORMAL')
+  WHERE CATEGORY_PRICES ? 'NORMAL';
+
+UPDATE HALLS
+  SET LAYOUT = jsonb_set(LAYOUT #- '{categories,NORMAL}', '{categories,STANDARD}', LAYOUT -> 'categories' -> 'NORMAL')
+  WHERE LAYOUT -> 'categories' ? 'NORMAL';
+```

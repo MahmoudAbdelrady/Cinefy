@@ -5,7 +5,7 @@ import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import java.util.Arrays;
 
 public enum SeatCategory {
-    NORMAL,
+    STANDARD,
     VIP,
     AISLE;
 

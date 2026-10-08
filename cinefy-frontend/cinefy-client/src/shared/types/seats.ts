@@ -7,7 +7,7 @@ interface SeatLayout {
   booked: string[];
 }
 
-type SelectableSeatCategory = 'NORMAL' | 'VIP';
+type SelectableSeatCategory = 'STANDARD' | 'VIP';
 
 interface TicketPrice {
   price: number;

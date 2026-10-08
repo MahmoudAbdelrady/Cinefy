@@ -21,7 +21,7 @@
               } @else {
                 <div
                   class="seat"
-                  [class.normal]="seat.type === 'NORMAL'"
+                  [class.standard]="seat.type === 'STANDARD'"
                   [class.vip]="seat.type === 'VIP'"
                   [pTooltip]="seatTitle(rowIndex, seatIndex, seat)"
                   tooltipPosition="top"
@@ -54,8 +54,8 @@
   @if (hasLayout()) {
     <div class="seat-legend">
       <div class="legend-item">
-        <div class="legend-icon normal"></div>
-        <span>Normal ({{ stats().normal }})</span>
+        <div class="legend-icon standard"></div>
+        <span>Standard ({{ stats().standard }})</span>
       </div>
       <div class="legend-item">
         <div class="legend-icon vip"></div>
@@ -70,7 +70,7 @@
     </div>
     <div class="seats-count-container">
       <p>
-        <strong>Total seats:</strong> {{ stats().total }} (Normal: {{ stats().normal }}, VIP:
+        <strong>Total seats:</strong> {{ stats().total }} (Standard: {{ stats().standard }}, VIP:
         {{ stats().vip }}, On-site only: {{ stats().onsiteOnly }})
       </p>
     </div>

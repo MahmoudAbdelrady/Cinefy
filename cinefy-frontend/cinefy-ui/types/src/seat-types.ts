@@ -1,7 +1,7 @@
-type SeatCategory = "NORMAL" | "VIP" | "AISLE";
+type SeatCategory = "STANDARD" | "VIP" | "AISLE";
 
 const SEAT_CATEGORY_LABEL: Record<SeatCategory, string> = {
-  NORMAL: "Normal",
+  STANDARD: "Standard",
   VIP: "Premium",
   AISLE: "Aisle",
 };

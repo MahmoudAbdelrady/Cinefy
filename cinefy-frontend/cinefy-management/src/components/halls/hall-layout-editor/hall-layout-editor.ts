@@ -6,14 +6,14 @@ import type { Seat, SeatCategory } from '../../../shared/types';
 import { LayoutTemplateIcon } from '../../../shared/icons';
 
 export interface SeatStats {
-  normal: number;
+  standard: number;
   vip: number;
   onsiteOnly: number;
   total: number;
 }
 
 export function seatStats(layout: Seat[][]): SeatStats {
-  let normal = 0;
+  let standard = 0;
   let vip = 0;
   let onsiteOnly = 0;
   let total = 0;
@@ -22,14 +22,14 @@ export function seatStats(layout: Seat[][]): SeatStats {
     for (const seat of row) {
       if (seat.type !== 'AISLE') {
         total++;
-        if (seat.type === 'NORMAL') normal++;
+        if (seat.type === 'STANDARD') standard++;
         else if (seat.type === 'VIP') vip++;
         if (seat.onsiteOnly) onsiteOnly++;
       }
     }
   }
 
-  return { normal, vip, onsiteOnly, total };
+  return { standard, vip, onsiteOnly, total };
 }
 
 @Component({
@@ -43,7 +43,7 @@ export class HallLayoutEditorComponent {
     LayoutTemplateIcon,
   };
 
-  readonly selectedSeatType = input<SeatCategory>('NORMAL');
+  readonly selectedSeatType = input<SeatCategory>('STANDARD');
   readonly selectedOnsiteOnly = input(false);
   readonly disabled = input(false);
   readonly loading = input(false);
@@ -68,7 +68,7 @@ export class HallLayoutEditorComponent {
     const id = `${seatRowLabel(rowIndex)}${seatIndex + 1}`;
     const action = this.disabled() ? '' : ' - Click to change';
     if (seat.type === 'AISLE') return `${id} (Aisle)${action}`;
-    const label = seat.type === 'VIP' ? 'VIP' : 'Normal';
+    const label = seat.type === 'VIP' ? 'VIP' : 'Standard';
     const onsite = seat.onsiteOnly ? ', On-Site Only' : '';
     return `${id} (${label}${onsite})${action}`;
   }

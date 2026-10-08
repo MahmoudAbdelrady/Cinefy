@@ -685,7 +685,7 @@ public class BookingService {
                 .filter(entry -> entry.getValue().contains(position))
                 .map(Map.Entry::getKey)
                 .findFirst()
-                .orElse(SeatCategory.NORMAL);
+                .orElse(SeatCategory.STANDARD);
     }
 
     private String generateReference() {

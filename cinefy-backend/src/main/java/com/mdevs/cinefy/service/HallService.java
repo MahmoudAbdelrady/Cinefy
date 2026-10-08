@@ -236,14 +236,14 @@ public class HallService {
             int totalSeats = dto.getNumberOfRows() * dto.getSeatsPerRow();
             int categorizedSeats = categories.values().stream().mapToInt(List::size).sum();
             if (categorizedSeats < totalSeats) {
-                requiredCategories.add(SeatCategory.NORMAL);
+                requiredCategories.add(SeatCategory.STANDARD);
             }
             categories.keySet().stream()
                     .map(SeatCategory::fromString)
                     .filter(c -> !c.equals(SeatCategory.AISLE))
                     .forEach(requiredCategories::add);
         } else {
-            requiredCategories.add(SeatCategory.NORMAL);
+            requiredCategories.add(SeatCategory.STANDARD);
         }
         for (SeatCategory required : requiredCategories) {
             if (!pricedCategories.contains(required)) {
@@ -311,7 +311,7 @@ public class HallService {
             if (rowIndex > newRows || colNumber < 1 || colNumber > newCols) {
                 throw new BusinessException("(On site only) position '" + position + "' is outside the hall grid");
             }
-            SeatCategory category = desired.getOrDefault(position, SeatCategory.NORMAL);
+            SeatCategory category = desired.getOrDefault(position, SeatCategory.STANDARD);
             if (category.equals(SeatCategory.AISLE)) {
                 throw new BusinessException("Aisle seat '" + position + "' cannot be marked as (On site only)");
             }
