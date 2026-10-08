@@ -14,6 +14,7 @@ import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.enums.HallStatus;
 import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
+import com.mdevs.cinefy.entity.enums.StaffPosition;
 import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.entity.User;
@@ -59,42 +60,56 @@ public class ShowtimeService {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
+    private static final Set<StaffPosition> MANAGEMENT_POSITIONS = Set.of(StaffPosition.ADMIN, StaffPosition.MANAGER);
+
     // ========================= Public API =========================
 
     public MovieShowtimeDatesDTO getMovieShowtimeDates(Long movieId) {
-        List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ShowtimeStatus.LIVE_STATUSES);
+        boolean canManage = canManageShowtimes(currentUserService.loadCurrentUser());
+        Set<ShowtimeStatus> statuses = canManage ? ShowtimeStatus.LIVE_STATUSES : ShowtimeStatus.COMMITTED_STATUSES;
+        List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, statuses);
 
         MovieShowtimeDatesDTO dto = new MovieShowtimeDatesDTO();
         if (dates.isEmpty()) {
-            dto.setNumberOfDrafts(0);
-            dto.setNumberOfCommitted(0);
+            if (canManage) {
+                dto.setNumberOfDrafts(0L);
+                dto.setNumberOfCommitted(0L);
+            }
             dto.setDates(List.of());
             return dto;
         }
 
-        dto.setNumberOfDrafts(showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, Set.of(ShowtimeStatus.DRAFT)));
-        dto.setNumberOfCommitted(showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, ShowtimeStatus.COMMITTED_STATUSES));
+        if (canManage) {
+            dto.setNumberOfDrafts(showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, Set.of(ShowtimeStatus.DRAFT)));
+            dto.setNumberOfCommitted(showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, ShowtimeStatus.COMMITTED_STATUSES));
+        }
         dto.setDates(dates.stream().map(LocalDate::toString).toList());
         return dto;
     }
 
     public MovieShowtimesDTO getMovieShowtimesForDate(Long movieId, LocalDate date) {
-        List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ShowtimeStatus.LIVE_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+        User currentUser = currentUserService.loadCurrentUser();
+        boolean canManage = canManageShowtimes(currentUser);
+        Set<ShowtimeStatus> statuses = canManage ? ShowtimeStatus.LIVE_STATUSES : ShowtimeStatus.COMMITTED_STATUSES;
+        List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, statuses, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
 
         MovieShowtimesDTO dto = new MovieShowtimesDTO();
         if (showtimes.isEmpty()) {
-            dto.setNumberOfDrafts(0);
+            if (canManage) {
+                dto.setNumberOfDrafts(0L);
+            }
             dto.setShowtimes(List.of());
             return dto;
         }
 
         List<Long> showtimeIds = showtimes.stream().map(Showtime::getId).toList();
-        User currentUser = currentUserService.loadCurrentUser();
         Map<Long, ShowtimeBookingCountsProjection> countsByShowtime = bookingRepository.countBookedAndHeldByShowtime(showtimeIds, LocalDateTime.now(), currentUser.getId())
                 .stream()
                 .collect(Collectors.toMap(ShowtimeBookingCountsProjection::getShowtimeId, Function.identity()));
 
-        dto.setNumberOfDrafts(showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count());
+        if (canManage) {
+            dto.setNumberOfDrafts(showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count());
+        }
         dto.setShowtimes(showtimes.stream()
                 .map(showtime -> toMovieShowtimeListItem(showtime, countsByShowtime.get(showtime.getId())))
                 .toList());
@@ -398,5 +413,9 @@ public class ShowtimeService {
         dto.setName(hall.getName());
         dto.setTypeName(hall.getType().getName());
         return dto;
+    }
+
+    private boolean canManageShowtimes(User user) {
+        return user instanceof StaffMember staff && MANAGEMENT_POSITIONS.contains(staff.getPosition());
     }
 }

@@ -30,16 +30,16 @@ Position/role rules are `@PreAuthorize` on the **controller** (class or method),
 
 ### Access per controller
 
-| Controller                         | Rule                                                                                                                                           |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/management/auth`, `/client/auth` | All `@PublicApi` except `/logout`                                                                                                              |
-| `/halls`                           | Class: ADMIN/MANAGER. `GET /halls/types` is `@PublicApi` + `permitAll()` (the client reads it)                                                 |
-| `/movies`                          | Class: ADMIN/MANAGER. Public: `/announced-upcoming`, `/highlighted`, `/now-showing`, `GET /{id}`                                               |
-| `/showtimes`                       | Class: ADMIN/MANAGER. `GET /movies`, `/movie-dates`, `/movie-day`, `/schedule` also allow CASHIER (counter booking and the dashboard schedule) |
-| `/staff`                           | Class: ADMIN/MANAGER. `/me` endpoints and `GET /{uuid}` allow all four positions; row-level rules in [staff.md](staff.md)                      |
-| `/payment-gateways`, `/statistics` | ADMIN/MANAGER                                                                                                                                  |
-| `/client`                          | `CLIENT`                                                                                                                                       |
-| `/booking`                         | Mixed — see [bookings.md](bookings.md#access)                                                                                                  |
+| Controller                         | Rule                                                                                                                                                                                                                                           |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/management/auth`, `/client/auth` | All `@PublicApi` except `/logout`                                                                                                                                                                                                              |
+| `/halls`                           | Class: ADMIN/MANAGER. `GET /halls/types` is `@PublicApi` + `permitAll()` (the client reads it)                                                                                                                                                 |
+| `/movies`                          | Class: ADMIN/MANAGER. Public: `/announced-upcoming`, `/highlighted`, `/now-showing`, `GET /{id}`                                                                                                                                               |
+| `/showtimes`                       | Class: ADMIN/MANAGER. `GET /movies`, `/movie-dates`, `/movie-day`, `/schedule` also allow CASHIER (counter booking and the dashboard schedule); a cashier's `/movie-dates` and `/movie-day` exclude drafts and omit the draft/committed counts |
+| `/staff`                           | Class: ADMIN/MANAGER. `/me` endpoints and `GET /{uuid}` allow all four positions; row-level rules in [staff.md](staff.md)                                                                                                                      |
+| `/payment-gateways`, `/statistics` | ADMIN/MANAGER                                                                                                                                                                                                                                  |
+| `/client`                          | `CLIENT`                                                                                                                                                                                                                                       |
+| `/booking`                         | Mixed — see [bookings.md](bookings.md#access)                                                                                                                                                                                                  |
 
 ## Auth contexts
 

@@ -11,9 +11,9 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MovieShowtimeDatesDTO {
 
-    private long numberOfDrafts;
+    private Long numberOfDrafts;
 
-    private long numberOfCommitted;
+    private Long numberOfCommitted;
 
     private List<String> dates;
 }

@@ -46,7 +46,7 @@ Both pre-fill an `EnumMap` with every constant at `0L` and overlay the results, 
 
 `ShowtimeService.getScheduleForDate` filters on `COMMITTED_STATUSES`, so FINISHED screenings drop off as the day goes on — the widget answers "what's on now and later". Switch to `REPORTABLE_STATUSES` to keep completed ones. Its `ticketsSold` comes from `countBookedSeatsByShowtime`, which counts CONFIRMED seats **plus live holds**.
 
-`findByMovieStatusesAndDateRangeWithHall` takes an optional `movieId` (`:movieId IS NULL OR …`) so the per-movie day view (called with `LIVE_STATUSES`) and the whole-cinema schedule share one query. It `JOIN FETCH`es `s.hall`, `h.type` and `s.tmdbMovie`, because the schedule reads all three for every row.
+`findByMovieStatusesAndDateRangeWithHall` takes an optional `movieId` (`:movieId IS NULL OR …`) so the per-movie day view (called with `LIVE_STATUSES` for ADMIN/MANAGER and `COMMITTED_STATUSES` for a cashier) and the whole-cinema schedule share one query. It `JOIN FETCH`es `s.hall`, `h.type` and `s.tmdbMovie`, because the schedule reads all three for every row.
 
 ### Active gateway
 
