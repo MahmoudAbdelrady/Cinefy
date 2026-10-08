@@ -89,7 +89,11 @@ export class LoginPage {
             return;
           }
           this.loginForm.controls.password.reset();
-          this.toastService.error(errorResponse?.message ?? 'Invalid email or password');
+          this.toastService.error(
+            error.status === 401
+              ? 'Invalid email or password'
+              : (errorResponse?.message ?? 'Something went wrong. Please try again later.'),
+          );
         },
       });
   }

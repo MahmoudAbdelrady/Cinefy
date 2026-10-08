@@ -20,7 +20,7 @@ Both apps register five functional interceptors in `src/app/app.config.ts`, in t
 - **`skipErrorToast()`** — silences **every** status. Only for components that render **all** failures themselves, usually with the backend's message. Management: `book-seats`, `active-gateway` (404 means "no gateway active"). Client: checkout's booking load, `movie-detail`, `seat-selection`, `booking-confirmation`, `login`, `oauth-callback`.
 - Loads with **no** inline error state (e.g. management's `hall-config-modal` dropdown sources, `movie-picker`'s "Load more") pass nothing — the toast is their only feedback.
 
-**Forms that stay on screen after a failed submit** branch on the same server-error check: the password forms (`profile-password`, the forgot-password `reset-step`) reset the whole form on `status === 0 || status >= 500`, and management's `login.ts` raises its "Invalid email or password" toast only when the status is **not** a server error.
+**Forms that stay on screen after a failed submit** branch on the same server-error check: the password forms (`profile-password`, the forgot-password `reset-step`) reset the whole form on `status === 0 || status >= 500`. Management's `login.ts` raises its "Invalid email or password" toast only on `401`, the one status `errorToastInterceptor` stays silent on; every other failure gets the interceptor's toast. The client's `login.ts` uses `skipErrorToast()` (an `ACCOUNT_NOT_VERIFIED` 403 switches to the verify step instead), so it raises the same toast on `401` and the backend's message for everything else.
 
 ## Auth
 
