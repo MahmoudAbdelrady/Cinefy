@@ -16,6 +16,7 @@ import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.utils.DateUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -49,6 +50,8 @@ public class TmdbMovieService {
     private final TmdbMovieRepository tmdbMovieRepository;
 
     private final ShowtimeRepository showtimeRepository;
+
+    private final DateUtil dateUtil;
 
     @Value("${app.tmdb.api-base-url}")
     private String apiBaseUrl;
@@ -118,7 +121,7 @@ public class TmdbMovieService {
 
     public List<UpcomingMovieDTO> getUpcomingMovies(int limit) {
         Page<MovieSearchResultDTO> page = fetchMoviePage("/movie/upcoming?language=en-US&region=us&page=1", Pageable.unpaged());
-        LocalDate today = LocalDate.now();
+        LocalDate today = dateUtil.today();
         List<MovieSearchResultDTO> upcoming = page.getContent().stream()
                 .filter(dto -> StringUtils.isNotEmpty(dto.getReleaseDate()) && !LocalDate.parse(dto.getReleaseDate()).isBefore(today))
                 .sorted(Comparator.comparing(MovieSearchResultDTO::getReleaseDate))
@@ -143,13 +146,13 @@ public class TmdbMovieService {
     }
 
     public List<MovieSearchResultDTO> getAnnouncedUpcoming() {
-        return tmdbMovieRepository.findAnnouncedUpcoming(LocalDate.now()).stream()
+        return tmdbMovieRepository.findAnnouncedUpcoming(dateUtil.today()).stream()
                 .map(this::toSearchResult)
                 .toList();
     }
 
     public List<HighlightedMovieDTO> getHighlighted() {
-        return tmdbMovieRepository.findHighlightedWithBookingFlag(LocalDate.now(), ShowtimeStatus.COMMITTED_STATUSES).stream()
+        return tmdbMovieRepository.findHighlightedWithBookingFlag(dateUtil.today(), ShowtimeStatus.COMMITTED_STATUSES).stream()
                 .map(row -> {
                     HighlightedMovieDTO dto = new HighlightedMovieDTO();
                     dto.setBookingOpened(row.getHasCommittedShowtime());
@@ -254,7 +257,7 @@ public class TmdbMovieService {
 
     @Transactional
     public int demoteIneligibleHighlighted() {
-        return tmdbMovieRepository.demoteIneligibleHighlighted(LocalDate.now(), ShowtimeStatus.COMMITTED_STATUSES);
+        return tmdbMovieRepository.demoteIneligibleHighlighted(dateUtil.today(), ShowtimeStatus.COMMITTED_STATUSES);
     }
 
     @Transactional
@@ -268,7 +271,7 @@ public class TmdbMovieService {
         if (movie.getReleaseDate() == null) {
             throw new BusinessException("'" + movie.getTitle() + "' has no release date yet and cannot be announced");
         }
-        if (!movie.getReleaseDate().isAfter(LocalDate.now())) {
+        if (!movie.getReleaseDate().isAfter(dateUtil.today())) {
             throw new BusinessException("'" + movie.getTitle() + "' has already been released");
         }
         if (showtimeRepository.existsByTmdbMovieIdAndStatusIn(movie.getId(), ShowtimeStatus.COMMITTED_STATUSES)) {
@@ -338,7 +341,7 @@ public class TmdbMovieService {
         movie.setBackdropUrl(details.getBackdropUrl());
         movie.setCredits(details.getCredits());
         movie.setTrailerUrl(details.getTrailerUrl());
-        movie.setLastSyncedAt(LocalDateTime.now());
+        movie.setLastSyncedAt(Instant.now());
     }
 
     private MovieSearchResultDTO toMovieSearchResult(JsonNode node) {

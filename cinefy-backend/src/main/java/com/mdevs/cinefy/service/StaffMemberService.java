@@ -23,6 +23,7 @@ import com.mdevs.cinefy.shared.exception.types.ForbiddenException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
 import com.mdevs.cinefy.shared.security.SecurityUtil;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
+import com.mdevs.cinefy.utils.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
@@ -51,6 +52,8 @@ public class StaffMemberService implements UserDetailsService {
     private final StaffMemberRepository staffMemberRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final DateUtil dateUtil;
 
     private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
@@ -91,7 +94,7 @@ public class StaffMemberService implements UserDetailsService {
     }
 
     public OnShiftSummaryDTO getOnShiftSummary() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = dateUtil.now();
         LocalTime currentTime = now.toLocalTime();
 
         Map<StaffPosition, Long> details = new EnumMap<>(StaffPosition.class);
@@ -409,7 +412,7 @@ public class StaffMemberService implements UserDetailsService {
         dto.setEmail(staffMember.getEmail());
         dto.setPhoneNumber(staffMember.getPhoneNumber());
         dto.setPosition(staffMember.getPosition().name());
-        dto.setHiredAt(staffMember.getCreatedAt());
+        dto.setHiredAt(dateUtil.toCinemaDateTime(staffMember.getCreatedAt()));
         dto.setEmploymentType(staffMember.getEmploymentType().name());
         dto.setWorkingDayStart(staffMember.getWorkingDayStart().name());
         dto.setWorkingDayEnd(staffMember.getWorkingDayEnd().name());

@@ -9,8 +9,8 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -49,8 +49,8 @@ public class TmdbMovie {
 
     private String trailerUrl;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
-    private LocalDateTime lastSyncedAt;
+    @Column(nullable = false, columnDefinition = "TIMESTAMPTZ(0)")
+    private Instant lastSyncedAt;
 
     @Column(nullable = false)
     @ColumnDefault("false")

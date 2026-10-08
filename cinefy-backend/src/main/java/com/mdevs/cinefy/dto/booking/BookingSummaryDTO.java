@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mdevs.cinefy.dto.movie.MovieSearchResultDTO;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 public record BookingSummaryDTO(
@@ -11,7 +12,7 @@ public record BookingSummaryDTO(
 
         String showtimeId,
 
-        LocalDateTime expiresAt,
+        Instant expiresAt,
 
         MovieSearchResultDTO movie,
 

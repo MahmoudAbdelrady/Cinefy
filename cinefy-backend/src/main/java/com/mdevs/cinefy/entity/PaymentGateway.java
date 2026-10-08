@@ -13,7 +13,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -46,8 +46,8 @@ public class PaymentGateway extends BaseEntity {
     @Column(columnDefinition = "JSONB")
     private String paymentChannels;
 
-    @Column(columnDefinition = "TIMESTAMP(0)")
-    private LocalDateTime deletedAt;
+    @Column(columnDefinition = "TIMESTAMPTZ(0)")
+    private Instant deletedAt;
 
     public static String toCode(String name) {
         return name.trim().toLowerCase().replace(" ", "_");

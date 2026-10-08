@@ -22,7 +22,7 @@ Not a `BaseEntity`: the TMDB id is the `@Id` (no UUID, no audit), so movie endpo
 
 ## Showtime
 
-`startDateTime` / `endDateTime` are `TIMESTAMP(0)`. `status` defaults to `DRAFT`.
+`startDateTime` / `endDateTime` are `Instant`s stored as `TIMESTAMPTZ(0)` (see [persistence.md](persistence.md#timestamps)). `ShowtimeDTO.dateTime` arrives as a `LocalDateTime` (cinema wall time, no offset), converted with `DateUtil.toInstant`; `endDateTime` is derived from it plus the movie runtime. `status` defaults to `DRAFT`.
 
 ## Booking
 

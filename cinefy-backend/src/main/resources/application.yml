@@ -38,6 +38,7 @@ management:
 
 # Variables
 app:
+  cinema-time-zone: ${CINEMA_TIME_ZONE:Africa/Cairo}
   tmdb:
     api-base-url: ${TMDB_API_BASE_URL:https://api.themoviedb.org/3}
     image-base-url: ${TMDB_IMAGE_BASE_URL:https://image.tmdb.org/t/p}

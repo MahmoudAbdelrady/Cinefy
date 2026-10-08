@@ -1,8 +1,5 @@
 package com.mdevs.cinefy.service;
 
-import com.mdevs.cinefy.projection.statistics.DailyHallProjection;
-import com.mdevs.cinefy.projection.statistics.DailyRevenueProjection;
-import com.mdevs.cinefy.projection.statistics.DailyTicketsSoldProjection;
 import com.mdevs.cinefy.dto.statistics.DateRangeDTO;
 import com.mdevs.cinefy.projection.statistics.HallPeriodProjection;
 import com.mdevs.cinefy.projection.statistics.MovieHallProjection;
@@ -10,6 +7,8 @@ import com.mdevs.cinefy.dto.statistics.MoviePerformanceDTO;
 import com.mdevs.cinefy.projection.statistics.MovieRevenueProjection;
 import com.mdevs.cinefy.projection.statistics.MovieTicketsSoldProjection;
 import com.mdevs.cinefy.projection.statistics.RevenueProjection;
+import com.mdevs.cinefy.projection.statistics.StartDateTimeRevenueProjection;
+import com.mdevs.cinefy.projection.statistics.StartDateTimeTicketsSoldProjection;
 import com.mdevs.cinefy.dto.statistics.SalesPointDTO;
 import com.mdevs.cinefy.dto.statistics.StatisticsPeriodTotalsDTO;
 import com.mdevs.cinefy.dto.statistics.StatisticsSummaryDTO;
@@ -19,6 +18,7 @@ import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.HallRepository;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
+import com.mdevs.cinefy.utils.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,14 +26,12 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +44,8 @@ public class StatisticsService {
 
     private final TmdbMovieRepository tmdbMovieRepository;
 
+    private final DateUtil dateUtil;
+
     private static final int MAX_RANGE_YEARS = 1;
 
     private static final int OCCUPANCY_SCALE = 2;
@@ -55,10 +55,10 @@ public class StatisticsService {
     public StatisticsSummaryDTO getSummary(DateRangeDTO range) {
         validateDateRange(range);
 
-        LocalDateTime from = range.getFrom().atStartOfDay();
-        LocalDateTime to = range.getTo().atTime(LocalTime.MAX);
+        Instant from = dateUtil.startOfDay(range.getFrom());
+        Instant to = dateUtil.endOfDay(range.getTo());
         long days = ChronoUnit.DAYS.between(range.getFrom(), range.getTo()) + 1;
-        LocalDateTime previousFrom = range.getFrom().minusDays(days).atStartOfDay();
+        Instant previousFrom = dateUtil.startOfDay(range.getFrom().minusDays(days));
 
         RevenueProjection revenue = bookingRepository.sumRevenueBetween(ShowtimeStatus.REPORTABLE_STATUSES, previousFrom, from, to);
         TicketsSoldProjection ticketsSold = bookingRepository.countTicketsSoldBetween(ShowtimeStatus.REPORTABLE_STATUSES, previousFrom, from, to);
@@ -84,31 +84,33 @@ public class StatisticsService {
     public List<SalesPointDTO> getSales(DateRangeDTO range) {
         validateDateRange(range);
 
-        LocalDateTime from = range.getFrom().atStartOfDay();
-        LocalDateTime to = range.getTo().atTime(LocalTime.MAX);
+        Instant from = dateUtil.startOfDay(range.getFrom());
+        Instant to = dateUtil.endOfDay(range.getTo());
 
-        Map<LocalDate, DailyRevenueProjection> revenueByDate = bookingRepository.sumDailyRevenueBetween(ShowtimeStatus.REPORTABLE_STATUSES, from, to)
+        List<StartDateTimeRevenueProjection> revenues = bookingRepository.sumRevenuePerStartDateTimeBetween(ShowtimeStatus.REPORTABLE_STATUSES, from, to);
+        Map<LocalDate, BigDecimal> netRevenueByDate = revenues.stream()
+                .collect(Collectors.groupingBy(revenue -> dateUtil.toCinemaDate(revenue.startDateTime()),
+                        Collectors.reducing(BigDecimal.ZERO, StartDateTimeRevenueProjection::netRevenue, BigDecimal::add)));
+        Map<LocalDate, BigDecimal> refundedByDate = revenues.stream()
+                .collect(Collectors.groupingBy(revenue -> dateUtil.toCinemaDate(revenue.startDateTime()),
+                        Collectors.reducing(BigDecimal.ZERO, StartDateTimeRevenueProjection::refunded, BigDecimal::add)));
+        Map<LocalDate, Long> ticketsByDate = bookingRepository.countTicketsSoldPerStartDateTimeBetween(ShowtimeStatus.REPORTABLE_STATUSES, from, to)
                 .stream()
-                .collect(Collectors.toMap(DailyRevenueProjection::date, Function.identity()));
-        Map<LocalDate, Long> ticketsByDate = bookingRepository.countDailyTicketsSoldBetween(ShowtimeStatus.REPORTABLE_STATUSES, from, to)
+                .collect(Collectors.groupingBy(tickets -> dateUtil.toCinemaDate(tickets.startDateTime()),
+                        Collectors.summingLong(StartDateTimeTicketsSoldProjection::ticketsSold)));
+        Map<LocalDate, Long> seatsByDate = hallRepository.findHallPerShowtimeBetween(ShowtimeStatus.REPORTABLE_STATUSES, from, to)
                 .stream()
-                .collect(Collectors.toMap(DailyTicketsSoldProjection::date, DailyTicketsSoldProjection::ticketsSold));
-        Map<LocalDate, Long> seatsByDate = hallRepository.findDailyShowtimeHallsBetween(ShowtimeStatus.REPORTABLE_STATUSES, from, to)
-                .stream()
-                .collect(Collectors.groupingBy(DailyHallProjection::date,
+                .collect(Collectors.groupingBy(projection -> dateUtil.toCinemaDate(projection.startDateTime()),
                         Collectors.summingLong(projection -> projection.hall().getCapacity())));
 
         List<SalesPointDTO> points = new ArrayList<>();
         for (LocalDate date = range.getFrom(); !date.isAfter(range.getTo()); date = date.plusDays(1)) {
-            DailyRevenueProjection revenue = revenueByDate.get(date);
-            long ticketsSold = ticketsByDate.getOrDefault(date, 0L);
-
             SalesPointDTO point = new SalesPointDTO();
             point.setDate(date);
             point.setDetails(toPeriodTotals(
-                    revenue == null ? BigDecimal.ZERO : revenue.netRevenue(),
-                    revenue == null ? BigDecimal.ZERO : revenue.refunded(),
-                    ticketsSold,
+                    netRevenueByDate.getOrDefault(date, BigDecimal.ZERO),
+                    refundedByDate.getOrDefault(date, BigDecimal.ZERO),
+                    ticketsByDate.getOrDefault(date, 0L),
                     seatsByDate.getOrDefault(date, 0L)));
             points.add(point);
         }
@@ -118,8 +120,8 @@ public class StatisticsService {
     public Page<MoviePerformanceDTO> getMoviePerformance(DateRangeDTO range, Pageable pageable) {
         validateDateRange(range);
 
-        LocalDateTime from = range.getFrom().atStartOfDay();
-        LocalDateTime to = range.getTo().atTime(LocalTime.MAX);
+        Instant from = dateUtil.startOfDay(range.getFrom());
+        Instant to = dateUtil.endOfDay(range.getTo());
 
         Page<MovieRevenueProjection> revenuePage = tmdbMovieRepository.findMoviePerformanceBetween(ShowtimeStatus.REPORTABLE_STATUSES, from, to, pageable);
         if (revenuePage.isEmpty()) {
@@ -143,7 +145,7 @@ public class StatisticsService {
 
     // =========================== Helpers ===========================
 
-    public static void validateDateRange(DateRangeDTO range) {
+    private void validateDateRange(DateRangeDTO range) {
         LocalDate from = range.getFrom();
         LocalDate to = range.getTo();
 
@@ -155,7 +157,7 @@ public class StatisticsService {
             throw new BusinessException("The selected range must not exceed " + MAX_RANGE_YEARS + " year");
         }
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = dateUtil.today();
         LocalDate earliestAllowed = today.minusYears(1).withDayOfYear(1);
         if (from.isBefore(earliestAllowed)) {
             throw new BusinessException("The selected range must not start before " + earliestAllowed);
