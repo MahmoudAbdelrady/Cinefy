@@ -50,7 +50,7 @@ Access is **not** uniform on this controller. The class is `@Validated` (for the
 
 - `confirmPaidBooking` runs for **every** confirmation, online or on-site. It generates the 10-character `bookingReference`, stores a QR of it in `ticketQrCode` (data URI, via `QrGenerator`), and sets `onHold = null`.
 - Only client bookings are emailed (`EmailService`, `@Async`).
-- **Scanning** (`POST /tickets/{bookingReference}/scan`, alphanumeric pattern) looks the booking up with a pessimistic lock: unknown reference → 404; status not `CONFIRMED` (e.g. refunded) or already used → 422; otherwise sets `ticketUsed`.
+- **Scanning** (`POST /tickets/{bookingReference}/scan`, alphanumeric pattern) looks the booking up with a pessimistic lock: unknown reference → 404; status not `CONFIRMED` (e.g. refunded), already used, or the showtime has ended (`endDateTime` before now) → 422; otherwise sets `ticketUsed`.
 
 ## Saved cards
 

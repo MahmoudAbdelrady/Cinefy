@@ -44,7 +44,7 @@ Not a `BaseEntity`: the TMDB id is the `@Id` (no UUID, no audit), so movie endpo
 ## Users
 
 - `User` is an abstract `@MappedSuperclass` (no table). `phoneNumber` is unique and stored as **digits only** — the frontend owns the `+`.
-- `password` is bcrypt-hashed and **nullable**: OAuth-registered clients never get one (see [manual-migrations.md](manual-migrations.md#nullable-password-oauth-clients)).
+- `password` is bcrypt-hashed and **nullable**: OAuth-registered clients never get one.
 - `StaffMember` adds position, employment type, working days (`DayOfWeek` start/end) and working hours (`LocalTime` start/end).
 - `Client` adds `isVerified` (default false) and `hasPassword()` (not a column; drives "set" vs "change" password).
 

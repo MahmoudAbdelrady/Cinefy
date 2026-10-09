@@ -44,4 +44,5 @@ application-local.yml
 hs_err_pid*
 replay_pid*
 k6-testing/
+migrations/
 cinefy_google_credentials.json

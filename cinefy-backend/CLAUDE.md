@@ -6,21 +6,20 @@ Spring Boot 4.1.1 REST API: Java 25, Maven, PostgreSQL (schema via Hibernate `dd
 
 Detailed docs live in [`../.claude/docs/backend/`](../.claude/docs/backend/). Read the one for the area you're changing before you change it.
 
-| Working on                                                         | Read                                                                 |
-| ------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| Config properties, profiles, a new setting                         | [configuration.md](../.claude/docs/backend/configuration.md)         |
-| Where a new class goes                                             | [structure.md](../.claude/docs/backend/structure.md)                 |
-| Entities, repositories, queries, DTO shape                         | [persistence.md](../.claude/docs/backend/persistence.md)             |
-| Entity semantics, enums, seat positions                            | [domain-model.md](../.claude/docs/backend/domain-model.md)           |
-| Schema changes JPA can't generate                                  | [manual-migrations.md](../.claude/docs/backend/manual-migrations.md) |
-| Security config, filters, auth contexts, endpoint access, API docs | [security.md](../.claude/docs/backend/security.md)                   |
-| Login, sessions, OTP, OAuth, client profile                        | [auth.md](../.claude/docs/backend/auth.md)                           |
-| Staff endpoints, admin and manager rules, on-shift                 | [staff.md](../.claude/docs/backend/staff.md)                         |
-| Bookings, holds, tickets, saved cards                              | [bookings.md](../.claude/docs/backend/bookings.md)                   |
-| Payment gateways, Paymob, callbacks                                | [payments.md](../.claude/docs/backend/payments.md)                   |
-| Statistics, dashboard aggregate endpoints                          | [statistics.md](../.claude/docs/backend/statistics.md)               |
-| Exceptions and status codes                                        | [errors.md](../.claude/docs/backend/errors.md)                       |
-| Scheduled jobs, logging aspects                                    | [jobs.md](../.claude/docs/backend/jobs.md)                           |
+| Working on                                                         | Read                                                         |
+| ------------------------------------------------------------------ | ------------------------------------------------------------ |
+| Config properties, profiles, a new setting                         | [configuration.md](../.claude/docs/backend/configuration.md) |
+| Where a new class goes                                             | [structure.md](../.claude/docs/backend/structure.md)         |
+| Entities, repositories, queries, DTO shape                         | [persistence.md](../.claude/docs/backend/persistence.md)     |
+| Entity semantics, enums, seat positions                            | [domain-model.md](../.claude/docs/backend/domain-model.md)   |
+| Security config, filters, auth contexts, endpoint access, API docs | [security.md](../.claude/docs/backend/security.md)           |
+| Login, sessions, OTP, OAuth, client profile                        | [auth.md](../.claude/docs/backend/auth.md)                   |
+| Staff endpoints, admin and manager rules, on-shift                 | [staff.md](../.claude/docs/backend/staff.md)                 |
+| Bookings, holds, tickets, saved cards                              | [bookings.md](../.claude/docs/backend/bookings.md)           |
+| Payment gateways, Paymob, callbacks                                | [payments.md](../.claude/docs/backend/payments.md)           |
+| Statistics, dashboard aggregate endpoints                          | [statistics.md](../.claude/docs/backend/statistics.md)       |
+| Exceptions and status codes                                        | [errors.md](../.claude/docs/backend/errors.md)               |
+| Scheduled jobs, logging aspects                                    | [jobs.md](../.claude/docs/backend/jobs.md)                   |
 
 ## Code style
 
@@ -54,7 +53,7 @@ Detailed docs live in [`../.claude/docs/backend/`](../.claude/docs/backend/). Re
 - Fetch every association a mapper reads (`JOIN FETCH` / `@EntityGraph`) — no N+1. The `/backend-rules` command has the details.
 - `@ManyToOne` is `LAZY`; association collections are `Set`; domain enums live in `entity/enums/` and expose `fromString` when parsed from input.
 - `@Query` strings aren't checked by `mvn compile` — boot the app after adding or changing one.
-- Schema changes `ddl-auto=update` can't make (dropping constraints, partial indexes) are applied by hand and recorded in [manual-migrations.md](../.claude/docs/backend/manual-migrations.md).
+- Schema changes `ddl-auto=update` can't make (dropping constraints, partial indexes) are applied by hand.
 
 ### Security
 

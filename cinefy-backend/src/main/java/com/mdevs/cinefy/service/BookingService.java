@@ -520,6 +520,9 @@ public class BookingService {
         if (booking.isTicketUsed()) {
             throw new BusinessException("This ticket has already been used");
         }
+        if (booking.getShowtime().getEndDateTime().isBefore(Instant.now())) {
+            throw new BusinessException("This showtime has already ended");
+        }
     }
 
     private void confirmPaidBooking(Booking booking, String transactionId) {
