@@ -65,6 +65,7 @@ springdoc (`springdoc-openapi-starter-webmvc-ui`) is configured from a custom `s
 - Keep both springdoc paths derived from the base URL — one set outside it falls back to 401.
 - **Never let the base URL be empty**: the matcher would become `/**` and open every endpoint.
 - `CinefyApiAuthorizationManager` can't open these itself: springdoc's handlers have no `@PublicApi`, and its static assets aren't handler methods at all.
+- In prod, Swagger UI lives at `/api<base-url>/swagger-ui.html`. nginx strips `/api` before proxying and sends it back as `X-Forwarded-Prefix`, so the `swagger-ui.html` redirect and the OpenAPI server URL depend on `server.forward-headers-strategy: framework` (see [configuration.md](configuration.md)).
 
 ## Encryption
 
