@@ -43,10 +43,10 @@
   --cui-media-placeholder-icon: #{$color-muted-foreground};
 
   // Seat map
-  --cui-seat-normal-surface: #{rgba($color-seat-premium, 0.5)};
-  --cui-seat-normal-border: #{$color-seat-premium};
-  --cui-seat-normal-hover-border: #{rgba($color-seat-premium, 0.9)};
-  --cui-seat-normal-text: #{$color-foreground};
+  --cui-seat-standard-surface: #{rgba($color-seat-premium, 0.5)};
+  --cui-seat-standard-border: #{$color-seat-premium};
+  --cui-seat-standard-hover-border: #{rgba($color-seat-premium, 0.9)};
+  --cui-seat-standard-text: #{$color-foreground};
   --cui-seat-vip-surface: #{rgba($color-seat-recliner, 0.4)};
   --cui-seat-vip-border: #{rgba($color-seat-recliner, 0.6)};
   --cui-seat-vip-hover-border: #{rgba($color-seat-recliner, 0.9)};

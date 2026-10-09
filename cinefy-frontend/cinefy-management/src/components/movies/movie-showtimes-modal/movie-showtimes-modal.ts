@@ -195,7 +195,7 @@ export class MovieShowtimesModal {
           next: (data) => {
             if (this.selectedTab() !== targetDate) return;
             this.movieShowtimeDetails.set(data.showtimes);
-            this.dayDrafts.set(data.numberOfDrafts);
+            this.dayDrafts.set(data.numberOfDrafts ?? 0);
             this.loadingDay.set(false);
           },
           error: () => {
@@ -387,7 +387,7 @@ export class MovieShowtimesModal {
       return {
         ...m,
         dates,
-        numberOfDrafts: m.numberOfDrafts + (isDraft ? 1 : 0),
+        numberOfDrafts: (m.numberOfDrafts ?? 0) + (isDraft ? 1 : 0),
       };
     });
 
@@ -426,7 +426,7 @@ export class MovieShowtimesModal {
       if (draftDelta !== 0) {
         this.dayDrafts.update((n) => n + draftDelta);
         this.movieShowtimes.update((m) =>
-          m ? { ...m, numberOfDrafts: m.numberOfDrafts + draftDelta } : m,
+          m ? { ...m, numberOfDrafts: (m.numberOfDrafts ?? 0) + draftDelta } : m,
         );
       }
       return;
@@ -436,7 +436,7 @@ export class MovieShowtimesModal {
     if (prevWasDraft) this.dayDrafts.update((n) => n - 1);
     if (draftDelta !== 0) {
       this.movieShowtimes.update((m) =>
-        m ? { ...m, numberOfDrafts: m.numberOfDrafts + draftDelta } : m,
+        m ? { ...m, numberOfDrafts: (m.numberOfDrafts ?? 0) + draftDelta } : m,
       );
     }
 
@@ -470,10 +470,12 @@ export class MovieShowtimesModal {
 
     if (wasDraft) {
       this.dayDrafts.update((n) => n - 1);
-      this.movieShowtimes.update((m) => (m ? { ...m, numberOfDrafts: m.numberOfDrafts - 1 } : m));
+      this.movieShowtimes.update((m) =>
+        m ? { ...m, numberOfDrafts: (m.numberOfDrafts ?? 0) - 1 } : m,
+      );
     } else if (wasCommitted) {
       this.movieShowtimes.update((m) =>
-        m ? { ...m, numberOfCommitted: m.numberOfCommitted - 1 } : m,
+        m ? { ...m, numberOfCommitted: (m.numberOfCommitted ?? 0) - 1 } : m,
       );
     }
 
@@ -492,7 +494,11 @@ export class MovieShowtimesModal {
     this.dayDrafts.update((n) => n - 1);
     this.movieShowtimes.update((m) =>
       m
-        ? { ...m, numberOfDrafts: m.numberOfDrafts - 1, numberOfCommitted: m.numberOfCommitted + 1 }
+        ? {
+            ...m,
+            numberOfDrafts: (m.numberOfDrafts ?? 0) - 1,
+            numberOfCommitted: (m.numberOfCommitted ?? 0) + 1,
+          }
         : m,
     );
   }
@@ -506,7 +512,8 @@ export class MovieShowtimesModal {
       m
         ? {
             ...m,
-            numberOfCommitted: m.numberOfCommitted + (m.numberOfDrafts - remainingDrafts),
+            numberOfCommitted:
+              (m.numberOfCommitted ?? 0) + ((m.numberOfDrafts ?? 0) - remainingDrafts),
             numberOfDrafts: remainingDrafts,
           }
         : m,

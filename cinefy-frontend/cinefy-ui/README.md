@@ -105,22 +105,22 @@ This document is the source of truth for which tokens the bridge must define. A 
 
 ### Seat map
 
-| Token                            | Purpose                   |
-| -------------------------------- | ------------------------- |
-| `--cui-seat-normal-surface`      | Normal seat background    |
-| `--cui-seat-normal-border`       | Normal seat border        |
-| `--cui-seat-normal-hover-border` | Normal seat border, hover |
-| `--cui-seat-normal-text`         | Normal seat label         |
-| `--cui-seat-vip-surface`         | VIP seat background       |
-| `--cui-seat-vip-border`          | VIP seat border           |
-| `--cui-seat-vip-hover-border`    | VIP seat border, hover    |
-| `--cui-seat-vip-text`            | VIP seat label            |
-| `--cui-seat-selected-surface`    | Selected seat background  |
-| `--cui-seat-selected-border`     | Selected seat border      |
-| `--cui-seat-selected-text`       | Selected seat label       |
-| `--cui-seat-taken-surface`       | Taken seat background     |
-| `--cui-seat-taken-border`        | Taken seat border         |
-| `--cui-seat-legend-surface`      | Legend pill background    |
+| Token                              | Purpose                     |
+| ---------------------------------- | --------------------------- |
+| `--cui-seat-standard-surface`      | Standard seat background    |
+| `--cui-seat-standard-border`       | Standard seat border        |
+| `--cui-seat-standard-hover-border` | Standard seat border, hover |
+| `--cui-seat-standard-text`         | Standard seat label         |
+| `--cui-seat-vip-surface`           | VIP seat background         |
+| `--cui-seat-vip-border`            | VIP seat border             |
+| `--cui-seat-vip-hover-border`      | VIP seat border, hover      |
+| `--cui-seat-vip-text`              | VIP seat label              |
+| `--cui-seat-selected-surface`      | Selected seat background    |
+| `--cui-seat-selected-border`       | Selected seat border        |
+| `--cui-seat-selected-text`         | Selected seat label         |
+| `--cui-seat-taken-surface`         | Taken seat background       |
+| `--cui-seat-taken-border`          | Taken seat border           |
+| `--cui-seat-legend-surface`        | Legend pill background      |
 
 ### Hold timer
 

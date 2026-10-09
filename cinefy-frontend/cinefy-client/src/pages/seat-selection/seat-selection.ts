@@ -38,7 +38,7 @@ import type {
 function seatCategory(id: string, layout: SeatLayout): SeatCategory {
   if (layout.categories.AISLE?.includes(id)) return 'AISLE';
   if (layout.categories.VIP?.includes(id)) return 'VIP';
-  return 'NORMAL';
+  return 'STANDARD';
 }
 
 function buildHall(response: SeatLayoutResponse, bookedSeats: Set<string>): Seat[][] {

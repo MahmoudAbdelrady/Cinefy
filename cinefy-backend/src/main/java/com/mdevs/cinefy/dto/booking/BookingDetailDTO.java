@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class BookingDetailDTO {
 
     private String id;
 
-    private LocalDateTime expiresAt;
+    private Instant expiresAt;
 
     private MovieSearchResultDTO movie;
 

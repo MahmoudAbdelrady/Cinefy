@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Slf4j
 @Component
@@ -19,7 +19,7 @@ public class InvalidJwtCleanupJob {
 
     @Scheduled(cron = "0 0 3 * * *")
     public void deleteExpiredInvalidJwts() {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         int total = 0;
         int deleted;
         do {

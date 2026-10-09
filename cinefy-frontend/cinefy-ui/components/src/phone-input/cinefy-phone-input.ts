@@ -53,7 +53,9 @@ export function phoneNumberValidator(countryControl: FormControl<CountryCode>) {
 }
 
 export function toE164Digits(countryControl: FormControl<CountryCode>, national: string): string {
-  return `${getCountryCallingCode(countryControl.value)}${national}`;
+  const country = countryControl.value;
+  const nationalNumber = parsePhoneNumberFromString(national, country)?.nationalNumber ?? national;
+  return `${getCountryCallingCode(country)}${nationalNumber}`;
 }
 
 export function parsePhoneDigits(phoneNumber: string): { country: CountryCode; nationalNumber: string } {

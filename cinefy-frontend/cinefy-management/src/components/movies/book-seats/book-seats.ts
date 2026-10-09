@@ -67,7 +67,7 @@ const PAYMENT_TYPE_ENTRIES = [
 function seatCategory(id: string, layout: ShowtimeSeatLayout): SeatCategory {
   if (layout.categories.AISLE?.includes(id)) return 'AISLE';
   if (layout.categories.VIP?.includes(id)) return 'VIP';
-  return 'NORMAL';
+  return 'STANDARD';
 }
 
 function buildHall(hallLayout: ShowtimeHallLayout, bookedSeats: Set<string>): Seat[][] {

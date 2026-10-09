@@ -60,7 +60,7 @@ Client app only. `shared/oauth/` holds an abstract `OAuthProviderClient` over `R
 
 **The registration token is stateless.** `issueRegistrationToken` serializes `OAuthRegistrationToken(email, firstName, lastName, expiresAt)` and encrypts it with `CredentialCipher`. Nothing is persisted and no cookie is set; `/oauth/sign-up` rejects it if it fails to decrypt or has expired. Sign-up only asks for the one field providers don't supply: `phoneNumber`.
 
-**OAuth clients are created verified and password-less** (`ClientService.createOAuthClient`). `changePassword` branches on `Client.hasPassword()`: a password-less client may set one without a current password. `CurrentClientDTO.hasPassword` lets the UI show "set" vs "change". Older databases need the [nullable-password migration](manual-migrations.md#nullable-password-oauth-clients).
+**OAuth clients are created verified and password-less** (`ClientService.createOAuthClient`). `changePassword` branches on `Client.hasPassword()`: a password-less client may set one without a current password. `CurrentClientDTO.hasPassword` lets the UI show "set" vs "change".
 
 ## Client profile
 

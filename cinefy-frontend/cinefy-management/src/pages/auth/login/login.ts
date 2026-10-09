@@ -65,7 +65,7 @@ export class LoginPage {
         error: (error: HttpErrorResponse) => {
           this.submitting.set(false);
           this.loginForm.controls.password.reset();
-          if (error.status !== 0 && error.status < 500) {
+          if (error.status === 401) {
             this.toastService.error('Invalid email or password');
           }
         },

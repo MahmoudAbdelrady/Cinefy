@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +61,7 @@ public class InvalidJwtService {
     }
 
     @Transactional
-    public int deleteExpiredBatch(LocalDateTime cutoffDate, int batchSize) {
+    public int deleteExpiredBatch(Instant cutoffDate, int batchSize) {
         return invalidJwtRepository.deleteExpiredBatch(cutoffDate, batchSize);
     }
 }

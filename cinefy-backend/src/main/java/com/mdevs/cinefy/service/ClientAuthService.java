@@ -41,7 +41,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -177,7 +178,7 @@ public class ClientAuthService {
                 profile.email(),
                 profile.firstName(),
                 profile.lastName(),
-                LocalDateTime.now().plusMinutes(oAuthRegistrationTokenExpirationMinutes));
+                Instant.now().plus(oAuthRegistrationTokenExpirationMinutes, ChronoUnit.MINUTES));
         return credentialCipher.encrypt(objectMapper.writeValueAsString(token));
     }
 
@@ -189,7 +190,7 @@ public class ClientAuthService {
             throw new BusinessException("Invalid or expired registration token");
         }
 
-        if (parsed.expiresAt() == null || parsed.expiresAt().isBefore(LocalDateTime.now())) {
+        if (parsed.expiresAt() == null || parsed.expiresAt().isBefore(Instant.now())) {
             throw new BusinessException("Invalid or expired registration token");
         }
 

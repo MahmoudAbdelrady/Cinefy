@@ -19,7 +19,7 @@ public class CinefyRateLimiter {
     @Value("${cinefy.rate-limit-enabled}")
     private boolean rateLimitEnabled;
 
-    private static final String KEY_PREFIX = "rate-limit:";
+    private static final String KEY_PREFIX = "cinefy-rate-limit:";
 
     public boolean tryConsume(String key, RateLimitPolicy policy) {
         if (!rateLimitEnabled) {

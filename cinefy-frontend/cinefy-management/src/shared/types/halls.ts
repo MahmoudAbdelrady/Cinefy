@@ -10,7 +10,7 @@ type HallStatus = keyof typeof HALL_STATUS_LABELS;
 const ACTIVE_HALL_STATUSES: HallStatus[] = ['ACTIVE', 'SCHEDULED'];
 
 const SEAT_CATEGORY_LABELS = {
-  NORMAL: 'Normal',
+  STANDARD: 'Standard',
   VIP: 'VIP',
   AISLE: 'Space/Aisle',
 } as const;

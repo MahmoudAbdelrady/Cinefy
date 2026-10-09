@@ -9,7 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Audited
@@ -32,13 +32,13 @@ public abstract class BaseEntity {
     @Column(nullable = false)
     private long version = 0;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
+    @Column(nullable = false, columnDefinition = "TIMESTAMPTZ(0)")
     @CreatedDate
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP(0)")
+    @Column(nullable = false, columnDefinition = "TIMESTAMPTZ(0)")
     @LastModifiedDate
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @PrePersist
     public void prePersist() {

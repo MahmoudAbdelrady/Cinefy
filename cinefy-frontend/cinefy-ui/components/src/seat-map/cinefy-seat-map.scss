@@ -63,13 +63,13 @@
   transition: all 0.2s;
   cursor: pointer;
 
-  &[data-category="NORMAL"] {
-    background: var(--cui-seat-normal-surface);
-    border-color: var(--cui-seat-normal-border);
-    color: var(--cui-seat-normal-text);
+  &[data-category="STANDARD"] {
+    background: var(--cui-seat-standard-surface);
+    border-color: var(--cui-seat-standard-border);
+    color: var(--cui-seat-standard-text);
 
     &.can-select:hover {
-      border-color: var(--cui-seat-normal-hover-border);
+      border-color: var(--cui-seat-standard-hover-border);
     }
   }
 
@@ -140,9 +140,9 @@
   border-top-left-radius: $radius-sm;
   border-top-right-radius: $radius-sm;
 
-  &[data-state="NORMAL"] {
-    background: var(--cui-seat-normal-surface);
-    border-color: var(--cui-seat-normal-border);
+  &[data-state="STANDARD"] {
+    background: var(--cui-seat-standard-surface);
+    border-color: var(--cui-seat-standard-border);
   }
 
   &[data-state="VIP"] {

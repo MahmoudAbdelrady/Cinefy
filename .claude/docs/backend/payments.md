@@ -55,4 +55,4 @@ Every read excludes deleted rows — the `...DeletedAtIsNull` derived queries, a
 
 ## Activation
 
-`updatePaymentGatewayStatus` relies on the `UK_PAYMENT_GATEWAYS_ACTIVE` partial index ([manual-migrations.md](manual-migrations.md)). It deactivates the incumbent with `saveAndFlush` first, then wraps the activation in `catch (DataIntegrityViolationException)` → `ConflictException` (409). That catch is load-bearing: the row lock only serializes activations of the **same** gateway, so two admins activating **different** gateways still collide on the index.
+`updatePaymentGatewayStatus` relies on the `UK_PAYMENT_GATEWAYS_ACTIVE` partial index. It deactivates the incumbent with `saveAndFlush` first, then wraps the activation in `catch (DataIntegrityViolationException)` → `ConflictException` (409). That catch is load-bearing: the row lock only serializes activations of the **same** gateway, so two admins activating **different** gateways still collide on the index.

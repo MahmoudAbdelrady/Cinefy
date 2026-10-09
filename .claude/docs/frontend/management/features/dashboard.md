@@ -8,7 +8,7 @@ The dashboard is **position-gated per widget**, not per route — `/` is reachab
 | `today-schedule`                                                          | `canBook()`   |
 | `scan-ticket-modal` (inline card)                                         | `isUsher()`   |
 
-`canManage` / `canBook` come from `shared/access.ts`; `isUsher` is a direct `position === 'USHER'` check. **Each gate must match the role its widget's endpoint requires** — every manage-gated widget calls an ADMIN/MANAGER-only endpoint, so ungating one produces a 403 toast on page load rather than a hidden card. All three computeds return `false` until `/staff/me` resolves, so widgets appear once instead of flashing.
+`canManage` / `canBook` come from `shared/access.ts`; `isUsher` is a direct `position === 'USHER'` check. **Each gate must match the role its widget's endpoint requires** — every manage-gated widget calls an ADMIN/MANAGER-only endpoint, so ungating one produces a 403 toast on page load rather than a hidden card. All three computeds return `false` until `/staff/me` resolves, so widgets appear once instead of flashing. `today-schedule` also takes a `canManage` input from the page: its action reads "Manage showtimes" for ADMIN/MANAGER and "View showtimes" for a cashier.
 
 `.dv-columns` sets its two-column desktop template behind `&:has(today-schedule):has(.dv-side)` — with one column gated away, the survivor would otherwise sit in a 1.9fr track with dead space beside it.
 

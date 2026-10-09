@@ -14,6 +14,7 @@ import com.mdevs.cinefy.entity.Hall;
 import com.mdevs.cinefy.entity.enums.HallStatus;
 import com.mdevs.cinefy.entity.Showtime;
 import com.mdevs.cinefy.entity.enums.ShowtimeStatus;
+import com.mdevs.cinefy.entity.enums.StaffPosition;
 import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.entity.User;
@@ -25,13 +26,14 @@ import com.mdevs.cinefy.repository.ShowtimeRepository;
 import com.mdevs.cinefy.repository.TmdbMovieRepository;
 import com.mdevs.cinefy.shared.exception.types.BusinessException;
 import com.mdevs.cinefy.shared.exception.types.NotFoundException;
+import com.mdevs.cinefy.utils.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -57,44 +59,63 @@ public class ShowtimeService {
 
     private final CurrentUserService currentUserService;
 
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private final DateUtil dateUtil;
+
+    private static final Set<StaffPosition> MANAGEMENT_POSITIONS = Set.of(StaffPosition.ADMIN, StaffPosition.MANAGER);
 
     // ========================= Public API =========================
 
     public MovieShowtimeDatesDTO getMovieShowtimeDates(Long movieId) {
-        List<LocalDate> dates = showtimeRepository.findDistinctShowtimeDatesByMovieAndStatuses(movieId, ShowtimeStatus.LIVE_STATUSES);
+        boolean canManage = canManageShowtimes(currentUserService.loadCurrentUser());
+        Set<ShowtimeStatus> statuses = canManage ? ShowtimeStatus.LIVE_STATUSES : ShowtimeStatus.COMMITTED_STATUSES;
+        List<String> dates = showtimeRepository.findStartDateTimesByMovieAndStatuses(movieId, statuses)
+                .stream()
+                .map(startDateTime -> dateUtil.toCinemaDate(startDateTime).toString())
+                .distinct()
+                .toList();
 
         MovieShowtimeDatesDTO dto = new MovieShowtimeDatesDTO();
         if (dates.isEmpty()) {
-            dto.setNumberOfDrafts(0);
-            dto.setNumberOfCommitted(0);
+            if (canManage) {
+                dto.setNumberOfDrafts(0L);
+                dto.setNumberOfCommitted(0L);
+            }
             dto.setDates(List.of());
             return dto;
         }
 
-        dto.setNumberOfDrafts(showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, Set.of(ShowtimeStatus.DRAFT)));
-        dto.setNumberOfCommitted(showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, ShowtimeStatus.COMMITTED_STATUSES));
-        dto.setDates(dates.stream().map(LocalDate::toString).toList());
+        if (canManage) {
+            dto.setNumberOfDrafts(showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, Set.of(ShowtimeStatus.DRAFT)));
+            dto.setNumberOfCommitted(showtimeRepository.countByTmdbMovieIdAndStatusIn(movieId, ShowtimeStatus.COMMITTED_STATUSES));
+        }
+        dto.setDates(dates);
         return dto;
     }
 
     public MovieShowtimesDTO getMovieShowtimesForDate(Long movieId, LocalDate date) {
-        List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, ShowtimeStatus.LIVE_STATUSES, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+        User currentUser = currentUserService.loadCurrentUser();
+        boolean canManage = canManageShowtimes(currentUser);
+        Set<ShowtimeStatus> statuses = canManage ? ShowtimeStatus.LIVE_STATUSES : ShowtimeStatus.COMMITTED_STATUSES;
+        List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(movieId, statuses,
+                dateUtil.startOfDay(date), dateUtil.startOfDay(date.plusDays(1)));
 
         MovieShowtimesDTO dto = new MovieShowtimesDTO();
         if (showtimes.isEmpty()) {
-            dto.setNumberOfDrafts(0);
+            if (canManage) {
+                dto.setNumberOfDrafts(0L);
+            }
             dto.setShowtimes(List.of());
             return dto;
         }
 
         List<Long> showtimeIds = showtimes.stream().map(Showtime::getId).toList();
-        User currentUser = currentUserService.loadCurrentUser();
-        Map<Long, ShowtimeBookingCountsProjection> countsByShowtime = bookingRepository.countBookedAndHeldByShowtime(showtimeIds, LocalDateTime.now(), currentUser.getId())
+        Map<Long, ShowtimeBookingCountsProjection> countsByShowtime = bookingRepository.countBookedAndHeldByShowtime(showtimeIds, Instant.now(), currentUser.getId())
                 .stream()
                 .collect(Collectors.toMap(ShowtimeBookingCountsProjection::getShowtimeId, Function.identity()));
 
-        dto.setNumberOfDrafts(showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count());
+        if (canManage) {
+            dto.setNumberOfDrafts(showtimes.stream().filter(s -> s.getStatus().equals(ShowtimeStatus.DRAFT)).count());
+        }
         dto.setShowtimes(showtimes.stream()
                 .map(showtime -> toMovieShowtimeListItem(showtime, countsByShowtime.get(showtime.getId())))
                 .toList());
@@ -103,14 +124,14 @@ public class ShowtimeService {
 
     public List<ScheduledShowtimeDTO> getScheduleForDate(LocalDate day) {
         List<Showtime> showtimes = showtimeRepository.findByMovieStatusesAndDateRangeWithHall(
-                null, ShowtimeStatus.COMMITTED_STATUSES, day.atStartOfDay(), day.plusDays(1).atStartOfDay());
+                null, ShowtimeStatus.COMMITTED_STATUSES, dateUtil.startOfDay(day), dateUtil.startOfDay(day.plusDays(1)));
 
         if (showtimes.isEmpty()) {
             return List.of();
         }
 
         List<Long> showtimeIds = showtimes.stream().map(Showtime::getId).toList();
-        Map<Long, ShowtimeBookedSeatsProjection> countsByShowtime = bookingRepository.countBookedSeatsByShowtime(showtimeIds, LocalDateTime.now(), null, null)
+        Map<Long, ShowtimeBookedSeatsProjection> countsByShowtime = bookingRepository.countBookedSeatsByShowtime(showtimeIds, Instant.now(), null, null)
                 .stream()
                 .collect(Collectors.toMap(ShowtimeBookedSeatsProjection::getShowtimeId, Function.identity()));
 
@@ -122,9 +143,9 @@ public class ShowtimeService {
     public ShowtimesStatisticsDTO getShowtimesStatistics() {
         long totalMovies = showtimeRepository.countDistinctMoviesByStatusIn(ShowtimeStatus.LIVE_STATUSES);
         long totalShowtimes = showtimeRepository.countByStatusIn(ShowtimeStatus.LIVE_STATUSES);
-        LocalDate today = LocalDate.now();
+        LocalDate today = dateUtil.today();
         long todayShowtimes = showtimeRepository.countByStatusInAndStartDateTimeGreaterThanEqualAndStartDateTimeLessThan(
-                ShowtimeStatus.LIVE_STATUSES, today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+                ShowtimeStatus.LIVE_STATUSES, dateUtil.startOfDay(today), dateUtil.startOfDay(today.plusDays(1)));
 
         ShowtimesStatisticsDTO dto = new ShowtimesStatisticsDTO();
         dto.setTotalMovies(totalMovies);
@@ -185,7 +206,7 @@ public class ShowtimeService {
 
         User currentUser = currentUserService.loadCurrentUser();
         Long staffId = currentUser instanceof StaffMember staff ? staff.getId() : null;
-        ShowtimeBookingCountsProjection counts = bookingRepository.countBookedAndHeldByShowtime(List.of(showtime.getId()), LocalDateTime.now(), staffId)
+        ShowtimeBookingCountsProjection counts = bookingRepository.countBookedAndHeldByShowtime(List.of(showtime.getId()), Instant.now(), staffId)
                 .stream()
                 .findFirst()
                 .orElse(null);
@@ -248,7 +269,8 @@ public class ShowtimeService {
             throw new BusinessException("Hall '" + hall.getName() + "' is not available");
         }
 
-        if (dto.getDateTime().isBefore(LocalDateTime.now())) {
+        Instant start = dateUtil.toInstant(dto.getDateTime());
+        if (start.isBefore(Instant.now())) {
             throw new BusinessException("Showtime cannot be scheduled in the past");
         }
 
@@ -260,15 +282,15 @@ public class ShowtimeService {
             throw new BusinessException("Movie '" + movie.getTitle() + "' does not have a runtime yet and cannot be scheduled");
         }
 
-        LocalDateTime end = dto.getDateTime().plusMinutes(movie.getDurationMinutes());
-        boolean overlaps = showtimeRepository.existsOverlapping(hall, dto.getDateTime(), end, showtimeId);
+        Instant end = start.plus(movie.getDurationMinutes(), ChronoUnit.MINUTES);
+        boolean overlaps = showtimeRepository.existsOverlapping(hall, start, end, showtimeId);
         if (overlaps) {
             throw new BusinessException("Another showtime is already scheduled in this hall at the selected time");
         }
     }
 
     private void validateShowtimeNotInPast(Showtime showtime) {
-        if (showtime.getStartDateTime().isBefore(LocalDateTime.now())) {
+        if (showtime.getStartDateTime().isBefore(Instant.now())) {
             throw new BusinessException("Cannot publish a showtime scheduled in the past");
         }
     }
@@ -287,7 +309,7 @@ public class ShowtimeService {
             }
             publishedIds.add(showtime.getId());
         }
-        if (!publishedIds.isEmpty() && bookingRepository.existsBookedSeatByShowtimeIn(publishedIds, LocalDateTime.now())) {
+        if (!publishedIds.isEmpty() && bookingRepository.existsBookedSeatByShowtimeIn(publishedIds, Instant.now())) {
             throw new BusinessException(single
                     ? "Cannot " + action + " a published showtime that already has bookings"
                     : "Cannot " + action + " published showtimes that already have bookings");
@@ -306,9 +328,6 @@ public class ShowtimeService {
         if (!showtime.getStatus().equals(ShowtimeStatus.DRAFT)) {
             throw new BusinessException("Cannot publish a showtime that's not draft");
         }
-        if (showtime.getStartDateTime().isBefore(LocalDateTime.now())) {
-            throw new BusinessException("Cannot publish a showtime scheduled in the past");
-        }
         validateShowtimeNotInPast(showtime);
         showtime.setStatus(ShowtimeStatus.PUBLISHED);
         showtimeRepository.save(showtime);
@@ -316,8 +335,8 @@ public class ShowtimeService {
     }
 
     private void publishDraftsForMovie(Long movieId, LocalDate date) {
-        LocalDateTime startDateTime = date != null ? date.atStartOfDay() : null;
-        LocalDateTime endDateTime = date != null ? date.plusDays(1).atStartOfDay() : null;
+        Instant startDateTime = date != null ? dateUtil.startOfDay(date) : null;
+        Instant endDateTime = date != null ? dateUtil.startOfDay(date.plusDays(1)) : null;
         List<Showtime> drafts = showtimeRepository.findByTmdbMovieAndStatusAndStartDateTimeInRange(movieId, ShowtimeStatus.DRAFT, startDateTime, endDateTime);
         if (drafts.isEmpty()) {
             throw new NotFoundException("No draft showtimes found for the provided movie" + (date != null ? " on " + date : ""));
@@ -333,8 +352,9 @@ public class ShowtimeService {
     private Showtime applyDtoToShowtime(Showtime showtime, Hall hall, TmdbMovie movie, ShowtimeDTO dto) {
         showtime.setTmdbMovie(movie);
         showtime.setHall(hall);
-        showtime.setStartDateTime(dto.getDateTime());
-        showtime.setEndDateTime(dto.getDateTime().plusMinutes(movie.getDurationMinutes()));
+        Instant start = dateUtil.toInstant(dto.getDateTime());
+        showtime.setStartDateTime(start);
+        showtime.setEndDateTime(start.plus(movie.getDurationMinutes(), ChronoUnit.MINUTES));
         showtime.set3D(dto.is3D());
         showtime.setSpecialNotes(dto.getSpecialNotes());
         return showtime;
@@ -344,7 +364,7 @@ public class ShowtimeService {
         Hall hall = showtime.getHall();
         MovieShowtimeListItemDTO dto = new MovieShowtimeListItemDTO();
         dto.setId(showtime.getUuid());
-        dto.setTime(showtime.getStartDateTime().toLocalTime().format(TIME_FORMATTER));
+        dto.setTime(dateUtil.formatTime(showtime.getStartDateTime()));
         dto.setHall(toHallReference(hall));
         dto.setStatus(showtime.getStatus().name());
         dto.setSpecialNotes(showtime.getSpecialNotes());
@@ -360,8 +380,8 @@ public class ShowtimeService {
         ScheduledShowtimeDTO dto = new ScheduledShowtimeDTO();
         dto.setId(showtime.getUuid());
         dto.setMovie(tmdbMovieService.toSearchResult(showtime.getTmdbMovie()));
-        dto.setStartsAt(showtime.getStartDateTime().toLocalTime().format(TIME_FORMATTER));
-        dto.setEndsAt(showtime.getEndDateTime().toLocalTime().format(TIME_FORMATTER));
+        dto.setStartsAt(dateUtil.formatTime(showtime.getStartDateTime()));
+        dto.setEndsAt(dateUtil.formatTime(showtime.getEndDateTime()));
         dto.setTicketsSold(counts != null ? counts.getBookedSeats() : 0);
         dto.setTotalSeats(showtime.getHall().getCapacity());
         return dto;
@@ -381,7 +401,7 @@ public class ShowtimeService {
         dto.setId(showtime.getUuid());
         dto.setMovie(tmdbMovieService.toMovieSummary(showtime.getTmdbMovie()));
         dto.setHall(toHallReference(hall));
-        dto.setStartDateTime(showtime.getStartDateTime());
+        dto.setStartDateTime(dateUtil.toCinemaDateTime(showtime.getStartDateTime()));
         dto.setStatus(showtime.getStatus().name());
         dto.setSpecialNotes(showtime.getSpecialNotes());
         dto.set3D(showtime.is3D());
@@ -398,5 +418,9 @@ public class ShowtimeService {
         dto.setName(hall.getName());
         dto.setTypeName(hall.getType().getName());
         return dto;
+    }
+
+    private boolean canManageShowtimes(User user) {
+        return user instanceof StaffMember staff && MANAGEMENT_POSITIONS.contains(staff.getPosition());
     }
 }

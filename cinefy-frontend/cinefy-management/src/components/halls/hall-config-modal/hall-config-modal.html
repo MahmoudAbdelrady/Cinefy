@@ -176,23 +176,23 @@
                     <cui-loading-spinner variant="lg" />
                   </div>
                 } @else {
-                  @if (hasNormalSeats()) {
+                  @if (hasStandardSeats()) {
                     <div class="tp-input-group">
                       <div class="tpi-label">
-                        <span class="tpi-label-icon normal"></span>
+                        <span class="tpi-label-icon standard"></span>
                         <span
                           class="tpi-label-text"
                           [attr.data-required]="!isViewMode() ? '' : null"
-                          >Normal</span
+                          >Standard</span
                         >
                       </div>
                       <cui-input
                         type="number"
                         placeholder="e.g. 10"
                         [leadingIcon]="icons.DollarSignIcon"
-                        [control]="hallForm.controls.normalPrice"
+                        [control]="hallForm.controls.standardPrice"
                         [errorMessages]="{
-                          required: 'Normal price is required',
+                          required: 'Standard seat price is required',
                           min: 'Price must be at least 1',
                           max: 'Price is too large',
                           maxDecimals: 'Price can have at most 2 decimal places',
@@ -216,7 +216,7 @@
                         [leadingIcon]="icons.DollarSignIcon"
                         [control]="hallForm.controls.vipPrice"
                         [errorMessages]="{
-                          required: 'VIP price is required',
+                          required: 'VIP seat price is required',
                           min: 'Price must be at least 1',
                           max: 'Price is too large',
                           maxDecimals: 'Price can have at most 2 decimal places',

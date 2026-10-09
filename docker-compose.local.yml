@@ -95,6 +95,7 @@ services:
     environment:
       NG_ALLOWED_HOSTS: localhost
       PORT: ${CLIENT_PORT}
+      API_ORIGIN: http://cinefy-backend:${SERVER_PORT}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:$$PORT/ || exit 1"]
       interval: 10s

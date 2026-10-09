@@ -115,8 +115,8 @@ jobs:
           build-args: APK_CACHE_BUST=${{ github.run_id }}
           load: true
           push: false
-          cache-from: type=gha,scope=${{ matrix.name }}
-          cache-to: type=gha,scope=${{ matrix.name }},mode=max
+          cache-from: type=gha,scope=scan-${{ matrix.name }}
+          cache-to: type=gha,scope=scan-${{ matrix.name }},mode=max
 
       - name: Scan image
         uses: aquasecurity/trivy-action@v0.36.0

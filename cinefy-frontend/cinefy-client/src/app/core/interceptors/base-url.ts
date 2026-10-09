@@ -14,8 +14,7 @@ export const baseUrlInterceptor: HttpInterceptorFn = (req, next) => {
   let base = environment.apiUrl;
 
   if (isPlatformServer(inject(PLATFORM_ID)) && !base.startsWith('http')) {
-    const serverOrigin = process.env['API_ORIGIN'] ?? 'http://localhost:8080';
-    base = `${serverOrigin}${base}`;
+    base = process.env['API_ORIGIN'] ?? 'http://localhost:8080';
   }
 
   return next(

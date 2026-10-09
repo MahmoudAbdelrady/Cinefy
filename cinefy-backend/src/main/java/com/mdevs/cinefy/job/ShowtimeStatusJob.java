@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Slf4j
 @Component
@@ -23,7 +23,7 @@ public class ShowtimeStatusJob {
     @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void tickShowtimeStatuses() {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         int running = showtimeRepository.markRunningAsOf(now);
         int finished = showtimeRepository.markFinishedAsOf(now);
         // @TODO --> query for deleting finished or cancelled showtimes from a long time

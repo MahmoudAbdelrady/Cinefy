@@ -22,7 +22,7 @@ Not a `BaseEntity`: the TMDB id is the `@Id` (no UUID, no audit), so movie endpo
 
 ## Showtime
 
-`startDateTime` / `endDateTime` are `TIMESTAMP(0)`. `status` defaults to `DRAFT`.
+`startDateTime` / `endDateTime` are `Instant`s stored as `TIMESTAMPTZ(0)` (see [persistence.md](persistence.md#timestamps)). `ShowtimeDTO.dateTime` arrives as a `LocalDateTime` (cinema wall time, no offset), converted with `DateUtil.toInstant`; `endDateTime` is derived from it plus the movie runtime. `status` defaults to `DRAFT`.
 
 ## Booking
 
@@ -44,7 +44,7 @@ Not a `BaseEntity`: the TMDB id is the `@Id` (no UUID, no audit), so movie endpo
 ## Users
 
 - `User` is an abstract `@MappedSuperclass` (no table). `phoneNumber` is unique and stored as **digits only** — the frontend owns the `+`.
-- `password` is bcrypt-hashed and **nullable**: OAuth-registered clients never get one (see [manual-migrations.md](manual-migrations.md#nullable-password-oauth-clients)).
+- `password` is bcrypt-hashed and **nullable**: OAuth-registered clients never get one.
 - `StaffMember` adds position, employment type, working days (`DayOfWeek` start/end) and working hours (`LocalTime` start/end).
 - `Client` adds `isVerified` (default false) and `hasPassword()` (not a column; drives "set" vs "change" password).
 
@@ -61,7 +61,7 @@ See [payments.md](payments.md). In short: `active` (the field is `active`, **not
 | Enum              | Values and notes                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `HallStatus`      | `SCHEDULED`, `ACTIVE`, `INACTIVE`, `UNDER_MAINTENANCE`                                                                                                                                                                                                                                                                                                                                                                           |
-| `SeatCategory`    | `NORMAL`, `VIP`, `AISLE`                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `SeatCategory`    | `STANDARD`, `VIP`, `AISLE`                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `ShowtimeStatus`  | `DRAFT`, `PUBLISHED`, `RUNNING`, `FINISHED`. Static sets: `ACTIVE_STATUSES` {DRAFT, PUBLISHED}, `COMMITTED_STATUSES` {PUBLISHED, RUNNING}, `LIVE_STATUSES` {DRAFT, PUBLISHED, RUNNING}, `REPORTABLE_STATUSES` {PUBLISHED, RUNNING, FINISHED}. Reportable and committed are **not** interchangeable: `ShowtimeStatusJob` flips past showtimes to FINISHED, so a committed-only filter matches almost nothing in a past date range |
 | `BookingStatus`   | `PENDING_PAYMENT`, `CONFIRMED`, `REFUNDED`. `SETTLED_STATUSES` {CONFIRMED, REFUNDED} and a null-safe static `isSettled(status)` — use it instead of comparing                                                                                                                                                                                                                                                                    |
 | `PaymentState`    | `CONFIRMED`, `PENDING`, `FAILED`, `EXPIRED`, `REFUNDED`. Response-only, derived by `BookingService.resolvePaymentState` — never parsed from input, so no `fromString`                                                                                                                                                                                                                                                            |

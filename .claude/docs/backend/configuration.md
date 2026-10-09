@@ -2,11 +2,11 @@
 
 Config files live in `src/main/resources/`:
 
-| File                    | Role                                                                                                                                                                                       |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `application.yml`       | Base config for every profile: JPA/Envers settings, actuator health probes, defaulted TMDB/Paymob base URLs, Redis repositories disabled (`spring.data.redis.repositories.enabled: false`) |
-| `application-local.yml` | Dev profile. Gitignored, holds real secrets. A fill-in template is in [`cinefy-backend/README.md`](../../../cinefy-backend/README.md#configuration)                                        |
-| `application-prod.yml`  | Prod profile. Reads most values from environment variables; `cinefy.cookie.secure: true`, `same-site: Lax`, `cinefy.rate-limit-enabled: true` and `app.base-url: /api` are hard-coded      |
+| File                    | Role                                                                                                                                                                                                            |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `application.yml`       | Base config for every profile: JPA/Envers settings, actuator health probes, defaulted TMDB/Paymob base URLs and cinema time zone, Redis repositories disabled (`spring.data.redis.repositories.enabled: false`) |
+| `application-local.yml` | Dev profile. Gitignored, holds real secrets. A fill-in template is in [`cinefy-backend/README.md`](../../../cinefy-backend/README.md#configuration)                                                             |
+| `application-prod.yml`  | Prod profile. Reads most values from environment variables; `cinefy.cookie.secure: true`, `same-site: Lax`, `cinefy.rate-limit-enabled: true` and `app.base-url: /api` are hard-coded                           |
 
 ## Required at startup
 
@@ -32,7 +32,8 @@ The app won't boot without these (injected with no code default):
 
 ## Defaults
 
-- Defaulted in `application.yml`: `app.tmdb.api-base-url`, `app.tmdb.image-base-url` (TMDB v3), `app.paymob.api-base-url` (`https://accept.paymob.com`).
+- Defaulted in `application.yml`: `app.tmdb.api-base-url`, `app.tmdb.image-base-url` (TMDB v3), `app.paymob.api-base-url` (`https://accept.paymob.com`), `app.cinema-time-zone` (`${CINEMA_TIME_ZONE:Africa/Cairo}`).
+- `app.cinema-time-zone` is the IANA zone that defines a calendar day. `DateUtil` (`utils/`) reads it in its constructor and is the only class that uses it; it's applied in Java only, never to the DB session. See [persistence.md](persistence.md#timestamps). Neither compose file forwards `CINEMA_TIME_ZONE`; add it to the backend's `environment` before overriding the default in a container.
 - Defaulted only in `application-prod.yml` (env var with fallback): `ACCESS_TOKEN_EXPIRATION` (900000), `REFRESH_TOKEN_EXPIRATION` (604800000), `REFRESH_TOKEN_ROTATION_THRESHOLD` (172800000), `OTP_EXPIRATION_MINUTES` (10), `REGISTRATION_TOKEN_EXPIRATION_MINUTES` (15), `OAUTH_REDIRECT_URI` (`/membership/oauth/callback`), `API_DOCS_BASE_URL` (`/docs`), `CACHE_DEFAULT_TTL_MINUTES` (60), plus `TMDB_API_BASE_URL`, `TMDB_IMAGE_BASE_URL`, `PAYMOB_API_BASE_URL`. Of these, only `API_DOCS_BASE_URL` is listed in the repo-root `.env.example`.
 - `ADMIN_PASSWORD` has no prod fallback, so the env var must exist in prod (it may be empty).
 
@@ -40,6 +41,6 @@ The app won't boot without these (injected with no code default):
 
 - `app.base-url` — empty locally, `/api` in prod (the nginx prefix). Only used to build the auth controllers' cookie path.
 - `server.port` — unset in base/local (Spring's 8080); `SERVER_PORT` in prod.
-- `server.forward-headers-strategy` — `native` in prod only, so Tomcat takes the client IP, scheme and host from nginx's `X-Forwarded-*` headers (`request.getRemoteAddr()` is the real caller, which the rate limiter keys on). Local has no proxy and leaves it unset.
+- `server.forward-headers-strategy` — `framework` in prod only, so Spring's `ForwardedHeaderFilter` takes the client IP, scheme, host and path prefix from nginx's `X-Forwarded-*` headers (`request.getRemoteAddr()` is the real caller, which the rate limiter keys on). It must be `framework`, not `native`: Tomcat's handling ignores `X-Forwarded-Prefix`, which the prod nginx sets to `/api` on every proxied request so redirects and springdoc's URLs keep the prefix nginx strips. Local has no proxy and leaves it unset.
 - `spring.data.redis.url` — `redis://localhost:6379` with no credentials locally; prod builds `redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}`, all without fallbacks. `REDIS_HOST` is `host:port`. Empty username/password send no `AUTH` (Spring turns blank credentials into none). A password with URL-reserved characters (`@ : / # ?`) must be percent-encoded.
 - Actuator exposes only `health`, with liveness/readiness probes; readiness includes the DB check.

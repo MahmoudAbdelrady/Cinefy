@@ -4,7 +4,7 @@ Types live in `src/shared/types/`; this file covers what they don't make obvious
 
 ```
 HallStatus:    ACTIVE | SCHEDULED | UNDER_MAINTENANCE | INACTIVE
-SeatCategory:  NORMAL | VIP | AISLE
+SeatCategory:  STANDARD | VIP | AISLE
 ShowtimeStatus: DRAFT | PUBLISHED | RUNNING | FINISHED
 PaymentState:  CONFIRMED | PENDING | FAILED | EXPIRED | REFUNDED
 ```

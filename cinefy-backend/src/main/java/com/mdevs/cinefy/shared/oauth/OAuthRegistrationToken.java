@@ -1,6 +1,6 @@
 package com.mdevs.cinefy.shared.oauth;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record OAuthRegistrationToken(
         String email,
@@ -9,7 +9,7 @@ public record OAuthRegistrationToken(
 
         String lastName,
 
-        LocalDateTime expiresAt
+        Instant expiresAt
 ) {
 
 }

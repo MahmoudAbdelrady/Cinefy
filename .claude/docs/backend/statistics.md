@@ -4,7 +4,7 @@
 
 `/summary`, `/sales` and `/movies` (paged) all bind the same `DateRangeDTO` via `@Valid @ModelAttribute`: `from`/`to` as ISO `yyyy-MM-dd`, both `@NotNull`.
 
-**One validator.** `StatisticsService.validateDateRange(DateRangeDTO)` is `public static` so every endpoint applies the same rules: `from <= to`, span ≤ `MAX_RANGE_YEARS` (1), `from` not before the start of last calendar year, `to` not after today. These are `BusinessException` → 422.
+**One validator.** Every statistics endpoint runs the private `StatisticsService.validateDateRange(DateRangeDTO)`, so they share the same rules: `from <= to`, span ≤ `MAX_RANGE_YEARS` (1), `from` not before the start of last calendar year, `to` not after today. "Today" is `DateUtil.today()`, the cinema's today, not the server's (UTC in prod). These are `BusinessException` → 422.
 
 **Every statistics query filters `s.status IN REPORTABLE_STATUSES`.** DRAFT showtimes are excluded from revenue, ticket counts and capacity, so an unpublished schedule with test bookings never shows as sales. A new query needs the filter too.
 
@@ -21,6 +21,8 @@
 **Summary returns both periods from one query each.** The previous window is the N days before `from`. Each query scans `BETWEEN :previousFrom AND :to` once. Revenue and tickets split the windows in SQL with `CASE WHEN ... >= :from`; the hall query (`findShowtimeHallsBetween`) projects the `startDateTime >= :from` / `< :from` booleans into `HallPeriodProjection` and splits them in Java.
 
 **Sales zero-fills.** `getSales` emits a point for every date in the range, defaulting to zero, because the chart's bars are peak-relative. `SalesPointDTO.date` is a `LocalDate`, serialized as ISO by Jackson.
+
+**Days are cinema days, bucketed in Java.** `from` / `to` / `previousFrom` are converted to `Instant`s with `DateUtil.startOfDay` / `endOfDay`. The sales queries return rows keyed by `startDateTime`: `sumRevenuePerStartDateTimeBetween` and `countTicketsSoldPerStartDateTimeBetween` `GROUP BY s.startDateTime` (showtimes sharing a start time merge, which is safe because they always fall on the same date), and `findHallPerShowtimeBetween` returns one row per showtime. `getSales` groups all three by `DateUtil.toCinemaDate` (see [persistence.md](persistence.md#timestamps)). A screening at 01:00 Cairo time counts on that Cairo date, not the UTC one. The range cap (1 year) bounds the row count.
 
 **Movie performance pages on the revenue query only.** `findMoviePerformanceBetween` drives the rows (pre-sorted `netRevenue DESC`); the tickets and seats queries are scoped to that page's `movieIds`. Movies with showtimes but no bookings still appear, with zero revenue (`LEFT JOIN Booking`). `MoviePerformanceDTO` carries raw `ticketsSold`, `totalSeats` and `totalShowtimes` — no occupancy field; the frontend derives it. A caller-supplied `sort` would append after the built-in `ORDER BY` — restrict it if the frontend ever sends one.
 
@@ -46,7 +48,7 @@ Both pre-fill an `EnumMap` with every constant at `0L` and overlay the results, 
 
 `ShowtimeService.getScheduleForDate` filters on `COMMITTED_STATUSES`, so FINISHED screenings drop off as the day goes on — the widget answers "what's on now and later". Switch to `REPORTABLE_STATUSES` to keep completed ones. Its `ticketsSold` comes from `countBookedSeatsByShowtime`, which counts CONFIRMED seats **plus live holds**.
 
-`findByMovieStatusesAndDateRangeWithHall` takes an optional `movieId` (`:movieId IS NULL OR …`) so the per-movie day view (called with `LIVE_STATUSES`) and the whole-cinema schedule share one query. It `JOIN FETCH`es `s.hall`, `h.type` and `s.tmdbMovie`, because the schedule reads all three for every row.
+`findByMovieStatusesAndDateRangeWithHall` takes an optional `movieId` (`:movieId IS NULL OR …`) so the per-movie day view (called with `LIVE_STATUSES` for ADMIN/MANAGER and `COMMITTED_STATUSES` for a cashier) and the whole-cinema schedule share one query. It `JOIN FETCH`es `s.hall`, `h.type` and `s.tmdbMovie`, because the schedule reads all three for every row.
 
 ### Active gateway
 

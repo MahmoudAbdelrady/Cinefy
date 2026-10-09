@@ -3,7 +3,7 @@
   header="Today's schedule"
   subtitle="{{ screenings().length }} showtimes"
   iconColor="var(--tsch-icon-color)"
-  actionLabel="Manage showtimes"
+  [actionLabel]="canManage() ? 'Manage showtimes' : 'View showtimes'"
   [actionIcon]="icons.CalendarIcon"
   actionLink="/movies"
 >

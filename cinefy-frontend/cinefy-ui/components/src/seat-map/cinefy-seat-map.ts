@@ -7,7 +7,7 @@ interface LegendItem {
   label: string;
 }
 
-const LEGEND_CATEGORIES: SeatCategory[] = ["NORMAL", "VIP"];
+const LEGEND_CATEGORIES: SeatCategory[] = ["STANDARD", "VIP"];
 
 const FIXED_LEGEND_ITEMS: LegendItem[] = [
   { value: "TAKEN", label: "Taken" },

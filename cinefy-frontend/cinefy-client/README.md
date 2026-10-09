@@ -34,11 +34,11 @@ pnpm --filter cinefy-client serve:ssr:cinefy-client
 
 The server reads these environment variables:
 
-| Variable           | Purpose                                                                                                    | Default                 |
-| ------------------ | ---------------------------------------------------------------------------------------------------------- | ----------------------- |
-| `PORT`             | Port the server listens on                                                                                 | `4000`                  |
-| `API_ORIGIN`       | Backend address the server puts in front of the relative production API path (`/api`) when rendering pages | `http://localhost:8080` |
-| `NG_ALLOWED_HOSTS` | Comma-separated host names the server accepts requests for                                                 | none                    |
+| Variable           | Purpose                                                                                                                                                                    | Default                 |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| `PORT`             | Port the server listens on                                                                                                                                                 | `4000`                  |
+| `API_ORIGIN`       | Backend address the server calls directly when rendering pages, in place of the browser's `/api` path. In Docker it's the backend service (`http://cinefy-backend:<port>`) | `http://localhost:8080` |
+| `NG_ALLOWED_HOSTS` | Comma-separated host names the server accepts requests for                                                                                                                 | none                    |
 
 ## Project structure
 

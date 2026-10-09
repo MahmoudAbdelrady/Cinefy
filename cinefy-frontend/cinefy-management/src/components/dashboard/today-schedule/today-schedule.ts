@@ -1,4 +1,12 @@
-import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -50,6 +58,8 @@ export class TodayScheduleComponent {
 
   private readonly showtimesService = inject(ShowtimesService);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly canManage = input(false);
 
   protected readonly screenings = signal<ScheduledShowtime[]>([]);
   protected readonly loading = signal(true);
