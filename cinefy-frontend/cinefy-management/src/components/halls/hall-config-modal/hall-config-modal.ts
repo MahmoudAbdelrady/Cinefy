@@ -285,7 +285,7 @@ export class HallConfigModalComponent {
   );
 
   protected readonly hallEntries = computed(() =>
-    this.halls().map((hall) => ({ value: hall.id, label: hall.name })),
+    this.halls().map((hall) => ({ value: hall.id, label: `${hall.name} (${hall.typeName})` })),
   );
 
   constructor() {
