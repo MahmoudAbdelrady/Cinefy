@@ -1,5 +1,6 @@
 package com.mdevs.cinefy.shared.security;
 
+import com.mdevs.cinefy.dto.auth.TokenPairDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -47,6 +48,12 @@ public class JwtUtil {
                 .expiration(new Date(now + expiration))
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public TokenPairDTO generateTokenPair(JwtClaims jwtClaims) {
+        String accessToken = generateToken(TokenType.ACCESS, jwtClaims);
+        String refreshToken = generateToken(TokenType.REFRESH, jwtClaims);
+        return new TokenPairDTO(accessToken, refreshToken);
     }
 
     public Jws<Claims> parseToken(String token) {

@@ -45,10 +45,11 @@ Position/role rules are `@PreAuthorize` on the **controller** (class or method),
 
 Both frontends run on the same host, so one set of cookie names meant logging into one app silently overwrote the other's session (the original tab then got 403 — a valid token with the wrong role). `AuthContext` (`shared/security/`) gives each frontend its own cookies:
 
-| Context      | Access               | Refresh               | CSRF                | Expected `UserType` |
-| ------------ | -------------------- | --------------------- | ------------------- | ------------------- |
-| `MANAGEMENT` | `mgmt_accessToken`   | `mgmt_refreshToken`   | `mgmt_XSRF-TOKEN`   | `STAFF_MEMBER`      |
-| `CLIENT`     | `client_accessToken` | `client_refreshToken` | `client_XSRF-TOKEN` | `CLIENT`            |
+| Context      | Access                  | Refresh                  | CSRF                   | Expected `UserType` |
+| ------------ | ----------------------- | ------------------------ | ---------------------- | ------------------- |
+| `MANAGEMENT` | `mgmt_accessToken`      | `mgmt_refreshToken`      | `mgmt_XSRF-TOKEN`      | `STAFF_MEMBER`      |
+| `CLIENT`     | `client_accessToken`    | `client_refreshToken`    | `client_XSRF-TOKEN`    | `CLIENT`            |
+| `POPULATOR`  | `populator_accessToken` | `populator_refreshToken` | `populator_XSRF-TOKEN` | `STAFF_MEMBER`      |
 
 - **`AuthContext` is the single source of truth for cookie names** — use `accessTokenCookie()` / `refreshTokenCookie()` / `csrfTokenCookie()`, never a literal. `CookieUtil` is a dumb builder taking a plain name.
 - **The `X-Auth-Context` header is a selector, not a credential.** Each frontend's `baseUrlInterceptor` stamps it; `AuthContext.fromHeader` is case-insensitive and returns `null` for blank/unknown. It only chooses which cookie to read — authority comes from the signed JWT, and a token whose `userType` disagrees with the header is rejected.

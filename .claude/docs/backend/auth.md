@@ -5,6 +5,7 @@ Security plumbing (filters, cookies, auth contexts) is in [security.md](security
 ## Sessions
 
 - Two controllers: `ManagementAuthController` (`/management/auth`, staff) and `ClientAuthController` (`/client/auth`, customers). Both are `@PublicApi` except `/logout`.
+- `POST /management/auth/populator-login` (`@PublicApi`, `STRICT` rate limit) takes the same `LoginDTO` and sets cookies under the `POPULATOR` context on the `/management/auth` path. `ManagementAuthService.populatorLogin` authenticates through the management auth manager like `login`, then rejects any non-`ADMIN` account with a 401 `UnauthorizedException("Invalid email or password")`.
 - Session, refresh and logout delegate to `JwtSessionService`.
 - Cookies are built by `AuthCookieResponseFactory` under the controller's `AuthContext`. Login and token rotation set all three (access, refresh, CSRF); a refresh that doesn't rotate resets only the access cookie (refresh and CSRF are set only when the token pair carries a refresh token). Logout clears all three.
 - `/logout` isn't `@PublicApi`: it needs a valid access cookie and the CSRF header, so an expired session gets a 401 before the controller runs.

@@ -30,7 +30,6 @@ import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
 import com.mdevs.cinefy.shared.security.CredentialCipher;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
-import com.mdevs.cinefy.shared.security.TokenType;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -198,10 +197,7 @@ public class ClientAuthService {
     }
 
     private TokenPairDTO generateTokens(Client client) {
-        JwtClaims jwtClaims = JwtClaims.fromPrincipal(UserPrincipal.fromClient(client));
-        String accessToken = jwtUtil.generateToken(TokenType.ACCESS, jwtClaims);
-        String refreshToken = jwtUtil.generateToken(TokenType.REFRESH, jwtClaims);
-        return new TokenPairDTO(accessToken, refreshToken);
+        return jwtUtil.generateTokenPair(JwtClaims.fromPrincipal(UserPrincipal.fromClient(client)));
     }
 
     private void dispatchOtp(Client client, OtpType otpType) {

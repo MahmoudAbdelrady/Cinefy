@@ -36,12 +36,22 @@ public class ManagementAuthController {
 
     private static final AuthContext AUTH_CONTEXT = AuthContext.MANAGEMENT;
 
+    private static final AuthContext POPULATOR_AUTH_CONTEXT = AuthContext.POPULATOR;
+
     @PublicApi
     @RateLimited(RateLimitPolicy.STRICT)
     @PostMapping("/login")
     public ResponseEntity<Void> login(@Valid @RequestBody LoginDTO dto) {
         TokenPairDTO tokens = managementAuthService.login(dto);
         return authCookieResponseFactory.tokenResponse(AUTH_CONTEXT, tokens, AUTH_PATH);
+    }
+
+    @PublicApi
+    @RateLimited(RateLimitPolicy.STRICT)
+    @PostMapping("/populator-login")
+    public ResponseEntity<Void> populatorLogin(@Valid @RequestBody LoginDTO dto) {
+        TokenPairDTO tokens = managementAuthService.populatorLogin(dto);
+        return authCookieResponseFactory.tokenResponse(POPULATOR_AUTH_CONTEXT, tokens, AUTH_PATH);
     }
 
     @PublicApi
