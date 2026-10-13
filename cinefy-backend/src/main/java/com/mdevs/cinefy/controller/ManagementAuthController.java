@@ -6,8 +6,10 @@ import com.mdevs.cinefy.dto.auth.LoginDTO;
 import com.mdevs.cinefy.dto.auth.OtpCodeDTO;
 import com.mdevs.cinefy.dto.auth.ResetPasswordDTO;
 import com.mdevs.cinefy.dto.auth.TokenPairDTO;
+import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.service.JwtSessionService;
 import com.mdevs.cinefy.service.ManagementAuthService;
+import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
 import com.mdevs.cinefy.shared.security.AuthContext;
 import com.mdevs.cinefy.shared.security.AuthCookieResponseFactory;
 import com.mdevs.cinefy.shared.annotation.PublicApi;
@@ -57,7 +59,8 @@ public class ManagementAuthController {
     @PublicApi
     @GetMapping("/session")
     public ResponseEntity<Void> session(HttpServletRequest request) {
-        String refreshToken = CookieUtil.readCookie(request, AUTH_CONTEXT.refreshTokenCookie());
+        AuthContext authContext = resolveStaffAuthContext(request);
+        String refreshToken = CookieUtil.readCookie(request, authContext.refreshTokenCookie());
         boolean valid = jwtSessionService.isRefreshTokenValid(refreshToken);
         return valid ? ResponseEntity.noContent().build() : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
@@ -65,17 +68,19 @@ public class ManagementAuthController {
     @PublicApi
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(HttpServletRequest request) {
-        String refreshToken = CookieUtil.readCookie(request, AUTH_CONTEXT.refreshTokenCookie());
+        AuthContext authContext = resolveStaffAuthContext(request);
+        String refreshToken = CookieUtil.readCookie(request, authContext.refreshTokenCookie());
         TokenPairDTO tokens = jwtSessionService.refresh(refreshToken);
-        return authCookieResponseFactory.tokenResponse(AUTH_CONTEXT, tokens, AUTH_PATH);
+        return authCookieResponseFactory.tokenResponse(authContext, tokens, AUTH_PATH);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
-        String accessToken = CookieUtil.readCookie(request, AUTH_CONTEXT.accessTokenCookie());
-        String refreshToken = CookieUtil.readCookie(request, AUTH_CONTEXT.refreshTokenCookie());
+        AuthContext authContext = resolveStaffAuthContext(request);
+        String accessToken = CookieUtil.readCookie(request, authContext.accessTokenCookie());
+        String refreshToken = CookieUtil.readCookie(request, authContext.refreshTokenCookie());
         jwtSessionService.logout(accessToken, refreshToken);
-        return authCookieResponseFactory.logoutResponse(AUTH_CONTEXT, AUTH_PATH);
+        return authCookieResponseFactory.logoutResponse(authContext, AUTH_PATH);
     }
 
     @PublicApi
@@ -98,5 +103,15 @@ public class ManagementAuthController {
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordDTO dto) {
         managementAuthService.resetPassword(dto);
         return ResponseEntity.noContent().build();
+    }
+
+    // =========================== Helpers ===========================
+
+    private AuthContext resolveStaffAuthContext(HttpServletRequest request) {
+        AuthContext authContext = AuthContext.fromHeader(request.getHeader(AuthContext.HEADER));
+        if (authContext == null || authContext.getUserType() != UserType.STAFF_MEMBER) {
+            throw new UnauthorizedException("Unable to verify your session. Please log in again");
+        }
+        return authContext;
     }
 }
