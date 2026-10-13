@@ -59,6 +59,10 @@ public class AppConfig {
         return applicationContext.getEnvironment().getProperty("app.frontend.client.url");
     }
 
+    public static String getFrontendPopulatorUrl() {
+        return applicationContext.getEnvironment().getProperty("app.frontend.populator.url");
+    }
+
     public static String getBaseUrl() {
         return applicationContext.getEnvironment().getProperty("app.base-url");
     }
