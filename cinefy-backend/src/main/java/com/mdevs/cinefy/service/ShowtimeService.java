@@ -19,7 +19,9 @@ import com.mdevs.cinefy.entity.StaffMember;
 import com.mdevs.cinefy.entity.TmdbMovie;
 import com.mdevs.cinefy.entity.User;
 import com.mdevs.cinefy.projection.showtime.MovieShowtimeCountProjection;
+import com.mdevs.cinefy.dto.showtime.PopulateShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.PublishShowtimesDTO;
+import com.mdevs.cinefy.dto.showtime.ShowtimePopulateDTO;
 import com.mdevs.cinefy.projection.showtime.ShowtimeBookingCountsProjection;
 import com.mdevs.cinefy.repository.BookingRepository;
 import com.mdevs.cinefy.repository.ShowtimeRepository;
@@ -33,9 +35,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +67,10 @@ public class ShowtimeService {
     private final DateUtil dateUtil;
 
     private static final Set<StaffPosition> MANAGEMENT_POSITIONS = Set.of(StaffPosition.ADMIN, StaffPosition.MANAGER);
+
+    private static final LocalTime POPULATE_FIRST_SHOWTIME_TIME = LocalTime.of(10, 0);
+
+    private static final long POPULATE_MAX_RANGE_DAYS = 7;
 
     // ========================= Public API =========================
 
@@ -254,6 +263,17 @@ public class ShowtimeService {
         publishDraftsForMovie(dto.getMovieId(), dto.getDate());
     }
 
+    @Transactional
+    public void populateShowtimes(PopulateShowtimesDTO dto) {
+        validatePopulateRequest(dto);
+        int firstHallQuantity = dto.getQuantity().getFirstHall();
+        int secondHallQuantity = dto.getQuantity().getSecondHall();
+        for (ShowtimePopulateDTO movieDto : dto.getMovies()) {
+            populateMovieShowtimes(movieDto, dto.getStartDate(), dto.getEndDate(), firstHallQuantity, secondHallQuantity);
+            tmdbMovieService.setHighlight(movieDto.getMovieId(), movieDto.isHighlighted());
+        }
+    }
+
     // =========================== Helpers ===========================
 
     private Showtime findShowtime(String uuid) {
@@ -278,14 +298,18 @@ public class ShowtimeService {
             throw new BusinessException("Hall '" + hall.getName() + "' does not support 3D screenings");
         }
 
-        if (movie.getDurationMinutes() == null || movie.getDurationMinutes() <= 0) {
-            throw new BusinessException("Movie '" + movie.getTitle() + "' does not have a runtime yet and cannot be scheduled");
-        }
+        validateMovieHasRuntime(movie);
 
         Instant end = start.plus(movie.getDurationMinutes(), ChronoUnit.MINUTES);
         boolean overlaps = showtimeRepository.existsOverlapping(hall, start, end, showtimeId);
         if (overlaps) {
             throw new BusinessException("Another showtime is already scheduled in this hall at the selected time");
+        }
+    }
+
+    private void validateMovieHasRuntime(TmdbMovie movie) {
+        if (movie.getDurationMinutes() == null || movie.getDurationMinutes() <= 0) {
+            throw new BusinessException("Movie '" + movie.getTitle() + "' does not have a runtime yet and cannot be scheduled");
         }
     }
 
@@ -313,6 +337,24 @@ public class ShowtimeService {
             throw new BusinessException(single
                     ? "Cannot " + action + " a published showtime that already has bookings"
                     : "Cannot " + action + " published showtimes that already have bookings");
+        }
+    }
+
+    private void validatePopulateRequest(PopulateShowtimesDTO dto) {
+        if (!dto.getStartDate().isBefore(dto.getEndDate())) {
+            throw new BusinessException("Start date must be before end date");
+        }
+        if (ChronoUnit.DAYS.between(dto.getStartDate(), dto.getEndDate()) > POPULATE_MAX_RANGE_DAYS) {
+            throw new BusinessException("Date range cannot be longer than 1 week");
+        }
+
+        Set<String> hallIds = new HashSet<>();
+        for (ShowtimePopulateDTO movieDto : dto.getMovies()) {
+            for (String hallId : List.of(movieDto.getFirstHallId(), movieDto.getSecondHallId())) {
+                if (!hallIds.add(hallId)) {
+                    throw new BusinessException("Each hall can only be assigned once");
+                }
+            }
         }
     }
 
@@ -347,6 +389,45 @@ public class ShowtimeService {
             showtimeRepository.save(showtime);
         }
         tmdbMovieService.clearAnnouncement(tmdbMovieService.findTmdbMovie(movieId));
+    }
+
+    private void populateMovieShowtimes(ShowtimePopulateDTO dto, LocalDate startDate, LocalDate endDate,
+                                        int firstHallQuantity, int secondHallQuantity) {
+        TmdbMovie movie = tmdbMovieService.fetchAndCache(dto.getMovieId());
+        validateMovieHasRuntime(movie);
+        Hall firstHall = hallService.findHallWithType(dto.getFirstHallId());
+        Hall secondHall = hallService.findHallWithType(dto.getSecondHallId());
+
+        long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        int slots = Math.max(firstHallQuantity, secondHallQuantity);
+        for (int i = 0; i < days; i++) {
+            LocalDateTime firstShowtimeOfDay = LocalDateTime.of(startDate.plusDays(i), POPULATE_FIRST_SHOWTIME_TIME);
+            for (int j = 0; j < slots; j++) {
+                LocalDateTime dateTime = firstShowtimeOfDay.plusMinutes((long) movie.getDurationMinutes() * j);
+                if (j + 1 <= firstHallQuantity) {
+                    createPublishedShowtime(firstHall, movie, dateTime);
+                }
+                if (j + 1 <= secondHallQuantity) {
+                    createPublishedShowtime(secondHall, movie, dateTime);
+                }
+            }
+        }
+
+        hallService.updateHallStatus(firstHall, HallStatus.SCHEDULED);
+        hallService.updateHallStatus(secondHall, HallStatus.SCHEDULED);
+        tmdbMovieService.clearAnnouncement(movie);
+    }
+
+    private void createPublishedShowtime(Hall hall, TmdbMovie movie, LocalDateTime dateTime) {
+        ShowtimeDTO dto = new ShowtimeDTO();
+        dto.setMovieId(movie.getId());
+        dto.setHallId(hall.getUuid());
+        dto.setDateTime(dateTime);
+        validateShowtime(hall, movie, dto, null);
+
+        Showtime showtime = applyDtoToShowtime(new Showtime(), hall, movie, dto);
+        showtime.setStatus(ShowtimeStatus.PUBLISHED);
+        showtimeRepository.save(showtime);
     }
 
     private Showtime applyDtoToShowtime(Showtime showtime, Hall hall, TmdbMovie movie, ShowtimeDTO dto) {

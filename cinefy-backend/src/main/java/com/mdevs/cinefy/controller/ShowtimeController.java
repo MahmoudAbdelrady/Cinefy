@@ -3,6 +3,7 @@ package com.mdevs.cinefy.controller;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimeDatesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.MovieWithShowtimesDTO;
+import com.mdevs.cinefy.dto.showtime.PopulateShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.PublishShowtimesDTO;
 import com.mdevs.cinefy.dto.showtime.ScheduledShowtimeDTO;
 import com.mdevs.cinefy.dto.showtime.ShowtimeDTO;
@@ -81,6 +82,13 @@ public class ShowtimeController {
     @PostMapping("/publish")
     public ResponseEntity<Void> publishShowtimes(@RequestBody PublishShowtimesDTO dto) {
         showtimeService.publishShowtimes(dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/populate")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Void> populateShowtimes(@Valid @RequestBody PopulateShowtimesDTO dto) {
+        showtimeService.populateShowtimes(dto);
         return ResponseEntity.noContent().build();
     }
 }
