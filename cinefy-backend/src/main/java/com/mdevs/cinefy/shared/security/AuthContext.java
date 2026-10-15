@@ -10,7 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 public enum AuthContext {
 
     MANAGEMENT("mgmt", UserType.STAFF_MEMBER),
-    CLIENT("client", UserType.CLIENT);
+    CLIENT("client", UserType.CLIENT),
+    POPULATOR("populator", UserType.STAFF_MEMBER);
 
     public static final String HEADER = "X-Auth-Context";
 

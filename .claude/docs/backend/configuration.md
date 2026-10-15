@@ -28,7 +28,7 @@ The app won't boot without these (injected with no code default):
 
 ## Read at request time
 
-`app.frontend.mgmt.url` and `app.frontend.client.url` are read lazily through `Environment.getProperty` in `AppConfig`, so a missing value doesn't stop startup — it breaks at request time. They are the two CORS origins (`SecurityConfig`); the client URL also builds the OAuth `redirect_uri` and the payment redirect and confirmation URLs.
+`app.frontend.mgmt.url`, `app.frontend.client.url` and `app.frontend.populator.url` are read lazily through `Environment.getProperty` in `AppConfig`, so a missing value doesn't stop startup — it breaks at request time. They are the three CORS origins (`SecurityConfig`); the client URL also builds the OAuth `redirect_uri` and the payment redirect and confirmation URLs.
 
 ## Defaults
 

@@ -62,7 +62,7 @@ public class SecurityConfig {
                     .csrf(AbstractHttpConfigurer::disable)
                     .cors(config -> config.configurationSource(_ -> {
                         CorsConfiguration corsConfiguration = new CorsConfiguration();
-                        corsConfiguration.setAllowedOrigins(List.of(AppConfig.getFrontendManagementUrl(), AppConfig.getFrontendClientUrl()));
+                        corsConfiguration.setAllowedOrigins(List.of(AppConfig.getFrontendManagementUrl(), AppConfig.getFrontendClientUrl(), AppConfig.getFrontendPopulatorUrl()));
                         corsConfiguration.setAllowedMethods(List.of("*"));
                         corsConfiguration.setAllowedHeaders(List.of("*"));
                         corsConfiguration.setAllowCredentials(true);

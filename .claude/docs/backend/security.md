@@ -30,25 +30,26 @@ Position/role rules are `@PreAuthorize` on the **controller** (class or method),
 
 ### Access per controller
 
-| Controller                         | Rule                                                                                                                                                                                                                                           |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/management/auth`, `/client/auth` | All `@PublicApi` except `/logout`                                                                                                                                                                                                              |
-| `/halls`                           | Class: ADMIN/MANAGER. `GET /halls/types` is `@PublicApi` + `permitAll()` (the client reads it)                                                                                                                                                 |
-| `/movies`                          | Class: ADMIN/MANAGER. Public: `/announced-upcoming`, `/highlighted`, `/now-showing`, `GET /{id}`                                                                                                                                               |
-| `/showtimes`                       | Class: ADMIN/MANAGER. `GET /movies`, `/movie-dates`, `/movie-day`, `/schedule` also allow CASHIER (counter booking and the dashboard schedule); a cashier's `/movie-dates` and `/movie-day` exclude drafts and omit the draft/committed counts |
-| `/staff`                           | Class: ADMIN/MANAGER. `/me` endpoints and `GET /{uuid}` allow all four positions; row-level rules in [staff.md](staff.md)                                                                                                                      |
-| `/payment-gateways`, `/statistics` | ADMIN/MANAGER                                                                                                                                                                                                                                  |
-| `/client`                          | `CLIENT`                                                                                                                                                                                                                                       |
-| `/booking`                         | Mixed — see [bookings.md](bookings.md#access)                                                                                                                                                                                                  |
+| Controller                         | Rule                                                                                                                                                                                                                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/management/auth`, `/client/auth` | All `@PublicApi` except `/logout`                                                                                                                                                                                                                                              |
+| `/halls`                           | Class: ADMIN/MANAGER. `GET /halls/types` is `@PublicApi` + `permitAll()` (the client reads it)                                                                                                                                                                                 |
+| `/movies`                          | Class: ADMIN/MANAGER. Public: `/announced-upcoming`, `/highlighted`, `/now-showing`, `GET /{id}`                                                                                                                                                                               |
+| `/showtimes`                       | Class: ADMIN/MANAGER. `GET /movies`, `/movie-dates`, `/movie-day`, `/schedule` also allow CASHIER (counter booking and the dashboard schedule); a cashier's `/movie-dates` and `/movie-day` exclude drafts and omit the draft/committed counts. `POST /populate` is ADMIN only |
+| `/staff`                           | Class: ADMIN/MANAGER. `/me` endpoints and `GET /{uuid}` allow all four positions; row-level rules in [staff.md](staff.md)                                                                                                                                                      |
+| `/payment-gateways`, `/statistics` | ADMIN/MANAGER                                                                                                                                                                                                                                                                  |
+| `/client`                          | `CLIENT`                                                                                                                                                                                                                                                                       |
+| `/booking`                         | Mixed — see [bookings.md](bookings.md#access)                                                                                                                                                                                                                                  |
 
 ## Auth contexts
 
 Both frontends run on the same host, so one set of cookie names meant logging into one app silently overwrote the other's session (the original tab then got 403 — a valid token with the wrong role). `AuthContext` (`shared/security/`) gives each frontend its own cookies:
 
-| Context      | Access               | Refresh               | CSRF                | Expected `UserType` |
-| ------------ | -------------------- | --------------------- | ------------------- | ------------------- |
-| `MANAGEMENT` | `mgmt_accessToken`   | `mgmt_refreshToken`   | `mgmt_XSRF-TOKEN`   | `STAFF_MEMBER`      |
-| `CLIENT`     | `client_accessToken` | `client_refreshToken` | `client_XSRF-TOKEN` | `CLIENT`            |
+| Context      | Access                  | Refresh                  | CSRF                   | Expected `UserType` |
+| ------------ | ----------------------- | ------------------------ | ---------------------- | ------------------- |
+| `MANAGEMENT` | `mgmt_accessToken`      | `mgmt_refreshToken`      | `mgmt_XSRF-TOKEN`      | `STAFF_MEMBER`      |
+| `CLIENT`     | `client_accessToken`    | `client_refreshToken`    | `client_XSRF-TOKEN`    | `CLIENT`            |
+| `POPULATOR`  | `populator_accessToken` | `populator_refreshToken` | `populator_XSRF-TOKEN` | `STAFF_MEMBER`      |
 
 - **`AuthContext` is the single source of truth for cookie names** — use `accessTokenCookie()` / `refreshTokenCookie()` / `csrfTokenCookie()`, never a literal. `CookieUtil` is a dumb builder taking a plain name.
 - **The `X-Auth-Context` header is a selector, not a credential.** Each frontend's `baseUrlInterceptor` stamps it; `AuthContext.fromHeader` is case-insensitive and returns `null` for blank/unknown. It only chooses which cookie to read — authority comes from the signed JWT, and a token whose `userType` disagrees with the header is rejected.

@@ -80,5 +80,7 @@ app:
       url: ${FRONTEND_MGMT_URL}
     client:
       url: ${FRONTEND_CLIENT_URL}
+    populator:
+      url: ${FRONTEND_POPULATOR_URL}
   tmdb:
     access-token: ${TMDB_ACCESS_TOKEN}

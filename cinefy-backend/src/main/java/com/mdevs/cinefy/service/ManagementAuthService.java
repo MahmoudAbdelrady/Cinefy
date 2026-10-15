@@ -10,10 +10,10 @@ import com.mdevs.cinefy.entity.enums.OtpType;
 import com.mdevs.cinefy.entity.enums.StaffPosition;
 import com.mdevs.cinefy.entity.enums.UserType;
 import com.mdevs.cinefy.repository.StaffMemberRepository;
+import com.mdevs.cinefy.shared.exception.types.UnauthorizedException;
 import com.mdevs.cinefy.shared.security.CinefyAuthManagers;
 import com.mdevs.cinefy.shared.security.JwtClaims;
 import com.mdevs.cinefy.shared.security.JwtUtil;
-import com.mdevs.cinefy.shared.security.TokenType;
 import com.mdevs.cinefy.shared.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,13 +40,16 @@ public class ManagementAuthService {
     // ========================= Public API =========================
 
     public TokenPairDTO login(LoginDTO dto) {
-        Authentication authentication = authManagers.management().authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail().trim().toLowerCase(), dto.getPassword()));
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        JwtClaims jwtClaims = JwtClaims.fromPrincipal(principal);
+        UserPrincipal principal = authenticate(dto);
+        return jwtUtil.generateTokenPair(JwtClaims.fromPrincipal(principal));
+    }
 
-        String accessToken = jwtUtil.generateToken(TokenType.ACCESS, jwtClaims);
-        String refreshToken = jwtUtil.generateToken(TokenType.REFRESH, jwtClaims);
-        return new TokenPairDTO(accessToken, refreshToken);
+    public TokenPairDTO populatorLogin(LoginDTO dto) {
+        UserPrincipal principal = authenticate(dto);
+        if (!StaffPosition.ADMIN.name().equals(principal.getPosition())) {
+            throw new UnauthorizedException("Invalid email or password");
+        }
+        return jwtUtil.generateTokenPair(JwtClaims.fromPrincipal(principal));
     }
 
     public void forgotPassword(ForgotPasswordDTO dto) {
@@ -77,5 +80,12 @@ public class ManagementAuthService {
         OtpEntry otp = otpService.validate(dto.getCode(), OtpType.RESET_PASSWORD);
         staffMemberService.updatePassword(otp.userId(), dto.getNewPassword());
         otpService.consume(otp);
+    }
+
+    // =========================== Helpers ===========================
+
+    private UserPrincipal authenticate(LoginDTO dto) {
+        Authentication authentication = authManagers.management().authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail().trim().toLowerCase(), dto.getPassword()));
+        return (UserPrincipal) authentication.getPrincipal();
     }
 }

@@ -5,7 +5,9 @@ Security plumbing (filters, cookies, auth contexts) is in [security.md](security
 ## Sessions
 
 - Two controllers: `ManagementAuthController` (`/management/auth`, staff) and `ClientAuthController` (`/client/auth`, customers). Both are `@PublicApi` except `/logout`.
+- `POST /management/auth/populator-login` (`@PublicApi`, `STRICT` rate limit) takes the same `LoginDTO` and sets cookies under the `POPULATOR` context on the `/management/auth` path. `ManagementAuthService.populatorLogin` authenticates through the management auth manager like `login`, then rejects any non-`ADMIN` account with a 401 `UnauthorizedException("Invalid email or password")`.
 - Session, refresh and logout delegate to `JwtSessionService`.
+- In `ManagementAuthController`, session, refresh and logout take their `AuthContext` from the `X-Auth-Context` header (`resolveStaffAuthContext`), so they serve both `MANAGEMENT` and `POPULATOR` cookies. A missing or unknown header, or a context whose `userType` isn't `STAFF_MEMBER`, is a 401 `"Unable to verify your session. Please log in again"`. `ClientAuthController` still uses its fixed `CLIENT` context.
 - Cookies are built by `AuthCookieResponseFactory` under the controller's `AuthContext`. Login and token rotation set all three (access, refresh, CSRF); a refresh that doesn't rotate resets only the access cookie (refresh and CSRF are set only when the token pair carries a refresh token). Logout clears all three.
 - `/logout` isn't `@PublicApi`: it needs a valid access cookie and the CSRF header, so an expired session gets a 401 before the controller runs.
 - `GET /session` returns 204 if the refresh cookie is valid, else 401. `POST /refresh` issues a new access cookie and rotates the refresh token once it passes `refresh-token-rotation-threshold`.
